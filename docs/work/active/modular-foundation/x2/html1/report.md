@@ -2,7 +2,13 @@
 
 17–18 October 2026. Branch `work/x2-html-20261017`, created with `git switch -c` at `781c34dc466d6a6a210cdae4cf75e1096521c70d` in worktree `t3-ad771af6`. It was clean at start, and the crates tree equaled production `bdc0a22a`.
 
-This is a candidate for a helper-protocol capability only. It is not user-facing HTML, it does not adopt Xberg for all documents, it has had no independent review and it has not been merged. Xberg is not done.
+This is a candidate for a helper-protocol capability only. It is not user-facing HTML, it does not adopt Xberg for all documents, round 1 requested corrections (see [full review](opus1/opus-review-round1.md)); it has no source acceptance and it has not been merged. Xberg is not done.
+
+## Dated evidence qualification, 18 October 2026
+
+The results below describe `bbf107e3`, not the correction candidate. The check-index association is narrowed to final helper build, documents-after-escape and later commands; earlier build/pre-escape source hashes were not recorded. The pre-escape literal failure and SIGTERM receipt are prose only (raw logs unretained). Original target directories, binaries and `.d` files were deleted; recorded hashes remain, and they were not rebuilt to reconstruct history. Exact surviving sandbox-log bytes are now retained in [logs/sandbox-denies.log](logs/sandbox-denies.log); both HTML and positive control were silent, so the query is inconclusive. The stray `logs/diff-.txt.gz` expands to zero bytes and is an empty-name tooling artifact, retained without evidentiary weight. Correction results and retained new artifacts are recorded separately in [opus1](opus1/).
+
+**Historical log representation clarification, 18 October 2026:** the original check-index `raw_log_sha256` values name scratch bytes with full machine paths. The 37 historical repository gzip copies shortened `/Users/evokessler/` to `~/` before compression; expand that prefix after decompression to compare with the original raw digests. All 37 comparisons match. This metadata clarification preserves every original raw hash and gzip byte. Later opus1/opus2 gzip evidence is byte-preserving and has separate raw/stored hashes.
 
 ## Status
 
@@ -24,7 +30,7 @@ Every command, exit code, test count, log hash and source/binary hash is in [che
   - image `[bmp,gif,jpeg,png,webp]`, which adds gif, bmp and webp decode surface (BRN asset admission stays PNG/JPEG, and the profile refuses all image syntax);
   - toml 1.1.8.
 - **Default workspace graph.** It already had serde_json `preserve_order` through rig-core. toml 1.1.8, serde_spanned and toml_writer are absent from the macOS default graph. toml_parser and toml_datetime appear only at build time, through `toml_edit` → `proc-macro-crate` → `rig-derive`.
-- **Build scripts.** The 8 added build scripts hash-equal the source1b inventory.
+- **Build scripts.** The 8 added build scripts hash-equal the source1b inventory. blake3 1.8.7 also emits native code: on this aarch64 target its build script uses `cc` to compile `c/blake3_neon.c`; the resulting archive is linked into the helper and reachable from Xberg internal types. Its x86_64 assembly/AVX-512 alternatives were not executed here.
 
 ## Code
 
@@ -41,7 +47,7 @@ Admission covers:
 - only an exact `href` on `a`, limited to http(s), mailto or `#`;
 - six named entities plus validated numeric references;
 - refusal of comments, declarations, raw-text/head elements, resources, tables and data URIs;
-- size of 8 MiB or less, then NUL and strict UTF-8 checks, then `2*count('<')+1 <= 200000`, then depth of 32 or less, then text/entity/attribute/link quotas.
+- size of 8 MiB or less, then NUL and strict UTF-8 checks, then `2*count('<')+1 <= 200000`, then depth of 32 or less, then decoded-text/entity/attribute/link quotas. Converted Markdown/output bytes are bounded after conversion by append/protocol limits; there is no pre-backend output-size or hard RSS guarantee.
 
 Xberg configuration pinned as granted:
 - extraction: no timeout, cache off, quality off, max concurrent 1, no content filter, Markdown output, `ConcurrencyConfig.max_threads=Some(1)`;
@@ -64,7 +70,7 @@ Xberg drops nested html-to-markdown warnings, so checking top-level `processing_
 | Image / second pass | No image syntax; images, captioning and OCR are off. |
 | MathML / table-caption raw-HTML recovery | `math`, `table`, `caption` and `img` are refused. |
 | Preprocessing removal | Preprocessing is off. |
-| Tier-1 path | Forced document structure makes the router always select tier 2. |
+| Tier-1 path | Forced document structure selects tier 2 for markup. Tagless input takes upstream `fast_text_only` first, without a DOM/document structure, and still passes BRN integrity checks. |
 
 ## Checks
 
@@ -115,4 +121,4 @@ Open:
 - a measured OS thread cap and hard RSS bound (neither is claimed);
 - a syscall-level runtime canary for the HTML branch.
 
-Next: a fresh independent Kiro review of the actual diff, then the bounded DOCX/PPTX evidence slice from [source1b/next-allocation.md](../source1b/next-allocation.md).
+Next: parent-owned fresh independent review of the corrected actual diff using available Codex, followed only after separate acceptance/allocation by the bounded DOCX/PPTX evidence slice from [source1b/next-allocation.md](../source1b/next-allocation.md).

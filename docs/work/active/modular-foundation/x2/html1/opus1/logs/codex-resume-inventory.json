@@ -1,0 +1,10 @@
+{
+  "time": "2026-10-17T22:58:49.090538+00:00",
+  "heavy": [],
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+  "candidate_target": "/private/tmp/brn-x2-html-r1/target",
+  "before_root": "/private/tmp/brn-x2-html-r1/before-src",
+  "before_target": "/private/tmp/brn-x2-html-r1/target-before",
+  "provider": "codex gpt-6.1-sol",
+  "slot": "sole heavy regranted after empty inventory"
+}

@@ -1,0 +1,24 @@
+{
+  "time_utc": "2026-10-17T23:29:30.141142+00:00",
+  "material_pin": "fa0bb1221224db3f8e6710a6647b6d4c2f3592d6",
+  "heavy_inventory": [],
+  "command": [
+    "ps",
+    "-axo",
+    "pid,ppid,pgid,etime,state,comm"
+  ],
+  "scope": "Cargo/compiler/linker/helper/intake test executable comm names and all executables under brn-x2-html task roots; no command-text self-matches.",
+  "completed_sessions": {
+    "79600": 0,
+    "53385": 101,
+    "56173": 0,
+    "91072": 0,
+    "76894": 0,
+    "85994": 0,
+    "51764": 0
+  },
+  "release": "Sole heavy and all allocated paths RELEASED on terminal handoff after evidence-only commit.",
+  "process_state": "All owned Cargo/helper/test processes waited/reaped; none running.",
+  "retention": "All old/new targets, artifacts, .d and raw evidence preserved.",
+  "next": "Parent focused precision review; no worker delegation/self-acceptance/new family."
+}

@@ -1,0 +1,14 @@
+{
+  "time_utc": "2026-10-17T23:07:12.906197+00:00",
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check",
+    "695f750af5103550239830a541b3673e107c624c"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "note": "Final net staged handoff relative to source pin, after byte-preserving compression of raw normal diff."
+}

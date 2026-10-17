@@ -3,7 +3,9 @@
 //! The first admitted family is standalone schema-1 HTML in the `html-textual-1` profile. The
 //! flow is: strict byte admission (std-only scanner) → maintained html5ever tokenizer
 //! corroboration → one pinned `xberg::extract` call on one bytes input → ordered content
-//! integrity check → existing schema-1 finalization in `helper.rs`. No Xberg type crosses this
+//! integrity check → existing schema-1 finalization in `helper.rs`. Inputs and decoded text are
+//! bounded before the backend; converted output is bounded only after conversion (the 8 MiB
+//! text ceiling and the protocol output budget), and memory is not hard-capped. No Xberg type crosses this
 //! module; no URI/file/batch/cache/OCR/post-processing/child dispatch or model is reachable.
 //! Unsupported constructs refuse before the backend. There is no fallback reader.
 use super::{Budget, append, gap};
@@ -39,6 +41,12 @@ mod refusal {
 
 #[cfg(test)]
 thread_local! {
+    /// Test-only: output bytes consumed by integrity searches (match end minus search start,
+    /// or the remaining text on failure). Not a CPU-comparison count.
+    pub(super) static SEARCH_WINDOW: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+#[cfg(test)]
+thread_local! {
     /// Count of actual `xberg::extract` calls on this thread (tests only).
     pub(super) static BACKEND_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
@@ -55,10 +63,6 @@ pub(super) fn html(
         .saturating_sub(budget.expanded_bytes)
         .min(MAX_TEXT_BYTES);
     let admitted = html_admission::admit(bytes, text_quota)?;
-    // Every admitted element begins at its own `<`; the node bound is derived from that count.
-    if admitted.elements > admitted.lt_count {
-        return Err(refusal::CORROBORATION.into());
-    }
     // admit() has already proven strict UTF-8.
     let source = std::str::from_utf8(bytes).map_err(|_| html_admission::refusal::UTF8)?;
     corroborate(source, &admitted)?;
@@ -103,6 +107,8 @@ fn html_config() -> xberg::ExtractionConfig {
         exclude_selectors: Vec::new(),
         base_url: None,
         wrap: false,
+        // Email autolinks omit `mailto:`. Keep explicit destinations for href integrity.
+        autolinks: false,
         // Literal source text such as `*star*` or `_u_` must stay literal, not become Markdown
         // emphasis. The extraction-level `escape_markdown` does not reach pre-rendered HTML.
         escape_asterisks: true,
@@ -310,32 +316,56 @@ fn corroborate(source: &str, admitted: &Admitted) -> Result<(), &'static str> {
     }
 }
 
-/// Remove Markdown backslash escapes before ASCII punctuation for word matching.
-fn unescape(markdown: &str) -> String {
-    let mut out = String::with_capacity(markdown.len());
-    let mut chars = markdown.chars().peekable();
-    while let Some(c) = chars.next() {
-        if c == '\\' && chars.peek().is_some_and(char::is_ascii_punctuation) {
-            continue;
-        }
-        out.push(c);
+/// Symmetric normalization for integrity matching: every backslash is removed from both the
+/// converted Markdown and the admitted words. Upstream escapes source backslashes in text
+/// (`\\`) but not in code, so pairwise unescaping cannot be applied blindly; removing all
+/// backslashes on both sides keeps the comparison correct for text and code alike.
+fn strip_backslashes(text: &str) -> std::borrow::Cow<'_, str> {
+    if text.contains('\\') {
+        std::borrow::Cow::Owned(text.replace('\\', ""))
+    } else {
+        std::borrow::Cow::Borrowed(text)
     }
-    out
 }
 
-/// Every admitted word must appear, in source order, in the actual converted content, and
-/// every admitted link target must appear. A truncated or content-dropping result refuses.
+/// Find `needle` in `plain` at or after `*cursor` and advance the cursor past the match.
+/// Cursors only move forward, so the total search window over one pass is linear in the
+/// output length.
+fn advance(plain: &str, cursor: &mut usize, needle: &str) -> Result<(), &'static str> {
+    let found = plain[*cursor..].find(needle);
+    #[cfg(test)]
+    SEARCH_WINDOW.with(|w| {
+        w.set(w.get() + found.map_or(plain.len() - *cursor, |offset| offset + needle.len()))
+    });
+    let offset = found.ok_or(refusal::INTEGRITY)?;
+    *cursor += offset + needle.len();
+    Ok(())
+}
+
+/// Truncation defense, not a fidelity proof: every admitted word must appear in source order
+/// in the actual converted content, and every link target must appear in source order.
+/// Words and links use separate monotonic cursors (a link target renders after its text).
 fn integrity(admitted: &Admitted, markdown: &str) -> Result<(), &'static str> {
-    let plain = unescape(markdown);
+    let plain = strip_backslashes(markdown);
     let mut cursor = 0usize;
     for word in html_admission::words(admitted) {
-        let offset = plain[cursor..].find(word).ok_or(refusal::INTEGRITY)?;
-        cursor += offset + word.len();
-    }
-    for href in html_admission::hrefs(admitted) {
-        if !plain.contains(href) {
-            return Err(refusal::INTEGRITY);
+        let word = strip_backslashes(word);
+        if !word.is_empty() {
+            advance(&plain, &mut cursor, &word)?;
         }
+    }
+    // The pinned destination serializer adds `&amp;` before entity-shaped references.
+    // Undo exactly that one ampersand layer for href comparison, without decoding URL
+    // entities: literal `&copy;` and `&#169;` must stay distinct. Word comparison above
+    // remains separate so literal text/code containing `&amp;` keeps its existing checks.
+    let href_plain = if plain.contains("&amp;") {
+        std::borrow::Cow::Owned(plain.replace("&amp;", "&"))
+    } else {
+        std::borrow::Cow::Borrowed(plain.as_ref())
+    };
+    let mut cursor = 0usize;
+    for href in html_admission::hrefs(admitted) {
+        advance(&href_plain, &mut cursor, href)?;
     }
     Ok(())
 }
@@ -366,6 +396,71 @@ mod tests {
             cursor += offset + fact.len();
         }
     }
+
+    // ---- X2 review round 1 witnesses (B1/B2). Identical in the bbf107e3 before copy and in the
+    // corrected candidate.
+    fn window() -> usize {
+        SEARCH_WINDOW.with(std::cell::Cell::get)
+    }
+    /// Test-only CommonMark backslash unescape for non-code text (`\` + ASCII punctuation).
+    fn md_text(markdown: &str) -> String {
+        let mut out = String::new();
+        let mut chars = markdown.chars().peekable();
+        while let Some(c) = chars.next() {
+            if c == '\\' && chars.peek().is_some_and(char::is_ascii_punctuation) {
+                out.push(chars.next().unwrap());
+            } else {
+                out.push(c);
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn b1_many_links_after_large_text_keep_integrity_window_linear() {
+        let text = "steady ".repeat(150_000);
+        let links: String = (0..1500)
+            .map(|i| format!("<a href=\"https://x.test/u{i}\">l{i}</a> "))
+            .collect();
+        let html = format!("<p>{text}</p><p>{links}</p>");
+        let start = window();
+        let (result, backend) = run(&html);
+        let extraction = result.unwrap();
+        assert_eq!(backend, 1);
+        let consumed = window() - start;
+        let output = extraction.markdown.len();
+        assert!(
+            consumed <= 2 * output,
+            "integrity searches consumed {consumed} bytes for {output} output bytes"
+        );
+        for i in [0, 749, 1499] {
+            assert!(
+                extraction
+                    .markdown
+                    .contains(&format!("[l{i}](https://x.test/u{i})"))
+            );
+        }
+    }
+
+    #[test]
+    fn b2_backslashes_in_text_and_code_are_admitted_and_literal() {
+        let html = r#"<p>C:\x\*y a\*b regex\. two\\back</p><pre><code>printf("a\"b\\n");</code></pre><p>inline <code>s\'q</code></p>"#;
+        let (result, backend) = run(html);
+        assert_eq!(backend, 1);
+        let markdown = result.unwrap().markdown;
+        let first = markdown.lines().next().unwrap();
+        assert_eq!(
+            md_text(first),
+            r"C:\x\*y a\*b regex\. two\\back",
+            "{markdown:?}"
+        );
+        assert!(
+            markdown.contains("\n```\nprintf(\"a\\\"b\\\\n\");\n```\n"),
+            "{markdown:?}"
+        );
+        assert!(markdown.contains(r"`s\'q`"), "{markdown:?}");
+    }
+
     const TEXTUAL: &str = concat!(
         "<html><body>\n<h1>Harbour report</h1>\n",
         "<p>Caf\u{e9} <em>na\u{ef}ve</em> <strong>\u{65e5}\u{672c}</strong> ",
@@ -433,7 +528,7 @@ mod tests {
         assert!(!markdown.contains(" _u_ "), "{markdown:?}");
         assert!(!markdown.contains(" [x](y)"), "{markdown:?}");
         assert_eq!(
-            unescape(markdown).trim_end(),
+            md_text(markdown.trim_end()),
             "1 < 2 & 3 > 0 \"q\" *star* _u_ [x](y)"
         );
         // Code keeps its bytes without escapes.
@@ -564,6 +659,34 @@ mod tests {
     }
 
     #[test]
+    fn href_integrity_preserves_order_and_repeated_target_multiplicity() {
+        let source = concat!(
+            "<p><a href=\"https://x.test/a%20b?x=1&amp;y=(2)\">one</a> ",
+            "<a href=\"#part\">two</a> ",
+            "<a href=\"#part\">three</a></p>"
+        );
+        let (result, backend) = run(source);
+        let markdown = result.unwrap().markdown;
+        assert_eq!(backend, 1);
+        ordered(
+            &markdown,
+            &[
+                "[one](https://x.test/a%20b?x=1&y=(2))",
+                "[two](#part)",
+                "[three](#part)",
+            ],
+        );
+        let admitted = html_admission::admit(source.as_bytes(), MAX_TEXT_BYTES).unwrap();
+        // Keep all visible words but omit one target, or reverse the distinct target order.
+        for damaged in [
+            "one two three https://x.test/a%20b?x=1&y=(2) #part",
+            "one two three #part #part https://x.test/a%20b?x=1&y=(2)",
+        ] {
+            assert_eq!(integrity(&admitted, damaged), Err(refusal::INTEGRITY));
+        }
+    }
+
+    #[test]
     fn corroboration_matches_the_maintained_tokenizer() {
         let admitted = html_admission::admit(TEXTUAL.as_bytes(), MAX_TEXT_BYTES).unwrap();
         corroborate(TEXTUAL, &admitted).unwrap();
@@ -656,5 +779,543 @@ mod tests {
         assert_eq!(html.max_input_size, Some(8 * 1024 * 1024));
         assert_eq!(html.max_depth, Some(128));
         assert!(html.include_document_structure && !html.extract_metadata);
+        assert!(!html.autolinks);
+    }
+
+    // ---- X2 review round 1: A5 executor, B4e tagless path, A6 literal text, B3 corpus. ----
+
+    #[test]
+    fn executor_parks_on_pending_and_completes_after_wake() {
+        struct Once(bool);
+        impl Future for Once {
+            type Output = u8;
+            fn poll(mut self: std::pin::Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<u8> {
+                if self.0 {
+                    Poll::Ready(7)
+                } else {
+                    self.0 = true;
+                    // Wake before returning Pending: the unpark token makes park return at once.
+                    cx.waker().wake_by_ref();
+                    Poll::Pending
+                }
+            }
+        }
+        let started = std::time::Instant::now();
+        assert_eq!(block_on(Once(false)), Ok(7));
+        assert!(started.elapsed() < std::time::Duration::from_millis(900));
+    }
+
+    #[test]
+    fn tagless_input_takes_the_upstream_text_path_and_is_integrity_checked() {
+        let (result, backend) = run("plain words only &amp; more");
+        let extraction = result.unwrap();
+        assert_eq!(backend, 1);
+        assert_eq!(
+            md_text(extraction.markdown.trim_end()),
+            "plain words only & more"
+        );
+    }
+
+    #[test]
+    fn literal_block_starts_backticks_links_and_nbsp_stay_literal() {
+        for text in [
+            "# not heading",
+            "- not list",
+            "+ not list",
+            "1. not ordered",
+            "> not quote",
+            "``` not fence",
+            "~~~ not fence",
+            "a | b",
+            "[x](y) not link",
+        ] {
+            let html = format!("<p>{}</p>", text.replace('>', "&gt;"));
+            let (result, backend) = run(&html);
+            let markdown = result.unwrap_or_else(|e| panic!("{text}: {e}")).markdown;
+            assert_eq!(backend, 1);
+            let line = markdown.trim_end();
+            assert!(!line.contains('\n'), "{text}: {markdown:?}");
+            assert_eq!(md_text(line), text, "{text}: {markdown:?}");
+            assert_ne!(
+                line, text,
+                "{text}: markup-significant text was not escaped"
+            );
+        }
+        let (result, _) = run("<pre><code>a ``` b ```` c</code></pre>");
+        let markdown = result.unwrap().markdown;
+        assert!(markdown.contains("\na ``` b ```` c\n"), "{markdown:?}");
+        let fence = markdown.lines().next().unwrap();
+        assert!(
+            fence.len() >= 5 && fence.bytes().all(|b| b == b'`'),
+            "{markdown:?}"
+        );
+        let (result, _) = run("<p>x <code>a`b</code> y</p>");
+        let markdown = result.unwrap().markdown;
+        assert!(markdown.contains("``a`b``"), "{markdown:?}");
+        let (result, _) = run(concat!(
+            "<p><a>bare anchor</a> <a href=\"mailto:ops@example.test\">mail</a> ",
+            "<a href=\"#part-2\">jump</a> <a href=\"https://x.test/p(1)\">paren</a></p>"
+        ));
+        let markdown = result.unwrap().markdown;
+        ordered(
+            &markdown,
+            &[
+                "bare anchor",
+                "[mail](mailto:ops@example.test)",
+                "[jump](#part-2)",
+                "[paren](",
+                "https://x.test/p",
+            ],
+        );
+        assert!(!markdown.contains("[bare anchor]"), "{markdown:?}");
+        let (result, _) = run("<p>a&nbsp;b</p>");
+        let markdown = result.unwrap().markdown;
+        assert!(
+            markdown.trim_end() == "a\u{a0}b" || markdown.trim_end() == "a b",
+            "{markdown:?}"
+        );
+    }
+
+    /// A small source tree whose structural facts are known by construction.
+    enum Node {
+        E(&'static str, Option<&'static str>, Vec<Node>),
+        T(String),
+    }
+    fn e(name: &'static str, children: Vec<Node>) -> Node {
+        Node::E(name, None, children)
+    }
+    fn t(text: impl Into<String>) -> Node {
+        Node::T(text.into())
+    }
+    const VOID: [&str; 2] = ["br", "hr"];
+    /// Known facts: preorder tags `(name, parent tag index, raw attributes)` and raw text
+    /// nodes `(parent tag index, raw text)`.
+    type Tags = Vec<(String, Option<usize>, Vec<(String, String)>)>;
+    type Texts = Vec<(Option<usize>, String)>;
+    fn render(
+        nodes: &[Node],
+        parent: Option<usize>,
+        html: &mut String,
+        tags: &mut Tags,
+        texts: &mut Texts,
+    ) {
+        for node in nodes {
+            match node {
+                Node::T(text) => {
+                    html.push_str(text);
+                    texts.push((parent, text.clone()));
+                }
+                Node::E(name, href, children) => {
+                    let index = tags.len();
+                    let attrs = href
+                        .map(|h| vec![("href".to_owned(), h.to_owned())])
+                        .unwrap_or_default();
+                    tags.push(((*name).to_owned(), parent, attrs));
+                    match href {
+                        Some(h) => html.push_str(&format!("<{name} href=\"{h}\">")),
+                        None => html.push_str(&format!("<{name}>")),
+                    }
+                    if !VOID.contains(name) {
+                        render(children, Some(index), html, tags, texts);
+                        html.push_str(&format!("</{name}>"));
+                    }
+                }
+            }
+        }
+    }
+    /// The same facts read from the parser Xberg actually runs (astral-tl).
+    fn tl_tree(html: &str) -> (Tags, Texts) {
+        fn walk(
+            parser: &tl::Parser<'_>,
+            handles: &[tl::NodeHandle],
+            parent: Option<usize>,
+            tags: &mut Tags,
+            texts: &mut Texts,
+        ) {
+            for handle in handles {
+                match handle.get(parser) {
+                    Some(tl::Node::Tag(tag)) => {
+                        let index = tags.len();
+                        let attrs = tag
+                            .attributes()
+                            .iter()
+                            .map(|(k, v)| {
+                                (
+                                    k.into_owned(),
+                                    v.map(|v| v.into_owned()).unwrap_or_default(),
+                                )
+                            })
+                            .collect();
+                        tags.push((tag.name().as_utf8_str().into_owned(), parent, attrs));
+                        walk(
+                            parser,
+                            tag.children().top().as_slice(),
+                            Some(index),
+                            tags,
+                            texts,
+                        );
+                    }
+                    Some(tl::Node::Raw(raw)) => {
+                        texts.push((parent, raw.as_utf8_str().into_owned()))
+                    }
+                    Some(tl::Node::Comment(_)) | None => {
+                        panic!("unexpected tl node in admitted corpus")
+                    }
+                }
+            }
+        }
+        let dom = tl::parse(html, tl::ParserOptions::default()).unwrap();
+        let (mut tags, mut texts) = (Vec::new(), Vec::new());
+        walk(dom.parser(), dom.children(), None, &mut tags, &mut texts);
+        (tags, texts)
+    }
+    /// Independent statement of the html-textual-1 content models (parent -> allowed children).
+    fn allowed(parent: &str, child: &str) -> bool {
+        const BLOCKS: [&str; 15] = [
+            "div",
+            "section",
+            "article",
+            "blockquote",
+            "ul",
+            "ol",
+            "p",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "pre",
+            "hr",
+        ];
+        const INLINE: [&str; 7] = ["code", "a", "em", "strong", "b", "i", "br"];
+        match parent {
+            "html" => child == "body",
+            "ul" | "ol" => child == "li",
+            "body" | "div" | "section" | "article" | "blockquote" | "li" => {
+                BLOCKS.contains(&child) || INLINE.contains(&child)
+            }
+            "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "em" | "strong" | "b" | "i" => {
+                INLINE.contains(&child)
+            }
+            "a" => INLINE.contains(&child) && child != "a",
+            "pre" => child == "code",
+            _ => false,
+        }
+    }
+    const NAMES: [&str; 25] = [
+        "html",
+        "body",
+        "div",
+        "section",
+        "article",
+        "blockquote",
+        "li",
+        "ul",
+        "ol",
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "pre",
+        "hr",
+        "code",
+        "a",
+        "em",
+        "strong",
+        "b",
+        "i",
+        "br",
+    ];
+    fn sample(name: &'static str, word: &str) -> Node {
+        match name {
+            "br" | "hr" => e(name, vec![]),
+            "ul" | "ol" => e(name, vec![e("li", vec![t(word)])]),
+            "html" => e(name, vec![e("body", vec![t(word)])]),
+            "pre" => e(name, vec![e("code", vec![t(word)])]),
+            _ => e(name, vec![t(word)]),
+        }
+    }
+    fn in_context(parent: &'static str, child: Node) -> Node {
+        match parent {
+            "li" => e("ul", vec![e("li", vec![child])]),
+            "body" => e("html", vec![e("body", vec![child])]),
+            _ => e(parent, vec![child]),
+        }
+    }
+    /// Admission, the WHATWG tokenizer (inside `run`), astral-tl and real Xberg must agree.
+    fn agree(nodes: Vec<Node>) {
+        let (mut html, mut tags, mut texts) = (String::new(), Vec::new(), Vec::new());
+        render(&nodes, None, &mut html, &mut tags, &mut texts);
+        let admitted = html_admission::admit(html.as_bytes(), MAX_TEXT_BYTES)
+            .unwrap_or_else(|e| panic!("{html:?}: {e}"));
+        let scanned: Vec<&str> = admitted
+            .tokens
+            .iter()
+            .filter_map(|t| match t {
+                ScanToken::Start { name, .. } => Some(*name),
+                _ => None,
+            })
+            .collect();
+        let known: Vec<&str> = tags.iter().map(|(n, _, _)| n.as_str()).collect();
+        assert_eq!(scanned, known, "{html:?}");
+        let mut stack = Vec::new();
+        let mut scan_parents = Vec::new();
+        for token in &admitted.tokens {
+            match token {
+                ScanToken::Start { name, .. } => {
+                    let index = scan_parents.len();
+                    scan_parents.push(((*name).to_owned(), stack.last().copied()));
+                    if !VOID.contains(name) {
+                        stack.push(index);
+                    }
+                }
+                ScanToken::End(_) => {
+                    stack.pop().unwrap();
+                }
+                ScanToken::Text(_) => {}
+            }
+        }
+        let known_parents: Vec<_> = tags.iter().map(|(n, p, _)| (n.clone(), *p)).collect();
+        assert_eq!(scan_parents, known_parents, "scanner parents {html:?}");
+        let (tl_tags, tl_texts) = tl_tree(&html);
+        assert_eq!(tl_tags, tags, "tags/parents/attributes {html:?}");
+        assert_eq!(tl_texts, texts, "raw text spans {html:?}");
+        let (result, backend) = run(&html);
+        result.unwrap_or_else(|e| panic!("{html:?}: {e}"));
+        assert_eq!(backend, 1, "{html:?}");
+    }
+
+    #[test]
+    fn grammar_corpus_matches_independent_models_tl_structure_and_real_xberg() {
+        let mut admitted_pairs = 0;
+        for parent in NAMES {
+            for child in NAMES {
+                if VOID.contains(&parent) || child == "html" {
+                    continue;
+                }
+                let node = in_context(parent, sample(child, &format!("w{parent}{child}")));
+                let (mut html, mut tags, mut texts) = (String::new(), Vec::new(), Vec::new());
+                render(
+                    std::slice::from_ref(&node),
+                    None,
+                    &mut html,
+                    &mut tags,
+                    &mut texts,
+                );
+                let scan = html_admission::admit(html.as_bytes(), MAX_TEXT_BYTES);
+                assert_eq!(
+                    scan.is_ok(),
+                    allowed(parent, child),
+                    "{parent} > {child}: {html:?}"
+                );
+                if scan.is_ok() {
+                    admitted_pairs += 1;
+                    agree(vec![node]);
+                }
+            }
+        }
+        assert_eq!(admitted_pairs, 6 * 22 + 1 + 2 + 11 * 7 + 6 + 1);
+        // Every non-html/body/li element (and each void) is admitted at the root.
+        for name in NAMES.iter().filter(|n| !["body", "li"].contains(n)) {
+            agree(vec![sample(name, &format!("root{name}"))]);
+        }
+        // Entities: raw spans for astral-tl, independently known decoded scalars for the scan.
+        for (raw, decoded) in [
+            ("&amp;", "&"),
+            ("&lt;", "<"),
+            ("&gt;", ">"),
+            ("&quot;", "\""),
+            ("&apos;", "'"),
+            ("&nbsp;", "\u{a0}"),
+            ("&#65;", "A"),
+            ("&#x2603;", "\u{2603}"),
+            ("&#X1F600;", "\u{1f600}"),
+        ] {
+            let html_text = format!("x{raw}y");
+            agree(vec![e("p", vec![t(html_text.clone())])]);
+            let admitted =
+                html_admission::admit(format!("<p>{html_text}</p>").as_bytes(), MAX_TEXT_BYTES)
+                    .unwrap();
+            assert_eq!(
+                admitted.tokens[1],
+                ScanToken::Text(format!("x{decoded}y")),
+                "{raw}"
+            );
+        }
+        // Attributes: href forms, raw value for astral-tl and decoded value for the scan.
+        for (raw, decoded) in [
+            ("https://x.test/a?b=1&amp;c=2", "https://x.test/a?b=1&c=2"),
+            ("https://x.test/p(1)", "https://x.test/p(1)"),
+            ("http://x.test/", "http://x.test/"),
+            ("mailto:ops@example.test", "mailto:ops@example.test"),
+            ("#part-2", "#part-2"),
+        ] {
+            agree(vec![e("p", vec![Node::E("a", Some(raw), vec![t("go")])])]);
+            let admitted = html_admission::admit(
+                format!("<p><a href=\"{raw}\">go</a></p>").as_bytes(),
+                MAX_TEXT_BYTES,
+            )
+            .unwrap();
+            assert_eq!(
+                html_admission::hrefs(&admitted).collect::<Vec<_>>(),
+                [decoded]
+            );
+        }
+        agree(vec![e("p", vec![e("a", vec![t("no href")])])]);
+        // Inter-element whitespace in html/ul/ol, CRLF text and a void at depth 32.
+        agree(vec![e(
+            "html",
+            vec![
+                t("\n "),
+                e(
+                    "body",
+                    vec![
+                        t("\n"),
+                        e("ul", vec![t("\n "), e("li", vec![t("x")]), t("\n")]),
+                        e("ol", vec![t("\t"), e("li", vec![t("y")])]),
+                    ],
+                ),
+                t("\n"),
+            ],
+        )]);
+        agree(vec![e("p", vec![t("first\r\nsecond")])]);
+        let mut deep = e("br", vec![]);
+        for _ in 0..31 {
+            deep = e("div", vec![deep]);
+        }
+        agree(vec![e("p", vec![t("before")]), deep]);
+    }
+
+    #[test]
+    fn astral_tl_divergence_witnesses_are_refused_before_backend() {
+        // Repeated `li`: WHATWG closes the first item; astral-tl nests the second inside it.
+        let (tags, _) = tl_tree("<ul><li>a<li>b</ul>");
+        assert_eq!(tags[2].0, "li");
+        assert_eq!(
+            tags[2].1,
+            Some(1),
+            "astral-tl nests the second li inside the first"
+        );
+        // Raw-text element: WHATWG treats `<b>` inside `<script>` as text; astral-tl builds it.
+        let (tags, _) = tl_tree("<p><script>x<b>y</b></script></p>");
+        assert!(
+            tags.iter().any(|(n, p, _)| n == "b" && *p == Some(1)),
+            "{tags:?}"
+        );
+        for html in [
+            "<ul><li>a<li>b</ul>",
+            "<p><script>x<b>y</b></script></p>",
+            "<p>a<p>b<p>c",
+            "< img src=\"x\">",
+            "<div>x</DIV>",
+            "<html><body>a</body><body>b</body></html>",
+        ] {
+            let (result, backend) = run(html);
+            assert!(result.unwrap_err().starts_with("HTML admission:"), "{html}");
+            assert_eq!(backend, 0, "{html}");
+        }
+    }
+    // Round-2 witnesses, identical on unchanged 695 production and corrected production.
+    fn r2_href_witness(source: &str, expected: &str) {
+        let admitted = html_admission::admit(source.as_bytes(), MAX_TEXT_BYTES).unwrap();
+        corroborate(source, &admitted).unwrap();
+        let before = calls();
+        let markdown = convert(source.as_bytes()).unwrap();
+        assert_eq!(calls() - before, 1);
+        assert_eq!(
+            integrity(&admitted, &markdown),
+            Ok(()),
+            "valid backend serialization must retain the admitted href: {markdown:?}"
+        );
+        assert_eq!(markdown.trim_end(), expected);
+    }
+
+    #[test]
+    fn r2_email_autolink_retains_admitted_mailto_target() {
+        r2_href_witness(
+            r#"<p><a href="mailto:ops@example.test">ops@example.test</a></p>"#,
+            "[ops@example.test](mailto:ops@example.test)",
+        );
+    }
+
+    #[test]
+    fn r2_entity_shaped_href_retains_admitted_target() {
+        r2_href_witness(
+            r#"<p><a href="https://x.test/?v=&amp;copy;">go</a></p>"#,
+            "[go](https://x.test/?v=&amp;copy;)",
+        );
+    }
+
+    #[test]
+    fn r2_href_serialization_keeps_named_numeric_and_literal_spellings() {
+        for (raw, serialized) in [
+            ("&amp;copy;", "&amp;copy;"),
+            ("&amp;#169;", "&amp;#169;"),
+            ("&amp;#xA9;", "&amp;#xA9;"),
+            ("&amp;#X1F600;", "&amp;#X1F600;"),
+            ("&amp;amp;copy;", "&amp;amp;copy;"),
+            ("&amp;amp;", "&amp;amp;"),
+            ("&amp;notAnEntity;", "&notAnEntity;"),
+            ("&amp;copy", "&copy"),
+            ("&amp;#xZZ;", "&#xZZ;"),
+            ("a=1&amp;b=2", "a=1&b=2"),
+        ] {
+            let source = format!("<p><a href=\"https://x.test/?v={raw}\">go</a></p>");
+            let expected = format!("[go](https://x.test/?v={serialized})");
+            r2_href_witness(&source, &expected);
+        }
+        r2_href_witness(
+            r#"<p><a href="https://x.test/plain">https://x.test/plain</a></p>"#,
+            "[https://x.test/plain](https://x.test/plain)",
+        );
+    }
+
+    #[test]
+    fn r2_mixed_repeated_hrefs_keep_order_multiplicity_and_literal_values() {
+        let source = concat!(
+            "<p>literal &amp;copy; and &amp;amp;copy;</p>",
+            "<p><a href=\"mailto:ops@example.test\">first</a> ",
+            "<a href=\"https://x.test/?v=&amp;copy;\">second</a> ",
+            "<a href=\"https://x.test/?v=&amp;copy;\">third</a> ",
+            "<a href=\"https://x.test/?v=&amp;#169;\">fourth</a></p>"
+        );
+        let start = window();
+        let (result, backend) = run(source);
+        let markdown = result.unwrap().markdown;
+        assert_eq!(backend, 1);
+        assert!(window() - start <= 2 * markdown.len());
+        assert_eq!(
+            md_text(markdown.lines().next().unwrap()),
+            "literal &copy; and &amp;copy;"
+        );
+        ordered(
+            &markdown,
+            &[
+                "[first](mailto:ops@example.test)",
+                "[second](https://x.test/?v=&amp;copy;)",
+                "[third](https://x.test/?v=&amp;copy;)",
+                "[fourth](https://x.test/?v=&amp;#169;)",
+            ],
+        );
+        let admitted = html_admission::admit(source.as_bytes(), MAX_TEXT_BYTES).unwrap();
+        let prefix = "literal &copy; and &amp;copy; first second third fourth ";
+        for targets in [
+            // One repeated target missing.
+            "mailto:ops@example.test https://x.test/?v=&amp;copy; https://x.test/?v=&amp;#169;",
+            // The distinct targets are reordered, while visible words stay in source order.
+            "https://x.test/?v=&amp;copy; https://x.test/?v=&amp;copy; mailto:ops@example.test https://x.test/?v=&amp;#169;",
+            // Entity text in a URL is literal; equal decoded Unicode is not an equal URL.
+            "mailto:ops@example.test https://x.test/?v=© https://x.test/?v=© https://x.test/?v=©",
+            "mailto:ops@example.test https://x.test/?v=&amp;#169; https://x.test/?v=&amp;#169; https://x.test/?v=&amp;copy;",
+        ] {
+            assert_eq!(
+                integrity(&admitted, &format!("{prefix}{targets}")),
+                Err(refusal::INTEGRITY)
+            );
+        }
     }
 }

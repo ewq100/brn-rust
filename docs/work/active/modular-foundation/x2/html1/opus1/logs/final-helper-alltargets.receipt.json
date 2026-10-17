@@ -1,0 +1,46 @@
+{
+  "label": "final-helper-alltargets",
+  "args": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-intake",
+    "--features",
+    "helper",
+    "--all-targets",
+    "--locked",
+    "--offline",
+    "-j1",
+    "--no-fail-fast"
+  ],
+  "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+  "env": {
+    "CARGO_TARGET_DIR": "/private/tmp/brn-x2-html-r1/target",
+    "TMPDIR": "/private/tmp/brn-x2-html-r1/tmp",
+    "CARGO_NET_OFFLINE": "true",
+    "BRN_INTAKE_HELPER": "/private/tmp/brn-x2-html-r1/target/debug/brn-intake-helper"
+  },
+  "started": "2026-10-17T23:00:54.612977+00:00",
+  "source_sha256": {
+    "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+    "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+    "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+    "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+    "crates/brn-intake/src/helper/documents.rs": "a187f54aa0ecedcc6b4da2f971ff09dc89837f3483229ac70f5d5fdaf1d7c473",
+    "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+    "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+    "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+    "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+    "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+    "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+    "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+    "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+    "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+    "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1"
+  },
+  "pid": 20452,
+  "exit": 0,
+  "seconds": 17.626115374965593,
+  "source_unchanged": true,
+  "log_sha256": "0488f3e515d7143a762f73bc912b78d9c2f3f7f76c1cd2d70400e9c7daba542e"
+}

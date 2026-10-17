@@ -1,5 +1,5 @@
 {
- "association": "Source bytes listed were the compiled inputs of every Cargo command below; no source edit happened during or after them. Target /tmp/brn-x2-html-20261017/target; the before helper is in target-before. Rust 1.98.1, --locked --offline -j1, fresh TMPDIR per lane; native lanes ran under sandbox-exec denying non-loopback network.",
+ "association": "Historical bbf107e3 qualification, corrected 18 October 2026 after review B4a: listed source hashes apply to helper-build-final, documents-tests-after-escape-pin and every later Cargo command, not helper-build-1 or the pre-escape attempt (their earlier compiled source hashes were not recorded). Original target paths were /tmp/brn-x2-html-20261017/target and target-before; both have since been deleted. Historical binaries and .d survive as recorded hashes only. No historical artifact was rebuilt to recreate it. Rust 1.98.1, --locked --offline -j1; native lanes used sandbox-exec denying non-loopback network.",
  "source_sha256": {
   "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
   "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
@@ -439,11 +439,24 @@
   "fixture": "env-cleared restricted helper on textual.html: exit 0, 0.01 s, max RSS 12894208 B; exact Markdown in logs/fixture.stdout.gz",
   "large": "6291163-byte admitted HTML (joined-thread path): exit 0, 0.37 s, max RSS 217890816 B, peak footprint 191382032 B, max sampled threads 3 (ps -M, 7 samples; sampling, not a cap); 241040 repeated groups and final marker retained",
   "node_bound_refusal": "7 MiB of short paragraphs (>99999 tags) refused with the static node-bound label before backend",
-  "cancel": "SIGTERM to the helper process group 0.12 s into the 6 MiB conversion: return -15, no stdout, group gone after wait",
+  "cancel": "SIGTERM to the helper process group 0.12 s into the 6 MiB conversion: return -15, no stdout, group gone after wait (historical prose only: raw receipt not retained)",
   "sandbox_log_canary": "unified-log query found 0 deny lines for the HTML runs and also 0 for the positive-control self-test (which itself reports file_denied/network_denied true), so the log method gives no evidence; HTML-branch no-file/network/child rests on source/config plus the unchanged restriction applied before input is read"
  },
  "serialization": {
   "serde_json": "1.0.151->1.0.154 source diff: Map hasher type (insertion order unchanged under preserve_order), as_f32 non-finite filter, -0 parse change only under arbitrary_precision (off), error positions for raw_value/UTF-8 errors. No serializer output change found. BRN has no as_f32/arbitrary_precision use. Workspace run 2 passes 241 backup/replay/restore/hash/settings/candidate/export/snapshot-named tests and the historical Extraction byte/hash round-trip. This is static diff plus existing tests, not a byte-diff of every saved record type.",
   "toml": "macOS default graph: toml 1.1.8, serde_spanned, toml_writer absent (xberg helper graph and Windows embed-resource only); toml_parser/toml_datetime only via toml_edit 0.25 -> proc-macro-crate -> rig-derive at build time. No BRN TOML call sites."
+ },
+ "retention_corrections_20261018": {
+  "pre_escape_failure": "Literal *star* rendered as emphasis; raw failure log was not retained. Prose only; not reconstructed.",
+  "cancel": "Historical SIGTERM/cancel assertion has no retained raw receipt; prose only.",
+  "targets": "Original target/target-before and helper/brn/desktop binaries/.d deleted; hashes only. Newly built round-1 correction artifacts are separately retained in opus1 evidence.",
+  "sandbox": "Existing scratch sandbox-denies.log copied byte-for-byte to logs/sandbox-denies.log; positive control was also silent, so inconclusive.",
+  "diff-.txt.gz": "Stray gzip expands to zero bytes, a historical tooling artifact with an empty name; retained, not source-comparison evidence."
+ },
+ "log_representation_qualification_20261018": {
+  "applies_to": "37 historical command raw_log_sha256 fields in this index; not opus1/opus2 byte-preserving gzip evidence",
+  "raw_log_sha256": "Identifies original scratch-log bytes, with full /Users/evokessler/ paths.",
+  "repository_gzip": "Historical repository copies shortened /Users/evokessler/ to ~/ before compression. Decompressed repository bytes need that path expansion before comparison with original raw_log_sha256.",
+  "verification": "All 37 repository command copies match their original raw digest after ~/ -> /Users/evokessler/ expansion. Original gzip bytes and raw hashes preserved."
  }
 }
