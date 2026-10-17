@@ -1,0 +1,71 @@
+41a42,47
+>     /// Test-only: output bytes consumed by integrity searches (match end minus search start,
+>     /// or the remaining text on failure). Not a CPU-comparison count.
+>     pub(super) static SEARCH_WINDOW: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+> }
+> #[cfg(test)]
+> thread_local! {
+331a338,342
+>         // Before-witness instrumentation only (cfg(test)): window consumed by this search.
+>         #[cfg(test)]
+>         SEARCH_WINDOW.with(|w| {
+>             w.set(w.get() + plain[cursor..].find(word).map_or(plain.len() - cursor, |o| o + word.len()))
+>         });
+335a347,348
+>         #[cfg(test)]
+>         SEARCH_WINDOW.with(|w| w.set(w.get() + plain.find(href).map_or(plain.len(), |o| o + href.len())));
+368a382,435
+> 
+>     // ---- X2 review round 1 witnesses (B1/B2). Identical in the bbf107e3 before copy and in the
+>     // corrected candidate.
+>     fn window() -> usize {
+>         SEARCH_WINDOW.with(std::cell::Cell::get)
+>     }
+>     /// Test-only CommonMark backslash unescape for non-code text (`\` + ASCII punctuation).
+>     fn md_text(markdown: &str) -> String {
+>         let mut out = String::new();
+>         let mut chars = markdown.chars().peekable();
+>         while let Some(c) = chars.next() {
+>             if c == '\\' && chars.peek().is_some_and(char::is_ascii_punctuation) {
+>                 out.push(chars.next().unwrap());
+>             } else {
+>                 out.push(c);
+>             }
+>         }
+>         out
+>     }
+> 
+>     #[test]
+>     fn b1_many_links_after_large_text_keep_integrity_window_linear() {
+>         let text = "steady ".repeat(150_000);
+>         let links: String = (0..1500)
+>             .map(|i| format!("<a href=\"https://x.test/u{i}\">l{i}</a> "))
+>             .collect();
+>         let html = format!("<p>{text}</p><p>{links}</p>");
+>         let start = window();
+>         let (result, backend) = run(&html);
+>         let extraction = result.unwrap();
+>         assert_eq!(backend, 1);
+>         let consumed = window() - start;
+>         let output = extraction.markdown.len();
+>         assert!(
+>             consumed <= 2 * output,
+>             "integrity searches consumed {consumed} bytes for {output} output bytes"
+>         );
+>         for i in [0, 749, 1499] {
+>             assert!(extraction.markdown.contains(&format!("[l{i}](https://x.test/u{i})")));
+>         }
+>     }
+> 
+>     #[test]
+>     fn b2_backslashes_in_text_and_code_are_admitted_and_literal() {
+>         let html = r#"<p>C:\x\*y a\*b regex\. two\\back</p><pre><code>printf("a\"b\\n");</code></pre><p>inline <code>s\'q</code></p>"#;
+>         let (result, backend) = run(html);
+>         assert_eq!(backend, 1);
+>         let markdown = result.unwrap().markdown;
+>         let first = markdown.lines().next().unwrap();
+>         assert_eq!(md_text(first), r"C:\x\*y a\*b regex\. two\\back", "{markdown:?}");
+>         assert!(markdown.contains("\n```\nprintf(\"a\\\"b\\\\n\");\n```\n"), "{markdown:?}");
+>         assert!(markdown.contains(r"`s\'q`"), "{markdown:?}");
+>     }
+> 

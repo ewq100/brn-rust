@@ -1,0 +1,5 @@
+{
+  "saved_normal_diff_reconstructs_retained_before_bytes": true,
+  "initial_naive_check": "Compared two textually different but equivalent normal-diff alignments; assertion failed before release receipt was written. Reapplying the retained additions at their original line numbers verifies identical bytes.",
+  "production_semantics": "All additions are cfg(test) counter/instrumentation or tests; baseline production unchanged."
+}

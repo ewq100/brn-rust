@@ -1,0 +1,22 @@
+{
+  "name": "friendly",
+  "args": [
+    "/usr/bin/time",
+    "-l",
+    "/private/tmp/brn-x2-html-r1/artifacts/final-brn-intake-helper"
+  ],
+  "env": {},
+  "binary_sha256": "f88eda50815ad2d11adf54d4972b3142bc62c682a3458d19bb511501bb1cc78d",
+  "request_sha256": "0a2322ecd52fde432511cabc60786245341be59d2f0ee8aa5209bd7c40e6925b",
+  "source_sha256": "04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5",
+  "input_bytes": 400,
+  "exit": 0,
+  "exit_evidence": "original execution reached post-success assertion (large attempt1, friendly attempt3); see failed validator scripts/logs",
+  "output_markdown_bytes": 243,
+  "timing": "        0.01 real         0.00 user         0.00 sys\n            20480000  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                1548  page reclaims\n                   0  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                  21  involuntary context switches\n           147435424  instructions retired\n            63785038  cycles elapsed\n             7405976  peak memory footprint\n",
+  "stdout_sha256": "02a862a3889f1e0bf5472f9eed1c9d960f1d8d0ee5ea21cb3db58433aec38377",
+  "validation": "exact original bytes/hash, schema, source text; ordered authored fixture facts",
+  "execution_count": 1,
+  "retained_result_validated_without_rerun": true,
+  "process_limit": "p.communicate completed and waited; exact PGID not retained before failed validator; final precise process inventory separate"
+}
