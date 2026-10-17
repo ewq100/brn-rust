@@ -512,6 +512,8 @@ Separate reusable provider communication from BRN-specific tools, request contex
 
 Centralize writing/task guidance at the established behavior boundary; do not scatter new prompts through GUI callbacks or build a dynamic skill platform. Source materials are not trusted runtime instructions.
 
+**Owner amendment, 17 October 2026:** D-S explicitly permits the bounded instruction-only installed/scoped skill packages in workstream D3; it does not authorize a dynamic executable/plugin platform. D-M permits only the single opt-in, read-only outbound MCP connection in D4 with allowlists and synthetic localhost qualification. See the [dated decision record](../../../agent-capabilities/owner-decisions-20261017.md) and canonical target amendments. Live-provider qualification and owner-data access remain unapproved.
+
 ### C5. Integrate and simplify
 
 C lands shared schema/types/manifests/lockfile/runtime wiring changes and integrates A/B slices in dependency order. Preserve single supported production routes after qualified cutover. Update affected authoritative docs, status and evidence so historical instructions do not accidentally reassign retired work.

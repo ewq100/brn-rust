@@ -1,3 +1,5 @@
+**Owner decisions, 17 October 2026:** affirmative Approve D-S and Approve D-M are recorded in [the dated decision receipt](owner-decisions-20261017.md) and canonical target. They remove only those scope gates, not dependency, test, independent-review, live-provider/owner-data or publication gates. D3a is the next bounded slice from accepted D2; D4 waits D3b. No implementation result is implied.
+
 # Slice 0 evidence
 
 **Principal D2 local disposition, 17 October:** [D2 is accepted for local dependent development](d2/principal-disposition.md) after independent source approval and principal inspection of the precision-only ca2bd94b delta. Full AI430/0/1 and stronger actual authority-context witness pass; three targeted guards caught and M04 remains NO VERDICT, with closed242.189064/300s budget. All290 material hashes and raw evidence were reconciled. B4 owns heavy. Owner D-S/D-M, INT-D, live/hosted/native-human/owner/full-program/PDF gates remain open; no integration or main merge is implied.
