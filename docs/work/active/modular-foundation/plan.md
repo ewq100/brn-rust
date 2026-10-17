@@ -1,3 +1,5 @@
+**Principal B4 local disposition, 17 October:** source3515f96a has [Opus3 approval](b4/opus-review-round3.md) and [local contract acceptance](b4/principal-disposition.md). B3/B4 dependencies permit INT-W on a local descendant branch, with full F21 and comprehensive combined review still required. Heavy and all B4 paths are returned. D-S/D-M await explicit owner decisions; no D3/D4 start. Hosted/native-human/owner/PDF gates remain open. This supersedes dated current-slice checkpoints below.
+
 # Combined C0 implementation plan
 
 **Principal disposition, 17 October:** B3 source93b92d7b has Opus3 approval and [local contract acceptance](b3/principal-disposition.md). B4 may prepare the real-Workspace development host source-only; D2 owns the sole heavy slot. INT-W, full F21, hosted/native-human/owner and carried PDF qualifications remain separate. This supersedes the dated current-slice checkpoint below.

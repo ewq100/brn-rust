@@ -1,3 +1,5 @@
+**Principal B4 local disposition, 17 October:** [Opus3](b4/opus-review-round3.md) APPROVED exact3515f96a; [local contract acceptance](b4/principal-disposition.md) records the same real Workspace/panel/shared runtime, final5 host journeys and strict lint/fmt, earlier source-qualified native/default checks, six existing dependency edges and returned ownership. INT-W is now eligible; full F21/native-human/hosted/owner/PDF and separate-lane integration remain open. No writing-milestone or main-merge claim.
+
 # Combined C0 evidence
 
 **Principal B3 local disposition, 17 October:** [Opus3](b3/opus-review-round3.md) APPROVED final source93b92d7b and [the principal accepts its local contracts](b3/principal-disposition.md). Final native287/0/1, library44, strict lint/fmt and genuine hidden-draft before proof are reconciled against328 hashes/eight raw check associations. Earlier broad counts and two actual guard catches retain their original pins and limitations. B4 source preparation is eligible; D2 retains heavy. INT-W/full F21/native-human/hosted/owner/PDF and separate-lane integration remain open.
