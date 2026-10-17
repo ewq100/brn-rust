@@ -1,0 +1,74 @@
+{
+  "task": "int-d-runner-opus1-b1-20261017",
+  "base": "b60cd8c1c5a2bbb09ab9a9e2f5be81b3dc9617ed",
+  "source_material": "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "heavy_inventory": [],
+  "review_sha256": "c025e05ea2e49b1857ed8a45a1daed4de678d36f05b7cfed2a9ff2da8bbbda24",
+  "preserved_preflight": [
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/generation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/generation.stdout",
+      "sha256": "0a50173277f51205117ad1d8eba302994ea120fa98dac53a4b6a2a6d0d048f7d"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/manifest.json",
+      "sha256": "64d2b25067dd24319ce33b2d32fd377d3de91d44e0923a7b961887ecedd4ee60"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/settings.json",
+      "sha256": "7e3052c4152c357cf6dab980762360b2cf284ed6d42f5113c96ae070d8425806"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/threads.sqlite3",
+      "sha256": "01c1e944de8c2d9a1e528c698005d22a20b6fe88884a72c444f23d1948905d98"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/postconfiguration-overlay.json",
+      "sha256": "c621ecfb814209b5e14e60e4896dfaf570912a1b7e281af3145f05b56c19f453"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/preflight.json",
+      "sha256": "befbd639c2c699fd27502a9cb70a618ce00154987dbdbcd49574a85ea2d5b85f"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/prompt.txt",
+      "sha256": "523b69c7ae41795cf00e6960e7ff837172ced73b915786645383a2648e778400"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/readiness.json",
+      "sha256": "d61f7088db8ed3f967d4baa2f49a427ab60fab59e19baa860bd34fd2bceb4be6"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/reference-configure.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/reference-configure.stdout",
+      "sha256": "12be0968fe87828f9f3781a30a4a008aecf03f0d199f0451b339aa56272ed2eb"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/rubric.json",
+      "sha256": "8c322a4dccf1469fca4df94c61f1a9505ee51843d21b7a6ce5f20d80a6cf84bf"
+    }
+  ],
+  "preserved_old_artifact": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "ebfcbd6a504f2d31ed2360d09d94a1e444cb20e920880baf486d985ab633e164",
+    "mtime": 1792250523.7125673,
+    "receipt_mtime": 1792250529.042387,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+  },
+  "preservation_root": "/private/tmp/brn-int-d-runner-opus1-b1-20261017-evidence",
+  "timestamp": 1792251830.313035,
+  "paid_starts_authorized": 0
+}

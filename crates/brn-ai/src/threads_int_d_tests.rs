@@ -2979,4 +2979,102 @@ mod capture_runner {
             assert!(!crate::run_lease::run_is_live(&derived, &run_id));
         }
     }
+
+    #[test]
+    fn offline_python_context_interoperates_with_exact_rust_fixture_facts() {
+        // Actual feature/typed-field order, not an assumed Python canonical form.
+        let (_root, request, _) = tests::fixture();
+        let store = Store::open_existing_without_upgrade(&request.data_dir).unwrap();
+        let settings = store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find_map(|r| {
+                if let RecordData::Settings(s) = r.data {
+                    Some(s)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let encoded = serde_json::to_value(settings).unwrap();
+        assert_eq!(
+            encoded
+                .as_object()
+                .unwrap()
+                .keys()
+                .take(8)
+                .map(String::as_str)
+                .collect::<Vec<_>>(),
+            [
+                "provider",
+                "model",
+                "effort",
+                "auth_file",
+                "credentials_dir",
+                "maintenance",
+                "review_first",
+                "delegation_chosen"
+            ]
+        );
+        assert_eq!(
+            serde_json::from_str::<Value>(r#"{"z":1,"a":2}"#)
+                .unwrap()
+                .to_string(),
+            r#"{"z":1,"a":2}"#
+        );
+        drop(store);
+        let Some(copy) = std::env::var_os("BRN_INT_D_OFFLINE_CONTEXT_COPY").map(PathBuf::from)
+        else {
+            assert!(std::env::var_os("BRN_INT_D_OFFLINE_EXPECTED_CONTEXT").is_none());
+            assert!(std::env::var_os("BRN_INT_D_OFFLINE_CONTEXT_OUTPUT").is_none());
+            println!(
+                "INT_D_B1_INTEROP: preserve_order qualified; external copied-fixture branch not requested"
+            );
+            return;
+        };
+        owned(&copy, "brn-int-d-runner-interop-20261017-", true).unwrap();
+        let expected_path = PathBuf::from(
+            std::env::var_os("BRN_INT_D_OFFLINE_EXPECTED_CONTEXT")
+                .expect("explicit expected metadata required"),
+        );
+        let output = PathBuf::from(
+            std::env::var_os("BRN_INT_D_OFFLINE_CONTEXT_OUTPUT")
+                .expect("explicit fresh metadata output required"),
+        );
+        assert_eq!(expected_path, copy.join("expected-context.json"));
+        assert_eq!(output, copy.join("actual-context.json"));
+        let expected: Value =
+            serde_json::from_slice(&bytes(&expected_path, 32 * 1024).unwrap()).unwrap();
+        let data = copy.join("control");
+        assert_eq!(data.canonicalize().unwrap(), data);
+        let store = Store::open_existing_without_upgrade(&data).unwrap();
+        let actual = fixture_facts(
+            &store,
+            expected["chat"]["id"].as_str().unwrap(),
+            expected["target"]["id"].as_str().unwrap(),
+        )
+        .unwrap();
+        drop(store);
+        let raw = serde_json::to_vec_pretty(&actual).unwrap();
+        assert!(raw.len() <= 32 * 1024);
+        let mut out = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .custom_flags(libc::O_NOFOLLOW)
+            .open(&output)
+            .unwrap();
+        out.write_all(&raw).and_then(|_| out.sync_all()).unwrap();
+        let mut except_policy = expected.clone();
+        except_policy["settings"]["policy_sha256"] = actual["settings"]["policy_sha256"].clone();
+        assert_eq!(actual, except_policy, "difference outside B1 policy digest");
+        println!(
+            "INT_D_B1_INTEROP {}",
+            json!({"whole_context_equal":actual==expected,"rust_policy_sha256":actual["settings"]["policy_sha256"],"expected_policy_sha256":expected["settings"]["policy_sha256"],"only_possible_difference":"settings.policy_sha256","auth_or_runner_invocations":0})
+        );
+        assert_eq!(
+            actual, expected,
+            "B1 Python/Rust whole-context interoperability"
+        );
+    }
 }

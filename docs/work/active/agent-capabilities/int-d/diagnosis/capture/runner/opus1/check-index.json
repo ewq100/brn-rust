@@ -1,0 +1,204 @@
+{
+  "task": "int-d-runner-opus1-b1-20261017",
+  "checks": [
+    {
+      "name": "b1-interop-before",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests::capture_runner::offline_python_context_interoperates_with_exact_rust_fixture_facts",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "source_unchanged": true,
+      "source_inputs": 334,
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages",
+        "BRN_INT_D_OFFLINE_CONTEXT_COPY": "/private/tmp/brn-int-d-runner-interop-20261017-before-b1",
+        "BRN_INT_D_OFFLINE_EXPECTED_CONTEXT": "/private/tmp/brn-int-d-runner-interop-20261017-before-b1/expected-context.json",
+        "BRN_INT_D_OFFLINE_CONTEXT_OUTPUT": "/private/tmp/brn-int-d-runner-interop-20261017-before-b1/actual-context.json"
+      },
+      "files": {
+        "raw/b1-interop-before.json": "702c40f1f58f972bbf2a63ced6a259923dab27640966e4ac5e697716af7aa2d2",
+        "raw/b1-interop-before-artifacts.json": "eadb5ea2faa0318998d26e864c7adc49dcc99cb5970f3759fa15b7e9da0f2af4",
+        "raw/b1-interop-before.log.json": "32cdd430909829278ad72b97b03bdfcb60c98794f0603b37d995225414e4b578"
+      }
+    },
+    {
+      "name": "b1-interop-after",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests::capture_runner::offline_python_context_interoperates_with_exact_rust_fixture_facts",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "source_unchanged": true,
+      "source_inputs": 334,
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages",
+        "BRN_INT_D_OFFLINE_CONTEXT_COPY": "/private/tmp/brn-int-d-runner-interop-20261017-after-b1",
+        "BRN_INT_D_OFFLINE_EXPECTED_CONTEXT": "/private/tmp/brn-int-d-runner-interop-20261017-after-b1/expected-context.json",
+        "BRN_INT_D_OFFLINE_CONTEXT_OUTPUT": "/private/tmp/brn-int-d-runner-interop-20261017-after-b1/actual-context.json"
+      },
+      "files": {
+        "raw/b1-interop-after.json": "027d7fe97701d10074c922f55a69e7cec269d26b0e52551076c03c0d113cf9be",
+        "raw/b1-interop-after-artifacts.json": "7be8ec47a9bf9659e91ebf779ae962011c57431031da0f5f3a7c06bd46488e3b",
+        "raw/b1-interop-after.log.json": "942b8dcefa685ee66ebac9655a561922f05e5791141e12c684b3610dd8d08872"
+      }
+    },
+    {
+      "name": "b1-focused-module",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          7,
+          0,
+          1
+        ]
+      ],
+      "source_unchanged": true,
+      "source_inputs": 334,
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "files": {
+        "raw/b1-focused-module.json": "605b9221523df090034e0f4903e1a3c60ae96f68cc9e5e8f8dc8e6c748430e28",
+        "raw/b1-focused-module-artifacts.json": "c2aac9835b311564880829ed95ef953f1c43bd9df6a119907801b4433919d7a4",
+        "raw/b1-focused-module.log.json": "c33ed406eea3b6bb43bbb210802178d2f62c99e5242fcb98517b2006ea8af7ef"
+      }
+    },
+    {
+      "name": "b1-scripted-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "counts": [],
+      "source_unchanged": true,
+      "source_inputs": 334,
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "files": {
+        "raw/b1-scripted-clippy.json": "0d6bda4be47f9683d51131aed604f451295701c5c9ed917fcaeb132fd4af46e2",
+        "raw/b1-scripted-clippy-artifacts.json": "9115229a19576e27ac2bbf0fe1cdab23530340f5bb39a0a08c468e7125c986ce",
+        "raw/b1-scripted-clippy.log.json": "0b967c3ea0437b494356b1a140aeade1f0739e251bfe070fcdecbbbb70be8fcf"
+      }
+    },
+    {
+      "name": "b1-format",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "counts": [],
+      "source_unchanged": true,
+      "source_inputs": 334,
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "files": {
+        "raw/b1-format.json": "7e8b27250d35c2727bb747f2a21592b61afcadd056848074ef58eed323b1e51d",
+        "raw/b1-format-artifacts.json": "8b7d0ba145e200456f96e0c565d634536b888d5dd6a660ed63cd07797c5e1e8c",
+        "raw/b1-format.log.json": "8c2155a6de6cb8016fae49e409226cfb5b8391cdcff8e9a1037d5e9070cde762"
+      }
+    }
+  ],
+  "exact_interop": "0/1 genuine old-preflight red, then1/0 corrected whole context; original Store never opened. Default focused7/0/1ignored has feature-order check only without metadata env; external wholecontext qualified by separate exact1/0.",
+  "failure_class": "B1 preflight interoperability/readiness only, not production defect or historical prepare cause.",
+  "fixture_facts_byte_identical": true,
+  "fixture_facts_sha256": "86cbe6dad85b91135836b51a38936f3353ee190494f204978ed5cd8015472284",
+  "prior_test_module_body_unchanged_except_final_brace_for_new_test": true,
+  "CLI": "No new CLI build/run needed. Previous9d4/0 and source/artifact origin retained, not relabelled.",
+  "paid_or_Auth_or_ignored_runner_invocations": 0
+}

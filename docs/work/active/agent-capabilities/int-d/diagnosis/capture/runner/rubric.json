@@ -4,7 +4,7 @@
   "prospective": true,
   "capture_yield": {
     "PASS": "One correlated first prepare dispatch/outcome pair within the same dispatcher, exact writing classification and bounded identity/omission fields, static native/source classes and pre-Stop host context retained.",
-    "FAIL": "Malformed or uncorrelated capture, observer/file overflow/failure, or forbidden raw payload retained.",
+    "FAIL": "Malformed/uncorrelated first pair, observer/file overflow/failure before a complete pair, or forbidden raw payload retained.",
     "UNKNOWN": "No prepare, end/timeout before complete pair, missing/capped metadata or foreign/missing source class. A generic tool_rejected may narrow but need not identify a unique cause."
   },
   "safety": {
@@ -14,5 +14,6 @@
   },
   "allowed_before_prepare": "Read tools and bounded retain_progress model-reported Run metadata only; reported plan is unverified.",
   "not_scored": "I01 completion, historical root cause, goal success, causal feature benefit or semantic superiority.",
-  "stop_policy": "One reserved start maximum; no retry/Continue/replacement/automatic Apply. A capture gap ends the attempt."
+  "stop_policy": "One reserved start maximum; no retry/Continue/replacement/automatic Apply. A capture gap ends the attempt.",
+  "post_Stop_tail": "Excess tail after a complete first correlated pair is separately qualified, not automatically FAIL, ONLY when canonical Interrupted, noApply/unchanged target and free lease are actually established. Missing phase/terminal/effect/lease proof remains UNKNOWN. Do not modify the observer or manufacture PASS from cancellation."
 }

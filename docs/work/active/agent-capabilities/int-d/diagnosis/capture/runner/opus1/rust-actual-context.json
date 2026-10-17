@@ -1,0 +1,298 @@
+{
+  "purpose": "Test",
+  "project": {
+    "id": "d6fa2407-4746-4079-8d25-d0084afe630b:0",
+    "version": 3
+  },
+  "chat": {
+    "id": "fae74c5b-b4b7-4320-802e-635946cee634:0",
+    "version": 1,
+    "privacy": true,
+    "epoch": 1
+  },
+  "settings": {
+    "id": "98d9d303-f4e5-41a7-a0ff-342e98efa253:0",
+    "version": 4,
+    "policy_sha256": "34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993",
+    "auth_reference": "/Users/evokessler/.codex/auth.json"
+  },
+  "target": {
+    "id": "e6f966a8-3569-4d42-a1f8-500610930f9c:0",
+    "version": 2,
+    "protected": true
+  },
+  "inputs": [
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:0",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:1",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:10",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:11",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:12",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:13",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:14",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:15",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:16",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:17",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:18",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:19",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:2",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:20",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:21",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:22",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:23",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:24",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:25",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:26",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:27",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:28",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:29",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:3",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:30",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:31",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:4",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:5",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:6",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:7",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:8",
+      "version": 1
+    },
+    {
+      "id": "4b4ca309-84d5-4f99-8dff-492f6048098d:9",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:0",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:1",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:10",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:11",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:12",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:13",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:14",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:15",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:16",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:17",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:18",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:19",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:2",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:20",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:21",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:22",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:23",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:24",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:25",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:26",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:27",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:28",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:29",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:3",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:30",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:31",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:4",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:5",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:6",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:7",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:8",
+      "version": 1
+    },
+    {
+      "id": "5e124414-9b5f-4ebc-8fec-a9ddfd865ddf:9",
+      "version": 1
+    },
+    {
+      "id": "d109275b-ad3d-40c3-bb1b-0c07e2738670:0",
+      "version": 1
+    },
+    {
+      "id": "d109275b-ad3d-40c3-bb1b-0c07e2738670:1",
+      "version": 1
+    },
+    {
+      "id": "d109275b-ad3d-40c3-bb1b-0c07e2738670:2",
+      "version": 1
+    },
+    {
+      "id": "d109275b-ad3d-40c3-bb1b-0c07e2738670:3",
+      "version": 1
+    }
+  ]
+}

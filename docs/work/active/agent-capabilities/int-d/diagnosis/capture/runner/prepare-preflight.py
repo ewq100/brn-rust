@@ -22,6 +22,13 @@ def sha(path):
     return digest(Path(path).read_bytes())
 
 
+def settings_digest(settings):
+    # CLI JSON retains WorkspaceSettings declaration order. Rust fixture_facts
+    # hashes to_value(settings) with the actual serde_json preserve_order feature
+    # (Rig's unified graph); alphabetical sorting is a DIFFERENT byte contract.
+    return digest(json.dumps(settings, separators=(',', ':'), ensure_ascii=False).encode())
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ('pin', 'cli', 'generator', 'runner', 'runner-receipt',
@@ -156,8 +163,7 @@ def main():
                         'privacy': chat['data']['Thread'].get('private_context', False),
                         'epoch': chat['data']['Thread'].get('context_epoch', 0)},
                'settings': {'id': settings_record['id'], 'version': settings_record['version'],
-                            'policy_sha256': digest(json.dumps(settings, sort_keys=True,
-                                separators=(',', ':'), ensure_ascii=False).encode()),
+                            'policy_sha256': settings_digest(settings),
                             'auth_reference': settings['auth_file']},
                'target': {'id': note['id'], 'version': note['version'], 'protected': True},
                'inputs': [{'id': mid, 'version': by_id[mid]['version']}
