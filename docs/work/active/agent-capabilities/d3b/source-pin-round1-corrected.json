@@ -1,0 +1,26 @@
+{
+  "pin": "90f50da09e5ddc4803124f69777c122491917f97",
+  "tree": "a1259450bf257114fb7e2760329d16af4ba72257",
+  "crates_tree": "9ea12cfd55d5d4444830e3db128f9c70a957a81d",
+  "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "reviewed_prior": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "branch": "work/d3b-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "material_hashes": 274,
+  "all_hashes_match_qualified_wip": true,
+  "git_status_at_pin": "",
+  "diffs": {
+    "whole": {
+      "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+      "path": "/private/tmp/brn-d3b-review1-candidate-artifacts/whole-actual.diff",
+      "sha256": "39e3240474f2c0d9c714562dffe68b197fadd1400b482a8a972c570ffd6d9f54"
+    },
+    "correction": {
+      "base": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+      "path": "/private/tmp/brn-d3b-review1-candidate-artifacts/correction-actual.diff",
+      "sha256": "f5d902dd5c5ea8d377fb82cd1212547fc77db9f8016e6760e7cd631ea7e01e1b"
+    }
+  },
+  "brn_sha256": "1dc0da67f959d3c1092f3990dd39e7e37733949179a89df50deeb7df816b7829",
+  "brn.d_sha256": "6e07dff2240d47446155f2afe31fc7981c2d236f1b1c690052766ba86690926e"
+}
