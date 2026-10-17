@@ -1,5 +1,7 @@
 # Combined C0 implementation plan
 
+**X2 reopened,17 October2026:** the owner explicitly starts Xberg integration and then supersedes the PDF-only ceiling with [all-document scope](x2/owner-scope-all-documents.md). [Current source reconciliation/plan](x2/plan.md) covers all8 DocumentKind routes and additional families; PDF is only the first gated engineering slice. Current work is docs-only preparation on65684dcb; exact production/dependency/heavy allocation and independent readiness review precede implementation, with no new live activation or cutover claim. Historical stage statements below are preserved.
+
 **Current slice:** CW2 source `12b0d329` is reviewed and locally accepted for dependent development after explicit clean handoff `4ccece6f`. B1a and D1A are eligible with disjoint ownership and one heavy build at a time. Full qualification remains open. [Principal disposition](cw2/principal-disposition.md) supersedes historical checkpoint/hold statements below.
 
 **C0 goal:** establish a reviewable baseline for modular foundation plus agent-capabilities Slice 0, without production edits.

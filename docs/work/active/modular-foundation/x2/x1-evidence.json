@@ -1,0 +1,677 @@
+{
+  "git": "65715ee538bfaffdd442307d2ffa631cbd2b68bc",
+  "tree": "82041faea6d8d73a1039d5a69ee0916a609a7f60",
+  "hashes": {
+    "experiments/x1-xberg/.gitattributes": "0981ee3ea6d725769cddde4f61d1b4ffc31d62e903af95da76a060a636b05da6",
+    "experiments/x1-xberg/COMMANDS.md": "646edf7098303f3b71139416d0c48c9794c7006b29f24f8b61341d53cd2d1d73",
+    "experiments/x1-xberg/Cargo.lock": "b5d6f8483304c913a264ac4b188d1429995322b513e8d8c2ea4de91f919b547f",
+    "experiments/x1-xberg/Cargo.toml": "d0685deb44b9c27f7502ad1ade28711c84036060489cae86697a35450b76991b",
+    "experiments/x1-xberg/DESIGN.md": "63a65adcf52f6c3e68bd3faeaec764d7f0b04f2e567f88914df488c76958f665",
+    "experiments/x1-xberg/PLAN.md": "63b7f2d5c054a6aa63715a303007ce23a61684d6e8428b601d28a425cd9c272e",
+    "experiments/x1-xberg/REPORT.md": "9df2e503a29f76ce33f67a568003c4d49d06a2ddd6fe0989b6ad4ba45b61fde1",
+    "experiments/x1-xberg/build.py": "125a8214c63bcab129d96124ac876f840704ce3ea3a7bf47605addd5ba272597",
+    "experiments/x1-xberg/check_inventory.py": "8a3cb2e5ca57101c72008948a9d48307170062d9f10a765a452240993d1cb869",
+    "experiments/x1-xberg/compare.py": "4f13d31995e3d78fc408603418f2db8a827409b030921ad454c81978abf2f7e9",
+    "experiments/x1-xberg/evidence/binary-sizes.json": "c87327219d2e9d7c05d7d8296d0c7398a9caf0a5339bcb7b935e2a05195b4458",
+    "experiments/x1-xberg/evidence/build-baseline.log": "9606152d5a8db08682f732eec673de2746b4f0269cf77ec2c31d2522dbc86ebe",
+    "experiments/x1-xberg/evidence/build-script-inventory.json": "3b91285789b0eaeeaa92c9db2585fb2a5ff462f94b3fcb458dc4654f93617d09",
+    "experiments/x1-xberg/evidence/build-scripts.txt": "70d78c6233a466460f4ad0aec34aa57a1a0bc11d10f6ee074d16814225a43625",
+    "experiments/x1-xberg/evidence/build-source-hashes.json": "bb9b27b846c0fa6b5515f38cff6779b94fb1685dc51f83f405eb753db4b8aaf0",
+    "experiments/x1-xberg/evidence/build-xberg-probe.log": "2984ca6a13f9d115e7ad424ba1d19f7b38066c2dc689dc6cce4e3c4c14d73245",
+    "experiments/x1-xberg/evidence/builds.json": "782ebcdb9b36491e18f16416340cd7bb211879df36b307b0eb109a249c2098d9",
+    "experiments/x1-xberg/evidence/clippy.log": "57057427668ab96c21beadc3fe3b82fc019d10285d213033518f36ef14da1aaa",
+    "experiments/x1-xberg/evidence/cold-binary-sizes.json": "35b0b51d1ce6e6566fd966b14dd56b97c5c106d4414b77a944772117b62be525",
+    "experiments/x1-xberg/evidence/comparison-commands.json": "3655415ca44a27c9aad80813dcd04ea87e121343d11252bdd41b299b49727885",
+    "experiments/x1-xberg/evidence/comparison-final-run.log": "d8b09e6726645afc2574bbdc0b590cdf4b2efbbce3fdac7f53a426888bb83ab0",
+    "experiments/x1-xberg/evidence/comparison-run.log": "d8b09e6726645afc2574bbdc0b590cdf4b2efbbce3fdac7f53a426888bb83ab0",
+    "experiments/x1-xberg/evidence/comparison.json": "d8b09e6726645afc2574bbdc0b590cdf4b2efbbce3fdac7f53a426888bb83ab0",
+    "experiments/x1-xberg/evidence/contention.json": "89d8dc9a0ecc47d896b95a7bd3d4034c733b24913b92fe382af97be410ce9551",
+    "experiments/x1-xberg/evidence/duplicate-versions.json": "7c5f824b0d98634fb874dc73cf257acab5de5e9a3c49e516afc3cd0029f70bff",
+    "experiments/x1-xberg/evidence/duplicates.txt": "b9ab46f496040d0b24487efec690b1ea6f7d66993cbb764ffc5a2d1de9199d7a",
+    "experiments/x1-xberg/evidence/excluded-canary.txt": "417cb606555369c916949ee27c7461e0c1660a946b2b9631abad4d2607b490aa",
+    "experiments/x1-xberg/evidence/features.txt": "835b54f7ab88ab030f4ddadd0a135bd1b8c117855f1ebde92e2c294bce2a2324",
+    "experiments/x1-xberg/evidence/fetch-after-harness.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/fetch.log": "28decb273c3382c91fdda09f8697580516d03bc50ca2bdc164f1a3263a5bd5a7",
+    "experiments/x1-xberg/evidence/final-release-build.json": "e69be52f31fb0df7d2629217d1f340a5aa2668af725181d24efa5a8567e39b5e",
+    "experiments/x1-xberg/evidence/final-release-build.log": "1c9591a128e1cd281fc3582f6935d50b30904891df94c08698fa38f4f7df1b67",
+    "experiments/x1-xberg/evidence/final-review.md": "9e82d720f86a10fe459966281cd3a53ba8103d27789a07653550a18524af5206",
+    "experiments/x1-xberg/evidence/graph-summary.json": "3a67b1507f4be0426fe495cbfa93bd51eba1d8520c2f9cefe4781c40d4790e2e",
+    "experiments/x1-xberg/evidence/harbor-study/page-1-lines.diff": "aa7af013e557cf4d77acbb7a36e3d2789280fa1f974828db13aba63a1d9df762",
+    "experiments/x1-xberg/evidence/harbor-study/page-2-lines.diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/bbox.xhtml": "5ad6f34ac78d947a05cd87fb5b78ebae41eaff2cfb0b7eb39123a00b39aa5656",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/bbox.xhtml.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/image-000.png": "75817c9dd0fb816e03cc61a9edf1a20a85e1a12fe6a4922c57685a4a939a8273",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/images-extract.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/images-extract.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/images-list.txt": "1b8e1f77ffdd4c591812bc2016b656e69f6d8492a149db96d1a0080297420a43",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/images-list.txt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/layout.txt": "d5f515386b9f9454de4f84e438623aca9f00747ba0e556ff5ef61b8f888e8ece",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/layout.txt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/page-1.txt": "fb93800db9b305631c9e4b334e74f850c7e4c832e4c48dcbf76c7ea398447df7",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/page-2.txt": "3e1a2dca886608ea36008f59e78d33f621a8766275cc0b2574d6d1afa6291325",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/pages.json": "524210a898ada250fd5337d926c767643593cbafc56e913c8f96bf52f73922f0",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/preview-1.png": "7a23c065029ef67d41c878722adfd74baa5a09dc032b0d911bcd30956c219328",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/preview-2.png": "fb71bd8b500337be88bdadce8973350048cd157ce20b62bd5dfe1607548faf9a",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/render.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/poppler/render.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/visual-page-1.png": "29b10b4a0182569e200dfb460c1ff2a10376a177fad696b3f86a0da74680e558",
+    "experiments/x1-xberg/evidence/harbor-study/visual-page-2.png": "fbefb4037b64b7af9ef167c9f5c38f3121e5014a0b06e2b132baa420732db5c4",
+    "experiments/x1-xberg/evidence/harbor-study/xberg-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/xberg-run.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/config.json": "0d319638cacdb0420e932685f47d87dda94e414379dc4524433147c5ec5d886a",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/content.txt": "13aacb6605947d9b5812b9d537717205b998ce771dd5d99adf79d0222d02964a",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/errors.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/image-000.png": "7b16ca41f312e08c8e7b55d6da8ad7fb50cf17031b55c780d50364122e4f60aa",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/page-1.txt": "d2ed43d9aa4070769e2ef68592dccf286d2ec76a7cfb50620e59cc215a0eb6a7",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/page-2.txt": "aceeed4408bfe9facb38e1faeb230cf522113366f37b5b0715c909738484827b",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/preview-1.png": "d86e0a15e562a699cebd89b7e457841c05ed1b0c4ed8cb8c2da2d88cbeaa0077",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/preview-2.png": "913e8bcf315e4f51079c6a293fae25182b593baa26fa8b45293968659f361461",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/render-1.png": "da7df92ca357132af8c235f5c5bb07785dc2f2742341e88a8ea2aa0b322ee850",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/render-2.png": "4e7670865e7e99f5e6e080a2ffda2c1811e0892b8678f8f69634f8d4b280d4b8",
+    "experiments/x1-xberg/evidence/harbor-study/xberg/result.json": "f0e6b98e8451c1a38755867fe2232ffc015588732f5d2e4177fe7df2dee83dcf",
+    "experiments/x1-xberg/evidence/inventory-check-run.log": "7df7d051a43ce68058950c907bdbb6a5ede5fa6d1cc10261b2843c38d89511a1",
+    "experiments/x1-xberg/evidence/inventory-checks.json": "7df7d051a43ce68058950c907bdbb6a5ede5fa6d1cc10261b2843c38d89511a1",
+    "experiments/x1-xberg/evidence/licenses-macos.tsv": "d2a7f3f1cb62fe48bf7a883ad692a9821fc9c554813ae0832caf908fdb9e513a",
+    "experiments/x1-xberg/evidence/licenses.tsv": "e547b29ca9e7f0a9d463c66530f05a28242c453adcbcdd87b3b43a60d20c273d",
+    "experiments/x1-xberg/evidence/licenses/DejaVu.txt": "a56b293d91356f5cad310a5f65c2da8ef459e1b23dd3f662228d5f23b8bb9946",
+    "experiments/x1-xberg/evidence/licenses/xberg-native-pdf-attributions.md": "cbc098059f74d96e74579d2beb957e0f5ec6d4ab7fef8fa5b847eb5554b4740d",
+    "experiments/x1-xberg/evidence/metadata-macos.json": "cd57e4429171570d03e56b4ed548c83487018844d06de68d1e30940514fb2abd",
+    "experiments/x1-xberg/evidence/metadata.json": "eed9a8755d57a2898e6eecdd5b2564c7d4e904d10a89a10c952763411d22a075",
+    "experiments/x1-xberg/evidence/native-audit.md": "d1271b9e3c0c068659b0efcbc7e3b229cd8fb04f93a7d4e4ec9d82860574aeaa",
+    "experiments/x1-xberg/evidence/native-link-build-output.txt": "e08c44243cc04a61ca4a2d9fd07895358aff86b76a8f8144620f6c7d696ea2e0",
+    "experiments/x1-xberg/evidence/otool-baseline.txt": "632ce0c786423dc5fc31db02b753b61dff4ec880debbe786c7eaa74ea28ace85",
+    "experiments/x1-xberg/evidence/otool-xberg-probe.txt": "24f0db3ff0a71aad5e5aafdf06cf2930aa31c851943f0e46871ea0f28a151012",
+    "experiments/x1-xberg/evidence/plan-review.md": "6975a111a1cc15f0f8767664bf82481ad286a6abe4168483ccc104eaa0cd8c23",
+    "experiments/x1-xberg/evidence/process-scan/page-1-lines.diff": "3d7d97fa55d786ff2f4538f5586d9c2d375da3179ee0e926ae976801aa716a5b",
+    "experiments/x1-xberg/evidence/process-scan/page-2-lines.diff": "da52b869cd7ce634921ad217b19c6ead263dc89b935a4aac830444d8beab7a01",
+    "experiments/x1-xberg/evidence/process-scan/page-3-lines.diff": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/bbox.xhtml": "1e92b5a869e1b7fe6ebfa55f7eed109b29ebeae7b1f18a597541472fc44f9108",
+    "experiments/x1-xberg/evidence/process-scan/poppler/bbox.xhtml.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/image-000.png": "b62c350bf4fa6ddb330151f8f2f8cfe326a9574170139534b6403c55325e72a6",
+    "experiments/x1-xberg/evidence/process-scan/poppler/images-extract.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/images-extract.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/images-list.txt": "e58e10b6a39d9867a02c7abd9e8650322f014233095e4f2eec296dede697ef6f",
+    "experiments/x1-xberg/evidence/process-scan/poppler/images-list.txt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/layout.txt": "829bdbb5bcba05ec3fc32ca120dc6aa697b6e081e5e4e278d16e6491b653c78f",
+    "experiments/x1-xberg/evidence/process-scan/poppler/layout.txt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/page-1.txt": "96c641dde9a372bc331c4bcb91e49e89184f6415e11e1e7f0dd538e54941ac23",
+    "experiments/x1-xberg/evidence/process-scan/poppler/page-2.txt": "765b1907184ca627e1e88dff80b3e757ee5ebb74f485afe33946d49a763567cf",
+    "experiments/x1-xberg/evidence/process-scan/poppler/page-3.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/pages.json": "e3e0bceb1f727ca87a1fda7012aa0df3e8b83ddb1f920f7f297e8c01555d0609",
+    "experiments/x1-xberg/evidence/process-scan/poppler/preview-1.png": "7af5907f7bcbcaf774c7553a0967c6dafe9189158969997f394068eae965b9ea",
+    "experiments/x1-xberg/evidence/process-scan/poppler/preview-2.png": "4bbaa70e7bfe35bc68be711ea925228191828adc6445c1fe4dcb6f7b8e7b0e4a",
+    "experiments/x1-xberg/evidence/process-scan/poppler/preview-3.png": "33336ef615bb592d19f9573d725d50b3b00d61c2fdb68ef9bac1e6e9dc2570e9",
+    "experiments/x1-xberg/evidence/process-scan/poppler/render.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/poppler/render.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/visual-page-1.png": "aee264a76c32f8d1b636339e0f3597d635225b3e0e739923413efc6abdd032ee",
+    "experiments/x1-xberg/evidence/process-scan/visual-page-2.png": "2feec2780b2a8cec942810350af4bf9f76ffe8cbbd83ce2590f49d20fc19e272",
+    "experiments/x1-xberg/evidence/process-scan/visual-page-3.png": "5a034eca891d58e91c818c725aca2292cf1c74611999aefa9c42f4105af8bae5",
+    "experiments/x1-xberg/evidence/process-scan/xberg-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/xberg-run.log.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/xberg/config.json": "0d319638cacdb0420e932685f47d87dda94e414379dc4524433147c5ec5d886a",
+    "experiments/x1-xberg/evidence/process-scan/xberg/content.txt": "bc343ff5a2b351f3a53ebbf4e0434d95624eab858b2d9c9a5417c87bf95338c5",
+    "experiments/x1-xberg/evidence/process-scan/xberg/errors.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "experiments/x1-xberg/evidence/process-scan/xberg/image-000.png": "d2fc582305fbfb2b3f4224bd47a7dd68f909d4f39020459c5e58f3aa0d9c319d",
+    "experiments/x1-xberg/evidence/process-scan/xberg/page-1.txt": "90de3cab8adc463e9cc9aa0d3e0309f694c140d7498809ef12c73f061274eab3",
+    "experiments/x1-xberg/evidence/process-scan/xberg/page-2.txt": "0de774e6863db1063768fd3a36b860e623551384fde9a5e36f6187265dea5e7e",
+    "experiments/x1-xberg/evidence/process-scan/xberg/page-3.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/x1-xberg/evidence/process-scan/xberg/preview-1.png": "0fdfff59992690e802506630aa927ba52dfcc9d986ccd3c32430fa742bfbf2a3",
+    "experiments/x1-xberg/evidence/process-scan/xberg/preview-2.png": "4f694190b135b6f8dbabc32da2240c14aafb935259adef304b7c3390e7c46b69",
+    "experiments/x1-xberg/evidence/process-scan/xberg/preview-3.png": "6b69762d9e4715782ac155e826d4ac5a76b534156f16910c413ed1f023945909",
+    "experiments/x1-xberg/evidence/process-scan/xberg/render-1.png": "d149459bdbe049882138c4e58c9b9b93c653d7cba2ebef86484b6df9a634997a",
+    "experiments/x1-xberg/evidence/process-scan/xberg/render-2.png": "87a4a1796c78a9cc8f7420555e4e568b2da68b39162b26a4ec10e53563f9b444",
+    "experiments/x1-xberg/evidence/process-scan/xberg/render-3.png": "029c730a8c588d3759bab0a079d5ab3d6240324f437ff373b9f8fe5d7316c91a",
+    "experiments/x1-xberg/evidence/process-scan/xberg/result.json": "c955cb21c25fe6b6d1547079e785a0c811f77951bb2dd143fe35685bba48fd05",
+    "experiments/x1-xberg/evidence/processes-baseline.txt": "77867737621cdf14dccebd2fa0f76ffb11aea472b7042fd43f30b9374e5bf6c2",
+    "experiments/x1-xberg/evidence/processes-xberg-probe.txt": "0e03ae15ff43218d71cf5884d7e71594e49bb97067f7d4b8ceb56af5b2a16746",
+    "experiments/x1-xberg/evidence/relocation-checks.log": "7df7d051a43ce68058950c907bdbb6a5ede5fa6d1cc10261b2843c38d89511a1",
+    "experiments/x1-xberg/evidence/relocation.md": "82faa79a517f71ab37c5baeebef987b1769a9b742032ffe2ac801614ad564307",
+    "experiments/x1-xberg/evidence/root-lock-comparison.tsv": "ffd30f469f6fef9d227d97ea9bde6dbab01f5462806c9a7b08bf5ef594f4354c",
+    "experiments/x1-xberg/evidence/sandbox/result.json": "2ac665a141041aa1d7c49171c87f09361405c68e1e7023c25f364ea4a2696545",
+    "experiments/x1-xberg/evidence/sandbox/witness.txt": "e4cf5d7cf90fe6077890505d9f924d070bf32b4b79d610d2445a3880d4db98c6",
+    "experiments/x1-xberg/evidence/source-hashes.json": "9f6d67699ef70f2e81f3811c55528e4d637ad9f51fa09bc89765c3f16d849724",
+    "experiments/x1-xberg/evidence/verification.md": "7ceadfbc6d52d6ab0fb5aaef012ea541fa2de1d8553f45b8a2bd99d692d6b80f",
+    "experiments/x1-xberg/graph.py": "48908ea5af1c6072935f7bc613741c41a77b969a16c0e1af8978a696f4032a12",
+    "experiments/x1-xberg/runtime.sb": "e1d46465ba83050134fd7b33b377a1d8352b63e3fc560a220b43d287a76f277c",
+    "experiments/x1-xberg/source-inventory.json": "4902714b84e828ba07f369d6abdd275f15876ac3618dfff6314545ec1ceedcee",
+    "experiments/x1-xberg/src/bin/baseline.rs": "b64ffb1052b162ddd4378e2f5bd4213765a9d8304a23fec84b9a4544f78ac722",
+    "experiments/x1-xberg/src/bin/sandbox_witness.rs": "b14c9e234ea06a7eba396a37b4bcd15661749f2ada3753b646cf7427a7920490",
+    "experiments/x1-xberg/src/bin/xberg_probe.rs": "68ed475ac284e4054966d06bbe3b9dff84daa7cda1ef72531c03923f9837e905"
+  },
+  "current_root_lock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "historical_lock_sha256": "b5d6f8483304c913a264ac4b188d1429995322b513e8d8c2ea4de91f919b547f",
+  "historical_packages_missing_from_current_lock": [
+    {
+      "name": "aes",
+      "version": "0.9.3",
+      "checksum": "35f0f96ce78e38c3dc6d8948aa8163d06385be74000f3c7a95bf1eef35d3ea32"
+    },
+    {
+      "name": "alloc-no-stdlib",
+      "version": "2.0.4",
+      "checksum": "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3"
+    },
+    {
+      "name": "alloc-no-stdlib",
+      "version": "3.0.0",
+      "checksum": "c2fb6cfd47bf496ff64095c20eaba0c201404ee38714d4142fcfa1dc334fcc7a"
+    },
+    {
+      "name": "alloc-stdlib",
+      "version": "0.2.4",
+      "checksum": "0e76a019e91224d279006ff972f1e984179a6e9feb050adba6ce8274aef23195"
+    },
+    {
+      "name": "alloc-stdlib",
+      "version": "0.3.0",
+      "checksum": "0b5c1865780388bfa186411ab5f247819487fc4864c6e9c3106611fa347586e1"
+    },
+    {
+      "name": "arbitrary",
+      "version": "1.5.0",
+      "checksum": "3bc62ac97cc33321f50863d514c3bc38a453947a8f9e781137e47c7401020aed"
+    },
+    {
+      "name": "astral-tl",
+      "version": "0.8.0",
+      "checksum": "04d4bb5df351abb6758a04240b0193794ddaf34a7c0b9452fab3c25dcce39e88"
+    },
+    {
+      "name": "bitvec",
+      "version": "1.1.1",
+      "checksum": "ddcec3d12c579d40898fe0a9a358a803c23e9c52ca3c425707f81c9436211837"
+    },
+    {
+      "name": "blake3",
+      "version": "1.8.7",
+      "checksum": "6d9e454fc11f76977dc803893aff6304ed33d6a26efae8696573bea74baa27ae"
+    },
+    {
+      "name": "block-padding",
+      "version": "0.4.2",
+      "checksum": "710f1dd022ef4e93f8a438b4ba958de7f64308434fa6a87104481645cc30068b"
+    },
+    {
+      "name": "borsh",
+      "version": "1.8.1",
+      "checksum": "553c5d846a6ba5150c65e3b1b8ec073bcf1abc20f9b7220de384a4443ea4e20a"
+    },
+    {
+      "name": "brn-x1-xberg",
+      "version": "0.1.0",
+      "checksum": null
+    },
+    {
+      "name": "brotli",
+      "version": "9.0.0",
+      "checksum": "f8b851b75c23ca7873623d612fe49bd1989aeb03d08fb9432187eb253d3d4c6b"
+    },
+    {
+      "name": "brotli-decompressor",
+      "version": "5.0.3",
+      "checksum": "3a32acac15fe1967bc3986b2a6347dffc965602354ea6f450ad07e8bfd253583"
+    },
+    {
+      "name": "brotli-decompressor",
+      "version": "6.0.1",
+      "checksum": "941cd9bd4ddab83cb46fa5a2d428f1c857b24ac78cb876cf7beb710840934bd7"
+    },
+    {
+      "name": "caseless",
+      "version": "0.2.2",
+      "checksum": "8b6fd507454086c8edfd769ca6ada439193cdb209c7681712ef6275cccbfe5d8"
+    },
+    {
+      "name": "cbc",
+      "version": "0.2.1",
+      "checksum": "ce2dc9ee5f88d11e0beb842c88b33c8a5cf0d1329c4b19494af42b07dbfe8896"
+    },
+    {
+      "name": "cc",
+      "version": "1.8.0",
+      "checksum": "6651c9ed80effdc7db0ff72512157f901af5e3549e341e24b1dd4887d836d838"
+    },
+    {
+      "name": "cfb",
+      "version": "0.14.0",
+      "checksum": "a347dcabdae9c31b0825fd6a8bed285ec9c2acb89c47827126d52fa4f59cece3"
+    },
+    {
+      "name": "cipher",
+      "version": "0.5.2",
+      "checksum": "e8cf2a2c93cd704877c0858356ed03480ff301ee950b43f1cbe4573b088bfa6c"
+    },
+    {
+      "name": "comrak",
+      "version": "0.56.0",
+      "checksum": "2544c4d6b6da7d54e95ac2833b464bf3dffa0666237868f2bf4ec5e11c9ba8cc"
+    },
+    {
+      "name": "constant_time_eq",
+      "version": "0.4.2",
+      "checksum": "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
+    },
+    {
+      "name": "cpubits",
+      "version": "0.1.1",
+      "checksum": "15b85f9c39137c3a891689859392b1bd49812121d0d61c9caf00d46ed5ce06ae"
+    },
+    {
+      "name": "dirs",
+      "version": "7.0.0",
+      "checksum": "8d57d423b3c82e89b9a24ca3091fee61f456a26edbd28d26c65906f4bc1dcd8f"
+    },
+    {
+      "name": "ecb",
+      "version": "0.2.1",
+      "checksum": "26f2a8b3e564eba0877223dc343703ad0385794e882e6d13f3a4dd5c6b1f41ac"
+    },
+    {
+      "name": "either",
+      "version": "1.19.0",
+      "checksum": "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
+    },
+    {
+      "name": "entities",
+      "version": "1.0.1",
+      "checksum": "b5320ae4c3782150d900b79807611a59a99fc9a1d61d686faafc24b93fc8d7ca"
+    },
+    {
+      "name": "equivalent",
+      "version": "1.0.3",
+      "checksum": "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826"
+    },
+    {
+      "name": "fast_image_resize",
+      "version": "6.1.0",
+      "checksum": "e9c50201dc184ba6553da1695aac20a042efffbe2d84542cee31917c86c3ab1e"
+    },
+    {
+      "name": "fax",
+      "version": "0.3.0",
+      "checksum": "70ed8646f3993cad0585c6669ffba6f7e5440a0bfb0a1f16600cae33ce7cf307"
+    },
+    {
+      "name": "fearless_simd",
+      "version": "1.1.0",
+      "checksum": "3296eb97d869113eaf148a6bdf01884e90b3828ad7ae2340b0f93362fc158611"
+    },
+    {
+      "name": "fearless_simd_macros",
+      "version": "0.1.0",
+      "checksum": "3e91d94c6885390b81782d7ee60fd6583b33907333a8b340de25ccf468353315"
+    },
+    {
+      "name": "finl_unicode",
+      "version": "1.5.0",
+      "checksum": "80bb028c8b4148c9ee0cca68fcd9add6044e81d3619f48577ddf13a263d047a2"
+    },
+    {
+      "name": "font-types",
+      "version": "0.12.6",
+      "checksum": "6c92d9081c7ab3bd83ef1eecdfad090f3d966e3ce74106779664114cfe1a6274"
+    },
+    {
+      "name": "funty",
+      "version": "2.0.0",
+      "checksum": "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
+    },
+    {
+      "name": "getopts",
+      "version": "0.2.24",
+      "checksum": "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df"
+    },
+    {
+      "name": "harfrust",
+      "version": "0.14.0",
+      "checksum": "86aa776d6d32b072119e1f1650f4db843ff4382a4aaa6a2c9c4e35703cd377cb"
+    },
+    {
+      "name": "hayro-ccitt",
+      "version": "0.4.0",
+      "checksum": "2866f0d976e76497480b853d5e258dab6e4b89ecfe991124e08f15dfa8fd03ad"
+    },
+    {
+      "name": "hayro-jbig2",
+      "version": "0.3.1",
+      "checksum": "000e025850f4592ddcaee85640db70704151f2bafd43b6f431aa5b6a2c6a35a9"
+    },
+    {
+      "name": "hayro-jpeg2000",
+      "version": "0.4.1",
+      "checksum": "122c5f834c37a2260b9c851bb8be685cf539b2a8b94b704a931ef7d2525d5835"
+    },
+    {
+      "name": "html-escape",
+      "version": "0.3.0",
+      "checksum": "491194d601b4fa9fac3c9571e014070a0ad1bc3392d1bc10419695196a8b3cc3"
+    },
+    {
+      "name": "html-to-markdown-rs",
+      "version": "3.18.1",
+      "checksum": "36135ae2471a090d086837db2f4794dca3bf8ca0ba288b799a0bb85dd3f0acf0"
+    },
+    {
+      "name": "html5ever",
+      "version": "0.40.1",
+      "checksum": "456a1a377e608e555d22ddab27ac0114bc7a7b4199078108e34c2aeae6c9b130"
+    },
+    {
+      "name": "infer",
+      "version": "0.22.0",
+      "checksum": "f4200d433cbd5178df7797c9c2e75b348b728e39631cf14520d1e2fc424201f4"
+    },
+    {
+      "name": "inout",
+      "version": "0.2.3",
+      "checksum": "d8c0d789294fb457b791f7797a04478704788f30b407e5d0b01deaa846572d9f"
+    },
+    {
+      "name": "jotdown",
+      "version": "0.10.0",
+      "checksum": "206bf4773a58f2a051a24fb77cb6c5eeaa84403c0dc5d072ec460ed1648db594"
+    },
+    {
+      "name": "jpeg-decoder",
+      "version": "0.3.2",
+      "checksum": "00810f1d8b74be64b13dbf3db89ac67740615d6c891f0e7b6179326533011a07"
+    },
+    {
+      "name": "lazy_static",
+      "version": "1.5.1",
+      "checksum": "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
+    },
+    {
+      "name": "libc",
+      "version": "0.2.190",
+      "checksum": "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
+    },
+    {
+      "name": "libyaml-rs",
+      "version": "0.3.0",
+      "checksum": "2e126dda6f34391ab7b444f9922055facc83c07a910da3eb16f1e4d9c45dc777"
+    },
+    {
+      "name": "litrs",
+      "version": "1.0.1",
+      "checksum": "4744e383959f0db86ede514b809b1c53251889093803c05267acc7d4e7030d70"
+    },
+    {
+      "name": "lopdf",
+      "version": "0.45.0",
+      "checksum": "bfffda0fe1ab0157e1a13c14bebd3f28671f2fccb7922f0722ec53926e6922d3"
+    },
+    {
+      "name": "markup5ever",
+      "version": "0.40.0",
+      "checksum": "0ab3dc68ac4a0f5719e560136778c1ee716e296030d75dbd4484e37e39e3a842"
+    },
+    {
+      "name": "md-5",
+      "version": "0.11.0",
+      "checksum": "69b6441f590336821bb897fb28fc622898ccceb1d6cea3fde5ea86b090c4de98"
+    },
+    {
+      "name": "memchr-n",
+      "version": "0.1.9",
+      "checksum": "1805571b8e7b1284ad43f27c88477840c1c0e5807c150021ac83d2228806540e"
+    },
+    {
+      "name": "phf",
+      "version": "0.14.0",
+      "checksum": "010378780309880b08997fae13be7834dba947d36393bd372f2b1556deb2a2f6"
+    },
+    {
+      "name": "phf_codegen",
+      "version": "0.14.0",
+      "checksum": "41b585a510fb76fdebead6897982ef2a03a21d8e6cbcca904999742a4afc6ffe"
+    },
+    {
+      "name": "phf_generator",
+      "version": "0.14.0",
+      "checksum": "aeb62e0959d5a1bebc965f4d15d9e2b7cea002b6b0f5ba8cde6cc26738467100"
+    },
+    {
+      "name": "phf_macros",
+      "version": "0.14.0",
+      "checksum": "5fa8d0ca26d424d27630da600c6624696e7dec8bf7b3b492b383c5dc49e5e085"
+    },
+    {
+      "name": "phf_shared",
+      "version": "0.14.0",
+      "checksum": "c6fd9027e2d9319be6349febd1db4e8d02aa544921200c9b777720ac34a3aa89"
+    },
+    {
+      "name": "pulldown-cmark",
+      "version": "0.13.4",
+      "checksum": "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e"
+    },
+    {
+      "name": "pulldown-cmark-escape",
+      "version": "0.11.0",
+      "checksum": "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae"
+    },
+    {
+      "name": "qcms",
+      "version": "0.3.0",
+      "checksum": "edecfcd5d755a5e5d98e24cf43113e7cdaec5a070edd0f6b250c03a573da30fa"
+    },
+    {
+      "name": "quick-xml",
+      "version": "0.42.0",
+      "checksum": "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
+    },
+    {
+      "name": "radium",
+      "version": "0.7.0",
+      "checksum": "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09"
+    },
+    {
+      "name": "read-fonts",
+      "version": "0.45.0",
+      "checksum": "8a5b7bed3d16ab428d8fa533640ab805ff50e7ad8a4d00649de1259e70023282"
+    },
+    {
+      "name": "rmp",
+      "version": "0.8.15",
+      "checksum": "4ba8be72d372b2c9b35542551678538b562e7cf86c3315773cae48dfbfe7790c"
+    },
+    {
+      "name": "rmp-serde",
+      "version": "1.3.1",
+      "checksum": "72f81bee8c8ef9b577d1681a70ebbc962c232461e397b22c208c43c04b67a155"
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.154",
+      "checksum": "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6"
+    },
+    {
+      "name": "serde_spanned",
+      "version": "1.1.2",
+      "checksum": "4e7523beb55eece201a2356bee0bbca0d1ab466c14c07703b2e0ee6d42cb0c2c"
+    },
+    {
+      "name": "serde_toon_format",
+      "version": "0.2.0",
+      "checksum": "83047917cd35d3cf33b1cfa3085e048546c8fb0f1f86ab90aa8e680196679fc3"
+    },
+    {
+      "name": "sha2",
+      "version": "0.11.1",
+      "checksum": "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
+    },
+    {
+      "name": "skrifa",
+      "version": "0.48.0",
+      "checksum": "a5213b4825bac3587046330052d61bfac7bd3bd0d203c758d7c2ef726fcea034"
+    },
+    {
+      "name": "smallvec",
+      "version": "1.16.3",
+      "checksum": "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b"
+    },
+    {
+      "name": "string_cache",
+      "version": "0.11.0",
+      "checksum": "ffa8a5dbe8b3f0bbe29d4c3225daafaeead63afdc1b65fc4c01a1384166038e6"
+    },
+    {
+      "name": "string_cache_codegen",
+      "version": "0.11.2",
+      "checksum": "928dcdf75e47626b3617a976ec205d9f057584c371c1f23b782129268d0e6edc"
+    },
+    {
+      "name": "stringprep",
+      "version": "0.1.5",
+      "checksum": "7b4df3d392d81bd458a8a621b8bffbd2302a12ffe288a9d931670948749463b1"
+    },
+    {
+      "name": "subsetter",
+      "version": "0.2.6",
+      "checksum": "38803281d1c23166c5ebcb455439a5d2afe711cc909cf88af72448c297756ad6"
+    },
+    {
+      "name": "syn",
+      "version": "3.0.9",
+      "checksum": "d78c8dee4c7bf0e14673097256fed6142ce9d3b85a408189d07482442145823b"
+    },
+    {
+      "name": "tap",
+      "version": "1.0.1",
+      "checksum": "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
+    },
+    {
+      "name": "tendril",
+      "version": "0.5.1",
+      "checksum": "5fed54709c5b3a53d09bb1c113ea4f5ceafd1e772ddcb0030a82e1d56c087b08"
+    },
+    {
+      "name": "tiny-skia",
+      "version": "0.12.0",
+      "checksum": "47ffee5eaaf5527f630fb0e356b90ebdec84d5d18d937c5e440350f88c5a91ea"
+    },
+    {
+      "name": "tiny-skia-path",
+      "version": "0.12.0",
+      "checksum": "edca365c3faccca67d06593c5980fa6c57687de727a03131735bb85f01fdeeb9"
+    },
+    {
+      "name": "toml",
+      "version": "1.1.8+spec-1.1.0",
+      "checksum": "20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d"
+    },
+    {
+      "name": "toml_datetime",
+      "version": "1.1.2+spec-1.1.0",
+      "checksum": "2b86d767906c6c42421dcba507eb9d203e779497710a47782a224bb871653053"
+    },
+    {
+      "name": "toml_parser",
+      "version": "1.1.5+spec-1.1.0",
+      "checksum": "baa693a8032d7e1cada7d0041e96126df243179ff061456783ac7f12bda4744c"
+    },
+    {
+      "name": "toml_writer",
+      "version": "1.1.3+spec-1.1.0",
+      "checksum": "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770"
+    },
+    {
+      "name": "typed-arena",
+      "version": "2.0.2",
+      "checksum": "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
+    },
+    {
+      "name": "unicase",
+      "version": "2.10.0",
+      "checksum": "357cc3acc6a036009fd6c973ed009037c732d60d0b4f6c673e9041497482a28f"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.27",
+      "checksum": "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
+    },
+    {
+      "name": "unicode-properties",
+      "version": "0.1.4",
+      "checksum": "7df058c713841ad818f1dc5d3fd88063241cc61f49f5fbea4b951e8cf5a8d71d"
+    },
+    {
+      "name": "urlencoding",
+      "version": "2.1.3",
+      "checksum": "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
+    },
+    {
+      "name": "uuid",
+      "version": "1.28.0",
+      "checksum": "7cc1186384beb7dd8eedea376413fd654937285ea6c9cfbb928dc3043ea4b606"
+    },
+    {
+      "name": "v_escape-base",
+      "version": "0.1.0",
+      "checksum": "f1212fce830b75af194b578e55b3db9049f2c8c45f58d397fb25602fdb50fb3d"
+    },
+    {
+      "name": "v_htmlescape",
+      "version": "0.17.0",
+      "checksum": "befb3d53c9e3ec641417685896cbc8cc5bd264d6a2e190c56aaef1af24740d99"
+    },
+    {
+      "name": "web_atoms",
+      "version": "0.3.0",
+      "checksum": "7572660c8890448ba236b7376f27e389c6a7e1c70195622faced601f855c0ada"
+    },
+    {
+      "name": "weezl",
+      "version": "0.2.1",
+      "checksum": "d4ca08e5ef825b65b056d9efbd95c8750683f0a6d0466d02e96dc2e4e360f3d2"
+    },
+    {
+      "name": "wyz",
+      "version": "0.5.1",
+      "checksum": "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed"
+    },
+    {
+      "name": "xberg",
+      "version": "1.3.10",
+      "checksum": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+    },
+    {
+      "name": "xberg-native-pdf",
+      "version": "1.3.10",
+      "checksum": "c574e362d731d6c66c47275ec6b16e3acccef3c2fd465da973bcf424cd6fa1fc"
+    },
+    {
+      "name": "yaml_serde",
+      "version": "0.10.7",
+      "checksum": "33b729a08a9a6be689bbad3e2bf8015926db54b6622cc89c3a5f7dc174b9e918"
+    },
+    {
+      "name": "yoke-derive",
+      "version": "0.8.4",
+      "checksum": "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71"
+    },
+    {
+      "name": "zerocopy",
+      "version": "0.8.63",
+      "checksum": "e5fe1f8f1b06191a00962174c61aa5005e0bb391a6d80d07e24d115c01a92ed8"
+    },
+    {
+      "name": "zerocopy-derive",
+      "version": "0.8.63",
+      "checksum": "863ad3ac83293fb4d740aedbfdc9240dd8d1a50c1099acd76ce80ce7c7230c7f"
+    }
+  ],
+  "comparison_limit": "Static package-identity comparison to isolated X1 lock, NOT a new combined resolution/graph",
+  "cache_inventory": [
+    {
+      "directory": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f",
+      "matches": []
+    },
+    {
+      "directory": "/Users/evokessler/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f",
+      "matches": []
+    }
+  ],
+  "scope": "Documented default registry src/cache only; not an exhaustive filesystem cache search. CARGO_HOME unset. No package archives opened or fetched. Both documented old X1 worktrees and target absent. Native/API implementation unavailable for fresh inspection."
+}
