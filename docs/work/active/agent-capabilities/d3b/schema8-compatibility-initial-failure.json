@@ -1,0 +1,72 @@
+{
+  "initial_script": "schema8-compatibility.py",
+  "status": "FAILED raw old-byte assertion; no production edits",
+  "raw_error": "AssertionError: old binary changed schema8",
+  "diagnostic_reproduction": [
+    {
+      "inspection_flags": "mode=ro",
+      "before": {
+        ".brn-threads-data": {
+          "bytes": 22,
+          "sha256": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+        },
+        "threads.sqlite3": {
+          "bytes": 143360,
+          "sha256": "5abbee61371223f922c2c27c8341b246b8580b75ffc224c58047f093203060fe"
+        },
+        "threads.sqlite3-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "threads.sqlite3-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "old_exit": 6,
+      "stdout": "{\"contract\":3,\"command\":\"records\",\"ok\":false,\"status\":\"rejected\",\"exit\":6,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"unsafe_directory\",\"message\":\"incompatible or unsafe data directory: database application/schema identity mismatch\",\"details\":{}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": "",
+      "after": {
+        ".brn-threads-data": {
+          "bytes": 22,
+          "sha256": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+        },
+        "threads.sqlite3": {
+          "bytes": 143360,
+          "sha256": "5abbee61371223f922c2c27c8341b246b8580b75ffc224c58047f093203060fe"
+        }
+      },
+      "changed_keys": [
+        "threads.sqlite3-shm",
+        "threads.sqlite3-wal"
+      ]
+    },
+    {
+      "inspection_flags": "mode=ro&immutable=1",
+      "before": {
+        ".brn-threads-data": {
+          "bytes": 22,
+          "sha256": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+        },
+        "threads.sqlite3": {
+          "bytes": 143360,
+          "sha256": "5abbee61371223f922c2c27c8341b246b8580b75ffc224c58047f093203060fe"
+        }
+      },
+      "old_exit": 6,
+      "stdout": "{\"contract\":3,\"command\":\"records\",\"ok\":false,\"status\":\"rejected\",\"exit\":6,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"unsafe_directory\",\"message\":\"incompatible or unsafe data directory: database application/schema identity mismatch\",\"details\":{}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": "",
+      "after": {
+        ".brn-threads-data": {
+          "bytes": 22,
+          "sha256": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+        },
+        "threads.sqlite3": {
+          "bytes": 143360,
+          "sha256": "5abbee61371223f922c2c27c8341b246b8580b75ffc224c58047f093203060fe"
+        }
+      },
+      "changed_keys": []
+    }
+  ]
+}

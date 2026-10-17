@@ -674,6 +674,7 @@ mod tests {
 
     fn run(state: RunState, progress: &str) -> Run {
         Run {
+            loaded_skill_details: vec![],
             instruction: None,
             queue_claim: None,
             thread: "chat".into(),
@@ -1298,6 +1299,7 @@ mod tests {
             version: 1,
             archived: false,
             data: RecordData::Run(Run {
+                loaded_skill_details: vec![],
                 instruction: None,
                 queue_claim: None,
                 thread: "chat".into(),
@@ -1531,6 +1533,7 @@ mod integrity_tests {
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
                                 instruction: None,
                                 queue_claim: None,
                                 thread: thread.id.clone(),

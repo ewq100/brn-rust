@@ -289,6 +289,7 @@ mod tests {
 
     fn run(chat: &str, operations: &[&str]) -> Run {
         Run {
+            loaded_skill_details: vec![],
             instruction: None,
             queue_claim: None,
             thread: chat.into(),

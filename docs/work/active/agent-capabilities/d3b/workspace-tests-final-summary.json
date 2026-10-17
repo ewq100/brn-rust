@@ -1,0 +1,10 @@
+{
+  "source_receipt": "workspace-tests-final-source.json",
+  "command_receipt": "workspace-tests-final.json",
+  "log_sha256": "596b9b80a8fd4afbd8c28a6b835db977e36402cd7c9c558be9dc0070c6a13c5c",
+  "summaries": 97,
+  "passed": 1192,
+  "failed": 1,
+  "ignored": 6,
+  "failed_target": "brn-threads-intake/qualification/prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch: Pdf preparation failed: Unavailable"
+}

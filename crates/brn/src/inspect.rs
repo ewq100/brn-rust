@@ -428,6 +428,7 @@ pub(crate) fn runs(
         let RecordData::Run(run) = &record.data else {
             continue;
         };
+        let loaded = workspace.loaded_skill_details(&record.id)?;
         runs.push(json!({
             "id": record.id,
             "version": record.version,
@@ -439,6 +440,10 @@ pub(crate) fn runs(
             "effort": run.effort,
             "budget": run.budget,
             "fence": run.fence,
+            "guide_identity": cut(&run.guide_identity, 256),
+            "loaded_skill_details": loaded.details,
+            "loaded_skill_details_total": loaded.total,
+            "loaded_skill_details_omitted": loaded.omitted,
             "progress": cut(&run.progress, MAX_TEXT),
             "operations_total": run.operations.len(),
             // A Working run guards its chat: chat writes come back Deferred.

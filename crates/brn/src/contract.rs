@@ -710,6 +710,13 @@ pub(crate) fn source_read_error(error: ConversionError) -> CliError {
 /// `brn_ai::threads::run` refused or failed before producing a terminal.
 pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
     use brn_ai::AiErrorKind;
+    if error.kind == AiErrorKind::Other
+        && error.detail.as_ref().is_some_and(|d| {
+            d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")
+        })
+    {
+        return CliError::new(Code::Unavailable, error.to_string());
+    }
     let message = format!("Provider run failed: {:?}", error.kind);
     let kind = snake(&format!("{:?}", error.kind));
     match error.kind {
@@ -2033,5 +2040,47 @@ mod tests {
             assert_eq!(echo(token).is_some(), echoed, "{token}");
         }
         assert_eq!(CliError::missing_option("SECRET").details.len(), 0);
+    }
+}
+
+#[cfg(test)]
+mod skill_run_diagnostics {
+    use super::*;
+    #[test]
+    fn only_local_selected_skill_tuple_maps_to_unavailable() {
+        use brn_ai::{AiError, AiErrorKind, AiFailureDetail};
+        let detail = |kind, origin: &str, code: Option<&str>| AiError {
+            kind,
+            retry_after_seconds: None,
+            detail: Some(Box::new(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })),
+        };
+        let error = run_error(detail(
+            AiErrorKind::Other,
+            "skill_catalogue",
+            Some("skill_unavailable"),
+        ));
+        assert_eq!(error.code, Code::Unavailable);
+        assert_eq!(error.code.status(), Status::Failed);
+        assert_eq!(error.message,"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
+        for input in [
+            AiError::new(AiErrorKind::Other),
+            detail(AiErrorKind::Other, "completion", Some("skill_unavailable")),
+            detail(AiErrorKind::Other, "", Some("skill_unavailable")),
+            detail(AiErrorKind::Other, "skill_catalogue", None),
+            detail(AiErrorKind::Other, "skill_catalogue", Some("other_error")),
+            detail(
+                AiErrorKind::ToolRejected,
+                "skill_catalogue",
+                Some("skill_unavailable"),
+            ),
+        ] {
+            let error = run_error(input);
+            assert_ne!(error.code, Code::Unavailable);
+            assert!(!error.message.contains("Reinstall"));
+        }
     }
 }

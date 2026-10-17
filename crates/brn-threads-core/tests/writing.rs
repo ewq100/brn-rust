@@ -40,6 +40,7 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    loaded_skill_details: vec![],
                     instruction: None,
                     queue_claim: None,
                     thread: thread.clone(),
@@ -61,6 +62,7 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Settings(WorkspaceSettings {
+                    skills: vec![],
                     provider: "Codex".into(),
                     model: "fixture".into(),
                     effort: "medium".into(),

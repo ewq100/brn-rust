@@ -7,28 +7,23 @@ pub const RESEARCH_SCOUT: &str = include_str!("../../../agent/roles/research-sco
 #[derive(Clone, Copy)]
 pub struct Skill {
     pub id: &'static str,
-    pub description: &'static str,
     pub text: &'static str,
 }
 pub const CATALOG: [Skill; 4] = [
     Skill {
         id: "intake",
-        description: "Interpret supplied sources; honor useful information or faithful full-note import.",
         text: include_str!("../../../agent/skills/intake/SKILL.md"),
     },
     Skill {
         id: "maintain-notes",
-        description: "Compile source-grounded ordinary knowledge, save reusable synthesis, or review affected pages.",
         text: include_str!("../../../agent/skills/maintain-notes/SKILL.md"),
     },
     Skill {
         id: "resolve-conflict",
-        description: "Investigate disagreements and prepare the smallest owner decision.",
         text: include_str!("../../../agent/skills/resolve-conflict/SKILL.md"),
     },
     Skill {
         id: "prepare-reply",
-        description: "Prepare a supported reply draft; never claim delivery.",
         text: include_str!("../../../agent/skills/prepare-reply/SKILL.md"),
     },
 ];
@@ -48,20 +43,13 @@ pub fn preloaded(sources: bool) -> &'static [&'static str] {
         &[]
     }
 }
+/// Test consumers exercise the same frozen production renderer; no second
+/// packaged-only preamble is retained in the shipped runtime.
+#[cfg(test)]
 pub fn preamble(preloaded: &[&str]) -> String {
-    let mut text = format!(
-        "{BASE}\n\nInstruction bundle: {BUNDLE_VERSION}\n\nAvailable playbooks (load with read_skill):\n"
-    );
-    for skill in CATALOG.iter().filter(|s| !preloaded.contains(&s.id)) {
-        text.push_str(&format!("- {}: {}\n", skill.id, skill.description));
-    }
-    for skill in CATALOG.iter().filter(|s| preloaded.contains(&s.id)) {
-        text.push_str(&format!(
-            "\nPlaybook {} (already loaded; no read_skill needed):\n\n{}\n",
-            skill.id, skill.text
-        ));
-    }
-    text
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let store = brn_threads_core::Store::open(root.path().join("data")).unwrap();
+    crate::thread_skills::Catalogue::freeze(&store, &[], None, !preloaded.is_empty()).preamble()
 }
 
 /// A helper sub-run's complete instructions: its role guide only, so the
@@ -73,6 +61,18 @@ pub fn scout_preamble() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn runtime_descriptions_are_parsed_from_packaged_frontmatter() {
+        for skill in CATALOG {
+            let metadata = skill_metadata(skill.text).unwrap();
+            assert!(
+                preamble(&[]).contains(metadata.description),
+                "{} metadata was replaced",
+                skill.id
+            );
+        }
+    }
+
     #[test]
     fn fixed_catalog_has_valid_frontmatter_and_rejects_paths() {
         for skill in CATALOG {
@@ -193,4 +193,19 @@ pub fn skill_metadata(text: &str) -> Result<SkillMetadata<'_>, &'static str> {
 fn metadata_line(line: &str) -> &str {
     let line = line.strip_suffix('\n').unwrap_or(line);
     line.strip_suffix('\r').unwrap_or(line)
+}
+
+/// Stable D3 package identity over sorted, length-framed UTF-8 files. Shared
+/// by packaged runtime and descriptor-validated installed snapshots.
+pub(crate) fn package_digest(files: &std::collections::BTreeMap<String, String>) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    h.update(b"brn-instruction-package-v1\0");
+    for (path, text) in files {
+        h.update((path.len() as u64).to_be_bytes());
+        h.update(path.as_bytes());
+        h.update((text.len() as u64).to_be_bytes());
+        h.update(text.as_bytes());
+    }
+    format!("{:x}", h.finalize())
 }

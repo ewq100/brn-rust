@@ -28,13 +28,13 @@ pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceRevi
 mod review_groups;
 pub mod search;
 mod settings;
-#[cfg(any(target_os = "macos", target_os = "linux"))]
 mod skills;
 pub use settings::HELPER_TESTED_NOTE;
+pub use skills::LoadedSkillDetails;
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 pub use skills::{
     Package as SkillPackage, PackageInfo as SkillPackageInfo,
-    RETENTION_NOTICE as SKILL_RETENTION_NOTICE,
+    RETENTION_NOTICE as SKILL_RETENTION_NOTICE, SkillStatus,
 };
 mod steering;
 mod topics;

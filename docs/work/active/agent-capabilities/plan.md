@@ -1,5 +1,8 @@
 **Principal D3a accepted locally, 17 October 2026:** [Disposition](d3a/principal-disposition.md) accepts source9b8acf66 after fresh Opus3 approval and final affected852/0/2 plus strict lint/fmt. D3b may start the existing runtime/frozen catalogue/settings scope. S01–S04 and production retention/recovery reconciliation remain D3b acceptance gates. D-S/D-M already approved; D4 waits D3b, external qualification remains separate.
 
+**D3b current checkpoint, 17 October:** [Runtime plan](d3b/plan.md) is in implementation/deterministic qualification under the sole serial heavy grant. [Owner L is approved](owner-live-qualification-20261017.md), superseding earlier dated authorization gaps; live fixture/route preparation and execution remain pending. D4 waits accepted D3b; no mutation grant or source acceptance is implied.
+
+
 **Current owner decisions, 17 October 2026:** [D-S and D-M explicitly APPROVED](owner-decisions-20261017.md), with dated canonical target amendments. D3a parse/validate/install/list/remove is now eligible from locally accepted D2 fd4e6a36, followed by D3b then D4. Earlier unresolved-gate status is historical. Strict bounded parser/no dependency remains C0 choice; live qualification/real data and publication/main merge stay unapproved. Source/test work and independent review remain required.
 
 **D2 qualified checkpoint, 17 October:** Opus1 approved d252 source-only; [low follow-up handoff](d2/qualification-handoff.md) pins ca2bd94b with unchanged approved logic, description/test/doc precision, single1/0/D2focused11/0/fullAI430/0/1 and affected lint/fmtPASS. Fixed supplement3caught/1NO VERDICT is source-bound; principal acceptance/integration remain separate. This supersedes older pending-review/ungranted mutation checkpoints below.

@@ -1469,6 +1469,7 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
                                 instruction: Some(request),
                                 queue_claim: None,
                                 thread: thread.into(),

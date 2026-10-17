@@ -1,0 +1,7 @@
+{
+  "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "source": "/private/tmp/brn-d3b-20261017-before-source",
+  "target": "/private/tmp/brn-d3b-20261017-before-target",
+  "fixture_sha256": "7e5d0b014dac4e46423eef351ba75c54d5e586f5f59861ad7cf668b23aee9744",
+  "method": "git archive exact base + private synthetic Git + test-only builtin metadata assertion; no candidate artifacts reused"
+}

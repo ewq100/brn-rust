@@ -1,0 +1,28 @@
+{
+  "task": "D3b planned runtime skills / S01\u2013S04 + I02",
+  "provider": "Codex through T3",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d3b-20261017",
+  "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "base_crates": "d89fe8df6e8b3b80e4baa53fab843467f8c4615e",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "initial_status": [],
+  "initial_heavy_inventory": [],
+  "heavy": "sole explicit serial grant",
+  "target": "/private/tmp/brn-d3b-20261017-target",
+  "mutation": "NOT granted/not started; prior D3a allowance closed, never transferred",
+  "owned": [
+    "D3b AI snapshot/runtime/tests + bounded threads/guides/budget/trace seams",
+    "app skills/settings/run shared-service integration + tests",
+    "CLI skill owner commands/selection/help/spec/contract/tests",
+    "d3b docs/active checkpoint"
+  ],
+  "requested_not_owned": [
+    "core canonical Settings policy + exact Store update/fence/replay + loaded identity metadata",
+    "necessary struct literal initializers only",
+    "native isolated module/minimal Settings/composer seams/tests",
+    "research Scope constructor mechanical clone and summary guide-key expression"
+  ]
+}

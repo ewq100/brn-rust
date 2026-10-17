@@ -70,3 +70,88 @@ fn owner_package_reopen_and_real_backup_export_retention_exclusion() {
     assert!(restored.search(sentinel).unwrap().is_empty());
     assert_eq!(app.inspect_skill("document-review").unwrap().info, info);
 }
+
+#[test]
+fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact_reinstall() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut app = Workspace::create_without_default_credentials(
+        root.path().join("data"),
+        WorkspacePurpose::Test,
+    )
+    .unwrap();
+    let source = root.path().join("package");
+    std::fs::create_dir(&source).unwrap();
+    let text = "---\nname: recovery-review\ndescription: Synthetic recovery review.\n---\nLOCAL_BYTES_EXCLUDED_CANARY\n";
+    std::fs::write(source.join("SKILL.md"), text).unwrap();
+    let note = app
+        .new_note("canonicalrecoveryskillpositive", "Retained canonical work")
+        .unwrap();
+    let info = app.install_skill(&source).unwrap();
+    app.set_skill_enabled(&info.id, &info.digest, None, true)
+        .unwrap();
+    app.select_skill(Some(&info.id), None).unwrap();
+    let binding = app.settings().unwrap().skills;
+    let backup = root.path().join("backup.sqlite3");
+    app.store.backup(&backup).unwrap();
+    let restored = root.path().join("restored");
+    drop(Store::restore(&backup, &restored).unwrap());
+    let mut restored = Workspace::open_existing_no_upgrade(&restored).unwrap();
+    assert_eq!(restored.settings().unwrap().skills, binding);
+    assert_eq!(
+        restored.store.record(&note.id).unwrap(),
+        app.store.record(&note.id).unwrap()
+    );
+    let missing = restored
+        .scoped_skills(None)
+        .unwrap()
+        .into_iter()
+        .find(|s| s.id == info.id)
+        .unwrap();
+    assert!(missing.selected && missing.enabled && !missing.available);
+    assert!(restored.select_skill(Some(&info.id), None).is_err());
+    assert!(!restored.store.directory().join("skills").exists());
+    std::fs::write(source.join("SKILL.md"), format!("{text}Changed version\n")).unwrap();
+    let other = restored.install_skill(&source).unwrap();
+    assert_ne!(other.digest, info.digest);
+    assert!(
+        !restored
+            .scoped_skills(None)
+            .unwrap()
+            .into_iter()
+            .find(|s| s.id == info.id)
+            .unwrap()
+            .available
+    );
+    restored.remove_skill(&other.name, &other.digest).unwrap();
+    std::fs::write(source.join("SKILL.md"), text).unwrap();
+    restored.install_skill(&source).unwrap();
+    let exact = restored
+        .scoped_skills(None)
+        .unwrap()
+        .into_iter()
+        .find(|s| s.id == info.id)
+        .unwrap();
+    assert!(exact.available && exact.selected && exact.enabled);
+    let export = root.path().join("export");
+    let manifest = restored.export_now(&export).unwrap();
+    assert!(manifest.files.iter().any(|f| f.record == note.id));
+    for file in &manifest.files {
+        assert!(
+            !std::fs::read_to_string(export.join(&file.path))
+                .unwrap()
+                .contains("LOCAL_BYTES_EXCLUDED_CANARY")
+        );
+    }
+    assert!(
+        restored
+            .search("LOCAL_BYTES_EXCLUDED_CANARY")
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        !restored
+            .search("canonicalrecoveryskillpositive")
+            .unwrap()
+            .is_empty()
+    );
+}

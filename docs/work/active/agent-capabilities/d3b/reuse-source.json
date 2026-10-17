@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-agent-0.44.0/src/agent/hook.rs",
+    "sha256": "29b63c90b1612ba1e94a95057d6fb7c1c15b4326ac07c00b01307707869fa473"
+  },
+  {
+    "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-agent-0.44.0/src/agent/runner.rs",
+    "sha256": "5c0105de013fffea07431496884433a9f9714afac789b73fe2487a8411da09a2"
+  },
+  {
+    "path": "experiments/r0-rig-reuse/src/prefix.rs",
+    "sha256": "f530dafe59305609ded058bed62b8f485265f7f7d195d3b93bed5a580a7b5a9c"
+  },
+  {
+    "path": "experiments/r0-rig-reuse/REPORT.md",
+    "sha256": "f81553018be479dab15599e154b86e475c6c1aeda30062fa3d9d0e94afbeff76"
+  }
+]

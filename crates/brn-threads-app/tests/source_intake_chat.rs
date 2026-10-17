@@ -318,6 +318,7 @@ fn seed_older_useful_intake(w: &mut Workspace, locator: &str) -> (String, String
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            loaded_skill_details: vec![],
                             instruction: None,
                             queue_claim: None,
                             thread: chat.clone(),

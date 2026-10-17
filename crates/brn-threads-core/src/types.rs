@@ -219,6 +219,9 @@ pub struct Run {
     pub budget: u64,
     pub effort: String,
     pub loaded_skills: Vec<String>,
+    /// Host-verified identities of instruction files actually delivered. No bodies.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub loaded_skill_details: Vec<SkillLoad>,
     pub fence: u64,
     pub state: RunState,
     pub progress: String,
@@ -227,6 +230,9 @@ pub struct Run {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkspaceSettings {
+    /// Canonical owner policy; installation alone never enables a package.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub skills: Vec<SkillBinding>,
     pub provider: String,
     pub model: String,
     pub effort: String,
@@ -249,6 +255,86 @@ pub struct WorkspaceSettings {
     /// `research` tool. The parent model never chooses or changes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub helper: Option<HelperSettings>,
+}
+
+/// Exact content approved by the owner in one scope. Workspace bindings apply
+/// to general chats only; a project needs its own explicit installed binding.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SkillBinding {
+    pub id: String,
+    pub digest: String,
+    pub project: Option<String>,
+    pub enabled: bool,
+    pub selected: bool,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SkillPolicyChange {
+    Set(SkillBinding),
+    Select {
+        id: Option<String>,
+        digest: Option<String>,
+        project: Option<String>,
+    },
+    Clear {
+        id: String,
+        project: Option<String>,
+    },
+    /// Disable this exact installed identity in every scope before removal.
+    Revoke {
+        id: String,
+        digest: String,
+    },
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SkillLoad {
+    pub id: String,
+    pub origin: String,
+    pub project: Option<String>,
+    pub package_digest: String,
+    pub file: String,
+    pub file_digest: String,
+}
+impl WorkspaceSettings {
+    pub fn validate_skills(&self) -> crate::Result<()> {
+        let mut identities = BTreeSet::new();
+        let mut selections = BTreeSet::new();
+        if self.skills.len() > 128 {
+            return Err(crate::Error::Invalid(
+                "at most 128 scoped skill bindings".into(),
+            ));
+        }
+        for binding in &self.skills {
+            if !skill_id_valid(&binding.id)
+                || !skill_digest_valid(&binding.digest)
+                || binding.project.as_ref().is_some_and(|p| {
+                    p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+                })
+                || !identities.insert((&binding.project, &binding.id))
+                || (binding.selected && (!binding.enabled || !selections.insert(&binding.project)))
+            {
+                return Err(crate::Error::Invalid(
+                    "invalid, duplicate or conflicting scoped skill binding".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+pub fn skill_id_valid(id: &str) -> bool {
+    let name = id.strip_prefix("installed:").unwrap_or(id);
+    (1..=64).contains(&name.len())
+        && name.as_bytes()[0].is_ascii_lowercase()
+        && name
+            .bytes()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+}
+pub fn skill_digest_valid(digest: &str) -> bool {
+    digest.len() == 64
+        && digest
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 
 /// An explicit helper selection with its own explicit credential route. An

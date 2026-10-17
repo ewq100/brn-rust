@@ -166,6 +166,7 @@ fn set(ids: &[&str]) -> BTreeSet<String> {
 
 fn run_data(chat: &str, state: RunState, fence: u64) -> RecordData {
     RecordData::Run(Run {
+        loaded_skill_details: vec![],
         instruction: None,
         queue_claim: None,
         thread: chat.into(),

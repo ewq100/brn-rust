@@ -42,6 +42,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.clone(),
@@ -1018,6 +1019,7 @@ fn synthetic_run(ui: &mut ThreadsUi, key: &str, thread: &str, run: Run) -> Strin
 fn run_template(ui: &ThreadsUi, state: RunState) -> Run {
     let settings = ui.workspace.settings().unwrap();
     Run {
+        loaded_skill_details: vec![],
         instruction: None,
         queue_claim: None,
         thread: String::new(),

@@ -26,7 +26,11 @@ extern "C" fn on_sigint(_: libc::c_int) {
     CANCEL.store(true, Ordering::SeqCst);
 }
 const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMMAND [--option VALUE]\n\nCommands: init [--purpose test], records, notes, threads, needs-you, history, candidates, settings,\n  projects [--trash yes]; project-create --title TITLE [--key KEY]\n  project-chat --project ID --title TITLE; project-document --project ID --title TITLE --text MARKDOWN\n  project-settings --project ID --base VERSION --title TITLE --instructions TEXT --knowledge yes|no\n  chat-move --thread ID [--project ID|none]; project-link|project-unlink --project ID --note ID\n  project-delete-preview --project ID (save JSON for review)\n  project-delete --preview-file FILE --actions JSON [--key KEY]\n  project-restore --project ID --base VERSION\n  Project commands accept --key KEY for durable retry. Actions JSON maps each unfinished Action ID to Keep or Cancel.\n  Search/connections accept --project ID; intake --intent project --project ID imports privately.\n  intake --intent useful reuses the chat that already received the same source (in --project ID when given),\n  unless work there is still running; then it starts a new chat (reused_chat false).\n  skills; skill-inspect --name NAME; skill-install --source ABSOLUTE_FOLDER
-  skill-remove --name NAME --digest SHA256 (owner-only local configuration; never enables a skill)
+  skill-remove --name NAME --digest SHA256 (owner-only local package configuration)
+  skills [--project ID]; skill-enable|skill-disable --id ID --digest SHA256 [--project ID]
+  skill-select --id ID|none [--project ID]; skill-clear --id ID [--project ID]
+  Inventory/inspection is workspace-wide owner configuration; --project selects policy only.
+  Scoped policy/selection is canonical and backed up; exact installed bytes remain local. Selected instructions load at run preparation; all others are lazy.
   Installed skills are excluded from current BRN backups/exports; preserve originals for reinstall.
   note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 /// Printed after `HELP` by `--help`.
@@ -903,7 +907,14 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
     #[cfg(not(any(target_os = "macos", target_os = "linux")))]
     if matches!(
         inv.command.as_str(),
-        "skills" | "skill-inspect" | "skill-install" | "skill-remove"
+        "skills"
+            | "skill-inspect"
+            | "skill-install"
+            | "skill-remove"
+            | "skill-enable"
+            | "skill-disable"
+            | "skill-select"
+            | "skill-clear"
     ) {
         return Err(contract::skills_unavailable());
     }
@@ -1055,14 +1066,40 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "operation" => inspect::operation(&workspace, inv)?,
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         "skills" => {
-            json!({"skills":workspace.skills().map_err(contract::skill_error)?,"installed_configuration_in_backup":false,"installed_configuration_in_export":false,"retention_notice":SKILL_RETENTION_NOTICE})
+            let policy = workspace
+                .scoped_skills(inv.args.get("project").map(String::as_str))
+                .map_err(contract::skill_error)?;
+            let inventory = workspace.skills().map_err(|error| {
+                let error = contract::skill_error(error);
+                if policy.iter().any(|s| !s.available) {
+                    error.with("skill_policy", json!(&policy))
+                } else {
+                    error
+                }
+            })?;
+            json!({"skills":inventory,"policy":policy,"canonical_policy_in_backup":true,"installed_configuration_in_backup":false,"installed_configuration_in_export":false,"retention_notice":SKILL_RETENTION_NOTICE})
         }
         #[cfg(any(target_os = "macos", target_os = "linux"))]
-        "skill-inspect" => serde_json::to_value(
-            workspace
-                .inspect_skill(inv.arg("name")?)
-                .map_err(contract::skill_error)?,
-        )?,
+        "skill-inspect" => {
+            let name = inv.arg("name")?;
+            let policy = workspace
+                .scoped_skills(inv.args.get("project").map(String::as_str))
+                .map_err(contract::skill_error)?
+                .into_iter()
+                .filter(|s| s.id == name || s.id == format!("installed:{name}"))
+                .collect::<Vec<_>>();
+            match workspace.inspect_skill(name) {
+                Ok(package) => {
+                    let mut value = serde_json::to_value(package)?;
+                    value["policy"] = encode(policy)?;
+                    value
+                }
+                Err(AppError::Invalid(_)) if policy.iter().any(|s| !s.available) => {
+                    json!({"info":null,"files":null,"policy":policy,"unavailable":true})
+                }
+                Err(error) => return Err(contract::skill_error(error)),
+            }
+        }
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         "skill-install" => serde_json::to_value(
             workspace
@@ -1073,6 +1110,32 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
         "skill-remove" => {
             json!({"removed":workspace.remove_skill(inv.arg("name")?,inv.arg("digest")?).map_err(contract::skill_error)?,"retention_notice":SKILL_RETENTION_NOTICE})
         }
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        "skill-enable" | "skill-disable" => applied(
+            workspace
+                .set_skill_enabled(
+                    inv.arg("id")?,
+                    inv.arg("digest")?,
+                    inv.args.get("project").map(String::as_str),
+                    inv.command == "skill-enable",
+                )
+                .map_err(contract::skill_error)?,
+        ),
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        "skill-select" => applied(
+            workspace
+                .select_skill(
+                    (inv.arg("id")? != "none").then_some(inv.arg("id")?),
+                    inv.args.get("project").map(String::as_str),
+                )
+                .map_err(contract::skill_error)?,
+        ),
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        "skill-clear" => applied(
+            workspace
+                .clear_skill_policy(inv.arg("id")?, inv.args.get("project").map(String::as_str))
+                .map_err(contract::skill_error)?,
+        ),
         "settings" => settings_output(workspace.settings()?)?,
         "delegation" => {
             applied(workspace.choose_delegation(delegation_choice(inv.arg("choice")?)?)?)
@@ -1634,6 +1697,7 @@ mod cw2_run_tests {
     fn shared_selection_retains_cli_invalid_provider_and_effort_contract() {
         for option in ["provider", "effort"] {
             let mut settings = WorkspaceSettings {
+                skills: vec![],
                 provider: "Codex".into(),
                 model: "synthetic".into(),
                 effort: "medium".into(),

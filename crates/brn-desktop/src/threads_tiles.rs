@@ -1895,6 +1895,7 @@ impl ThreadsUi {
             SettingsSection::Models => self.models_settings(cx),
             SettingsSection::Delegation => self.working_knowledge(cx),
             SettingsSection::Data => self.data_settings(cx),
+            SettingsSection::Skills => self.skills_settings(cx),
         };
         div()
             .size_full()

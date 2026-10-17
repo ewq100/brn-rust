@@ -661,6 +661,7 @@ pub(super) fn record_rewrite_run(
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            loaded_skill_details: vec![],
                             instruction: Some(request),
                             queue_claim: None,
                             thread,

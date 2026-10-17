@@ -25,6 +25,7 @@ fn put_run(w: &mut Workspace, q: &QueuedMessage, key: &str) -> Record {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            loaded_skill_details: vec![],
                             instruction: q.message.clone(),
                             queue_claim: q.dispatch.clone(),
                             thread: q.thread.clone(),

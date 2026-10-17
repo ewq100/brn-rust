@@ -276,7 +276,7 @@ fn context(
         return Err(rejected());
     };
     encoded_hash(
-        &json!({"version":VERSION,"chat":scope.chat,"security":transitions,"project":project,"private":scope.private_context,"settings":scope.settings,"guide":crate::threads_guides::BUNDLE_VERSION,"summarizer":PREAMBLE,"account":account,"provider":run.provider,"model":run.model,"effort":effort.as_str()}),
+        &json!({"version":VERSION,"chat":scope.chat,"security":transitions,"project":project,"private":scope.private_context,"settings":scope.settings,"guide":run.guide_identity,"summarizer":PREAMBLE,"account":account,"provider":run.provider,"model":run.model,"effort":effort.as_str()}),
     )
 }
 struct Snapshot {

@@ -444,6 +444,8 @@ async fn prior_progress_and_operation_receipts_are_bounded_in_the_actual_request
                     budget: 4,
                     effort: "medium".into(),
                     loaded_skills: vec![],
+                    loaded_skill_details: vec![],
+
                     fence: 1,
                     state: RunState::Completed,
                     progress: format!("progress-{i:03}: {}", "õun English ".repeat(300)),

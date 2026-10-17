@@ -433,6 +433,7 @@ fn run_fixture(
                                 expected_version: None,
                                 archived: false,
                                 data: RecordData::Run(Run {
+                                    loaded_skill_details: vec![],
                                     instruction: request
                                         .as_ref()
                                         .map(|snapshot| snapshot.request_message.clone()),
@@ -893,6 +894,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                                 expected_version: None,
                                 archived: false,
                                 data: RecordData::Run(Run {
+                                    loaded_skill_details: vec![],
                                     instruction: Some(second.request_message.clone()),
                                     queue_claim: None,
                                     thread: thread.clone(),

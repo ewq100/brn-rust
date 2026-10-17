@@ -420,7 +420,11 @@ impl ThreadsUi {
     }
     pub(super) fn composer_controls(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let c = self.queue_state();
-        let mut panel = div().flex().flex_col().gap_1();
+        let mut panel = div()
+            .flex()
+            .flex_col()
+            .gap_1()
+            .child(self.skill_selector(cx));
         if c.pending.is_some() || !c.queue.is_empty() {
             let here = self.chat_thread().map(str::to_owned);
             let waiting = format!("{} waiting", c.queue.len());

@@ -1510,3 +1510,51 @@ fn checked_bootstrap_fingerprint_is_trim_stable_and_rejects_invalid_credential()
     std::fs::write(&file, b"invalid\0credential").unwrap();
     assert!(auth.github_token_fingerprint().is_err());
 }
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+#[tokio::test]
+async fn frozen_skill_catalogue_reuses_summary_until_exact_availability_identity_changes() {
+    let (root, request, ids) = setup();
+    let info = skills_tests::package(&root, &request);
+    skills_tests::policy(&request, skills_tests::enabled(&info, None, false));
+    let next = next_request(&request);
+    let settings_stamp = |data: &PathBuf| {
+        Store::open(data)
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(r.data, RecordData::Settings(_)))
+            .unwrap()
+            .version
+    };
+    let stamp = settings_stamp(&request.data_dir);
+    let first = SequencedHttpClient::new([response(&semantic(&ids[0])), done()]);
+    let result = run(request, &first).await;
+    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+    assert_eq!(first.requests().len(), 2);
+    let cached = SequencedHttpClient::new([done()]);
+    let result = run(next_request(&next), &cached).await;
+    assert_eq!(cached.requests().len(), 1);
+    assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "cached");
+    crate::skill_packages::remove(
+        &Store::open(&next.data_dir).unwrap(),
+        &info.name,
+        &info.digest,
+    )
+    .unwrap();
+    assert_eq!(
+        settings_stamp(&next.data_dir),
+        stamp,
+        "isolate guide identity from Settings changes"
+    );
+    let changed = SequencedHttpClient::new([response(&semantic(&ids[0])), done()]);
+    let result = run(next, &changed).await;
+    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+    assert_eq!(changed.requests().len(), 2);
+    assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "updated");
+    assert_ne!(
+        body(&first, 1)["instructions"],
+        body(&changed, 1)["instructions"]
+    );
+}

@@ -427,6 +427,7 @@ pub(super) async fn run_helper_model(
             scope: scope.clone(),
         })
         .add_hook(BatchHook {
+            skills: None,
             invalid: invalid.clone(),
             limited: limited.clone(),
             rounds: AtomicU16::new(0),
@@ -573,6 +574,7 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         .and_then(|trace| trace::TraceCollector::new(trace.level()))
         .map(Arc::new);
     Arc::new(Scope {
+        skills: parent.skills.clone(),
         chat: parent.chat.clone(),
         private_context: parent.private_context,
         project_context: parent.project_context.clone(),

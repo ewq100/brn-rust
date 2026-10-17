@@ -1,0 +1,31 @@
+# L-approved qualification preparation
+
+Status: PREPARATION ONLY, 17 October 2026. [Owner L](../owner-live-qualification-20261017.md) authorizes the existing-plan synthetic/public live qualification. No live request, latency, token count, cache share or semantic outcome has yet been measured for D3b. Do not reinterpret older dated blocked receipts as tests run.
+
+## Source and route prerequisites
+
+Complete scoped deterministic checks and freeze the material source/test commit plus CLI binary/dep-info hashes first. Each attempt records that immutable pin, fixture SHA256, exact normal checked provider/account selection, model, supported effort, and catalogue/package digest. Account identity is a safe host identity/fingerprint only, never token bytes or auth payloads. Select the configured route explicitly before executing; an unavailable configured account/model/limit is an actual failure/gap, never authority to substitute another route. No automatic model-list request, package fetch, connector, model download or credential dump.
+
+Use the accepted000ed920 executable as the source-bound pre-D3b control where APIs overlap. Its lack of installable-runtime selection is a feature-absence control, not a compiled D3b comparison. Older D1A/B/D2 semantic comparison baselines and program-wide live gaps remain principal integration qualification; do not spend accepted-slice mutation budgets or reopen their production logic without defect evidence.
+
+## Fixed synthetic corpus and checked commands
+
+Use the repository's instruction-only `agent/skill-examples/document-review/` as the package. In a fresh explicit Test workspace, retain a synthetic ordinary working Note, a protected requirements Note and a same-Project evidence Note with short numeric facts and exact quotes; include an unrelated private Project canary. Preserve the literal fixture texts, source versions, IDs, operation/candidate/receipt identities and package digest. No owner material is copied.
+
+Normal owner CLI sequence is `init --purpose test`, explicit `configure --provider … --model … --effort …` with the selected existing credential source through normal checked auth, `delegation`, checked Project/Note creation, `skill-install`, exact-digest scoped `skill-enable`, scoped `skill-select`, and `ask --thread … --prompt … --trace summary`. Inspect actual `runs`, candidate, receipt and final Note versions afterward. Do not infer application from model prose. The same public task prompt and canonical source facts are used in the baseline and candidate controls. No source instruction may change the selected route, grant protection, install/enable packages or broaden read scope.
+
+Qualification cases: (a) selected document review identifies substantive requirements/evidence and produces only checked permitted work, with actual selected and reference provenance; (b) enabled unselected metadata supports lazy discovery while unrelated Project canaries stay absent; (c) bounded multi-step interruption/Continue reconciles actual receipts and uses fresh authority; (d) long canonical conversation crosses an existing coarse cut, retaining early requirements through summary or exact Message access and disclosing any summary gap. Deterministic unavailable/revoke/Stop/race and raw-prefix witnesses remain authoritative safety checks and are not replaced by live persuasion tests.
+
+Run comparable repeated baseline/candidate pairs with the same configured account/model/effort, fixture, objective and relevant policy. Preserve every failed/refused/interrupted attempt and the order/warm-cache conditions. Record requirement retention, evidence correctness, unsupported claims and actual completion separately from latency. Use existing summary/helper/chat trace usage for input/output/cached tokens and overhead; mark counters unavailable if not supplied, and estimates as estimates. Cached share is computed only from reported cached/input counts. No one-run superiority, universal reliability, invented quota or zero-variance performance claim.
+
+## Current boundary
+
+Route/account/model/effort choice and immutable source/artifact fields are pending concrete preparation after normal checks. This document authorizes neither unselected routes nor arbitrary egress. Native-human/GUI, real-data, hosted, owner/full-program acceptance, publication and D4 remain separate. No mutation campaign is granted or started.
+
+## Explicit principal-selected route and first window
+
+Codex / ChatGPT subscription, `gpt-6.1-sol`, `medium`, normal checked `--auth-file /Users/evokessler/.codex/auth.json`. Principal selection is recorded in `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/d3b-live-route-selection-20261017.md`. No credential bytes/account claims have been opened for this preparation and current auth is unverified. Account identity is not exposed by the current normal surface; a source path is not an account identity. No authentication instrumentation is added.
+
+After corrected deterministic checks and immutable source/artifact pin, predeclared first cases are two paired control/candidate document-review runs (four starts), all on that same route/model/effort/source and exact corpus. At most12 normal ask/Continue workflow starts TOTAL in this initial window, including failed/interrupted starts,8 tool rounds each and120-second supported host timeout. Provider/summary/helper calls and usage count separately where exposed. No workflow retry loop or substitution on auth/quota/unavailability. This is an initial measured window, not full live acceptance. No live request has yet run.
+
+The prepared `live-qualification.py` uses only normal checked CLI commands, creates one synthetic schema7 canonical fixture/control snapshot with the actual baseline binary, restores identical record IDs into two control/candidate pairs, and upgrades only the candidate restore copy. Review-first delegation is explicit. Candidate exact package enable/select is deliberate; control has no installed-runtime API. It records four first starts with no workflow retries, public results/structured usage and retained canonical outcomes; no raw credential/auth/response transcript reader is added. Script parsing is checked but execution still awaits corrected normal gates and pin.

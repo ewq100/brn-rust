@@ -3,7 +3,6 @@
 use crate::threads_guides::{CATALOG, skill_metadata, valid_skill_name};
 use brn_threads_core::Store;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeMap,
     fs::File,
@@ -76,16 +75,9 @@ fn conflict() -> io::Error {
 }
 
 fn digest(files: &BTreeMap<String, String>) -> String {
-    let mut h = Sha256::new();
-    h.update(b"brn-instruction-package-v1\0");
-    for (path, text) in files {
-        h.update((path.len() as u64).to_be_bytes());
-        h.update(path.as_bytes());
-        h.update((text.len() as u64).to_be_bytes());
-        h.update(text.as_bytes());
-    }
-    format!("{:x}", h.finalize())
+    crate::threads_guides::package_digest(files)
 }
+
 fn component(name: &str) -> bool {
     !name.is_empty()
         && name.len() <= 64

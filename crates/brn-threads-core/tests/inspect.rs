@@ -72,6 +72,7 @@ fn thread(title: &str) -> RecordData {
 }
 fn run(thread: &str, state: RunState) -> RecordData {
     RecordData::Run(Run {
+        loaded_skill_details: vec![],
         instruction: None,
         queue_claim: None,
         thread: thread.into(),

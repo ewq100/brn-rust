@@ -35,6 +35,10 @@ impl AiError {
             _ => None,
         }
     }
+    pub(crate) fn skill_unavailable_notice(&self) -> Option<&'static str> {
+        (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d| d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")))
+            .then_some("The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.")
+    }
     pub fn new(kind: AiErrorKind) -> Self {
         Self {
             kind,
@@ -114,6 +118,9 @@ impl std::fmt::Display for AiError {
                 f,
                 "{notice} Continue starts a fresh invocation with retained progress."
             );
+        }
+        if let Some(notice) = self.skill_unavailable_notice() {
+            return f.write_str(notice);
         }
         let text = match self.kind {
             AiErrorKind::QuoteNotFound => "The quotation was not found in the saved note body.",
@@ -781,5 +788,49 @@ mod tests {
         assert_eq!(back, error);
         let legacy: AiError = serde_json::from_str(r#"{"kind":"other"}"#).unwrap();
         assert_eq!(legacy, AiError::new(AiErrorKind::Other));
+    }
+}
+
+#[cfg(test)]
+mod skill_notice_tests {
+    use super::*;
+    #[test]
+    fn only_exact_local_unavailable_tuple_has_package_remediation() {
+        let notice = "The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.";
+        let local = |kind, origin: &str, code: Option<&str>| {
+            AiError::new(kind).with_detail(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })
+        };
+        assert_eq!(
+            local(
+                AiErrorKind::Other,
+                "skill_catalogue",
+                Some("skill_unavailable")
+            )
+            .to_string(),
+            notice
+        );
+        for error in [
+            local(
+                AiErrorKind::ToolRejected,
+                "skill_catalogue",
+                Some("skill_unavailable"),
+            ),
+            local(AiErrorKind::Other, "provider", Some("skill_unavailable")),
+            local(AiErrorKind::Other, "", Some("skill_unavailable")),
+            local(AiErrorKind::Other, "skill_catalogue", None),
+            local(AiErrorKind::Other, "skill_catalogue", Some("other_error")),
+            AiError::new(AiErrorKind::Other),
+            map_http_error(
+                400,
+                r#"{"origin":"skill_catalogue","error":{"code":"skill_unavailable","message":"skill_catalogue skill_unavailable"}}"#,
+            ),
+        ] {
+            assert!(!error.to_string().contains("Reinstall"));
+            assert!(!error.is_context_limit());
+        }
     }
 }

@@ -16,7 +16,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 7;
+pub(crate) const SCHEMA_VERSION: i64 = 8;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -30,6 +30,7 @@ enum SettingsUpdate<'a> {
     BackupDirectory(&'a str),
     Theme(&'a str),
     TopicsNote(&'a str),
+    SkillPolicy(&'a SkillPolicyChange),
 }
 /// How `open_with` treats the folder: the owner host's open (an existing
 /// older workspace is backed up and upgraded first), an open that never
@@ -928,6 +929,45 @@ impl Store {
         self.update_workspace_settings(operation, SettingsUpdate::TopicsNote(note), authority)
     }
 
+    /// Owner-only scoped skill policy; current settings, run fences and notices
+    /// commit together under the existing immediate writer/replay contract.
+    pub fn change_skill_policy(
+        &mut self,
+        operation: &OperationId,
+        change: &SkillPolicyChange,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        let (id, digest, project) = match change {
+            SkillPolicyChange::Set(b) => (
+                Some(b.id.as_str()),
+                Some(b.digest.as_str()),
+                b.project.as_deref(),
+            ),
+            SkillPolicyChange::Select {
+                id,
+                digest,
+                project,
+            } => (id.as_deref(), digest.as_deref(), project.as_deref()),
+            SkillPolicyChange::Clear { id, project } => {
+                (Some(id.as_str()), None, project.as_deref())
+            }
+            SkillPolicyChange::Revoke { id, digest } => {
+                (Some(id.as_str()), Some(digest.as_str()), None)
+            }
+        };
+        if id.is_some_and(|id| !skill_id_valid(id))
+            || digest.is_some_and(|d| !skill_digest_valid(d))
+            || project.is_some_and(|p| {
+                p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+            })
+        {
+            return Err(Error::Invalid(
+                "invalid scoped skill policy identity".into(),
+            ));
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::SkillPolicy(change), authority)
+    }
+
     /// Recheck the saved destination against this actual workspace at dispatch.
     pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
         validate_backup_directory(&self.directory, directory)
@@ -960,6 +1000,9 @@ impl Store {
             }
             SettingsUpdate::Theme(theme) => Some(serde_json::to_vec(&("theme", theme))?),
             SettingsUpdate::TopicsNote(note) => Some(serde_json::to_vec(&("topics-note", note))?),
+            SettingsUpdate::SkillPolicy(change) => {
+                Some(serde_json::to_vec(&("skill-policy", change))?)
+            }
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -1002,6 +1045,7 @@ impl Store {
                     requested.backup_directory = prior.backup_directory.clone();
                     requested.theme = prior.theme.clone();
                     requested.topics_note = prior.topics_note.clone();
+                    requested.skills = prior.skills.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -1019,7 +1063,7 @@ impl Store {
                         return Err(Error::ImmutableRequest);
                     }
                 }
-                SettingsUpdate::BackupDirectory(_) => {}
+                SettingsUpdate::BackupDirectory(_) | SettingsUpdate::SkillPolicy(_) => {}
                 SettingsUpdate::Theme(theme) => {
                     if prior.theme.as_deref() != Some(theme) {
                         return Err(Error::ImmutableRequest);
@@ -1073,6 +1117,7 @@ impl Store {
                 next.backup_directory = current_settings.backup_directory.clone();
                 next.theme = current_settings.theme.clone();
                 next.topics_note = current_settings.topics_note.clone();
+                next.skills = current_settings.skills.clone();
                 next
             }
             _ => current_settings.clone(),
@@ -1120,6 +1165,32 @@ impl Store {
                     ));
                 }
                 next.topics_note = Some(note.to_owned());
+            }
+            SettingsUpdate::SkillPolicy(change) => {
+                let project = match change {
+                    SkillPolicyChange::Set(b) if b.enabled => b.project.as_deref(),
+                    SkillPolicyChange::Select {
+                        id: Some(_),
+                        project,
+                        ..
+                    } => project.as_deref(),
+                    _ => None,
+                };
+                if let Some(project) = project
+                    && !matches!(
+                        record_on(&tx, project)?,
+                        Some(Record {
+                            archived: false,
+                            data: RecordData::Project(_),
+                            ..
+                        })
+                    )
+                {
+                    return Err(Error::Invalid(
+                        "enabled skill requires a current active Project".into(),
+                    ));
+                }
+                change_skills(&mut next, change)?;
             }
             SettingsUpdate::Configure(_) => {}
         }
@@ -1181,6 +1252,93 @@ impl Store {
         Ok(outcome)
     }
 }
+fn change_skills(settings: &mut WorkspaceSettings, change: &SkillPolicyChange) -> Result<()> {
+    match change {
+        SkillPolicyChange::Set(binding) => {
+            settings
+                .skills
+                .retain(|b| b.id != binding.id || b.project != binding.project);
+            if binding.selected {
+                for b in &mut settings.skills {
+                    if b.project == binding.project {
+                        b.selected = false;
+                    }
+                }
+            }
+            settings.skills.push(binding.clone());
+        }
+        SkillPolicyChange::Select {
+            id,
+            digest,
+            project,
+        } => {
+            if id.is_some() != digest.is_some() {
+                return Err(Error::Invalid("selection needs exact ID and digest".into()));
+            }
+            if let Some(id) = id {
+                if !settings
+                    .skills
+                    .iter()
+                    .any(|b| &b.id == id && &b.project == project)
+                    && !id.starts_with("installed:")
+                {
+                    settings.skills.push(SkillBinding {
+                        id: id.clone(),
+                        digest: digest.clone().expect("checked selection digest"),
+                        project: project.clone(),
+                        enabled: true,
+                        selected: false,
+                    });
+                }
+                let binding = settings
+                    .skills
+                    .iter()
+                    .find(|b| {
+                        &b.id == id
+                            && &b.project == project
+                            && Some(&b.digest) == digest.as_ref()
+                            && b.enabled
+                    })
+                    .ok_or_else(|| {
+                        Error::Invalid("select an enabled exact skill identity".into())
+                    })?;
+                let selected = binding.id.clone();
+                for b in &mut settings.skills {
+                    if &b.project == project {
+                        b.selected = b.id == selected;
+                    }
+                }
+            } else {
+                for b in &mut settings.skills {
+                    if &b.project == project {
+                        b.selected = false;
+                    }
+                }
+            }
+        }
+        SkillPolicyChange::Clear { id, project } => settings
+            .skills
+            .retain(|b| &b.id != id || &b.project != project),
+        SkillPolicyChange::Revoke { id, digest } => {
+            if !skill_id_valid(id) || !skill_digest_valid(digest) {
+                return Err(Error::Invalid(
+                    "revoke requires exact skill identity".into(),
+                ));
+            }
+            for b in &mut settings.skills {
+                if &b.id == id && &b.digest == digest {
+                    b.enabled = false;
+                    b.selected = false;
+                }
+            }
+        }
+    }
+    settings
+        .skills
+        .sort_by(|a, b| (&a.project, &a.id).cmp(&(&b.project, &b.id)));
+    settings.validate_skills()
+}
+
 /// `^[A-Za-z0-9._:-]{1,64}$`.
 pub(crate) fn actor_is_valid(actor: &str) -> bool {
     (1..=64).contains(&actor.len())
@@ -1211,7 +1369,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=6) {
+    if matches!(schema, 3..=7) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1319,6 +1477,31 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
             return Err(Error::Invalid(
                 "creation ID must be preassigned by this operation".into(),
             ));
+        }
+        if let RecordData::Settings(settings) = &write.data {
+            settings.validate_skills()?;
+        }
+        if let RecordData::Run(run) = &write.data {
+            let mut files = BTreeSet::new();
+            if run.loaded_skill_details.len() > 1028
+                || run.loaded_skill_details.iter().any(|d| {
+                    !skill_id_valid(&d.id)
+                        || !skill_digest_valid(&d.package_digest)
+                        || !skill_digest_valid(&d.file_digest)
+                        || d.file.is_empty()
+                        || d.file.len() > 256
+                        || d.file.chars().any(char::is_control)
+                        || !matches!(d.origin.as_str(), "builtin" | "owner_installed" | "project")
+                        || d.project.as_ref().is_some_and(|p| {
+                            p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+                        })
+                        || !files.insert((&d.id, &d.project, &d.file))
+                })
+            {
+                return Err(Error::Invalid(
+                    "invalid or duplicate loaded skill identities".into(),
+                ));
+            }
         }
         if let RecordData::WritingSetup(setup) = &write.data {
             setup.validate()?;
@@ -1869,6 +2052,29 @@ pub(crate) fn apply_on(
             }
             if next.private_context != old_private || next.context_epoch != old_epoch {
                 required.insert(Capability::Configure);
+            }
+        }
+        if let RecordData::Settings(settings) = &write.data {
+            settings.validate_skills()?;
+            for binding in settings.skills.iter().filter(|b| b.enabled) {
+                if let Some(project) = &binding.project
+                    && !matches!(
+                        record_on(tx, project)?,
+                        Some(Record {
+                            archived: false,
+                            data: RecordData::Project(_),
+                            ..
+                        })
+                    )
+                {
+                    // Existing unavailable bindings may be retained unchanged after archive.
+                    let retained = current.as_ref().is_some_and(|r| matches!(&r.data, RecordData::Settings(old) if old.skills.contains(binding)));
+                    if !retained {
+                        return Err(Error::Invalid(
+                            "enabled skill requires a current active Project".into(),
+                        ));
+                    }
+                }
             }
         }
         if matches!(write.data, RecordData::Settings(_)) {

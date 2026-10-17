@@ -61,6 +61,8 @@ mod projects_view;
 mod search_view;
 #[path = "threads_shell.rs"]
 mod shell;
+#[path = "threads_skills.rs"]
+mod skills_view;
 #[path = "threads_state.rs"]
 mod state;
 #[path = "threads_theme.rs"]
@@ -88,6 +90,13 @@ mod context_actions_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_projects_tests.rs"]
 mod projects_tests;
+#[cfg(all(
+    test,
+    feature = "native-test-support",
+    any(target_os = "macos", target_os = "linux")
+))]
+#[path = "threads_skills_tests.rs"]
+mod skills_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
@@ -186,15 +195,23 @@ enum SettingsSection {
     Models,
     Delegation,
     Data,
+    Skills,
 }
 impl SettingsSection {
-    const ALL: [Self; 4] = [Self::General, Self::Models, Self::Delegation, Self::Data];
+    const ALL: [Self; 5] = [
+        Self::General,
+        Self::Models,
+        Self::Delegation,
+        Self::Data,
+        Self::Skills,
+    ];
     fn key(self) -> &'static str {
         match self {
             Self::General => "general",
             Self::Models => "models",
             Self::Delegation => "delegation",
             Self::Data => "data",
+            Self::Skills => "skills",
         }
     }
     fn label(self) -> &'static str {
@@ -203,6 +220,7 @@ impl SettingsSection {
             Self::Models => "Models",
             Self::Delegation => "Delegation",
             Self::Data => "Data",
+            Self::Skills => "Skills",
         }
     }
 }
@@ -498,6 +516,7 @@ struct ThreadsUi {
     theme: ThemeId,
     theme_pending: bool,
     settings_section: SettingsSection,
+    skill_view: skills_view::SkillView,
     records: Vec<Record>,
     history: Vec<Receipt>,
     candidates: Vec<Prepared>,
@@ -847,6 +866,7 @@ impl ThreadsUi {
             theme,
             theme_pending: false,
             settings_section: SettingsSection::General,
+            skill_view: skills_view::SkillView::default(),
             records: vec![],
             history: vec![],
             candidates: vec![],
@@ -1119,6 +1139,7 @@ impl ThreadsUi {
         self.activity = Activity::new(&self.history);
         self.thread_rows = lists::thread_rows(&self.records, &self.activity);
         self.note_rows = lists::note_rows(&self.records, &self.activity);
+        self.refresh_skills();
     }
     /// A recoverable edit exists that this view has not opened; typing would
     /// start a competing edit, so the text stays read-only until recovered.
@@ -1298,6 +1319,7 @@ impl ThreadsUi {
         let old = self.destination();
         self.save_composer(old, self.composer.read(cx).value().to_string());
         self.chat = target;
+        self.refresh_skills();
         let text = self.composer_drafts.text(&self.destination()).to_owned();
         self.composer
             .update(cx, |editor, cx| editor.set_value(text, window, cx));

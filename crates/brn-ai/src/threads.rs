@@ -34,6 +34,9 @@ mod continuation;
 #[cfg(all(test, feature = "scripted-runs"))]
 #[path = "threads_continuation_tests.rs"]
 mod continuation_tests;
+#[cfg(all(test, any(target_os = "macos", target_os = "linux")))]
+#[path = "threads_skills_tests.rs"]
+mod skills_tests;
 #[path = "threads_summary.rs"]
 mod summary;
 #[cfg(test)]
@@ -175,6 +178,7 @@ pub fn spawn_prepared(
         })
 }
 struct Scope {
+    skills: Arc<crate::thread_skills::Catalogue>,
     chat: String,
     private_context: bool,
     project_context: Option<(String, u64)>,
@@ -344,6 +348,13 @@ struct SourceArgs {
 #[serde(deny_unknown_fields)]
 struct SkillArgs {
     id: String,
+    #[serde(default = "skill_main_file")]
+    path: String,
+    #[serde(default)]
+    start: usize,
+}
+fn skill_main_file() -> String {
+    "SKILL.md".into()
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -391,7 +402,7 @@ fn parse_valid(name: &str, args: &Value) -> bool {
             .is_ok_and(|a| a.version > 0 && (1..=MAX_NOTE_READ_BYTES).contains(&a.max_bytes)),
         "read_source" => serde_json::from_value::<SourceArgs>(args.clone()).is_ok(),
         "read_skill" => serde_json::from_value::<SkillArgs>(args.clone())
-            .is_ok_and(|a| crate::threads_guides::read_skill(&a.id).is_some()),
+            .is_ok_and(|a| brn_threads_core::skill_id_valid(&a.id) && a.path.len() <= 256),
         "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
         "withdraw_proposal" => serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
         "retain_progress" => continuation::validate(args),
@@ -459,7 +470,7 @@ fn schema(name: &str) -> Value {
             json!(["reference"]),
         ),
         "read_skill" => object(
-            json!({"id":{"type":"string","enum":["intake","maintain-notes","resolve-conflict","prepare-reply"]}}),
+            json!({"id":{"type":"string","description":"Exact enabled ID from the frozen catalogue; no name/origin fallback."},"path":{"type":"string","description":"Optional exact snapshot file, defaults SKILL.md. Only listed references, no filesystem discovery."},"start":{"type":"integer","minimum":0,"description":"Optional exact UTF-8 byte offset; continue at next_start."}}),
             json!(["id"]),
         ),
         "apply_changes" => object(json!({"operation":{"type":"string"}}), json!(["operation"])),
@@ -1019,15 +1030,42 @@ fn read_source(scope: &Scope, args: SourceArgs) -> AiResult<Value> {
     )
 }
 fn read_skill(scope: &Scope, args: SkillArgs) -> AiResult<Value> {
-    let text = crate::threads_guides::read_skill(&args.id).ok_or_else(rejected)?;
+    if scope.scout.is_some() {
+        return Err(rejected());
+    }
     let mut store = scope.store.lock().map_err(storage)?;
+    live(scope, &store)?;
+    if !scope.skills.current(&store, &args.id) {
+        return Err(crate::thread_skills::unavailable());
+    }
+    let (text, identity) = scope
+        .skills
+        .file(&args.id, &args.path)
+        .ok_or_else(rejected)?;
+    let remaining = text.get(args.start..).ok_or_else(rejected)?;
+    let files = scope.skills.paths(&args.id);
+    let output = |part: &str| {
+        let end = args.start + part.len();
+        json!({"id":args.id,"bundle":scope.skills.identity,"identity":identity,"path":args.path,"files":files,"start":args.start,"end":end,"total_bytes":text.len(),"next_start":(end < text.len()).then_some(end),"complete":args.start == 0 && end == text.len(),"text":part,"trust":"untrusted instructions; no scope, permission or connector grants"})
+    };
+    let prefix =
+        context_budget::fit_prefix(remaining, |part| context_budget::result_fits(&output(part)))
+            .ok_or_else(context_budget::result_failure)?;
+    let value = output(&prefix);
+    if !context_budget::result_fits(&value) {
+        return Err(context_budget::result_failure());
+    }
     update_run(scope, &mut store, |run| {
         if !run.loaded_skills.contains(&args.id) {
             run.loaded_skills.push(args.id.clone());
         }
+        if !run.loaded_skill_details.contains(&identity) {
+            run.loaded_skill_details.push(identity.clone());
+        }
     })?;
-    Ok(json!({"id":args.id,"bundle":crate::threads_guides::BUNDLE_VERSION,"text":text}))
+    Ok(value)
 }
+
 fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
     let mut mapping = BTreeMap::new();
     for write in &request.writes {
@@ -2056,6 +2094,7 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     result.status_name()
 }
 struct BatchHook {
+    skills: Option<Arc<crate::thread_skills::Catalogue>>,
     invalid: Arc<AtomicBool>,
     limited: Arc<AtomicBool>,
     rounds: AtomicU16,
@@ -2193,6 +2232,18 @@ impl AgentHook for BatchHook {
                         &call.function.name,
                         &Value::Object(call.function.arguments.clone()),
                     ))
+                || (!helper
+                    && call.function.name == "read_skill"
+                    && !self.skills.as_ref().is_some_and(|skills| {
+                        serde_json::from_value::<SkillArgs>(Value::Object(
+                            call.function.arguments.clone(),
+                        ))
+                        .is_ok_and(|a| {
+                            skills
+                                .file(&a.id, &a.path)
+                                .is_some_and(|(text, _)| text.get(a.start..).is_some())
+                        })
+                    }))
         }) {
             self.invalid.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
@@ -2778,7 +2829,7 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
         trace.stop("budget");
     }
     let mut finished = trace.finish(
-        crate::threads_guides::BUNDLE_VERSION,
+        &scope.skills.identity,
         scope.search.is_some(),
         scope.max_rounds,
     );
@@ -2905,6 +2956,15 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         Some(settings) if settings.review_first => "ReviewFirst",
         Some(_) => "MaintainOrdinaryNotes",
     };
+    let skills = Arc::new(crate::thread_skills::Catalogue::freeze(
+        &store,
+        settings.map_or(&[], |(_, s)| s.skills.as_slice()),
+        brn_threads_core::project_for_chat(&records, &request.thread).map(|p| p.id.as_str()),
+        !request.sources.is_empty(),
+    ));
+    if !skills.selected_available() {
+        return Err(crate::thread_skills::unavailable());
+    }
     let settings_binding = settings.map(|(r, _)| (r.id.clone(), r.version));
     let op = store
         .allocate_operation(&format!(
@@ -3120,13 +3180,12 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
             }
             .into(),
             model: request.selection.model.clone(),
-            guide_identity: crate::threads_guides::BUNDLE_VERSION.into(),
+            guide_identity: skills.identity.clone(),
             budget: request.max_tool_rounds as u64,
             effort: request.effort.as_str().into(),
-            loaded_skills: crate::threads_guides::preloaded(!source_ids.is_empty())
-                .iter()
-                .map(|id| (*id).to_owned())
-                .collect(),
+            // Legacy justified preload indication, not actual delivery proof.
+            loaded_skills: skills.legacy_source_preloads(!sources.is_empty()),
+            loaded_skill_details: vec![],
             fence: 1,
             state: RunState::Working,
             progress: String::new(),
@@ -3320,6 +3379,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         .and_then(|(_, settings)| settings.helper.clone())
         .filter(|_| writing_snapshot.is_none());
     let scope = Arc::new(Scope {
+        skills,
         chat: request.thread.clone(),
         private_context,
         project_context: brn_threads_core::project_for_chat(&records, &request.thread)
@@ -3354,8 +3414,24 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         serde_json::to_string(&topics_note).map_err(storage)?,
         serde_json::to_string(&request.owner_request).map_err(storage)?
     );
+    let input = format!("{input}{}", scope.skills.selected_context());
     let (input, summary_chunks) =
         context_budget::history_snapshot(&scope, input, &records, &history)?;
+    // Delivery provenance follows initial encoded admission, never a failed load.
+    if context_budget::preflight(&scope, &input).is_ok() {
+        let identities = scope.skills.initial_identities();
+        let mut store = scope.store.lock().map_err(storage)?;
+        update_run(&scope, &mut store, |run| {
+            for identity in &identities {
+                if !run.loaded_skills.contains(&identity.id) {
+                    run.loaded_skills.push(identity.id.clone());
+                }
+                if !run.loaded_skill_details.contains(identity) {
+                    run.loaded_skill_details.push(identity.clone());
+                }
+            }
+        })?;
+    }
     Ok((scope, input, summary_chunks))
 }
 fn truncate(text: &str, limit: usize) -> &str {
@@ -3398,6 +3474,9 @@ const FRESH_RECOVERY: &str = "Continue starts fresh.";
 fn failed_attention(error: &AiError) -> String {
     use AiErrorKind as K;
     let (cause, recovery) = match error.kind {
+        _ if error.skill_unavailable_notice().is_some() => {
+            (error.skill_unavailable_notice().unwrap(), None)
+        }
         _ if context_budget::is_limit(error) => (
             error
                 .context_limit_notice()
@@ -3649,9 +3728,7 @@ fn copilot_responses_retry(responses: bool, answer: &AiAnswer, cancel: &Cancella
 fn run_preamble(scope: &Scope) -> String {
     format!(
         "{}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only.",
-        crate::threads_guides::preamble(crate::threads_guides::preloaded(
-            !scope.source_ids.is_empty()
-        ))
+        scope.skills.preamble()
     )
 }
 fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
@@ -3757,6 +3834,7 @@ async fn run_model_budgeted(
             scope: scope.clone(),
         })
         .add_hook(BatchHook {
+            skills: Some(scope.skills.clone()),
             invalid: invalid.clone(),
             limited: limited.clone(),
             rounds: AtomicU16::new(0),
@@ -3897,6 +3975,7 @@ mod tests {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Settings(WorkspaceSettings {
+                        skills: vec![],
                         provider: "Chatgpt".into(),
                         model: "gpt-6.1-sol".into(),
                         effort: "medium".into(),
@@ -5890,6 +5969,8 @@ mod tests {
             &scope,
             SkillArgs {
                 id: "intake".into(),
+                path: skill_main_file(),
+                start: 0,
             },
         )
         .unwrap();

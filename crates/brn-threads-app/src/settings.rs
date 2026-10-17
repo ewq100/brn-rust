@@ -52,6 +52,7 @@ impl Workspace {
             DefaultCredentials::None => None,
         };
         let settings = WorkspaceSettings {
+            skills: vec![],
             provider: "Codex".into(),
             model: "gpt-6.1-sol".into(),
             effort: "medium".into(),

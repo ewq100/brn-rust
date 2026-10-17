@@ -164,3 +164,6 @@ pub struct AiFailureDetail {
     pub phase: Option<String>,
 }
 pub type AiResult<T> = std::result::Result<T, AiError>;
+
+#[path = "threads_skills.rs"]
+pub mod thread_skills;

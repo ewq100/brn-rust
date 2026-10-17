@@ -670,8 +670,8 @@ pub(crate) static COMMANDS: &[Spec] = &[
         bounded_form: Some("candidates --limit N [--cursor C]"),
         ..read("candidates", &["limit", "cursor"], &[])
     },
-    read("skills", &[], &[]),
-    read("skill-inspect", &["name"], &["name"]),
+    read("skills", &["project"], &[]),
+    read("skill-inspect", &["name", "project"], &["name"]),
     cmd(
         "skill-install",
         &["source"],
@@ -692,6 +692,18 @@ pub(crate) static COMMANDS: &[Spec] = &[
         NONE,
         &[],
     ),
+    setting(
+        "skill-enable",
+        &["id", "digest", "project"],
+        &["id", "digest"],
+    ),
+    setting(
+        "skill-disable",
+        &["id", "digest", "project"],
+        &["id", "digest"],
+    ),
+    setting("skill-select", &["id", "project"], &["id"]),
+    setting("skill-clear", &["id", "project"], &["id"]),
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
@@ -1424,6 +1436,10 @@ mod tests {
             ("skill-inspect", &["name"]),
             ("skill-install", &["source"]),
             ("skill-remove", &["name", "digest"]),
+            ("skill-enable", &["id", "digest"]),
+            ("skill-disable", &["id", "digest"]),
+            ("skill-select", &["id"]),
+            ("skill-clear", &["id"]),
             ("revisions", &["note"]),
             ("revision", &["note", "version"]),
             ("search", &["query"]),
@@ -1468,6 +1484,10 @@ mod tests {
         let yes = [
             "skill-install",
             "skill-remove",
+            "skill-enable",
+            "skill-disable",
+            "skill-select",
+            "skill-clear",
             "apply",
             "dismiss",
             "undo",
@@ -1543,7 +1563,8 @@ mod tests {
         for spec in COMMANDS {
             let expected: &[&str] = match spec.name {
                 "apply" | "keep-in-brn" | "delegation" | "configure" | "pause" | "resume"
-                | "topics-choose" | "undo" | "topics-create" => APPLY_OUTCOMES,
+                | "topics-choose" | "undo" | "topics-create" | "skill-enable" | "skill-disable"
+                | "skill-select" | "skill-clear" => APPLY_OUTCOMES,
                 "intake" => INTAKE_OUTCOMES,
                 "save" => SAVE_OUTCOMES,
                 "update-buffer" => BUFFER_OUTCOMES,

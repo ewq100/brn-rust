@@ -22,6 +22,7 @@ fn fixture() -> (tempfile::TempDir, Workspace, String, String) {
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    loaded_skill_details: vec![],
                     instruction: None,
                     queue_claim: None,
                     thread: thread.clone(),

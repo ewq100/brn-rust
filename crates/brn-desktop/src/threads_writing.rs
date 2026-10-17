@@ -286,6 +286,7 @@ impl ThreadsUi {
         if recovering {
             conversation = conversation.child(self.recovery_card(id, &queue, &path, cx));
         }
+        conversation = conversation.child(self.loaded_skill_details(id));
         scroll("thread-conversation")
             .py_4()
             .px_0()

@@ -126,6 +126,7 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState) -> Strin
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.into(),

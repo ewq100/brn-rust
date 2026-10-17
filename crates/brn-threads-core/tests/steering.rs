@@ -47,6 +47,7 @@ fn fixture(state: RunState, fence: u64) -> (tempfile::TempDir, Store, String, St
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    loaded_skill_details: vec![],
                     instruction: None,
                     queue_claim: None,
                     thread: thread.clone(),

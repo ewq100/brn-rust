@@ -291,6 +291,7 @@ fn working_run(store: &mut Store, key: &str) -> Record {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            loaded_skill_details: vec![],
                             instruction: None,
                             queue_claim: None,
                             thread,
@@ -487,6 +488,7 @@ fn a_settings_stop_records_interrupted_matching_its_notice() {
                         expected_version: None,
                         archived: false,
                         data: RecordData::Run(Run {
+                            loaded_skill_details: vec![],
                             instruction: Some(message.clone()),
                             queue_claim: Some(dispatch),
                             thread: thread.clone(),

@@ -117,6 +117,7 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState, progress
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.into(),
@@ -347,6 +348,7 @@ fn resume_queue_names_the_waiting_messages_while_the_pending_reply_may_still_run
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
                                 instruction: pending.message.clone(),
                                 queue_claim: pending.dispatch.clone(),
                                 thread: thread.into(),
