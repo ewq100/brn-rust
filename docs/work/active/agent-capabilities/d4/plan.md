@@ -1,4 +1,6 @@
-# D4 implementation checkpoint
+# D4 locally accepted source
+
+**Principal disposition:** [Accepted for local dependent work](principal-disposition.md) at correctedcc8338be, with all independent-review, failed-run and bounded-mutation qualifications retained. INT-D remains separate.
 
 This executes section8/M01–M05 of the existing [Rig-first plan](../proposal/amended/BRN_Rig_First_Implementation_Plan.md), after principal D3b local acceptance9a88a0a9. [Binding](binding.json), [exact ownership](ownership.md), [storage/authority allocation](storage-and-allocation.md) and [acceptance map](acceptance-map.md) govern. This is one outbound MCP client, not a BRN server, plugin framework or INT-D.
 
