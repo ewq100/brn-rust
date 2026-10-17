@@ -1,0 +1,23 @@
+{
+  "initial_receipt": "focused-initial.json",
+  "actual_exit": 101,
+  "actual_counts": [
+    0,
+    1,
+    0
+  ],
+  "failed_assertion": "all3 input IDs visible in the long truncated Activity",
+  "diagnosis": "New fixture assumption exceeds actual existing Activity visibility; at least one ID was absent. Short full JSON had already matched exact input array and writing class. No production defect or historical cause inferred.",
+  "preserved_binary_and_dep_info": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "328e29c3c1e78335c9f51fd17c04a235d29a83f4844fb3ef3985460b45f53e31",
+    "mtime": 1792246485.8583446,
+    "receipt_mtime": 1792246486.886662,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+  },
+  "preserved_source": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/initial-failure/threads_int_d_tests.rs.txt",
+  "source_sha256": "0ccf691b27d4479403ec88cd289bb90dc41f5a3bd7d6fad3d0d2e7047c857f4a",
+  "correction": "Keep full short metadata assertions; measure per-ID visibility of actual long event, require some loss plus unparseable/truncated/no writing field, not all fields surviving."
+}

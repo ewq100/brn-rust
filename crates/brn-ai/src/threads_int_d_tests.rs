@@ -711,3 +711,313 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
         server.stop().await;
     }
 }
+
+#[tokio::test]
+async fn offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    use std::error::Error as _;
+
+    let mut facts = vec![];
+    for mode in ["absent", "null", "object", "stopped"] {
+        let (_root, mut request, note) = tests::fixture();
+        request.trace = TraceLevel::Full;
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let prior = store.record(&note).unwrap().unwrap();
+        let RecordData::Note(mut data) = prior.data else {
+            panic!()
+        };
+        data.protected = true;
+        data.markdown = "INT_D_DIAGNOSTIC_NOTE_BODY_ONLY".into();
+        save(
+            &mut store,
+            vec![Put {
+                id: note.clone(),
+                expected_version: Some(prior.version),
+                archived: false,
+                data: RecordData::Note(data),
+            }],
+        );
+        let original = store.record(&note).unwrap().unwrap();
+        let mut c = corpus();
+        c["history_messages"] = json!(2);
+        let messages = history(&mut store, &request.thread, &c);
+        let note_receipts = store
+            .receipts()
+            .unwrap()
+            .into_iter()
+            .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+            .collect::<Vec<_>>();
+        drop(store);
+        let (scope, input) = begin(&request).unwrap();
+        assert!(scope.writing_snapshot.is_none() && scope.owner_request.is_none());
+        assert!(scope.external.lock().unwrap().is_none() && scope.helper.is_none());
+        let RecordData::Note(mut revised) = original.data.clone() else {
+            panic!()
+        };
+        revised.markdown = "INT_D_DIAGNOSTIC_PROPOSED_BODY_ONLY".into();
+        let change = ChangeRequest {
+            reason: "New synthetic diagnostic request; not recovered live arguments".into(),
+            writes: vec![Put {
+                id: note.clone(),
+                expected_version: Some(original.version),
+                archived: false,
+                data: RecordData::Note(revised),
+            }],
+            inputs: vec![
+                RevisionInput {
+                    record: note.clone(),
+                    version: original.version,
+                    expectation: InputExpectation::Current,
+                },
+                RevisionInput {
+                    record: messages[0].clone(),
+                    version: 1,
+                    expectation: InputExpectation::Current,
+                },
+                RevisionInput {
+                    record: messages[1].clone(),
+                    version: 1,
+                    expectation: InputExpectation::Current,
+                },
+            ],
+        };
+        let mut args = json!({"request_key":"offline-diagnostic","request":change});
+        if mode == "null" {
+            args["writing"] = Value::Null;
+        }
+        if mode == "object" {
+            args["writing"] = json!({"quotations":[],"requirements_reported":[]});
+        }
+        assert!(parse_valid("prepare_changes", &args));
+        let typed = Arc::new(Mutex::new(Vec::new()));
+        if mode == "object" {
+            let error = prepare(&scope, serde_json::from_value(args.clone()).unwrap()).unwrap_err();
+            assert_eq!(error.kind, AiErrorKind::ToolRejected);
+            typed.lock().unwrap().push(error.kind);
+        }
+        let mut turns = vec![
+            vec![
+                MockStreamEvent::tool_call(
+                    "read",
+                    "read_records",
+                    json!({"ids":[note],"query":null}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::tool_call("proposal", "prepare_changes", args.clone()),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+        ];
+        if mode == "object" {
+            let mut long = args.clone();
+            long["request_key"] = json!("offline-diagnostic-long");
+            long["request"]["reason"] = json!("Public synthetic long metadata. ".repeat(100));
+            assert!(parse_valid("prepare_changes", &long));
+            turns.push(vec![
+                MockStreamEvent::tool_call("long", "prepare_changes", long),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]);
+        }
+        turns.push(vec![
+            MockStreamEvent::text("Diagnostic ended; nothing applied."),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ]);
+        let model = MockCompletionModel::from_stream_turns(turns);
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let captured = events.clone();
+        let stop_scope = scope.clone();
+        let stopped = Arc::new(AtomicBool::new(false));
+        let did_stop = stopped.clone();
+        let direct_args = args.clone();
+        let direct_typed = typed.clone();
+        let stop_at_dispatch = mode == "stopped";
+        let emit = Arc::new(move |event| {
+            if let AiEvent::Activity(text) = event {
+                assert!(text.len() <= 2200);
+                assert!(!text.contains("INT_D_DIAGNOSTIC_NOTE_BODY_ONLY"));
+                assert!(!text.contains("INT_D_DIAGNOSTIC_PROPOSED_BODY_ONLY"));
+                let mut rows = captured.lock().unwrap();
+                assert!(rows.len() < 16);
+                rows.push(text.clone());
+                drop(rows);
+                if stop_at_dispatch && text.starts_with("> prepare_changes ") {
+                    assert!(!did_stop.swap(true, Ordering::SeqCst));
+                    let mut store = stop_scope.store.lock().unwrap();
+                    let op = store
+                        .allocate_operation("offline-diagnostic-checked-stop")
+                        .unwrap();
+                    assert!(matches!(
+                        store
+                            .stop_and_post(
+                                &op,
+                                &stop_scope.run,
+                                &stop_scope.chat,
+                                "Synthetic checked Stop before prepare handler",
+                                &HostAuthority::owner("Offline diagnostic Stop")
+                            )
+                            .unwrap(),
+                        ApplyOutcome::Applied(_)
+                    ));
+                    drop(store);
+                    let error = prepare(
+                        &stop_scope,
+                        serde_json::from_value(direct_args.clone()).unwrap(),
+                    )
+                    .unwrap_err();
+                    assert_eq!(error.kind, AiErrorKind::ToolRejected);
+                    direct_typed.lock().unwrap().push(error.kind);
+                }
+            }
+        });
+        let answer = run_model(
+            model.clone(),
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            CancellationToken::new(),
+            emit,
+        )
+        .await;
+        assert_eq!(
+            model.request_count(),
+            if mode == "object" {
+                4
+            } else if mode == "stopped" {
+                2
+            } else {
+                3
+            }
+        );
+        let trace = scope
+            .trace
+            .as_ref()
+            .unwrap()
+            .finish("offline diagnostic", false, 4);
+        assert_eq!(trace.dropped_calls, 0);
+        assert_ne!(trace.stopped.as_deref(), Some("invalid_batch"));
+        let calls = trace
+            .calls
+            .iter()
+            .filter(|c| c.tool == "prepare_changes")
+            .collect::<Vec<_>>();
+        assert_eq!(calls.len(), if mode == "object" { 2 } else { 1 });
+        let denied = mode == "object" || mode == "stopped";
+        for call in &calls {
+            assert_eq!(call.args, json!({"writes":{"Note":1},"inputs":3}));
+            assert_eq!(call.outcome, if denied { "error" } else { "success" });
+            if denied {
+                assert_eq!(call.bytes, 15);
+                assert!(call.result.is_null());
+            }
+        }
+        if denied {
+            assert_eq!(*typed.lock().unwrap(), vec![AiErrorKind::ToolRejected]);
+            // The maintained native adapter retains a typed source but deliberately
+            // gives the model only generic feedback. This is not a second driver.
+            let mut cx = ToolContext::new().with_scope(scope.clone());
+            let native =
+                rig::tool::ErasedTool::execute(&PrepareChanges, args.to_string(), &mut cx).await;
+            assert_eq!(native.output().as_text(), Some("the tool failed"));
+            let error = native.error().unwrap();
+            assert_eq!(error.kind(), rig::tool::ToolErrorKind::Other);
+            assert_eq!(
+                error
+                    .source()
+                    .unwrap()
+                    .downcast_ref::<AiError>()
+                    .unwrap()
+                    .kind,
+                AiErrorKind::ToolRejected
+            );
+            if mode == "object" {
+                assert!(
+                    serde_json::to_string(&model.requests()[2])
+                        .unwrap()
+                        .contains("the tool failed")
+                );
+            }
+        }
+        let activity = events.lock().unwrap();
+        let dispatch = activity
+            .iter()
+            .filter_map(|s| s.strip_prefix("> prepare_changes "))
+            .collect::<Vec<_>>();
+        assert_eq!(dispatch.len(), calls.len());
+        let shown: Value = serde_json::from_str(dispatch[0]).unwrap();
+        let classification = match shown.get("writing") {
+            None => "absent",
+            Some(Value::Null) => "null",
+            Some(Value::Object(_)) => "object",
+            _ => panic!(),
+        };
+        assert_eq!(
+            classification,
+            if mode == "stopped" { "absent" } else { mode }
+        );
+        assert_eq!(shown["request"]["inputs"], args["request"]["inputs"]);
+        assert_eq!(
+            shown["request"]["writes"][0]["data"],
+            "[record content omitted]"
+        );
+        if mode == "object" {
+            assert!(dispatch[1].ends_with(" … [arguments truncated]"));
+            assert!(serde_json::from_str::<Value>(dispatch[1]).is_err());
+            assert!(!dispatch[1].contains("\"writing\""));
+            assert!(
+                [&note, &messages[0], &messages[1]]
+                    .iter()
+                    .any(|id| !dispatch[1].contains(id.as_str()))
+            );
+        }
+        let long_id_visibility = (mode == "object")
+            .then(|| [&note, &messages[0], &messages[1]].map(|id| dispatch[1].contains(id)));
+        drop(activity);
+        let persisted = finish(&scope, &answer).unwrap();
+        assert_eq!(persisted, mode != "stopped");
+        let store = scope.store.lock().unwrap();
+        assert_eq!(store.record(&note).unwrap().unwrap(), original);
+        let current_note_receipts = store
+            .receipts()
+            .unwrap()
+            .into_iter()
+            .filter(|r| r.writes.iter().any(|w| w.after.id == note))
+            .collect::<Vec<_>>();
+        assert_eq!(current_note_receipts, note_receipts);
+        let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+            panic!()
+        };
+        let candidates = store.candidates().unwrap();
+        if denied {
+            assert!(run.operations.is_empty() && candidates.is_empty());
+        } else {
+            assert!(matches!(answer.terminal, AiTerminal::Completed));
+            assert_eq!(run.operations.len(), 1);
+            assert_eq!(candidates.len(), 1);
+            let prepared = store.prepared(&run.operations[0]).unwrap();
+            assert_eq!(prepared.request.writes, change.writes);
+            assert!(store.receipt(&prepared.operation).unwrap().is_none());
+        }
+        if mode == "stopped" {
+            assert!(stopped.load(Ordering::SeqCst));
+            assert_eq!(run.state, RunState::Interrupted);
+            assert_eq!(run.fence, 2);
+        }
+        facts.push(json!({"mode":mode,"new_fixture_not_original_args":true,
+            "mock_model_requests":model.request_count(),"prepare_calls":calls.len(),
+            "prepare_outcomes":calls.iter().map(|c|&c.outcome).collect::<Vec<_>>(),
+            "error_bytes":calls.iter().filter(|c|c.outcome=="error").map(|c|c.bytes).collect::<Vec<_>>(),
+            "short_activity_writing":classification,"short_activity_inputs":shown["request"]["inputs"],
+            "long_activity_writing":if mode=="object" {"not observable: truncated"} else {"not exercised"},
+            "long_activity_input_id_visible":long_id_visibility,
+            "typed_direct_error":if denied {Some("ToolRejected")} else {None},
+            "registered_operations":run.operations.len(),"candidates":candidates.len(),
+            "note_and_its_receipts_unchanged":true,"checked_stop":stopped.load(Ordering::SeqCst)}));
+    }
+    println!(
+        "INT_D_OFFLINE_PREPARE_DIAGNOSTIC {}",
+        json!({"cases":facts,"historical_cause":"UNKNOWN","live_starts":0})
+    );
+}

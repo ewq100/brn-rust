@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "raw_sha256": "49191787b6a8cdf53b0796e3ecd187ce6449a524b70b79845c8918686d27496a",
+  "raw_text": "   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n    Finished `test` profile [optimized] target(s) in 1m 16s\n     Running unittests src/lib.rs (/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9)\n\nrunning 1 test\ntest threads::int_d_tests::offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause ... \nthread 'threads::int_d_tests::offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause' (32820951) panicked at crates/brn-ai/src/threads_int_d_tests.rs:970:17:\nassertion failed: dispatch[1].contains(id)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nFAILED\n\nfailures:\n\nfailures:\n    threads::int_d_tests::offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 480 filtered out; finished in 0.04s\n\nerror: test failed, to rerun pass `-p brn-ai --lib`\n"
+}
