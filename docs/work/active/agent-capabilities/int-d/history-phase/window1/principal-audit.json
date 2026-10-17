@@ -1,0 +1,73 @@
+{
+  "time": "2026-10-17T19:29:04.601940+00:00",
+  "material_pin": "39a67e4f010e39e7675c220b0df6b3a842e47c5f",
+  "evidence_head": "32b20721e390b5c5e18d612d1570a5d1413c41dd",
+  "method": "Principal read/hash/static JSON audit only; no additional provider/CLI/Store/test execution. Exact candidate prose separately read by principal.",
+  "checks": {
+    "raw_archives": 113,
+    "source_inputs": 334,
+    "scripts": 3,
+    "cases": [
+      {
+        "ordinal": 1,
+        "arm": "control",
+        "Completed": true,
+        "Prepared": true,
+        "no_receipt": true,
+        "preexisting_unchanged": true,
+        "content_sha256": "37da92a3db537bdcf4630990c99798701a04396bf9c14d707f42dcc9e9994893",
+        "early_read_correlation": "UNKNOWN/qualified; summary trace omits call args or exact output range",
+        "comprehension": "UNKNOWN"
+      },
+      {
+        "ordinal": 2,
+        "arm": "candidate",
+        "Completed": true,
+        "Prepared": true,
+        "no_receipt": true,
+        "preexisting_unchanged": true,
+        "content_sha256": "72deb77473ba4f030cccb6723283fd190614fa4f323c7d98dbf12d243011fccb",
+        "early_read_correlation": "UNKNOWN/qualified; summary trace omits call args or exact output range",
+        "comprehension": "UNKNOWN"
+      },
+      {
+        "ordinal": 3,
+        "arm": "candidate",
+        "Completed": true,
+        "Prepared": true,
+        "no_receipt": true,
+        "preexisting_unchanged": true,
+        "content_sha256": "1f106ce9c1743bd1ddf9d1c6fb19e75a41a00a3f4f0b2925ad75a33171f992f1",
+        "early_read_correlation": "UNKNOWN/qualified; summary trace omits call args or exact output range",
+        "comprehension": "UNKNOWN"
+      },
+      {
+        "ordinal": 4,
+        "arm": "control",
+        "Completed": true,
+        "Prepared": true,
+        "no_receipt": true,
+        "preexisting_unchanged": true,
+        "content_sha256": "e86f812152cf015ef787f42ffd3c6183bf98d9d7e552d4ccdd5241eb01404757",
+        "early_read_correlation": "UNKNOWN/qualified; summary trace omits call args or exact output range",
+        "comprehension": "UNKNOWN"
+      }
+    ],
+    "parent_totals": {
+      "input": 242613,
+      "output": 5539,
+      "cached_input": 182528
+    },
+    "summary_totals": {
+      "input": 22832,
+      "output": 666,
+      "cached_input": 0
+    },
+    "parent_model_turns": 19,
+    "precise_processes": []
+  },
+  "errors": [],
+  "tooling_note": "Initial read-only audit assumed trace.model_turns was a list; actual contract is integer. TypeError retained in tool transcript; no fixture/source/provider action occurred. Corrected integer sum.",
+  "window": "CLOSED, four consumed starts; no further authority",
+  "qualifications": "Ground truth/candidate/proposal language verified for four samples only; exact read correlation and comprehension UNKNOWN; no superiority/full I01/egress/StopContinue/ownerApply/main/program claim."
+}

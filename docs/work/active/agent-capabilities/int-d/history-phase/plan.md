@@ -1,3 +1,5 @@
+**Current result:** [Window closed4/4 Completed,4 exact Prepared; principal disposition](window1/principal-disposition.md). B1/M1 resolved and independently approved; old67e preflight remains failed readiness, new79d8 activation exhausted. No further paid authority. Historical offline phases below retain their original scope.
+
 **Opus1 correction checkpoint:** B1/M1 REQUEST_CHANGES; old preflight67e54848 must not activate. [Bounded correction plan](opus1/plan.md) and [response](opus1/response.md) own the new test/harness evidence, fresh material/preparation and all LOW dispositions. No paid activation.
 
 # History-only offline preparation

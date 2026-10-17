@@ -1,4 +1,4 @@
-**History-only harness checkpoint:** material39a67e4f passed CLI7/0, strict lint/fmt and49history+10legacy fake cases;2fresh generators/4reference-only Configures/4whole-context copies produced preflight79d8c613. [Opus2 approval and principal disposition](history-phase/principal-disposition.md) accept the harness with qualifications; a separate bounded activation is required for paid starts. Old preflight67e54848 is superseded FAILED READINESS / MUST NOT ACTIVATE. Original windows remain CLOSED.
+**History-only window CLOSED:** [Principal-audited4/4 Completed and4 exact Prepared candidates](history-phase/window1/principal-disposition.md) preserve Monday-only delivery and reject Tuesday; all pre-existing canonical records remain unchanged, no Apply. Source39a67e4f/preflight79d8c613 were separately reviewed and activated. Exact read correlation/comprehension remain qualified; no superiority or full I01 claim. All paths/heavy/provider window released; no further starts authorized. Old preflight67e54848 remains MUST NOT ACTIVATE.
 
 # INT-D / Slice5 bounded integration
 
