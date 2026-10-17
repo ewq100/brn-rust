@@ -47,6 +47,13 @@ mod summary_tests;
 mod history;
 #[path = "threads_intake.rs"]
 mod host_intake;
+#[cfg(all(
+    test,
+    feature = "scripted-runs",
+    any(target_os = "macos", target_os = "linux")
+))]
+#[path = "threads_int_d_tests.rs"]
+mod int_d_tests;
 #[path = "threads_mcp_runtime.rs"]
 mod mcp_runtime;
 #[cfg(all(test, feature = "scripted-runs"))]

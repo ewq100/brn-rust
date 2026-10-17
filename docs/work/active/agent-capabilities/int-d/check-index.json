@@ -1,0 +1,1414 @@
+{
+  "qualification": "Per-command precommit HEAD+WIP source maps include untracked Rust+corpus; tracked diff SHA alone does not cover new files. Counts overlap, not overall pass. Target artifacts may later be overwritten; capture timestamps/hashes govern. No future material SHA invented in earlier receipts.",
+  "scratch": "/private/tmp/brn-int-d-20261017-evidence",
+  "checks": [
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-ai-full-scripted-int-d-tbw7rl2j",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 109.6990258693695,
+      "test_summaries": [
+        [
+          479,
+          0,
+          1
+        ]
+      ],
+      "log_sha256": "2c36620593f3f56cf7a7187bc9a7e6c1c752192d15ed783d74f99202c088c2fa",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/ai-full-scripted-int-d.json",
+      "receipt_sha256": "ff64a37a777bba40f250f2f50ee7474d23fd51080b22833a9dc0807193453358",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/ai-full-scripted-int-d.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/ai-full-scripted-int-d-artifacts.json",
+      "artifact_receipt_sha256": "f0751ccda39256ece290288f52cdf7a1e863b3fa7083e1a2e08d452f3bfc4b55",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "4906580ebaa93ace18070308d95418e6d21ce5e163605ecc39ae0392971f94a8",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "capability-spike",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-capability-lint-_ov7q6e_",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 8.78108286857605,
+      "test_summaries": [],
+      "log_sha256": "3886d10108e8d720b1dd0b6483ed7cadf6ac3ab3bdb1bdd6540554e13803de5a",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/capability-lint.json",
+      "receipt_sha256": "9d1ce61c6f3c615db418fd9a1ec0a7022f3950bbcc19b0800a20d5cc37bfe958",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/capability-lint.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/capability-lint-artifacts.json",
+      "artifact_receipt_sha256": "e13986ceac6fbf68e23820184c45a4a9a13dd19bee6b3213e8bf5bfc39742f1d",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "capability-spike",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-capability-tests-5rl52ibo",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 137.6715919971466,
+      "test_summaries": [
+        [
+          455,
+          0,
+          1
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "3eff7459c936487a076beaeeb2000e7a48b0f6e6a4dbf45fb3502d578b2c4bb5",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/capability-tests.json",
+      "receipt_sha256": "426d86296b78b2611ad35d9187861c0190f9a7db90fec817befbd9f82b533817",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/capability-tests.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/capability-tests-artifacts.json",
+      "artifact_receipt_sha256": "8d5d670b82308a011a6d92edb61b6a91f4707901a32188722d182e3a793e0fe5",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-cli-candidate-export-result-type-wbaw1hbq",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 3.999238967895508,
+      "test_summaries": [
+        [
+          2,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "302434bff4da690942d90d3281ff79ebf4f9697a0b11affcd4d022774a36ca5e",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export-result-type.json",
+      "receipt_sha256": "68d90f58655adb87ec046e5846787e8d6828ac3d1cd5da3b38350f98a85f0ede",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export-result-type.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export-result-type-artifacts.json",
+      "artifact_receipt_sha256": "5e35baf419a4908e4b29dc5d02a5b2bba4ee55d3b459e524d93cd68bd8c3df7e",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "b52950c98ffd081e1ea4c26ddc050e413f616794448a89c67404621094c82108",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-cli-candidate-export-50umne3b",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 101,
+      "seconds": 1.2654547691345215,
+      "test_summaries": [],
+      "log_sha256": "9f7803c2911093e870f90cc3f2f305f57a98f448247f32ba7d424d3ac829c969",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export.json",
+      "receipt_sha256": "7dbc07f5a306f1525e7058d6707bd9d89f835533c651125607720850d685e56e",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-candidate-export-artifacts.json",
+      "artifact_receipt_sha256": "6d0ee1670db8ac7106866f0a5ac89028da20a14f1f222c7d0b1e288cc0cb74aa",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "51d4ff3dcf6623cd95e72f31cc812f2918a48dc98261142609a7873d558de124",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs",
+        "crates/brn/tests/support/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-cli-corpus-and-export-final-8psomn6h",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 4.061381816864014,
+      "test_summaries": [
+        [
+          2,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "6b0377f161feffea156fe51ee328b2085648b4a8f9864f9aae65af2973b5620d",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-corpus-and-export-final.json",
+      "receipt_sha256": "63cfd72caf6323b157a21c0032f46e238c857861ac9465e0bceefe63f5473476",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/cli-corpus-and-export-final.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/cli-corpus-and-export-final-artifacts.json",
+      "artifact_receipt_sha256": "172bc5dc78df86a13d719b4667e2e50994ff8a1b0c6d0187778ccf77db99b941",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-format-final-bxsecrkl",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 1.704850196838379,
+      "test_summaries": [],
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/format-final.json",
+      "receipt_sha256": "aad43be3865f63b3163ec35aec0da38f2dfd42be74d51cfaa4e84f33038532e0",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/format-final.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/format-final-artifacts.json",
+      "artifact_receipt_sha256": "9d789da7865c852c360f714d75415518fd9d124b8b7d60429be8b0930cbea736",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-int-d-cli-corpus-initial-jmp_3aii",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 101,
+      "seconds": 117.56609201431274,
+      "test_summaries": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "log_sha256": "9418d4a1555fbaa991d63babececc76c6822a013b6947b453a5705d6b6e7dc7e",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-initial.json",
+      "receipt_sha256": "8f78ae851858174844aca30ce1cc46798136150c978fea6e1e0a81e5a9e49110",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-initial.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-initial-artifacts.json",
+      "artifact_receipt_sha256": "19f163f6e47825fa9aac7fd93c6049f5f6a20de106fc8ee2f4a254ba2afb8671",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "d503078079d67a3e62084fc308e415391c4102d3e264f728dd5226da4d69a2ff",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-int-d-cli-corpus-policy-distinction-n6unccae",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 3.5235378742218018,
+      "test_summaries": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "37961e26fa57305f7eb99b48ba4ca6bc1ad7e96ec1451de401a61a4a75616a36",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-policy-distinction.json",
+      "receipt_sha256": "cfe542b4f9b9779487f3c30385c09e718676a99293720ddd72b2c6eb233b9d49",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-policy-distinction.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-cli-corpus-policy-distinction-artifacts.json",
+      "artifact_receipt_sha256": "e9c93559a2923fa9dba7afbc0470c5624b40bbd1ed87c5169fa37919b9f1ac00",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "4906580ebaa93ace18070308d95418e6d21ce5e163605ecc39ae0392971f94a8",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-int-d-combined-current-input-type-a5232ptv",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 89.53716206550598,
+      "test_summaries": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "b0bf31e5c4dec09a7c603bcae9e37f62d37384456535cfdb14e4bec3fcdfd6bf",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-current-input-type.json",
+      "receipt_sha256": "1293522491ea15c7b31982914a58ef2afd51fe18b8ca6bc6cac784cb83c1f569",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-current-input-type.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-current-input-type-artifacts.json",
+      "artifact_receipt_sha256": "bcee3be86c1490d43297853683e1179e1179fbfe63d5447db8c8804158d6d167",
+      "recorded_source_count": 331,
+      "recorded_source_map_sha256": "4df936f26f31ca803138bf292e17fd80581f57e426d87f0b74a4fc91dfbcc9a6",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn-ai/src/threads_int_d_tests.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-int-d-combined-initial-pugv91v8",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 101,
+      "seconds": 256.79605317115784,
+      "test_summaries": [],
+      "log_sha256": "847e84e3f1dcb43c99cf2c954e0cd38301a46fa05770102380cf2771f33016ed",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-initial.json",
+      "receipt_sha256": "736e00d0260d0a2f18ac1a8d3d80205c760f0c4c58012c8d9207c3030bd99f5d",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-initial.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-combined-initial-artifacts.json",
+      "artifact_receipt_sha256": "ba2ade7192b484b49d4c2f9a1c3441a8713b0b95007598af89aee5e7853b1c70",
+      "recorded_source_count": 330,
+      "recorded_source_map_sha256": "b8e61996ce927e90dc3ac3388a6796df36966a6e198ba2a138085302c90b7174",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn-ai/src/threads_int_d_tests.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-int-d-workspace-recovery-initial-09d_6edj",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 131.70471906661987,
+      "test_summaries": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "0945b303fd1affb6ded2758d99a9c2b1b08406609a7a3a77a838f5740ad1e483",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-workspace-recovery-initial.json",
+      "receipt_sha256": "aa58edf9b0bec7353593b3217548d1dba07078e55a54af0bc49c7085710bce55",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/int-d-workspace-recovery-initial.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/int-d-workspace-recovery-initial-artifacts.json",
+      "artifact_receipt_sha256": "d1b54cc304a35f3d6f0901f65d6d8a52ad4a01444d719d2ab94cd54b7f40f4e1",
+      "recorded_source_count": 331,
+      "recorded_source_map_sha256": "167f6aa41a4f2c742ad9eff3ca34a4836875f1c9c957515ae62bb17258527371",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-intake-helper-9s7tys8g",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 79.98060703277588,
+      "test_summaries": [],
+      "log_sha256": "d05f33ba3993eb34a5a1f97345e7a1b50bf1ac21d1e1700d4c502660ea963db0",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/intake-helper.json",
+      "receipt_sha256": "3a945bd4a987ae776abb955fdd788b9c1b60f9c829efe2438fdde09deba254d8",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/intake-helper.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/intake-helper-artifacts.json",
+      "artifact_receipt_sha256": "aa3a0805f7ca7cc29e8ebc0d8f81b3a6dc6a95a89bfca57781b5fa829a6d2547",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "4906580ebaa93ace18070308d95418e6d21ce5e163605ecc39ae0392971f94a8",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "bash",
+        "scripts/verify-end-to-end.sh",
+        "--fixtures-only"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-offline-journey-_xq3xmws",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 2.4517252445220947,
+      "test_summaries": [],
+      "log_sha256": "7f4ce9237d0e6610e42b0db02e112e0abc9bdda33da8dcdb5c6a37141da871e2",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/offline-journey.json",
+      "receipt_sha256": "00c4fa668f60aa8ab02fc33b50ac84548bb0eee6ebe5bf2f86b4dcda6026f045",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/offline-journey.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/offline-journey-artifacts.json",
+      "artifact_receipt_sha256": "12e5e9539e7f6474a6ea7f2ca21624a8dcc61b3a3b3c371554ee545042d00a2b",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-scripted-lint-m7iwyggt",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 0.6853389739990234,
+      "test_summaries": [],
+      "log_sha256": "fe368598dee37a838fc947bb61fdf7683a67dd9c56d87bf1c158f0d080cf0571",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/scripted-lint.json",
+      "receipt_sha256": "a3e7b8bbe29a2cbbb89d35b4b06f204882716dca1e9ea481a6622bfa00b60c98",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/scripted-lint.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/scripted-lint-artifacts.json",
+      "artifact_receipt_sha256": "567ff95c0d8ea532bd5b5f505a73abb705d1dad42cb4ef42edf0d299ca92a3de",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-strict-workspace-match-style-t7s3c4vo",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 16.50026798248291,
+      "test_summaries": [],
+      "log_sha256": "d05e8cc964b9e56759856ee8d412c3d2426a2a09f8337c10854fc5d19af46d82",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace-match-style.json",
+      "receipt_sha256": "2b4139b19a4718ccac65b696b2eb602d257390d9fcf775dcdb2278dac9dc51fb",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace-match-style.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace-match-style-artifacts.json",
+      "artifact_receipt_sha256": "b3da8636cf69de5217265f4acbeb9c8c64180f4eba362b2a8013eed0ddd95e2b",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-strict-workspace-o2bjo5m1",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 101,
+      "seconds": 32.531777143478394,
+      "test_summaries": [],
+      "log_sha256": "1ffbe2ecec8f9c86c64ea9fc0fcbaadb34a62b46984c5803b240e4c4b473d9ae",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace.json",
+      "receipt_sha256": "ced2b37cbfa57cb0f77ce28c843729d1e67421d746e64b2d175ce10d91744586",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/strict-workspace-artifacts.json",
+      "artifact_receipt_sha256": "6dce36e2b1afaaf9f5fc1daaae20643710549ddd5b16f0ee5888136c50e1d376",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "b52950c98ffd081e1ea4c26ddc050e413f616794448a89c67404621094c82108",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-workspace-build-pj7d4lmb",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 102.04272103309631,
+      "test_summaries": [],
+      "log_sha256": "c4d3ffe9406c2f95c7fb5a1e70660e922eb9cec2b3d83ee934bb932a309295e9",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/workspace-build.json",
+      "receipt_sha256": "b8181de6446da6b422e1a0bc7d581fd4bcc967c8c9b270018bb9641aaa2def57",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/workspace-build.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/workspace-build-artifacts.json",
+      "artifact_receipt_sha256": "b3bee818b0177af5ef5eae4bb6344e4ded57349e24dadf842f8acd16166e5d7b",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "4906580ebaa93ace18070308d95418e6d21ce5e163605ecc39ae0392971f94a8",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "773f035e0cc9e919083603defb0bed100e1be24f1108f2384115fc473e92c383",
+      "source_unchanged": true,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-workspace-tests-t7w088lv",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 101,
+      "seconds": 331.71375012397766,
+      "test_summaries": [
+        [
+          29,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          12,
+          0,
+          0
+        ],
+        [
+          23,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          7,
+          0,
+          0
+        ],
+        [
+          15,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          13,
+          0,
+          0
+        ],
+        [
+          479,
+          0,
+          1
+        ],
+        [
+          30,
+          0,
+          0
+        ],
+        [
+          10,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          16,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          9,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          15,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          16,
+          0,
+          1
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          19,
+          0,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ],
+        [
+          12,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          16,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          6,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          10,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          43,
+          0,
+          1
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          7,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          45,
+          0,
+          0
+        ],
+        [
+          9,
+          0,
+          0
+        ],
+        [
+          7,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ],
+        [
+          14,
+          0,
+          0
+        ],
+        [
+          11,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          0
+        ],
+        [
+          13,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ],
+        [
+          5,
+          0,
+          0
+        ],
+        [
+          12,
+          0,
+          0
+        ],
+        [
+          25,
+          0,
+          3
+        ],
+        [
+          10,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "c3b3b278b2eb3864cc9f670691b04aa07dcbcb67070f970b359f9d76f21c6491",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/workspace-tests.json",
+      "receipt_sha256": "6e4953ccd65ed22ae507151880ecd6ec763e7a8db9efb05e6b0240846a46d951",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/workspace-tests.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/workspace-tests-artifacts.json",
+      "artifact_receipt_sha256": "eb4c89754eccdb50d129d0a9cdb7c18b7d260b19f7d316dd0a5a896b56509499",
+      "recorded_source_count": 332,
+      "recorded_source_map_sha256": "4906580ebaa93ace18070308d95418e6d21ce5e163605ecc39ae0392971f94a8",
+      "recorded_inputs_changed_since_run": [
+        "crates/brn/tests/int_d.rs"
+      ]
+    },
+    {
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "diff_sha256": "c8acdfcf94c1cd534a04913605071ddc86f76dd2157d167518a7212a0e8e1286",
+      "source_unchanged": true,
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "tmpdir": "/private/tmp/brn-int-d-documentation-final-bllfzr1e",
+      "explicit_fixture_env": {
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-int-d-20261017-target/debug/brn-intake-helper",
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages"
+      },
+      "target": "/private/tmp/brn-int-d-20261017-target",
+      "exit": 0,
+      "seconds": 0.41232895851135254,
+      "test_summaries": [],
+      "log_sha256": "2748710a1665d5d5e808560f21e3e4f128c6851fe434b6804ad471568063ba9a",
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/documentation-final.json",
+      "receipt_sha256": "09df18b2de3f450615e4a35fc1d3be5f50ffa9ad7d6af0e183d9542e5190b137",
+      "raw_log": "/private/tmp/brn-int-d-20261017-evidence/documentation-final.log",
+      "recorded_log_hash_matches": true,
+      "artifact_receipt": "/private/tmp/brn-int-d-20261017-evidence/documentation-final-artifacts.json",
+      "artifact_receipt_sha256": "cc1aa9e66cc6b87b08e5ee3a2a603f472159db82005e74d9478e09aff2dcaf15",
+      "recorded_source_count": 333,
+      "recorded_source_map_sha256": "1939130ba036800d6dd2a20383bd8a332250f6604a9959cd761f17348b6476dc",
+      "recorded_inputs_changed_since_run": []
+    }
+  ],
+  "standalone_harness_checks": [
+    {
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/preflight-static-checks.json",
+      "sha256": "b33f70873cd8cb21932ac6f84a12c8467cfa48ee7edad4ce745eac8426b9082c"
+    },
+    {
+      "receipt": "/private/tmp/brn-int-d-20261017-evidence/observer-process-check.json",
+      "sha256": "de02d123af4346265ee6de31ca3d40363b0e68393c7057787149b8941d9715d9"
+    }
+  ]
+}
