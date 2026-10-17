@@ -1,0 +1,20 @@
+{
+  "ordinal": 2,
+  "command": [
+    "python3",
+    "docs/work/active/agent-capabilities/int-d/observe-workflow.py",
+    "--preflight",
+    "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/preflight.json",
+    "--activation",
+    "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/activation.json",
+    "--ordinal",
+    "2"
+  ],
+  "observer_pid": 79899,
+  "observer_pgid": 79899,
+  "tmpdir": "/private/tmp/brn-int-d-live-case2-pj_4gvtn",
+  "initial_database_sha256": "d8918b19e1f2d21978db56e3dec1b5a1ce4259c7b02d1fb962a730c37e1da63b",
+  "started": 1792243725.0788841,
+  "exit": 1,
+  "elapsed_seconds": 50.502319833030924
+}

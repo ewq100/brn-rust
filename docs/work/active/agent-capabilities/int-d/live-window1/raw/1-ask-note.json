@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/private/tmp/brn-int-d-20261017-target/debug/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f-history-r1/control",
+    "--timeout",
+    "2",
+    "read",
+    "--id",
+    "86252690-7823-4c0c-b5ab-774a47ea23fb:0"
+  ],
+  "exit": 0
+}
