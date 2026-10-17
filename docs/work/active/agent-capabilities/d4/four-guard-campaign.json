@@ -1,0 +1,474 @@
+{
+  "material": "cc8338beb885d1f59a547fb47ca4043d40ffbe9f",
+  "evidence_base": "6322048f4926d458e19d87065cc3ee630f925d56",
+  "crates": "fb307685cc0ae5fe82d2ab5870e1bf1e8257624f",
+  "start": {
+    "record": "d4-four-guard-20261017",
+    "start_monotonic": 689402.669295541,
+    "start_wall": 1792239174.208218,
+    "cap_seconds": 600,
+    "qualification": "Clock begins at first receipt action before campaign planning, reading allocation or setup; no prior allowance transfer."
+  },
+  "selection": {
+    "material": "cc8338beb885d1f59a547fb47ca4043d40ffbe9f",
+    "fixed_source": "/private/tmp/brn-d4-four-guard-source",
+    "fixed_target": "/private/tmp/brn-d4-four-guard-target",
+    "start": {
+      "record": "d4-four-guard-20261017",
+      "start_monotonic": 689402.669295541,
+      "start_wall": 1792239174.208218,
+      "cap_seconds": 600,
+      "qualification": "Clock begins at first receipt action before campaign planning, reading allocation or setup; no prior allowance transfer."
+    },
+    "deadline_monotonic": 690002.669295541,
+    "stop_for_cleanup_monotonic": 689977.669295541,
+    "execution_order": [
+      "M01",
+      "M03",
+      "M02",
+      "M04"
+    ],
+    "variants": [
+      {
+        "id": "M01",
+        "path": "crates/brn-threads-core/src/external_data.rs",
+        "old": "            || hash(b\"brn-external-input-v1\\0\", canonical.as_bytes()) != grant.input_hash",
+        "new": "            || hash(b\"brn-external-input-v1\\0\", canonical.as_bytes()) == grant.input_hash",
+        "test": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-threads-core",
+          "--test",
+          "mcp_policy",
+          "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "expected": "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+        "risk": "Invert actual canonical input-hash dispatch comparison; correct reviewed positive and wrong parsed query negative both required."
+      },
+      {
+        "id": "M02",
+        "path": "crates/brn-ai/src/threads.rs",
+        "old": ".filter(|c| c.function.name == m.name()).count() > 1)",
+        "new": ".filter(|c| c.function.name == m.name()).count() > 2)",
+        "test": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "threads::mcp_tests::invalid_external_mixed_batches_reject_before_local_or_network_effect_and_do_not_consume_grant",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "expected": "invalid_external_mixed_batches_reject_before_local_or_network_effect_and_do_not_consume_grant",
+        "risk": "Allow exactly two external calls past complete-batch maximum-one check; mixed local retain_progress must not execute."
+      },
+      {
+        "id": "M03",
+        "path": "crates/brn-threads-core/src/external_data.rs",
+        "old": "        if current != grant.context\n            || endpoint != grant.endpoint",
+        "new": "        if current != (GrantContext { fence: current.fence, ..grant.context.clone() })\n            || endpoint != grant.endpoint",
+        "test": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-threads-core",
+          "--test",
+          "mcp_policy",
+          "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "expected": "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+        "risk": "Ignore only fresh Run fence equality at dispatch, retaining every other current GrantContext field."
+      },
+      {
+        "id": "M04",
+        "path": "crates/brn-ai/src/threads_mcp_runtime.rs",
+        "old": "                    let _scope = invocation.check_current().map_err(fail)?;",
+        "new": "                    // M04 seeded: omit only post-await current-grant acceptance check.",
+        "test": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "threads::mcp_tests::actual_inflight_remote_work_may_finish_but_stop_or_revoke_fences_late_acceptance_and_writes",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "expected": "actual_inflight_remote_work_may_finish_but_stop_or_revoke_fences_late_acceptance_and_writes",
+        "risk": "Remove post-await Invocation liveness/grant result acceptance; retain all dispatch and outer host barriers."
+      }
+    ]
+  },
+  "controller_final": {
+    "status": "DEADLINE",
+    "outcomes": {
+      "M01": "CAUGHT",
+      "M02": "CAUGHT",
+      "M03": "CAUGHT",
+      "M04": "NO_VERDICT_DEADLINE"
+    },
+    "restored328": true,
+    "copy_status": "",
+    "source_root": "/private/tmp/brn-d4-four-guard-source",
+    "target": "/private/tmp/brn-d4-four-guard-target",
+    "charged_controller_seconds": 575.1379926250083,
+    "remaining_at_controller_end": 24.86200545798056,
+    "qualification": "Final receipt/hash/process/evidence cleanup still charged; this is not final campaign budget."
+  },
+  "checks": [
+    {
+      "name": "baseline-core",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "mcp_policy",
+        "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": 0,
+      "timed_out": false,
+      "seconds": 38.518421667045914,
+      "test_summaries": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "28d300af85008b18409ff80552daaad7e7965bd5ec06798181dc3c743de5881f",
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325",
+          "sha256": "0b55c5ab4334d0f83596197e816728d638cfad46fd6552a74d53df5a69c418c2",
+          "dep_info": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325.d",
+          "dep_info_sha256": "5c0e8cba79db58ec9dca26667317ca4321a8f4033fe7ae075bda29d36c24d2f7",
+          "dep_info_has_fixed_source": false
+        }
+      ],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "b6b5146a357d4b284110a49cd5a5b4996d908028af62427242b8c954b10d38a0",
+        "crates/brn-ai/src/threads.rs": "62be732f73c4a77b8367c47576c116badd933b28b03cbb3b7d52807eb9ef683e",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "d848bf2d33199c6916c40fb6d43d0747073e7c94f877af9aac3185e626ff311d"
+      },
+      "charged_so_far": 133.0445777089335,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/baseline-core.json",
+      "receipt_sha256": "ce322047d28c15c62273b559108d6e3f65dc6c938dcd18cec44449a745f2f281",
+      "diff": null
+    },
+    {
+      "name": "M01",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "mcp_policy",
+        "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": 101,
+      "timed_out": false,
+      "seconds": 13.18864820804447,
+      "test_summaries": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "log_sha256": "f7cbeab7536dfb8bcd36efa88576556c7d881cc23d9a34f1ef5e9c0d5f467366",
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325",
+          "sha256": "9fab2e604ab5d81dd1abae360280319246e22ab239b17e8cef23ca489f22121f",
+          "dep_info": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325.d",
+          "dep_info_sha256": "5c0e8cba79db58ec9dca26667317ca4321a8f4033fe7ae075bda29d36c24d2f7",
+          "dep_info_has_fixed_source": false
+        }
+      ],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "bc90349eabd3352fa61fd4a37bddeaa46cadf1f33b0687898698c8b8b8a8d56b",
+        "crates/brn-ai/src/threads.rs": "62be732f73c4a77b8367c47576c116badd933b28b03cbb3b7d52807eb9ef683e",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "d848bf2d33199c6916c40fb6d43d0747073e7c94f877af9aac3185e626ff311d"
+      },
+      "charged_so_far": 146.27006679202896,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/M01.json",
+      "receipt_sha256": "2b1744bdf9a1129e738246968204d2ba220d1d5963df7c33fe1697a82a858c44",
+      "diff": "/private/tmp/brn-d4-four-guard-20261017/M01.diff"
+    },
+    {
+      "name": "M03",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "mcp_policy",
+        "exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": 101,
+      "timed_out": false,
+      "seconds": 12.950663374969736,
+      "test_summaries": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "log_sha256": "b06f5788360abe71ce6c66ccb0c982633ef301e9a23448088aa4d250b25c5baa",
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325",
+          "sha256": "7f521a112a9ae39842b1a75de35403cec2bf8035cc6f565c3bca4dc337669103",
+          "dep_info": "/private/tmp/brn-d4-four-guard-target/debug/deps/mcp_policy-b447a196812b6325.d",
+          "dep_info_sha256": "5c0e8cba79db58ec9dca26667317ca4321a8f4033fe7ae075bda29d36c24d2f7",
+          "dep_info_has_fixed_source": false
+        }
+      ],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "36ff51012ec8b5dab45327d7fbedaa874fbbbb70e60410c75c22bcccee2f1c67",
+        "crates/brn-ai/src/threads.rs": "62be732f73c4a77b8367c47576c116badd933b28b03cbb3b7d52807eb9ef683e",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "d848bf2d33199c6916c40fb6d43d0747073e7c94f877af9aac3185e626ff311d"
+      },
+      "charged_so_far": 159.30540954193566,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/M03.json",
+      "receipt_sha256": "7a18133fcd1ffb7f163f868442ca332206c998ad9f39023c8299782fcce987d8",
+      "diff": "/private/tmp/brn-d4-four-guard-20261017/M03.diff"
+    },
+    {
+      "name": "baseline-ai",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::mcp_tests::",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": 0,
+      "timed_out": false,
+      "seconds": 331.86369429097977,
+      "test_summaries": [
+        [
+          11,
+          0,
+          0
+        ]
+      ],
+      "log_sha256": "0ebe739550f11a2169dac000d1b431cd1950af8b2f4b8746811775d278de9ef0",
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d4-four-guard-target/debug/deps/brn_ai-0a77908ed974f7b9",
+          "sha256": "4b70ca6637c404223dc8eba13d5aba28882e9dfa2dbbd3718d288f4d40d630d5",
+          "dep_info": "/private/tmp/brn-d4-four-guard-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+          "dep_info_sha256": "6c5a54e25b1a3867e5ffb0d154d8f8b8ce39877f744286f16aca92fe80f97824",
+          "dep_info_has_fixed_source": true
+        }
+      ],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "b6b5146a357d4b284110a49cd5a5b4996d908028af62427242b8c954b10d38a0",
+        "crates/brn-ai/src/threads.rs": "62be732f73c4a77b8367c47576c116badd933b28b03cbb3b7d52807eb9ef683e",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "d848bf2d33199c6916c40fb6d43d0747073e7c94f877af9aac3185e626ff311d"
+      },
+      "charged_so_far": 491.2373625000473,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/baseline-ai.json",
+      "receipt_sha256": "264f3dbb3fb1b60221fa7d0e2bf8af72a44390b09d01785398d5c662710f6c5e",
+      "diff": null
+    },
+    {
+      "name": "M02",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::mcp_tests::invalid_external_mixed_batches_reject_before_local_or_network_effect_and_do_not_consume_grant",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": 101,
+      "timed_out": false,
+      "seconds": 81.37575174996164,
+      "test_summaries": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "log_sha256": "2b042d8cd0a430ac5d9497c8df9785a16b479d632648f635ed9a4621bb5dfb05",
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d4-four-guard-target/debug/deps/brn_ai-0a77908ed974f7b9",
+          "sha256": "f41008816a8335589f9748310b1a9c80fee9307d8bf194cbeb59309d7f28cc5d",
+          "dep_info": "/private/tmp/brn-d4-four-guard-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+          "dep_info_sha256": "6c5a54e25b1a3867e5ffb0d154d8f8b8ce39877f744286f16aca92fe80f97824",
+          "dep_info_has_fixed_source": true
+        }
+      ],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "b6b5146a357d4b284110a49cd5a5b4996d908028af62427242b8c954b10d38a0",
+        "crates/brn-ai/src/threads.rs": "352f98359c647012c3a704e245d2fb653b33824f509f9987881537b4567f4825",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "d848bf2d33199c6916c40fb6d43d0747073e7c94f877af9aac3185e626ff311d"
+      },
+      "charged_so_far": 572.667864084011,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/M02.json",
+      "receipt_sha256": "3271fc02e858df0b5aecaa2b441356d004f4cc188b0f3f757425febcc5481218",
+      "diff": "/private/tmp/brn-d4-four-guard-20261017/M02.diff"
+    },
+    {
+      "name": "M04",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::mcp_tests::actual_inflight_remote_work_may_finish_but_stop_or_revoke_fences_late_acceptance_and_writes",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source_root": "/private/tmp/brn-d4-four-guard-source",
+      "target": "/private/tmp/brn-d4-four-guard-target",
+      "exit": -15,
+      "timed_out": true,
+      "seconds": 2.2692416249774396,
+      "test_summaries": [],
+      "log_sha256": "5ad8e7d69f6c231dcf1354e3efd24ee53c1c96ec13a9827f1c31edaf8dbe918f",
+      "artifacts": [],
+      "source_hashes": {
+        "crates/brn-threads-core/src/external_data.rs": "b6b5146a357d4b284110a49cd5a5b4996d908028af62427242b8c954b10d38a0",
+        "crates/brn-ai/src/threads.rs": "62be732f73c4a77b8367c47576c116badd933b28b03cbb3b7d52807eb9ef683e",
+        "crates/brn-ai/src/threads_mcp_runtime.rs": "c99ea27f5c88dc5e851499af85152537dbf5858606be1df074afb151fc8aa05b"
+      },
+      "charged_so_far": 575.0151313749375,
+      "receipt": "/private/tmp/brn-d4-four-guard-20261017/M04.json",
+      "receipt_sha256": "89eef544b23b4100e3d09a3b74e3a095b23b4bfe8f5894ed90d13157d0e72e92",
+      "diff": "/private/tmp/brn-d4-four-guard-20261017/M04.diff"
+    }
+  ],
+  "artifact_hashes": {
+    "M02-artifacts.json": "3ac7c74ded474229cb3e10336b5607009210e65c92131d7a7dfa274d0d628e99",
+    "baseline-core-artifacts.json": "d7edd4c98e80c3b1e81832cda875c916a01ce7e78ddd4d08dc5efa5c628e1b37",
+    "M02.json": "3271fc02e858df0b5aecaa2b441356d004f4cc188b0f3f757425febcc5481218",
+    "M01.diff": "939b3bb0afe2e2ea4855618ed18b6968b95f0690036d51fdab53b77da23c4a9d",
+    "M04-artifacts.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "M03.json": "7a18133fcd1ffb7f163f868442ca332206c998ad9f39023c8299782fcce987d8",
+    "M03-artifacts.json": "83cfdc2ee555be44370e79818df455e4eb5112e70e9016e15aa05712993a155d",
+    "M01-outcome.json": "1092e6eb3aa184e7cbb007a2037e59be6b842bc1cbc1a17533d48e4bd227e6eb",
+    "copy-identity.json": "0f9d52012fa4760bb3f536919bad1b47e63ae754d5746b2f8976ebe1e55eb3fd",
+    "M04.json": "89eef544b23b4100e3d09a3b74e3a095b23b4bfe8f5894ed90d13157d0e72e92",
+    "M01-artifacts.json": "ab3710f9d5b4b51d091bdc1e89f7f174a989d1987eb3e63bfe9b24094a329d45",
+    "active.json": "80545255d19341ac861851bbde22520683ece36586f5e22baff7261571330a20",
+    "baseline-ai-artifacts.json": "1b4fc7f6b7833823eebd700d4234c348fde981144449bf341518d8bbfe4b9fde",
+    "campaign.py": "ac56d41e088a07ce110ebfee99b55c9e07a30382c046ecc7448d482dc5c618d6",
+    "start.json": "3f21117c1b15995d43537a5cd8e98376afac70b6be333ff6e258735a28a887dd",
+    "relative-dep-info-observation.json": "0308006bc6f11d48686ee978bfa021ef2e315a701005a1d9b87c0270d4b6efb7",
+    "selection.json": "de2769ea094ade25dc5243630f73cd6473d036e0f8cc4cea857fb7165811a7f9",
+    "M04.diff": "4981f1d58bd148c631c79c31cc874a070a56ed84d26ea8f028a5d22240f4b579",
+    "baseline-ai.json": "264f3dbb3fb1b60221fa7d0e2bf8af72a44390b09d01785398d5c662710f6c5e",
+    "baseline-core.log": "28d300af85008b18409ff80552daaad7e7965bd5ec06798181dc3c743de5881f",
+    "M01.log": "f7cbeab7536dfb8bcd36efa88576556c7d881cc23d9a34f1ef5e9c0d5f467366",
+    "M03.log": "b06f5788360abe71ce6c66ccb0c982633ef301e9a23448088aa4d250b25c5baa",
+    "M03.diff": "736f2882c563d88c0c1b6aedc049045dbc016ed60274126d58e72fe8bcf4fd68",
+    "M03-outcome.json": "f7a15b24a84477f46def96fd03926208cbc86d76a06edddd76769dd6a7d80ef6",
+    "M04-outcome.json": "f36839c4c6046ea29996788e5c5baa981f054e1b1970871e96cd4b2f7bfa0c4e",
+    "M02.log": "2b042d8cd0a430ac5d9497c8df9785a16b479d632648f635ed9a4621bb5dfb05",
+    "M01.json": "2b1744bdf9a1129e738246968204d2ba220d1d5963df7c33fe1697a82a858c44",
+    "baseline-ai.log": "0ebe739550f11a2169dac000d1b431cd1950af8b2f4b8746811775d278de9ef0",
+    "environment.json": "324e541d7a30958d5e084ec0bcb0b9fe2e48adb217d3ed2d4958b99d2681737f",
+    "baseline-core.json": "ce322047d28c15c62273b559108d6e3f65dc6c938dcd18cec44449a745f2f281",
+    "M02.diff": "334f00e3e3b0200af9bda62daac20cb732ec1a7522ab34860cc9ffba6672b051",
+    "controller-final.json": "68b5bd2161344f805bd64955d0aa1367819d545588a558ed94935003da752e5f",
+    "M02-outcome.json": "96a8fec824dc57bf310ce572d64fdbb2a53fb4ba8cb82343900f226c8b3103dc",
+    "M04.log": "5ad8e7d69f6c231dcf1354e3efd24ee53c1c96ec13a9827f1c31edaf8dbe918f",
+    "prepare-handoff.py": "591f0ee6132474b5c5834c4701b06742d900963efaf14dc2016f0abb83ecf477"
+  },
+  "source_count": 328,
+  "candidate_and_copy328_match": true,
+  "copy_status": "",
+  "heavy_processes": [],
+  "own_children": [],
+  "report_sha256": "f4442cf1c0bd395aeae5a60c885161ba2a04f1731a70ab6362ffee5f30f307c6",
+  "cleanup_used_at_snapshot": 579.7729389589513,
+  "qualification": "CAUGHT labels require raw intended assertion inspection. M01 target positive reviewed-dispatch failure is distinct from wrong-input negative; M03 stale-fence target negative. Relative dep-info paths are resolved against recorded fixed package source CWD, not asserted absolute .d content. Captured binary hashes/dep-info at each run are not claims later overwritten paths retain those bytes. Final charged budget is sampled after evidence commit in scratch final-budget.json; all final receipt/cleanup/commit work charged to original600s."
+}
