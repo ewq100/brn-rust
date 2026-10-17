@@ -596,6 +596,11 @@
       "label": "final-handoff-links",
       "exit": 1,
       "result": "New handoff linked release.json before receipt creation; retained 1 missing-file failure. Actual release receipt added, final-release-links passes."
+    },
+    {
+      "label": "handoff-staged-whitespace",
+      "result": "Staged raw normal diff had four trailing-space blank-line markers. Evidence-only commit 3508748b retained this failed state. Same bytes now retained as gzip; external raw copy unchanged. Original failure was tool output, not a separately saved raw log.",
+      "exit_note": "Original combined shell did not retain the individual checker exit code; failure is witnessed by four diagnostics."
     }
   ],
   "runtime": [
@@ -1264,5 +1269,11 @@
     "saved_normal_diff_reconstructs_retained_before_bytes": true,
     "initial_naive_check": "Compared two textually different but equivalent normal-diff alignments; assertion failed before release receipt was written. Reapplying the retained additions at their original line numbers verifies identical bytes.",
     "production_semantics": "All additions are cfg(test) counter/instrumentation or tests; baseline production unchanged."
+  },
+  "repo_before_instrumentation": {
+    "path": "before-instrumentation.diff.gz",
+    "raw_sha256": "f7f820a1bcc9e7ff425ccbe407ca09a9a0c4b3efc8e230305929b2afb0cb6b63",
+    "stored_sha256": "44d5e8646277f4b1dd1ae332154819a916a1998833126f2979bb58e3d02cb280",
+    "reason": "Preserves exact raw patch bytes, including normal-diff blank-line markers, without introducing trailing whitespace into repository text."
   }
 }
