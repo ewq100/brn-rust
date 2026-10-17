@@ -1,0 +1,5 @@
+{
+  "original_raw": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r2-candidate-initial-candidates.stdout",
+  "sha256": "a1ca697088f66b718e78bf611fd26e76680f1063ba5f5c1160fd67473f6d67e2",
+  "text": "{\"contract\":3,\"command\":\"candidates\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"candidates\":[],\"shown\":0,\"cursor\":null,\"total\":null},\"error\":null,\"page\":{\"limit\":100,\"shown\":0,\"cursor\":null,\"total\":null},\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}

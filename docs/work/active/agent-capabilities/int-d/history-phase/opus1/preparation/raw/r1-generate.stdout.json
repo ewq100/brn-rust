@@ -1,0 +1,5 @@
+{
+  "original_raw": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r1-generate.stdout",
+  "sha256": "b50eb58fac9a854c924c7743926e12def47a70b1a3a13fe4bcc65e8fb1ba1615",
+  "text": "\nrunning 1 test\ntest checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selection ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.17s\n\n"
+}
