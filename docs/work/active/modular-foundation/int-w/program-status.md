@@ -1,3 +1,5 @@
+**Current principal disposition:** comprehensive Opus source/deterministic approval and [local acceptance](principal-disposition.md) now recorded at source0efd73f1. Both privacy fixes have final normal proof and three separate actual seeded guard catches. Earlier pending-review wording below is historical to handoff; external hosted/native/owner/PDF gates remain open. D-S/D-M unresolved; D3/D4 and INT-D not started.
+
 # Section17 program dispositions and experiment applicability
 
 INT-W contains only two allocated production visibility corrections plus appended tests/docs; no interface/schema/manifest/lock/CI change. These are bounded writing-lane dispositions, not completion of the whole foundation program. Final deterministic receipts and principal comprehensive independent review are required before local acceptance. Hosted/native-human/owner remain separate.
