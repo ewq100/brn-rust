@@ -7,6 +7,7 @@ publish = false
 [features]
 default = []
 helper = ["dep:betteroffice-docx-edit", "dep:betteroffice-docx-parse", "dep:betteroffice-pptx-parse", "dep:betteroffice-opc", "dep:mail-parser", "dep:zip", "dep:image", "dep:libc", "dep:html5ever", "dep:markup5ever_rcdom", "dep:calamine", "dep:quick-xml", "dep:xberg"]
+office-differential = ["helper", "xberg/office"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -40,3 +41,13 @@ tl = { package = "astral-tl", version = "=0.8.0" }
 name = "brn-intake-helper"
 path = "src/bin/brn-intake-helper.rs"
 required-features = ["helper"]
+
+[[test]]
+name = "docx_inventory"
+path = "tests/docx_inventory.rs"
+required-features = ["helper"]
+
+[[test]]
+name = "office_differential"
+path = "tests/office_differential.rs"
+required-features = ["office-differential"]

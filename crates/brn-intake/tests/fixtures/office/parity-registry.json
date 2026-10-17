@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "status": "UNEXECUTED_BUILD_NEED",
+  "oracle_pin": "54b3372608d6b022a7550137aea158800029d3a4",
+  "classes": {
+    "S1": {"status": "UNEXECUTED", "requires": "Exact repeated occurrence, image target/identity and content-range bindings; public image_index exists."},
+    "S2": {"status": "UNEXECUTED", "requires": "Authored synthetic comments with dates, ranges, author, parent/resolved; T0 source comments absent."},
+    "S3": {"status": "UNEXECUTED", "requires": "Full ordered table cells/coordinates, horizontal/vertical spans, nested and multiple tables."},
+    "S4": {"status": "UNEXECUTED", "requires": "Distinct fn/en same-ID references, literal markers, table references and cached NOTEREF association."},
+    "S5": {"status": "DEFERRED_UNEXECUTED_O2", "requires": "PPTX harbor/quay slide order/hidden/source-part/shape/comment evidence; never an observed DOCX claim."},
+    "S6": {"status": "UNEXECUTED", "requires": "Full source inventory including revisions/comments/empty/orphan stories, warning classes and silent optional-read loss; malformed acceptance/resource boundaries measured separately."},
+    "S7": {"status": "UNEXECUTED", "requires": "Full prefix-independent body/stories/cells/figures; no source omission expected."}
+  },
+  "observations": {},
+  "measurement_protocol": "First actual run emits O1_UNPINNED_OBSERVATION with complete independently expected and actual structured evidence. Null/unrecorded observations mean capture only, never parity approval. After actual execution, preserve exact measured classifications here and permanently assert them; do not rewrite T0 expectations or weaken unsupported behavior assertions to make CI green.",
+  "promotion": "BLOCKED until all independent source/evidence/resource/host/nested-attachment/retirement gates close; passing observation capture alone is insufficient.",
+  "limits": "Pre-admission E/P and E+P iterations are candidates, not a hard heap/DOM/allocation proof. No production Office route is changed. Existing SDK/widget/PDF/platform/native-human/live qualifications remain carried."
+}
