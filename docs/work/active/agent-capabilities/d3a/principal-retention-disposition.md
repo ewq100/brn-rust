@@ -1,0 +1,9 @@
+# Principal D3a installation-retention disposition
+
+17 October 2026. Principal selected the stage-only machine-local configuration option for inactive D3a. No core/backup/store/schema ownership expansion was granted. Inspected Store::backup in core backup.rs14–25 and its SQLite copy around84: current standalone snapshots contain canonical BRN work/retained assets, not arbitrary workspace folders. Existing Markdown export likewise remains unchanged.
+
+Managed skills/ bytes are **machine-local instruction configuration**, not canonical Notes/receipts/assets and not a rebuildable derived cache. Installation copies the validated text snapshot; it never moves/deletes caller originals. Package metadata and all actual CLI/help surfaces state that current BRN backup/export **exclude installed bytes** and advise preserving originals for reinstall. Same-workspace reopen retains complete identity/origin/installation scope/digest and text even if the original source folder is unavailable. No broader backup command format/output or general backup promise is silently changed.
+
+The executed real app fixture installs/reopens, creates a canonical positive control, exports and uses Store::backup/restore into a fresh directory: canonical control survives and package instructions do not appear in export or restored installation. This is an exclusion proof for this stage, not full production D3 success or installation-backup coverage.
+
+D3b owns canonical enablement/scope/version references and run fencing. Restored selection with unavailable local bytes must be unavailable/fail closed, without name fallback/source-folder lookup/download/default enablement/inherited grants. Principal explicitly reconciles this exclusion against canonical recovery promises before D3b acceptance. Carry this as a retention/qualification item; do not reset it or declare full D3 complete. No new owner approval is requested or inferred.

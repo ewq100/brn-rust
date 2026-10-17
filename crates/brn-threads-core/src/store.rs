@@ -109,10 +109,11 @@ impl Store {
                     "threads.sqlite3-wal",
                     "threads.sqlite3-shm",
                     DERIVED_DIRECTORY,
+                    "skills",
                 ]
                 .contains(&name.as_ref())
                     || kind.is_symlink()
-                    || (name == DERIVED_DIRECTORY) != kind.is_dir()
+                    || (name == DERIVED_DIRECTORY || name == "skills") != kind.is_dir()
                 {
                     return Err(Error::UnsafeDirectory(format!(
                         "unexpected directory entry: {name}"

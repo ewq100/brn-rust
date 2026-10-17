@@ -1,0 +1,1663 @@
+{
+  "qualification": "Per-command actual source fingerprints remain in raw receipts; earlier broad runs are not latest-source broad PASS. Raw failures are immutable.",
+  "checks": [
+    {
+      "label": "before-cli",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d3a-20261017-before-source",
+      "target": "/private/tmp/brn-d3a-20261017-before-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-jalqtssj",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213449.268668,
+      "cargo_pid": 32917,
+      "exit": 101,
+      "seconds": 41.2215039730072,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/before-cli.log",
+      "log_sha256": "19bd95df9a44f4cea6a107aa6b8c0a2248a75f8be0b778383c6e3aa3c032d21e",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/before-cli.json",
+      "raw_receipt_sha256": "868de588a6c5731bc66825ef259c01eba9ba5a693f8250f992c53561b894bf5f",
+      "recorded_source_map_sha256": "edc72bf18cd4f36a87d1b66ae8225ef719386c67f2e27538efcea6258ceee129",
+      "current_diff_paths": [
+        "crates/brn-ai/src/lib.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/src/lib.rs",
+        "crates/brn-threads-core/src/store.rs",
+        "crates/brn-threads-core/tests/data_folder.rs",
+        "crates/brn/src/help.rs",
+        "crates/brn/src/main.rs",
+        "crates/brn/src/spec.rs",
+        "crates/brn/tests/skill_packages.rs"
+      ]
+    },
+    {
+      "label": "before-core-sidecar",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "data_folder",
+        "skills_sidecar_directory",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d3a-20261017-before-source",
+      "target": "/private/tmp/brn-d3a-20261017-before-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-_ewks6yb",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213847.9485419,
+      "cargo_pid": 43572,
+      "exit": 101,
+      "seconds": 13.358487129211426,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/before-core-sidecar.log",
+      "log_sha256": "b5344374055322d5aa6a62816353d85452ee20819bbf948dbdd3de5fa7163d0d",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/before-core-sidecar.json",
+      "raw_receipt_sha256": "3ab1b633e69e670d24f240090d45fcad9edc5b37d8c145a7c8a94127bdaa291a",
+      "recorded_source_map_sha256": "ad3d909e54540cc333975a0775a598bb68d91dc1d503ed3ce4e2bc972cd81d85",
+      "current_diff_paths": [
+        "crates/brn-ai/src/lib.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/src/lib.rs",
+        "crates/brn-threads-core/src/store.rs",
+        "crates/brn-threads-core/tests/data_folder.rs",
+        "crates/brn/src/help.rs",
+        "crates/brn/src/main.rs",
+        "crates/brn/src/spec.rs",
+        "crates/brn/tests/skill_packages.rs"
+      ]
+    },
+    {
+      "label": "candidate-ai-core",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-core",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-x27lehit",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213964.9881852,
+      "cargo_pid": 44541,
+      "exit": 0,
+      "seconds": 31.64094376564026,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log",
+      "log_sha256": "6eb84cbe426f4a6e6a32c67536932535bc98ef9b03df7ff0119b52b2829828ac",
+      "summaries": [
+        [
+          "ok",
+          "439",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "43",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "45",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "14",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.json",
+      "raw_receipt_sha256": "cfb711049ed4d3f1c4b36a311014427aa78ff702590561277b48d75d589cf930",
+      "recorded_source_map_sha256": "bd2e5faae1e3f8fd7ea1752f1d6554450b4480594548548949a8229bf5e812d4",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_fs.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-ai-final",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-qdqiac5h",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214227.568427,
+      "cargo_pid": 50362,
+      "exit": 0,
+      "seconds": 18.19052791595459,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-final.log",
+      "log_sha256": "87047b47e4cbf74ef254af654ebbc724cbe5d235c1759ea1bb2d400b6df7c857",
+      "summaries": [
+        [
+          "ok",
+          "439",
+          "0",
+          "1"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-final.json",
+      "raw_receipt_sha256": "efdc38c5cf9205076deea3c7c29c6d3c4eedeaa80fa32a0aa79703efbd022f96",
+      "recorded_source_map_sha256": "67dc8747af176a66839c9f3bcf4365d5e7b59037c88f17e150e7cfe48242930a",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs"
+      ]
+    },
+    {
+      "label": "candidate-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-rd4ahfgj",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214184.308717,
+      "cargo_pid": 50017,
+      "exit": 0,
+      "seconds": 1.2256038188934326,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-fmt.json",
+      "raw_receipt_sha256": "2318924c3bec8b1135bbdf93aa717032876a744064f5adcb0b673ea984ce827f",
+      "recorded_source_map_sha256": "67dc8747af176a66839c9f3bcf4365d5e7b59037c88f17e150e7cfe48242930a",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs"
+      ]
+    },
+    {
+      "label": "candidate-helper-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-v_x3w7fs",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792214055.894807,
+      "cargo_pid": 45158,
+      "exit": 0,
+      "seconds": 18.567646980285645,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-helper-build.log",
+      "log_sha256": "600c17976d07a96992eb39c7e6fab4bc635c910d2bbf64b08f77ef088f212ae6",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-helper-build.json",
+      "raw_receipt_sha256": "8a4ea819287680cdb8ee4fba1e0cfe957998409b009b63127b24c83c32170d74",
+      "recorded_source_map_sha256": "53dbe54142e576cd2f2d786a2abe31a6ab2e66a4708f7c1b326ddb5db705e58d",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-package-core-fixed",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-wum81rny",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213880.121632,
+      "cargo_pid": 44022,
+      "exit": 0,
+      "seconds": 15.763200998306274,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-package-core-fixed.log",
+      "log_sha256": "960d6636f8522a8ecb9d32eeb4e085004778ed0d9b96e42a3f313e106052583c",
+      "summaries": [
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-package-core-fixed.json",
+      "raw_receipt_sha256": "5216bee3c90ee83dd70ee2df054ba8ce201085f06eb02d4ef4dbdd02f41d511d",
+      "recorded_source_map_sha256": "4573c4f5062f19effe56b5f0c3cc82d58525f7bb92914d2a23146595f94c9121",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_fs.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-package",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-4iebhsqw",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213702.932619,
+      "cargo_pid": 38438,
+      "exit": 101,
+      "seconds": 42.98667788505554,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-package.log",
+      "log_sha256": "b7ab71030bc37d22ef615db7bad350993d1facc833627ad09466cd32138a5510",
+      "summaries": [
+        [
+          "FAILED",
+          "5",
+          "3",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-package.json",
+      "raw_receipt_sha256": "0e3c32bda3cfde68f03e23f7f26b68de707b5daecbc87c6fe0887db972c08e8a",
+      "recorded_source_map_sha256": "9ea277e4a69a1d252cb307a893ff0fa0c0193f8cbf94b7b3efee2885fe80e15a",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_fs.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs",
+        "crates/brn-threads-core/src/store.rs",
+        "crates/brn-threads-core/tests/data_folder.rs",
+        "crates/brn/src/contract.rs",
+        "crates/brn/src/help.rs",
+        "crates/brn/src/input.rs",
+        "crates/brn/src/inspect.rs",
+        "crates/brn/src/main.rs",
+        "crates/brn/src/spec.rs",
+        "crates/brn/src/stop.rs",
+        "crates/brn/tests/skill_packages.rs",
+        "crates/brn/tests/support/mod.rs",
+        "crates/brn/tests/support/stub.rs"
+      ]
+    },
+    {
+      "label": "candidate-service-cli",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--test",
+        "skills",
+        "--test",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-y4434534",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792213919.157183,
+      "cargo_pid": 44347,
+      "exit": 0,
+      "seconds": 9.099428176879883,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-service-cli.log",
+      "log_sha256": "4449b91ce7d1623d7c77b4d24dec6ebaec86f49ffd9260c46caaeced35315e15",
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-service-cli.json",
+      "raw_receipt_sha256": "9b7d614d0e617c6b61f31f9de27ef112eea1d4f27bb5145e952ac3287759f240",
+      "recorded_source_map_sha256": "4573c4f5062f19effe56b5f0c3cc82d58525f7bb92914d2a23146595f94c9121",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_fs.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-workspace-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-g0fxlh1_",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792214083.229881,
+      "cargo_pid": 45685,
+      "exit": 0,
+      "seconds": 20.927888870239258,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-build.log",
+      "log_sha256": "08a2c16d151cef035b2c6719b5b6b6e8a32cc993a3aa0388f25d7b507c5b12eb",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-build.json",
+      "raw_receipt_sha256": "22b17203d1deb7a94a6b2bcac40be395ed120197a6d17cb9c5c94db99d1cf680",
+      "recorded_source_map_sha256": "53dbe54142e576cd2f2d786a2abe31a6ab2e66a4708f7c1b326ddb5db705e58d",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-workspace-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-1ogdn60_",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": null,
+      "start": 1792214122.272106,
+      "cargo_pid": 49310,
+      "exit": 0,
+      "seconds": 15.268270015716553,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-clippy.log",
+      "log_sha256": "6da8640ec04aba347c3c6bd465356d7bcb8fd9f52c919761d6977ac47d864129",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-clippy.json",
+      "raw_receipt_sha256": "0033a1e5133ee01f0fbb1cd7d6e167218671e52008077ffe0cd5b42e85f04331",
+      "recorded_source_map_sha256": "53dbe54142e576cd2f2d786a2abe31a6ab2e66a4708f7c1b326ddb5db705e58d",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-threads-app/tests/skills.rs"
+      ]
+    },
+    {
+      "label": "candidate-workspace-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--workspace",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--no-fail-fast",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-esmrr0od",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": "/private/tmp/brn-d3a-20261017-target/debug/brn-intake-helper",
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": "/Users/evokessler/.local/bin/pdftotext",
+        "BRN_PDFIMAGES": "/Users/evokessler/.local/bin/pdfimages",
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214303.935714,
+      "cargo_pid": 50656,
+      "exit": 101,
+      "seconds": 89.66925597190857,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+      "log_sha256": "9e48f04c3c7abd5838b789e6182f7842bd4451e7040d988aed1fa5be0a812dbe",
+      "summaries": [
+        [
+          "ok",
+          "26",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "FAILED",
+          "22",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "439",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "30",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "10",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "20",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "15",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "19",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "10",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "22",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "43",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "45",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "14",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "25",
+          "0",
+          "3"
+        ],
+        [
+          "FAILED",
+          "10",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.json",
+      "raw_receipt_sha256": "121afcaf9ac40f4e3e66530b3848c7a696f4ca0694e07d1f4989efe0fee51382",
+      "recorded_source_map_sha256": "67dc8747af176a66839c9f3bcf4365d5e7b59037c88f17e150e7cfe48242930a",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs"
+      ]
+    },
+    {
+      "label": "final-affected-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/capability-spike,brn-ai/scripted-runs",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-e27bp68a",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214950.102525,
+      "cargo_pid": 57061,
+      "exit": 0,
+      "seconds": 5.145328998565674,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-affected-clippy.log",
+      "log_sha256": "4680618f800ba599df68bd4f95a402bb3effe8aeb453feffe5b347104cf5a885",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-affected-clippy.json",
+      "raw_receipt_sha256": "3c43f7ad1d5fd08c36167dbb14a6f7534eeec7fcc6788fba77fadd2694c8c615",
+      "recorded_source_map_sha256": "3ae0a9c1cd47d3a2245aaab67773a52b87036493c342fd84ba631a66fba0c1d0",
+      "current_diff_paths": []
+    },
+    {
+      "label": "final-capability",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "capability-spike",
+        "--all-targets",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-8tkuz6d8",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214773.619425,
+      "cargo_pid": 56237,
+      "exit": 0,
+      "seconds": 17.6695339679718,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-capability.log",
+      "log_sha256": "166d6d885241a73f4290312ecd65d41e88d1f1829bba930cb44139c72db671bc",
+      "summaries": [
+        [
+          "ok",
+          "428",
+          "0",
+          "1"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-capability.json",
+      "raw_receipt_sha256": "b86b66c81acad6d8dde0050c8c57d1e8ce7df78c74f4cc433419cff50f4d8e1b",
+      "recorded_source_map_sha256": "3ae0a9c1cd47d3a2245aaab67773a52b87036493c342fd84ba631a66fba0c1d0",
+      "current_diff_paths": []
+    },
+    {
+      "label": "final-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-6qzbrp6w",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792215168.38551,
+      "cargo_pid": 58250,
+      "exit": 0,
+      "seconds": 1.3102390766143799,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-fmt.json",
+      "raw_receipt_sha256": "e27b04ca84d5d4e0400431062dee1cc2d0cbd0b44564b0c0313deaeae6c4d4df",
+      "recorded_source_map_sha256": "3ae0a9c1cd47d3a2245aaab67773a52b87036493c342fd84ba631a66fba0c1d0",
+      "current_diff_paths": []
+    },
+    {
+      "label": "final-package",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-f7hwxfy9",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214509.2996402,
+      "cargo_pid": 54842,
+      "exit": 0,
+      "seconds": 12.541253805160522,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-package.log",
+      "log_sha256": "dc9c2da0678b6378936ea6446d1c64d5a4c216ea933ce0d2e23c87948f0e3879",
+      "summaries": [
+        [
+          "ok",
+          "9",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-package.json",
+      "raw_receipt_sha256": "73313a311535cccfd2216e54fd3b624e1c249abc48b9fbce47c78c9b563790f3",
+      "recorded_source_map_sha256": "8ee7fac6980b5fe0dd357b88aa580de9959b518ab83b33e661da6fbe019ab131",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs"
+      ]
+    },
+    {
+      "label": "final-readme-contract",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "agent_contract",
+        "machine_description_lists_every_parsed_command_and_matches_readme",
+        "--locked",
+        "--offline",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-amwh4ztc",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214541.602598,
+      "cargo_pid": 55161,
+      "exit": 0,
+      "seconds": 19.50531506538391,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-readme-contract.log",
+      "log_sha256": "b420ef13751cb557a0305f53dd5c8838d0f91e882f8e4be7d44d878dc3c1ca27",
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-readme-contract.json",
+      "raw_receipt_sha256": "46833d3c74778d137095ba0a8059e6f2d13b170b59d856ccaffdcd45ace752cc",
+      "recorded_source_map_sha256": "8ee7fac6980b5fe0dd357b88aa580de9959b518ab83b33e661da6fbe019ab131",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs"
+      ]
+    },
+    {
+      "label": "final-service-cli-core",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "skills",
+        "--test",
+        "skill_packages",
+        "--test",
+        "data_folder",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-krxith4g",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214703.324955,
+      "cargo_pid": 55746,
+      "exit": 0,
+      "seconds": 9.267985105514526,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.log",
+      "log_sha256": "dfd91111c7b732f98ffbe493c72e093fad06f3816eda35033f55480340cf2506",
+      "summaries": [
+        [
+          "ok",
+          "3",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.json",
+      "raw_receipt_sha256": "63f3968b9ba3ab784027f6f4d730ebb7ff194f87653ef9e7f1bb2f6bb8a1595a",
+      "recorded_source_map_sha256": "8ee7fac6980b5fe0dd357b88aa580de9959b518ab83b33e661da6fbe019ab131",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs"
+      ]
+    },
+    {
+      "label": "parser-both-line-breaks-before",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins",
+        "--locked",
+        "--offline",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-1w2dxkyr",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214475.031414,
+      "cargo_pid": 54742,
+      "exit": 101,
+      "seconds": 12.302487134933472,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/parser-both-line-breaks-before.log",
+      "log_sha256": "dd654ca46ff3e1569e8ac4a74a9911e29a2b1ad585bf69a99fd9c540fb6d672b",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/parser-both-line-breaks-before.json",
+      "raw_receipt_sha256": "6439fe909f1a5b46ee53750f59adcca806c31ba7c54a4e3e0cbb0459c064f3bb",
+      "recorded_source_map_sha256": "073de2d2b6b4e12f1c2141aff8ccd7c9bf05a7aa0bc4aed6f9dd30a75c9ad16b",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/threads_guides.rs"
+      ]
+    },
+    {
+      "label": "parser-line-break-before",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins",
+        "--locked",
+        "--offline",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-synthetic-x1tid2do",
+      "CARGO_INCREMENTAL": "0",
+      "explicit_helper": null,
+      "pdf_tools": {
+        "BRN_PDFTOTEXT": null,
+        "BRN_PDFIMAGES": null,
+        "BRN_PDFTOPPM": null
+      },
+      "start": 1792214438.077805,
+      "cargo_pid": 54099,
+      "exit": 101,
+      "seconds": 12.443798065185547,
+      "log": "/private/tmp/brn-d3a-20261017-artifacts/parser-line-break-before.log",
+      "log_sha256": "62be44edabb14db3b95ec266b415a2d91a4e04c11fa0ec09a2ae3f6e0cd2663e",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "raw_receipt": "/private/tmp/brn-d3a-20261017-artifacts/parser-line-break-before.json",
+      "raw_receipt_sha256": "dbcebf2368a05756d4b7756fb12113ab0cb7d16b846e39c4e9329f087375af15",
+      "recorded_source_map_sha256": "c2419a8fbe8cf77d1ad56c12bd3414b7a41bf92c48f428885fd53a5a26ce8451",
+      "current_diff_paths": [
+        "crates/brn-ai/src/skill_packages.rs",
+        "crates/brn-ai/src/skill_packages_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs"
+      ]
+    }
+  ]
+}

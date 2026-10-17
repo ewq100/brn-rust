@@ -28,7 +28,14 @@ pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceRevi
 mod review_groups;
 pub mod search;
 mod settings;
+#[cfg(unix)]
+mod skills;
 pub use settings::HELPER_TESTED_NOTE;
+#[cfg(unix)]
+pub use skills::{
+    Package as SkillPackage, PackageInfo as SkillPackageInfo,
+    RETENTION_NOTICE as SKILL_RETENTION_NOTICE,
+};
 mod steering;
 mod topics;
 mod writing;

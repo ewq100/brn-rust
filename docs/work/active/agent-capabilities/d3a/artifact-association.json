@@ -1,0 +1,1397 @@
+{
+  "captured_at_unix": 1792215220.9553149,
+  "qualification": "Current on-disk binaries/dep-info only. Earlier command identity is its raw command/source-map/log Running path; feature rebuilds may replace binaries. No retroactive contemporaneous binary hash claim.",
+  "artifacts": {
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-58f3aef2ef8a3a7d": {
+      "sha256": "bd49ab3ecdf039f2f9c84bdbab232291a613e1954f82e2a293fc5d53460483e6",
+      "bytes": 32335568,
+      "mtime_ns": 1792214520238689247,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-package-core-fixed.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-package.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/parser-both-line-breaks-before.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/parser-line-break-before.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/final-package.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-58f3aef2ef8a3a7d.d",
+        "sha256": "871ba72b56720412513eeb8ea76e1fab42af780c9bfb10aabdc35366ead8cdfe",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-before-target/debug/deps/skill_packages-8a5c1e63f80940fe": {
+      "sha256": "1fa5de68370154a6be9256e3d54ea8872cd8f8058d8f10defd60b803475a753b",
+      "bytes": 1326608,
+      "mtime_ns": 1792213487541721574,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/before-cli.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-before-target/debug/deps/skill_packages-8a5c1e63f80940fe.d",
+        "sha256": "c6ab2ab4ee6d59f6bebe30fedda543a7eb9f1c17cb45f70f520c217ef72452f3",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5": {
+      "sha256": "2b8a5a6b3c8cef3a9cacfdd54629ec11bf8ba12c744a4f1f0d2b09c29ff95444",
+      "bytes": 1564352,
+      "mtime_ns": 1792214558584305015,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/final-readme-contract.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5.d",
+        "sha256": "f52b829c3b8df2b05a43a8fc498ec0086687b2886cf588fa5e1492c380b8a27f",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-before-target/debug/deps/data_folder-a2b5f2e75c1963f4": {
+      "sha256": "2be59f7fb1fb8fd3ddd4c7a39d85f5c272aafc16c209fd92b355b4a4635f2302",
+      "bytes": 2873760,
+      "mtime_ns": 1792213860873176057,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/before-core-sidecar.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-before-target/debug/deps/data_folder-a2b5f2e75c1963f4.d",
+        "sha256": "89934a0b9cc7885c591777c7a2859148d1b363865b298b704109f678831b21de",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+      "sha256": "75c89f88dded19b77521f16262a39b75a0975fd866395730ae626668f2a1db32",
+      "bytes": 32558080,
+      "mtime_ns": 1792214241020838218,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-final.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d",
+        "sha256": "f47bf94ad02da22af3fbd219b7a8636b1bc89fcad7d6504c34a404ccf1914efe",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-c66dd4c3dfb902bc": {
+      "sha256": "cdec84d552700180c87cd4d47e1917897ac61239ceb6cc9eda60a27cdbda7d22",
+      "bytes": 32342912,
+      "mtime_ns": 1792214785887867635,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/final-capability.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-c66dd4c3dfb902bc.d",
+        "sha256": "a10aa79e1bb39cf9bac4d9268ba9bedcf508bff30ff14f56a81ebf7e082bb6b9",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/examples/provider_capabilities-5a05a6510cefd101": {
+      "sha256": "b6bd5493cdd0846217d579805e9a89b65e6e796decbad671363f5a12ece1dc16",
+      "bytes": 1777584,
+      "mtime_ns": 1792214779851541508,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/final-capability.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/examples/provider_capabilities-5a05a6510cefd101.d",
+        "sha256": "2229d323effe03f77e6ce736eda45d5cf4d50972482414b40b6c817744a0b501",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/examples/qualify_conversion-fa82076780c2ed9e": {
+      "sha256": "89c31877687fc4cb50b657e46f4a07211922014702c98169af579565f2a8badf",
+      "bytes": 944336,
+      "mtime_ns": 1792214779731335059,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/final-capability.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/examples/qualify_conversion-fa82076780c2ed9e.d",
+        "sha256": "ad88b09dbf2764d482e6514565a19e518621bb7ed445bd9ec31edfc585916476",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn-c641312bd95cd13d": {
+      "sha256": "ab6f272e9ad05b3a2f246259a6b4e0483b4199d1c95bcfe9b6ae6c8a90223a4a",
+      "bytes": 6423056,
+      "mtime_ns": 1792214317853181570,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn-c641312bd95cd13d.d",
+        "sha256": "05ec21af3c0198cb677e882f100158338defa3c8c4be6ca09f3d5d9947b56e7a",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6": {
+      "sha256": "1d4f05fa18e644201f0f0a035fab0b23df662d0c0822035d59c352f0dd31ead9",
+      "bytes": 1369712,
+      "mtime_ns": 1792214313530451209,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6.d",
+        "sha256": "c7e2db053bdb4c0e0c1a8c9b02124aebe64f2e35834091f2bbd028708fbc2c54",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_bounds-a3a54729fae95563": {
+      "sha256": "40f5964272fdd6871f8a9f4bd6b5adcfa6c7d92f47a3bf113e59afbe2c678df3",
+      "bytes": 1391600,
+      "mtime_ns": 1792214315649138656,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_bounds-a3a54729fae95563.d",
+        "sha256": "0924872ccb895c9a795ba6e12b0f81ae1d973270d1763049ba06f56428699d18",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b": {
+      "sha256": "46031f4d0d1f3ce76c23e7f4eea2f6262f2d9cc938bd1893abe1f163d3a2bb60",
+      "bytes": 1564640,
+      "mtime_ns": 1792214313726857997,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b.d",
+        "sha256": "140cc787dccf50152ec96528ede79826f54777a7bbaa65e9aca24f8e56b395cb",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581": {
+      "sha256": "19773c638e7b4220cd26d7f43270f33ff2a79f9eb5dfbc6d043e7b0d95bb0043",
+      "bytes": 1463264,
+      "mtime_ns": 1792214313410677014,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581.d",
+        "sha256": "9d96c3960b2c2487cd281aa4941f8fabec3307653aadbcb00e3e3f738dfe4dc5",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3": {
+      "sha256": "a185b6896567ff6ca8991e096f97b037189fa7ccc71520ff84134b6f12d1a857",
+      "bytes": 1334560,
+      "mtime_ns": 1792214313371730614,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3.d",
+        "sha256": "a60fdbfae999b698815049a26b32788647c57f1f26b2e29098efe5582f0ecbaf",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a": {
+      "sha256": "dca22f6c869fd43c3e09a1869a339188cb2128c5e2d4251a5d4b002589ab39cf",
+      "bytes": 5230176,
+      "mtime_ns": 1792214311957705658,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a.d",
+        "sha256": "cb16a191c4d7639f02b89fb129338697ddd410050f5fb019362009294e4d6b41",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_discovery-32011cdae19c7310": {
+      "sha256": "7c109be2621df0bb9565866fed0233fb5392d4ce5e688a040f9d1ddfbf04675d",
+      "bytes": 1408256,
+      "mtime_ns": 1792214312363557463,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_discovery-32011cdae19c7310.d",
+        "sha256": "ae1d6935f160183b71e77b79d5b2fa1d0ffc05a1d0650edd49f5a74cc6345495",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7": {
+      "sha256": "1db1d630d2b32eff645864d360e55c4e3605af62d05bb5e93d4ababdec771de5",
+      "bytes": 1512544,
+      "mtime_ns": 1792214315526423965,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7.d",
+        "sha256": "d8f21548b4efd586ae38984915922935b66e4feb2dcf728cf6b7a22700839987",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_inspect-66eca910df681833": {
+      "sha256": "db9244de2dabe84405d4bd94e65852d5058a52bacd83f0c70610b7f8e4f71bd3",
+      "bytes": 1428640,
+      "mtime_ns": 1792214312734895863,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_inspect-66eca910df681833.d",
+        "sha256": "cd543f519f75de6b75f485ef15207c45045d6c05298bdf20cb5740193a5c8eff",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_lists-741c2a84de34e927": {
+      "sha256": "17f8250620759166379d0bdd13786ecfea45d5f6a5e3fa0381ba6f636c0f9fa0",
+      "bytes": 1541664,
+      "mtime_ns": 1792214313070067526,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_lists-741c2a84de34e927.d",
+        "sha256": "ea84135444d628ea716763e016b3d5d077eb6d17b14e5862f2a0f0f553845bf6",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_reasons-c1c9061922871f22": {
+      "sha256": "7ce917bfd28444def2db222a5a1fceb5b8cb0e204110aa5e3bac966588a6ccf2",
+      "bytes": 1330320,
+      "mtime_ns": 1792214311986633989,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_reasons-c1c9061922871f22.d",
+        "sha256": "d46c00a9e73e92c5515de983a3dae293a5ed19db9effc7ca4bbf3b86c10d408d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_retry-f732f16389df1bba": {
+      "sha256": "f2430e485fc41464f9f7615f5abf836433cbdabe269feae5efeda07df947a8a6",
+      "bytes": 1365968,
+      "mtime_ns": 1792214314629271435,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_retry-f732f16389df1bba.d",
+        "sha256": "97ee3f6d9c01dad79f6fd06405fa8dd141912314de71803261fa9f0582c4d7b0",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_runs-60a1083ad1b59280": {
+      "sha256": "5f9ea32866da7f5a34507286252be402c9d7ff3ca71c1d0d3e3b00d0d5da3e3e",
+      "bytes": 1538128,
+      "mtime_ns": 1792214316666846842,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_runs-60a1083ad1b59280.d",
+        "sha256": "0b8c20915518e05cd529a6077b6f2eecb434fb94b15f3fdc4420c18b870c9be3",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f": {
+      "sha256": "42c6ce8def25958db7569ebb91af0e116bae48e7661b005c45e1c7932e4d8f30",
+      "bytes": 1390000,
+      "mtime_ns": 1792214314151093485,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f.d",
+        "sha256": "cd55aa7cb5658637b54b9e2ea52b16c24ef31a5cfe7ac8b28cdef924bd862123",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-9f3ade6894fc423a": {
+      "sha256": "077a5e9ac100694c80cdc2c96f646f92d7f733e355f260bd71f91f8721f58e4d",
+      "bytes": 1260512,
+      "mtime_ns": 1792214708892788376,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-9f3ade6894fc423a.d",
+        "sha256": "84db09b77505dcdb2c226e2921ae5201b3f10a899db48b02d937a408dfa1c0db",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce": {
+      "sha256": "044e28332655df7ff91ac04eed3cc2596b6665574ea387274e49292131859281",
+      "bytes": 965376,
+      "mtime_ns": 1792214316838913418,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce.d",
+        "sha256": "711d27c98127f4736de7b0ef9bdc3a9f881da4dcc0db85b417fd2150d8700c97",
+        "source_root_present": true,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0": {
+      "sha256": "186b723f15a5e90f5199572e3bcbf598178077e7b4cff493d66ef5d3fd126faf",
+      "bytes": 1262272,
+      "mtime_ns": 1792214313130294102,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0.d",
+        "sha256": "bf90994f573218f27304d89a5057cbccdabb3440e8e60b3dfcc79914465c5c7d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-312af0f250c874a8": {
+      "sha256": "4ed2977ac158498a2d63eaab9ed004b349770ac3498a2b664982e9cb17412c1e",
+      "bytes": 1326576,
+      "mtime_ns": 1792214708893947333,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-service-cli.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-312af0f250c874a8.d",
+        "sha256": "de81ec4a0393db9bb00a0db2ca258fc72a8e03774a8ae0950cd0fbfc272616f3",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/source_locator-33733f44cf22960e": {
+      "sha256": "188a5a8157643cbbba01fc0b8f7397138ff83f3d9f9e03fc135764e773a2ff65",
+      "bytes": 1961728,
+      "mtime_ns": 1792214311315957499,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/source_locator-33733f44cf22960e.d",
+        "sha256": "24fb75917fd47806e89f0d6edef562b7e414fdef70e08e9221c59f86d90a164a",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/threads-893db2178c805560": {
+      "sha256": "08c801ecaa4c344617bd4706b139441febd667d8239f7e17e9761cd533229a25",
+      "bytes": 2082304,
+      "mtime_ns": 1792214311871103372,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/threads-893db2178c805560.d",
+        "sha256": "0b1d1c5fb6a90aad02a32b9c1d60ed3187100b5b51fd0fa88bc8647c01d8308a",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_desktop-b75ccaaef88f0107": {
+      "sha256": "68f98ed94c2639700013975babae326c1fe7514ca286af5026f1d927a4278d19",
+      "bytes": 5587680,
+      "mtime_ns": 1792214315557717835,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_desktop-b75ccaaef88f0107.d",
+        "sha256": "ee541fd6b005d961ff8b46dbfeb4dc977ca922b55649c3e771063da921717c8b",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_intake-428de214cafa0800": {
+      "sha256": "04b780a67a677051a27eabd7982f1414dd9a98e760fe7a778897c7d02d6683fd",
+      "bytes": 2552528,
+      "mtime_ns": 1792214306181008080,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_intake-428de214cafa0800.d",
+        "sha256": "881ffc2363f4528b44c8335fbe86337a9ac9743a63e90193b6a87ebe00ee3af8",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/maintained-8a3af3ba2a13751a": {
+      "sha256": "f53cc3ad5e931d4958c6235520d4a32f4c9e9c625ed6b9206b9b0223b2860dcc",
+      "bytes": 944288,
+      "mtime_ns": 1792214304795895948,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/maintained-8a3af3ba2a13751a.d",
+        "sha256": "b09634055dc0ee77b11ce3a335282410fde40cbb47df89d5d9c54fc4f62e8992",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/pptx-c2f6a4f0409adb59": {
+      "sha256": "763b1a93e74155cb24ebdefa2a81521e71ee74bed7700fc8780860a6244ea9ce",
+      "bytes": 944256,
+      "mtime_ns": 1792214304739322826,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/pptx-c2f6a4f0409adb59.d",
+        "sha256": "eb0f4d37a8dd3a76dbb8b4b630244ddde4aa20eaca924bae929a7434336fbcdb",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/protocol-a2e972eacc4f8182": {
+      "sha256": "3ce96c651438339be8e10714cbfaadac374c2cd753434d84d57f5e88217fefaa",
+      "bytes": 1622416,
+      "mtime_ns": 1792214305905468668,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/protocol-a2e972eacc4f8182.d",
+        "sha256": "2f4feb4cd3b309188561cf7458851b9eedf2a1547aac07d52ceedb2b95ca7265",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/restricted_helper-8b22183601c2bcba": {
+      "sha256": "f0dbb0b3e29c2441eb11540b49e104eb41feca6d666e16403c68a7807c4d6664",
+      "bytes": 944336,
+      "mtime_ns": 1792214304732434754,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/restricted_helper-8b22183601c2bcba.d",
+        "sha256": "4300f4bb852093645694649f5d350bd549f9f04a051e45b048b51a0f7875e1cb",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e": {
+      "sha256": "19675649739e800643470d3cdeed3153d0b4682bcd506c1d0e9f77e69672a59e",
+      "bytes": 1090368,
+      "mtime_ns": 1792214305475376616,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e.d",
+        "sha256": "3c0ce036658ecb287440ebc73d65c72f594c7a876d3a0ea7dad2cc07c42a1a29",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/local_embedder-bafff530b1479136": {
+      "sha256": "6463a58dcd22e992006f07363dad123059d0959f2d2e3f618e492f8c9d795461",
+      "bytes": 944304,
+      "mtime_ns": 1792214304801574439,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/local_embedder-bafff530b1479136.d",
+        "sha256": "093fc44443be245696e086159f271bed114f8c8cca1265880390161f1834740d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/model_download-92187191c57b2fc2": {
+      "sha256": "a25b65814585c14d878ef54713bcd4eb67b7ed0c3b361eefea67db2c6b70815a",
+      "bytes": 944304,
+      "mtime_ns": 1792214304798877902,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/model_download-92187191c57b2fc2.d",
+        "sha256": "bee0e35bd05addff83fa50871339fb6408146a3b25f51ed5d55ba247ca446e9a",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_index-1a16ba90b21a3fdb": {
+      "sha256": "7d755060fcbc2d6991e514bc93c6db9227510c808443f81256758182871dc014",
+      "bytes": 3322080,
+      "mtime_ns": 1792214305926760552,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_index-1a16ba90b21a3fdb.d",
+        "sha256": "584fe3a50240f7c820991fbb7cbff5edfcee10fdd7b83f955b3c583e821e85b0",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029": {
+      "sha256": "a7e5577a82caf3ebd19f4c6d2bae7e74164bd1da4db413559bcf9c2c06abffab",
+      "bytes": 5635792,
+      "mtime_ns": 1792214315568904985,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029.d",
+        "sha256": "6ee2ae6823b17e6c67d688b075379e3cb373cbddbeb9379bba5b360b79ee4868",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34": {
+      "sha256": "8c06477e5a6715d870a767863c7c53e0c974d413055791293750d8792123ab72",
+      "bytes": 23576240,
+      "mtime_ns": 1792214318736778376,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34.d",
+        "sha256": "c3283e4d2466b4a84710b9d821264e84c149e7dcb68bbbcd99bd2d6217eed572",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726": {
+      "sha256": "b6ac4723997be82d676c3310d6e68029b8cd0d0a4444844993fb2a5a2ff36a37",
+      "bytes": 22818224,
+      "mtime_ns": 1792214319096701965,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726.d",
+        "sha256": "780868ecd5857f92e0e9bbd78edd0e3a618e5eff3c0a4b4c6fdce399d00801ad",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-79fff5246ba7c117": {
+      "sha256": "5be4fb2d41de9c32685caccb4c53ed8c1656ec071ba35ac5455c653ce1b98209",
+      "bytes": 5213616,
+      "mtime_ns": 1792214311487090742,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-79fff5246ba7c117.d",
+        "sha256": "95ae49c8b4786f4e059d0b963f2acf7aa44d0b7929b43cf1d226aa18510aab03",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/chat-6d229c59711a914c": {
+      "sha256": "2bba292106258007e41e18d28abf620c9204ee338e31cd0e9333502b0daf705d",
+      "bytes": 6811840,
+      "mtime_ns": 1792214317232649079,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat-6d229c59711a914c.d",
+        "sha256": "d10fcafec8d4c634d8cb579b43c7badb0c0e4c02b8e18a6910f6e26e9372788f",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71": {
+      "sha256": "ec80a078f82c644499747971875a0e2785e621e8b79ce8729eeaee9bcbfda0bb",
+      "bytes": 5254752,
+      "mtime_ns": 1792214314451589575,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71.d",
+        "sha256": "74c545c86741a811cb605d7fd3ccf2795e0dd902c88ac6cf8ee14deb91abb4da",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_review-4149b5213329a9c6": {
+      "sha256": "4b2c714c1d1d25c52ca038d8c3e551906cd0e68372860fe8a1a0fdd70bf4c8e7",
+      "bytes": 23394368,
+      "mtime_ns": 1792214313464036308,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_review-4149b5213329a9c6.d",
+        "sha256": "e4ee5f3bdfae4ad19e3a0f1de7abcbfd5fbcc34178cbaa8abf6492a8c163f92d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771": {
+      "sha256": "8287b84e7fa853ff2330f25159d8658e290a99c174113388161572275070cb7f",
+      "bytes": 22982848,
+      "mtime_ns": 1792214319327573871,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771.d",
+        "sha256": "e219d03188dc20766783f0686b636d4d7cec01497977dd00259f92c0a787f9be",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-c1df2edf5b8adce5": {
+      "sha256": "73248c7c417cbee3dd76109fb7d077f2ccbeb755bb39b23918bab9bef57d4dac",
+      "bytes": 6291168,
+      "mtime_ns": 1792214316408476561,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-c1df2edf5b8adce5.d",
+        "sha256": "7f9364c5f8a602dbd60d712f381f897aa3c0a8261eaaf131994f9c30e6f443b9",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/export_metadata-23f752b11028facc": {
+      "sha256": "9127fa374d97874644f180976ca0c1b4aeba294a722a0cdb3676340eb0a48ee1",
+      "bytes": 6502224,
+      "mtime_ns": 1792214314126467772,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/export_metadata-23f752b11028facc.d",
+        "sha256": "d43dfac0834f8bce18b6ac7b510740cd48811694cd372108363250b36a59c9d5",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/host_intake-719f8b289be0d5cf": {
+      "sha256": "f3927b49f65fd22fd3bc9de885311d5924d5c4e2c8db26f19b234220540162ef",
+      "bytes": 23037504,
+      "mtime_ns": 1792214317177108537,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/host_intake-719f8b289be0d5cf.d",
+        "sha256": "f5e5deb5847a13ee94b068bea0aabb5413b72db6bd0f0627f12faf2854b8a9c1",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/import_coverage-647f2e6524b08322": {
+      "sha256": "5d7ee4eb25b511c329f81b3faf46428c0419b04079c4bd3ccd4aafd7b4aa5efc",
+      "bytes": 5346640,
+      "mtime_ns": 1792214314188027846,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/import_coverage-647f2e6524b08322.d",
+        "sha256": "e4d952119195b6ab93c68d6643fb76361d9184936c3de82d3c7470762549ccd4",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3": {
+      "sha256": "590711366b94392f5f85d927e1b7d505e2ac1e6dce2eb5b42e47104e2f784d5e",
+      "bytes": 6057824,
+      "mtime_ns": 1792214314838481121,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3.d",
+        "sha256": "93c456e8c9d60be91320d58a46e29d129eb0a0196b2d25e73596d046a1bafeba",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f": {
+      "sha256": "a6e007d8ec575fb9c9006942addf6e8f1c4a59f01df5a79673e556c3be15b97f",
+      "bytes": 22128784,
+      "mtime_ns": 1792214318326994696,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f.d",
+        "sha256": "f69de0f949eb61f4cc8010bd3d02919dabebae27a427cd07df24e4fcc4c19ce6",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/product-8d1beaaf747b75a1": {
+      "sha256": "0cd9384fcd14e300db5846d5ef90f6e39f9b43d68436c62f0083e9031d1b0b74",
+      "bytes": 7108752,
+      "mtime_ns": 1792214313069244194,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/product-8d1beaaf747b75a1.d",
+        "sha256": "c012256ff8fb50ffd8fc7e4d16ecd990887c1a2073515cca9d4c1cb9a1dd33b4",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/projects-89dcdb40005368ce": {
+      "sha256": "cb804292901af5405efb78144b2f08be9d56f1df16686886fc22b77c96767209",
+      "bytes": 6944368,
+      "mtime_ns": 1792214318979674514,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/projects-89dcdb40005368ce.d",
+        "sha256": "65aba124d9192abebb19a51e3129e78a9525deb7d10ba1664fd7a4e03ed5ae56",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c": {
+      "sha256": "b81172a33348754684ea33bab9d781cc307ae33af7216f38d630fd0a4b7801cf",
+      "bytes": 6933104,
+      "mtime_ns": 1792214319764806969,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c.d",
+        "sha256": "8c661700d74e2b32170f3cf9a897efedd068ca4360566692e4158ddf4f165870",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/run_recovery-690e93fd458fd777": {
+      "sha256": "efe68e296e73cca246b9613ca87d39786d604035aabd15bb483b00a59fc8d3b3",
+      "bytes": 6558096,
+      "mtime_ns": 1792214312611740882,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/run_recovery-690e93fd458fd777.d",
+        "sha256": "9e93b1f92c355d557f90d23ccea16bc8624d0fc3ff624b4c3babe55d5bc50480",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd": {
+      "sha256": "7e87fab0f3d014e9d1949d9d29a83cba30728c710861b7b3ba6aef738ac72d3a",
+      "bytes": 6354640,
+      "mtime_ns": 1792214315766524981,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd.d",
+        "sha256": "39a7f856bd5e3c405a35f78e74438df5d6decfab84c0b8e87724b43367831986",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457": {
+      "sha256": "ade404c85405d95040982601bf63fab1824026bdd31b03f9ec486f834e6c2959",
+      "bytes": 22981648,
+      "mtime_ns": 1792214317351192152,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457.d",
+        "sha256": "dfc402e50d28ba5cbd54e4165a4f7aabc0cb2eaee53a8e81ccbfdcd6d0e8e725",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_worker-ce089018352e80e5": {
+      "sha256": "61dc5723328cbefde691f1c7cc63daf052b194d901ec10aa38b860b90128d6e4",
+      "bytes": 6442960,
+      "mtime_ns": 1792214312386198929,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_worker-ce089018352e80e5.d",
+        "sha256": "01de9a15ab609330d347b2c2feaa48f4c3ed87e5d1ab2e75e583ad9df48c651f",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/shared_run-c1f460e042519b91": {
+      "sha256": "505edc24a018af216780abd475255c88ce990d5c5bd54619a8f650d5c20a5e09",
+      "bytes": 22597856,
+      "mtime_ns": 1792214314725370541,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/shared_run-c1f460e042519b91.d",
+        "sha256": "d742fe1f90791b3619cffb3252dae2cf669c52b563764a3b0106c0059f532005",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/skills-d9806e23ee0a7041": {
+      "sha256": "82591022409c76f3faaf6666c721b8145ca2d37d503b036b21841e831d353e87",
+      "bytes": 6545280,
+      "mtime_ns": 1792214709061505754,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-service-cli.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/skills-d9806e23ee0a7041.d",
+        "sha256": "1d245b0bbcf3441dc4b1d64172e551780c34d8e40bc6d2ba4e1af0961d2abd29",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753": {
+      "sha256": "c1fbd479ad40837737593e43722c3af7c630729fbefea5dd2ee3607d9fcb8be0",
+      "bytes": 22164400,
+      "mtime_ns": 1792214319626718175,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753.d",
+        "sha256": "73c3949ace2b1721cb619cd175899426fe1040ac7e4b53205886ecdce2b420d6",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-653a376bf778ec2a": {
+      "sha256": "c9199093a51ede404cbd7dc92910754a64c5b76fd3476dc318445f07421b43d4",
+      "bytes": 5218048,
+      "mtime_ns": 1792214317118318208,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-653a376bf778ec2a.d",
+        "sha256": "eed743d5d14cf76cc476f05f40dbb73f92d13f94171907826f9bdf23b64cd904",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95": {
+      "sha256": "5fce7b761e4d96e5a0a7676f1a6e20b9277f6eb72d10901f6cabaf9de20c77f0",
+      "bytes": 6628368,
+      "mtime_ns": 1792214317090433417,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95.d",
+        "sha256": "e0bf05633a5bf3569c9e5fc6b5619a23583196d38ddfba7bb2569e9c4b82d8dd",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585": {
+      "sha256": "eda0f808f2401afa18ca997cd865cf379460702bf88f128a39b399462bdf77d7",
+      "bytes": 5157888,
+      "mtime_ns": 1792214313424797367,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585.d",
+        "sha256": "5d1973cdf782cdefd4f1d70a97c355e8451f81f6b5509599a73b1ea03d121d98",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1": {
+      "sha256": "200c323319633fb5c5659761915c0581582200a6f2406c009e6f2c6d3b821b6a",
+      "bytes": 6071792,
+      "mtime_ns": 1792214318918521647,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1.d",
+        "sha256": "a3f90d036adb9c6fdc480ff2be5e57076c789b8913bce475d2514d1ddd155fe1",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/user_scale-502959ef30d7885b": {
+      "sha256": "f5cf7deb1a31fecbf35463349d91cca5a9d6c867c8928d518b7907c7305b50d4",
+      "bytes": 6329008,
+      "mtime_ns": 1792214314470365173,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/user_scale-502959ef30d7885b.d",
+        "sha256": "de3b0bd226f178c9a73da3146efa36bb08cecddc99c2d906fdf488dfebcd871c",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4": {
+      "sha256": "a4430f943b11c77887e4fff06aee546a00a1129abd1781233922790050e58dbc",
+      "bytes": 6120032,
+      "mtime_ns": 1792214318870759718,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4.d",
+        "sha256": "35a13245a9a477366fb85e6c7716a0aacbd653772a96d39aec1923b7887da06f",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22": {
+      "sha256": "6a5ed1b706db9dc7cc0db6632658cb306d3a3b4e4ef4c1c93e9bb7797fc083b3",
+      "bytes": 21812016,
+      "mtime_ns": 1792214313077511765,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22.d",
+        "sha256": "1e9cd5a44eacb6cf5cf045e738a17db869971f9b3633e4ae03fc456c81ae48a1",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02": {
+      "sha256": "87d9cae7fbac0159798b0578b9572db1aa9c3f5c290003775dacba3a44a314ab",
+      "bytes": 5118352,
+      "mtime_ns": 1792214315465896264,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02.d",
+        "sha256": "5e7f052aa9f75a39fe0c249942404639a476875a9df173850512cdd4e3d6a40e",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-264e212abab448cb": {
+      "sha256": "bd71bd2cce1f7c690e39c22d363098319e14f8c8b3108a2713b0fe86dd2bb18a",
+      "bytes": 5642304,
+      "mtime_ns": 1792214317617236672,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-264e212abab448cb.d",
+        "sha256": "51bad679b9b86dee4b1c88b789d1898593fbd55adfaa442b73419fe84c352671",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_context-492379e739bec000": {
+      "sha256": "b970a2224950f3e11ceb26a3ae6d130faafb842260aa069666dc3ea7de5d92e6",
+      "bytes": 6084352,
+      "mtime_ns": 1792214312419861628,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_context-492379e739bec000.d",
+        "sha256": "d2c5520574402bb5ff6e70cf5185fb22674c8d9869e24d13dce73193a650b2d9",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a": {
+      "sha256": "fc53f8b0b00ccdd5085580381966ecbfc8e070d7052506737d39c2b30b59ffee",
+      "bytes": 7317504,
+      "mtime_ns": 1792214319140393150,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a.d",
+        "sha256": "a5b0f6bbc9cfcfd5fc3bcfc71c97a8557db74ee0f0ff2569ab9b41e00abf8dd4",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_core-e42750de0bd1a950": {
+      "sha256": "11fe1033f4b71f3fb106d05925a2c4f9480bd15c45184d4155a030fd57f64fb5",
+      "bytes": 4405200,
+      "mtime_ns": 1792213970332438374,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_core-e42750de0bd1a950.d",
+        "sha256": "56d047be3e317737fbdaccf1cf16444944f5ce27f6a311ac66deafc19ed77aba",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-ad86ffb2d307c405": {
+      "sha256": "56aca07fb85f659958f13a90be712d09241f2975c622e205a33c72f6354c778b",
+      "bytes": 4232656,
+      "mtime_ns": 1792213966175007510,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-ad86ffb2d307c405.d",
+        "sha256": "02b9ac42eea1ed6790fbde3dacb4a24e09ae98c714688437578fc4e5899f8bb0",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/candidate_refresh-2286328efbd5fb45": {
+      "sha256": "cf9ed9c915c629072eb2bf4bdc56f2d17b15761a6aee52f8760e852e422d1ed8",
+      "bytes": 4166656,
+      "mtime_ns": 1792213965970738920,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/candidate_refresh-2286328efbd5fb45.d",
+        "sha256": "9c92f25d3c96741c5ddcbc9af37afec12152d1770eaf7dba55e6c487cb4d60bf",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_format-bafcaeb4752a3563": {
+      "sha256": "98e8676504e12a713e37e5a450a23407b55c6dac5eef89202c30cce91bbf66aa",
+      "bytes": 1270368,
+      "mtime_ns": 1792213966248049135,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_format-bafcaeb4752a3563.d",
+        "sha256": "bc4bb92a97aaae08d600a847dae53d30470eeb86fb6be538ea63f07697d77d78",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_storage-18ee8ec22973f196": {
+      "sha256": "4283c12a3ad14b1d0a7ac35b751466176350c8de4b3e799e5c5462948c2a39ac",
+      "bytes": 4208208,
+      "mtime_ns": 1792213966161316734,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_storage-18ee8ec22973f196.d",
+        "sha256": "b0516569d9e03da54013e50af73c24baa43b0b32ee939cc7a37d03c501b05730",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/converge-c9225277d1dddfb3": {
+      "sha256": "236e35ade983aad183559d80c77c4360f4d484b33d4c1c4b2f32614270870c51",
+      "bytes": 4463904,
+      "mtime_ns": 1792213967001666277,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/converge-c9225277d1dddfb3.d",
+        "sha256": "5038d8a96ec0d95c8a5d82726b02736287eece3d32595a4e9281b174632ffb8f",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/core-6be094f2aba70f00": {
+      "sha256": "9730da232ec37aa3b10097acc63ce8d42b34ea1f9f220f052060585d28f34b8a",
+      "bytes": 4793488,
+      "mtime_ns": 1792213968301083903,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/core-6be094f2aba70f00.d",
+        "sha256": "5bd2fad287d7810191e194be33ef668c6e4c04e99e1edd4069021ad0cf97ba3b",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/current_inputs-c17370f9580df944": {
+      "sha256": "af9013cf1c13f9adf67a82abf11da350d50b4340ae24fa91e0e414b8659b8128",
+      "bytes": 4280624,
+      "mtime_ns": 1792213966296689148,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/current_inputs-c17370f9580df944.d",
+        "sha256": "9fb129fe4e2f51b0875f1d084b7d952c7f1418bea6148cb1444d675995163fb7",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_visibility-71ef364477077027": {
+      "sha256": "11d79869c04c40433f4fab85601eb5ec08d241a7fdab465014da9c5885eb98eb",
+      "bytes": 4388032,
+      "mtime_ns": 1792213966404248549,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_visibility-71ef364477077027.d",
+        "sha256": "af0b72d525f496022ecb43296f4914afcefec9184181a9c28649240b29ba117a",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-522075bbc4ead883": {
+      "sha256": "749a30dd8183b345529ea4b6fffdfde8e4b345d0b96901eb2e16ff6843a76b73",
+      "bytes": 2875408,
+      "mtime_ns": 1792213966692836979,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/final-service-cli-core.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-522075bbc4ead883.d",
+        "sha256": "ef51931af116b841483dbbe5e6fce2ed051923b1a7e5e99f551d04c913ddfdda",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-9ae88f284ac93d0d": {
+      "sha256": "5bc5a94862ecfcf0ce30cce232ea45b046d2e795497e231489d30e30c0a45025",
+      "bytes": 4358224,
+      "mtime_ns": 1792213966563843240,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-9ae88f284ac93d0d.d",
+        "sha256": "10ccb5e8948966b97d69a33b1d1550327843d9ce66d23a808b54a9b77b2dd067",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_tokens-0deb4fc689b81de4": {
+      "sha256": "85c4d9565439f55431c28c83d63312d0fd51b104dca69eb850030cf2e01f0dd3",
+      "bytes": 4420368,
+      "mtime_ns": 1792213967009939218,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_tokens-0deb4fc689b81de4.d",
+        "sha256": "f2d00d5b707a15c6eade41fdb694e7933b6c5cb992f60f69c5e689b7fb59594d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/inspect-fecdaf645c74b585": {
+      "sha256": "4b7667f1076e719e51618a0e484f66a6bdbd208ac494ca0b4969500ccb7fabe4",
+      "bytes": 4455088,
+      "mtime_ns": 1792213967353858423,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/inspect-fecdaf645c74b585.d",
+        "sha256": "0b37cda397d853ebdd141435a171f8ba54d5ba4253bd9c3d48c9f86468a37421",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/message_search_scope-710d727cddbeccd0": {
+      "sha256": "d0888f5fb0231501b58d3c45c7704b83fd1c7001fb297a7d2e09704785e8267f",
+      "bytes": 4551072,
+      "mtime_ns": 1792213967356800238,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/message_search_scope-710d727cddbeccd0.d",
+        "sha256": "6debc7d5626d52d74c62d11af852d9876b70e55495ea55e9949a62893bf2b459",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/note_read-dc0be41bce4e6f86": {
+      "sha256": "fdd609d496f2fe5c9bec7896522a367f15d8a938677218c221117159bf8a231a",
+      "bytes": 4153792,
+      "mtime_ns": 1792213966879870555,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/note_read-dc0be41bce4e6f86.d",
+        "sha256": "a008428f5bb5b47191543de8505b332791e2a2b3333f8ad60b27b8944ae66107",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/project_format-950295569117a307": {
+      "sha256": "e1a5cfbb3e658b6da01180cd89f53564cd2bb3c7e1fe45956107590e38caa0f7",
+      "bytes": 4163008,
+      "mtime_ns": 1792213966047251781,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/project_format-950295569117a307.d",
+        "sha256": "3ac2b03c5aad6c3b323e981c72ff7a3eb4ae5d2330cbaa47ab4a26f9a53ae1aa",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/revision_read-38ad1739a60f2e75": {
+      "sha256": "4351464803b8c4e5e96741ccc116cba18b72c46d8fb8190ec5a1343cb082b062",
+      "bytes": 4100752,
+      "mtime_ns": 1792213966810613710,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/revision_read-38ad1739a60f2e75.d",
+        "sha256": "67bdd533ba98edeeb26c90b77ab212a6fb5ec50ed5ef2ca27cb784511f3a7709",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/search_reader-cea64e946ad43833": {
+      "sha256": "27faa17573863d9cd8d7d0e14c388bc3b5cb2b29f37ea1337f7ce3c8961ebdd9",
+      "bytes": 4247168,
+      "mtime_ns": 1792213966511477364,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_reader-cea64e946ad43833.d",
+        "sha256": "f296a32284a6b46616b0d33c827e575d95d7a6bb564b5868c9ce3d4e13cd9e80",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-e6e901951c2fdd54": {
+      "sha256": "7e9fc5fd5dd385aaedaf2eae2928baf920790d87db23430a6ecebc12c314bc84",
+      "bytes": 4222912,
+      "mtime_ns": 1792213966225617956,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-e6e901951c2fdd54.d",
+        "sha256": "6ad60d6e65c3030ce279828ad7c5a1d918d4614585966c6b1621b871de968ea3",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-56b70fa92eb8fc3e": {
+      "sha256": "50ba493c32eaa7583c3fa09542a51b002714edfc810779e7101a83dbb36bf7b7",
+      "bytes": 4292800,
+      "mtime_ns": 1792213966721185038,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-56b70fa92eb8fc3e.d",
+        "sha256": "e1e6f3fbfa486b1fdc2d26d0b5e4076723699d6bd33119b6737d3ce4d6ac772d",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-e9b887f0a22be3b5": {
+      "sha256": "7d74566ad923726ed6f31217b04f9d34ab7bb40e5f9663c00142edb8c2ebf283",
+      "bytes": 4591088,
+      "mtime_ns": 1792213967267959612,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log",
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-ai-core.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-e9b887f0a22be3b5.d",
+        "sha256": "30040692fd79b2b931de56bec492b8db215f32f0d49e3efd7cd9df2c65bcec42",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_intake-2fce79e002a28627": {
+      "sha256": "411f7a39ed91a621a08ac6bb34979f470da473964ef6ea96a970771f4cd8e385",
+      "bytes": 3222272,
+      "mtime_ns": 1792214305977463099,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_intake-2fce79e002a28627.d",
+        "sha256": "1e617e884c46e097fc6494dbe9bae150d09bc1ba9eb7ff2d7b05898fd5e641c6",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    },
+    "/private/tmp/brn-d3a-20261017-target/debug/deps/qualification-934231d9a61b24a3": {
+      "sha256": "292d973fc1bf6d3199425f538cf28bf871a63d02d1bd99810371cf86a765ae10",
+      "bytes": 4295264,
+      "mtime_ns": 1792214305435668635,
+      "mentioned_in_logs": [
+        "/private/tmp/brn-d3a-20261017-artifacts/candidate-workspace-tests.log"
+      ],
+      "dep_info": {
+        "path": "/private/tmp/brn-d3a-20261017-target/debug/deps/qualification-934231d9a61b24a3.d",
+        "sha256": "25737073fca43224b1b896ae9a1dfbcf68316b848170bf6df99eb9cc9acb60fc",
+        "source_root_present": false,
+        "before_root_present": false
+      }
+    }
+  }
+}

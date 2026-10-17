@@ -76,6 +76,8 @@ mod tests {
     #[test]
     fn fixed_catalog_has_valid_frontmatter_and_rejects_paths() {
         for skill in CATALOG {
+            let metadata = skill_metadata(skill.text).unwrap();
+            assert_eq!(metadata.name, skill.id);
             assert!(skill.text.starts_with("---\n"));
             let header = skill.text.split("---\n").nth(1).unwrap();
             assert!(
@@ -115,4 +117,80 @@ mod tests {
         // The read-only helper's role guide never offers it.
         assert!(!RESEARCH_SCOUT.contains("withdraw_proposal"));
     }
+}
+
+/// The C0 single-line subset, deliberately not a YAML parser. Shared by owner
+/// installation and packaged-metadata inspection; it grants no runtime tools.
+#[derive(Debug, PartialEq, Eq)]
+pub struct SkillMetadata<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub body: &'a str,
+}
+pub fn valid_skill_name(name: &str) -> bool {
+    (1..=64).contains(&name.len())
+        && name.as_bytes()[0].is_ascii_lowercase()
+        && name
+            .bytes()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+}
+pub fn skill_metadata(text: &str) -> Result<SkillMetadata<'_>, &'static str> {
+    if text.len() > 64 * 1024 || text.contains('\0') {
+        return Err("SKILL.md must be UTF-8 text of at most 64 KiB without NUL");
+    }
+    let mut lines = text.split_inclusive('\n');
+    let first = lines.next().ok_or("missing frontmatter")?;
+    if metadata_line(first) != "---" {
+        return Err("frontmatter must start with ---");
+    }
+    let mut offset = first.len();
+    let (mut name, mut description) = (None, None);
+    for line in lines {
+        offset += line.len();
+        if offset > 8 * 1024 {
+            return Err("frontmatter exceeds 8 KiB");
+        }
+        let line = metadata_line(line);
+        if line == "---" {
+            let name = name.ok_or("name required")?;
+            let description = description.ok_or("description required")?;
+            let body = &text[offset..];
+            if body.trim().is_empty() {
+                return Err("instruction body required");
+            }
+            return Ok(SkillMetadata {
+                name,
+                description,
+                body,
+            });
+        }
+        let (key, value) = line
+            .split_once(": ")
+            .ok_or("only literal key: value lines supported")?;
+        if value.is_empty()
+            || value.trim() != value
+            || value
+                .chars()
+                .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
+            || value.starts_with([
+                '-', '?', ':', ',', '[', ']', '{', '}', '#', '&', '*', '!', '|', '>', '\'', '"',
+                '%', '@', '`',
+            ])
+        {
+            return Err("empty, control-bearing or YAML-shaped metadata is unsupported");
+        }
+        match key {
+            "name" if name.is_none() && valid_skill_name(value) => name = Some(value),
+            "description" if description.is_none() && value.len() <= 1024 => {
+                description = Some(value)
+            }
+            _ => return Err("invalid, duplicate, unknown or unsupported metadata field"),
+        }
+    }
+    Err("frontmatter closing --- required")
+}
+
+fn metadata_line(line: &str) -> &str {
+    let line = line.strip_suffix('\n').unwrap_or(line);
+    line.strip_suffix('\r').unwrap_or(line)
 }

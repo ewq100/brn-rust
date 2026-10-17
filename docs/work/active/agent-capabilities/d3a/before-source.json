@@ -1,0 +1,14 @@
+{
+  "base": "59d1152b1f7576851365cc65d065ba43bb655228",
+  "source": "/private/tmp/brn-d3a-20261017-before-source",
+  "target": "/private/tmp/brn-d3a-20261017-before-target",
+  "genuine_git": true,
+  "remotes": [],
+  "changed_base_tracked_paths": [
+    "crates/brn-threads-core/tests/data_folder.rs"
+  ],
+  "added_cli_test_sha256": "c0ef0aadaa909c52c15897a73994bb8c76baa36d5d9790c06374f7f45412a671",
+  "core_test_sha256": "f2391eb688b22bbb7bf707a992e64e073f1302ba8d8caf2238a34e97ed51fd52",
+  "production_exact_base": true,
+  "note": "Actual CLI absence and core-sidecar red use existing APIs and unchanged production. Unicode parser before tests use later WIP because new parser API is absent at base; distinct receipts."
+}

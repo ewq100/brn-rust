@@ -156,3 +156,10 @@ Every run registers ten tools: `read_records`, `read_note`, `read_source`, `read
 [Runtime evidence](../archive/threads-rebuild/evidence.md#rig-044-runtime-integration) distinguishes automated/live success from the remaining locked-Mac visual gate and separately pending owner acceptance.
 
 Bundle `brn-threads-guidance-6` preserves bundle 5 discovery/rewording guidance and adds current Projects context: owner instructions and knowledge settings, shared document boundaries, earlier discussions distinguished from adopted decisions, and host-owned private Action retention.
+
+
+### Owner-installed instructions: management stage
+
+The owner can list/inspect/install/remove local instruction-only packages through the shared Workspace service and CLI (`skills`, `skill-inspect`, `skill-install`, `skill-remove`). Installation snapshots bounded validated SKILL.md/local reference text without moving originals; names cannot shadow the four built-ins. Installed metadata shows origin, installation scope and exact content digest. Different bytes conflict until explicit removal at the current digest; install does not enable a package or alter current runtime instructions/authority. Runtime selection, scoped enablement and frozen loading belong to D3b.
+
+These installed bytes are machine-local configuration, excluded from current SQLite backup/restore and Markdown exports. Preserve originals separately for reinstall. Ordinary reopen retains the installed snapshot, but restored canonical work does not recreate package files; later scoped selection must be unavailable if exact local bytes are missing, without fallback lookup, download, auto-enablement or inherited grants. This stage-only limitation does not reduce canonical work/assets/receipt backup guarantees and must be reconciled before full D3b acceptance.

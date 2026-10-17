@@ -669,6 +669,28 @@ pub(crate) static COMMANDS: &[Spec] = &[
         bounded_form: Some("candidates --limit N [--cursor C]"),
         ..read("candidates", &["limit", "cursor"], &[])
     },
+    read("skills", &[], &[]),
+    read("skill-inspect", &["name"], &["name"]),
+    cmd(
+        "skill-install",
+        &["source"],
+        &["source"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
+    cmd(
+        "skill-remove",
+        &["name", "digest"],
+        &["name", "digest"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
@@ -1398,6 +1420,9 @@ mod tests {
             ("thread-start", &["title"]),
             ("delegation", &["choice"]),
             ("read", &["id"]),
+            ("skill-inspect", &["name"]),
+            ("skill-install", &["source"]),
+            ("skill-remove", &["name", "digest"]),
             ("revisions", &["note"]),
             ("revision", &["note", "version"]),
             ("search", &["query"]),
@@ -1440,6 +1465,8 @@ mod tests {
     #[test]
     fn owner_marks_match_the_owner_decision_table() {
         let yes = [
+            "skill-install",
+            "skill-remove",
             "apply",
             "dismiss",
             "undo",

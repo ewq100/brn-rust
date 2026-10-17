@@ -36,3 +36,19 @@ PDF qualification needs Poppler `pdftotext`, `pdfimages` and native `pdftoppm`. 
 Document imports other than Markdown/text use the existing explicit ChatGPT authentication path and a dedicated `gpt-6-luna` high-effort request. General chat model settings remain independent. No account, model or converter fallback is implicit. Local preparation/checking have separate 5-second budgets (20 seconds for PDF, within the existing 30-second hard limit); the provider request has a separate 180-second deadline. Full-page previews and originals remain transient; readable Markdown and linked figures pass through the shared checked import service. PDF layout and scan transcription retain source-coverage limitations.
 
 Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.
+
+
+## Local instruction packages (D3a management only)
+
+An explicit owner command can copy an instruction/reference folder into the current workspace’s managed `skills/` configuration:
+
+```sh
+brn --json --data-dir /absolute/workspace skills
+brn --json --data-dir /absolute/workspace skill-install --source /absolute/package
+brn --json --data-dir /absolute/workspace skill-inspect --name document-review
+brn --json --data-dir /absolute/workspace skill-remove --name document-review --digest EXACT_SHA256
+```
+
+Use real absolute directories without symlink ancestors. SKILL.md is a bounded strict single-line name/description frontmatter subset, **not YAML**. Only UTF-8 instruction text and confined local Markdown/text references are supported; scripts, dependencies, binary files, symlinks and executable files are refused. See [D3a subset and evidence](../work/active/agent-capabilities/d3a/plan.md) and the synthetic [document-review example](../../agent/skill-examples/document-review/SKILL.md). Installing does not enable or load a skill; the four existing built-ins are unchanged. Different bytes under an installed name conflict; inspect the exact digest, remove it explicitly and reinstall to update.
+
+Installed bytes are **machine-local instruction configuration excluded from current SQLite backups and Markdown exports**. Preserve original package folders separately for reinstall; BRN does not promise they are rebuildable after source loss. Ordinary reopen of that same workspace retains installed bytes. D3b must fail closed when a restored selection’s local package is unavailable; enablement, runtime frozen versions and full runtime acceptance remain later work. This stage-only exclusion does not change canonical Notes/receipt/asset backup guarantees.

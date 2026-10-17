@@ -261,6 +261,10 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `needs-you` | no | read | — | no |
 | `history` | no | read | — | no |
 | `candidates` | no | read | — | no |
+| `skills` | no | read | — | no |
+| `skill-inspect` | no | read | — | no |
+| `skill-install` | no | converge | — | yes |
+| `skill-remove` | no | converge | — | yes |
 | `settings` | no | read | — | no |
 | `pause` | no | converge | — | yes |
 | `resume` | no | converge | — | yes |
@@ -430,3 +434,10 @@ $ brn --json --data-dir "$D" undo --operation "$OP" --key undo-1   # exit 4, "op
 ```
 
 The maintained journey runner, `scripts/cli_journey.py BRN_BINARY`, completes a full synthetic journey through this contract alone and is part of `scripts/verify-end-to-end.sh`.
+
+
+## Local instruction package management
+
+Owner-authorized `skills`, `skill-inspect --name NAME`, `skill-install --source ABSOLUTE_FOLDER` and `skill-remove --name NAME --digest SHA256` use the shared app service and the normal `--json` envelope. Install/remove are marked owner decisions in machine help; an actor name is not authority. List/inspect expose exact origin/installation scope/digest and retention metadata. Identical install is idempotent, different bytes conflict, and remove checks the exact current digest. There is no keyed canonical receipt for this machine-local configuration. Installation copies only bounded UTF-8 instruction/reference files and leaves original folders untouched. No scripts/dependencies execute and installation does not enable runtime loading.
+
+**Retention:** installed package bytes are not included in current BRN SQLite backups or Markdown exports. Preserve originals for reinstall; same-workspace reopen retains the snapshot, but backup restore supplies only canonical work/assets/receipts and the compiled built-ins. Runtime enablement and fail-closed handling of missing restored packages are D3b work, not part of these management commands. See [D3a plan and evidence](../../docs/work/active/agent-capabilities/d3a/plan.md).

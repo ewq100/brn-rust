@@ -66,3 +66,8 @@ After explicit heavy regrant, [D1B round1 corrected checks/Opus2 brief](d1b/revi
 [D2 Opus1](d2/opus-review-round1.md) APPROVED d252 source-only with nonblocking lows. [Qualified follow-up](d2/qualification-handoff.md) pins ca2bd94b: descriptions-only production delta, strengthened actual authority positive canaries and allocated canonical documentation, single1/0/focused11/0/fullAI430/0/1 plus AI strict lint/fmtPASS. One genuine copied11/0baseline then four fixed risk variants produced3caught/1NO VERDICT (late-fence Storage unwrap, not caught). Final same300s closure/restore/reap/heavy-and-all-path release is linked separately; no D1budget reuse, acceptance or integration claim.
 
 D2 final300second closure: **242.189064026used/57.810935974unused, finalized**; five baseline/variant process groups absent,290/290copy and candidate hashes verified, heavy and all D2 paths explicitly released. Evidence-only commit follows frozen ca2bd94b/cratescbe50a42; unused time is closed, not reusable.
+
+
+## D3a local implementation, 17 October 2026
+
+The [D3a receipt](d3a/README.md) records exact-base compiled CLI absence/core reopen witnesses, copied local instruction packages, real owner-service/CLI lifecycle, descriptor and collision guards, actual backup/export exclusion and positive canonical control. The latest-source capability431/0/1, strict affected lint/fmt and source-qualified normal runs are recorded with raw log hashes; the single fullworkspace1163/2/6 retains new README omission (targeted assertion now1/0) separately from carried missing-pdftoppm PDFUnavailable. Independent review, bounded post-pin mutation and principal acceptance remain separate. S01 runtime/S03 revocation/S04 project loading remain D3b, not claimed by management-only D3a.
