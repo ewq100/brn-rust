@@ -1,0 +1,780 @@
+{
+  "qualification": "textual inventory includes tests/comments/nonselected features; runtime.md classifies selected single-input paths, not blanket execution",
+  "calls": [
+    {
+      "file": "xberg-1.3.10/src/model_download.rs",
+      "line": 216,
+      "text": "let mut addrs = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/model_download.rs",
+      "line": 422,
+      "text": "std::thread::Builder::new()"
+    },
+    {
+      "file": "xberg-1.3.10/src/model_download.rs",
+      "line": 424,
+      "text": ".spawn(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/sparse_embeddings/mod.rs",
+      "line": 429,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/llm/client.rs",
+      "line": 746,
+      "text": "tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/llm/vlm_embeddings.rs",
+      "line": 11,
+      "text": "// ~keep caller: that arm drives `tokio::runtime::Handle`/`block_in_place`/"
+    },
+    {
+      "file": "xberg-1.3.10/src/llm/text_completion.rs",
+      "line": 96,
+      "text": "tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 631,
+      "text": "embeddings.par_iter_mut().for_each(|v| normalize_in_place(v));"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 741,
+      "text": "tokio::task::block_in_place(|| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 742,
+      "text": "handle.block_on(crate::llm::vlm_embeddings::embed_via_llm(texts, llm, normalize))"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 746,
+      "text": ".block_on(crate::llm::vlm_embeddings::embed_via_llm(texts, llm, normalize))"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 788,
+      "text": "tokio::task::block_in_place(|| handle.block_on(embed_future))"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 790,
+      "text": "crate::core::runtime::global_runtime()?.block_on(embed_future)"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 998,
+      "text": "/// `spawn_blocking`, keeping the async executor free."
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1115,
+      "text": "/// `spawn_blocking` task cannot be cancelled -- dropping its `JoinHandle` detaches it and the"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1136,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1427,
+      "text": "let result = tokio::task::spawn_blocking(move || embed_texts(&[\"test text\"], &config)).await;"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1428,
+      "text": "assert!(result.is_ok(), \"spawn_blocking should not panic\");"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1542,
+      "text": "/// inside a multi-thread Tokio runtime (e.g. a server's `spawn_blocking`"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1561,
+      "text": "let vectors = tokio::task::spawn_blocking(move || super::super::embed_texts(&[\"a\", \"b\"], &cfg))"
+    },
+    {
+      "file": "xberg-1.3.10/src/embeddings/mod.rs",
+      "line": 1563,
+      "text": ".expect(\"spawn_blocking task must not panic\")"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/runtime.rs",
+      "line": 7,
+      "text": "//! inside a caller's blocking context (e.g. a `spawn_blocking` task, or while a"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/runtime.rs",
+      "line": 49,
+      "text": "/// Use this for every synchronous wrapper that needs to `block_on` a future"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/runtime.rs",
+      "line": 52,
+      "text": "/// [`tokio::task::block_in_place`] with the current [`tokio::runtime::Handle`]."
+    },
+    {
+      "file": "xberg-1.3.10/src/core/batch_mode.rs",
+      "line": 5,
+      "text": "//! whether to use `spawn_blocking` for CPU-intensive work."
+    },
+    {
+      "file": "xberg-1.3.10/src/core/batch_mode.rs",
+      "line": 13,
+      "text": "/// When true, extractors use `spawn_blocking` for CPU-intensive work to enable"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/mime.rs",
+      "line": 1182,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/transcription/decode.rs",
+      "line": 27,
+      "text": "/// `tokio::task::spawn_blocking` when on an async runtime."
+    },
+    {
+      "file": "xberg-1.3.10/src/transcription/engine.rs",
+      "line": 344,
+      "text": "/// on an async runtime should wrap it in `tokio::task::spawn_blocking`."
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/embedding.rs",
+      "line": 50,
+      "text": "/// C FFI, etc.) wrap their synchronous host callables in `spawn_blocking` or the"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/embedding.rs",
+      "line": 84,
+      "text": "/// [`tokio::task::block_in_place`] to await the trait's async `embed`, which"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/embedding.rs",
+      "line": 88,
+      "text": "/// `embed_texts_async` instead, which awaits directly without `block_in_place`."
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/reranker.rs",
+      "line": 56,
+      "text": "/// host callables in `spawn_blocking` or the equivalent."
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/reranker.rs",
+      "line": 84,
+      "text": "/// [`tokio::task::block_in_place`] to await the trait's async `rerank`, which"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 539,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 573,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 601,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 682,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 751,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/ocr.rs",
+      "line": 802,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/sceptre_ocr/mod.rs",
+      "line": 347,
+      "text": "let output = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/sceptre_ocr/mod.rs",
+      "line": 1772,
+      "text": "tasks.push(tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/tesseract_backend.rs",
+      "line": 439,
+      "text": "let ocr_result = tokio::task::spawn_blocking(operation)"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/tesseract_backend.rs",
+      "line": 538,
+      "text": "let ocr_result = tokio::task::spawn_blocking(operation)"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/tesseract_backend.rs",
+      "line": 1439,
+      "text": "tasks.push(tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/tesseract_backend.rs",
+      "line": 1463,
+      "text": "let task = tokio::spawn({"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/tesseract_backend.rs",
+      "line": 1468,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 177,
+      "text": "/// `tokio::task::spawn_blocking`. That works because a layer's `on_event` runs"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 405,
+      "text": "/// Layout-detection rasterization runs inside `tokio::task::spawn_blocking`,"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 409,
+      "text": "/// this function itself from inside its `spawn_blocking` closure \u2014 the only"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 432,
+      "text": "/// already handles this by draining inside its own `spawn_blocking` closure and threading the"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 466,
+      "text": ".into_par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/render.rs",
+      "line": 493,
+      "text": ".into_par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/scan_detect.rs",
+      "line": 323,
+      "text": "/// `into_par_iter()` over a `Range<usize>` is an `IndexedParallelIterator`, so `collect()`"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/scan_detect.rs",
+      "line": 337,
+      "text": "(0..page_count).into_par_iter().map(page_work).collect()"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 719,
+      "text": ".spawn(TaskOptions::new().with_ttl_ms(EXTRACTION_TASK_TTL_MS), move |ctx| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 732,
+      "text": ".spawn(TaskOptions::new().with_ttl_ms(EXTRACTION_TASK_TTL_MS), move |ctx| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 745,
+      "text": ".spawn(TaskOptions::new().with_ttl_ms(CACHE_WARM_TASK_TTL_MS), move |ctx| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 749,
+      "text": "let handle = tokio::task::spawn_blocking(move || server.cache_warm(Parameters(params)));"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 1647,
+      "text": "let handle1 = tokio::spawn(async move { server1.get_info() });"
+    },
+    {
+      "file": "xberg-1.3.10/src/mcp/server.rs",
+      "line": 1649,
+      "text": "let handle2 = tokio::spawn(async move { server2.get_info() });"
+    },
+    {
+      "file": "xberg-1.3.10/src/paddle_ocr/backend.rs",
+      "line": 221,
+      "text": "tokio::task::spawn_blocking(operation)"
+    },
+    {
+      "file": "xberg-1.3.10/src/paddle_ocr/backend.rs",
+      "line": 640,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/paddle_ocr/backend.rs",
+      "line": 981,
+      "text": "let (mut text_blocks, processed_width, processed_height) = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/glm_ocr_backend.rs",
+      "line": 513,
+      "text": "let content = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/glm_ocr_backend.rs",
+      "line": 631,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/deepseek_ocr_backend.rs",
+      "line": 328,
+      "text": "let content = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/paddleocr_vl_backend.rs",
+      "line": 287,
+      "text": "let content = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/trocr_backend.rs",
+      "line": 238,
+      "text": "/// in `self.variant`. Inference runs inside `tokio::task::spawn_blocking` so the"
+    },
+    {
+      "file": "xberg-1.3.10/src/candle_ocr/trocr_backend.rs",
+      "line": 257,
+      "text": "let content = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/formula_recognition/mod.rs",
+      "line": 257,
+      "text": "/// runtime must wrap this in `spawn_blocking`."
+    },
+    {
+      "file": "xberg-1.3.10/src/formula_recognition/mod.rs",
+      "line": 322,
+      "text": "tokio::task::spawn_blocking(move || recognize_crop(&crop, accel.as_ref()))"
+    },
+    {
+      "file": "xberg-1.3.10/src/api/handlers.rs",
+      "line": 1279,
+      "text": "tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/sqlite.rs",
+      "line": 112,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/excel.rs",
+      "line": 408,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/ppt.rs",
+      "line": 70,
+      "text": "/// Run the blocking PPT/OLE extraction, offloading to `spawn_blocking` under batch mode"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/ppt.rs",
+      "line": 85,
+      "text": "tokio::task::spawn_blocking(move || -> crate::error::Result<_> {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/wordperfect.rs",
+      "line": 780,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/transcription.rs",
+      "line": 123,
+      "text": "/// already-spawned `spawn_blocking` tasks keep running to completion in the"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/transcription.rs",
+      "line": 148,
+      "text": "/// `spawn_blocking` task cannot be cancelled \u2014 dropping its `JoinHandle` detaches it and the"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/transcription.rs",
+      "line": 168,
+      "text": "task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/transcription.rs",
+      "line": 190,
+      "text": "let (pcm, tags): (PcmAudio, crate::transcription::tags::AudioTags) = task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/transcription.rs",
+      "line": 212,
+      "text": "task::spawn_blocking(move || ensure_whisper_model(model, cache_dir.as_deref(), allow_network, verify_hash))"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/docx.rs",
+      "line": 868,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/docx.rs",
+      "line": 899,
+      "text": "tokio::task::spawn_blocking(move || -> crate::error::Result<_> {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pptx.rs",
+      "line": 521,
+      "text": "let (result, warnings) = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/image.rs",
+      "line": 984,
+      "text": "tokio::task::spawn_blocking(move || -> Result<_> {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/image.rs",
+      "line": 2104,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/image.rs",
+      "line": 2686,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/doc.rs",
+      "line": 78,
+      "text": "tokio::task::spawn_blocking(move || -> crate::error::Result<_> {"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/extract_impl.rs",
+      "line": 126,
+      "text": "// caller doing `tokio::spawn(xberg::extract(..))` \u2014 the canonical usage \u2014 fails"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/extract_impl.rs",
+      "line": 132,
+      "text": "// `Send` either. wasm32 has no OS threads and no `tokio::spawn`, so nothing needs"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/extract_impl.rs",
+      "line": 327,
+      "text": "// inner future's concrete type visible here makes callers that `tokio::spawn` a"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/extract_impl.rs",
+      "line": 1252,
+      "text": "// wasm futures, and wasm32 has no `tokio::spawn` that would need the bound. ~keep"
+    },
+    {
+      "file": "xberg-1.3.10/src/late_interaction/mod.rs",
+      "line": 583,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 729,
+      "text": "tokio::task::block_in_place(|| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 730,
+      "text": "handle.block_on(crate::llm::rerank::rerank_via_llm(&query, &documents, llm, top_k))"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 734,
+      "text": ".block_on(crate::llm::rerank::rerank_via_llm(&query, &documents, llm, top_k))"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 773,
+      "text": "tokio::task::block_in_place(|| handle.block_on(rerank_future))"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 775,
+      "text": "crate::core::runtime::global_runtime()?.block_on(rerank_future)"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 808,
+      "text": "/// future. A `spawn_blocking` task cannot be cancelled \u2014 dropping its"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 829,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/reranking/mod.rs",
+      "line": 840,
+      "text": "/// dedicated blocking thread pool via Tokio's `spawn_blocking`, keeping the"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/seams/progress.rs",
+      "line": 186,
+      "text": "tokio::spawn(inherit_progress(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/seams/model_provider.rs",
+      "line": 118,
+      "text": "tokio::task::spawn_blocking(move || ensure_by_kind(&manager, &kind))"
+    },
+    {
+      "file": "xberg-1.3.10/src/engine/structured/rasterize.rs",
+      "line": 63,
+      "text": "tokio::task::spawn_blocking(move || render_all_pages(&bytes, &mime, dpi))"
+    },
+    {
+      "file": "xberg-1.3.10/src/extraction/html/stack_management.rs",
+      "line": 75,
+      "text": "let handle = thread::Builder::new()"
+    },
+    {
+      "file": "xberg-1.3.10/src/extraction/html/stack_management.rs",
+      "line": 78,
+      "text": ".spawn(job)"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 255,
+      "text": "/// \u2014 executes inside `spawn_blocking`, on a blocking-pool OS thread distinct"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 278,
+      "text": "let (result, glyph_drop_warnings) = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 1859,
+      "text": "/// every render call \u2014 inside `tokio::task::spawn_blocking`, which always"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 1867,
+      "text": "/// This drives the real `spawn_blocking` boundary"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 1918,
+      "text": "\"the spawn_blocking closure must return exactly the one glyph-drop warning it captured on its own \\"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/layout_runner.rs",
+      "line": 1947,
+      "text": "\"glyph-drop warnings must come back through the spawn_blocking closure's return value, not leak into \\"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/mod.rs",
+      "line": 307,
+      "text": "tokio::task::spawn_blocking(work)"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/mod.rs",
+      "line": 1131,
+      "text": "// that is the only render call site routed through `spawn_blocking`."
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/mod.rs",
+      "line": 2915,
+      "text": "// Layout-detection rasterization runs inside `tokio::task::spawn_blocking`"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/mod.rs",
+      "line": 2936,
+      "text": "// `spawn_blocking` (see the drain comment above)."
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/pdfium_engine.rs",
+      "line": 221,
+      "text": "/// CPU-bound pdfium work, run inside `spawn_blocking` by [`extract`]. Builds the"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/pdfium_engine.rs",
+      "line": 349,
+      "text": "/// `spawn_blocking`, since pdfium's C API is synchronous and CPU-bound and must"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/pdfium_engine.rs",
+      "line": 369,
+      "text": "match tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/iwork/numbers.rs",
+      "line": 1338,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/iwork/keynote.rs",
+      "line": 209,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/iwork/pages.rs",
+      "line": 172,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/rendering.rs",
+      "line": 1036,
+      "text": "/// route even after #1666 fixed the sibling (#1796). `.par_iter().map(...).collect()` preserves"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/rendering.rs",
+      "line": 1160,
+      "text": "/// used `.par_iter()` -- so widening `concurrency.max_threads` only ever widened the OCR"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/rendering.rs",
+      "line": 1162,
+      "text": "/// (issue #1666). `.par_iter().map(...).collect()` preserves `page_indices`' order, matching"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 1262,
+      "text": ".par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 2630,
+      "text": "// through `spawn_blocking`, mirroring the boundary already used for the RT-DETR layout"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 2636,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 2668,
+      "text": ".par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 3362,
+      "text": "// `spawn_blocking` and hand the lease back through the join so the next"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 3364,
+      "text": "let (model, outcome) = tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/extractors/pdf/ocr/pipeline.rs",
+      "line": 3926,
+      "text": "tokio::task::spawn_blocking(get_available_memory).await.ok().flatten()"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/candle.rs",
+      "line": 162,
+      "text": "// extract_ner is CPU-bound and already synchronous; block_in_place lets tokio move"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/candle.rs",
+      "line": 166,
+      "text": "// and builds natively too, so a `target_arch` gate alone would reach `block_in_place`"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/candle.rs",
+      "line": 170,
+      "text": "tokio::task::block_in_place(|| model.extract_ner(text, &labels, DEFAULT_THRESHOLD)).map_err(|e| {"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/gline.rs",
+      "line": 474,
+      "text": "tokio::task::spawn_blocking(move || get_or_init_backend_blocking(model_name.as_deref()))"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/gline.rs",
+      "line": 528,
+      "text": "let per_window = tokio::task::spawn_blocking(move || -> Result<Vec<Vec<Entity>>> {"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/ner/gline.rs",
+      "line": 560,
+      "text": "message: format!(\"GLiNER spawn_blocking task panicked: {error}\"),"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/translation/llm.rs",
+      "line": 270,
+      "text": "tokio::spawn(async move {"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/redaction/external.rs",
+      "line": 546,
+      "text": "let inherited = tokio::spawn(async { current_external_redaction().is_some() })"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/token_reduction/core/reducer.rs",
+      "line": 85,
+      "text": "texts.par_iter().map(|text| self.reduce(text.as_str())).collect()"
+    },
+    {
+      "file": "xberg-1.3.10/src/text/token_reduction/core/reducer.rs",
+      "line": 147,
+      "text": ".par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/native/images.rs",
+      "line": 559,
+      "text": "/// `into_par_iter()` over a range is an `IndexedParallelIterator`, so `collect()` returns"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/native/images.rs",
+      "line": 576,
+      "text": ".into_par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/structure/pipeline.rs",
+      "line": 665,
+      "text": "/// Each page's data is pre-extracted before `into_par_iter` so all threads"
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/structure/pipeline.rs",
+      "line": 711,
+      "text": "/// called from multiple threads via `rayon::par_iter`."
+    },
+    {
+      "file": "xberg-1.3.10/src/pdf/structure/pipeline.rs",
+      "line": 3874,
+      "text": ".into_par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/ocr/processor/execution.rs",
+      "line": 2693,
+      "text": ".par_iter()"
+    },
+    {
+      "file": "xberg-1.3.10/src/plugins/processor/registry.rs",
+      "line": 20,
+      "text": "/// # tokio_test::block_on(async {"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/config/concurrency.rs",
+      "line": 663,
+      "text": "/// reached a `par_iter` before that build finished installed Rayon's"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/config/concurrency.rs",
+      "line": 698,
+      "text": "if let Err(_err) = rayon::ThreadPoolBuilder::new().num_threads(budget).build_global() {"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/extractor/file.rs",
+      "line": 97,
+      "text": "tokio::task::spawn_blocking(move || {"
+    },
+    {
+      "file": "xberg-1.3.10/src/core/pipeline/initialization/mod.rs",
+      "line": 440,
+      "text": ".spawn_blocking(initialize_processor_stages)"
+    }
+  ]
+}

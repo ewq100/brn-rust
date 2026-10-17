@@ -1,0 +1,12 @@
+[package]
+name = "brn-x2-source1b"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+xberg = { version = "=1.3.10", default-features = false, features = ["pdf", "office", "excel", "email", "html"] }
+tokio = { version = "=1.53.2", default-features = false }
+mail-parser = { version = "=0.11.9", default-features = false }

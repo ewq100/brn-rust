@@ -1,0 +1,14 @@
+# Opus2 response —17 October2026
+
+Full [verbatim report](../opus-review-round2.md), `CHANGES_REQUIRED`; no selfapproval. B1/B2/B4 were CLOSED by review2 and are not reopened. This response addresses B3 plus all five advisories; no production/runtime/root graph was changed.
+
+| Item | Disposition / evidence |
+|---|---|
+| B3 mandatory shared runtime |Corrected plan Step2, formats sequence3, acceptance row, source-audit/resources narrative and Opus1 B3 response. Native PDF301–310/1986/1994/2074 requires Tokio when native Excel enables it, single-input included. None timeout does not remove it. Prior partial conclusion is explicitly superseded, Git98b/cd2 preserved. Source1b/runtime.md covers pipeline cold initialization, Rayon, HTML thread, no-batch path and finite proposed runtime/stacks/pool. No runtime code now. |
+| A1 stale handoff |Prepended dated superseded note, original text preserved byte-for-byte below it. Links source-audit/handoff, Opus1 readiness and current source1b/Opus2 readiness. Original cache-miss/readiness statements are historical. |
+| A2 retirement checker/projectors |allocation runtime/retirement coupling corrected: new PdfTools/BRN_PDF*/all3tools checks must extend current crates-only scanner to packaging/CI. Existing roxmltree::/OOXML bans remain; projector complies or exact reviewed exception, never a silent weakening. source1b/next-allocation.md records this coupling. |
+| A3 later cache provenance |One authorized source1b metadata command acquired exact later cfb0.15/mail0.11.9/Tokio1.53.2/zip9.0.5/outlook-pst sources. Actual hashes/closure/file equality now in source1b ledger. No relabel of missing-at-cd2 or source1a audit; no second Cargo call. |
+| A4 independent HTML |X1 PDF closure already includes HTML3.18.1, no added package or Tokio needed for HTML-only. source1b proposes actual backend/admission engineering slice and separately gated rich fidelity/cutover, not a facade-only success or silently narrowed production HTML. |
+| A5 timeout and thread accounting |None remains explicit and external host deadline authoritative. Pipeline initialization may spawn with runtime; counted even if explicit postprocessor-off bypass is proposed. Native worker closures and initializer nesting inspected before proposing finite pool2, not an unexamined pool1. Rayon1/HTML joined worker counted; real helper/all-kind qualification pending. |
+
+Source1b static findings include distinct ZIP9 declared-size guard versus calamine ZIP8.6, eager XLSX range/metadata allocation, MIME decoding scope, and HTML span/image-order loss. They are source facts, not hostile-input PASS or new global memory specification. PDF resource STOP remains exact. New source facts stay in source1b; source1a raw/evidence hashes remain immutable. Shared scratch graph is not root approval. No additional package command, compilation/extraction/paid call, sandbox relaxation or runtime implementation.

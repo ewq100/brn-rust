@@ -1,3 +1,5 @@
+> **Superseded readiness note —17 October2026:** The original handoff below records the98b source-only stage and is retained verbatim. Its X2a-ready/cache-missing statements are superseded by [source-audit/handoff](source-audit/handoff.md), [Opus1 readiness](opus1/readiness.md), [source1b audit](source1b/handoff.md) and [Opus2 correction](opus2/readiness.md). Source acquisition succeeded in the shared registry; PDF helper implementation/cutover is NOT ready while exact resource gates remain. Combined PDF+Excel also requires separately allocated helper-local Tokio. No source/build/adoption acceptance follows from this documentation.
+
 # X2 source-preparation handoff
 
 Task `x2-intake-preparation-20261017`, same bound T3 child/checkout, NEW previously absent branch **work/x2-intake-20261017** created at exact **65684dcb6bc7a3c79f5c92741776fd08f066d701**. Crates **bdc0a22a29e1aec741a78916ae5d0a7748531864**, original material39a67e4f, cached origin8f768943. [Binding](binding.json), [release/source hashes](release.json).

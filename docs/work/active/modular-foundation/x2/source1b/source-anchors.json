@@ -1,0 +1,1271 @@
+{
+  "association": "source1b exact acquired source, static only",
+  "files": [
+    {
+      "package": "xberg-1.3.10",
+      "path": "Cargo.toml",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/Cargo.toml",
+      "sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+      "line_count": 1899,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/engine/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/engine/mod.rs",
+      "sha256": "48d8ff0cb189387c8e8ebfa1a58f9190375d9eab22eaecf8b426a8639384c295",
+      "line_count": 671,
+      "anchors": [
+        {
+          "line": 91,
+          "text": "pub async fn extract(&self, input: ExtractInput, config: &ExtractionConfig) -> Result<ExtractionResult> {"
+        },
+        {
+          "line": 111,
+          "text": "pub async fn extract_with_external_redaction("
+        },
+        {
+          "line": 182,
+          "text": "pub async fn extract_batch("
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/engine/extract_impl.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/engine/extract_impl.rs",
+      "sha256": "86cce95f98ec4792f347248aa6edce758f4b4fabf9784948522b1273034fa268",
+      "line_count": 1912,
+      "anchors": [
+        {
+          "line": 425,
+          "text": "crate::core::config::concurrency::init_thread_pools(config.concurrency.as_ref());"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/extractor/bytes.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/extractor/bytes.rs",
+      "sha256": "044f2013350f139d0b68e3400e088eb142509b9b12ae2bd41a0193e86748d24e",
+      "line_count": 225,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/extractor/file.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/extractor/file.rs",
+      "sha256": "52c82d665cc53204d72121c693fb7e3fb5676fb01892f86fa467ff03e3b0d193",
+      "line_count": 1624,
+      "anchors": [
+        {
+          "line": 97,
+          "text": "tokio::task::spawn_blocking(move || {"
+        },
+        {
+          "line": 437,
+          "text": "crate::core::config::concurrency::init_thread_pools(config.concurrency.as_ref());"
+        },
+        {
+          "line": 854,
+          "text": "pub(in crate::core::extractor) async fn extract_bytes_with_extractor("
+        },
+        {
+          "line": 862,
+          "text": "crate::core::config::concurrency::init_thread_pools(config.concurrency.as_ref());"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/batch_mode.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/batch_mode.rs",
+      "sha256": "8d78a4adcfdc48f852f88b8b7f2330be613d6706761ab419a80f91ec95e6fe33",
+      "line_count": 100,
+      "anchors": [
+        {
+          "line": 5,
+          "text": "//! whether to use `spawn_blocking` for CPU-intensive work."
+        },
+        {
+          "line": 13,
+          "text": "/// When true, extractors use `spawn_blocking` for CPU-intensive work to enable"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/mime.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/mime.rs",
+      "sha256": "4ab63d162e264742a0dc6250430757895a80f23fba3d7a3a4497f41860d8bff3",
+      "line_count": 3563,
+      "anchors": [
+        {
+          "line": 1182,
+          "text": "tokio::task::spawn_blocking(move || {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/runtime.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/runtime.rs",
+      "sha256": "4256db9a43cadedac8e4cf3212fef0158c59acf5c65028aa5bbff7c49134bd8c",
+      "line_count": 76,
+      "anchors": [
+        {
+          "line": 7,
+          "text": "//! inside a caller's blocking context (e.g. a `spawn_blocking` task, or while a"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/config/concurrency.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/config/concurrency.rs",
+      "sha256": "a54e65a868894feb66343086dee1327c2602610344c7f14076caa93192b7a67f",
+      "line_count": 1537,
+      "anchors": [
+        {
+          "line": 220,
+          "text": "/// latches the resolved session count in [`init_thread_pools`], not this"
+        },
+        {
+          "line": 329,
+          "text": "let output = std::process::Command::new(\"sysctl\")"
+        },
+        {
+          "line": 416,
+          "text": "/// [`init_thread_pools`] is the one writer, so the admission semaphore in the"
+        },
+        {
+          "line": 637,
+          "text": "/// The process-wide limits [`init_thread_pools`] installs, and the guard for"
+        },
+        {
+          "line": 726,
+          "text": "/// use xberg::core::config::concurrency::init_thread_pools;"
+        },
+        {
+          "line": 729,
+          "text": "/// assert_eq!(init_thread_pools(Some(&config)), 4);"
+        },
+        {
+          "line": 731,
+          "text": "pub(crate) fn init_thread_pools(config: Option<&ConcurrencyConfig>) -> usize {"
+        },
+        {
+          "line": 738,
+          "text": "init_thread_pools_with(config, &limits, build_global_rayon_pool)"
+        },
+        {
+          "line": 741,
+          "text": "/// Pure core of [`init_thread_pools`], parameterized on the limits cells and"
+        },
+        {
+          "line": 746,
+          "text": "/// process-global statics [`init_thread_pools`] closes over cannot be"
+        },
+        {
+          "line": 751,
+          "text": "fn init_thread_pools_with("
+        },
+        {
+          "line": 1446,
+          "text": "fn test_init_thread_pools_idempotent() {"
+        },
+        {
+          "line": 1455,
+          "text": "assert_eq!(init_thread_pools(Some(&two)), 2);"
+        },
+        {
+          "line": 1456,
+          "text": "assert_eq!(init_thread_pools(Some(&four)), 4);"
+        },
+        {
+          "line": 1460,
+          "text": "fn test_init_thread_pools_uses_total_configured_budget() {"
+        },
+        {
+          "line": 1465,
+          "text": "assert_eq!(init_thread_pools(Some(&config)), 7);"
+        },
+        {
+          "line": 1468,
+          "text": "/// [`init_thread_pools`]'s own wrapper must pass the caller's `config`"
+        },
+        {
+          "line": 1472,
+          "text": "/// [`init_thread_pools_with`] -- the entry point the real, process-global"
+        },
+        {
+          "line": 1473,
+          "text": "/// `init_thread_pools` also runs through -- with cells this test owns, so"
+        },
+        {
+          "line": 1475,
+          "text": "/// `init_thread_pools`'s call site forwards its argument at all. `999` is"
+        },
+        {
+          "line": 1479,
+          "text": "fn init_thread_pools_with_passes_the_callers_config_to_install() {"
+        },
+        {
+          "line": 1496,
+          "text": "let budget = init_thread_pools_with(Some(&config), &limits, |budget| pool_built_with = Some(budget));"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/config/processing.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/config/processing.rs",
+      "sha256": "17fc3e7ccaa397c614c6e5ba06e924a3ade6523dbd64a274c53287d58b6c5c2f",
+      "line_count": 590,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/config/extraction/core.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/config/extraction/core.rs",
+      "sha256": "fd9e2afd7b0fc3153e5984d96e6618691b6648ccb388b002f4f6c7e6b6f77142",
+      "line_count": 2118,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/pipeline/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/pipeline/mod.rs",
+      "sha256": "e72f19857fd7984d11080b86715be112de92d679e8a79f3d58b616390e39a2c3",
+      "line_count": 1844,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/core/pipeline/initialization/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/pipeline/initialization/mod.rs",
+      "sha256": "ded16dd471266f96b98475c4b75e3f8bb0dd1b50b66ce549fb5e3ba20a88d9bf",
+      "line_count": 891,
+      "anchors": [
+        {
+          "line": 430,
+          "text": "pub(super) async fn initialize_processor_cache_for_async_pipeline() -> Result<ProcessorSnapshot> {"
+        },
+        {
+          "line": 440,
+          "text": ".spawn_blocking(initialize_processor_stages)"
+        },
+        {
+          "line": 446,
+          "text": "pub(super) async fn initialize_processor_cache_for_async_pipeline() -> Result<ProcessorSnapshot> {"
+        },
+        {
+          "line": 455,
+          "text": "fn initialize_processor_stages() -> Result<ProcessorSnapshot> {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/pdf/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/pdf/mod.rs",
+      "sha256": "014f06ac1413fd893df4c1701756098f4e8bdf6c1691560fff4c9a6fe17260a1",
+      "line_count": 9977,
+      "anchors": [
+        {
+          "line": 307,
+          "text": "tokio::task::spawn_blocking(work)"
+        },
+        {
+          "line": 1131,
+          "text": "// that is the only render call site routed through `spawn_blocking`."
+        },
+        {
+          "line": 2915,
+          "text": "// Layout-detection rasterization runs inside `tokio::task::spawn_blocking`"
+        },
+        {
+          "line": 2936,
+          "text": "// `spawn_blocking` (see the drain comment above)."
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/excel.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/excel.rs",
+      "sha256": "baf42a60c4c8af738b6f5455105ea529c7ea351dd1c1137533dd65d31895aa23",
+      "line_count": 1247,
+      "anchors": [
+        {
+          "line": 408,
+          "text": "tokio::task::spawn_blocking(move || {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/docx.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+      "line_count": 4720,
+      "anchors": [
+        {
+          "line": 868,
+          "text": "tokio::task::spawn_blocking(move || {"
+        },
+        {
+          "line": 899,
+          "text": "tokio::task::spawn_blocking(move || -> crate::error::Result<_> {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/pptx.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/pptx.rs",
+      "sha256": "7ed1ac3c10458171fc92c995172a1c8e4fa4fd19640a5090cb2506254bbffcc7",
+      "line_count": 1929,
+      "anchors": [
+        {
+          "line": 521,
+          "text": "let (result, warnings) = tokio::task::spawn_blocking(move || {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/html.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/html.rs",
+      "sha256": "3d67a04bbb7ee54fe725d11ab5e12381df02a4afcf5127bdee0ed618c9a2e739",
+      "line_count": 1634,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extractors/email.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/email.rs",
+      "sha256": "61cc357b4aaa7b6ddc0f67136bd6d1806ac0584c07de2aa3e0a1ed8a5a9cd0df",
+      "line_count": 1207,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/excel.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/excel.rs",
+      "sha256": "11344663590edab544c1f6afbbd827452f1fe222775c76a01143fc4235d186ea",
+      "line_count": 989,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/excel/open.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/excel/open.rs",
+      "sha256": "635ccf5c2cac8aa01fda3f848d28f627a65fb6717db7704aa96dd2a717b6e755",
+      "line_count": 739,
+      "anchors": [
+        {
+          "line": 551,
+          "text": "pub(crate) fn read_excel_bytes(data: &[u8], file_extension: &str, limits: &SecurityLimits) -> Result<ExcelReadResult> {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/docx/parser.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "line_count": 6903,
+      "anchors": [
+        {
+          "line": 352,
+          "text": "pub fn extract_text_with_boundaries("
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/pptx/container.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/container.rs",
+      "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+      "line_count": 459,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/html/converter.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/html/converter.rs",
+      "sha256": "a7fcb5dc97c85feb27b56b17863098c31af5a01590ee4e3f1f5aae5a60ca53db",
+      "line_count": 840,
+      "anchors": [
+        {
+          "line": 3,
+          "text": "use super::stack_management::check_wasm_size_limit;"
+        },
+        {
+          "line": 76,
+          "text": "pub fn convert_html_to_markdown("
+        },
+        {
+          "line": 136,
+          "text": "check_wasm_size_limit(html)?;"
+        },
+        {
+          "line": 215,
+          "text": "check_wasm_size_limit(html)?;"
+        },
+        {
+          "line": 250,
+          "text": "check_wasm_size_limit(html).ok()?;"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/html/stack_management.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/html/stack_management.rs",
+      "sha256": "b6678f61ea09a394cd1e83ba24b8c0ea84553a78659e018133050f518a79f5fc",
+      "line_count": 103,
+      "anchors": [
+        {
+          "line": 17,
+          "text": "pub const LARGE_HTML_STACK_THRESHOLD_BYTES: usize = 512 * 1024;"
+        },
+        {
+          "line": 27,
+          "text": "pub(crate) fn check_wasm_size_limit(html: &str) -> Result<()> {"
+        },
+        {
+          "line": 44,
+          "text": "pub(crate) fn check_wasm_size_limit(_html: &str) -> Result<()> {"
+        },
+        {
+          "line": 54,
+          "text": "len >= LARGE_HTML_STACK_THRESHOLD_BYTES"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/email/eml.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/email/eml.rs",
+      "sha256": "2867f0a5b188d1ccf14722624ebd25e62035f66b5471468a4d3acfd1fa2e7282",
+      "line_count": 612,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/pst/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pst/mod.rs",
+      "sha256": "d3109f5900094e37fc0568e2da88f0386412a087d68455cdd1e3b187a98a26de",
+      "line_count": 831,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/types/extraction.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/extraction.rs",
+      "sha256": "609562cd96e2a60a3c4b4b45cea86650cf77f33861236e6f8dc99353a0635aba",
+      "line_count": 1476,
+      "anchors": [
+        {
+          "line": 137,
+          "text": "pub struct ExtractedDocument {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/types/formats.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/formats.rs",
+      "sha256": "e8810bbc56d2e89bdb5217ea335a7a187ce87d9336d576b82853070d6bc0dae2",
+      "line_count": 805,
+      "anchors": [
+        {
+          "line": 88,
+          "text": "pub struct ExcelSheet {"
+        },
+        {
+          "line": 292,
+          "text": "pub struct EmailAttachment {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/types/tables.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/tables.rs",
+      "sha256": "58dbea3e7333b35740f5c7edbf71912e7eef3708e978a14f036289e2d839ce4a",
+      "line_count": 290,
+      "anchors": []
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/types/document_structure.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/document_structure.rs",
+      "sha256": "50edddf897a852dceb872bf95c3085a1361451d0dc57f849449d20204b68a4b9",
+      "line_count": 938,
+      "anchors": []
+    },
+    {
+      "package": "zip-9.0.5",
+      "path": "src/read/config.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/read/config.rs",
+      "sha256": "2357aff84586da747f8228d3bf44a782ed89e4430d902afe0da144b187286ce1",
+      "line_count": 20,
+      "anchors": []
+    },
+    {
+      "package": "zip-9.0.5",
+      "path": "src/read/zip_archive.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/read/zip_archive.rs",
+      "sha256": "7f759e879808173a8cb905132e879653c802bae19df4bdddb29d8cf6c54aba68",
+      "line_count": 1216,
+      "anchors": []
+    },
+    {
+      "package": "zip-9.0.5",
+      "path": "src/read/readers.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/read/readers.rs",
+      "sha256": "bcd5e153523abc33979cc52f9bf80a9c1468e8f80e2624049351715354218f72",
+      "line_count": 379,
+      "anchors": [
+        {
+          "line": 301,
+          "text": "size_limit: Option<u64>,"
+        },
+        {
+          "line": 318,
+          "text": "Crc32Reader::new(reader, crc32, should_disable).with_size_limit(size_limit),"
+        },
+        {
+          "line": 335,
+          "text": ".with_size_limit(size_limit),"
+        }
+      ]
+    },
+    {
+      "package": "zip-9.0.5",
+      "path": "src/types.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/types.rs",
+      "sha256": "224e9befc2ed901139e4d87b644aa7960c91e2ad0b3032582d55557115102eb9",
+      "line_count": 641,
+      "anchors": [
+        {
+          "line": 107,
+          "text": "let size_limit = (!options.size_unknown).then_some(uncompressed_size);"
+        },
+        {
+          "line": 113,
+          "text": "size_limit,"
+        }
+      ]
+    },
+    {
+      "package": "zip-9.0.5",
+      "path": "src/crc32.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/crc32.rs",
+      "sha256": "415cbbc843bab8df887756b262b7594ee5ccd0b72185042c0740c45f97d3b3c0",
+      "line_count": 175,
+      "anchors": [
+        {
+          "line": 19,
+          "text": "size_limit: Option<u64>,"
+        },
+        {
+          "line": 32,
+          "text": "size_limit: None,"
+        },
+        {
+          "line": 37,
+          "text": "/// Fail with an error once more than `size_limit` bytes have been read."
+        },
+        {
+          "line": 38,
+          "text": "pub(crate) fn with_size_limit(mut self, size_limit: Option<u64>) -> Crc32Reader<R> {"
+        },
+        {
+          "line": 39,
+          "text": "self.size_limit = size_limit;"
+        },
+        {
+          "line": 45,
+          "text": "match self.size_limit {"
+        },
+        {
+          "line": 86,
+          "text": "let n = match self.size_limit {"
+        },
+        {
+          "line": 108,
+          "text": "let n = match self.size_limit {"
+        }
+      ]
+    },
+    {
+      "package": "zip-8.6.0",
+      "path": "src/read.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-8.6.0/src/read.rs",
+      "sha256": "217cce38a52f21b9eb1dc0813f18faf6f67c524628c3696784e6e76c30aaa6df",
+      "line_count": 1320,
+      "anchors": [
+        {
+          "line": 298,
+          "text": "pub fn extract<P: AsRef<Path>>(&mut self, directory: P) -> ZipResult<()> {"
+        },
+        {
+          "line": 360,
+          "text": "pub fn extract_unwrapped_root_dir<P: AsRef<Path>>("
+        }
+      ]
+    },
+    {
+      "package": "zip-8.6.0",
+      "path": "src/types.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-8.6.0/src/types.rs",
+      "sha256": "995d3457b7678658c04ce69f80f7aeb7a2381fa22cdc8740f50016656e79f11e",
+      "line_count": 931,
+      "anchors": []
+    },
+    {
+      "package": "zip-8.6.0",
+      "path": "src/crc32.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-8.6.0/src/crc32.rs",
+      "sha256": "3d833e6be0d808fa8fb6ebe518c9237b88ff05d7952b581e6ca28ea803b7428e",
+      "line_count": 135,
+      "anchors": []
+    },
+    {
+      "package": "calamine-0.36.1",
+      "path": "Cargo.toml",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calamine-0.36.1/Cargo.toml",
+      "sha256": "94fedede2ae64ea59b9fd64754b5a8989d4cd97899222cc831e52a178924931f",
+      "line_count": 171,
+      "anchors": []
+    },
+    {
+      "package": "calamine-0.36.1",
+      "path": "src/xlsx/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calamine-0.36.1/src/xlsx/mod.rs",
+      "sha256": "82b44a4032d10a274bca979fc996b1543343c768494b5e3b51ab2d64347ce200",
+      "line_count": 4584,
+      "anchors": [
+        {
+          "line": 2620,
+          "text": "Ok(Range::from_sparse(cells))"
+        },
+        {
+          "line": 2720,
+          "text": "Ok(Range::from_sparse(cells))"
+        }
+      ]
+    },
+    {
+      "package": "calamine-0.36.1",
+      "path": "src/lib.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/calamine-0.36.1/src/lib.rs",
+      "sha256": "47b3969117b43fdbaf5d69d7a9667450f06cd0d55368ade13c4ec41d087c13a0",
+      "line_count": 2394,
+      "anchors": [
+        {
+          "line": 493,
+          "text": "pub fn open_workbook<R, P>(path: P) -> Result<R, R::Error>"
+        },
+        {
+          "line": 503,
+          "text": "pub fn open_workbook_from_rs<R, RS>(rs: RS) -> Result<R, R::Error>"
+        },
+        {
+          "line": 542,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 697,
+          "text": "/// When possible, use the more efficient [`Range::from_sparse()`]"
+        },
+        {
+          "line": 912,
+          "text": "/// The `Range::from_sparse()` constructor can be used to create a Range"
+        },
+        {
+          "line": 934,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 984,
+          "text": "/// `Range` with the [`Range::from_sparse()`] constructor."
+        },
+        {
+          "line": 1162,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 1218,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 1262,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 1595,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 1664,
+          "text": "/// let range = Range::from_sparse(cells);"
+        },
+        {
+          "line": 1735,
+          "text": "/// let range = Range::from_sparse(cells);"
+        }
+      ]
+    },
+    {
+      "package": "mail-parser-0.11.9",
+      "path": "Cargo.toml",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mail-parser-0.11.9/Cargo.toml",
+      "sha256": "d3b6ab6706d553ebd59cf5d3169a0fd2e4faab1c32329394357912f48ae3ef8f",
+      "line_count": 111,
+      "anchors": []
+    },
+    {
+      "package": "mail-parser-0.11.9",
+      "path": "src/lib.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mail-parser-0.11.9/src/lib.rs",
+      "sha256": "89f26c847e57ba10eb990e1cdf605c70553b1b08dcef25167e0cc39c58b372b7",
+      "line_count": 709,
+      "anchors": []
+    },
+    {
+      "package": "mail-parser-0.11.9",
+      "path": "src/parsers/message.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mail-parser-0.11.9/src/parsers/message.rs",
+      "sha256": "04eaa48c94796e8639a60076e6077f138298b257f8643691533544f8b5681500",
+      "line_count": 678,
+      "anchors": []
+    },
+    {
+      "package": "mail-parser-0.11.9",
+      "path": "src/decoders/base64.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mail-parser-0.11.9/src/decoders/base64.rs",
+      "sha256": "8b0dcc89dca45b5d98f4cf81343d4e3d65c68913884a4b322328f623e6a5e7f0",
+      "line_count": 588,
+      "anchors": []
+    },
+    {
+      "package": "cfb-0.15.0",
+      "path": "src/lib.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cfb-0.15.0/src/lib.rs",
+      "sha256": "e564d0de7dfbaba7804409b00741f63f626dff9495f18ca23eb17feb5129e5e6",
+      "line_count": 1498,
+      "anchors": [
+        {
+          "line": 72,
+          "text": "pub fn open<P: AsRef<Path>>(path: P) -> io::Result<CompoundFile<fs::File>> {"
+        },
+        {
+          "line": 77,
+          "text": "pub fn open_rw<P: AsRef<Path>>(path: P) -> io::Result<CompoundFile<fs::File>> {"
+        },
+        {
+          "line": 120,
+          "text": "pub fn open<P: AsRef<Path>>("
+        },
+        {
+          "line": 128,
+          "text": "pub fn open_rw<P: AsRef<Path>>("
+        },
+        {
+          "line": 154,
+          "text": "pub fn open_with<F: Read + Seek>("
+        },
+        {
+          "line": 391,
+          "text": "pub fn open_stream<P: AsRef<Path>>("
+        },
+        {
+          "line": 416,
+          "text": "pub fn open(inner: F) -> io::Result<CompoundFile<F>> {"
+        },
+        {
+          "line": 425,
+          "text": "pub fn open_strict(inner: F) -> io::Result<CompoundFile<F>> {"
+        }
+      ]
+    },
+    {
+      "package": "outlook-pst-1.2.0",
+      "path": "src/lib.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/outlook-pst-1.2.0/src/lib.rs",
+      "sha256": "90c46d324aaf6c81991fad79c558a35e82f55428213dea2b9fc2dede27011c49",
+      "line_count": 1190,
+      "anchors": [
+        {
+          "line": 231,
+          "text": "pub fn open(path: impl AsRef<Path>) -> io::Result<Self> {"
+        },
+        {
+          "line": 326,
+          "text": "pub fn open(path: impl AsRef<Path>) -> io::Result<Self> {"
+        },
+        {
+          "line": 1183,
+          "text": "pub fn open_store(path: impl AsRef<Path>) -> io::Result<Rc<dyn Store>> {"
+        }
+      ]
+    },
+    {
+      "package": "html-to-markdown-rs-3.18.1",
+      "path": "src/convert_api.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/html-to-markdown-rs-3.18.1/src/convert_api.rs",
+      "sha256": "3655dd1f233240e5ba9f0b2c9a0ce5d2926750e7acc876bd10a2e2d3209ee267",
+      "line_count": 752,
+      "anchors": [
+        {
+          "line": 72,
+          "text": "pub fn convert(html: &str, options: impl Into<Option<ConversionOptions>>) -> Result<ConversionResult> {"
+        },
+        {
+          "line": 116,
+          "text": "validate_input_size(html, options.max_input_size)?;"
+        }
+      ]
+    },
+    {
+      "package": "html-to-markdown-rs-3.18.1",
+      "path": "src/options/conversion.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/html-to-markdown-rs-3.18.1/src/options/conversion.rs",
+      "sha256": "5ed8208acfa1922ee6afb77410870c94c091c2590d0821a59efcf442d5f852d1",
+      "line_count": 777,
+      "anchors": [
+        {
+          "line": 23,
+          "text": "const fn default_max_input_size() -> Option<u64> {"
+        },
+        {
+          "line": 28,
+          "text": "const fn default_max_input_size() -> Option<u64> {"
+        },
+        {
+          "line": 209,
+          "text": "pub max_input_size: Option<u64>,"
+        },
+        {
+          "line": 333,
+          "text": "max_input_size: default_max_input_size(),"
+        },
+        {
+          "line": 470,
+          "text": "builder_setter!(max_input_size, Option<u64>);"
+        },
+        {
+          "line": 614,
+          "text": "/// Optional override for [`ConversionOptions::max_input_size`]."
+        },
+        {
+          "line": 615,
+          "text": "pub max_input_size: Option<Option<u64>>,"
+        },
+        {
+          "line": 686,
+          "text": "apply!(max_input_size);"
+        }
+      ]
+    },
+    {
+      "package": "html-to-markdown-rs-3.18.1",
+      "path": "src/converter/main/parse.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/html-to-markdown-rs-3.18.1/src/converter/main/parse.rs",
+      "sha256": "5d97e175092d6210c53e1cb8cb90c3cd20ea37a97a764661ec2fabd9cbe564ad",
+      "line_count": 776,
+      "anchors": []
+    },
+    {
+      "package": "html-to-markdown-rs-3.18.1",
+      "path": "src/converter/block/table/cell.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/html-to-markdown-rs-3.18.1/src/converter/block/table/cell.rs",
+      "sha256": "17f47a9f88c095765c97ea8b8f79242311b6e719c034975592e1571775a5562a",
+      "line_count": 503,
+      "anchors": [
+        {
+          "line": 446,
+          "text": "pub fn convert_table_cell("
+        }
+      ]
+    },
+    {
+      "package": "html-to-markdown-rs-3.18.1",
+      "path": "src/converter/media/image.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/html-to-markdown-rs-3.18.1/src/converter/media/image.rs",
+      "sha256": "5e93f5d66c30d3e49c1419666a76efb6d14a0ed4f7b8deaba4c97ce2bbaa4295",
+      "line_count": 186,
+      "anchors": []
+    },
+    {
+      "package": "astral-tl-0.8.0",
+      "path": "src/parser/base.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/astral-tl-0.8.0/src/parser/base.rs",
+      "sha256": "e6058e1dffcc49e408fe9e4e4f2fffa1889d7a9dae8503c6aa6cbfb252b39c85",
+      "line_count": 418,
+      "anchors": []
+    },
+    {
+      "package": "image-0.25.10",
+      "path": "Cargo.toml",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/Cargo.toml",
+      "sha256": "b45592b42e4f065d5258379bac78e2a00ab6e50bbeec265fcceeea9cf5829c26",
+      "line_count": 248,
+      "anchors": []
+    },
+    {
+      "package": "image-0.25.10",
+      "path": "src/codecs/png.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/src/codecs/png.rs",
+      "sha256": "0bdbbd9f213164903deda0e08c309bb279eee6e4cd3ed17d228ba31a0cd1efcd",
+      "line_count": 869,
+      "anchors": []
+    },
+    {
+      "package": "image-0.25.10",
+      "path": "src/codecs/jpeg/decoder.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/src/codecs/jpeg/decoder.rs",
+      "sha256": "135116b08028d03ba7481f7e704a461e239b01f960f576c1e70f48d7e9616569",
+      "line_count": 254,
+      "anchors": []
+    },
+    {
+      "package": "image-0.25.10",
+      "path": "src/codecs/jpeg/encoder.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/src/codecs/jpeg/encoder.rs",
+      "sha256": "d5081535ac29f040daeeaedf13080c8d4af840be821755419cf057d8aa2b6269",
+      "line_count": 1228,
+      "anchors": []
+    },
+    {
+      "package": "image-0.25.10",
+      "path": "src/images/buffer_par.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/image-0.25.10/src/images/buffer_par.rs",
+      "sha256": "b1072a035617df35dbc5c5dda8777cf3027cbe1b46b9d3fd233faeae72404f62",
+      "line_count": 496,
+      "anchors": []
+    },
+    {
+      "package": "portable-atomic-1.15.0",
+      "path": "build.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/portable-atomic-1.15.0/build.rs",
+      "sha256": "9d0b1e071715580497aadb918d4b3b124ee366ba66f15ac05a3d8045f0bc2cf0",
+      "line_count": 629,
+      "anchors": []
+    },
+    {
+      "package": "portable-atomic-1.15.0",
+      "path": "version.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/portable-atomic-1.15.0/version.rs",
+      "sha256": "25c4e742d5a9e49ee16793b607157e181fd79eeafcbcbf0aa389f31b8d5514d1",
+      "line_count": 137,
+      "anchors": [
+        {
+          "line": 15,
+          "text": "let mut cmd = Command::new(rustc.next().unwrap());"
+        }
+      ]
+    },
+    {
+      "package": "portable-atomic-1.15.0",
+      "path": "src/gen/build.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/portable-atomic-1.15.0/src/gen/build.rs",
+      "sha256": "4ad2fa43f8f725631e9754338f39b80f64a2e61facdb3bd735efc215b95a6597",
+      "line_count": 80,
+      "anchors": []
+    },
+    {
+      "package": "rustix-1.1.5",
+      "path": "build.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustix-1.1.5/build.rs",
+      "sha256": "f7609b919173e7121493266d0f89db724a1e47bb105ebd05397f869639603eec",
+      "line_count": 281,
+      "anchors": [
+        {
+          "line": 246,
+          "text": "let mut cmd = std::process::Command::new(wrapper);"
+        },
+        {
+          "line": 251,
+          "text": "std::process::Command::new(rustc)"
+        }
+      ]
+    },
+    {
+      "package": "nix-0.31.3",
+      "path": "build.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.31.3/build.rs",
+      "sha256": "b41a7d4331f46c610c5f2bcb151894b5cf49527677d39174223c634c0d7162ed",
+      "line_count": 35,
+      "anchors": []
+    },
+    {
+      "package": "typst-utils-0.15.1",
+      "path": "build.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/typst-utils-0.15.1/build.rs",
+      "sha256": "6718b5615b3acf0e599c60ac0d092cbcc1ff675bab6d4810451efd571cea1748",
+      "line_count": 21,
+      "anchors": [
+        {
+          "line": 12,
+          "text": "&& let Some(sha) = Command::new(\"git\")"
+        }
+      ]
+    },
+    {
+      "package": "zopfli-0.8.4",
+      "path": "src/lib.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zopfli-0.8.4/src/lib.rs",
+      "sha256": "896a9d17d0fa96b56ffaf6c9d02f29b438bf8ffa932f361e8e62c706e4b314c3",
+      "line_count": 217,
+      "anchors": []
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/document/open.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/document/open.rs",
+      "sha256": "ed481ba5cc40261f69349ceb931647fa4b14a33e70dbe136238cec9afe614fc7",
+      "line_count": 1018,
+      "anchors": [
+        {
+          "line": 34,
+          "text": "pub fn open_from_bytes(data: Vec<u8>) -> Result<Self> {"
+        },
+        {
+          "line": 61,
+          "text": "pub fn open(path: impl AsRef<Path>) -> Result<Self> {"
+        },
+        {
+          "line": 524,
+          "text": "pub fn open_with_config(path: impl AsRef<Path>, _config: impl std::any::Any) -> Result<Self> {"
+        },
+        {
+          "line": 980,
+          "text": "pub fn extract_text_auto(&self, page: usize) -> Result<String> {"
+        }
+      ]
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/document/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/document/mod.rs",
+      "sha256": "aa1220e1a2306b36b19964e5c79b2b1d361df75a4c6fa35efbdcbcd73ae87ee1",
+      "line_count": 1797,
+      "anchors": []
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/decoders/brotli.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/decoders/brotli.rs",
+      "sha256": "c8edad2148fd517701b96a0e642ded1b57bbc8853e9c60a1b86888b01d0824b9",
+      "line_count": 62,
+      "anchors": []
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/rendering/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/rendering/mod.rs",
+      "sha256": "510c9af4e9d856c657cdba8f1a95291b09edcf15c0ddd6d0b6e0bdd44f2b1439",
+      "line_count": 463,
+      "anchors": []
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/rendering/page_renderer.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/rendering/page_renderer.rs",
+      "sha256": "b8c2836960fc83b407cc1683a98f7ede9816ee13d1ababc283faa938a459b81c",
+      "line_count": 10583,
+      "anchors": []
+    },
+    {
+      "package": "xberg-native-pdf-1.3.10",
+      "path": "src/rendering/text_rasterizer.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/src/rendering/text_rasterizer.rs",
+      "sha256": "253826633a9071ed98264a7dc4b3d0a870778887ab4f22ce54915cd6df4bc854",
+      "line_count": 2757,
+      "anchors": []
+    },
+    {
+      "package": "lopdf-0.45.0",
+      "path": "src/reader.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lopdf-0.45.0/src/reader.rs",
+      "sha256": "a8cc0990a27d17c80f769009e731256f178c12b835139be8cfd2d1438379069d",
+      "line_count": 1991,
+      "anchors": []
+    },
+    {
+      "package": "lopdf-0.45.0",
+      "path": "src/load_options.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/lopdf-0.45.0/src/load_options.rs",
+      "sha256": "3c1d77defc936afb2378612059ae9c84432da0873f214ba3d95eaa132d569a07",
+      "line_count": 91,
+      "anchors": []
+    },
+    {
+      "package": "tokio-1.53.2",
+      "path": "src/runtime/builder.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.53.2/src/runtime/builder.rs",
+      "sha256": "352db30f01ecd4c5b80ad03780124c6d7241fa1538e3f83497f024f253d957d5",
+      "line_count": 2092,
+      "anchors": [
+        {
+          "line": 261,
+          "text": "pub fn new_current_thread() -> Builder {"
+        },
+        {
+          "line": 528,
+          "text": "/// through [`spawn_blocking`], this includes but is not limited to:"
+        },
+        {
+          "line": 538,
+          "text": "/// requiring [`spawn_blocking`]."
+        },
+        {
+          "line": 560,
+          "text": "/// [`spawn_blocking`]: fn@crate::task::spawn_blocking"
+        },
+        {
+          "line": 570,
+          "text": "pub fn max_blocking_threads(&mut self, val: usize) -> &mut Self {"
+        },
+        {
+          "line": 680,
+          "text": "pub fn thread_stack_size(&mut self, val: usize) -> &mut Self {"
+        }
+      ]
+    },
+    {
+      "package": "tokio-1.53.2",
+      "path": "src/runtime/blocking/pool.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.53.2/src/runtime/blocking/pool.rs",
+      "sha256": "7d860091aee83e2876b6fcfeac1af02de5a95f608dea5fd4530a981f07f612fe",
+      "line_count": 612,
+      "anchors": [
+        {
+          "line": 179,
+          "text": "pub(crate) fn spawn_blocking<F, R>(func: F) -> JoinHandle<R>"
+        },
+        {
+          "line": 185,
+          "text": "rt.spawn_blocking(func)"
+        },
+        {
+          "line": 298,
+          "text": "pub(crate) fn spawn_blocking<F, R>(&self, rt: &Handle, func: F) -> JoinHandle<R>"
+        },
+        {
+          "line": 305,
+          "text": "self.spawn_blocking_inner("
+        },
+        {
+          "line": 312,
+          "text": "self.spawn_blocking_inner("
+        },
+        {
+          "line": 343,
+          "text": "self.spawn_blocking_inner("
+        },
+        {
+          "line": 350,
+          "text": "self.spawn_blocking_inner("
+        },
+        {
+          "line": 367,
+          "text": "pub(crate) fn spawn_blocking_inner<F, R>("
+        }
+      ]
+    },
+    {
+      "package": "tokio-1.53.2",
+      "path": "src/task/blocking.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.53.2/src/task/blocking.rs",
+      "sha256": "22a0cffd06dd0accdeb4f332c9636205a51214ab45d27444d623639eea4ae54b",
+      "line_count": 227,
+      "anchors": [
+        {
+          "line": 19,
+          "text": "/// [`spawn_blocking`] instead of `block_in_place`."
+        },
+        {
+          "line": 35,
+          "text": "/// [`spawn_blocking`]: fn@crate::task::spawn_blocking"
+        },
+        {
+          "line": 94,
+          "text": "/// The thread limit is very large by default, because `spawn_blocking` is often"
+        },
+        {
+          "line": 96,
+          "text": "/// asynchronously.  When you run CPU-bound code using `spawn_blocking`, you"
+        },
+        {
+          "line": 106,
+          "text": "/// Be aware that tasks spawned using `spawn_blocking` cannot be aborted"
+        },
+        {
+          "line": 107,
+          "text": "/// because they are not async. If you call [`abort`] on a `spawn_blocking`"
+        },
+        {
+          "line": 113,
+          "text": "/// including `spawn_blocking` tasks. However, `spawn_blocking` tasks"
+        },
+        {
+          "line": 115,
+          "text": "/// shutdown will wait indefinitely for all started `spawn_blocking` to"
+        },
+        {
+          "line": 122,
+          "text": "/// # When to use `spawn_blocking` vs dedicated threads"
+        },
+        {
+          "line": 124,
+          "text": "/// `spawn_blocking` is intended for *bounded* blocking work that eventually finishes."
+        },
+        {
+          "line": 134,
+          "text": "/// - Use `spawn_blocking` for short-lived blocking operations"
+        },
+        {
+          "line": 149,
+          "text": "/// by `spawn_blocking`."
+        },
+        {
+          "line": 182,
+          "text": "/// let res = task::spawn_blocking(move || {"
+        },
+        {
+          "line": 204,
+          "text": "/// let worker = task::spawn_blocking(move || {"
+        },
+        {
+          "line": 220,
+          "text": "pub fn spawn_blocking<F, R>(f: F) -> JoinHandle<R>"
+        },
+        {
+          "line": 225,
+          "text": "crate::runtime::spawn_blocking(f)"
+        }
+      ]
+    },
+    {
+      "package": "rav1e-0.8.1",
+      "path": "src/api/config/mod.rs",
+      "cache_path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/src/api/config/mod.rs",
+      "sha256": "aef63f97ec2652a778dc7957dbf698dd6de923974eb85df099279a58cc2c20a6",
+      "line_count": 458,
+      "anchors": [
+        {
+          "line": 261,
+          "text": "new_thread_pool (rav1e; metadata weak optional subtree, not selected AVIF operation)"
+        }
+      ]
+    }
+  ],
+  "missing_requested_paths": []
+}
