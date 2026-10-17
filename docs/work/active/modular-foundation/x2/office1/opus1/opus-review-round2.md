@@ -1,3 +1,5 @@
+Rendered review copy: two machine-local source links are relative here. [Exact verbatim report](opus-review-round2.txt) retains the original bytes.
+
 **O1 DEVELOPMENT PLAN: APPROVED.** No remaining material must-fix blocks the bounded DOCX test-first allocation.
 
 **PRODUCTION OFFICE PROMOTION: CHANGES_REQUIRED — not ready or authorized.** This approval covers empirical tests, not a production switch or reader retirement.
@@ -8,13 +10,13 @@ I read the full original preparation/review prompts, prior report, correction al
 
 The nine prior objections are closed **for development-plan readiness**:
 
-1. **Admission accounting and resource claims — addressed.** [Slice §2](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/office1/implementation-slice.md:53) snapshots E/P before charging admission. It distinguishes actual inflation from central declarations, tests both size lies, valid empty members and descriptor/local-zero cases, and leaves iteration/pass/read-set limits explicitly unproven. Source anchors: `helper.rs:395–415`, OPC `lib.rs:72–118`, Xberg `security.rs:314–430`, ZIP9 `types.rs:104–109` and `crc32.rs:38–60`.
+1. **Admission accounting and resource claims — addressed.** [Slice §2](../implementation-slice.md) snapshots E/P before charging admission. It distinguishes actual inflation from central declarations, tests both size lies, valid empty members and descriptor/local-zero cases, and leaves iteration/pass/read-set limits explicitly unproven. Source anchors: `helper.rs:395–415`, OPC `lib.rs:72–118`, Xberg `security.rs:314–430`, ZIP9 `types.rs:104–109` and `crc32.rs:38–60`.
 
 2. **Blanket warning rejection — addressed.** Exact warning classes receive proposed existing-policy mappings; unknown classes gate promotion. Ordinary missing bookmarks/comments no longer imply generic refusal. Xberg `docx.rs:288–308,440–455`, parser `:2285–2293`, and derive relationship resolution support this distinction.
 
 3. **T2 production-facade contradiction — addressed.** Public `helper::extract` and `helper::prepared::prepare` already reach admission; the executable uses those same paths (`bin/brn-intake-helper.rs:59–83`). Candidate limits are constructed in tests. No new production admission facade or testing API is required.
 
-4. **Office feature leakage — addressed.** [Slice §3](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/office1/implementation-slice.md:90) proposes the explicit nondefault `office-differential` feature and required-feature test registration. It removes the unconditional Office dev-dependency and requires ordinary/union HTML requalification. Current manifest and CI `:74–76,91` support the stated graph distinction.
+4. **Office feature leakage — addressed.** [Slice §3](../implementation-slice.md) proposes the explicit nondefault `office-differential` feature and required-feature test registration. It removes the unconditional Office dev-dependency and requires ordinary/union HTML requalification. Current manifest and CI `:74–76,91` support the stated graph distinction.
 
 5. **Independent inventory and prefix survey — addressed.** Hand-authored reviewed inventories are the oracle; XML inspection is a cross-check. Harbor-process participates in T1 and T3. My namespace-aware inspection independently confirmed **15 paragraphs, 1 table, 9 cells and 2 drawings** in prefix-variation’s document part. Body loss remains a prediction; header/footer survival remains possible.
 
