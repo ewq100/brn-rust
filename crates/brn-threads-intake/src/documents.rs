@@ -69,6 +69,11 @@ impl Converter {
         if !helper.is_absolute() {
             return Err(ConversionError::Unavailable);
         }
+        // The shared restricted helper runtime is qualified only on macOS.
+        // Refuse before cloning input, creating scratch, or dispatching a helper.
+        if !cfg!(target_os = "macos") {
+            return Err(ConversionError::Unavailable);
+        }
         let input = DocumentRequest {
             schema: 1,
             backend: backend.into(),

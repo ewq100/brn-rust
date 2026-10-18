@@ -440,6 +440,7 @@ async fn refinement_deadline_stop_refusal_and_failure_have_no_save_or_fallback()
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn oversized_current_prompt_refuses_before_credentials_or_transport() {
     let mut extracted = result();
     extracted.markdown = "untrusted source".repeat(MAX_PROMPT);

@@ -182,24 +182,107 @@ fn restricted_document_conversion_is_unavailable_on_this_platform() {
         temp_root: root.path().join("scratch"),
         limits: Default::default(),
     };
+    // A bounded marker executable on non-Mac Unix; never launch libtest itself.
+    // On other platforms a non-executable fixture still witnesses that scratch
+    // must not even be created before the platform refusal.
+    let marker = root.path().join("dispatched");
+    let executable = root.path().join("must-not-dispatch");
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let quoted = marker.to_str().unwrap().replace('\'', "'\\''");
+        std::fs::write(
+            &executable,
+            format!("#!/bin/sh\nprintf dispatched > '{quoted}'\nexit 91\n"),
+        )
+        .unwrap();
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    #[cfg(not(unix))]
+    std::fs::write(&executable, b"not an executable; must not dispatch").unwrap();
     let paths = DocumentHelpers {
-        stock: std::env::current_exe().unwrap(),
-        brn: std::env::current_exe().unwrap(),
+        stock: executable.clone(),
+        brn: executable,
     };
+    for backend in ["xberg", "xberg_brn"] {
+        assert_eq!(
+            converter
+                .convert_document(
+                    ConversionRequest {
+                        kind: DocumentKind::Text,
+                        bytes: b"Synthetic text",
+                        intent: ImportIntent::FullNote,
+                        source_reference: "synthetic://unavailable",
+                    },
+                    &paths,
+                    backend,
+                    &AtomicBool::new(false)
+                )
+                .unwrap_err(),
+            ConversionError::Unavailable
+        );
+        assert!(!converter.temp_root.exists());
+        assert!(!marker.exists());
+    }
+}
+
+#[test]
+fn pure_validation_precedes_platform_refusal_without_scratch_or_dispatch() {
+    let root = tempfile::tempdir().unwrap();
+    let mut converter = Converter {
+        temp_root: root.path().join("scratch"),
+        limits: Default::default(),
+    };
+    let paths = DocumentHelpers {
+        stock: root.path().join("never-dispatch"),
+        brn: root.path().join("never-dispatch-brn"),
+    };
+    let request = || ConversionRequest {
+        kind: DocumentKind::Text,
+        bytes: b"Synthetic text",
+        intent: ImportIntent::FullNote,
+        source_reference: "synthetic://validation",
+    };
+    for backend in ["xberg", "xberg_brn"] {
+        assert_eq!(
+            converter
+                .convert_document(request(), &paths, backend, &AtomicBool::new(true))
+                .unwrap_err(),
+            ConversionError::Cancelled
+        );
+        let empty = ConversionRequest {
+            bytes: b"",
+            ..request()
+        };
+        assert_eq!(
+            converter
+                .convert_document(empty, &paths, backend, &AtomicBool::new(false))
+                .unwrap_err(),
+            ConversionError::Budget
+        );
+        let invalid = ConversionRequest {
+            source_reference: "",
+            ..request()
+        };
+        assert_eq!(
+            converter
+                .convert_document(invalid, &paths, backend, &AtomicBool::new(false))
+                .unwrap_err(),
+            ConversionError::Invalid
+        );
+    }
     assert_eq!(
         converter
-            .convert_document(
-                ConversionRequest {
-                    kind: DocumentKind::Text,
-                    bytes: b"Synthetic text",
-                    intent: ImportIntent::FullNote,
-                    source_reference: "synthetic://unavailable",
-                },
-                &paths,
-                "xberg",
-                &AtomicBool::new(false)
-            )
+            .convert_document(request(), &paths, "unknown", &AtomicBool::new(false))
             .unwrap_err(),
-        ConversionError::Unavailable
+        ConversionError::Protocol
     );
+    converter.limits.max_input_bytes = 0;
+    assert_eq!(
+        converter
+            .convert_document(request(), &paths, "xberg", &AtomicBool::new(true))
+            .unwrap_err(),
+        ConversionError::Budget
+    );
+    assert!(!converter.temp_root.exists());
 }
