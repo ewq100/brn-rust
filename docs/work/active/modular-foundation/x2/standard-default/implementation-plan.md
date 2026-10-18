@@ -103,7 +103,7 @@ Generated adapted workspace runs the same tool tests with its committed lock and
 - Modify crates/brn-threads-core/src/{types.rs,store.rs,upgrade.rs} and current schema compatibility tests.
 - Modify crates/brn-threads-app/src/{settings.rs,intake.rs,keyed.rs,lib.rs}; create tests/document_conversion_settings.rs.
 - Create crates/brn-threads-intake/src/documents.rs; modify src/lib.rs for export, using the existing process.rs lifecycle.
-- Modify crates/brn-ai/src/conversion.rs; create document_refine.rs and focused tests.
+- Modify crates/brn-ai/src/{conversion.rs,threads.rs,threads_sources.rs,threads_sources_tests.rs}; create document_refine.rs and focused tests. Existing source-report observation/anti-forgery paths are reused, not replaced.
 - Create crates/brn-threads-intake/tests/document_modes.rs.
 - Mechanical default-field initializers across existing tests/examples only, preserving all old assertions.
 
@@ -160,12 +160,22 @@ pub async fn refine_document(
     auth_file: Option<&Path>, credentials_dir: Option<&Path>,
     cancel: CancellationToken
 ) -> Result<ConversionResult, ConversionFailure>;
-// Core ImportCoverage gains a serde-default optional provenance; old records
-// remain None, never relabelled with a new engine.
+// Core ImportReport gains #[serde(default, skip_serializing_if = "Option::is_none")]
+// pub conversion: Option<DocumentConversionProvenance>. Both Source.report
+// and Note.import.report already use this type; no duplicate Coverage field.
+// Old reports remain None, never relabelled with a new engine.
 pub struct DocumentConversionProvenance {
     pub settings: DocumentConversionSettings,
     pub engine_identity: String,
 }
+// Shared host builder, exported from brn-threads-app::intake/lib.rs.
+// Rejects an actual converter label inconsistent with captured settings and
+// expected_engine_identity; preserves existing status/issues.
+pub fn import_report_with_conversion(
+    converted: &ConversionResult, settings: &DocumentConversionSettings
+) -> AppResult<ImportReport>;
+// TransientSource already has report: Option<ImportReport>; useful intake
+// carries the host-built report there, with no separate provenance field.
 // New app methods use the same checked import logic with an explicit variant.
 pub fn import_full_scoped_with_conversion(
     &mut self, key: &str, title: &str, converted: &ConversionResult,
@@ -186,8 +196,12 @@ pub fn full_import_replay_with_conversion(
 - [ ] Reuse the existing Auth/OwnedClient/collect_stream path; a narrow transport factoring may preserve legacy candidate_for_prepared tests. Do not add new account selection, fallback, retries, general model settings or tools.
 - [ ] Use a small source-bound JSON refinement response: schema1, source_sha256, markdown, uncertainty. The model is asked for faithful readable formatting, not summary or invented corrections. Check exact source hash, finite prompt/output budgets, natural terminal, no unrecognized fields, valid retained asset links and post-result cancellation. Preserve original assets/source references/intent/mode and mark coverage Unchecked or genuine reported omissions; never infer Complete from a model response. Existing strict prepared conversion remains historical/explicit API, not a hidden alternate engine.
 - [ ] Test all eight kinds x both engines with AI Off and a failing auth seam proving zero requests. With synthetic provider transport test both engines and all kinds AI On, actual selected input delivery, safe error/no fallback, invalid hash/output, stream interruption and zero canonical save on failure.
-- [ ] Persist DocumentConversionProvenance in a serde-default optional ImportCoverage.conversion field, bounded and checked like other import metadata. Build expected engine identity from fixed stock/archive and accepted ordered-bundle constants in brn_intake::document; do not infer it from filenames or trust helper self-report alone. ConversionResult.converter carries the validated actual identity and AI label; the app snapshots that actual identity beside the chosen settings. No transient source bytes or auth information enter provenance.
+- [ ] Persist DocumentConversionProvenance in a serde-default optional ImportReport.conversion field shared by Source.report and Note.import.report. Build expected engine identity from fixed stock/archive and accepted ordered-bundle constants in brn_intake::document; do not infer it from filenames or trust helper self-report alone. ConversionResult.converter carries the validated actual identity and AI label; import_report_with_conversion rejects a mismatch and snapshots actual identity beside captured settings. Admit only known fixed identities/enum/boolean, with no source bytes or auth information. Existing import_report and historical literal constructors use None; old stored reports stay unlabelled. Do not add a second provenance field to ImportCoverage.
+- [ ] Useful intake uses import_report_with_conversion before destructuring ConversionResult. Its existing TransientSource.report carries that exact host report into threads.rs::begin, whose durable Source write already clones supplied.report. Preserve canonical locator, Source id, source fingerprint and scope; changing converter does not create a new Source. A later supplied conversion updates the latest Source report normally; existing revision history retains prior reports and full-note per-import reports retain their own variant. Do not invent one aggregate converter label for useful notes combining different sources: their aggregate report has conversion=None and exact source reports supply provenance.
+- [ ] Retain threads_sources.rs::materialize_selected_sources whole-report equality guard before effects, now including conversion. A model-authored Source write may preserve its existing report but cannot add/change/clear conversion, create a duplicate host Source, or forge a historical unlabelled Source report. Extend threads_sources_tests.rs with actual prepare-loop negative variants and unchanged-report positive control. In source report adaptation/retained-useful-report code preserve source-specific provenance where copying a single report; leave combined-source reports unlabelled rather than selecting one arbitrarily. No new model authority or Source identity rule.
+- [ ] Add useful-intake host handoff tests for all four settings combinations: exact captured identity reaches persisted Source.report before model dispatch, survives Store reopen/backup/restore, and remains the captured variant if settings change mid-job. Assert historical None stays None, same locator/fingerprint stays the same Source, and model attempts to add/change/clear conversion cause no canonical effects. No live provider is needed.
 - [ ] Implement full_import_replay_with_conversion in keyed.rs: same key plus matching bytes/path/scope/title/options/expected engine identity replays without dispatch. Historical None provenance or different mode/AI/bundle must refuse ImmutableRequest before conversion/auth, not return None and later spend a model call. Keep the old historical replay method explicit.
+- [ ] Include Source-only already-imported receipts and prepared-but-unapplied operations in replay fixtures. Validate the stored Source report or stored prepared request's provenance before returning to conversion when no new Note is in the receipt. A stored different or historical-unlabelled variant refuses before dispatch; matching variants retain the existing replay/resume behavior. An operation with no stored prepared request has not yet committed conversion provenance. Preserve exact candidate/replay rules; do not infer a new Note from a Source-only receipt.
 - [ ] Implement import_full_scoped_with_conversion by sharing the existing checked group builder. Existing same-source/hash dedup additionally matches the Note's exact conversion provenance on this new path. A new key + different converter/AI/bundle produces a separate protected imported note, so the owner can compare results; it does not overwrite the old note. A new key + same exact variant retains existing already-imported behavior. Keep canonical Source identity and source byte hash stable, with separate Note import reports; no new Source per converter or relation parser/framework is needed.
 - [ ] Commit Task2 after targeted core/app/intake/AI tests and strict affected lint. No paid workflow.
 
@@ -197,6 +211,9 @@ pub fn full_import_replay_with_conversion(
 #[test] fn selected_helper_identity_mismatch_has_no_save_effect();
 #[test] fn same_import_key_different_conversion_options_refuses_before_dispatch();
 #[test] fn new_import_key_different_variant_retains_both_protected_notes();
+#[test] fn useful_source_provenance_survives_reopen_without_changing_source_identity();
+#[test] fn model_cannot_add_change_or_clear_source_conversion_provenance();
+#[test] fn source_only_and_unapplied_replay_check_captured_variant_before_dispatch();
 #[tokio::test] async fn ai_off_never_opens_auth_for_either_engine();
 #[tokio::test] async fn ai_on_receives_selected_engine_output_for_every_kind();
 ```
@@ -216,6 +233,7 @@ Use existing maintained test runtime style if Tokio test macros are not in the a
 - [ ] CLI adds one checked setting command document-conversion with --converter xberg|xberg-brn and --ai off|on; settings inspection exposes both. Native and CLI call choose_document_conversion. No new per-import UI or third mode.
 - [ ] Remove conversion credential preflight when captured AI is Off. Useful-information's separate agent stage still has its existing credential requirement; conversion Off does not disable chat/semantic intake. AI On missing credentials preserves the normal safe unavailable error before a provider request.
 - [ ] Route desktop/CLI imports through DocumentConversionJob/convert_document_job and the mode-aware shared import/replay methods. Read settings before keyed replay so a mode mismatch refuses before any auth or engine work. Both settings apply next import only; setting change by another process does not relabel the in-flight result. Show stored mode/AI provenance through the existing import-detail/report surface without changing the converted Markdown or adding a comparison screen.
+- [ ] At CLI main.rs useful-intake TransientSource construction and native threads_ui.rs::useful_intake, pass captured settings alongside the converted result, call import_report_with_conversion, then assign its report to TransientSource.report. Do not reread settings at handoff. The native worker completion retains the conversion job's snapshot until useful_intake receives it. Render source report provenance in the existing source/import detail; preserve historical None and do not derive identity from current Settings. Add synthetic CLI/native handoff assertions as well as Task2 source anti-forgery tests.
 - [ ] Test rendered controls -> shared saved values -> reopen, and actual CLI setting lifecycle. Process-level intake for all eight representative formats with Off must work without auth under both helpers. Synthetic provider process case proves On for both; missing/wrong helper and mode cannot fall back.
 - [ ] Update exhaustive help/owner/outcome/spec tables and README together; run original agent_contract assertions. Existing protection/Project/private/source-import/Undo cases remain, changing only explicitly superseded output oracles with source-derived stock expectations.
 - [ ] Commit Task3 and preserve prior failed suite results rather than relabel them.
