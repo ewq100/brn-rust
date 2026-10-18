@@ -1,0 +1,48 @@
+**APPROVED — round 1, exact bounded order4 presentation-order, hidden-state and slide-owned notes/comments component. Blocking findings: zero.** No required code correction identified. This is an independent source-review verdict; parent acceptance and integration remain separate.
+
+Reviewed clean checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161`:
+
+- Branch: `work/x2-office-prep-20261018`
+- HEAD: `eefdf8241b2a563bf045f2ddbff975131c608625`
+- Tree: `8d3675a7546b4f7ea295e42c212cce6c7de5118f`
+- Review baseline: `d1c1044ab9eb33625a5180eddc3d6d468a769652`
+- Cached `origin/main`: `57c710ccec2b007c4d8a25c9f1d1b5c1c539907c`; no fetch performed.
+- 0004 SHA-256: `aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d`
+- Compiled final Xberg: `2aefc5301155bfddb19f48266e08acbb2407efd6`, tree `49445f5aee77a179ddfca7e8731d623324f655ab`
+- Identical before/final harness: `2904a8775787eef216451261c732fd82a28d7787`, tree `d7d7f85a454adcd70747f2f200b5f8b13d27bfa2`
+
+**Standards and scope.** The complete production delta changes exactly the six authorized files. The notes/comments changes stay within the amended functions, explanatory comments and shared private container/parser plumbing. The implementation uses maintained roxmltree APIs and the existing member reader and target resolver. It introduces no dependency, public schema, backend switch or parser framework. The unchanged public extractor correctly carries the resulting pages and revisions onward.
+
+Accepted DOCX algorithms and the shared PPTX OMML bridge are preserved. I found no demonstrated regression warranting reopening accepted 0001 or 0003. Root BRN source, manifests/lock, old patches, inventories and registries remain outside this delta.
+
+**Order, identity and recovery.** [Presentation resolution](/private/tmp/brn-x2-pptx-order4-20261018/final/xberg/src/extraction/pptx/parser.rs:976) follows direct PresentationML declarations through exact qualified relationship IDs. Package relationship elements, types and unqualified attributes receive the required namespace treatment. Aliases and default element namespaces work without making unqualified attributes namespace-qualified.
+
+Duplicate relationship IDs and repeated declaration references refuse rather than overwrite or duplicate by guesswork. Missing/unresolved declaration bindings do not fabricate slides. Present empty, absent-list and foreign-child-only sequences stay empty; unreferenced slide files are not swept into them.
+
+[Container discovery](/private/tmp/brn-x2-pptx-order4-20261018/final/xberg/src/extraction/pptx/container.rs:157) permits numeric recovery only when the presentation part is genuinely absent. Present malformed declaration or recovery relationships propagate failure instead of silently scanning filenames. Individual missing slide parts preserve declared ordinal gaps and produce the existing partial-extraction warning.
+
+**Hidden state and associations.** The existing slide DOM reads truly unqualified root `p:sld@show`. Absent/true/1 means visible; false/0 means hidden. Foreign `show` attributes cannot control visibility. Hidden slides retain their content, and private state reaches existing `PageInfo.hidden` by declared ordinal.
+
+[Owned metadata resolution](/private/tmp/brn-x2-pptx-order4-20261018/final/xberg/src/extraction/pptx/parser.rs:922) selects exact notesSlide/comments relationships relative to the actual source slide. Explicit external modes and absolute URLs are rejected; the existing resolver rejects escape/drive/UNC targets. Reads remain archive-member lookups, with no network or filesystem extraction.
+
+Normal optional absence does not trigger filename guessing. Invalid, ambiguous, unreadable or malformed declared metadata produces warnings through the amended callers and unchanged text parsers. Comment anchors retain zero-based declared ordinals across missing slides. A successfully read empty comment part preserves `Some(empty)`.
+
+**Complexity.** Presentation mapping uses one relationship map and one declaration pass. The new metadata queries scan each slide’s relationship part a constant number of times; they introduce neither per-slide whole-archive scans nor repeated presentation-wide maps. Existing numeric recovery sorting remains. This establishes no total inflation, heap, RSS or repeated-work bound.
+
+**Assertions and retained results.** I inspected the complete new driver, associated receipts and raw execution outcomes. The identical final driver records **before 2 passed / 19 failed → final 21 passed / 0 failed**, with zero ignored or filtered tests.
+
+The assertions substantiate declared Quay order and hidden flags, complete projected node content/pages, six addressed table cells/spans, three correctly placed picture placeholders, exact notes and complete reversed-comment JSON. Nonnumeric filenames with reversed relationships/ZIP ordering prevent incidental-order success. Missing-slide coverage checks both page ordinal 2 and comment anchor index 1. Refusal controls require the presentation-order error class; metadata-loss controls require slide-specific notes/comments warnings.
+
+Independent bounded inspection confirmed fixture hashes, declaration order, source wording, `show` values and actual notes relationships. Picture placeholders remain text projection evidence, not decoded-image, OCR, BRN occurrence or locator proof.
+
+The retained unchanged namespace/S3 target records **25/25**, including three PPTX math controls. I independently compared **30 complete legacy JSON values** and **24 DOCX input byte vectors**: all equal. Harbor differs only by the two intended `hidden:false` additions; Quay’s entire page objects match after the specified order, ordinal and missing-note corrections.
+
+**Custody and claims.** Independent checks matched source/harness/root-lock hashes and reconstructed all six files from the complete 0004 patch in memory. Selected retained executables, Xberg libraries and dep-info match their hashes; raw compiler records associate them with the fixed roots and expected drivers. Before/final/Clippy compiler records have identical **239 registry identity/feature unions**, with normal-dependency Xberg using `html/notebook/office`, test profile false.
+
+Earlier compiler, fixture and foreign-show failures remain distinct from behavioral success. Retained strict all-target harness Clippy and reproduction evidence do not establish dependency-wide lint, whole upstream cfg(test), native PDF or BRN runtime qualification.
+
+**Nonblocking residual:** the invalid-`show` lexical branch correctly yields unknown visibility plus a warning by inspection, but has no dedicated runtime assertion. That limitation is accurately disclosed and does not block this component.
+
+Broader notes/comment identity and authors-part relationships, annotations/locators, merged/nested tables, hidden shapes/layout/rendering/OCR/chart fidelity, full XML/resource qualification, restricted Office runtime, license custody, root adoption, retirement and all-eight readiness remain open. Carried PDF/SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications are unchanged.
+
+This review wrote no files and ran no Cargo, metadata, builds, tests, lint, project executables, network/provider/Auth, GUI, mutants or delegation. The frozen PDF task was not inspected. All inspected checkouts remained clean.
