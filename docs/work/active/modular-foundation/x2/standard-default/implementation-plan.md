@@ -246,18 +246,20 @@ Implemented and locally verified; [Task3 evidence](task3/handoff.md) preserves a
 
 ## Task4: helper distribution and final integrated verification
 
+Implemented and locally exercised; [Task4 handoff](task4/handoff.md) preserves the single1278/3/7 workspace result, targeted help correction, unresolved active skill lock and carried legacy PDF failure. Parent failure/retirement reconciliation, independent whole-feature review and integration remain pending.
+
 **Files**
 - Modify scripts/{make-macos-app.sh,package-macos-preview.py,verify-storage.sh,verify-end-to-end.sh} and their existing tests.
 - Modify .github/workflows/ci.yml for explicit new tool builds/checks; preserve all required lanes.
 - Update helper build setup and all eight format status in standard-default/verification.md.
 - Existing final-integration records remain separate and are reconciled at actual integration.
 
-- [ ] Bundle both real helpers, sign and hash them, relocate a synthetic app and execute both after removing source/build directories from discovery. No optional mode falsely offered without a usable bundled helper. CI uses the checked builder, separate lock/source identities and exact artifact paths.
-- [ ] Generated sources live only under ignored target; verify clean-tree regeneration from cached SHA-checked archive plus recorded patches. No runtime download or source patching on the owner's machine.
-- [ ] Record dependency/source/license custody for both bundles using existing audits and actual graph; resolve missing attribution before distribution. No release/push under this implementation task.
-- [ ] Run helper-first focused suites, core/app/CLI/default workspace no-fail-fast, capability and applicable native/retrieval/combined lanes under existing verification instructions. Preserve carried PDFUnavailable and unexplained old SDK/widget qualifiers independently; do not skip, rerun-to-green or weaken tests to claim all-green.
-- [ ] Run strict affected/helper/native lints, Rustfmt, Markdown links and whitespace; report actual counts and platform qualification. No live provider or native-human claim from mocks/widgets.
-- [ ] Freeze one material pin/full diff and separate evidence handoff with source/lock/artifact/.d associations. Release all build/process ownership promptly.
+- [x] Bundle both real helpers, sign and hash them, relocate a synthetic app and execute both after removing source/build directories from discovery. No optional mode falsely offered without a usable bundled helper. CI uses the checked builder, separate lock/source identities and exact artifact paths.
+- [x] Generated sources live only under ignored target; verify clean-tree regeneration from cached SHA-checked archive plus recorded patches. No runtime download or source patching on the owner's machine.
+- [x] Record dependency/source/license custody for both bundles using existing audits and actual graph; resolve missing attribution before distribution. No release/push under this implementation task.
+- [x] Run helper-first focused suites, core/app/CLI/default workspace no-fail-fast, capability and applicable native/retrieval/combined lanes under existing verification instructions. Preserve carried PDFUnavailable and unexplained old SDK/widget qualifiers independently; do not skip, rerun-to-green or weaken tests to claim all-green.
+- [x] Run strict affected/helper/native lints, Rustfmt, Markdown links and whitespace; report actual counts and platform qualification. No live provider or native-human claim from mocks/widgets.
+- [x] Freeze one material pin/full diff and separate evidence handoff with source/lock/artifact/.d associations. Release all build/process ownership promptly.
 - [ ] Principal requests a NEW actual-diff independent review of the full confirmed brief and whole implementation. Fix supported defects, rerun affected checks, preserve all failures.
 - [ ] Complete actual INT-W/final integration and refreshed required CI before the already-authorized PR/merge; register and watch the PR, then verify merged-main CI. No component PR or premature readiness claim.
 

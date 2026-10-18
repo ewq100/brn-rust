@@ -1,0 +1,9 @@
+{
+  "material_commit": "89987e5c99498842762ee8a3713c3691c954c09b",
+  "release_scope": "SOLE_HEAVY_AND_ALL_TASK4_PATHS",
+  "build_and_test_commands": "REAPED; final text checks/commit remain at record creation",
+  "no_running_cargo_at_record_creation": true,
+  "final_receipt": "/private/tmp/brn-x2-standard-task4-20261018/evidence/postcommit-release.json",
+  "final_identity_policy": "Actual final SHA/tree/clean status/process inventory are recorded only after the evidence commit exists, externally. This record does not invent its own future SHA.",
+  "parent_next": "Failure reconciliation/legacy retirement, then fresh whole-feature actual-diff review and integration/CI. No next task started here."
+}

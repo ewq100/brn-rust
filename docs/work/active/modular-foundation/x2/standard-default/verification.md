@@ -1,6 +1,6 @@
 # Standard-default verification
 
-The [approved plan](implementation-plan.md) keeps two converter modes and independent AI conversion Off by default. [Task1](task1/handoff.md), [Task2](task2/handoff.md) and [Task3](task3/handoff.md) preserve their original source pins, failures and limits. Task4 implements distribution and integrated local gates; its final receipts will distinguish implementation, automated verification, native-human observation, owner acceptance and merge.
+The [approved plan](implementation-plan.md) keeps two converter modes and independent AI conversion Off by default. [Task1](task1/handoff.md), [Task2](task2/handoff.md) and [Task3](task3/handoff.md) preserve their original source pins, failures and limits. [Task4](task4/handoff.md) implements distribution and records integrated local gates, including the failed single full workspace result and unresolved skill/legacy-PDF qualifications. Automated verification, native-human observation, owner acceptance and merge remain distinct.
 
 Build with `bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root /absolute/task-target`. Stock uses tools/xberg-intake-helper/Cargo.lock with no patch. Adapted uses its committed adapted.Cargo.lock and a generated scoped workspace under ignored target/xberg-adapted; every one of765 package files is checked after applying only0001/0003/0004/0005. Separate literal targets and build-identity files prevent source aliasing. No runtime source generation or download is needed.
 
