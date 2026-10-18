@@ -72,6 +72,26 @@ pub async fn convert_document_job(
 ) -> Result<ConversionResult, ConversionFailure> {
     convert_job(job, cancel, conversion_cancel, emit, None, TIMEOUT).await
 }
+/// Explicit synthetic host transport seam; ordinary hosts never enable this feature.
+/// Model, effort, timeout, Auth and output validation are exactly the normal job's.
+#[cfg(feature = "scripted-runs")]
+pub async fn convert_document_job_with_http(
+    job: DocumentConversionJob,
+    cancel: CancellationToken,
+    conversion_cancel: Arc<AtomicBool>,
+    emit: Arc<dyn Fn(ConversionProgress) + Send + Sync>,
+    http: DocumentHttpClient,
+) -> Result<ConversionResult, ConversionFailure> {
+    convert_job(job, cancel, conversion_cancel, emit, Some(http), TIMEOUT).await
+}
+#[cfg(feature = "scripted-runs")]
+pub use rig::http_client::DynHttpClient as DocumentHttpClient;
+#[cfg(feature = "scripted-runs")]
+pub use rig::test_utils::{
+    MockHttpResponse as DocumentMockHttpResponse,
+    SequencedHttpClient as DocumentSequencedHttpClient,
+};
+
 async fn convert_job(
     job: DocumentConversionJob,
     cancel: CancellationToken,

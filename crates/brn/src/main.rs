@@ -36,7 +36,7 @@ const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMM
   ask ... --mcp-tool EXACT_APPROVED_NAME --mcp-input JSON (one transient reviewed call)
   Anonymous local HTTP only; remote/authenticated servers unsupported. Enablement is not an external-data grant.
   Installed skills are excluded from current BRN backups/exports; preserve originals for reinstall.
-  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  document-conversion --converter xberg|xberg-brn --ai off|on\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 /// Printed after `HELP` by `--help`.
 const AGENT_HELP: &str = "
 Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelope on stdout.
@@ -57,7 +57,7 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   --key KEY makes note-create, thread-start, undo, queue, archive|resolve, unarchive, keep-in-brn,
   intake --intent full|chat|project, topics-create, knowledge-check --seed-chat yes and project commands
   replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
-  path, scope and title match a committed import, without converting or sending the document again;
+  path, scope, title and captured converter/AI/bundle match a committed import, without converting or sending the document again;
   if that import found the bytes already imported, the retry converts again and records only an observation.
   Edit writes need the session token: begin-edit --token-out FILE, then --token-file FILE (never argv).
   Stale save (exit 3): keep result.session.markdown; discard your session (--token-file OLD); begin-edit --base
@@ -753,9 +753,11 @@ fn encode(value: impl serde::Serialize) -> Result<Value> {
 }
 fn settings_output(settings: WorkspaceSettings) -> Result<Value> {
     let chosen = settings.delegation_chosen;
+    let documents = settings.document_conversion.clone();
     let mut output = encode(settings)?;
     // Storage omits false for old request identity; CLI status is explicit.
     output["delegation_chosen"] = json!(chosen);
+    output["document_conversion"] = json!(documents);
     Ok(output)
 }
 fn delegation_choice(value: &str) -> Result<DelegationChoice> {
@@ -918,21 +920,6 @@ async fn ask(
     }
     Ok(output)
 }
-fn converter(kind: DocumentKind) -> Result<Converter> {
-    let executable = std::env::current_exe()?;
-    let helper = std::env::var_os("BRN_INTAKE_HELPER")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| executable.with_file_name("brn-intake-helper"));
-    let tools = PdfTools::discover();
-    Ok(Converter {
-        helper_path: helper,
-        pdf_tools: tools,
-        temp_root: std::env::temp_dir()
-            .canonicalize()?
-            .join("brn-threads-intake"),
-        limits: brn_threads_intake::import_limits(kind),
-    })
-}
 /// The created Record (today's output), with the receipt kept for the envelope.
 fn created(notes: &mut Annotations, receipt: Receipt) -> Result<Value> {
     notes.operation = Some(receipt.operation.as_str().into());
@@ -961,6 +948,21 @@ fn review_error(workspace: &Workspace, inv: &Invocation, done: &str, error: AppE
     }
 }
 async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
+    execute_document_transport(
+        inv,
+        notes,
+        #[cfg(all(test, feature = "scripted-document-tests"))]
+        None,
+    )
+    .await
+}
+async fn execute_document_transport(
+    inv: &Invocation,
+    notes: &mut Annotations,
+    #[cfg(all(test, feature = "scripted-document-tests"))] document_transport: Option<
+        brn_ai::document_refine::DocumentHttpClient,
+    >,
+) -> Result<Value> {
     if CANCEL.load(Ordering::SeqCst) {
         return Err(CliError::interrupted());
     }
@@ -1420,6 +1422,27 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             settings.helper = helper_settings(inv, &settings)?;
             applied(workspace.configure(settings)?)
         }
+        "document-conversion" => {
+            let converter = match inv.arg("converter")? {
+                "xberg" => DocumentConverter::Xberg,
+                "xberg-brn" => DocumentConverter::XbergBrn,
+                _ => {
+                    return Err(CliError::invalid_value(
+                        "converter",
+                        "Choose xberg or xberg-brn",
+                    ))
+                }
+            };
+            let ai = match inv.arg("ai")? {
+                "off" => false,
+                "on" => true,
+                _ => return Err(CliError::invalid_value("ai", "Choose off or on")),
+            };
+            applied(
+                workspace
+                    .choose_document_conversion(DocumentConversionSettings { converter, ai })?,
+            )
+        }
         "ask" => {
             ask(
                 &mut workspace,
@@ -1431,6 +1454,8 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
             .await?
         }
         "intake" => {
+            let settings = workspace.settings()?;
+            let captured = settings.document_conversion.clone();
             let source = Path::new(inv.arg("source")?);
             if !source.is_absolute() {
                 return Err(CliError::invalid_value(
@@ -1492,12 +1517,13 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     .args
                     .get("title")
                     .map_or("Imported note", String::as_str);
-                let replayed = workspace.full_import_replay(
+                let replayed = workspace.full_import_replay_with_conversion(
                     &spec::cli_key(&inv.command, key),
                     title,
                     inv.arg("source")?,
                     &bytes,
                     scope,
+                    &captured,
                 )?;
                 if let Some(outcome) = replayed {
                     let value = applied(outcome);
@@ -1505,20 +1531,27 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     return Ok(value);
                 }
             }
-            let settings = workspace.settings()?;
-            // Only useful intake and non-text conversion contact a provider.
-            if intent == ImportIntent::UsefulInformation
-                || !matches!(kind, DocumentKind::Markdown | DocumentKind::Text)
-            {
+            // The useful-information agent has its separate credential requirement.
+            if intent == ImportIntent::UsefulInformation || captured.ai {
                 contract::require_credentials(inv, &settings)?;
             }
-            let conversion_job = brn_ai::conversion::ConversionJob {
-                converter: converter(kind)?,
+            let helpers = DocumentHelpers::discover()
+                .map_err(brn_ai::conversion::ConversionFailure::Intake)?;
+            let conversion_job = brn_ai::document_refine::DocumentConversionJob {
+                converter: Converter {
+                    helper_path: helpers.stock.clone(),
+                    pdf_tools: None,
+                    temp_root: std::env::temp_dir()
+                        .canonicalize()?
+                        .join("brn-threads-intake"),
+                    limits: import_limits(kind),
+                },
+                helpers,
+                settings: captured.clone(),
                 kind,
                 intent,
                 bytes,
                 source_reference: inv.arg("source")?.into(),
-                inventory: None,
                 auth_file: settings.auth_file.map(PathBuf::from),
                 credentials_dir: settings.credentials_dir.map(PathBuf::from),
             };
@@ -1533,13 +1566,35 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     tokio::time::sleep(std::time::Duration::from_millis(25)).await;
                 }
             });
-            let result = brn_ai::conversion::convert(
-                conversion_job,
-                cancel,
-                Arc::new(AtomicBool::new(CANCEL.load(Ordering::SeqCst))),
-                Arc::new(|progress| contract::emit_err(&format!("{}\n", progress.label()))),
-            )
-            .await;
+            let flag = Arc::new(AtomicBool::new(CANCEL.load(Ordering::SeqCst)));
+            let emit: Arc<dyn Fn(brn_ai::conversion::ConversionProgress) + Send + Sync> =
+                Arc::new(|progress| contract::emit_err(&format!("{}\n", progress.label())));
+            #[cfg(all(test, feature = "scripted-document-tests"))]
+            let result = match document_transport {
+                Some(http) => {
+                    brn_ai::document_refine::convert_document_job_with_http(
+                        conversion_job,
+                        cancel,
+                        flag,
+                        emit,
+                        http,
+                    )
+                    .await
+                }
+                None => {
+                    brn_ai::document_refine::convert_document_job(
+                        conversion_job,
+                        cancel,
+                        flag,
+                        emit,
+                    )
+                    .await
+                }
+            };
+            #[cfg(not(all(test, feature = "scripted-document-tests")))]
+            let result =
+                brn_ai::document_refine::convert_document_job(conversion_job, cancel, flag, emit)
+                    .await;
             watcher.abort();
             let converted = result?;
             if CANCEL.load(Ordering::SeqCst) {
@@ -1559,18 +1614,26 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                 } else {
                     inv.arg("thread")?
                 };
-                let value = applied(workspace.attach_full(
+                let value = applied(workspace.import_full_scoped_with_conversion(
                     &inv.host_key("cli-attach"),
-                    scope,
                     title,
                     &converted,
+                    Some(scope),
+                    &captured,
                 )?);
                 contract::fill_conflicts(&workspace, inv, &value, notes);
                 return Ok(value);
             }
             if intent == ImportIntent::FullNote {
-                applied(workspace.import_full(&inv.host_key("cli-import"), title, &converted)?)
+                applied(workspace.import_full_scoped_with_conversion(
+                    &inv.host_key("cli-import"),
+                    title,
+                    &converted,
+                    None,
+                    &captured,
+                )?)
             } else {
+                let report = brn_threads_app::import_report_with_conversion(&converted, &captured)?;
                 // A retry or re-supply reuses the chat holding the earlier outcome.
                 // While a Run there is still live, it gets a new chat instead:
                 // `reused_chat` false and the new `thread`. `reused_chat` is null
@@ -1585,7 +1648,6 @@ async fn execute(inv: &Invocation, notes: &mut Annotations) -> Result<Value> {
                     )?;
                     (chat.id, Some(reused))
                 };
-                let report = brn_threads_app::import_report(&converted);
                 let source = brn_ai::threads::TransientSource {
                     fingerprint: Some(brn_intake::hex(&converted.source_sha256)),
                     report: Some(report),
@@ -1798,6 +1860,178 @@ mod cw2_run_tests {
             assert_eq!(actual.code.as_str(), expected.code.as_str());
             assert_eq!(actual.message, expected.message);
             assert_eq!(actual.details, expected.details);
+        }
+    }
+}
+
+// This module is an in-process CLI-route witness, never a subprocess/live proof.
+#[cfg(all(test, feature = "scripted-document-tests"))]
+mod document_route_tests {
+    use super::*;
+    use brn_ai::document_refine::{
+        DocumentHttpClient, DocumentMockHttpResponse, DocumentSequencedHttpClient,
+    };
+    use std::os::unix::fs::PermissionsExt;
+
+    fn completed(markdown: &str, hash: [u8; 32]) -> DocumentSequencedHttpClient {
+        let text=json!({"schema":1,"source_sha256":hash,"markdown":markdown,"uncertainty":"Synthetic check"}).to_string();
+        let response = json!({"type":"response.completed","sequence_number":1,"response":{"id":"synthetic-response","object":"response","created_at":1,"status":"completed","model":"gpt-6-luna","output":[{"type":"message","id":"synthetic-message","status":"completed","role":"assistant","content":[{"type":"output_text","annotations":[],"text":text}]}],"tools":[],"usage":{"input_tokens":23,"output_tokens":17,"total_tokens":40}}});
+        DocumentSequencedHttpClient::new([DocumentMockHttpResponse::success_typed(
+            format!("data: {response}\n\ndata: [DONE]\n\n"),
+            "text/event-stream",
+        )])
+    }
+    fn invocation(data: &Path, source: &Path, key: &str) -> Invocation {
+        parse(
+            [
+                "--json",
+                "--data-dir",
+                data.to_str().unwrap(),
+                "intake",
+                "--source",
+                source.to_str().unwrap(),
+                "--intent",
+                "full",
+                "--key",
+                key,
+            ]
+            .into_iter()
+            .map(OsString::from),
+        )
+        .unwrap_or_else(|_| panic!("valid authored command"))
+        .unwrap()
+    }
+    #[tokio::test]
+    async fn documents_cli_route_ai_on_both_engines_saves_snapshot_and_mismatch_never_dispatches() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let data = root.path().join("data");
+        let mut workspace =
+            Workspace::create_without_default_credentials(&data, WorkspacePurpose::Test).unwrap();
+        let auth = root.path().join("synthetic-auth.json");
+        std::fs::write(&auth,r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-not-a-credential","account_id":"synthetic"}}"#).unwrap();
+        std::fs::set_permissions(&auth, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let mut settings = workspace.settings().unwrap();
+        settings.auth_file = Some(auth.to_str().unwrap().into());
+        workspace.configure(settings).unwrap();
+        let source = root.path().join("source.txt");
+        let bytes = b"Original engine input\r\n";
+        std::fs::write(&source, bytes).unwrap();
+        for (converter, key) in [
+            (DocumentConverter::Xberg, "stock"),
+            (DocumentConverter::XbergBrn, "brn"),
+        ] {
+            workspace
+                .choose_document_conversion(DocumentConversionSettings {
+                    converter,
+                    ai: true,
+                })
+                .unwrap();
+            let helpers = DocumentHelpers::discover().unwrap();
+            let expected = Converter {
+                helper_path: helpers.stock.clone(),
+                pdf_tools: None,
+                temp_root: root.path().join("selected-output-control"),
+                limits: import_limits(DocumentKind::Text),
+            }
+            .convert_document(
+                ConversionRequest {
+                    kind: DocumentKind::Text,
+                    intent: ImportIntent::FullNote,
+                    bytes,
+                    source_reference: source.to_str().unwrap(),
+                    inventory: None,
+                },
+                &helpers,
+                if converter == DocumentConverter::Xberg {
+                    "xberg"
+                } else {
+                    "xberg_brn"
+                },
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            let http = completed("# Synthetic refined output\n", brn_intake::digest(bytes));
+            let inv = invocation(&data, &source, key);
+            execute_document_transport(
+                &inv,
+                &mut Annotations::default(),
+                Some(DocumentHttpClient::new(http.clone())),
+            )
+            .await
+            .unwrap();
+            assert_eq!(http.requests().len(), 1);
+            // Capture only body, never headers or credential bytes.
+            let body: Value = serde_json::from_slice(&http.requests()[0].body).unwrap();
+            assert_eq!(body["model"], "gpt-6-luna");
+            assert_eq!(body["reasoning"], json!({"effort":"high"}));
+            let prompt = body["input"][0]["content"][0]["text"].as_str().unwrap();
+            assert!(prompt.contains(&serde_json::to_string(&expected.markdown).unwrap()));
+            if let Some(path) = std::env::var_os("BRN_TASK3_CAPTURES") {
+                let path = PathBuf::from(path);
+                std::fs::create_dir_all(&path).unwrap();
+                std::fs::write(
+                    path.join(format!("on-{key}.json")),
+                    serde_json::to_vec_pretty(&json!({"selected":expected,"request_body":body}))
+                        .unwrap(),
+                )
+                .unwrap();
+            }
+            let records = workspace.records().unwrap();
+            let note = records
+                .iter()
+                .filter_map(|r| match &r.data {
+                    RecordData::Note(n)
+                        if n.import
+                            .as_ref()
+                            .and_then(|i| i.report.as_ref())
+                            .and_then(|r| r.conversion.as_ref())
+                            .is_some_and(|p| p.settings.converter == converter) =>
+                    {
+                        Some(n)
+                    }
+                    _ => None,
+                })
+                .next()
+                .unwrap();
+            assert!(note.protected);
+            assert_eq!(note.markdown, "# Synthetic refined output\n");
+            assert_eq!(
+                note.import
+                    .as_ref()
+                    .unwrap()
+                    .report
+                    .as_ref()
+                    .unwrap()
+                    .conversion
+                    .as_ref()
+                    .unwrap()
+                    .settings,
+                DocumentConversionSettings {
+                    converter,
+                    ai: true
+                }
+            );
+            let other = if converter == DocumentConverter::Xberg {
+                DocumentConverter::XbergBrn
+            } else {
+                DocumentConverter::Xberg
+            };
+            workspace
+                .choose_document_conversion(DocumentConversionSettings {
+                    converter: other,
+                    ai: true,
+                })
+                .unwrap();
+            let refused = DocumentSequencedHttpClient::new([]);
+            let error = execute_document_transport(
+                &inv,
+                &mut Annotations::default(),
+                Some(DocumentHttpClient::new(refused.clone())),
+            )
+            .await
+            .unwrap_err();
+            assert_eq!(error.code.as_str(), "key_conflict");
+            assert!(refused.requests().is_empty());
         }
     }
 }

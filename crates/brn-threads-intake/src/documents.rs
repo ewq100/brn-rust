@@ -8,6 +8,28 @@ pub struct DocumentHelpers {
     pub brn: PathBuf,
 }
 
+impl DocumentHelpers {
+    /// Trusted installation/development paths only. Existence and executable
+    /// checks remain on the selected path in the existing process boundary.
+    pub fn discover() -> Result<Self, ConversionError> {
+        let executable = std::env::current_exe().map_err(|_| ConversionError::Unavailable)?;
+        let resolve = |variable: &str, name: &str| {
+            let path = std::env::var_os(variable)
+                .map(PathBuf::from)
+                .unwrap_or_else(|| executable.with_file_name(name));
+            if path.is_absolute() {
+                Ok(path)
+            } else {
+                Err(ConversionError::Unavailable)
+            }
+        };
+        Ok(Self {
+            stock: resolve("BRN_XBERG_HELPER", "brn-xberg-helper")?,
+            brn: resolve("BRN_XBERG_HELPER_BRN", "brn-xberg-helper-brn")?,
+        })
+    }
+}
+
 /// Validated engine plus a fixed host-owned refinement label, never a model label.
 pub fn document_conversion_label(backend: &str, ai: bool) -> Result<String, ConversionError> {
     Ok(format!(

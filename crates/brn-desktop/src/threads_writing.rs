@@ -1856,11 +1856,7 @@ impl ThreadsUi {
             let (summary, details, checked) = if let Some(report) = &coverage.report {
                 (
                     report.summary(),
-                    report
-                        .issues
-                        .iter()
-                        .map(ImportIssue::display)
-                        .collect::<Vec<_>>(),
+                    documents::report_details(report),
                     report.status == ImportStatus::Complete
                         && report.issues.iter().all(|issue| {
                             !matches!(

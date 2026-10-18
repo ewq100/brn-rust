@@ -674,9 +674,9 @@ impl ThreadsUi {
                         .import
                         .as_ref()
                         .and_then(|i| i.report.as_ref())
-                        .map(ImportReport::summary)
-                        .unwrap_or("Coverage unchecked"),
-                    _ => "",
+                        .map(documents::report_summary)
+                        .unwrap_or_else(|| "Coverage unchecked".into()),
+                    _ => String::new(),
                 };
                 panel = panel.child(
                     div()
@@ -695,7 +695,7 @@ impl ThreadsUi {
                                 .items_center()
                                 .gap_2()
                                 .child(
-                                    metadata(coverage)
+                                    metadata(coverage.clone())
                                         .flex_shrink_0()
                                         .id(format!("attachment-coverage-{}", r.id))
                                         .aria_label(coverage)

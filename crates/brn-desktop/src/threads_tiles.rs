@@ -1894,6 +1894,7 @@ impl ThreadsUi {
             SettingsSection::General => self.general_settings(cx),
             SettingsSection::Models => self.models_settings(cx),
             SettingsSection::Delegation => self.working_knowledge(cx),
+            SettingsSection::Documents => self.documents_settings(cx),
             SettingsSection::Data => self.data_settings(cx),
             SettingsSection::Skills => self.skills_settings(cx),
             SettingsSection::Mcp => self.mcp_settings(cx),

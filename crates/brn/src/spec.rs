@@ -431,6 +431,12 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
             message: "Choose useful, full, or chat with --thread",
         },
     ),
+    (
+        "document-conversion",
+        "converter",
+        Grammar::Enum(&["xberg", "xberg-brn"]),
+    ),
+    ("document-conversion", "ai", Grammar::Enum(&["off", "on"])),
     ("configure", "provider", PROVIDER),
     ("configure", "helper-provider", PROVIDER),
     ("configure", "effort", EFFORT),
@@ -872,6 +878,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
         Some(Replay),
         ReceiptAt::Arm,
         RECEIPT_OUTCOMES,
+    ),
+    setting(
+        "document-conversion",
+        &["converter", "ai"],
+        &["converter", "ai"],
     ),
     setting("delegation", &["choice"], &["choice"]),
     Spec {
@@ -1455,6 +1466,7 @@ mod tests {
             ("backup", &["destination"]),
             ("note-create", &["title", "text"]),
             ("thread-start", &["title"]),
+            ("document-conversion", &["converter", "ai"]),
             ("delegation", &["choice"]),
             ("read", &["id"]),
             ("skill-inspect", &["name"]),
@@ -1521,6 +1533,7 @@ mod tests {
             "dismiss",
             "undo",
             "configure",
+            "document-conversion",
             "delegation",
             "pause",
             "resume",
@@ -1591,9 +1604,21 @@ mod tests {
         assert!(INTAKE_OUTCOMES.contains(&"Deferred"));
         for spec in COMMANDS {
             let expected: &[&str] = match spec.name {
-                "apply" | "keep-in-brn" | "delegation" | "configure" | "pause" | "resume"
-                | "topics-choose" | "undo" | "topics-create" | "skill-enable" | "skill-disable"
-                | "skill-select" | "skill-clear" | "mcp-configure" => APPLY_OUTCOMES,
+                "apply"
+                | "keep-in-brn"
+                | "document-conversion"
+                | "delegation"
+                | "configure"
+                | "pause"
+                | "resume"
+                | "topics-choose"
+                | "undo"
+                | "topics-create"
+                | "skill-enable"
+                | "skill-disable"
+                | "skill-select"
+                | "skill-clear"
+                | "mcp-configure" => APPLY_OUTCOMES,
                 "intake" => INTAKE_OUTCOMES,
                 "save" => SAVE_OUTCOMES,
                 "update-buffer" => BUFFER_OUTCOMES,

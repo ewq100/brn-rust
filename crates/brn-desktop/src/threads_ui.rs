@@ -1,6 +1,8 @@
 //! Final-use native Threads workspace. All durable changes use the shared service.
 use brn_threads_app::*;
-use brn_threads_intake::{ConversionResult, Converter, DocumentKind, ImportIntent, PdfTools};
+use brn_threads_intake::{
+    ConversionResult, Converter, DocumentHelpers, DocumentKind, ImportIntent,
+};
 use gpui_kit::base::input::{
     RangeDecoration, RangeDecorationCollection, RangeDecorationStyle, TextDecoration,
     TextDecorationCollection,
@@ -49,6 +51,11 @@ mod context_actions;
 mod diff;
 #[path = "threads_document.rs"]
 mod document;
+#[path = "threads_documents.rs"]
+mod documents;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_documents_tests.rs"]
+mod documents_tests;
 #[path = "threads_format.rs"]
 mod formatting;
 #[path = "threads_layout.rs"]
@@ -199,15 +206,17 @@ enum SettingsSection {
     General,
     Models,
     Delegation,
+    Documents,
     Data,
     Skills,
     Mcp,
 }
 impl SettingsSection {
-    const ALL: [Self; 6] = [
+    const ALL: [Self; 7] = [
         Self::General,
         Self::Models,
         Self::Delegation,
+        Self::Documents,
         Self::Data,
         Self::Skills,
         Self::Mcp,
@@ -217,6 +226,7 @@ impl SettingsSection {
             Self::General => "general",
             Self::Models => "models",
             Self::Delegation => "delegation",
+            Self::Documents => "documents",
             Self::Data => "data",
             Self::Skills => "skills",
             Self::Mcp => "mcp",
@@ -227,6 +237,7 @@ impl SettingsSection {
             Self::General => "General",
             Self::Models => "Models",
             Self::Delegation => "Delegation",
+            Self::Documents => "Documents",
             Self::Data => "Data",
             Self::Skills => "Skills",
             Self::Mcp => "MCP",
@@ -273,6 +284,8 @@ enum WorkerEvent {
         result: Box<Result<ConversionResult, String>>,
         title: String,
         chat: Option<String>,
+        settings: DocumentConversionSettings,
+        useful_project: Option<String>,
     },
 }
 struct Worker {
@@ -3311,6 +3324,8 @@ impl ThreadsUi {
                     result,
                     title,
                     chat,
+                    settings,
+                    useful_project,
                 } => {
                     let cancelled = self.worker.as_ref().is_some_and(|worker| {
                         worker.cancel.is_cancelled()
@@ -3329,20 +3344,22 @@ impl ThreadsUi {
                     match result {
                         Ok(converted) => {
                             if converted.intent == ImportIntent::FullNote {
-                                match if let Some(chat) = &chat {
-                                    self.workspace.attach_full(
-                                        &format!("attach:{}", uuid::Uuid::new_v4()),
-                                        chat,
-                                        &title,
-                                        &converted,
-                                    )
-                                } else {
-                                    self.workspace.import_full(
-                                        &format!("full-import:{}", uuid::Uuid::new_v4()),
-                                        &title,
-                                        &converted,
-                                    )
-                                } {
+                                let key = format!(
+                                    "{}:{}",
+                                    if chat.is_some() {
+                                        "attach"
+                                    } else {
+                                        "full-import"
+                                    },
+                                    uuid::Uuid::new_v4()
+                                );
+                                match self.workspace.import_full_scoped_with_conversion(
+                                    &key,
+                                    &title,
+                                    &converted,
+                                    chat.as_deref(),
+                                    &settings,
+                                ) {
                                     Ok(outcome) => {
                                         allow_dispatch =
                                             matches!(outcome, ApplyOutcome::Applied(_));
@@ -3367,7 +3384,14 @@ impl ThreadsUi {
                                     Err(e) => self.fail(e.to_string()),
                                 }
                             } else {
-                                self.useful_intake(converted, title, window, cx);
+                                self.useful_intake(
+                                    converted,
+                                    title,
+                                    settings,
+                                    useful_project,
+                                    window,
+                                    cx,
+                                );
                             }
                         }
                         // The owner's own Stop is a warning; any other failure is an error.
@@ -3417,17 +3441,21 @@ impl ThreadsUi {
         &mut self,
         converted: ConversionResult,
         title: String,
+        settings: DocumentConversionSettings,
+        project: Option<String>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let report = brn_threads_app::import_report(&converted);
+        let report = match brn_threads_app::import_report_with_conversion(&converted, &settings) {
+            Ok(report) => report,
+            Err(error) => {
+                self.fail(error.to_string());
+                return;
+            }
+        };
         let fingerprint = brn_intake::hex(&converted.source_sha256);
-        // Re-supply lands in the chat that already received this source, in
-        // the open chat's project (general otherwise), unless work there is live.
-        let project = self
-            .chat_thread()
-            .and_then(|chat| brn_threads_app::project_for_chat(&self.records, chat))
-            .map(|project| project.id.clone());
+        // Re-supply uses the request's captured Project, never completion-time navigation.
+        // The checked service refuses an unavailable Project without choosing another scope.
         match self
             .workspace
             .source_intake_chat(
@@ -3556,8 +3584,32 @@ impl ThreadsUi {
         let conversion_cancel = cancel_flag.clone();
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
-        let auth_file = self.settings.auth_file.as_ref().map(PathBuf::from);
-        let credentials_dir = self.settings.credentials_dir.as_ref().map(PathBuf::from);
+        let canonical = match self.workspace.settings() {
+            Ok(settings) => settings,
+            Err(error) => {
+                self.fail(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
+        let useful_project = if intent == ImportIntent::UsefulInformation {
+            let rows = match self.workspace.records() {
+                Ok(rows) => rows,
+                Err(error) => {
+                    self.fail(error.to_string());
+                    cx.notify();
+                    return;
+                }
+            };
+            self.chat_thread()
+                .and_then(|chat| project_for_chat(&rows, chat))
+                .map(|project| project.id.clone())
+        } else {
+            None
+        };
+        let captured = canonical.document_conversion.clone();
+        let auth_file = canonical.auth_file.map(PathBuf::from);
+        let credentials_dir = canonical.credentials_dir.map(PathBuf::from);
         let (sender, receiver) = mpsc::sync_channel(8);
         let progress_sender = sender.clone();
         std::thread::spawn(move || {
@@ -3569,12 +3621,10 @@ impl ThreadsUi {
                     &conversion_cancel,
                 )
                 .map_err(|e| e.to_string())?;
-                let helper = std::env::current_exe()
-                    .map_err(|e| e.to_string())?
-                    .with_file_name("brn-intake-helper");
+                let helpers = DocumentHelpers::discover().map_err(|e| e.to_string())?;
                 let converter = Converter {
-                    helper_path: helper,
-                    pdf_tools: PdfTools::discover(),
+                    helper_path: helpers.stock.clone(),
+                    pdf_tools: None,
                     temp_root: std::env::temp_dir().join("brn-threads-intake"),
                     limits,
                 };
@@ -3583,14 +3633,15 @@ impl ThreadsUi {
                     .build()
                     .map_err(|e| e.to_string())?;
                 runtime
-                    .block_on(brn_ai::conversion::convert(
-                        brn_ai::conversion::ConversionJob {
+                    .block_on(brn_ai::document_refine::convert_document_job(
+                        brn_ai::document_refine::DocumentConversionJob {
                             converter,
+                            helpers,
+                            settings: captured.clone(),
                             kind,
                             intent,
                             bytes,
                             source_reference: reference,
-                            inventory: None,
                             auth_file,
                             credentials_dir,
                         },
@@ -3607,6 +3658,8 @@ impl ThreadsUi {
                 result: Box::new(result),
                 title,
                 chat: attachment_chat,
+                settings: captured,
+                useful_project,
             });
         });
         self.worker = Some(Worker {

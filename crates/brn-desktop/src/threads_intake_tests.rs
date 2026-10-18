@@ -67,7 +67,7 @@ fn email(reference: &str) -> ConversionResult {
         assets: vec![],
         source_sha256: [7; 32],
         source_reference: reference.into(),
-        converter: "synthetic".into(),
+        converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
         sources: vec![],
         coverage: brn_threads_intake::Coverage {
             status: brn_threads_intake::CoverageStatus::Unchecked,
@@ -95,7 +95,18 @@ fn update<T>(
 /// finish and returns the chat it ran in.
 fn supply(cx: &mut TestAppContext, f: &Fixture, reference: &str) -> String {
     let chat = update(cx, f, |ui, window, cx| {
-        ui.useful_intake(email(reference), "mari-email".into(), window, cx);
+        let project = ui
+            .chat_thread()
+            .and_then(|chat| project_for_chat(&ui.records, chat))
+            .map(|project| project.id.clone());
+        ui.useful_intake(
+            email(reference),
+            "mari-email".into(),
+            DocumentConversionSettings::default(),
+            project,
+            window,
+            cx,
+        );
         assert!(ui.worker.is_some(), "{}", ui.notice);
         ui.chat_thread().unwrap().to_owned()
     });

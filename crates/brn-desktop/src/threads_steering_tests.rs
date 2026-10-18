@@ -692,7 +692,7 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
                 assets: vec![],
                 source_sha256: [0; 32],
                 source_reference: "/missing/file.md".into(),
-                converter: "synthetic".into(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
                 sources: vec![],
                 coverage: brn_threads_intake::Coverage {
                     status: brn_threads_intake::CoverageStatus::Unchecked,
@@ -705,6 +705,8 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
                     result: Box::new(Ok(converted)),
                     title: "Attachment".into(),
                     chat: Some(f.thread.clone()),
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
                 })
                 .unwrap();
             ui.poll_worker(window, cx);
@@ -739,7 +741,7 @@ fn long_queue_and_attachment_labels_keep_controls_inside_the_chat_tile(cx: &mut 
                 assets: vec![],
                 source_sha256: [0; 32],
                 source_reference: "/missing/long-name.md".into(),
-                converter: "synthetic".into(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
                 sources: vec![],
                 coverage: brn_threads_intake::Coverage {
                     status: brn_threads_intake::CoverageStatus::Unchecked,

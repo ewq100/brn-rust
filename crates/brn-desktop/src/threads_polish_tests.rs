@@ -552,6 +552,7 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
                 full_note: false,
                 gaps: vec![],
                 report: Some(ImportReport {
+                    conversion: None,
                     status,
                     issues: issues.clone(),
                 }),

@@ -78,7 +78,8 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
                         assets: vec![],
                         source_sha256: [1; 32],
                         source_reference: "synthetic/queued.pdf".into(),
-                        converter: "synthetic".into(),
+                        converter: brn_threads_intake::document_conversion_label("xberg", false)
+                            .unwrap(),
                         sources: vec![],
                         coverage: brn_threads_intake::Coverage {
                             status: brn_threads_intake::CoverageStatus::Partial,
@@ -88,6 +89,8 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
                     })),
                     title: "Stopped import".into(),
                     chat: None,
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
                 })
                 .unwrap();
             view.cancel(cx);
@@ -505,6 +508,7 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
             .unwrap();
         let source_id = operation.creation_id(0);
         let report = ImportReport {
+            conversion: None,
             status: ImportStatus::Partial,
             issues: (0..6)
                 .map(|index| ImportIssue {

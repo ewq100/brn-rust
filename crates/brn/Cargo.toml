@@ -5,6 +5,8 @@ edition = "2021"
 publish = false
 
 [features]
+# Offline in-process document route qualification only; no host endpoint override.
+scripted-document-tests = ["brn-ai/scripted-runs"]
 native-retrieval = ["brn-threads-app/native-retrieval"]
 
 [dependencies]

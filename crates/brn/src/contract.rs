@@ -275,7 +275,7 @@ impl Code {
             Code::SessionTokenInvalid => "The --token-file token cannot write to this edit session (details.reason: mismatch when another token holds it; desktop when only the owner, in the BRN desktop app, can continue or close it). Nothing was written. Report a desktop-held edit to the owner.",
             Code::TestWorkspaceRequired => "reclaim-edit runs only in a test workspace, created with init --purpose test (details.workspace_purpose is owner). Nothing was written. Report the open edit to the owner, who recovers it in the BRN desktop app.",
             Code::UpgradeRequired => "The workspace has an older BRN schema (details.schema_found, details.schema_required). The CLI never upgrades implicitly, and nothing in the folder was changed, reads included. On the owner's instruction run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first.",
-            Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
+            Code::CredentialsNotConfigured => "Machine mode: ask, useful intake, or AI-On document conversion on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
             Code::MissingWorkspace => "Machine mode: a read command named a --data-dir that does not exist or is an empty folder. Nothing was created. Check the path, or run init deliberately.",
             Code::DataFolderUnusable => "The data folder cannot be used (details.problem: read_only, permission_denied, not_a_directory, symlink_refused or missing_parent). A symlinked data folder is symlink_refused.",
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
@@ -1240,6 +1240,7 @@ mod tests {
             for command in [
                 "apply",
                 "keep-in-brn",
+                "document-conversion",
                 "delegation",
                 "configure",
                 "pause",

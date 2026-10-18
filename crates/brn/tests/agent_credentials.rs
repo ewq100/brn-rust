@@ -56,6 +56,11 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
     // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     ok(&root, &data, &["init"]);
+    ok(
+        &root,
+        &data,
+        &["document-conversion", "--converter", "xberg", "--ai", "on"],
+    );
     let before = history_total(&root, &data);
     let html = root.file("doc.html", b"<html><body><h1>Doc</h1></body></html>");
     let markdown = root.file("doc.md", b"# Doc\n\nBody.\n");
@@ -75,7 +80,12 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
     }
     assert_eq!(history_total(&root, &data), before);
     assert_eq!(ok(&root, &data, &["threads"]), json!([]));
-    // Markdown needs no provider: a full import still works.
+    ok(
+        &root,
+        &data,
+        &["document-conversion", "--converter", "xberg", "--ai", "off"],
+    );
+    // AI Off needs no conversion provider: a full import still works.
     let full = call(
         &root,
         &data,

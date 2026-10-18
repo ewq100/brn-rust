@@ -47,6 +47,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("model-install", "Download the pinned embedding model (native builds).", "brn --json --data-dir DIR model-install --destination /abs/fresh-model-dir"),
     ("note-create", "Create a note.", "brn --json --data-dir DIR note-create --title Plan --text-file /abs/plan.md --key plan-1"),
     ("thread-start", "Start a chat.", "brn --json --data-dir DIR thread-start --title Handoff --key chat-1"),
+    ("document-conversion", "Choose stock Xberg or Xberg + BRN layer and independent AI conversion. Defaults: xberg/off; affects later imports only.", "brn --json --data-dir DIR document-conversion --converter xberg --ai off"),
     ("delegation", "Choose how maintenance runs: maintain or review-first.", "brn --json --data-dir DIR delegation --choice review-first"),
     ("read", "Print one record, or a bounded slice of a note with --limit.", "brn --json --data-dir DIR read --id N --limit 65536"),
     ("revisions", "List a note's accepted revisions.", "brn --json --data-dir DIR revisions --note N --limit 10"),
@@ -79,7 +80,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
 
 /// Longer notes for commands whose retries or recovery need explaining.
 pub(crate) static NOTES: &[(&str, &str)] = &[
-    ("intake", "A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. --thread names a chat; naming a project there attaches the document to that project, which is an owner decision (use --intent project --project ID)."),
+    ("intake", "A keyed full/chat/project intake replays when bytes, path, scope, title and captured converter/AI/bundle match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. --thread names a chat; naming a project there attaches the document to that project, which is an owner decision (use --intent project --project ID)."),
     ("messages", "Lists the chat's messages that are not archived, in creation order, also when the chat is archived (chat_archived says so). Partial replies appear as recorded (role assistant-partial). search's message lane differs: it leaves out Trashed chats and partial replies."),
     ("save", "Stale save (exit 3), only for a session your own begin-edit returned: 1. keep result.session.markdown; 2. discard --session <result.session.id> --generation <result.session.generation> --token-file OLD.token; 3. begin-edit --note N --base <conflict[0].version> --token-out NEW.token; 4. reapply your edit; 5. update-buffer --session NEW --generation 1 --text-file merged.md --token-file NEW.token; 6. save --session NEW --generation 1 --token-file NEW.token."),
     ("begin-edit", "holder caller means a CLI caller holds the token; holder desktop means only the owner, in the BRN desktop app, can continue or close it. A retried begin-edit on a note whose session you opened gets edit_session_open with holder caller: in a test workspace run reclaim-edit; otherwise report the note to the owner."),
