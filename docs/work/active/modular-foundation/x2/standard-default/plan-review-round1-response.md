@@ -2,7 +2,7 @@
 
 18 October 2026. Plan review only; no implementation or build claim.
 
-The [complete round1 report](plan-review-round1.md) returned CHANGES_REQUIRED on one blocker. The principal revised the [complete plan](implementation-plan.md); product choices in the [brief](feature-brief.md) are unchanged.
+The [complete round1 report](plan-review-round1.txt) returned CHANGES_REQUIRED on one blocker. The principal revised the [complete plan](implementation-plan.md); product choices in the [brief](feature-brief.md) are unchanged.
 
 ## Blocking finding: useful-information provenance
 
@@ -17,3 +17,5 @@ Accepted as explicit replay fixtures. Source-only already-imported receipts and 
 ## Re-review scope and remaining gates
 
 Request one fresh independent round2 to inspect this correction and its affected interfaces/tests, with the original brief and full plan. The T3 per-round delegation rule overrides the generic skill's persistent-reviewer instruction. The principal owns every plan revision. Actual helper builds, schema and provenance implementation, UI/CLI, distribution, verification and actual-diff review remain pending. No paid activation or custom parser work is added.
+
+The raw report is stored as text without changing reviewer bytes. Its absolute editor links include line suffixes that the Markdown checker treats as filenames; the initial Markdown presentation produced three link-check failures, retained in the task history. The text form preserves the full report and the response links to that artifact.
