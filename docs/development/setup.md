@@ -1,5 +1,7 @@
 # Development setup
 
+**Selected conversion change, 18 October 2026:** the owner confirmed [stock Xberg default, optional BRN layer and independent AI conversion defaulting Off](../work/active/modular-foundation/x2/standard-default/feature-brief.md). Implementation is pending; the commands and always-Luna description below still describe the current code. No new provider qualification is activated.
+
 Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the active plan linked there. Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
 
 ## Check the machine

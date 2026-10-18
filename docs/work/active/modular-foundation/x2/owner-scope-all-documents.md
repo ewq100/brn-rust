@@ -1,4 +1,7 @@
 # Owner X scope amendment — all documents
+
+**Latest scope, 18 October 2026:** the owner reduced the work to [two converter settings and an independent AI switch](standard-default/feature-brief.md). Stock pinned Xberg is the default; Xberg + BRN adaptations is optional; AI conversion works with either and defaults Off. No comparison screen or old-reader third mode is required. This supersedes finishing every custom fidelity/resource component before offering the standard converter. Library differences remain honest limitations; shared checked-save, protection, scope, cancellation and provenance remain required. Custom encrypted-PDF/refusal work stays stopped; no password implementation or screened-task retry is assigned. Existing patches/evidence are preserved, not automatically accepted or applied to stock mode.
+
 17 October 2026. Latest owner instruction:
 > Xberg should be for all doc's not olny for pdf
 
