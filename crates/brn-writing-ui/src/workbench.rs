@@ -273,7 +273,7 @@ impl<T: 'static> WritingView<'_, T> {
     /// The writing bar's first matching row for the open note.
     pub fn writing_bar_row(&self) -> Option<WritingRow> {
         let open = self.note.as_ref()?;
-        let note = open.record.id.as_str();
+        let note = open.record().id.as_str();
         let proposal = self
             .candidates
             .iter()
@@ -288,11 +288,11 @@ impl<T: 'static> WritingView<'_, T> {
             });
         // A kept edit blocks the note (it holds no open edit then): the
         // banner's Recover edit owns the primary.
-        if open.session.is_none() && self.recovery_blocked() {
+        if open.session().is_none() && self.recovery_blocked() {
             return Some(WritingRow::Recover);
         }
         Some(writing_row(
-            open.session.is_some(),
+            open.session().is_some(),
             self.edit_is_stale(),
             proposal,
             applied,
@@ -303,7 +303,7 @@ impl<T: 'static> WritingView<'_, T> {
     pub fn edit_is_stale(&self) -> bool {
         self.note
             .as_ref()
-            .and_then(|open| open.session.as_ref())
+            .and_then(|open| open.session())
             .is_some_and(|session| {
                 self.records
                     .iter()

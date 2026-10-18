@@ -13,7 +13,7 @@ impl ThreadsUi {
     /// Why Edit note is unavailable, in the words its disabled control shows;
     /// `None` when the open saved note may be edited.
     pub(super) fn edit_note_blocked(&self) -> Option<&'static str> {
-        let Some(open) = &self.writing.note else {
+        let Some(open) = self.writing.note.as_ref() else {
             return Some("no note is open");
         };
         // Saved queue work also blocks it; the reason says which (R2), as
@@ -30,18 +30,18 @@ impl ThreadsUi {
             Some("finish the review first")
         } else if self.recovery_blocked() {
             Some("recover the kept edit first")
-        } else if open.session.is_some() {
+        } else if open.session().is_some() {
             Some("save or discard your edit first")
-        } else if open.record.archived {
+        } else if open.record().archived {
             Some("this note is archived")
         } else if self
             .workspace
             .store
-            .record(&open.record.id)
+            .record(&open.record().id)
             .ok()
             .flatten()
             .as_ref()
-            != Some(&open.record)
+            != Some(open.record())
         {
             Some("open the current version first")
         } else {
@@ -57,7 +57,7 @@ impl ThreadsUi {
                 .writing
                 .note
                 .as_ref()
-                .is_none_or(|open| &open.record != note)
+                .is_none_or(|open| open.record() != note)
         {
             return Err(AppError::Invalid(
                 "Save or reload the note and finish queued work before editing it with BRN.".into(),
@@ -72,7 +72,7 @@ impl ThreadsUi {
         if !self.can_edit_note_context() {
             return;
         }
-        let note = self.writing.note.as_ref().unwrap().record.clone();
+        let note = self.writing.note.as_ref().unwrap().record().clone();
         let instruction = cx.new(|cx| {
             components::prose_editor_state(window, cx)
                 .placeholder("What should change in this note?")
@@ -203,8 +203,8 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let unchanged_editor = self.note_editor_visible() && self.writing.note.as_ref().is_some_and(|open| {
-            open.record.id == note && open.record.version == version && open.session.is_none()
-                && matches!(&open.record.data, RecordData::Note(n) if self.writing.note_editor.read(cx).value().as_ref() == n.markdown)
+            open.record().id == note && open.record().version == version && open.session().is_none()
+                && matches!(&open.record().data, RecordData::Note(n) if self.writing.note_editor.read(cx).value().as_ref() == n.markdown)
         });
         if unchanged_editor
             && self

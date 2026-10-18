@@ -975,7 +975,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.read(|cx| {
         let view = view.read(cx);
         assert_eq!(view.open_note_id(), Some(derived_id.as_str()));
-        assert_eq!(view.writing.note.as_ref().unwrap().record.id, derived_id);
+        assert_eq!(view.writing.note.as_ref().unwrap().record().id, derived_id);
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             "Derived wording stays preserved"

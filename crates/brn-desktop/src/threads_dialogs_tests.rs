@@ -158,7 +158,7 @@ fn new_note_dialog_creates_on_enter_and_stays_open_without_a_title(cx: &mut Test
             view.writing
                 .note
                 .as_ref()
-                .is_some_and(|open| title(&open.record) == "Pilot proposal")
+                .is_some_and(|open| title(open.record()) == "Pilot proposal")
         );
         assert!(
             view.writing.note_editor.focus_handle(cx).is_focused(window),
@@ -449,7 +449,7 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
                 .note
                 .as_ref()
                 .unwrap()
-                .session
+                .session()
                 .is_some()
         );
     });

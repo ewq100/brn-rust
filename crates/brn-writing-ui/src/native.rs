@@ -20,6 +20,9 @@ use gpui_kit::component::input::InputState;
 #[path = "review.rs"]
 mod review;
 pub use review::ReviewLifecycle;
+#[path = "note.rs"]
+mod note;
+pub use note::{NoteDiscard, NoteLifecycle, OpenNote};
 
 gpui_kit::actions!(
     brn_threads,
@@ -32,10 +35,6 @@ pub struct CommentDraft {
     pub operation: Option<String>,
 }
 
-pub struct OpenNote {
-    pub record: Record,
-    pub session: Option<EditSession>,
-}
 pub struct Review {
     pub candidate: Prepared,
     pub note: Option<String>,
@@ -114,7 +113,6 @@ pub struct WritingPanel {
     pub reference_query: Entity<InputState>,
     pub note_editor: Entity<EditorState>,
     pub note_read_view: Entity<TextViewState>,
-    pub note_reading: bool,
     pub read_marks_key: String,
     pub read_source: String,
     pub comment_marks: Option<RangeDecorationCollection>,
@@ -123,10 +121,7 @@ pub struct WritingPanel {
     pub current_view: Entity<TextViewState>,
     pub candidate_view: Entity<TextViewState>,
     pub review_editor: Entity<EditorState>,
-    pub note: Option<OpenNote>,
-    /// Starting this view's edit found another open edit of the note: its
-    /// note and base version, from the typed `EditSessionOpen` (U4).
-    pub edit_open: Option<(String, u64)>,
+    pub note: NoteLifecycle,
     pub review: ReviewLifecycle,
     /// The comments margin beside the text (Wide, Narrow): `None` follows the
     /// note (shown with comments or a draft); the toggle sets it.
@@ -204,25 +199,28 @@ impl WritingPanel {
         })
     }
     pub(crate) fn note_asset_chat(&self) -> Option<&str> {
-        self.note.as_ref().and_then(|open| match &open.record.data {
-            RecordData::Note(note) => note.chat.as_deref(),
-            _ => None,
-        })
+        self.note
+            .as_ref()
+            .and_then(|open| match &open.record().data {
+                RecordData::Note(note) => note.chat.as_deref(),
+                _ => None,
+            })
     }
     pub fn open_note_id(&self) -> Option<&str> {
-        self.note.as_ref().map(|open| open.record.id.as_str())
+        self.note.as_ref().map(|open| open.record().id.as_str())
     }
     pub fn recovery_blocked(&self, buffers: &[EditSession]) -> bool {
         self.note.as_ref().is_some_and(|open| {
-            open.session.is_none() && buffers.iter().any(|s| s.note == open.record.id)
+            open.session().is_none() && buffers.iter().any(|s| s.note == open.record().id)
         })
     }
+    /// A real editor Change must reach the checked owner even if a newer
+    /// display batch has discovered another guard since the keystroke.
+    pub fn note_input_active(&self, note_visible: bool) -> bool {
+        self.review.is_none() && !self.note.is_reading() && self.note.is_some() && note_visible
+    }
     pub fn note_editor_visible(&self, buffers: &[EditSession], note_visible: bool) -> bool {
-        self.review.is_none()
-            && !self.note_reading
-            && self.note.is_some()
-            && note_visible
-            && !self.recovery_blocked(buffers)
+        self.note_input_active(note_visible) && !self.recovery_blocked(buffers)
     }
     pub fn toggle_comments(&mut self, open: bool) {
         if self.margin_mode == layout::MarginMode::Stacked {
@@ -279,7 +277,6 @@ impl WritingPanel {
             reference_query,
             note_editor,
             note_read_view,
-            note_reading: false,
             read_marks_key: String::new(),
             read_source: String::new(),
             comment_marks: None,
@@ -288,8 +285,7 @@ impl WritingPanel {
             current_view,
             candidate_view,
             review_editor,
-            note: None,
-            edit_open: None,
+            note: NoteLifecycle::default(),
             review: ReviewLifecycle::default(),
             margin: None,
             comments_expanded: false,

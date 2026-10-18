@@ -226,7 +226,7 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
                 view.writing.note_editor.read(cx).value().as_ref(),
                 "Human unsaved õun"
             );
-            assert!(view.writing.note.as_ref().unwrap().session.is_some());
+            assert!(view.writing.note.as_ref().unwrap().session().is_some());
             assert_eq!(view.writing.comment_anchor.as_ref().unwrap().2, 5..9);
             assert_eq!(
                 view.writing.comment_input.read(cx).value().as_ref(),
@@ -576,7 +576,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.keep_review(window, cx);
-            view.writing.note_reading = false;
+            view.set_note_reading(false, window, cx);
             view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_selected_range(0..0, cx);
                 editor.focus(window, cx);
@@ -593,7 +593,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     }
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let session = view.writing.note.as_ref().unwrap().session.as_ref().expect("real typing creates a recovery buffer");
+        let session = view.writing.note.as_ref().unwrap().session().expect("real typing creates a recovery buffer");
         assert!(session.generation >= "cachetyping".len() as u64);
         assert!(session.markdown.contains("cachetyping"));
         assert_eq!(session.markdown, view.writing.note_editor.read(cx).value().to_string());
@@ -605,7 +605,14 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     // unchanged exact-candidate/context/access assertions below.
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
+            let session = view
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session()
+                .cloned()
+                .unwrap();
             view.discard_session(session, window, cx);
             view.open_project_note(&project, &f.a.id, window, cx);
             view.open_review(candidate.clone(), window, cx);
@@ -1335,7 +1342,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             view.writing.note_editor
                 .update(cx, |editor, cx| editor.set_value("What I typed here", window, cx));
             view.preserve_visible_note_input(cx);
-            assert_eq!(view.writing.edit_open, Some((f.a.id.clone(), f.a.version)));
+            assert_eq!(view.writing.note.open_edit_elsewhere(), Some((f.a.id.as_str(), f.a.version)));
             assert_eq!(
                 view.notice,
                 format!(
@@ -1346,7 +1353,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             // Before: "Could not preserve this edit: this note already has
             // an open unsaved edit. …" and nothing to act on.
             assert!(!view.notice.contains("Could not preserve"));
-            assert!(view.writing.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
             cx.notify();
         })
     })
@@ -1413,8 +1420,15 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.writing.edit_open, None);
-        let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
+        assert_eq!(view.writing.note.open_edit_elsewhere(), None);
+        let session = view
+            .writing
+            .note
+            .as_ref()
+            .unwrap()
+            .session()
+            .cloned()
+            .unwrap();
         assert_ne!(session.id, elsewhere.id);
         assert_eq!(session.markdown, "What I typed here");
         assert!(

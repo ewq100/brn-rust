@@ -497,7 +497,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     // the draft and returns focus to the review text.
     update(cx, &f, |view, window, cx| {
         let start = TEXT.find("brown").unwrap();
-        let version = view.writing.note.as_ref().unwrap().record.version;
+        let version = view.writing.note.as_ref().unwrap().record().version;
         view.writing.comment_anchor =
             Some((f.note.id.clone(), version, start..start + 5, "brown".into()));
         view.writing.comment_input.update(cx, |editor, cx| {
@@ -1389,7 +1389,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.writing.note.as_ref().unwrap().session.is_none(),
+            view.writing.note.as_ref().unwrap().session().is_none(),
             "saved first"
         );
         assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "Added");
@@ -1422,7 +1422,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
             .note
             .as_ref()
             .unwrap()
-            .record
+            .record()
             .version
     });
     on_window(cx, &f, |window, _| {

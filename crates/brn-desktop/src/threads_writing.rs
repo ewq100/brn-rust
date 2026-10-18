@@ -59,7 +59,7 @@ impl ThreadsUi {
             .writing
             .note
             .as_ref()
-            .map(|open| (open.record.id.clone(), title(&open.record)));
+            .map(|open| (open.record().id.clone(), title(open.record())));
         let threads: Vec<(String, String)> = note
             .as_ref()
             .and_then(|(id, _)| self.workspace.writing_threads(id).ok())

@@ -1024,7 +1024,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                 .note
                 .as_ref()
                 .unwrap()
-                .session
+                .session()
                 .is_some()
         );
         assert!(window.try_find("undo-writing-apply").is_none());
@@ -1033,7 +1033,14 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
             Some("Retry saved rewrite, unavailable: Save your edit first")
         );
         f.view.update(cx, |view, cx| {
-            let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
+            let session = view
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session()
+                .cloned()
+                .unwrap();
             view.discard_session(session, window, cx)
         });
     })
@@ -1047,7 +1054,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                 .note
                 .as_ref()
                 .unwrap()
-                .session
+                .session()
                 .is_none()
         );
         assert!(window.find("undo-writing-apply").visible());

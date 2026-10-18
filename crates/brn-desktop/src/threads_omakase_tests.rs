@@ -740,7 +740,7 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
         view.focus_visible_editor(window, cx);
     });
     update(cx, &f, |view, _, cx| {
-        assert!(view.writing.note.as_ref().unwrap().session.is_some());
+        assert!(view.writing.note.as_ref().unwrap().session().is_some());
         view.writing
             .note_editor
             .update(cx, |editor, cx| editor.set_selected_range(0..4, cx));
@@ -779,7 +779,7 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.writing.note.as_ref().unwrap().session.is_none(),
+            view.writing.note.as_ref().unwrap().session().is_none(),
             "Save and comment saves before opening the composer"
         );
         let anchor = view
@@ -1072,7 +1072,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         let RecordData::Comment(data) = &entry.record.data else {
             panic!("comment")
         };
-        let version = view.writing.note.as_ref().unwrap().record.version;
+        let version = view.writing.note.as_ref().unwrap().record().version;
         (
             entry.record.id.clone(),
             state::unlocated_reason(data, version),
@@ -1622,7 +1622,7 @@ fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut Tes
             .note
             .as_ref()
             .unwrap()
-            .session
+            .session()
             .is_some()
     }));
     // Start from the workspace root, as after clicking empty space.
@@ -1647,8 +1647,8 @@ fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut Tes
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert!(open.session.is_none(), "the chosen item ran: {}", view.notice);
-        assert!(matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Saved from the keyboard"));
+        assert!(open.session().is_none(), "the chosen item ran: {}", view.notice);
+        assert!(matches!(&open.record().data, RecordData::Note(n) if n.markdown == "Saved from the keyboard"));
     });
 }
 
@@ -1830,9 +1830,9 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert!(open.session.is_none(), "clicking saves: {}", view.notice);
+        assert!(open.session().is_none(), "clicking saves: {}", view.notice);
         assert!(
-            matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Unsaved status text")
+            matches!(&open.record().data, RecordData::Note(n) if n.markdown == "Unsaved status text")
         );
     });
     on_window(cx, &f, |window, _| {
