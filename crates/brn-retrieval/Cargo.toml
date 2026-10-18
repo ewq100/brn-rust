@@ -18,7 +18,7 @@ fastembed = { version = "=7.1.0", default-features = false, features = ["ort-dow
 reqwest = { version = "=0.12.28", default-features = false, features = ["blocking", "rustls-tls"], optional = true }
 sha1 = { version = "=0.10.6", optional = true }
 
-[target.'cfg(target_os = "macos")'.dependencies]
+[target.'cfg(any(target_os = "macos", target_os = "linux"))'.dependencies]
 libc = { version = "=0.2.189", optional = true }
 
 [dev-dependencies]

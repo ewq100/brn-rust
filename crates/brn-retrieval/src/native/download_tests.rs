@@ -209,6 +209,81 @@ fn concurrent_destination_creation_cannot_be_overwritten_by_install() {
 }
 
 #[test]
+fn concurrently_created_empty_destination_is_preserved_and_stage_is_removed() {
+    use std::os::unix::fs::MetadataExt;
+
+    let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let target = data.path().join("model");
+    let identity = std::cell::Cell::new(None);
+    let result = install_with(
+        &target,
+        &AtomicBool::new(false),
+        |_, _| {},
+        &manifest(),
+        |asset| {
+            if asset.name == "model.onnx" {
+                std::fs::create_dir(&target).unwrap();
+                let meta = target.metadata().unwrap();
+                identity.set(Some((meta.dev(), meta.ino())));
+            }
+            source(asset)
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(Error::ModelInstall(ModelInstallError::TargetOccupied))
+    ));
+    let meta = target.metadata().unwrap();
+    assert_eq!(Some((meta.dev(), meta.ino())), identity.get());
+    assert_eq!(std::fs::read_dir(&target).unwrap().count(), 0);
+    assert_eq!(std::fs::read_dir(data.path()).unwrap().count(), 1);
+}
+
+#[test]
+fn competing_installers_publish_one_complete_model_and_remove_losing_stage() {
+    let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let target = data.path().join("model");
+    let ready = std::sync::Barrier::new(2);
+    let results = std::thread::scope(|scope| {
+        let install = || {
+            install_with(
+                &target,
+                &AtomicBool::new(false),
+                |_, _| {},
+                &manifest(),
+                |asset| {
+                    if asset.name == "model.onnx" {
+                        // Both installers passed the absent-target check and
+                        // own a stage before either can publish.
+                        ready.wait();
+                    }
+                    source(asset)
+                },
+            )
+        };
+        let first = scope.spawn(install);
+        let second = scope.spawn(install);
+        [first.join().unwrap(), second.join().unwrap()]
+    });
+    assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+    assert_eq!(
+        results
+            .iter()
+            .filter(|result| matches!(
+                result,
+                Err(Error::ModelInstall(ModelInstallError::TargetOccupied))
+            ))
+            .count(),
+        1
+    );
+    assert_eq!(std::fs::read_dir(&target).unwrap().count(), BYTES.len());
+    for (asset, bytes) in manifest().iter().zip(BYTES) {
+        assert_eq!(std::fs::read(target.join(asset.name)).unwrap(), bytes);
+    }
+    assert_eq!(std::fs::read_dir(data.path()).unwrap().count(), 1);
+}
+
+#[test]
 fn private_http_seam_uses_synthetic_manifest_and_local_server_only() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let base = format!("http://{}/", listener.local_addr().unwrap());

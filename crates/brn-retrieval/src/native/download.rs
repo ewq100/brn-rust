@@ -452,13 +452,14 @@ pub(super) fn install_with(
     result
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn install_exclusive(stage: &Path, target: &Path) -> Result<()> {
     use std::{ffi::CString, os::unix::ffi::OsStrExt};
     let source =
         CString::new(stage.as_os_str().as_bytes()).map_err(|_| ModelInstallError::InvalidTarget)?;
     let target = CString::new(target.as_os_str().as_bytes())
         .map_err(|_| ModelInstallError::InvalidTarget)?;
+    #[cfg(target_os = "macos")]
     let status = unsafe {
         libc::renameatx_np(
             libc::AT_FDCWD,
@@ -468,10 +469,31 @@ fn install_exclusive(stage: &Path, target: &Path) -> Result<()> {
             libc::RENAME_EXCL,
         )
     };
+    // Keep publication atomic and exclusive even when another installer creates
+    // an empty destination. An ordinary rename could replace that directory.
+    #[cfg(target_os = "linux")]
+    let status = unsafe {
+        libc::renameat2(
+            libc::AT_FDCWD,
+            source.as_ptr(),
+            libc::AT_FDCWD,
+            target.as_ptr(),
+            libc::RENAME_NOREPLACE,
+        )
+    };
     if status == 0 {
         return Ok(());
     }
     let error = std::io::Error::last_os_error();
+    #[cfg(target_os = "linux")]
+    if matches!(
+        error.raw_os_error(),
+        Some(libc::ENOSYS | libc::EINVAL | libc::EOPNOTSUPP)
+    ) {
+        // Older kernels/filesystems may lack no-replace support. Never fall
+        // back to a check followed by a potentially replacing rename.
+        return Err(ModelInstallError::ExclusiveInstallUnavailable.into());
+    }
     if error.kind() == std::io::ErrorKind::AlreadyExists {
         Err(ModelInstallError::TargetOccupied.into())
     } else {
@@ -479,7 +501,7 @@ fn install_exclusive(stage: &Path, target: &Path) -> Result<()> {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
 fn install_exclusive(_: &Path, _: &Path) -> Result<()> {
     Err(ModelInstallError::ExclusiveInstallUnavailable.into())
 }
