@@ -1,0 +1,159 @@
+{
+  "repo_base": "5b0a0fda1af4be27a1c81720bb5d08c5aaf30d0a",
+  "repo_base_tree": "113914f3c22ec2ffad130b591961904900d9a217",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "compiled_precommit_git": "683cb52a96b56c344318085d39dbf1725064ddce",
+  "external_root": "/private/tmp/brn-x2-office-s3-r1-20261018",
+  "fixed_target": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target",
+  "tmpdir": "/private/tmp/brn-x2-office-s3-r1-20261018/tmp-final",
+  "tmpdir_mode": "0o700",
+  "no_target_alias": true,
+  "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+  "current_compiled_inputs": {
+    "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+    "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+    "harness/tests/spans.rs": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+    "xberg/src/extraction/docx/parser.rs": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+    "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+    "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+  },
+  "selected_source": [
+    {
+      "path": "src/extraction/docx/parser.rs",
+      "pristine_sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "compiled_final_sha256": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+      "independent_apply_sha256": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+      "prior_candidate_sha256": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5"
+    },
+    {
+      "path": "src/extractors/docx.rs",
+      "pristine_sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+      "compiled_final_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "independent_apply_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "prior_candidate_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25"
+    },
+    {
+      "path": "src/extraction/derive/mod.rs",
+      "pristine_sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405",
+      "compiled_final_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68",
+      "independent_apply_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68",
+      "prior_candidate_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+    }
+  ],
+  "production_correction_diff_sha256": "913c8c1822df772d700decc278776350049edc4f4d017d6142024042d0de944f",
+  "only_changed_upstream_production_file": "src/extraction/docx/parser.rs",
+  "original_tests_exact_prefix": true,
+  "new_test_count": 1,
+  "original_candidate": {
+    "repo": "5b0a0fda1af4be27a1c81720bb5d08c5aaf30d0a",
+    "external_git": "c111e78fb861e1ef337b9e99070ebadfa811ea21",
+    "old_patch_sha256": "520ca37d49a5fa644667aa85a29efc8b4a9747ef2e5c61fd17ab0bf4296e6ffd",
+    "preservation_receipt": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/original-preservation.json",
+    "preservation_receipt_sha256": "ab61f513a02f5375cc561ad6268edf8b9e903ba6805ba0783f6fd9b853ef8b98",
+    "raw_sources_logs_artifacts_unchanged": true
+  },
+  "current_patch_sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7",
+  "raw_current_patch_sha256": "42b5b3a9426bfce781ce03e7a5fd98e75aab5f7b8dab1c8db6ae521e044916bc",
+  "blank_context_normalization": 3,
+  "source_artifacts": [
+    {
+      "measurement": "01-focused",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07",
+      "sha256": "22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3/spans-52dc6ea2cc314c07",
+      "bytes": 85012984
+    },
+    {
+      "measurement": "01-focused",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07.d",
+      "sha256": "8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26/spans-52dc6ea2cc314c07.d",
+      "bytes": 754
+    },
+    {
+      "measurement": "01-focused",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/xberg-510fc46f59d1826f.d",
+      "sha256": "b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6/xberg-510fc46f59d1826f.d",
+      "bytes": 91189
+    },
+    {
+      "measurement": "02-full-harness",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07",
+      "sha256": "22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3/spans-52dc6ea2cc314c07",
+      "bytes": 85012984
+    },
+    {
+      "measurement": "02-full-harness",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07.d",
+      "sha256": "8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26/spans-52dc6ea2cc314c07.d",
+      "bytes": 754
+    },
+    {
+      "measurement": "02-full-harness",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/xberg-510fc46f59d1826f.d",
+      "sha256": "b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6/xberg-510fc46f59d1826f.d",
+      "bytes": 91189
+    },
+    {
+      "measurement": "03-harness-clippy",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-0f0edb90f570510b.d",
+      "sha256": "77f047579c208f389694749476ec4d0e922066b688348e8f0121aab930a75f76",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/77f047579c208f389694749476ec4d0e922066b688348e8f0121aab930a75f76/spans-0f0edb90f570510b.d",
+      "bytes": 893
+    },
+    {
+      "measurement": "03-harness-clippy",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07",
+      "sha256": "22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/22540918f83f24bb1e575ce660069c3b90d3a083e09ec32647a1e9f8a0df84b3/spans-52dc6ea2cc314c07",
+      "bytes": 85012984
+    },
+    {
+      "measurement": "03-harness-clippy",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/spans-52dc6ea2cc314c07.d",
+      "sha256": "8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/8f26e0962aceccfe3bc65a27ef1650dcb56faf7d77446fda63759261cc679c26/spans-52dc6ea2cc314c07.d",
+      "bytes": 754
+    },
+    {
+      "measurement": "03-harness-clippy",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/xberg-510fc46f59d1826f.d",
+      "sha256": "b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/b69255e27bcef1c4890416d9f038b59b6d4a06cb2126faa784f3877ce1f3b0a6/xberg-510fc46f59d1826f.d",
+      "bytes": 91189
+    },
+    {
+      "measurement": "03-harness-clippy",
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target/debug/deps/xberg-d814a4f49812e0e3.d",
+      "sha256": "e3aeefb29947b651af470a45aecfbcf0a31911e1058d0cbf8dbb7423efec8f49",
+      "retained": "/private/tmp/brn-x2-office-s3-r1-20261018/artifacts/e3aeefb29947b651af470a45aecfbcf0a31911e1058d0cbf8dbb7423efec8f49/xberg-d814a4f49812e0e3.d",
+      "bytes": 68460
+    }
+  ],
+  "scripts": [
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/run.py",
+      "sha256": "cfb991ce322e70fb829d02d9b4ba3b4ae26a6f1d0b761a11fa0fc8029d663866"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/compare_outputs.py",
+      "sha256": "c283a8436686d8c751158715641c53c5fcfcc9eda1dbe9228670f00d0707c0e7"
+    }
+  ],
+  "provenance_files": [
+    {
+      "path": "patches/xberg/1.3.10/README.md",
+      "sha256": "9b73f8770bae56f4642b1bd21fc2c7ce6eb3218315e5b3caf162a1fc95db6e9b"
+    },
+    {
+      "path": "patches/xberg/1.3.10/source-manifest.json",
+      "sha256": "56a1953f4e47f7ae7a53692b5cc417e6b0f5ada8fb6fd6362dad5f637dc3c81e"
+    }
+  ],
+  "compiled_identity_note": "Exact Git commit existed before all three Cargo commands. Hashes were sampled before and after each execution. Root final packaging SHA is recorded externally after commit, not invented here."
+}

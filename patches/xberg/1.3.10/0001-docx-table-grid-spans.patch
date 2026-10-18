@@ -33,10 +33,10 @@ index a5c7175..6c6e5fe 100644
          table_to_grid(table, native_grid.as_ref())
      } else {
 diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
-index cbe2513..b9c9fcc 100644
+index cbe2513..6567d51 100644
 --- a/src/extraction/docx/parser.rs
 +++ b/src/extraction/docx/parser.rs
-@@ -1066,6 +1066,81 @@ impl Table {
+@@ -1066,6 +1066,88 @@ impl Table {
          cells
      }
 
@@ -63,6 +63,7 @@ index cbe2513..b9c9fcc 100644
 +            let row_index = u32::try_from(row_index).ok()?;
 +            let mut col = 0u32;
 +            let mut active = Vec::new();
++            let mut previous_cursor = 0;
 +            for cell in &row.cells {
 +                let props = cell.properties.as_ref();
 +                let span = props.and_then(|p| p.grid_span).unwrap_or(1);
@@ -72,10 +73,16 @@ index cbe2513..b9c9fcc 100644
 +                }
 +                match props.and_then(|p| p.v_merge.as_ref()) {
 +                    Some(VerticalMerge::Continue) => {
-+                        let origin = previous
-+                            .iter()
-+                            .find(|(start, width, _)| *start == col && *width == span)?
-+                            .2;
++                        // Both rows advance in source-column order. Visit each previous
++                        // entry at most once, including chains that ended in this row.
++                        while previous.get(previous_cursor).is_some_and(|(start, _, _)| *start < col) {
++                            previous_cursor += 1;
++                        }
++                        let &(start, width, origin) = previous.get(previous_cursor)?;
++                        if start != col || width != span {
++                            return None;
++                        }
++                        previous_cursor += 1;
 +                        let origin_cell = cells.get_mut(origin)?;
 +                        origin_cell.row_span = origin_cell.row_span.checked_add(1)?;
 +                        active.push((col, span, origin));

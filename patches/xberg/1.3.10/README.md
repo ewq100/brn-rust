@@ -1,6 +1,6 @@
 # Xberg 1.3.10 DOCX native table spans
 
-`0001-docx-table-grid-spans.patch` preserves parsed rectangular DOCX cell spans in the existing semantic native-grid seam. It uses parsed `gridSpan`/`vMerge`, exact source columns and contiguous rows. Equal strings and empty covered slots do not create merges. Real empty origins remain cells.
+`0001-docx-table-grid-spans.patch` preserves parsed rectangular DOCX cell spans in the existing semantic native-grid seam. It uses parsed `gridSpan`/`vMerge`, exact source columns and contiguous rows. Previous-row matches use a monotone cursor over source columns, with linear lookup traversal per row. Equal strings and empty covered slots do not create merges. Real empty origins remain cells.
 
 The body and header/footer paths attach the grid to the exact element index. Dense `Table.cells`, Markdown, wording, styles, page/layer and other public output retain their previous values. Missing grids, ragged rows and unmatched vertical continuations retain the legacy projection. This does not resolve nested-table flattening, omitted layout properties, namespace or other Office gaps.
 
@@ -15,7 +15,7 @@ git apply --check /absolute/path/to/0001-docx-table-grid-spans.patch
 git apply /absolute/path/to/0001-docx-table-grid-spans.patch
 ```
 
-A fresh independent extraction/application reproduced all three compiled source hashes; the remaining 761 files were unchanged. Three blank context lines were normalized for repository whitespace checks; the original raw diff is retained in the external evidence root.
+The original fresh-archive application is retained. The corrected patch was independently applied to a copy of that verified pristine source and reproduced all three compiled hashes. Only the parser lookup changed from the first candidate. Three blank context lines are normalized for repository whitespace checks; both raw diffs and the old patch remain retained.
 
 The published package declares **MIT**, authored by Na’aman Hirschfeld and Tobias Perlstein. Its exact archive omits `LICENSE*`; its README references `../../LICENSE` outside the package. The manifest records that boundary and the declaration hash. This directory distributes only the small patch and provenance.
 
@@ -23,4 +23,4 @@ The published package declares **MIT**, authored by Na’aman Hirschfeld and Tob
 
 The standalone path-dependency harness requests only `office`, defaults disabled; upstream transitively enables `notebook` and `html`. Compiled Xberg has `cfg(test)=false`. No root dependency resolution/adoption or registry source edit occurred.
 
-Six focused geometry/consumer tests pass. The unchanged seventh test retains the known prefix-variation empty-content failure: the final full target is **6 passed / 1 failed**, not all green. Full public-output comparisons pass for 22 DOCX captures and six consumer cases. Strict all-target harness Clippy passes; it does not establish that dependency source was itself linted. See the [source-associated handoff](../../../docs/work/active/modular-foundation/x2/office1/spans1/handoff.md) for exact commands, artifact custody and remaining gates.
+The corrected full target is **7 passed / 1 failed**: all geometry/consumer cases pass, while the unchanged prefix-variation namespace assertion still fails. The new focused case passes with seven tests filtered and checks independently changing mixed-width chains plus 4,096 parallel chains; it is functional evidence, not a benchmark or performance-red claim. Full comparisons pass for 22 DOCX captures and six consumer cases with the original tolerances, and all 28 complete values equal the first candidate. Strict all-target harness Clippy passes; dependency-wide lint is not established. See the [correction handoff](../../../docs/work/active/modular-foundation/x2/office1/spans1/opus1/handoff.md). The [original handoff](../../../docs/work/active/modular-foundation/x2/office1/spans1/handoff.md) retains its actual 1/6 to 6/1 history. Fresh independent round-two review is pending.
