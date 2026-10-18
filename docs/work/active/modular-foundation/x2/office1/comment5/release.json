@@ -1,0 +1,36 @@
+{
+  "schema": "comment5-release/1",
+  "status": "VERIFIED_CANDIDATE_NEW_INDEPENDENT_ACTUAL_REVIEW_PENDING",
+  "source_frozen": true,
+  "heavy_released_utc": "2026-10-18T04:37:09Z",
+  "heavy_inventory": {
+    "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/heavy-release-inventory.json",
+    "sha256": "ad814943390db263b944f3d924d3791a559c9bd8e0fbf92dcf968bace43364d9",
+    "count": 0
+  },
+  "no_running_own_cargo_compiler_test_or_controller": true,
+  "all_owned_paths_released_on_frozen_handoff": [
+    "docs/work/active/modular-foundation/x2/office1/comment5/check-index.json",
+    "docs/work/active/modular-foundation/x2/office1/comment5/handoff.md",
+    "docs/work/active/modular-foundation/x2/office1/comment5/release.json",
+    "docs/work/active/modular-foundation/x2/office1/comment5/requirements.txt",
+    "docs/work/active/modular-foundation/x2/office1/comment5/response.md",
+    "docs/work/active/modular-foundation/x2/office1/comment5/source-pin.json",
+    "patches/xberg/1.3.10/0005-docx-comment-references.md",
+    "patches/xberg/1.3.10/0005-docx-comment-references.patch",
+    "patches/xberg/1.3.10/0005-source-manifest.json"
+  ],
+  "external_fixed_root_released_and_preserved": "/private/tmp/brn-x2-docx-comment5-20261018",
+  "historical_sources_targets_artifacts_logs_unchanged": true,
+  "root_brn_sources_manifests_lock_old_patches_oracles_unchanged": true,
+  "remaining_gates": [
+    "Full comment author/date/range/thread/resolution metadata and non-body associations",
+    "Broader Office/PPTX provenance, nested/merged tables, hidden shapes/layout/rendering/OCR/chart fidelity",
+    "Full XML/DTD/readset/preallocation/heap/repeated-work/resource and restricted runtime qualification",
+    "License custody, BRN adoption, all-eight readiness and reader retirement",
+    "Frozen/unaccepted provider-interrupted PDF; carried SDK/widget/platform/INT-W/native-human/owner/program/main/live"
+  ],
+  "order4_invalid_show_runtime_assertion": "DEFERRED_NONBLOCKING_UNCHANGED",
+  "no_follow_on_family_delegation_selfapproval_publication_or_live_work": true,
+  "postcommit_pin": "External evidence/final-repo-pin.json created only after actual root commit; no future self-SHA."
+}

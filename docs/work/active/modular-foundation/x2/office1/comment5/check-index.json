@@ -1,0 +1,253 @@
+{
+  "schema": "comment5-check-index/1",
+  "checks": [
+    {
+      "label": "01-before-public-reference-identity",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/01-before-public-reference-identity/receipt.json",
+      "receipt_sha256": "d3fa4f24b53d1b81f97127a8c3d55737c67833f06b3416ff3324c788a25e0f1f",
+      "raw_log_sha256": "b837799a7128f8b8eef2ed47ce781c82bea59ae7484516923dbc4014ebabcfdf",
+      "exit_code": 101,
+      "target": "comment_references",
+      "test_summary": []
+    },
+    {
+      "label": "02-before-typed-public-controls",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/02-before-typed-public-controls/receipt.json",
+      "receipt_sha256": "258b2cbee9f16c95675bc7acdae9bc7ac32953c1abf624fbbcbbcf7603279866",
+      "raw_log_sha256": "4c9fd7422efcf6f3ef93e4b2b53741e8fa7e1499e5d8e2f51ff231863c369e9f",
+      "exit_code": 101,
+      "target": "comment_references",
+      "test_summary": []
+    },
+    {
+      "label": "03-before-behavior",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/03-before-behavior/receipt.json",
+      "receipt_sha256": "59614f4e96a1c420592821cec36d1e1de35c387f08fdf8e97ecd7e15bcc56bd6",
+      "raw_log_sha256": "129986441dbe0c1a8fbaa1caae9e7a79ee80c0c12e5cae7d1a2207fe9039e5aa",
+      "exit_code": 101,
+      "target": "comment_references",
+      "test_summary": [
+        "test result: FAILED. 5 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "label": "04-final-typed-comments",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/04-final-typed-comments/receipt.json",
+      "receipt_sha256": "4a2a47035b781b8942d72d782554c6832fc3ec4881fb50d87c65679d34e112b4",
+      "raw_log_sha256": "67ed6e9a279d9da0a639b3fbc1ebcf33ba4a7f651368f25e5c7ded36ec28ac0c",
+      "exit_code": 101,
+      "target": "comment_references",
+      "test_summary": [
+        "test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "label": "05-before-exact-final-driver",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/05-before-exact-final-driver/receipt.json",
+      "receipt_sha256": "d3a84edb037ac30389585a00a9e54314bc0ab5970276a25c48668edb4e3a5f28",
+      "raw_log_sha256": "bb1a9bc2eb7d7f4d86587b8c00ecffdbce9a9db1bd26f445f045db147e08e590",
+      "exit_code": 101,
+      "target": "comment_references",
+      "test_summary": [
+        "test result: FAILED. 5 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "label": "06-final-exact-driver",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/06-final-exact-driver/receipt.json",
+      "receipt_sha256": "abd4dbd3c972939a900352da5536462728b0bc7e200259f378ded9111f894687",
+      "raw_log_sha256": "d7acbabc35b4c7e635879990db54d42a052e28e162fb6f48126198726b362466",
+      "exit_code": 0,
+      "target": "comment_references",
+      "test_summary": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "label": "07-namespace-s3-regression",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/07-namespace-s3-regression/receipt.json",
+      "receipt_sha256": "dbced98e9d8e238cca09ad6dfd4264217812c4cceac3a4c39ef50236effbb061",
+      "raw_log_sha256": "4508f8c89f4beac850e779bcb4ec642d7c0827cec1018a794fe4d1acdfaa5be9",
+      "exit_code": 0,
+      "target": "namespaces",
+      "test_summary": [
+        "test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s"
+      ]
+    },
+    {
+      "label": "08-order4-regression",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/08-order4-regression/receipt.json",
+      "receipt_sha256": "911268d2ca73e5e035fdc1bbea8b353ab06ed08b378734c2c4e35dece267746b",
+      "raw_log_sha256": "44c149505bcf982224f43b597e7cb4f5def1da0348a79b005ac42541f4d285f6",
+      "exit_code": 0,
+      "target": "pptx_order",
+      "test_summary": [
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+      ]
+    },
+    {
+      "label": "09-clippy",
+      "receipt": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/09-clippy/receipt.json",
+      "receipt_sha256": "59cad9aaffcd6123f08656940a3c240e33c069a4f80230914cd2c3d8bc0c5ba3",
+      "raw_log_sha256": "e15b5a0c0a3e2f2851af5fce4fa23a0c27b6cbf6c4c2d707c5127c92f46b40eb",
+      "exit_code": 0,
+      "target": "clippy --all-targets -D warnings",
+      "test_summary": []
+    }
+  ],
+  "new_test_outcomes": [
+    {
+      "test": "comment5_empty_paragraph_and_page_boundaries_preserve_source",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_escaped_formatted_unmatched_and_repeated_literals_stay_literal",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_foreign_element_and_unqualified_ids_are_not_markers",
+      "before": "ok",
+      "final": "ok",
+      "class": "preserved positive/scope control"
+    },
+    {
+      "test": "comment5_literal_and_real_marker_have_distinct_identity",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_literal_prefix_same_paragraph_creates_only_xml_reference",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_missing_real_definition_retains_existing_specific_warnings",
+      "before": "ok",
+      "final": "ok",
+      "class": "preserved positive/scope control"
+    },
+    {
+      "test": "comment5_partial_markers_across_paragraphs_remain_literal",
+      "before": "ok",
+      "final": "ok",
+      "class": "preserved positive/scope control"
+    },
+    {
+      "test": "comment5_renamed_and_default_word_namespace_keep_typed_marker",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_repeated_real_markers_and_distinct_ids_keep_order",
+      "before": "ok",
+      "final": "ok",
+      "class": "preserved positive/scope control"
+    },
+    {
+      "test": "comment5_split_runs_heading_list_and_real_sources",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    },
+    {
+      "test": "comment5_table_header_footer_references_never_attach_to_body",
+      "before": "ok",
+      "final": "ok",
+      "class": "preserved positive/scope control"
+    },
+    {
+      "test": "comment5_typed_notes_and_literal_note_text_remain_distinct",
+      "before": "FAILED",
+      "final": "ok",
+      "class": "compiled phantom-reference/warning defect corrected"
+    }
+  ],
+  "full_commands_and_custody": "Every immutable receipt has complete argv/environment/precommand Git/tree/source hashes. Sibling source/, raw.log, compiler-messages.json and before/after-artifacts.json retain full details. No ignored/filtered tests.",
+  "regressions": {
+    "namespace_s3": {
+      "passed": 25,
+      "failed": 0
+    },
+    "order4": {
+      "passed": 21,
+      "failed": 0
+    },
+    "whole_legacy_json_equal": 30,
+    "docx_inputs_equal": 24,
+    "whole_order4_json_equal": 86,
+    "no_normalization_or_exemptions": true
+  },
+  "evidence": {
+    "reproduction.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/reproduction.json",
+      "sha256": "c4953bfde761459385b28758ab339cdb8d17c080331c367296c8abb750ee20e9"
+    },
+    "compatibility.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/compatibility.json",
+      "sha256": "c821e4195671d75307af4fb9192f25724ca3299e864e08c8b30fb532ef05dc59"
+    },
+    "source-artifact-audit.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/source-artifact-audit.json",
+      "sha256": "c8f53e016f5b67efad7357469423170c73e68b13f6281043c375d299c9d7c58c"
+    },
+    "binding.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/binding.json",
+      "sha256": "3aa37740c95e11bbc70c9b496d5e95ba210fedfb5c65c6590a379ab6f8c10aa2"
+    },
+    "initial-heavy-inventory.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/initial-heavy-inventory.json",
+      "sha256": "37f3f54144836997e447870b444be1ced6e57a41922809e5843b1c77eb507a94"
+    },
+    "heavy-release-inventory.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/heavy-release-inventory.json",
+      "sha256": "ad814943390db263b944f3d924d3791a559c9bd8e0fbf92dcf968bace43364d9"
+    },
+    "authored-format-check.json": {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/authored-format-check.json",
+      "sha256": "a064f30c944106e66a31d48328116a02880f1fac09eb5240c74229f5d87c8ef1"
+    }
+  },
+  "static_results": "Final external evidence/static-checks.json records owned formatting, JSON, doc links and whitespace. Actual root precommit/final delta hashes are in evidence/final-static-precommit.json and evidence/final-repo-pin.json after creation.",
+  "scripts": [
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/run_lane.py",
+      "sha256": "3b890dfb25b9b974bf40e9f096b2e976dfa48b9042e5b6b00680deb2dff7822c"
+    },
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/check_compatibility.py",
+      "sha256": "d734aa4fce63b6bad7384b7cc779b566449ec31fd05391af3f4dc341f40987da"
+    },
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/reproduce_patch.py",
+      "sha256": "11e1c54ee86eb21d5a81a231a05bdd6616ea3e329d7ebc35780e9b5c913208dc"
+    },
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/audit_evidence.py",
+      "sha256": "a95a5db8b0891b609615cb27e527e40ab6992aeae02208ff7f8a7e835c62704c"
+    },
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/inventory.py",
+      "sha256": "60c823a3f90a4e0ef96954d1a075db9d6973606eb0ee07f044b16e4c2a9d1a9e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-docx-comment5-20261018/check_authored_format.py",
+      "sha256": "c428c2e1d4930eeadefd68bae3b6e43a15fc094b493a57f299f17e8887c30b3c"
+    }
+  ],
+  "new_input_coverage": {
+    "final_vectors": 15,
+    "common_before_final_identical": 13,
+    "qualification": "Before stops at the first failing canonical identity assertion inside the namespace-variant test; final executes canonical, alias and default variants. All common input byte vectors match; Rust driver bytes are identical."
+  },
+  "qualifications": [
+    "Strict harness Clippy; full Xberg normal-dependency compilation with cfg(test)=false. No dependency-wide lint or missing-unit-module suppression.",
+    "No resource/heap/RSS, restricted runtime, BRN adoption or full annotation/Office/all-eight qualification."
+  ]
+}
