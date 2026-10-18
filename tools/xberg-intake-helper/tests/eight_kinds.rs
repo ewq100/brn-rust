@@ -1,4 +1,4 @@
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 use std::{
     io::Write,
     process::{Command, Stdio},
@@ -83,7 +83,7 @@ fn eight_kinds_equal_normal_public_sdk() {
             "normal SDK/explicit identity {kind}"
         );
         actual.validate_for(&r).unwrap();
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
         {
             let out = helper(&r);
             assert!(
@@ -188,7 +188,7 @@ fn actual_office_bundle_difference_controls() {
         }
     }
 }
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn helper(r: &DocumentRequest) -> std::process::Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_brn-xberg-helper"))
         .env_clear()
@@ -206,7 +206,7 @@ fn helper(r: &DocumentRequest) -> std::process::Output {
     child.wait_with_output().unwrap()
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn restricted_protocol_and_backend_identity() {
     let r = request("text", b"Synthetic restricted text".to_vec());
     let out = helper(&r);
@@ -255,7 +255,7 @@ fn asset_relocation_changes_only_exact_image_destination() {
 }
 
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn unrelated_environment_is_refused_alone_and_with_cf_marker() {
     for cf in [false, true] {
         let r = request("text", b"Must not extract".to_vec());

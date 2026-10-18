@@ -11,11 +11,14 @@ pub fn main_with(handler: fn(bool, &[u8]) -> Result<Vec<u8>, String>) {
 fn run(handler: fn(bool, &[u8]) -> Result<Vec<u8>, String>) -> Result<(), String> {
     // Runtime starts first, as qualified by P1. Restrict before reading any input or
     // parsing a document; no profile/input paths or inherited credentials are needed.
-    restrictions()?;
+    let args: Vec<_> = std::env::args().collect();
+    // The fork witness never parses a document. Production conversion admits
+    // worker threads but cannot create additional processes on Linux.
+    let process_tree_witness = args.len() == 2 && args[1] == "--self-test-process-tree";
+    restrictions(process_tree_witness)?;
     if std::env::vars_os().next().is_some() {
         return Err("helper requires an empty inherited environment".into());
     }
-    let args: Vec<_> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--self-test-restrictions") {
         let path = args
             .get(2)
@@ -37,7 +40,7 @@ fn run(handler: fn(bool, &[u8]) -> Result<Vec<u8>, String>) -> Result<(), String
         };
     }
     #[cfg(unix)]
-    if args.get(1).map(String::as_str) == Some("--self-test-process-tree") {
+    if process_tree_witness {
         for _ in 0..2 {
             // Only the child continues spawning; the test host owns/kills the group.
             if unsafe { libc::fork() } != 0 {
@@ -74,7 +77,7 @@ fn run(handler: fn(bool, &[u8]) -> Result<Vec<u8>, String>) -> Result<(), String
 }
 
 #[cfg(target_os = "macos")]
-fn restrictions() -> Result<(), String> {
+fn restrictions(_process_tree_witness: bool) -> Result<(), String> {
     #[link(name = "sandbox")]
     unsafe extern "C" {
         fn sandbox_init(
@@ -126,7 +129,14 @@ fn restrictions() -> Result<(), String> {
     }
     Ok(())
 }
-#[cfg(not(target_os = "macos"))]
-fn restrictions() -> Result<(), String> {
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[path = "helper_runtime_linux.rs"]
+mod linux;
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn restrictions(process_tree_witness: bool) -> Result<(), String> {
+    linux::restrict(process_tree_witness)
+}
+#[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
+fn restrictions(_process_tree_witness: bool) -> Result<(), String> {
     Err("native intake restrictions are qualified only on macOS; conversion refused".into())
 }

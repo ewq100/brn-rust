@@ -1,11 +1,11 @@
 use brn_threads_intake::*;
 use std::sync::atomic::AtomicBool;
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn helpers() -> DocumentHelpers {
     DocumentHelpers::discover().expect("declared document helpers must resolve")
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
@@ -66,7 +66,7 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
     }
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
@@ -101,7 +101,7 @@ fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
 }
 
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_enforced() {
     use std::os::unix::fs::PermissionsExt;
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -175,14 +175,14 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
 }
 
 #[test]
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
 fn restricted_document_conversion_is_unavailable_on_this_platform() {
     let root = tempfile::tempdir().unwrap();
     let converter = Converter {
         temp_root: root.path().join("scratch"),
         limits: Default::default(),
     };
-    // A bounded marker executable on non-Mac Unix; never launch libtest itself.
+    // A bounded marker executable on unsupported Unix; never launch libtest itself.
     // On other platforms a non-executable fixture still witnesses that scratch
     // must not even be created before the platform refusal.
     let marker = root.path().join("dispatched");
