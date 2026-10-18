@@ -1,0 +1,713 @@
+{
+  "schema": 1,
+  "status": "TASK1_LOCALLY_VERIFIED_PARENT_ACTUAL_DIFF_REVIEW_PENDING",
+  "material_commit": "5e96abe668eb454f09c014541a4e6eb1b2bceef3",
+  "external_root": "/private/tmp/brn-x2-standard-task1-20261018",
+  "commands": [
+    {
+      "phase": "01-stock-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--bin",
+        "brn-xberg-helper",
+        "--message-format",
+        "json"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/01-stock-build",
+      "stdout_sha256": "7027d295f4325c74e07d400b9a445db1bcfe898a0153e3ea57b276d4806925a2",
+      "stderr_sha256": "d529ecfb977d24bb935e2e1ac013a39aada1ffe3f83e98d642dc82f96ddb7d18",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/01-stock-build/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/01-stock-build/result.json"
+    },
+    {
+      "phase": "02-stock-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 3,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 2,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/02-stock-tests",
+      "stdout_sha256": "d4709a81bec094ae2f09def4ece1b7644b06d3c26b1165765952644d330f67f9",
+      "stderr_sha256": "0f375a1f87843d478ba915ccb9ad12f35bb2a5f4169d58b3273a142af7c32346",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/02-stock-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/02-stock-tests/result.json"
+    },
+    {
+      "phase": "03-stock-env-diagnostic",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--bin",
+        "brn-xberg-helper"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/03-stock-env-diagnostic",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1f1804227148e9a1f128393ea891a2b8a5fb5dc05fe02550249d89861c6e6d2e",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/03-stock-env-diagnostic/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/03-stock-env-diagnostic/result.json"
+    },
+    {
+      "phase": "04-adapted-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--bin",
+        "brn-xberg-helper",
+        "--message-format",
+        "json"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/04-adapted-build",
+      "stdout_sha256": "c654254ef8da8c829b9ef15d586ebf4b0d114bca8f003319db73e2dc9a236847",
+      "stderr_sha256": "842d07f3524474573dcd2ff53415ada5b58ccaa0afdc747a5d4038b07c575112",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/04-adapted-build/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/04-adapted-build/result.json"
+    },
+    {
+      "phase": "05-startup-thread-witness",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--bin",
+        "brn-xberg-helper"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/05-startup-thread-witness",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ee26e05532c43b8126a8bdacfdcba4637f01015bd5dfe222a26c46e1de8325b9",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/05-startup-thread-witness/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/05-startup-thread-witness/result.json"
+    },
+    {
+      "phase": "06-stock-tests-cf",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/06-stock-tests-cf",
+      "stdout_sha256": "dbf4db1da6b4afbba86ccea6de084f5959d277ea6850d2c4d119148156c5f252",
+      "stderr_sha256": "beac4a7a0e06139c47f4497a417e9d637d1fac9c8e9438458e27e6585c54980f",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/06-stock-tests-cf/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/06-stock-tests-cf/result.json"
+    },
+    {
+      "phase": "07-adapted-tests-cf",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/07-adapted-tests-cf",
+      "stdout_sha256": "c0efe27c2c15a417b9767417ed3e34a12c93451e8e9c69458868629b827fbe84",
+      "stderr_sha256": "1353c1b8741990110c5509e10121ff7628cfcdadabd73019fe1df94555f1bc72",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/07-adapted-tests-cf/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/07-adapted-tests-cf/result.json"
+    },
+    {
+      "phase": "08-adapted-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 4,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/08-adapted-tests",
+      "stdout_sha256": "697a8b20b8c86756aa81a5472151dc8a87c66642b76adfa54201f7ed9ffce129",
+      "stderr_sha256": "68d6e9afd0b226dc1d7b0114d51dac6013d250919b93acf6dcd8889aa85da865",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/08-adapted-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/08-adapted-tests/result.json"
+    },
+    {
+      "phase": "09-stock-final-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/09-stock-final-tests",
+      "stdout_sha256": "0e98d05afa467789541aef04bd2aef210c0133a9bda2241a6e7fbf359ad79a0c",
+      "stderr_sha256": "47ae0b2562589c9a8712a792ae26093e396560963bc05e840cf1e2bd370fc556",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/09-stock-final-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/09-stock-final-tests/result.json"
+    },
+    {
+      "phase": "10-adapted-final-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/10-adapted-final-tests",
+      "stdout_sha256": "f159303f038e8b0edadfcc3f9e15c093ae2bf0e778b5185870a163160470bce5",
+      "stderr_sha256": "fed2041121ce18ce2d1208199984a86b10f447e47699f8017eaa580fe649f3bd",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/10-adapted-final-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/10-adapted-final-tests/result.json"
+    },
+    {
+      "phase": "11-stock-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/11-stock-clippy",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ebac624ae7ec5845a032580293361ff1bcc0a7a888b0b2243bec98646ec2e664",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/11-stock-clippy/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/11-stock-clippy/result.json"
+    },
+    {
+      "phase": "12-adapted-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/12-adapted-clippy",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c27547c9cbcfaa8d27b8c69c9281a0317bf83510c042395e4c75b191ddbf8f07",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/12-adapted-clippy/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/12-adapted-clippy/result.json"
+    },
+    {
+      "phase": "13-legacy-helper-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--message-format",
+        "json"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/13-legacy-helper-build",
+      "stdout_sha256": "2ba23115a6a8761ab4ec9fa2f244ffbfcf94ce3dc0dc73f7746cde0aeb25bbff",
+      "stderr_sha256": "09861289af4284518bfa708f6b1755819219db7f17e64fa8f81c5516d994efe0",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/13-legacy-helper-build/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/13-legacy-helper-build/result.json"
+    },
+    {
+      "phase": "14-legacy-runtime-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--test",
+        "restricted_helper",
+        "--test",
+        "protocol",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/14-legacy-runtime-tests",
+      "stdout_sha256": "c201dbe0871648e61966caabb4ccf5f3a40a8aed35d6097773ce07936475a50d",
+      "stderr_sha256": "522091912e6ba47ae142ec7109f5f8f4727c46bcf0e8c7046bdc68abeb5694a4",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/14-legacy-runtime-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/14-legacy-runtime-tests/result.json"
+    },
+    {
+      "phase": "15-stock-normal-policy-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/15-stock-normal-policy-tests",
+      "stdout_sha256": "22415061531c9205d168d88b9f5ab692269a80882495536d4769cf19668c3107",
+      "stderr_sha256": "1da609cfd71660f475b87127193176450b6d4a2b5a4959b5efbe28f65452c16e",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/15-stock-normal-policy-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/15-stock-normal-policy-tests/result.json"
+    },
+    {
+      "phase": "16-adapted-normal-policy-tests",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "test_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/16-adapted-normal-policy-tests",
+      "stdout_sha256": "4ad54b03d82a2d5098144919e28062046539904702bb8cc2d226ee3f1e9792f6",
+      "stderr_sha256": "1c0c454ef8f0965d8b40c331d30fa83ffbbcd027425bdaa6c50fdc8e7122e2a1",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/16-adapted-normal-policy-tests/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/16-adapted-normal-policy-tests/result.json"
+    },
+    {
+      "phase": "17-stock-final-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/17-stock-final-clippy",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ffc7c01c8860e8f6092a093c6c0e300fc19bdb362dcb128c3310ffb2e18056b9",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/17-stock-final-clippy/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/17-stock-final-clippy/result.json"
+    },
+    {
+      "phase": "18-adapted-final-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/18-adapted-final-clippy",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "bf8e883019e3f17fb3cfc6fbb084fef25db229c8f122675481b4df0fdd7b8da1",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/18-adapted-final-clippy/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/18-adapted-final-clippy/result.json"
+    },
+    {
+      "phase": "19-affected-intake-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--lib",
+        "--bin",
+        "brn-intake-helper",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "test_counts": [],
+      "receipt_dir": "/private/tmp/brn-x2-standard-task1-20261018/evidence/19-affected-intake-clippy",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "513bcb89557308d1e3324521a7a9c93c08c39763395001b04dbad3b96cffd837",
+      "input_hashes": "/private/tmp/brn-x2-standard-task1-20261018/evidence/19-affected-intake-clippy/inputs.json",
+      "retained_artifacts": "/private/tmp/brn-x2-standard-task1-20261018/evidence/19-affected-intake-clippy/result.json"
+    }
+  ],
+  "metadata": {
+    "stock_failed_setup": "/private/tmp/brn-x2-standard-task1-20261018/evidence/stock-metadata.stderr",
+    "stock_one_successful_reconciliation": "/private/tmp/brn-x2-standard-task1-20261018/evidence/stock-metadata-corrected.json",
+    "adapted_one_successful_reconciliation": "/private/tmp/brn-x2-standard-task1-20261018/evidence/adapted-metadata.json",
+    "audit_before_compile": "/private/tmp/brn-x2-standard-task1-20261018/evidence/graph-audit-precompile.json",
+    "disposition": "/private/tmp/brn-x2-standard-task1-20261018/evidence/graph-disposition.json",
+    "unknown_registry_identities": 0,
+    "note": "First stock metadata failed before resolution because the direct Serde row was mistakenly pinned to .228; corrected to the already audited .229. No solver/version search or network occurred."
+  },
+  "final_gates": {
+    "stock_tests": 12,
+    "adapted_tests": 12,
+    "old_protocol_tests": 6,
+    "old_restricted_helper_tests": 6,
+    "generator_tests": 6,
+    "actual_artifact_binding_checks": 4,
+    "compiled_build_script_negative_checks": 4,
+    "strict_clippy": [
+      "17-stock-final-clippy",
+      "18-adapted-final-clippy",
+      "19-affected-intake-clippy"
+    ]
+  },
+  "static_receipts": {
+    "generator": "/private/tmp/brn-x2-standard-task1-20261018/evidence/generator-pinned-final.log",
+    "rustfmt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/rustfmt-final.log",
+    "full_reproduction": "/private/tmp/brn-x2-standard-task1-20261018/evidence/full-package-reproduction.json",
+    "artifact_bindings": "/private/tmp/brn-x2-standard-task1-20261018/evidence/artifact-binding-final.json",
+    "identity_negatives": "/private/tmp/brn-x2-standard-task1-20261018/evidence/build-identity-negative.json",
+    "final_builder": "/private/tmp/brn-x2-standard-task1-20261018/evidence/builder-final-command.json"
+  },
+  "failure_disposition": {
+    "02-stock-tests": "Pre-cleanup empty-exec environment is augmented by CoreFoundation; stock prefix control also incorrectly unwrapped the intended empty-result refusal. Original 4-pass/5-fail run retained.",
+    "03-stock-env-diagnostic": "Temporary key-name-only diagnostic, not final code. Identified exactly __CF_USER_TEXT_ENCODING.",
+    "05-startup-thread-witness": "Temporary Mach startup witness observed one thread; its deprecation warning is retained, with no lint suppression or diagnostic in final source.",
+    "07-adapted-tests-cf": "9-pass/1-fail: test mistakenly demanded stock SDK newline in explicitly identity-preserving BRN text mode.",
+    "08-adapted-tests": "10-pass/1-fail: new PNG validator test supplied wrong fixture dimensions; corrected from trusted PNG source IHDR to 900x500, not converter output.",
+    "pre_normal_policy_checks": "Preliminary 11-test passes used two inherited O1 measurement overrides. Those results are not final normal-policy qualification. Source check removed quality/postprocessor overrides; new whitelist assertion plus phases15\u201319 are final."
+  },
+  "cf_exception": {
+    "authority": "Exact owner amendment in this Task1 conversation",
+    "scope": "New macOS helper main removes ONLY __CF_USER_TEXT_ENCODING before input or BRN/Xberg/Tokio/Rayon thread/runtime creation. Shared environment gate and legacy main are unchanged.",
+    "observed_before": "/private/tmp/brn-x2-standard-task1-20261018/evidence/environment-diagnostic.json",
+    "single_thread_witness": "/private/tmp/brn-x2-standard-task1-20261018/evidence/startup-thread-witness.json",
+    "not_claimed": "The process never contains environment entries; the OS-inserted marker is an explicit compatibility exception."
+  },
+  "source_custody": {
+    "early_recovery_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/source-snapshot-recovery.json",
+    "missing_source_hash_objects": 0,
+    "note": "Eight superseded early source variants were reconstructed from retained copies/known exact edits and matched to their original pre-command SHA256; two unchanged protected inputs were copied. Later runner stores complete source objects before commands. Original logs/binaries/libraries/.d remain retained."
+  },
+  "limits": [
+    "Task2\u20134 not started; no settings, AI, host routing, durable provenance, package/CI adoption or retirement.",
+    "Mac aarch64 debug helper qualification only; no other platform/native-human/live-provider claim.",
+    "No hard heap/RSS, complete XML/DTD/readset or full document fidelity proof. Old partial component qualifications remain distinct.",
+    "Normal configuration disables image extraction and external/model services; no retained bytes means explicit gaps, not invented assets. PNG validation and exact relocation have focused tests.",
+    "Encrypted PDF remains explicitly deferred; only an ordinary non-encrypted public PDF was exercised. No custom PDF correction/refusal/decryption work.",
+    "Published archive declares MIT but omits a LICENSE file; existing license-custody qualification remains for packaging."
+  ]
+}

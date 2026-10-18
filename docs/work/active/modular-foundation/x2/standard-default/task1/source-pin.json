@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "base_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+  "material_commit": "5e96abe668eb454f09c014541a4e6eb1b2bceef3",
+  "material_tree": "45e22267b247b00930a1940a05d2c7b9a89ed581",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "compiled_source_association": "Commands compiled the exact recorded precommit WIP at base HEAD; matching hashes bind those bytes to the subsequently created material commit. No future SHA was embedded or claimed compiled.",
+  "material_files": {
+    "crates/brn-intake/src/bin/brn-intake-helper.rs": "2e4975b5f69588df82a07b99068d6db924ad8744a9f4780b79b43140e0cd3da4",
+    "crates/brn-intake/src/document.rs": "d5b9a4d4672aebe4b7a48a482a26b30ed83869a2bd0dda6a6b1ebea0b7a8d1c2",
+    "crates/brn-intake/src/helper_runtime.rs": "d7d5a66d0175a9d59da09799d81c349d898c6ede69241793c3e96ed3ab1ea9ae",
+    "crates/brn-intake/src/lib.rs": "0cc3a5afa3e576ace288753ce7592685035043cb9a48549e09987aa28c128288",
+    "scripts/build-document-helpers.sh": "7be12c463542e7cb86cb409407936b47a8612bcc8c74bcd39b70028920dd7ae5",
+    "scripts/prepare-xberg-adapted.py": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5",
+    "scripts/tests/test_prepare_xberg_adapted.py": "9eb599a161761ec9de374bf1166eab0d27d02072fe1e0087f11e3927b41db14d",
+    "tools/xberg-intake-helper/Cargo.lock": "c5f2e24e6ac5d6d753f07e7b8193fd5c6c785f35c117def8b953fce6d6f4e8ca",
+    "tools/xberg-intake-helper/Cargo.toml": "2f45d3df9291736a1c19c5466c34ac8898ffe7a29df7238c19fd782b7400e4f9",
+    "tools/xberg-intake-helper/adapted.Cargo.lock": "da006868c68e1f72bfb8960de119be9326c8789e69e85917e6ee5d20f08f376d",
+    "tools/xberg-intake-helper/build-identity.txt": "b47231eb31790574819516bbf34cf409476c57e9f35333f157f6f0bbc6f3bcdc",
+    "tools/xberg-intake-helper/build.rs": "4e486c7c21248ce87340c83228b48e10fcdbba273cbbd406f8fa0d69c507f317",
+    "tools/xberg-intake-helper/src/engine.rs": "f6d3748654cb37b305d6b8ffcf829d4d631fe5b75d70ed25492e6c7a30e5030d",
+    "tools/xberg-intake-helper/src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0",
+    "tools/xberg-intake-helper/src/project.rs": "95418c3b7b5bd20de8b6a7ee751fdf6363e07f0b5aa422363d09f90b2b5e8d3f",
+    "tools/xberg-intake-helper/tests/eight_kinds.rs": "f722f8f95fe9d17b109cdbee5b2b898cba31061f165fa322ad2553543bc354a7",
+    "tools/xberg-intake-helper/tests/identity.rs": "a09592c93276abadfce6c1010b74f6b55ccb09a6bcfbd7d89cc66f6e82ffe991"
+  },
+  "compiled_code_proof": {
+    "15-stock-normal-policy-tests": {
+      "compiled_at_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+      "input_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/15-stock-normal-policy-tests/inputs.json",
+      "material_files_matching": [
+        "crates/brn-intake/src/bin/brn-intake-helper.rs",
+        "crates/brn-intake/src/document.rs",
+        "crates/brn-intake/src/helper_runtime.rs",
+        "crates/brn-intake/src/lib.rs",
+        "tools/xberg-intake-helper/Cargo.lock",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "tools/xberg-intake-helper/adapted.Cargo.lock",
+        "tools/xberg-intake-helper/build-identity.txt",
+        "tools/xberg-intake-helper/build.rs",
+        "tools/xberg-intake-helper/src/engine.rs",
+        "tools/xberg-intake-helper/src/main.rs",
+        "tools/xberg-intake-helper/src/project.rs",
+        "tools/xberg-intake-helper/tests/eight_kinds.rs",
+        "tools/xberg-intake-helper/tests/identity.rs"
+      ],
+      "mismatches": 0,
+      "qualification": "Matching list is the broad precommand source fingerprint, not a claim that all listed files are selected compile units. Cargo emitted graph and retained .d files establish actual selection."
+    },
+    "16-adapted-normal-policy-tests": {
+      "compiled_at_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+      "input_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/16-adapted-normal-policy-tests/inputs.json",
+      "material_files_matching": [
+        "crates/brn-intake/src/bin/brn-intake-helper.rs",
+        "crates/brn-intake/src/document.rs",
+        "crates/brn-intake/src/helper_runtime.rs",
+        "crates/brn-intake/src/lib.rs",
+        "tools/xberg-intake-helper/Cargo.lock",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "tools/xberg-intake-helper/adapted.Cargo.lock",
+        "tools/xberg-intake-helper/build-identity.txt",
+        "tools/xberg-intake-helper/build.rs",
+        "tools/xberg-intake-helper/src/engine.rs",
+        "tools/xberg-intake-helper/src/main.rs",
+        "tools/xberg-intake-helper/src/project.rs",
+        "tools/xberg-intake-helper/tests/eight_kinds.rs",
+        "tools/xberg-intake-helper/tests/identity.rs"
+      ],
+      "mismatches": 0,
+      "qualification": "Matching list is the broad precommand source fingerprint, not a claim that all listed files are selected compile units. Cargo emitted graph and retained .d files establish actual selection."
+    },
+    "17-stock-final-clippy": {
+      "compiled_at_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+      "input_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/17-stock-final-clippy/inputs.json",
+      "material_files_matching": [
+        "crates/brn-intake/src/bin/brn-intake-helper.rs",
+        "crates/brn-intake/src/document.rs",
+        "crates/brn-intake/src/helper_runtime.rs",
+        "crates/brn-intake/src/lib.rs",
+        "tools/xberg-intake-helper/Cargo.lock",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "tools/xberg-intake-helper/adapted.Cargo.lock",
+        "tools/xberg-intake-helper/build-identity.txt",
+        "tools/xberg-intake-helper/build.rs",
+        "tools/xberg-intake-helper/src/engine.rs",
+        "tools/xberg-intake-helper/src/main.rs",
+        "tools/xberg-intake-helper/src/project.rs",
+        "tools/xberg-intake-helper/tests/eight_kinds.rs",
+        "tools/xberg-intake-helper/tests/identity.rs"
+      ],
+      "mismatches": 0,
+      "qualification": "Matching list is the broad precommand source fingerprint, not a claim that all listed files are selected compile units. Cargo emitted graph and retained .d files establish actual selection."
+    },
+    "18-adapted-final-clippy": {
+      "compiled_at_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+      "input_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/18-adapted-final-clippy/inputs.json",
+      "material_files_matching": [
+        "crates/brn-intake/src/bin/brn-intake-helper.rs",
+        "crates/brn-intake/src/document.rs",
+        "crates/brn-intake/src/helper_runtime.rs",
+        "crates/brn-intake/src/lib.rs",
+        "tools/xberg-intake-helper/Cargo.lock",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "tools/xberg-intake-helper/adapted.Cargo.lock",
+        "tools/xberg-intake-helper/build-identity.txt",
+        "tools/xberg-intake-helper/build.rs",
+        "tools/xberg-intake-helper/src/engine.rs",
+        "tools/xberg-intake-helper/src/main.rs",
+        "tools/xberg-intake-helper/src/project.rs",
+        "tools/xberg-intake-helper/tests/eight_kinds.rs",
+        "tools/xberg-intake-helper/tests/identity.rs"
+      ],
+      "mismatches": 0,
+      "qualification": "Matching list is the broad precommand source fingerprint, not a claim that all listed files are selected compile units. Cargo emitted graph and retained .d files establish actual selection."
+    },
+    "19-affected-intake-clippy": {
+      "compiled_at_head": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+      "input_receipt": "/private/tmp/brn-x2-standard-task1-20261018/evidence/19-affected-intake-clippy/inputs.json",
+      "material_files_matching": [
+        "crates/brn-intake/src/bin/brn-intake-helper.rs",
+        "crates/brn-intake/src/document.rs",
+        "crates/brn-intake/src/helper_runtime.rs",
+        "crates/brn-intake/src/lib.rs",
+        "tools/xberg-intake-helper/Cargo.lock",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "tools/xberg-intake-helper/adapted.Cargo.lock",
+        "tools/xberg-intake-helper/build-identity.txt",
+        "tools/xberg-intake-helper/build.rs",
+        "tools/xberg-intake-helper/src/engine.rs",
+        "tools/xberg-intake-helper/src/main.rs",
+        "tools/xberg-intake-helper/src/project.rs",
+        "tools/xberg-intake-helper/tests/eight_kinds.rs",
+        "tools/xberg-intake-helper/tests/identity.rs"
+      ],
+      "mismatches": 0,
+      "qualification": "Matching list is the broad precommand source fingerprint, not a claim that all listed files are selected compile units. Cargo emitted graph and retained .d files establish actual selection."
+    }
+  },
+  "artifacts": {
+    "xberg": {
+      "path": "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper",
+      "sha256": "af2c86403c3f58b5d122e62c4910d7b118fe251961299a507e0a1263f0835113",
+      "compiled_primary": "/private/tmp/brn-x2-standard-task1-20261018/targets/stock/debug/brn-xberg-helper"
+    },
+    "xberg_brn": {
+      "path": "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper-brn",
+      "sha256": "2b40f963d63fbca633dce3be61be4a95ae4c907a1fdb49f83901f30ced0e6372",
+      "compiled_primary": "/private/tmp/brn-x2-standard-task1-20261018/targets/adapted/debug/brn-xberg-helper"
+    }
+  },
+  "protected_root_files": {
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "crates/brn-intake/Cargo.toml": "e9a85a7722edc240b3ce733f95c9ad379fec7962afdd287aa9e91e7e403d8802"
+  },
+  "generated_source_manifest": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/xberg-adapted/source-manifest.json",
+    "sha256": "de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae",
+    "regular_files": 765,
+    "matches_accepted_ce3": true
+  },
+  "package_source_recheck": "/private/tmp/brn-x2-standard-task1-20261018/evidence/compiled-stock-source-recheck.json",
+  "locks": {
+    "tools/xberg-intake-helper/Cargo.lock": "c5f2e24e6ac5d6d753f07e7b8193fd5c6c785f35c117def8b953fce6d6f4e8ca",
+    "tools/xberg-intake-helper/adapted.Cargo.lock": "da006868c68e1f72bfb8960de119be9326c8789e69e85917e6ee5d20f08f376d"
+  },
+  "preserved_objects": "/private/tmp/brn-x2-standard-task1-20261018/objects",
+  "early_source_custody_qualification": "/private/tmp/brn-x2-standard-task1-20261018/evidence/source-snapshot-recovery.json",
+  "dependency_file_proof": {
+    "stock": {
+      "primary_dependency_file": "/private/tmp/brn-x2-standard-task1-20261018/targets/stock/debug/brn-xberg-helper.d",
+      "primary_dependency_file_sha256": "7d829059c24bb454d5bfb11320e10d26a745b5d170b290517855f1b31ed74ad3",
+      "xberg_libraries": {
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/stock/debug/deps/libxberg-d1568f93ee90c5b0.rlib": "1d55622303f2c782535b1e6167f412548e5072059f14b6e6bd4bb8b437ab95c7"
+      },
+      "xberg_dependency_files": {
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/stock/debug/deps/xberg-d1568f93ee90c5b0.d": "c7cba73e02cba4eb9e5001e0f3c7ec665dad8bd409051e73b52147aad6a0dd42",
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/stock/debug/deps/xberg-acf66d81fa899533.d": "8405f80d545272bd946bf2159d55871faff4acc4ed86f2a6d4f4b2a2be952733"
+      }
+    },
+    "adapted": {
+      "primary_dependency_file": "/private/tmp/brn-x2-standard-task1-20261018/targets/adapted/debug/brn-xberg-helper.d",
+      "primary_dependency_file_sha256": "c2eb859a91e5f91be1979a9b8d1de84cfd9afb22c243ac33ed9d25e011105d76",
+      "xberg_libraries": {
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/adapted/debug/deps/libxberg-33380c81533fb1c8.rlib": "8e4452e7c0693cff2a6e141f340892ad99bff1d6f1caf32e5ddc3fb7dd33cc69"
+      },
+      "xberg_dependency_files": {
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/adapted/debug/deps/xberg-33380c81533fb1c8.d": "a7354af247ab46e88784ffbfdac547e9e5077e23320349806ab8bdb542369e21",
+        "/private/tmp/brn-x2-standard-task1-20261018/targets/adapted/debug/deps/xberg-c85110d0e3c74261.d": "08f321829829216a9a09df6efc38c51e83ae5481e76554b7e725662f8bb704a2"
+      }
+    }
+  }
+}
