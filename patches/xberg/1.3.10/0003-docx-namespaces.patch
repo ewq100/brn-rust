@@ -1111,7 +1111,7 @@ index 5df95f5..2dda5c5 100644
  #[cfg(test)]
  use crate::error::{Result, XbergError};
 diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
-index 6567d51..fff1e37 100644
+index 6567d51..31cb755 100644
 --- a/src/extraction/docx/parser.rs
 +++ b/src/extraction/docx/parser.rs
 @@ -19,8 +19,10 @@ use ahash::AHashMap;
@@ -2084,7 +2084,7 @@ index 6567d51..fff1e37 100644
                              _ => {}
                          }
                      }
-@@ -3597,19 +3647,24 @@ impl<R: Read + Seek> DocxParser<R> {
+@@ -3597,19 +3647,20 @@ impl<R: Read + Seek> DocxParser<R> {
          loop {
              budget.step()?;
              match reader.read_event_into(&mut buf) {
@@ -2105,16 +2105,12 @@ index 6567d51..fff1e37 100644
                          }
                      }
 -                    let out = self.parse_body_elements(&mut reader, Some("w:comment".to_string()), budget, warnings)?;
-+                    let out = self.parse_body_elements(
-+                        &mut reader,
-+                        Some((Space::Word, "comment").to_string()),
-+                        budget,
-+                        warnings,
-+                    )?;
++                    let stop_tag = e.name().as_ref().to_string();
++                    let out = self.parse_body_elements(&mut reader, Some(stop_tag), budget, warnings)?;
                      let mut paragraphs = out.paragraphs;
                      for table in out.tables {
                          for row in table.rows {
-@@ -4273,7 +4328,7 @@ mod tests {
+@@ -4273,7 +4324,7 @@ mod tests {
          let mut reader = Reader::from_str(xml);
          let mut buf = Vec::new();
          if let Ok(Event::Empty(ref e)) = reader.read_event_into(&mut buf) {

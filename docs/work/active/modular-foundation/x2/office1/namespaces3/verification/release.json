@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-18T03:26:55Z",
+  "matching_processes": [],
+  "owned_sessions_reaped": true,
+  "owned_children": [],
+  "heavy_released": true,
+  "next_operations": "static patch reproduction, hashes, formatting, JSON/docs/Git only; no further Cargo planned",
+  "repo_precommit_HEAD": "4f6814bc231b1af5da945e7758a413d302cbdbc4",
+  "all_owned_repo_paths_released_after_commit": [
+    "patches/xberg/1.3.10/0003-docx-namespaces.patch",
+    "patches/xberg/1.3.10/0003-source-manifest.json",
+    "patches/xberg/1.3.10/0003-docx-namespaces.md",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/check-index.json",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/handoff.md",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/requirements.txt",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/response.md",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/source-pin.json",
+    "docs/work/active/modular-foundation/x2/office1/namespaces3/verification/release.json"
+  ],
+  "scratch_paths_released": "/private/tmp/brn-x2-office-ns3-run-20261018",
+  "final_commit_identity_receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/final-repo-pin.json",
+  "root_adoption": false,
+  "independent_review": "PENDING"
+}

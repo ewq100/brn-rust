@@ -1,0 +1,588 @@
+{
+  "status": "VERIFIED_CANDIDATE_REVIEW_PENDING",
+  "full_requirements_sha256": "b3c087fd5a5bd5319c0702302bc39cb6d9c98bed15407d27159f25d9e335bde9",
+  "original_source_only_requirements_sha256": "6e389206fc1fbd72212c8c722f963209dec1b42efef224acb7328e0ffc8c366d",
+  "parent_source_audit_sha256": "93458a2948969bd5f7da61684364f0e00304b28d515d5d0faec5df38e1b06269",
+  "features_amendment_sha256": "1e6e720fcb3ebbb1bd108a70eadf606df0a257e4d6b7d767649960ee287251f3",
+  "features_parent_evidence_sha256": "cfead6f3bacd938d4130660b8517044732266fdc016cfa9fbca40b211f70a24e",
+  "cargo_attempts": [
+    {
+      "label": "01-before-original",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/before/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/01-before-original/receipt.json",
+      "receipt_sha256": "7d868fddd2fa7d073a7c0cb3ae9b4d4220acd529ff4d9a2626a99f0f52a01bf7",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/01-before-original/raw.log",
+      "raw_log_sha256": "bdb52ac95aab99b2b0818adfe79bb1075e8f4ea71f42714543cfada9163f1418",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/01-before-original/before-artifacts.json",
+      "before_artifact_index_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/01-before-original/after-artifacts.json",
+      "after_artifact_index_sha256": "d440a0ecfe25204017af49c546a2c6968c5c9c0d0c039b75a883dfcbf6b875c5",
+      "classification": "10/15 actual behavior at original driver; two image DTO expectations later corrected with source-backed controls"
+    },
+    {
+      "label": "02-final-original",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/final/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/02-final-original/receipt.json",
+      "receipt_sha256": "4d6f4d2fff73c4cc049f2a6e5ea88954372b52c62170e12d8aa7c64ce97be435",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/02-final-original/raw.log",
+      "raw_log_sha256": "7397590f4a27a6e031f11d5ead4466a80842816505096a2fff531faf47b98ca1",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/02-final-original/before-artifacts.json",
+      "before_artifact_index_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/02-final-original/after-artifacts.json",
+      "after_artifact_index_sha256": "d9bdd0fff05ab94bd4910c1a2c748dc23a9ab613c5f9e0a7912894838398352e",
+      "classification": "Compiler E0599; zero tests; comment stop tag tuple conversion"
+    },
+    {
+      "label": "03-final-raw-comment-stop",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/final/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/03-final-raw-comment-stop/receipt.json",
+      "receipt_sha256": "87efe43275bdf7dfbb82ef8331c1c053c49ec3652967e24e64656b153d7d88b9",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/03-final-raw-comment-stop/raw.log",
+      "raw_log_sha256": "b0d3c0c9032b2de1c7850f095bd0720002249c8846edb36816bc2c141852383b",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/03-final-raw-comment-stop/before-artifacts.json",
+      "before_artifact_index_sha256": "d9bdd0fff05ab94bd4910c1a2c748dc23a9ab613c5f9e0a7912894838398352e",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/03-final-raw-comment-stop/after-artifacts.json",
+      "after_artifact_index_sha256": "c15dbc145387af8ffbf67c6350713299636cd6ea7cac85fe153adb696c2e8a49",
+      "classification": "23/2; two new Image-node DTO expectation mistakes, old eight all pass"
+    },
+    {
+      "label": "05-before-corrected-absence-controls",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/before/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/05-before-corrected-absence-controls/receipt.json",
+      "receipt_sha256": "9411f0aabd90a84f9ae1524eede7e57d12dd753b071ccd2bc3746abbabb2c562",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/05-before-corrected-absence-controls/raw.log",
+      "raw_log_sha256": "9bd73ac8a645a67c152f9b61633247eba980d23c273d14f9f153f98c8cc6efc4",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/05-before-corrected-absence-controls/before-artifacts.json",
+      "before_artifact_index_sha256": "d440a0ecfe25204017af49c546a2c6968c5c9c0d0c039b75a883dfcbf6b875c5",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/05-before-corrected-absence-controls/after-artifacts.json",
+      "after_artifact_index_sha256": "a2b6cd0aaaff5c26776091b7dba902290dcd964e698dc8590e5829903ebb7f9c",
+      "classification": "Compiler E0277 in added optional image-index assertion; zero tests"
+    },
+    {
+      "label": "06-before-typed-absence-controls",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/before/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/06-before-typed-absence-controls/receipt.json",
+      "receipt_sha256": "4e41b9adbf44b1b1868545267bd3be92794cada4b8bb910bba1c16fb26a598bd",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/06-before-typed-absence-controls/raw.log",
+      "raw_log_sha256": "2fd0f1d77d19aca0dd1addd15e2e21295cb60b9b7708c53229584846c977ba0d",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/06-before-typed-absence-controls/before-artifacts.json",
+      "before_artifact_index_sha256": "a2b6cd0aaaff5c26776091b7dba902290dcd964e698dc8590e5829903ebb7f9c",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/06-before-typed-absence-controls/after-artifacts.json",
+      "after_artifact_index_sha256": "e14b2fb8e7e9d5416410fb858a4a5511f828d4d52ca8e13a39d585130cb1f448",
+      "classification": "10/15 actual behavior on intermediate corrected driver"
+    },
+    {
+      "label": "07-final-typed-absence-controls",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/final/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/07-final-typed-absence-controls/receipt.json",
+      "receipt_sha256": "1a8f701b33b7a910f675b45d0231c5f68b3e52b35936ac177b0b75dbcd58305e",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/07-final-typed-absence-controls/raw.log",
+      "raw_log_sha256": "6e1a56bd6c42008fd51d8ba064e8ae91300c8119163e6ad68e304abbe7db4c2f",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/07-final-typed-absence-controls/before-artifacts.json",
+      "before_artifact_index_sha256": "c15dbc145387af8ffbf67c6350713299636cd6ea7cac85fe153adb696c2e8a49",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/07-final-typed-absence-controls/after-artifacts.json",
+      "after_artifact_index_sha256": "78b5306b68538e1b544f8c6a6f1a61fd23e7a6121c107ae70e55b40f270ac460",
+      "classification": "24/1; added assertion incorrectly omitted existing per-drawing metadata"
+    },
+    {
+      "label": "08-before-source-drawing-metadata",
+      "exit_code": 101,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/before/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/08-before-source-drawing-metadata/receipt.json",
+      "receipt_sha256": "fc6010da2b80da9d91e31fa732bbb49ff902bd3016f9022c9cecab6d67cb0a02",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/08-before-source-drawing-metadata/raw.log",
+      "raw_log_sha256": "8fe3da1b452f071003701f7fad8d32a7ab921e5ae81f105fbda8913decaffe3b",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/08-before-source-drawing-metadata/before-artifacts.json",
+      "before_artifact_index_sha256": "e14b2fb8e7e9d5416410fb858a4a5511f828d4d52ca8e13a39d585130cb1f448",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/08-before-source-drawing-metadata/after-artifacts.json",
+      "after_artifact_index_sha256": "8dabee11ac90c13b260e73e7b36496ba87a8198d1bdf846207d47e1d181f1fea",
+      "classification": "10/15 actual behavior; final identical Rust driver bytes"
+    },
+    {
+      "label": "09-final-source-drawing-metadata",
+      "exit_code": 0,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/final/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--test",
+        "namespaces",
+        "--no-fail-fast",
+        "--message-format=json",
+        "--",
+        "--test-threads=1"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/09-final-source-drawing-metadata/receipt.json",
+      "receipt_sha256": "3c8efd6cbec11183c771d0f14b9384a50478272ab946aec9d7b0113510e407ea",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/09-final-source-drawing-metadata/raw.log",
+      "raw_log_sha256": "6e03a9f76d2cb82644c07edc87fc96446280c1516cc41b16a12080b0d6c7c77f",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/09-final-source-drawing-metadata/before-artifacts.json",
+      "before_artifact_index_sha256": "78b5306b68538e1b544f8c6a6f1a61fd23e7a6121c107ae70e55b40f270ac460",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/09-final-source-drawing-metadata/after-artifacts.json",
+      "after_artifact_index_sha256": "598c511c2af90b078a06fc324cbe6dcba43ef04a069488a5e9d98a67113b4495",
+      "classification": "25/0 actual final controls, zero ignored/filtered"
+    },
+    {
+      "label": "11-harness-clippy",
+      "exit_code": 0,
+      "command": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "clippy",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-ns3-run-20261018/final/harness/Cargo.toml",
+        "-p",
+        "docx-span-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--all-targets",
+        "--message-format=json",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/11-harness-clippy/receipt.json",
+      "receipt_sha256": "67b613356ce9e6fa7845357e275cd01612d8c09a59349e48250570bd4df5b912",
+      "raw_log": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/11-harness-clippy/raw.log",
+      "raw_log_sha256": "7b8c12e2f2b3637d442e8e32ec34d945beaf7c1701d435eefd10132aa96d6d7f",
+      "before_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/11-harness-clippy/before-artifacts.json",
+      "before_artifact_index_sha256": "598c511c2af90b078a06fc324cbe6dcba43ef04a069488a5e9d98a67113b4495",
+      "after_artifact_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/11-harness-clippy/after-artifacts.json",
+      "after_artifact_index_sha256": "2ab7f500d1909a6a20ef870d05c64bc6517deef7f4db7cd8783332fb08c2a166",
+      "classification": "PASS -D warnings; lint/compile only, no test-pass count"
+    }
+  ],
+  "actual_cases": [
+    {
+      "test": "authored_rectangular_origins_and_covered_slots",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "body_header_footer_attach_exact_table",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "complete_reference_output_controls",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before first failure: real prefix body empty. Final all complete reference assertions pass."
+    },
+    {
+      "test": "footnotes_real_three_column_origin",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "namespace_default_math_restores_word_scope",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before default Word body absent; final exact Before/formula x/After scope sequence."
+    },
+    {
+      "test": "namespace_default_namespace_does_not_qualify_attributes",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before default body absent; final unqualified style val does not become Word attribute."
+    },
+    {
+      "test": "namespace_foreign_embed_and_style_attributes_are_ignored",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before binds foreign embed. Final no semantic Image; source drawing metadata retained with empty data/source_path None."
+    },
+    {
+      "test": "namespace_foreign_local_names_do_not_create_word_objects",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "namespace_known_strict_word_and_relationship_uris",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before first rich heading alias assertion fails; following strict comparisons were not all reached. Final both rich variants and whole-value equality pass."
+    },
+    {
+      "test": "namespace_nested_rebinding_restores_outer_word",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before Before/Foreign/After; final exact Before/Inner/After through native scope."
+    },
+    {
+      "test": "namespace_opc_relationship_element_alias_keeps_unqualified_ids",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before first rich heading alias assertion fails; both capture values retained. Final full rich checks and OPC alias/default whole equality pass."
+    },
+    {
+      "test": "namespace_qualified_word_attribute_alias_is_positive",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before drops qualified aliased style attribute; final exact Heading2 Qualified."
+    },
+    {
+      "test": "namespace_real_prefix_inventory_complete",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before exact header/footer only. Final independent complete body/table/figure/story sequence and canonical equality."
+    },
+    {
+      "test": "namespace_scoped_relationship_rebinding_does_not_leak",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before two bound figures; final only semantic occurrence index 1, metadata index0 unbound/index1 source-bound, all data empty."
+    },
+    {
+      "test": "namespace_style_dom_foreign_outline_does_not_create_heading",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "namespace_unbound_prefix_is_not_word_semantics",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "namespace_vml_textbox_alias_and_foreign_canary",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before foreign same-local textbox leaks prose; final canonical/alias whole equality and foreign absence."
+    },
+    {
+      "test": "namespace_word_alias_default_full_compatibility",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before first rich canonical heading alias assertion fails; alias loop not fully reached. Final all rich variants and complete equality pass."
+    },
+    {
+      "test": "native_consumer_attribute_envelope_and_fallback",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "nonmerged_and_invalid_continuations_preserve_legacy",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "parallel_merge_chains_end_restart_and_wide_columns",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "parsed_grid_span_edges",
+      "before": "ok",
+      "final": "ok",
+      "qualification": "Existing positive/negative control passes at both actual sources; no behavior-red claim."
+    },
+    {
+      "test": "pptx_math_foreign_same_local_and_display_selection_controls",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before Inventedx from foreign rebound run. Final x only; display-first and inline fallback unchanged."
+    },
+    {
+      "test": "pptx_math_fragment_local_rebind_and_default_namespace",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before default Math produces no formula; final both exact x^{2} and whole equality."
+    },
+    {
+      "test": "pptx_math_inherited_alias_and_parent_shadow_compatibility",
+      "before": "FAILED",
+      "final": "ok",
+      "qualification": "Before inherited alias formula absent; final exact x^{2} and canonical whole equality."
+    }
+  ],
+  "before_final_driver_identical": true,
+  "retained_S3_driver_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+  "final_namespace_driver_sha256": "cd9c7d74269ba16d401d85fa4d33c0142fa697f81fba5f222b8b15c566e70cd9",
+  "captures": {
+    "JSON": 59,
+    "DOCX_inputs": 45,
+    "PPTX_inputs": 8,
+    "complete_capture_index": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/15-final-capture-index.json"
+  },
+  "compatibility": {
+    "whole_value_identical": [
+      "combined",
+      "consumer-absent",
+      "consumer-empty-no-key",
+      "consumer-invalid-grid",
+      "consumer-invalid-json",
+      "consumer-native-only",
+      "consumer-native-plus-other",
+      "gap",
+      "geometry-footnotes",
+      "horizontal",
+      "invalid-span-0",
+      "invalid-span-1025",
+      "invalid-span-4294967295",
+      "max-span",
+      "mismatch",
+      "missing-grid",
+      "nonmerged",
+      "omitted-leading-grid",
+      "orphan",
+      "parallel-mixed",
+      "parallel-wide",
+      "ragged",
+      "reference-footnotes",
+      "reference-harbor-process",
+      "reference-harbor",
+      "stories",
+      "styled",
+      "vertical"
+    ],
+    "whole_value_identical_count": 28,
+    "narrowly_source_corrected": [
+      "reference-features"
+    ],
+    "four_added_keys": [
+      "document.nodes[5].attributes.image_uri",
+      "document.nodes[7].attributes.image_uri",
+      "images[0].source_path",
+      "images[1].source_path"
+    ],
+    "exact_content_destination_fields": [
+      "content",
+      "pages[0].content"
+    ],
+    "input_bytes_identical": [
+      "combined",
+      "gap",
+      "geometry-footnotes",
+      "horizontal",
+      "invalid-span-0",
+      "invalid-span-1025",
+      "invalid-span-4294967295",
+      "max-span",
+      "mismatch",
+      "missing-grid",
+      "nonmerged",
+      "omitted-leading-grid",
+      "orphan",
+      "parallel-mixed",
+      "parallel-wide",
+      "ragged",
+      "reference-features",
+      "reference-footnotes",
+      "reference-harbor-process",
+      "reference-harbor",
+      "reference-prefix-variation",
+      "stories",
+      "styled",
+      "vertical"
+    ],
+    "input_bytes_identical_count": 24,
+    "prefix_result": "separate independent complete inventory assertions; no old-empty-body oracle",
+    "comparison": "whole JSON equality after only the enumerated source-authored changes; no recursive normalization"
+  },
+  "failed_comparison_history": [
+    "04 strict 29-value identity failed for intended features URI repair; unchanged script/log retained",
+    "10 authored comparison source assertion counted two pictures instead of three existing per-drawing metadata records; failed script/log retained",
+    "Initial static graph index expected full emission at compiler-failed 02; corrected classification records 238 subset, no identity/feature change"
+  ],
+  "static_checks": {
+    "owned_direct_rustfmt": "PASS",
+    "fresh_archive_0001_0003_selected_hashes": "PASS",
+    "immutable_harness_export_test_fixture_hashes": "PASS",
+    "S3_geometry_method_bytes": "UNCHANGED",
+    "ordered_lexical_budget_calls": "UNCHANGED; not runtime/cost proof",
+    "unchanged_native_grid_consumer_and_renderer": "PASS",
+    "harness_alltarget_Clippy": "PASS; not dependency-wide lint",
+    "metadata_or_resolution_calls": 0
+  },
+  "evidence": [
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/04-original-legacy-comparison.json",
+      "sha256": "98a76c8a4e0066f5a3822aa5d57bf2260aff4de8d53302f81fac309e37078fd0"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/10-source-authored-compatibility.json",
+      "sha256": "cd8aa7d66642c3673f7b2b80158aefefcc5aa979404190b2192ae778a2801077"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/12-source-authored-compatibility.json",
+      "sha256": "3cb5e1391e40039d74916dddc1754a71a4005874bba8de19a6c8e48a15ab6941"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/13-static-reproduction.json",
+      "sha256": "64e301200c928e30450e96b48584426a91070bb06a7ff10c307cff7145156472"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/14-graph-and-attempt-index.json",
+      "sha256": "f30e6fb0490f9f7520e0f638c3b8aa4fae8af77ff18e6ff6f53a6d5a96890e68"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/15-final-capture-index.json",
+      "sha256": "92a0b37cf0e8f4fc163c9d4660abb8d0df4c2c32c0a2ef2884abc922532f11a1"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/16-final-outcomes.json",
+      "sha256": "321e7405f48badc7d4edf5d2a64ead298eee6ca6b793f74f56471908bbcc2f29"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/frozen-S3-custody.json",
+      "sha256": "8eeb2f697e08dec700f43f8b0ea50a1fc19940839689fc854a1c497355a25293"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/heavy-release.json",
+      "sha256": "4eb5153f56fffc1be84aa8da975b34b3acc3999988f1b234b56628147e03b970"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/start-binding.json",
+      "sha256": "e10ac4285eb56e41ebc7baa3a0fccb80dc11f941856f8994bc5035eb407620fb"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/initial-heavy-inventory.json",
+      "sha256": "6d7d749b0ff4a8d2e245290619afa800546304184782c796852f54197950e783"
+    }
+  ],
+  "final_repository_static_receipt": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/repo-precommit.json",
+  "root_adoption": false,
+  "independent_actual_review": "PENDING"
+}
