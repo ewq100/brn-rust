@@ -1,0 +1,128 @@
+{
+  "tested_material": "e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a",
+  "tree": "4dc3a23aff8c4c53daf8506d15895d8684a0a74d",
+  "target": "/private/tmp/brn-final-integration-20261018-target",
+  "toolchain": "1.98.1",
+  "locked_offline_jobs": 1,
+  "raw": "/private/tmp/brn-dialog-confirmation-20261018",
+  "checks": [
+    {
+      "phase": "01-unchanged-exact",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 129.77921795845032,
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "5f8080965555bd22c2a68b90be7c0fe541edbd9f3be95237f562a55033e6c87c",
+      "stdout_sha256": "23f0d33e048836b4f129fbd07670747a681f3491f8134fb18e31319f7376c73c",
+      "stderr_sha256": "e0d38fad891b7316678f162f90e2f1d94e34573d2b5cc3c5b03e207684b728a0",
+      "result_sha256": "d2a2feaa8d4b6cd55025850d75ad6c98d3d8c6fdd577adb61c371e3b180fccc1"
+    },
+    {
+      "phase": "02-unchanged-seeds",
+      "command": [
+        "env",
+        "SEED=0",
+        "ITERATIONS=100",
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 4.975900888442993,
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "5f8080965555bd22c2a68b90be7c0fe541edbd9f3be95237f562a55033e6c87c",
+      "stdout_sha256": "1824b42403c5d2704759591e64bbf7227bbf20d1e228a419dfc2cc0c087768f3",
+      "stderr_sha256": "490143eec153abca778f05b0549ea22c5a44ad86a140606117e1e9f08eb28014",
+      "result_sha256": "bbd517a22cbe10e2e091dd02bbdf91563e9bbdb5a4fc3835d5b230e48ce91d63"
+    },
+    {
+      "phase": "03-unchanged-widget-context",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "exit": 101,
+      "seconds": 10.281580924987793,
+      "summaries": [
+        [
+          "FAILED",
+          "300",
+          "5",
+          "1"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "5f8080965555bd22c2a68b90be7c0fe541edbd9f3be95237f562a55033e6c87c",
+      "stdout_sha256": "df41b41c124c021eb3788f5f48df1e4e38f99e31343a2a42c067961460be21d2",
+      "stderr_sha256": "6021dca273382e5e7f9997bc3cc2f730ec565e66270a816d75b460d7635fbe0f",
+      "result_sha256": "0fa1660fb405f0a4f997c70f2fdb0d3a9459ddedfcaa87f3bdce37b66ba636b4"
+    }
+  ],
+  "interpretation": "01 exact1/0/0 and02 one100-seed diagnostic passed.03 fullwidget300/5/1,3filtered; requested dialog passed. Five Documents fixture failures reflect absent helper bindings/siblings; no rerun. This is not a successful suite or causal fix.",
+  "source_files_unchanged": {
+    "omakase": true,
+    "shared_components": true
+  },
+  "package_sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196",
+  "helper_setup_diagnosis_sha256": "3d7538277f6063fe05dc10c6f375a88e10232791b024448ff89eae1e4859bf65"
+}

@@ -1,0 +1,9 @@
+# Dialog confirmation diagnosis binding
+
+18 October 2026. Assigned checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192`, branch `work/ci-dialog-confirmation-20261018`, initially clean at exact main `e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a`, tree `4dc3a23aff8c4c53daf8506d15895d8684a0a74d`. The initial20minute inclusive window began19:07:21Z, with deadline19:27:21Z; work stopped early on a new context-run failure. This evidence is documentation only; tested material stays at that main commit.
+
+The required hosted failure is run39154786381 attempt1, job117755655912: `threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button`, `threads_omakase_tests.rs:1687`, `assert!(confirmed.get())`. Actual widget command yielded304/1/1 with3filtered. Main gate remains open. MainCore passed25m55s including remaining capability lint/help/offline journeys; the earlier PR159 main30m timeout stays historical incomplete.
+
+Scope was the failing test/private helper and a conditional existing shared consequence-dialog fix only with genuine proof. No source edit was made. No GUI, provider/Auth, external data, downloads, dependencies, workflow changes, retriesCI, push, PR, merge, review dispatch or other suite was authorized/performed. The diagnosing-bugs skill was read and used; the local red-capable invocation exists, but a tight reproducible local red for the requested symptom was not established.
+
+Raw custody: `/private/tmp/brn-dialog-confirmation-20261018`. Existing native binaries and `.d` were hashed/copied before first Cargo and before each later invocation; exact source maps, HEAD/tree/diff, commands, logs, fresh0700TMPDIRs, artifacts and PGIDs are in each check receipt. Rust1.98.1, locked/offline, jobs1, fixed literal target `/private/tmp/brn-final-integration-20261018-target`. No inputs changed during Cargo.

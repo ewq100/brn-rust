@@ -1,0 +1,190 @@
+{
+  "material": "9271af2967a085846424ac54a13d16bfee2b85be",
+  "checks": [
+    {
+      "phase": "01-focused-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 66.22488212585449,
+      "summary": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "23f0d33e048836b4f129fbd07670747a681f3491f8134fb18e31319f7376c73c",
+      "stderr_sha256": "80a47cd7c44f16ff2ac482084b8e76e893fe30fdaa36debe5b8ee775769f6b08"
+    },
+    {
+      "phase": "02-affected-widget-suite",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "exit": 0,
+      "seconds": 10.338916063308716,
+      "summary": [
+        [
+          "ok",
+          "305",
+          "0",
+          "1"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "8ea4065ff133105cc30209e211cd86f82e5964d7e49a4e6823763820165b26ce",
+      "stderr_sha256": "3b6a3b307e8b1c1e8f42d01fc6875835c547fecfa5a42ff2a4080de4cb9eeb39"
+    },
+    {
+      "phase": "03-strict-native-ui",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 7.793398857116699,
+      "summary": [],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "25e2a3b2413e78b3bde1b8679271bf81fdbbd21cb2b218bd3d99c1aae671a970"
+    },
+    {
+      "phase": "04-strict-widgets",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 6.7146477699279785,
+      "summary": [],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f663b41ecc3994a48b15e9edc7723489a89d8981f3f37e224150381c7c657bac"
+    },
+    {
+      "phase": "05-strict-writing-ui",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 2.934178113937378,
+      "summary": [],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "68524a4c94d19f454179ec8beb790892d7d24355d24ca484fdef245f66453115"
+    },
+    {
+      "phase": "06-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 2.4330668449401855,
+      "summary": [],
+      "source_unchanged": true,
+      "inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "07-static-links",
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "seconds": 0.984065055847168,
+      "summary": "Markdown links: 538 files, 2452 local links, 0 failures; historical outgoing policy=docs/archive/ only",
+      "source_unchanged": true,
+      "inputs_sha256": "497c1dc67b3e2482bc8f6a24e8889f3611d2a7dfb3fc8da792d17c021da81516",
+      "stdout_sha256": "dbcbe3fbd1c3c1e680a31aab459bbd319f307f4799ddd012400b47b645137674",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "widget_result": "305 passed;0 failed;1 ignored;3 filteredout",
+  "counts_overlap": "Focused case is included in the suite; counts are not unique aggregate coverage.",
+  "static": "Markdown links passed:538 files/2452 local links/0failures, on final Markdown prose. Only JSON receipt metadata sealed afterward. Final staged whitespace and JSON validation recorded in raw final-validation.json.",
+  "raw": "/private/tmp/brn-dialog-confirmation-20261018-phase3"
+}
