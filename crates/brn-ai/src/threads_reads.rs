@@ -38,6 +38,28 @@ impl ReadLedger {
         self.complete.contains(&(id.to_owned(), version))
     }
 
+    pub(super) fn covers(&self, id: &str, version: u64, start: usize, end: usize) -> bool {
+        if start >= end {
+            return false;
+        }
+        if self.knows(id, version) {
+            return true;
+        }
+        let Some(spans) = self.ranges.get(&(id.to_owned(), version)) else {
+            return false;
+        };
+        let mut covered = start;
+        for (from, to) in spans {
+            if *from > covered {
+                break;
+            }
+            covered = covered.max(*to);
+            if covered >= end {
+                return true;
+            }
+        }
+        false
+    }
     /// Each version shown, with the bytes covered by slices (`None` when only
     /// whole reads were seen) and whether it was shown completely.
     pub(super) fn shown(&self, limit: usize) -> Vec<(String, u64, Option<usize>, bool)> {

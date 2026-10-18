@@ -1,0 +1,20 @@
+{
+  "no_build_or_extra_test_commands": true,
+  "runner_direct_result": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 486
+  },
+  "documentation_links": "all handoff relative file links resolved",
+  "first_staged_whitespace_check": {
+    "exit": null,
+    "diagnostic": "stdout.txt:6: new blank line at EOF",
+    "resolution": "raw bytes unchanged in scratch; repository copy reversibly JSON-encoded with raw SHA/byte count",
+    "exit_qualification": "Individual status was not separately retained; combined inspection command ended0 after diff stat. The exact whitespace diagnostic was observed."
+  },
+  "final_staged_whitespace_check": {
+    "exit": 0
+  },
+  "code_source": "all334 frozen input hashes unchanged"
+}

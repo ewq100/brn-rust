@@ -1,0 +1,304 @@
+{
+  "purpose": "Test",
+  "project": {
+    "id": "c8608c78-5c17-4af5-b098-4ced252f19a3:0",
+    "version": 3
+  },
+  "chat": {
+    "id": "fc9a5ad7-a7fe-4c71-b835-2ec3ba55351b:0",
+    "version": 1,
+    "privacy": true,
+    "epoch": 1
+  },
+  "settings": {
+    "id": "191772a1-2d35-4588-9f6c-438d5912128c:0",
+    "version": 4,
+    "policy_sha256": "34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993",
+    "auth_reference": "/Users/evokessler/.codex/auth.json"
+  },
+  "target": {
+    "id": "a51ac009-8a33-4a59-a767-db8f584c0fd1:0",
+    "version": 2,
+    "protected": true
+  },
+  "inputs": [
+    {
+      "id": "55227f50-c158-4033-921c-34d898682213:0",
+      "version": 1
+    },
+    {
+      "id": "55227f50-c158-4033-921c-34d898682213:1",
+      "version": 1
+    },
+    {
+      "id": "55227f50-c158-4033-921c-34d898682213:2",
+      "version": 1
+    },
+    {
+      "id": "55227f50-c158-4033-921c-34d898682213:3",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:0",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:1",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:10",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:11",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:12",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:13",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:14",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:15",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:16",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:17",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:18",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:19",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:2",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:20",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:21",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:22",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:23",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:24",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:25",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:26",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:27",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:28",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:29",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:3",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:30",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:31",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:4",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:5",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:6",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:7",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:8",
+      "version": 1
+    },
+    {
+      "id": "5a2ae76f-d1a9-4884-a1d8-2ba05bf5400f:9",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:0",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:1",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:10",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:11",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:12",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:13",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:14",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:15",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:16",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:17",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:18",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:19",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:2",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:20",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:21",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:22",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:23",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:24",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:25",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:26",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:27",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:28",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:29",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:3",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:30",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:31",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:4",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:5",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:6",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:7",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:8",
+      "version": 1
+    },
+    {
+      "id": "af14f4ca-ce6f-4657-afb3-a2ce260084fb:9",
+      "version": 1
+    }
+  ],
+  "package": {
+    "id": "installed:int-d-review",
+    "digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+    "selected": false,
+    "bindings": []
+  }
+}

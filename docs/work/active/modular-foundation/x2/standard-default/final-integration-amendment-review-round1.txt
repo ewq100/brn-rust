@@ -1,0 +1,19 @@
+## Review
+
+**Verdict: APPROVED**
+
+**Blocking findings:** None. The [execution amendment](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/standard-default/final-integration-amendment.md:1) is concrete and executable against the inspected source.
+
+- **Prior B1/M1:** the explicit owner scope change supersedes the old custom-fidelity, prepared-schema and Verbatim requirements. It does not waive current data-safety guarantees or represent retired tests as passes.
+- **Prior B2/M2:** NF-1 preserves busy refusal before review consumption, take before durable prepare, and attach afterward. The queue-match boolean and synchronous positive-case assertions match source behavior without inventing persisted MCP state.
+- **Prior B3:** read-only lock parsing confirms the stored merge tree adds only local `brn-writing-ui` and the declared desktop edges. Both standalone locks remain byte-identical. The amendment correctly requires fresh graph and serialization/replay verification.
+- **Prior B4:** new failures require diagnosis and disposition; historical failures do not automatically pass. Final-main freeze, independent combined review, required CI and merged-tree/main verification remain explicit.
+- Conflict instructions address the actual UI/CI collisions, including captured settings/project/provenance, writing-reference imports, report details, skill/MCP children and removal of legacy helper calls.
+
+**Advisory:** None.
+
+**Coverage and pending execution:** Reviewed at clean HEAD `368db18b7b7ac8f1a7e24f915529578415853eec`, with X2 code pin `b8cf75bf56470b390b383baca37afdbc8fc4ff86`, writing pin `d2d84e665e64de14a15f4704eb0868c553c2885a`, the requested amendment/brief/plans/reports/contracts, original final-integration plan/NF1/authority/review responses at `a1840aaf8fb2739600c14177ef30bba546cdce80`, relevant source and stored merge tree `fd8592a28018d3a2837a817a4bd7efba3fd9bdf6`.
+
+Approval covers the execution amendment. Actual merges, NF-1 implementation, combined checks/package verification, independent whole-candidate review and PR/main CI remain pending. Native-human and owner acceptance remain qualified.
+
+No writes, Cargo, tests, metadata, formatters, application/Auth/network/GUI calls, delegation or merges were performed.

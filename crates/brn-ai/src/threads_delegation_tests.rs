@@ -98,6 +98,7 @@ fn pending_runtime_requires_review_but_scoped_owner_instruction_still_applies() 
         let prepared = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "pending update".into(),
                 request: ChangeRequest {
                     reason: "Update selected synthetic note".into(),

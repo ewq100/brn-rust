@@ -1,0 +1,243 @@
+{
+  "schema": "x2-namespaces3-preparation/1",
+  "status": "SOURCEPREPARED_BUILDNEED",
+  "repo_base": "c5cca502e28b4c9c607444ed9fab7c35652ab756",
+  "repo_branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "requirements_sha256": "6e389206fc1fbd72212c8c722f963209dec1b42efef224acb7328e0ffc8c366d",
+  "original_allocation_sha256": "7023afb57eb42292e8bc90c878519d5c097c0368bb077ee86aedd1f202c90895",
+  "patch_sha256": "aa26694eb0be3c17d474fbf6ae5a7c8f2d96f0e6cc2b4af27d93e19781ded62c",
+  "source_manifest_sha256": "350263a3ad9df9141c8e7a0e4006e73c2519710a8bfb01c88ffd9c893f762c88",
+  "external_root": "/private/tmp/brn-x2-office-namespaces3-20261018",
+  "external_baseline_git": "37fb3471cd341d2bf5ebb98c0f152b28efd737da",
+  "external_candidate_git": "37eed9a95acebb4e8bbfed14332ca1ab6350662e",
+  "external_candidate_tree": "556c3ac91d82bea805005633c78c84422ef7b909",
+  "source_static": {
+    "executed_behavioral_checks": [],
+    "retained_S3_methods": [
+      {
+        "method": "to_cell_grid",
+        "sha256": "0a3b8a1747ee08352d67028802b3a959e9b3e15ab243750e35d90ff108499ed3"
+      },
+      {
+        "method": "to_native_grid",
+        "sha256": "7d2ca4f653606f44f157809893ff66450e5cdc35802efbeaf101480ecba7fa67"
+      },
+      {
+        "method": "to_cell_style_grid",
+        "sha256": "5be510bc3381e37f239cb66ef7152db61e15ec85a546ff08bccfa5b515429bf9"
+      }
+    ],
+    "ordered_budget_call_sites_unchanged": [
+      {
+        "path": "parser.rs",
+        "ordered_budget_call_sites": 26,
+        "method_sequence_sha256": "2174243204d0d3d829574c49ca3504e57229ebc5f571465232a04fc7029e84d8"
+      },
+      {
+        "path": "table/mod.rs",
+        "ordered_budget_call_sites": 16,
+        "method_sequence_sha256": "10c8f5cd7ff87740282889ed712289de5f74177da0024235c9aa9ce45d3c0c45"
+      },
+      {
+        "path": "drawing.rs",
+        "ordered_budget_call_sites": 22,
+        "method_sequence_sha256": "38eac930d46fc7e104c01d7bd96c9d67ef39b1953aceaec70e3ae8433d230812"
+      },
+      {
+        "path": "section.rs",
+        "ordered_budget_call_sites": 3,
+        "method_sequence_sha256": "4b004a2758b71c1fd6f508ca3250a4dd191ad654fe04628b5d951afa3cd7741e"
+      },
+      {
+        "path": "math/mod.rs",
+        "ordered_budget_call_sites": 0,
+        "method_sequence_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "path": "math/collect.rs",
+        "ordered_budget_call_sites": 23,
+        "method_sequence_sha256": "57b142c6a4ffc96df64ad8a6edd414f675eef8cfc111e6975e6a28542887fc34"
+      },
+      {
+        "path": "math/elements.rs",
+        "ordered_budget_call_sites": 72,
+        "method_sequence_sha256": "21228b0a3e13f5a9ce58e046c59919dc1f390cc8edd629c3aa2b93e1c7e2aafd"
+      }
+    ],
+    "unchanged_files": [
+      "src/extraction/derive/mod.rs",
+      "src/extractors/docx.rs",
+      "src/extraction/docx/theme.rs",
+      "src/extraction/docx/math/render.rs"
+    ],
+    "PPTX_raw_fragment_expression_unchanged": true,
+    "PPTX_context": "Parent element namespaces seed maintained resolver; fragment handles own scope; no full-slide scan.",
+    "prepared_tests": {
+      "new": 17,
+      "retained": 8,
+      "registered_or_compiled": false
+    }
+  },
+  "format_source_identity": {
+    "commands": [
+      {
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/rustfmt",
+          "--edition",
+          "2024",
+          "--config",
+          "skip_children=true,max_width=120",
+          "--check",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/drawing.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/math/collect.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/math/elements.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/math/mod.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/mod.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/parser.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/section.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/styles/mod.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/table/mod.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/pptx/parser.rs",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/src/extraction/docx/xml_names.rs"
+        ],
+        "exit_code": 0,
+        "output": ""
+      },
+      {
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/rustfmt",
+          "--edition",
+          "2024",
+          "--config",
+          "skip_children=true",
+          "--check",
+          "/private/tmp/brn-x2-office-namespaces3-20261018/candidate/tests/docx_namespaces.rs"
+        ],
+        "exit_code": 0,
+        "output": ""
+      }
+    ],
+    "accepted_S3_test_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+    "new_test_sha256": "199d8c6bdfc47a99a711fe9df1311c26ba40fd5a7cb26f71b56373cf9c00035e",
+    "identical_drivers_and_fixtures": true,
+    "prepared_tests": {
+      "new": 17,
+      "retained": 8,
+      "registered_or_compiled": false
+    },
+    "executed_behavioral_checks": []
+  },
+  "source_facts": {
+    "basis": "Bounded raw XML cross-check, not extractor output or behavioral execution. Independent inventory remains the authored oracle.",
+    "prefix_counts": {
+      "paragraphs": 15,
+      "tables": 1,
+      "cells": 9,
+      "drawings": 2
+    },
+    "prefix_document_sha256": "f9c0e70b5156338bcf4d1012e0322c8ddd3956ef820420a5a6d7390090136deb",
+    "previous_eight_test_source_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+    "fixtures": [
+      {
+        "path": "fixtures/features.docx",
+        "sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d"
+      },
+      {
+        "path": "fixtures/footnotes.docx",
+        "sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c"
+      },
+      {
+        "path": "fixtures/harbor-process.docx",
+        "sha256": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87"
+      },
+      {
+        "path": "fixtures/harbor.docx",
+        "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+      },
+      {
+        "path": "fixtures/prefix-variation.docx",
+        "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+      },
+      {
+        "path": "fixtures/prefix-variation.inventory.json",
+        "sha256": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3"
+      },
+      {
+        "path": "fixtures/source-image.png",
+        "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+      }
+    ],
+    "executed_behavioral_checks": []
+  },
+  "new_test_names": [
+    "namespace_real_prefix_inventory_complete",
+    "namespace_word_alias_default_full_compatibility",
+    "namespace_default_math_restores_word_scope",
+    "namespace_nested_rebinding_restores_outer_word",
+    "namespace_foreign_local_names_do_not_create_word_objects",
+    "namespace_default_namespace_does_not_qualify_attributes",
+    "namespace_qualified_word_attribute_alias_is_positive",
+    "namespace_foreign_embed_and_style_attributes_are_ignored",
+    "namespace_unbound_prefix_is_not_word_semantics",
+    "namespace_opc_relationship_element_alias_keeps_unqualified_ids",
+    "namespace_style_dom_foreign_outline_does_not_create_heading",
+    "namespace_scoped_relationship_rebinding_does_not_leak",
+    "namespace_vml_textbox_alias_and_foreign_canary",
+    "namespace_known_strict_word_and_relationship_uris",
+    "pptx_math_inherited_alias_and_parent_shadow_compatibility",
+    "pptx_math_fragment_local_rebind_and_default_namespace",
+    "pptx_math_foreign_same_local_and_display_selection_controls"
+  ],
+  "total_source_test_declarations": 25,
+  "tests_registered_compiled_executed": false,
+  "runtime_comparison": {
+    "script": "/private/tmp/brn-x2-office-namespaces3-20261018/compare_legacy.py",
+    "sha256": "cb57e6c7f2b750bc6edb15d3a7232e623fc17dce6c378f6bacf71fe8c0a55708",
+    "executed": false,
+    "full_unchanged_values_expected": 29,
+    "original_nonprefix_DOCX": 21,
+    "parallel_DOCX": 2,
+    "consumer": 6,
+    "prefix_basis": "complete independent authored inventory, not old empty output"
+  },
+  "evidence": [
+    {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/binding.json",
+      "sha256": "3da5977a8c342050395125a99dd3f1e930b5eaafa92a6bef88c2d02059365737"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/source-fixtures.json",
+      "sha256": "7b9f5c7e254843160ce8783003743a098cc3a2437aa28c1098bab7e76b15a67e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/source-static.json",
+      "sha256": "c1d883e2c0929949a44a0e965d4b5e9546f9f6b70ed3cb04f285ef28a2399b4d"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/format-source-identity.json",
+      "sha256": "7a08286dd60de55bd7edb37f57ffbda6c472cb4f296b0acffd82176bb615cf2c"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/patch-apply.json",
+      "sha256": "f67622068b35818c30f9e99533f396b85140d5f3ff9b76b445a29d8d43f91ca5"
+    }
+  ],
+  "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+  "cargo_calls": 0,
+  "metadata_calls": 0,
+  "executed_behavioral_checks": [],
+  "heavy_owned": false,
+  "children_spawned": 0,
+  "root_adoption": false,
+  "next_gate": "Principal grants actual harness/graph/build verification after PDF slot release; no automatic compile/review/promotion",
+  "final_static_receipt": "/private/tmp/brn-x2-office-namespaces3-20261018/evidence/repo-precommit.json",
+  "process_release": {
+    "owned_running_commands": [],
+    "owned_sessions": [],
+    "children": [],
+    "heavy_acquired_or_held": false,
+    "PDF_slot_polled": false,
+    "all_seven_repo_paths_and_scratch_paths_released_after_freeze": true
+  }
+}

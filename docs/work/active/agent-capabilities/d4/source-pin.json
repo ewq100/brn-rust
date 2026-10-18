@@ -1,0 +1,19 @@
+{
+  "material_commit": "a5d148a3baa5452ab8fe0920f927b0d808c35240",
+  "tree": "6f06f6ca21566cfc0fb0203d2a424895710334f3",
+  "crates_tree": "3d9696cf2994cc3ef3f37691251e432389f5b3b9",
+  "base": "9a88a0a91195b3f5de810f2620ec6f7ed65cb890",
+  "branch": "work/d4-20261017",
+  "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "full_diff": "/private/tmp/brn-d4-20261017-evidence/base-to-material.diff",
+  "full_diff_sha256": "4cc6409af90e15038c2f530b3b51d5bb501699abf71d141436962b43d593fa92",
+  "material_inputs": 328,
+  "all_material_sha256_match_pin": true,
+  "precommit_association": "/private/tmp/brn-d4-20261017-evidence/precommit-source-association.json",
+  "check_index": "docs/work/active/agent-capabilities/d4/check-index.json",
+  "precommit_source_map": "docs/work/active/agent-capabilities/d4/material-hashes.json",
+  "review_brief": "docs/work/active/agent-capabilities/d4/review-brief.md",
+  "lock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "time": 1792236253.418624,
+  "qualification": "Immutable material pin; earlier command receipts preserve actual HEAD9a88+WIP input hashes and are associated by byte-equal material maps, not fabricated as contemporary pin builds. Independent review/principal acceptance pending. No live/mutation started."
+}

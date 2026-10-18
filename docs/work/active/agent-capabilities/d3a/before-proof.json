@@ -1,0 +1,32 @@
+{
+  "base": "15c0574105779eb856c8738eb464126b383ff5eb",
+  "before_source": "/private/tmp/brn-d3a-20261017-review1-before-source",
+  "target": "/private/tmp/brn-d3a-20261017-review1-before-target",
+  "actual_changed_material_paths": [
+    "crates/brn/tests/skill_packages.rs"
+  ],
+  "production_verified_exact_pin": true,
+  "test_only_sha256": "af3378719421173b562d7f6424580278712ac8891090ba1fff58ed70983ca8d2",
+  "binary": {
+    "path": "/private/tmp/brn-d3a-20261017-review1-before-target/debug/deps/skill_packages-8a5c1e63f80940fe",
+    "sha256": "5ce9fd304768368a9dd038fe767b919507c54b1798a1db75a8f14b7544ce77a2",
+    "dep_info": "/private/tmp/brn-d3a-20261017-review1-before-target/debug/deps/skill_packages-8a5c1e63f80940fe.d",
+    "dep_info_sha256": "32d7ecd43095cbae3273af9716c9309786bc31b2de7271371b0b437c82255803",
+    "source_root_present": false,
+    "dep_info_relative_paths_resolved_against_recorded_cwd": {
+      "crates/brn/tests/skill_packages.rs": "af3378719421173b562d7f6424580278712ac8891090ba1fff58ed70983ca8d2",
+      "crates/brn/tests/support/mod.rs": "6bcf9ab737f124ee32a21ec37e0e1c031a79bef5441258033fbb42f229768346",
+      "crates/brn/tests/support/stub.rs": "464783dfed50443b653dd7bbd85e622b401015c5af3744b54cdf84ad57c5c299"
+    },
+    "dep_info_note": "Cargo test dep-info uses relative source paths. The raw command cwd is the isolated before source; compiling log binds brn/AI/app/core to that literal root, with a separate target. source_root_present:false is expected for this test dep-info, not an absolute-root claim."
+  },
+  "result": "compiled0passed5failed0ignored; all five intended assertion failures",
+  "report_sha256": "e74ce71f8d0d169937b1c5e84d9d46473b461fa82541d58707469eb4c33be7b0",
+  "only_installed_target": "aarch64-apple-darwin",
+  "new_mutation_segment_started": false,
+  "original_remaining_seconds": 1310.2447888851166,
+  "cli_binary": {
+    "path": "/private/tmp/brn-d3a-20261017-review1-before-target/debug/brn",
+    "sha256": "ffcdd5503559bc24c8122d550cdf852761c142aece2174c34e6a7b4ba1874969"
+  }
+}

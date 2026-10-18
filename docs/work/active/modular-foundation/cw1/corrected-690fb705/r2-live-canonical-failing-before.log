@@ -1,0 +1,24 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 7.34s
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 1 test
+test live_canonical_setup_undo_does_not_need_its_archived_conversation ... FAILED
+
+failures:
+
+---- live_canonical_setup_undo_does_not_need_its_archived_conversation stdout ----
+
+thread 'live_canonical_setup_undo_does_not_need_its_archived_conversation' (27144538) panicked at crates/brn-threads-app/tests/writing_setup.rs:1734:14:
+called `Result::unwrap()` on an `Err` value: Core(Invalid("Writing scope is inactive"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    live_canonical_setup_undo_does_not_need_its_archived_conversation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-threads-app --test writing_setup`

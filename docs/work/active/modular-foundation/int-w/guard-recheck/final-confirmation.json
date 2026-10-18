@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-17T00:59:54.292989+00:00",
+  "final_elapsed_including_readonly_postcommit_confirmation_seconds": 323.74788350006565,
+  "limit_seconds": 600,
+  "HEAD": "27dd82007bdec07944fed3cec36144151b502a99",
+  "all_332_candidate_hashes_unchanged": true,
+  "clean": true,
+  "heavy_and_all_paths_released": true,
+  "finalize_success_log_sha256": "7b9cdf2c60495521ee15bdfc7cc801a0ec1c475abd09a8de109b582462a167be"
+}

@@ -1,0 +1,63 @@
+{
+  "task": "int-d-test-capture-20261017",
+  "material_pin": "e9607282af57203af0640b97b82310246cd39715",
+  "timestamp": 1792248463.290873,
+  "source_inputs_verified": 333,
+  "source_mismatches": [],
+  "precise_heavy_inventory": [],
+  "inventory_method": "ps pid/ppid/pgid/comm/args; exclude own diagnostic ancestors; match Cargo/rustc/rustdoc/mutants, fixed target executables, own evidence wrappers. No environment or unrelated args retained.",
+  "completed_reaped_exec_sessions": [
+    2959,
+    46891,
+    40683,
+    22997,
+    33500
+  ],
+  "preserved_artifacts_reverified": [
+    {
+      "kind": "final_binary",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "8460c5df3217954c164d25a1aeed7dff6a2628d3c57ebe5c2fca012e93627049"
+    },
+    {
+      "kind": "final_dep_info",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+    },
+    {
+      "kind": "prior_binary",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "c7765d2a0871f547327c618cdcc9b7d14ce0c0f46c85de447ee9ef17304586c2"
+    },
+    {
+      "kind": "prior_dep_info",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+    },
+    {
+      "kind": "original_live_binary",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1",
+      "sha256": "01c129beecc1d3dc165ffee9e0783cfa6fc828d36e72a58802bbbe89ac935c40"
+    },
+    {
+      "kind": "original_live_dep_info",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1.d",
+      "sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+    },
+    {
+      "kind": "original_live_binary",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424",
+      "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74"
+    },
+    {
+      "kind": "original_live_dep_info",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424.d",
+      "sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54"
+    }
+  ],
+  "copied_mutation_source": "None; no mutants/source-copy campaign in this task.",
+  "provider_starts": 0,
+  "scope": "New tests native mock; unchanged combined I01 includes synthetic model/SDK localhost. No owner-auth read/paid provider/external server.",
+  "release": "Explicitly release sole heavy slot AND ALL allocated paths. Material frozen for parent review; only final evidence-only commit follows.",
+  "qualifications": "Original3 generic errors UNKNOWN. No live capture runner/activation, source acceptance, hosted/native-human, INT-W/main/owner/program/live I01 qualification. Old PDF/SDK/widget/compatibility/O1/O2/O3 gaps remain."
+}

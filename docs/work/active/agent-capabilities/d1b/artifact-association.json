@@ -1,0 +1,1806 @@
+{
+  "captured": "2026-10-16T21:52:45.611063+00:00",
+  "precommit_HEAD": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "target_sole_literal_source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "before_target": "/private/tmp/brn-d1b-20261017-before-target",
+  "normal_artifacts_current_snapshot": [
+    {
+      "command_receipt": "ai-full-early-unique",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+          "sha256": "cad0ff3c2b79d571ed6e794012c614abec29dae64e584e7f0a238c8abc0bdeb4",
+          "bytes": 31805776
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+          "sha256": "e12693bc0ab15c7b74c741e0eda03f60651b71e25759601224d120778db2fccc",
+          "bytes": 6892
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "core-context",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/message_search_scope-c7984490840f664d": {
+          "sha256": "831bbbc3729a2bbcccd67ae26c91437b705390c8a2091e853ac0585025b04bc9",
+          "bytes": 4485952
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/message_search_scope-c7984490840f664d.d": {
+          "sha256": "8b03809ddcfcb14bf9b8f75f2b2de233b3d48371ff3cd9e1934bd190a0569f0b",
+          "bytes": 341
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "core-context",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/note_read-8424c12766320ea4": {
+          "sha256": "be22ce6b420af5f7c46ad324c44a163525a29858a615778afe9c4eff9df7a061",
+          "bytes": 4106912
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/note_read-8424c12766320ea4.d": {
+          "sha256": "40b2c519961b417f54c800ac1b359a70d20c9ca130f9af72e68760852bc9ca69",
+          "bytes": 286
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "app-export-exclusion",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/export_metadata-23f752b11028facc": {
+          "sha256": "a1f29eaaaaa5f44bb53df94f07be8f0e5ad361411574eb6cf25237c5f195e23f",
+          "bytes": 6484816
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/export_metadata-23f752b11028facc.d": {
+          "sha256": "9c58255b40407dcabfc16aee8c5ada9f76991d25da95e0134c5c66069f51ccdf",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn-bec4baf73fad495e": {
+          "sha256": "bf180c19c3728d4e30b6cd93ba892249116ee3340ac556418726286ec82ad070",
+          "bytes": 6422768
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn-bec4baf73fad495e.d": {
+          "sha256": "f9394f555bded6cff0d2ba09dc59c7243c314a67503db17e9fdfc3169228f02e",
+          "bytes": 2246
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_authority-c285414125fe47b8": {
+          "sha256": "c331c1a41e8090fa2afbe292c4b27f7eb065eb83ca274fe1e1227a652a620905",
+          "bytes": 1369712
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_authority-c285414125fe47b8.d": {
+          "sha256": "55e754febed92af898ef7952fa02929641dee92258480cf6fe821a517f95fdb1",
+          "bytes": 550
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_bounds-7f18226714d37257": {
+          "sha256": "19837bd55a0fae656a590d32ed490fef029596ae40370d88abed0fbc4998b4d4",
+          "bytes": 1391600
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_bounds-7f18226714d37257.d": {
+          "sha256": "c2a4846d9ae5caa3ae8c4fbda1c83291fa10118d9c6b20c5958fcfbfe417d006",
+          "bytes": 535
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5": {
+          "sha256": "de87f8fa342b0419addd08afdc3b901129210fe6f73bd3bbde9f01e2e346795b",
+          "bytes": 1564352
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_contract-ac43c406c5e58bb5.d": {
+          "sha256": "278c0d7783a65e1f691e4bd50e4cd3586a2e8036432f70a1ba61ea39a21c8d92",
+          "bytes": 638
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_converge-182d5ceab264ca6d": {
+          "sha256": "42196344b9bff32ebd1f98bdad3495d63804425ed094df27ef3be062d35dde14",
+          "bytes": 1463024
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_converge-182d5ceab264ca6d.d": {
+          "sha256": "91eefd9db56a4e42746bd49d1eec4df68513189d2bcccc7967efafd1883478ce",
+          "bytes": 545
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials-bc177dfbd79d2284": {
+          "sha256": "6b3f13038440b7833bd510abf46efe8731dada9422bd4c16eb21b6e0e2408f2e",
+          "bytes": 1334560
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials-bc177dfbd79d2284.d": {
+          "sha256": "efd3fb15026cba5e24c39d08fc3e7b175287ee0281c1edc08e4ceb4aac8ee9e7",
+          "bytes": 560
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials_existing-bc0bddf53f3da436": {
+          "sha256": "b9d0b64ac4dc6239617212d938c6a307f8c6642cc527844783a767b74a7084b3",
+          "bytes": 5229984
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials_existing-bc0bddf53f3da436.d": {
+          "sha256": "4b34103685a1cf86f910fef71dfad79167ca4eada14e9c05a414a1399ecc9a50",
+          "bytes": 605
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_discovery-5d6e5bce7ded58f1": {
+          "sha256": "7e98e485447c94c756115bc0f78479ba4664d5d5ceda48bf2c0cc37af0c67002",
+          "bytes": 1408256
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_discovery-5d6e5bce7ded58f1.d": {
+          "sha256": "5fb656595bb31cda71b970a221eb47da846452d1c4be6c410225c93d4aee1866",
+          "bytes": 550
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_edits-e887131405225777": {
+          "sha256": "9a0ed527beab77a0c7db799d75de581a8ff498516a76234a5cf0f8c6a8154b0d",
+          "bytes": 1512736
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_edits-e887131405225777.d": {
+          "sha256": "696e00d6694425b644622b47e6f50443b2509fe3bafa84d9f63aa52ed5e8dba4",
+          "bytes": 621
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_inspect-7ce472d312e83696": {
+          "sha256": "0032dcdcf5328ae5b2f680d56e55c8de7c032c7f598ffb395e7f4a86a5db4f63",
+          "bytes": 1428640
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_inspect-7ce472d312e83696.d": {
+          "sha256": "40ae0ffde953d2a9fb3942117392d1c5ce149276b2bc971bed154e375215cfb9",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_lists-b69903df2caf7f16": {
+          "sha256": "816f6db8c81a31bdb790a5844c7777e6d70d1df262c14f97b4b1f59a8535fd95",
+          "bytes": 1541216
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_lists-b69903df2caf7f16.d": {
+          "sha256": "e0971acdcd63ea0eb5ac47b47ccec1f24d8b0172c28c64e84970100f9dd511bc",
+          "bytes": 530
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_reasons-2b139ade1ee14477": {
+          "sha256": "fd34a4bcdd4d38756f650e9629e28ba80bee0dbcacc9f65ef4bc961720717710",
+          "bytes": 1330272
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_reasons-2b139ade1ee14477.d": {
+          "sha256": "17f3fa8ab323aa439d84542ae90f58c7688d471a1658aebcc0b6ff4cc47f4e0b",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_retry-d63f0c601900c6ba": {
+          "sha256": "9bc805d772967f648f720adc9136be0a15e688c25e08c30d7da1064cb5c619f2",
+          "bytes": 1365968
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_retry-d63f0c601900c6ba.d": {
+          "sha256": "ce0875fd35ef850587844f8e4babd3dd96f358cfefcf53201211957b94ac6c22",
+          "bytes": 530
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_runs-862184c40f2bc584": {
+          "sha256": "bfb58b982374e6ff4c39629f8aa127f94815a0229f9292f50e0c904109ba2c4a",
+          "bytes": 1538144
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_runs-862184c40f2bc584.d": {
+          "sha256": "7efbaf192b632f37b5cafa71f502d82fb9cbe5ae7d2cdec1720b4e9786b50114",
+          "bytes": 525
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_upgrade-51e83afc036b7b6e": {
+          "sha256": "5715f37198dd18ebf50de6a8365991c63bf02f23f5107878b92cf5d651ecb431",
+          "bytes": 1390000
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_upgrade-51e83afc036b7b6e.d": {
+          "sha256": "e5700950845ea0175abd2bf0142b6c18b9e28d9f755f8ac12cb5538c790036d0",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-34d6e34da454cff2": {
+          "sha256": "655caea046165422a153c88e986cb3557e83e64376dbaf33bb54bfead8a2c3a7",
+          "bytes": 1260512
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-34d6e34da454cff2.d": {
+          "sha256": "ffc632344872e7a079c8d79342878c0cec79abb3d6766e03c73f1bd270760d78",
+          "bytes": 333
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_authority_guard-d370a6158f389e41": {
+          "sha256": "8fc1849fe0049a0f7ce5eb8c91af40a4bf7eac368f505ce28631b041c4dad303",
+          "bytes": 965376
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_authority_guard-d370a6158f389e41.d": {
+          "sha256": "fc8f7976712b5b8c6294b50de79bfb64fb4b4e9fd63acff79696f551a91c675a",
+          "bytes": 396
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-1cecf7fd2391f822": {
+          "sha256": "a26146360012faefcbddbec2e03e37145b55f3bb7db5818eb6cf5d09f9b998c5",
+          "bytes": 1262368
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-1cecf7fd2391f822.d": {
+          "sha256": "eb530b8f10aab135cfccf3032266d3c506973af1f1e10cb02d63273d03df5ae6",
+          "bytes": 353
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_locator-324a50665733db45": {
+          "sha256": "49b8e34766a3a443b77fc2313774458a07905f0eb13c18a4f2176c9490729d17",
+          "bytes": 1960464
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_locator-324a50665733db45.d": {
+          "sha256": "433a50d0c2950b050e26e0bee153ef09dedf9dc90bb95a1e38400a4a684b76f8",
+          "bytes": 348
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "cli-consumers",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/threads-c2ab485e591a6f27": {
+          "sha256": "08d4928241ec5ae0c1bf4cd5f5de30cbc7c0e1b0e57c0352cbd84d011b2c2a72",
+          "bytes": 2081072
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/threads-c2ab485e591a6f27.d": {
+          "sha256": "a784ce45385291a9848be4904a65388b3b2170954587c0b10aebb8c083474541",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn-c641312bd95cd13d": {
+          "sha256": "d52c954d0581d3c71f106f7e7f66ecc12da1be53adc369640019025245b1564e",
+          "bytes": 6422080
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn-c641312bd95cd13d.d": {
+          "sha256": "d21d23e4fae31873aa0306ea92c56dd0b2dc3a7d4f92f1392bc4bcd773f300b7",
+          "bytes": 2246
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6": {
+          "sha256": "2f473dbe2139df022a29e390c7e117045e29c29985b2f0fd26a1d5f03ab157e3",
+          "bytes": 1369712
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6.d": {
+          "sha256": "29d71e0dbb4e18af85c0d774068a3670a788601ac29c8ad2fcc95c4fc73ea9e9",
+          "bytes": 550
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_bounds-a3a54729fae95563": {
+          "sha256": "2be5645d5a9a562fbaa5160db380c44320a5c29d67f5e21c2ffb5c760d0031d2",
+          "bytes": 1391600
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_bounds-a3a54729fae95563.d": {
+          "sha256": "6f1324530d82e3cb6853b26cd5e4a475931b1d7097da31e722025846f0dd44bb",
+          "bytes": 535
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b": {
+          "sha256": "8e81c68ec8a92bdc48a8f1ca955a0f56bbf0a637b89ce8fca01cde07860db015",
+          "bytes": 1564640
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b.d": {
+          "sha256": "998fc1eb3f382cd13babd1e3945da126df3b01d063f0323986b64715bc43df2d",
+          "bytes": 638
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581": {
+          "sha256": "ed658e1bfc1d9f22667cfd79c9616bb2ed56480fcc49edaf3156555c18704b6b",
+          "bytes": 1463264
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581.d": {
+          "sha256": "79ef14fed4df7920f9476339e68e22d22682859432d7ea6a337c8c761ba68911",
+          "bytes": 545
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3": {
+          "sha256": "2a0fd89ae8a18e32bf3e12dc94c47adc9c926272b2f8328f82faab772f7d56e8",
+          "bytes": 1334560
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3.d": {
+          "sha256": "232bbc99b997a9f49f7753ab5dc831f33c358f004292a3903fa80fd19118c2a5",
+          "bytes": 560
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a": {
+          "sha256": "b46ccc6eb4c4a30f3e47920a35811617b57183000a2635bf5736aeae586bf017",
+          "bytes": 5230304
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a.d": {
+          "sha256": "44c62d8a5bae6ff56afd1a79c70c31a52375fd623493416825572a58761c5f11",
+          "bytes": 605
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_discovery-32011cdae19c7310": {
+          "sha256": "75ec7031a55420b364c9f5c6431d4a7283a4e050afc17ec1e2ca8a34baf4c31b",
+          "bytes": 1408256
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_discovery-32011cdae19c7310.d": {
+          "sha256": "aa9606548079a5ef839070d42cad889f0cd7b58b1a8b54b39b1dfff5237d40e7",
+          "bytes": 550
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7": {
+          "sha256": "b67f406eb78240b5853515eb5a1b13eea8c33d1cfd2fa0dcdff74e610d66daf6",
+          "bytes": 1512544
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7.d": {
+          "sha256": "b003a15b24eec8ab1b20e80c3956aaca187a2246edc7c6aa80293b6b370c3b73",
+          "bytes": 621
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_inspect-66eca910df681833": {
+          "sha256": "6ffefb7cccd721d9f41a53a22e7e4f0687803a902ed50697102ffdcc44741d1a",
+          "bytes": 1428640
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_inspect-66eca910df681833.d": {
+          "sha256": "b1d84da9123441bcec43a78b09fcbbc3eceaaef4a79f85a138dd3998535d5176",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_lists-741c2a84de34e927": {
+          "sha256": "49c330493825085312e0d76c12e545f4da80414f10cb7e7770f5d7a2057d7a01",
+          "bytes": 1541664
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_lists-741c2a84de34e927.d": {
+          "sha256": "535e270b965cfd4cf833d9b186f658c101f755424ac4e7a7bbbdff4a473c5947",
+          "bytes": 530
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_reasons-c1c9061922871f22": {
+          "sha256": "8054a66f7b5c3d89e49b29098e084372cc6eee6ac5c1062ef92662e5928e3a1d",
+          "bytes": 1330320
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_reasons-c1c9061922871f22.d": {
+          "sha256": "c3e302187d6ff1cfdf25b6d90d9af2658c269923bfadcea8cfc5c9208420e322",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_retry-f732f16389df1bba": {
+          "sha256": "a312f8f18d00dd6a2147d882a70eb5968f7021697532046407e50bff3202f14e",
+          "bytes": 1365968
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_retry-f732f16389df1bba.d": {
+          "sha256": "fecdd3d86a0a38a52f4c6ef2e8483c5f169c98026ca86ffcaaacb252f0d72790",
+          "bytes": 530
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_runs-60a1083ad1b59280": {
+          "sha256": "fd8c880c169726266ae1cdc1f54122e5464658b27870e3977a18232833158d40",
+          "bytes": 1538128
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_runs-60a1083ad1b59280.d": {
+          "sha256": "dd0153f2174c04a718cfdf86e9d4f525eba3409c8065bf3a4a50afa5af8b8f7e",
+          "bytes": 525
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f": {
+          "sha256": "9ee03fdbc434f6eac49c6ac777fec7db2ccb92da68bdcd05d13aa4282e414299",
+          "bytes": 1390000
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f.d": {
+          "sha256": "10044cfe9d1730e45add9af6b9cc09e8c6fafeb136c6ef57d093ff728d9bb708",
+          "bytes": 540
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-9f3ade6894fc423a": {
+          "sha256": "103649ab759e1069ca1bc7d4b82733536f5b92dbb976236d331d2c02a2b62f6a",
+          "bytes": 1260512
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-9f3ade6894fc423a.d": {
+          "sha256": "207938cea2338cc72eda5a5ef04235b7f5e05df7328ea686e7b31c47e3dc5363",
+          "bytes": 333
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce": {
+          "sha256": "044e28332655df7ff91ac04eed3cc2596b6665574ea387274e49292131859281",
+          "bytes": 965376
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce.d": {
+          "sha256": "2b75ba12e1430c68766623a0124254a83d79df7003c24c930ba4c596978e326f",
+          "bytes": 396
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0": {
+          "sha256": "e8ad05eeb0d5a7726db397750d8d60884b3e9c7e8f1c38ca0ebbbd5ab7d68db1",
+          "bytes": 1262272
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0.d": {
+          "sha256": "3423908708fb6753d1a03cdb84b2d1e1022d81b7b2bcca83f8ebc7ad0a81f9a4",
+          "bytes": 353
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_locator-33733f44cf22960e": {
+          "sha256": "d5948fcd86d4386580a479dc4784c6c4d6cc9ee5d4f24e1b0779f4b244fd8a75",
+          "bytes": 1961728
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_locator-33733f44cf22960e.d": {
+          "sha256": "cb8e3c6c40f9d817e74415fe090b391278feb39f03670ccd9acc8d023cdc06e2",
+          "bytes": 348
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/threads-893db2178c805560": {
+          "sha256": "d4a872283b649508690be7294acdc57c7e6a52b5a9613a3ad009570ca2aa801c",
+          "bytes": 2082304
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/threads-893db2178c805560.d": {
+          "sha256": "3ef188f0be80a45d721b32c0eeec212f6efc57046875c79f6b19df1237f46784",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+          "sha256": "cad0ff3c2b79d571ed6e794012c614abec29dae64e584e7f0a238c8abc0bdeb4",
+          "bytes": 31805776
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+          "sha256": "e12693bc0ab15c7b74c741e0eda03f60651b71e25759601224d120778db2fccc",
+          "bytes": 6892
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": true
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_desktop-b75ccaaef88f0107": {
+          "sha256": "fb3367e922fe144a7de40d5723ec9c1b0ed5289648b600b02d6bc91addbac698",
+          "bytes": 5588112
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_desktop-b75ccaaef88f0107.d": {
+          "sha256": "a24bb3d6175c2d8d8ea5521c822b8fe5479ac509e6bb54d342688106d18e26f3",
+          "bytes": 375
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_intake-428de214cafa0800": {
+          "sha256": "04b780a67a677051a27eabd7982f1414dd9a98e760fe7a778897c7d02d6683fd",
+          "bytes": 2552528
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_intake-428de214cafa0800.d": {
+          "sha256": "84ed7506af2bb941eb13bb2ee79f77188ccf6d3d24792b85c93741f25ec50b0e",
+          "bytes": 606
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/maintained-8a3af3ba2a13751a": {
+          "sha256": "f53cc3ad5e931d4958c6235520d4a32f4c9e9c625ed6b9206b9b0223b2860dcc",
+          "bytes": 944288
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/maintained-8a3af3ba2a13751a.d": {
+          "sha256": "cb41511502f0fce77b986dcb982d136bc1a65f79bf2d551ef64866902a3021a8",
+          "bytes": 273
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/pptx-c2f6a4f0409adb59": {
+          "sha256": "763b1a93e74155cb24ebdefa2a81521e71ee74bed7700fc8780860a6244ea9ce",
+          "bytes": 944256
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/pptx-c2f6a4f0409adb59.d": {
+          "sha256": "4d18d80ecf96bef4d03077002079f37bcfc1202fa01d5583b42afdae34e9d074",
+          "bytes": 243
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/protocol-a2e972eacc4f8182": {
+          "sha256": "3ce96c651438339be8e10714cbfaadac374c2cd753434d84d57f5e88217fefaa",
+          "bytes": 1622416
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/protocol-a2e972eacc4f8182.d": {
+          "sha256": "9f47b4790591d7198fd212b8a54ffc36f5b58b4093340dc5d58fb0f7f16cf433",
+          "bytes": 405
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/restricted_helper-8b22183601c2bcba": {
+          "sha256": "f0dbb0b3e29c2441eb11540b49e104eb41feca6d666e16403c68a7807c4d6664",
+          "bytes": 944336
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/restricted_helper-8b22183601c2bcba.d": {
+          "sha256": "503aab6a98143d10fd796df426f43947c829128672bf159bb7ff088a21edc30d",
+          "bytes": 308
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e": {
+          "sha256": "19675649739e800643470d3cdeed3153d0b4682bcd506c1d0e9f77e69672a59e",
+          "bytes": 1090368
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_retrieval-f6fcb83680fe0c5e.d": {
+          "sha256": "99ba4709a833cc7649b84601ddd97103c9033efe466620289acf764b904bf33c",
+          "bytes": 739
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/local_embedder-bafff530b1479136": {
+          "sha256": "6463a58dcd22e992006f07363dad123059d0959f2d2e3f618e492f8c9d795461",
+          "bytes": 944304
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/local_embedder-bafff530b1479136.d": {
+          "sha256": "908c772247c2b63576169ed6ed7ccd131c5a67c9219f4bedff0ed1af0d41f7a5",
+          "bytes": 302
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/model_download-92187191c57b2fc2": {
+          "sha256": "a25b65814585c14d878ef54713bcd4eb67b7ed0c3b361eefea67db2c6b70815a",
+          "bytes": 944304
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/model_download-92187191c57b2fc2.d": {
+          "sha256": "643efa137228100eb16788f03ac0105a9f1ab0f57e23c3391b7ceae2886fdd3c",
+          "bytes": 302
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_index-1a16ba90b21a3fdb": {
+          "sha256": "7d755060fcbc2d6991e514bc93c6db9227510c808443f81256758182871dc014",
+          "bytes": 3322080
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_index-1a16ba90b21a3fdb.d": {
+          "sha256": "068350c41a3084a367a11cf245111bf03e94fc7c65a8aa2490c32b52815c53c1",
+          "bytes": 292
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029": {
+          "sha256": "fc9e618f00d133343abee1814a2508a5e4bf9d83e7116d3e266d8742b4cd4b78",
+          "bytes": 5635728
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029.d": {
+          "sha256": "8d26902617372c4cd292795a4b0475951f2fa30ce6db81d8b71fc11c18c7d5db",
+          "bytes": 2459
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34": {
+          "sha256": "d9c1b93df741f9163564c8b6e37109bfe3667d0aba25070853f0eaaa707bff30",
+          "bytes": 23441536
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34.d": {
+          "sha256": "2e188857773e91def15d9b806fe05b39914095ff5f0471f84923a7e9c91ed06a",
+          "bytes": 764
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726": {
+          "sha256": "4feb008c25206b79d23d91c2ce18f5246f011722b08db05e93e326f9fd2584bd",
+          "bytes": 22683792
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726.d": {
+          "sha256": "5fae3858ee693e12cdf22f2a23103ad11aae763a7f25c4d5eea13814d30ac572",
+          "bytes": 308
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/backup_directory-79fff5246ba7c117": {
+          "sha256": "1de3b545e83af01f399e4e04aa8a7aa42d0588455345cf538e8a1554e4e4cbc5",
+          "bytes": 5213952
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/backup_directory-79fff5246ba7c117.d": {
+          "sha256": "c2c536d981feb54e84f3614edd5cab3c0510e090e064e80d6b189e54b56636ad",
+          "bytes": 318
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat-6d229c59711a914c": {
+          "sha256": "58385d82853287c9866f969e014667f2387657ce9a5eeab08c04e6ae24a9f81b",
+          "bytes": 6810976
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat-6d229c59711a914c.d": {
+          "sha256": "0fa8344de3cdcfa74b50fa65a5a9f3f640eb2d1c2940361fa4febeed01b566c1",
+          "bytes": 258
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71": {
+          "sha256": "31608280524e5c3d6052cb8c76c5afb425e7eb3578fd24ffa235178cb57d3aa0",
+          "bytes": 5254896
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71.d": {
+          "sha256": "51c20840179afbfb7acf87c8bb840952dcbb6b6f07d83cc774bbc8499d079c5f",
+          "bytes": 308
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/cw2_review-4149b5213329a9c6": {
+          "sha256": "3bb0b93295a9b6b0a14a4cf326cf7ec3165cef9f247a75448ca2d4552be9e52e",
+          "bytes": 23260560
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/cw2_review-4149b5213329a9c6.d": {
+          "sha256": "dd5142128d0f7c0a3d6fbb6df2eb1e8157fb3caae7d7768fa1237d1f7d6e76ba",
+          "bytes": 288
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771": {
+          "sha256": "87fe7d741ef25bbc2c40c2a00e1601dbe63cee822b5166f12a07b212bbaddec5",
+          "bytes": 22848688
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771.d": {
+          "sha256": "e89403f67dbc9dd0b6698d09d533abd4116efb56504fda461b065e82182c9ba7",
+          "bytes": 333
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/delegation-c1df2edf5b8adce5": {
+          "sha256": "0640fc484437eb3b5cdf443ed8c5c5c9e90adfc5bfea323eea02e1b81e22a1dd",
+          "bytes": 6290928
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/delegation-c1df2edf5b8adce5.d": {
+          "sha256": "4c2f76ed6bef54928c73a9643ec79aea6063b13657df592d6f5afd4f808fde8f",
+          "bytes": 288
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/export_metadata-23f752b11028facc": {
+          "sha256": "a1f29eaaaaa5f44bb53df94f07be8f0e5ad361411574eb6cf25237c5f195e23f",
+          "bytes": 6484816
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/export_metadata-23f752b11028facc.d": {
+          "sha256": "9c58255b40407dcabfc16aee8c5ada9f76991d25da95e0134c5c66069f51ccdf",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/host_intake-719f8b289be0d5cf": {
+          "sha256": "d85225a752382e5bf83a9762a7f97a55ced9b569cd3299646a6fe0acca5c055b",
+          "bytes": 22903136
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/host_intake-719f8b289be0d5cf.d": {
+          "sha256": "178f26acd838f020db53a43169bd112166eb7a946d1521f7f89be3881bb6b126",
+          "bytes": 293
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/import_coverage-647f2e6524b08322": {
+          "sha256": "7d1855f2d88ed0aef4fe270e6652e2921439d365663827b577347f82a994aa43",
+          "bytes": 5346960
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/import_coverage-647f2e6524b08322.d": {
+          "sha256": "478716f4f1781e9260304a0789881817833de24d7ea3d426e801fdb1487a019c",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3": {
+          "sha256": "ea64c3c915528116a96faae4b64f466661b04bc3c3c2d9ada0543bbf6e461010",
+          "bytes": 6074080
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3.d": {
+          "sha256": "7bcd33b8a832a4244f66499241dbeb84e99ea1a43738178f6568be5245e0d8d3",
+          "bytes": 348
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f": {
+          "sha256": "88af77a44a8dadfd64b772c0196e4bb54243e2e8047810378fe9ff0b09dba95f",
+          "bytes": 21995056
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f.d": {
+          "sha256": "41225f53aab1ba6f72aff147104c94bf86fcc537f21d04ffdbcd0dfcf8d358b1",
+          "bytes": 338
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/product-8d1beaaf747b75a1": {
+          "sha256": "671edad133d038b2da2d3e0c590cb772d02b4e98efe0540c6a553e7d3ce215f5",
+          "bytes": 7108320
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/product-8d1beaaf747b75a1.d": {
+          "sha256": "8039645569de92bb516f7154400853e8e7296e9d42e8fd781d3c12515bc17592",
+          "bytes": 273
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/projects-89dcdb40005368ce": {
+          "sha256": "fd98a1b4e2ab28e158a25bb08f8dfe7999516bac6cbed883f9c3a83c944f42cd",
+          "bytes": 6943968
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/projects-89dcdb40005368ce.d": {
+          "sha256": "27c6f4247f3cebe8400699539d3d052d6dd70e89ea4547b17aba0c918c8c37d9",
+          "bytes": 278
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c": {
+          "sha256": "9a3a6442315dae1e811032122997c6b8baadc7a5d35446b7d722c06585205a23",
+          "bytes": 6933024
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c.d": {
+          "sha256": "46184572c367ad63d056bb8bbcbefd3153b93da4910a28fb5227ff115f3c159d",
+          "bytes": 808
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/run_recovery-690e93fd458fd777": {
+          "sha256": "46cb748b6afeb9122a9962c91687233ecd4f94d301aed66ec4a753b323e4d8ad",
+          "bytes": 6539312
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/run_recovery-690e93fd458fd777.d": {
+          "sha256": "60d97a8177f1833d72963307f877a08060b3942a83d3a31a981bdeb066705859",
+          "bytes": 298
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd": {
+          "sha256": "0c701bf3fb7a15eecdaaba1ad900ca8653023420053bb80c3d59bf4c152e2fad",
+          "bytes": 6354400
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd.d": {
+          "sha256": "7e319753382108bba5ecd2522c684de05224dfe35f69c1526e8a95b938306b2c",
+          "bytes": 298
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457": {
+          "sha256": "db18b85c9fe9e0b6103ee63aa8fb28181d56d2460707aeb3295f4e7a6ce272de",
+          "bytes": 22847552
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457.d": {
+          "sha256": "9810d3ac37fdb2a53c0e9a36c252bc282de32c869050666032342f0f1a6a82ec",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_worker-ce089018352e80e5": {
+          "sha256": "0c0eb2db03b516ef1cc082010e5a6722ebd7307b93b1752d960572b32c2e3b58",
+          "bytes": 6442672
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_worker-ce089018352e80e5.d": {
+          "sha256": "b91c2e2d7e34fa245c9442d8b89b814e64092601ebb2ea83cebe868ac7af1f81",
+          "bytes": 303
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/shared_run-c1f460e042519b91": {
+          "sha256": "c3b52472e1deb3bc42658c19a7952c8075e7fb68f474561dd767186ccd8d63c6",
+          "bytes": 22463664
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/shared_run-c1f460e042519b91.d": {
+          "sha256": "73ca8567f1d4b0a33450cf28ef52872dccf88487288f226a8ba93f29f9a9e16d",
+          "bytes": 288
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753": {
+          "sha256": "dbc9a7130e1838161b76a5c025b4fe353fe93f52da1bbd6d279295cdedc49a63",
+          "bytes": 22032016
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753.d": {
+          "sha256": "385a2f8b58bff2e8b38de7deb927bd88c8ccf2bb64a5e2bae1bca2dbc773442c",
+          "bytes": 328
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/steering-653a376bf778ec2a": {
+          "sha256": "43df811f34d5f0092d14290d13b7051f5b14d7a9d25da96854da054fc8cf2701",
+          "bytes": 5218000
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/steering-653a376bf778ec2a.d": {
+          "sha256": "66ca9ed67f1d0d9489354123bafc6928f4c6120af1c5bcdb2382f6451f9cedce",
+          "bytes": 278
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95": {
+          "sha256": "47d1524178aa67347f9e7f2c5f357b594bbe431f61aab3b341dda2f08e62d91a",
+          "bytes": 6627696
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95.d": {
+          "sha256": "52a570781d48bd6a7619979f53704ac8097a3b0b409eccc63fe83eb031bed356",
+          "bytes": 867
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585": {
+          "sha256": "9861c9d9b5a027c4cdfe790ff141fb028fb3ca0034a5ee02ee795db72f2a7662",
+          "bytes": 5157824
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585.d": {
+          "sha256": "f47cb036694a2349288b255e2aedcac5c6882cbb5e8177230841f7596bccb316",
+          "bytes": 318
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1": {
+          "sha256": "0d0456b1db1441e3b01867f1ad001a5ec308adbc77c908a6d3931f9fb1fc1c9c",
+          "bytes": 6071088
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1.d": {
+          "sha256": "7075e660a158e6ce11abe811c72abe601d985aef84a571a6a8f0007ade646d8f",
+          "bytes": 318
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/user_scale-502959ef30d7885b": {
+          "sha256": "61c238b896f15a37c15d0233575f46d00b64d243cc326702f0f5612bbff9fbbf",
+          "bytes": 6328928
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/user_scale-502959ef30d7885b.d": {
+          "sha256": "c356c3315d2ce3fec0e0a2c19b7bcfb896f41d647690e5d5f2c01e33eba54b7a",
+          "bytes": 288
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4": {
+          "sha256": "6d592585f2415b5bbeebff92fae9dfb8b4cd6e42c084bf41b429c050f476dc35",
+          "bytes": 6120160
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4.d": {
+          "sha256": "4d85c70317864bef596c5fc6960caf645ce1daba64a5a539ad90f6e51b7efafd",
+          "bytes": 501
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22": {
+          "sha256": "35eb2d7970f4d1bb3d556f765aeb9edeb5e68340cf3f14c780bdcd67b3566ba0",
+          "bytes": 21677616
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22.d": {
+          "sha256": "57c7a3c387656839142ca29831344bf62308700ce4d1821629af26cec6e504d1",
+          "bytes": 323
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02": {
+          "sha256": "690a0e412243fa2178b92e28c2ffeac1a69dc060adbca38d22e26afbd80cff0f",
+          "bytes": 5118464
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02.d": {
+          "sha256": "a2d7634d2092deb8f0a4d5d225e765eb4f63ee75b2aacff6a27eccc45b861612",
+          "bytes": 323
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing-264e212abab448cb": {
+          "sha256": "abed0cfffd5d0b74f952257acc2f1c5853107630781d4e778382135b66a85523",
+          "bytes": 5642736
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing-264e212abab448cb.d": {
+          "sha256": "afc7ef168279cc06deb9fe54a563489007ee07b6ae3f56cd18530a7a85e15634",
+          "bytes": 273
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_context-492379e739bec000": {
+          "sha256": "fc30eacd6817a48a63eed87695957d990ec465a86f2c204700666bcb5950dc5f",
+          "bytes": 6084544
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_context-492379e739bec000.d": {
+          "sha256": "0bc551c7507200fa8120aa2073b56e6837e5e20f98eff13f34a4a099cba40486",
+          "bytes": 313
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a": {
+          "sha256": "365a523e09c1b887b18e03d2f326f52a5311f508727b898d51aa892b5c56ef25",
+          "bytes": 7315280
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a.d": {
+          "sha256": "69c441910ade833ad5fa6d9bdeaae683065cc11ba6bc5377f9a55061dd2ab82d",
+          "bytes": 303
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_core-e42750de0bd1a950": {
+          "sha256": "1f059b3861233e8ceb26f9d4a9afe7df1d861b1efb91d42917bad21870b857dd",
+          "bytes": 4405200
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_core-e42750de0bd1a950.d": {
+          "sha256": "a76f0ed273c5a98e1388a8ba9d7f00049117e37ab46a5448af4289e916bce3f4",
+          "bytes": 2512
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/backup_directory-ad86ffb2d307c405": {
+          "sha256": "198edae1c9479689f6d82d95978161b24e2e657e3261f3b1c171c821e1fd7976",
+          "bytes": 4232656
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/backup_directory-ad86ffb2d307c405.d": {
+          "sha256": "37eeb923feb500ccf6269dafe7dbb20b9a65ea6b45eca5311cc903b23353dbeb",
+          "bytes": 321
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/candidate_refresh-2286328efbd5fb45": {
+          "sha256": "a37f2765ae6c61ea7c5b292db751a579e3c43d9ce8f5dc572e103cfe0b449c57",
+          "bytes": 4166656
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/candidate_refresh-2286328efbd5fb45.d": {
+          "sha256": "4eda96f3c1718554cfe1f58a2b750348052a9c3b656f6d35bacece2c4a67b27c",
+          "bytes": 326
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_format-bafcaeb4752a3563": {
+          "sha256": "98e8676504e12a713e37e5a450a23407b55c6dac5eef89202c30cce91bbf66aa",
+          "bytes": 1270368
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_format-bafcaeb4752a3563.d": {
+          "sha256": "3ea2659a99b61396632855b9437fa95320bdae7100b98a4155b3e0b60d05fedf",
+          "bytes": 296
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_storage-18ee8ec22973f196": {
+          "sha256": "0676dc1b5a48c1f39953eb095a33ee96cd2c64780a339aeba72c17cd73866ab7",
+          "bytes": 4208208
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/chat_storage-18ee8ec22973f196.d": {
+          "sha256": "13f0c78ab04e053d58bb0d7ddbb88df8248f17edc5f15d70ee30ff679a5af3e8",
+          "bytes": 301
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/converge-c9225277d1dddfb3": {
+          "sha256": "778eff54512f09c58c708ff4760c94fc8bf8f63dc521818856957720bd19e648",
+          "bytes": 4463904
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/converge-c9225277d1dddfb3.d": {
+          "sha256": "563f9fc23fd3fb09e458a5e940bf441171681f8ea2380c71952f0e9e72282e2a",
+          "bytes": 281
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/core-6be094f2aba70f00": {
+          "sha256": "7958f3f79e37abfa8321d8d905e97cef78e1ac665e3cd68b8c8815ece889db57",
+          "bytes": 4793488
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/core-6be094f2aba70f00.d": {
+          "sha256": "2acbe90cf65fcc8de7425f46f5bb951c1db8cec37854c21276df1c1e857adfaf",
+          "bytes": 261
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/current_inputs-c17370f9580df944": {
+          "sha256": "4d731d450825b2f29bcad20d3a71cde24d11b23c8ce0b326c168a09d5ea307e3",
+          "bytes": 4280624
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/current_inputs-c17370f9580df944.d": {
+          "sha256": "7f0b0f7d5ea5af9d58402a954cff55e1dd9e283b1709f6fc1552bc68057f021d",
+          "bytes": 311
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/cw2_visibility-71ef364477077027": {
+          "sha256": "cf996778af3cf6365c3780faa08bef2000fdf8831f4e655fd137a805c4c39270",
+          "bytes": 4388032
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/cw2_visibility-71ef364477077027.d": {
+          "sha256": "baaa242ec8c0f3bdcec83b41e50b0f4abf3d6d56e3fbcdad276ff2087103599f",
+          "bytes": 311
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-522075bbc4ead883": {
+          "sha256": "f8bebaff6f77d27899a290177f9b90827ba139f42cb0ec1c7793bbe2259e3da1",
+          "bytes": 2873744
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/data_folder-522075bbc4ead883.d": {
+          "sha256": "081d8ee205ceb0ff8a36fec1bac7bcf61bcbd7080da39b5c1964ad0a87cfd731",
+          "bytes": 296
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/delegation-9ae88f284ac93d0d": {
+          "sha256": "39f43655f74a2562f999d7c6243a0677ef5861d2a83934529f2c70069503f95e",
+          "bytes": 4358224
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/delegation-9ae88f284ac93d0d.d": {
+          "sha256": "7566632609a184e440985dc60f17a1d236584e1bfcd82491b5d51e7ab83df268",
+          "bytes": 291
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_tokens-0deb4fc689b81de4": {
+          "sha256": "139fadc690d5d4f2c286d6c342e0628bc85ccba238f453408a0dbfa22c62f2c4",
+          "bytes": 4420368
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/edit_tokens-0deb4fc689b81de4.d": {
+          "sha256": "14f58db61e228e3c3324dbed45caae52afd81a23321f6f5e188d6f6749e836e0",
+          "bytes": 296
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/inspect-fecdaf645c74b585": {
+          "sha256": "8f10ed8988e5d943f488c71811e1b269c5184b8efae9ded8e54b94f14acd7d83",
+          "bytes": 4455088
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/inspect-fecdaf645c74b585.d": {
+          "sha256": "ccec7b4a1cbe1a7c29e30f3deec1d03d77e094f88d2da760224cb21396ae0070",
+          "bytes": 276
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/message_search_scope-710d727cddbeccd0": {
+          "sha256": "71fba089883fcf668b583f0357fef37c6746527fb8974c9a468219af3326ba1b",
+          "bytes": 4551072
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/message_search_scope-710d727cddbeccd0.d": {
+          "sha256": "ce6093880d8b3a1cfdace38c9e0303c3361faee223ef1558a126b85adf484590",
+          "bytes": 341
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/note_read-dc0be41bce4e6f86": {
+          "sha256": "530604fe1a4e6f3d7add1a8cc6d8b675e4d76f671f6ad83c3c2037df900e6cc3",
+          "bytes": 4153792
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/note_read-dc0be41bce4e6f86.d": {
+          "sha256": "832a5848fb88ff1ba31a806aeaf006cda36ef8dbe16579b82cd740ad6775624b",
+          "bytes": 286
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/project_format-950295569117a307": {
+          "sha256": "4fa6de8f8e419f333858f1bce37b1b0a807b428a2b39c24b2e0285d5323f1184",
+          "bytes": 4163008
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/project_format-950295569117a307.d": {
+          "sha256": "0b89bf6a6e5fc3612344f6c8252f0b142e69f3175ce08a899f61a582a95e9965",
+          "bytes": 311
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/revision_read-38ad1739a60f2e75": {
+          "sha256": "d21f3d16013d62da51dd52392c6fb228ce3a257a3358589a1eb90561bcb5a2bd",
+          "bytes": 4100752
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/revision_read-38ad1739a60f2e75.d": {
+          "sha256": "fad98e56025bb7090a0a764e834f1f736f3d2e2a9d3a335cd8eb66ced7a13268",
+          "bytes": 306
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_reader-cea64e946ad43833": {
+          "sha256": "b66453c0fd97741286cd838c7a4b28ee5d5a2778063d82c847e29b86f45705a7",
+          "bytes": 4247168
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/search_reader-cea64e946ad43833.d": {
+          "sha256": "53dda3276c3d07c52833428fc46140bc39c9613c15cbb233980ddcb8450d6828",
+          "bytes": 306
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/steering-e6e901951c2fdd54": {
+          "sha256": "51b5bd38de032c6fd0c930f0c6abeb6e68c90efeb6cab92cc807011d3e5fac75",
+          "bytes": 4222912
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/steering-e6e901951c2fdd54.d": {
+          "sha256": "5dd065dc68f2621daae90dc3b68ef9d0e838cdfe17f5f7b086cefc55163ed70f",
+          "bytes": 281
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing-56b70fa92eb8fc3e": {
+          "sha256": "82918a9c1b758c7305239decf3e746685f6b8190fbd04d10c57156ff9c742f4a",
+          "bytes": 4292800
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing-56b70fa92eb8fc3e.d": {
+          "sha256": "e0a7bf2ad711f1c1a42909f11864bb1b9f7d106730601c57f15cd5ecd574dbd3",
+          "bytes": 276
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_setup-e9b887f0a22be3b5": {
+          "sha256": "a2f730e57d4bc29a4b2b54bfd38eed7a9da77b79daaaf3c2989af369c86ba776",
+          "bytes": 4591088
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/writing_setup-e9b887f0a22be3b5.d": {
+          "sha256": "932e13a93d9d1ca4671436f3d70eb2660146a0625f7d8c54573fca9a78c33398",
+          "bytes": 306
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_intake-2fce79e002a28627": {
+          "sha256": "411f7a39ed91a621a08ac6bb34979f470da473964ef6ea96a970771f4cd8e385",
+          "bytes": 3222272
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_threads_intake-2fce79e002a28627.d": {
+          "sha256": "8647151ed833c87a0fad30c4328a9b3ef4050b5762cb02debff77c2285860e2f",
+          "bytes": 939
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    },
+    {
+      "command_receipt": "workspace-tests",
+      "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "artifacts": {
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/qualification-934231d9a61b24a3": {
+          "sha256": "292d973fc1bf6d3199425f538cf28bf871a63d02d1bd99810371cf86a765ae10",
+          "bytes": 4295264
+        },
+        "/private/tmp/brn-d1b-20261017-target/debug/deps/qualification-934231d9a61b24a3.d": {
+          "sha256": "ff1bd92841f3ecfbfe769e2e6c70e9a834824bb5042a875fc4a381463f101cb8",
+          "bytes": 2019
+        }
+      },
+      "depinfo_uses_relative_source_paths": true,
+      "manifest_root_in_depinfo": false
+    }
+  ],
+  "library_artifacts": {
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-67e710063aae6f26.rlib": "5434b165f311c3175ff72d1d51eabffc24de2e267f8c86432a4c23d8883ab884",
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-0dc7f03ab5988887.rlib": "f8bcc5947308728def85c8c3d63796fecc3713952b0ab95b397d40153c9f512e",
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-bff0b032038c666e.rlib": "2fee41fc2804b281acc24962824ded9ff5e46139c1e35f324762b5f542ab84fb",
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-7bcb3e17ffaaba72.rlib": "ceafbd54d1ab09b5d4bcdfc81670252dc4b6d577fe736ad740fadd0e9a94f3b8"
+  }
+}

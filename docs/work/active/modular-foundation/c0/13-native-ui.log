@@ -1,0 +1,32 @@
+   Compiling thiserror v1.0.69
+   Compiling thiserror-impl v1.0.69
+    Checking wait-timeout v0.2.1
+    Checking quick-error v1.2.3
+    Checking bit-vec v0.8.0
+   Compiling gpui-pre v0.3.9
+    Checking rand_xorshift v0.4.0
+   Compiling proptest-macro v0.5.0
+    Checking crossbeam-queue v0.3.14
+    Checking unarray v0.1.4
+    Checking pollster v0.2.5
+    Checking atomic v0.5.3
+    Checking static_assertions v1.1.0
+    Checking fixedbitset v0.5.7
+    Checking gpui-pre-collections v0.3.9
+    Checking gpui-pre-http-client v0.3.9
+    Checking rusty-fork v0.3.1
+   Compiling gpui-pre-apple v0.3.9
+   Compiling gpui-component v0.7.3
+    Checking bit-set v0.8.0
+    Checking futures-concurrency v7.7.1
+    Checking proptest v1.11.0
+    Checking postage v0.5.0
+    Checking gpui-kit-assets v0.7.3
+    Checking gpui-base v0.7.3
+    Checking gpui-pre-macos v0.3.9
+    Checking gpui-pre-platform v0.3.9
+    Checking gpui-kit v0.7.3
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 13.71s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

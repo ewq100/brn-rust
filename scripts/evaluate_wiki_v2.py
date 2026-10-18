@@ -1389,8 +1389,11 @@ def root_tmp(root):
     return path
 
 
-def arm_environment(arm, helper, tmp=None):
-    environment = dict(os.environ, BRN_INTAKE_HELPER=str(helper))
+def arm_environment(arm, helper=None, tmp=None, *, current_environment=None):
+    environment = dict(current_environment if current_environment is not None else os.environ)
+    environment.pop('BRN_INTAKE_HELPER', None)
+    if helper is not None:
+        environment['BRN_INTAKE_HELPER'] = str(helper)
     if tmp:
         environment.update(TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
     environment.pop('BRN_EMBEDDING_MODEL_DIR', None)  # Only an arm's own model-dir may set it.
@@ -1400,9 +1403,10 @@ def arm_environment(arm, helper, tmp=None):
 
 
 def make_cli(arm, binary, data, root, args, timeout=None):
-    helper = args.helper or Path(binary).with_name('brn-intake-helper')
-    cli = V1.Cli(Path(binary), data, root, helper, timeout or args.timeout)
-    cli.environment = arm_environment(arm, helper, root_tmp(root))
+    helper = args.helper
+    cli = V1.Cli(Path(binary), data, root, helper, timeout or args.timeout,
+                 stock_helper=getattr(args, "stock_helper", None), brn_helper=getattr(args, "brn_helper", None))
+    cli.environment = arm_environment(arm, helper, root_tmp(root), current_environment=cli.environment)
     return cli
 
 
@@ -1460,9 +1464,10 @@ class Sample:
         if clone.exists():
             shutil.rmtree(clone)
         copy_tree(self.cli.data, clone / 'data')
-        helper = self.args.helper or Path(self.args.measure_bin).with_name('brn-intake-helper')
-        cli = V1.Cli(Path(self.args.measure_bin), clone / 'data', self.root, helper, self.args.timeout)
-        cli.environment = arm_environment(self.arm, helper, root_tmp(self.root))
+        helper = self.args.helper
+        cli = V1.Cli(Path(self.args.measure_bin), clone / 'data', self.root, helper, self.args.timeout,
+                     stock_helper=getattr(self.args, "stock_helper", None), brn_helper=getattr(self.args, "brn_helper", None))
+        cli.environment = arm_environment(self.arm, helper, root_tmp(self.root), current_environment=cli.environment)
         try:
             return cli.call(command, **options)
         finally:
@@ -1821,7 +1826,9 @@ def build_parser():
     parser.add_argument('--credentials-dir', type=Path)
     parser.add_argument('--timeout', type=int, default=180, help='seconds per brn command (1..600)')
     parser.add_argument('--seed', type=int, default=1, help='filler seed passed to the seeder')
-    parser.add_argument('--helper', type=Path, help='brn-intake-helper (default: next to each binary)')
+    parser.add_argument('--helper', type=Path, help='explicit old helper for external historical binaries only')
+    parser.add_argument('--stock-helper', type=Path, help='current stock helper; default: sibling of each arm binary')
+    parser.add_argument('--brn-helper', type=Path, help='current adapted helper; default: sibling of each arm binary')
     parser.add_argument('--measure-bin', type=Path, help='binary for every knowledge-check, and for search when an arm binary lacks it (runs on a clone)')
     parser.add_argument('--prewarm-timeout', type=int, default=1800)
     parser.add_argument('--seed-timeout', type=int, default=1800)

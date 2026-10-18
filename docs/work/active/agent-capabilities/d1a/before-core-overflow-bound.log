@@ -1,0 +1,24 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 0.89s
+     Running tests/message_search_scope.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/message_search_scope-c7984490840f664d)
+
+running 2 tests
+
+thread 'project_delete_terminal_fence_overflow_refuses_atomically' (28040631) panicked at crates/brn-threads-core/tests/message_search_scope.rs:276:5:
+invalid request: run control changes must advance the fence
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'project_delete_advances_only_actual_terminal_and_live_archive_transitions_once' (28040630) panicked at crates/brn-threads-core/tests/message_search_scope.rs:104:10:
+called `Result::unwrap()` on an `Err` value: Invalid("run control changes must advance the fence")
+test project_delete_terminal_fence_overflow_refuses_atomically ... FAILED
+test project_delete_advances_only_actual_terminal_and_live_archive_transitions_once ... FAILED
+
+failures:
+
+failures:
+    project_delete_advances_only_actual_terminal_and_live_archive_transitions_once
+    project_delete_terminal_fence_overflow_refuses_atomically
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p brn-threads-core --test message_search_scope`

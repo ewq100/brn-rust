@@ -1,0 +1,10 @@
+--- a/crates/brn-desktop/src/threads_lists.rs
++++ b/crates/brn-desktop/src/threads_lists.rs
+@@ -534,7 +534,6 @@
+         .iter()
+         .filter(|r| !r.archived)
+         .filter(|r| matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none()))
+-        .filter(|r| record_in_chat(r, records, None))
+         .map(|r| r.id.as_str())
+         .collect();
+     let mut inbound: BTreeMap<&str, usize> = BTreeMap::new();

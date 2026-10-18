@@ -1,0 +1,28 @@
+{
+  "time_utc": "2026-10-16T23:16:17.758128+00:00",
+  "source_pin": "d252a505db0b2d96d3584746f92cc7401ece472a",
+  "crates_tree": "7549da38caeeb0095617b2c9f07fe12830b1f82f",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "material_files_verified_unchanged": 290,
+  "process_query": [
+    "ps",
+    "-axo",
+    "pid=,ppid=,pgid=,etime=,comm="
+  ],
+  "filter": "cargo/rustc/rustdoc/cargo-mutants, brn_ai-/brn_threads_ binaries, any executable under own brn-d2 temporary roots",
+  "matching_heavy_or_own_target_processes": [],
+  "own_serial_check_sessions": "all13completed; no outstanding tool session, controller, child or process group",
+  "raw_inventory": "/private/tmp/brn-d2-20261017-artifacts/release-process-inventory.txt",
+  "raw_inventory_sha256": "3438ce8c4020865a4a2a5c917c947309a2b7e2f7857aa2516475875051c128b5",
+  "D2_mutation": {
+    "granted": false,
+    "started": false,
+    "seconds_charged": 0,
+    "copy_created": false,
+    "restoration": "not applicable; no mutation/controller/copy existed"
+  },
+  "D1A_D1B_budgets": "finalized, not reused",
+  "heavy_slot": "EXPLICITLY RELEASED to principal now; no further heavy commands without new explicit grant",
+  "ownership": "retain frozen D2 AI source for principal independent review; no other path allocation claimed",
+  "qualification": "selfchecks only; no source approval/full qualification/integration/publication"
+}

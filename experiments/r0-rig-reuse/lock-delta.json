@@ -1,0 +1,73 @@
+{
+  "added": [
+    [
+      "brn-c0-rig-reuse",
+      "0.1.0"
+    ],
+    [
+      "darling",
+      "0.23.0"
+    ],
+    [
+      "darling_core",
+      "0.23.0"
+    ],
+    [
+      "darling_macro",
+      "0.23.0"
+    ],
+    [
+      "rig-memory",
+      "0.44.0"
+    ],
+    [
+      "rig-rmcp",
+      "0.44.0"
+    ],
+    [
+      "rmcp",
+      "2.2.0"
+    ],
+    [
+      "rmcp-macros",
+      "2.2.0"
+    ],
+    [
+      "sse-stream",
+      "0.2.6"
+    ],
+    [
+      "tokio-stream",
+      "0.1.19"
+    ],
+    [
+      "want",
+      "0.3.2"
+    ]
+  ],
+  "not_in_experiment_count": 783,
+  "root_packages": 952,
+  "experiment_packages": 180,
+  "resolved_versions": {
+    "reqwest": [
+      "0.13.5"
+    ],
+    "schemars": [
+      "1.2.2"
+    ]
+  },
+  "root_resolved_versions": {
+    "reqwest": [
+      "0.12.28",
+      "0.13.5"
+    ],
+    "schemars": [
+      "1.2.2"
+    ]
+  },
+  "duplicate_version_names": [],
+  "root_duplicate_version_names": [
+    "reqwest"
+  ],
+  "review_direct_dependency_removed": "tokio-util; still required transitively, no resolved package identity removed"
+}

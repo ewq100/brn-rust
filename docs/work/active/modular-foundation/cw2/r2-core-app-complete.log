@@ -1,0 +1,778 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 13.23s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_threads_app-254d35bb8e1cd57c)
+
+running 1 test
+test review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/agent_eval_journeys.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_eval_journeys-e3fb3ed356e7d8c5)
+
+running 8 tests
+test r3_current_gate_rule_is_on_the_first_page ... ok
+test r7_private_offer_stays_in_its_chat ... ok
+test r1_described_subject_is_on_the_first_page ... ok
+test r5_current_tariff_version_is_found ... ok
+test r2_alias_resolves_through_the_linked_roster ... ok
+test r4_scattered_evidence_is_one_link_from_the_topic_page ... ok
+test r8_deep_section_is_read_at_its_offset ... ok
+test s2_review_names_the_links_one_change_group_resolves ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.64s
+
+     Running tests/agent_journeys.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6)
+
+running 4 tests
+test retrieval_finds_and_reads_the_target_section_within_three_rounds ... ok
+test another_chats_private_note_stays_invisible_to_search_and_connections ... ok
+test maintenance_applies_within_eight_rounds_and_finds_its_own_change ... ok
+test a_stale_candidate_is_refreshed_from_current_search_results ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.22s
+
+     Running tests/backup_directory.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/backup_directory-3f78b14c9a01061f)
+
+running 4 tests
+test explicit_app_backup_refuses_storage_and_saved_parent_folder_remains_supported ... ok
+test saved_destination_revalidated_against_restored_workspace_and_alias ... ok
+test restored_saved_descendant_is_refused_at_dispatch ... ok
+test saved_folder_persists_across_reopen_and_backup_restore_and_each_backup_is_fresh ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/chat.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/chat-2fbc00b20a82b469)
+
+running 9 tests
+test old_global_import_binding_replays_identical_receipt ... ok
+test archived_attachment_replays_before_mutable_destination_checks ... ok
+test keeping_a_chat_note_copies_its_referenced_private_figure_without_promoting_the_source_document ... ok
+test queue_edit_reorder_and_archive_preserve_attention ... ok
+test dispatch_claim_replay_restart_and_competing_process_cannot_repost_instruction ... ok
+test competing_dispatchers_claim_exactly_one_instruction ... ok
+test keep_globalizes_each_owned_figure_source_without_promoting_other_private_documents ... ok
+test late_or_forged_completion_does_not_advance_and_stop_preserves_saved_partial ... ok
+test retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_note ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/chat_decisions.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/chat_decisions-550b20a6612e5342)
+
+running 4 tests
+test reviewed_decision_keeps_general_figure_references_and_their_versions ... ok
+test decision_capture_does_not_promote_private_documents_or_figures ... ok
+test reviewed_decision_is_exact_protected_linked_replayable_and_undoable ... ok
+test changed_partial_owner_or_fabricated_replies_cannot_be_captured ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/cw2_review.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd)
+
+running 2 tests
+test general_writing_uses_real_search_counts_and_never_delivers_new_private_retained_material ... ok
+test scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/daily_workflow_eval.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/daily_workflow_eval-1b5a3d45668df4c1)
+
+running 1 test
+test daily_workflow_with_contradiction_reply_restart_and_resupply ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/delegation.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/delegation-0d58cd5978c68fe1)
+
+running 3 tests
+test fresh_workspace_starts_pending_and_resume_requires_a_choice ... ok
+test configure_cannot_choose_and_manual_work_remains_available_while_pending ... ok
+test both_choices_persist_and_pause_resume_preserve_selected_mode ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/export_metadata.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/export_metadata-9655706224e12b65)
+
+running 4 tests
+test later_source_observation_does_not_attribute_its_version_to_preserved_note ... ok
+test source_links_without_import_coverage_are_exported ... ok
+test plain_note_empty_body_and_asset_body_have_valid_metadata_and_snapshot_hashes ... ok
+test metadata_quotes_arbitrary_titles_sources_and_preserves_existing_frontmatter_body ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/host_intake.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/host_intake-e7de8aff7a674c96)
+
+running 15 tests
+test a_chat_without_sources_gets_no_host_context ... ok
+test without_search_the_source_is_still_present_and_the_tools_remain ... ok
+test a_source_without_searchable_terms_reports_none_and_keeps_discovery_open ... ok
+test when_every_search_fails_the_retrieval_is_failed_not_ok ... ok
+test a_summary_trace_has_counts_without_query_text_or_source_words ... ok
+test another_chats_private_note_never_reaches_the_prompt_or_the_trace ... ok
+test a_full_trace_keeps_the_query_text_for_evaluation ... ok
+test link_neighbours_exclude_notes_the_chat_cannot_see ... ok
+test the_first_prompt_carries_the_source_and_the_related_page_at_its_version ... ok
+test a_scripted_model_completes_the_intake_in_two_rounds ... ok
+test source_text_claiming_host_authority_neither_frames_the_data_nor_grants_a_write ... ok
+test a_project_without_brn_knowledge_gets_no_general_notes_injected ... ok
+test a_source_is_capped_and_a_big_page_is_listed_never_shown_cut ... ok
+test several_sources_each_get_a_query_and_the_prompt_stays_bounded ... ok
+test replacing_a_page_that_was_only_listed_needs_a_full_read_first ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+     Running tests/import_coverage.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/import_coverage-f6a2affc176847e1)
+
+running 2 tests
+test separate_conversion_candidates_preserve_one_protected_full_import_and_undo ... ok
+test full_import_persists_detected_loss_separately_from_unverified_coverage ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/keyed_owner_operations.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/keyed_owner_operations-bdf73059f0eef635)
+
+running 11 tests
+test keyed_full_import_replay_after_reimport_is_none ... ok
+test open_without_default_credentials_stores_no_auth_file ... ok
+test keyed_full_import_replay_matches_html_source_bytes ... ok
+test keyed_full_import_replay_does_not_bypass_an_archived_chat ... ok
+test keyed_undo_retries_its_deferred_compensation_and_then_replays ... ok
+test keyed_full_import_replay_detects_a_changed_title ... ok
+test keyed_topics_create_converges ... ok
+test keyed_note_and_thread_creation_replay_and_refuse_other_content ... ok
+test keyed_seed_chat_replays_first_findings ... ok
+test converged_twins_share_host_keys_and_authority ... ok
+test unkeyed_creation_and_undo_stay_distinct_per_call ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/killed_run_candidate.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/killed_run_candidate-463617f1a62fc746)
+
+running 17 tests
+test native_check_store_with_a_killed_intake_and_its_candidate ... ignored, writes a store for the owner's native check; set BRN_DWR_NATIVE_DATA and BRN_DWR_NATIVE_MODE
+test a_deliberate_stop_of_a_live_run_adds_no_notice_and_keeps_its_lease ... ok
+test continue_beside_a_live_run_adds_no_notice_and_keeps_its_lease ... ok
+test the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_the_candidate ... ok
+test the_settings_change_also_stops_a_run_that_is_still_live ... ok
+test continue_after_the_settings_stop_clears_its_notice_when_the_run_starts ... ok
+test continue_in_the_killed_chat_starts_without_a_notice_and_removes_the_lease ... ok
+test resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_once ... ok
+test stop_archive_and_steer_of_a_live_run_add_no_notice ... ok
+test stop_after_a_failure_treats_a_lease_free_run_as_interrupted_work ... ok
+test resume_or_dispatch_after_a_kill_adds_the_review_and_removes_the_free_lease_file ... ok
+test stop_archive_and_steer_of_a_killed_run_review_its_candidate_and_remove_the_lease ... ok
+test continue_after_a_crash_clears_the_notice_when_the_next_run_starts ... ok
+test the_owners_stop_adds_no_notice_but_brns_own_stops_still_do ... ok
+test project_changes_and_project_imports_leave_the_notice_and_the_review ... ok
+test converging_archive_and_chat_move_remove_free_leases ... ok
+test archive_keeps_existing_attention_and_adds_no_notice_for_a_killed_run ... ok
+
+test result: ok. 16 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/product.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/product-2edbf8f1db96803d)
+
+running 19 tests
+test missing_storage_never_opens_an_empty_workspace_or_rewrites_evidence ... ok
+test review_remap_requires_exact_known_asset_token_and_keeps_failed_original_active ... ok
+test configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions ... ok
+test export_refuses_occupied_or_incomplete_outputs_without_partial_publication ... ok
+test an_open_edit_session_is_a_typed_app_error_naming_note_and_session ... ok
+test review_replacement_remaps_created_records_refs_and_applies_exact_final_text ... ok
+test message_history_uses_durable_receipt_order_and_preserves_creation_order_after_edit ... ok
+test accepted_review_clears_only_matching_attention_and_replay_finishes_cleanup_once ... ok
+test replacement_attention_follows_new_candidate_and_acceptance_preserves_other_questions ... ok
+test export_keeps_asset_id_prefixes_distinct ... ok
+test independent_whole_note_and_action_selection_requires_new_displayed_candidate ... ok
+test dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on_retry ... ok
+test export_rejects_complete_unknown_asset_url_even_when_known_identity_is_its_prefix ... ok
+test review_selection_preserves_structural_new_record_dependencies_and_exact_bases ... ok
+test selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence ... ok
+test update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup ... ok
+test selected_review_groups_and_replacement_preserve_current_or_historical_note_inputs ... ok
+test full_import_retains_assets_source_identity_and_rejects_changed_retry_input ... ok
+test current_search_excludes_pending_revisions_and_rebuilds_after_save_archive_restore ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/projects.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/projects-fb73b2ddb6b55faf)
+
+running 8 tests
+test stale_preview_and_changed_trash_fail_atomically_without_losing_records ... ok
+test existing_terminal_private_actions_go_to_trash_without_becoming_general_and_restore_terminal ... ok
+test unlink_preserves_private_retention_elsewhere_and_last_link_requires_explicit_keep ... ok
+test private_actions_on_shared_documents_need_explicit_choices_and_never_leak ... ok
+test moved_chat_keeps_private_provenance_and_undo_does_not_erase_it ... ok
+test project_context_shared_identity_knowledge_setting_movement_and_replay ... ok
+test project_import_retains_source_figures_and_private_history_after_shared_origin_deletion ... ok
+test delete_preview_guards_choices_and_restore_preserve_later_shared_work ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/retrieval_eval.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/retrieval_eval-318f5eb4ab690f96)
+
+running 12 tests
+test scattered_and_supersession_metrics_follow_their_definitions ... ok
+test metrics_follow_their_definitions ... ok
+test golden_fixture_satisfies_structural_and_lexical_rules ... ok
+test validation_refuses_literal_matches_and_dangling_relevance ... ok
+test validation_refuses_the_new_strata_rule_violations ... ok
+test new_strata_notes_have_the_structure_their_metrics_need ... ok
+test corpus_is_deterministic_and_seed_sensitive ... ok
+test visibility_check_counts_leaks_and_credits_in_chat_finds ... ok
+test metrics_reflect_a_known_ranking_through_the_retriever_seam ... ok
+test small_evaluation_runs_end_to_end_with_sane_baseline ... ok
+test worker_index_keeps_solved_strata_finds_inflections_and_respects_chats ... ok
+test identical_seeds_give_identical_ranks_despite_random_record_ids ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.45s
+
+     Running tests/run_recovery.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/run_recovery-affe11c8769a4190)
+
+running 4 tests
+test recovery_runs_once_and_cannot_be_undone ... ok
+test a_live_run_keeps_blocking_resume_and_dispatch ... ok
+test a_second_orphan_in_the_same_chat_leaves_one_notice ... ok
+test resume_after_a_crash_interrupts_the_orphan_once_and_dispatches_the_queue_once ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/search_dense.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/search_dense-7ed2907ddc88d510)
+
+running 6 tests
+test the_embedding_model_must_be_chosen_before_search_starts ... ok
+test without_a_model_semantic_coverage_is_none ... ok
+test a_failing_model_is_reported_and_keyword_search_still_answers ... ok
+test dense_lane_finds_paraphrases_with_prefixes_and_reports_coverage ... ok
+test semantic_matches_must_stand_out_and_never_reorder_keyword_matches ... ok
+test coverage_is_partial_right_after_a_sync_and_private_passages_cannot_crowd_out ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/search_messages.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/search_messages-f902dd5b2a8ff31a)
+
+running 11 tests
+test agent_search_never_returns_messages ... ok
+test owner_messages_are_found_and_partial_progress_is_not ... ok
+test a_saved_reply_is_found_with_its_chat ... ok
+test a_private_attachment_chat_is_searchable_only_from_itself ... ok
+test project_chats_appear_only_in_their_project_search ... ok
+test message_pages_follow_the_cursor ... ok
+test a_v3_index_is_rebuilt_so_an_archived_chat_is_rescoped ... ok
+test archived_chats_stay_labelled_and_trashed_chats_return_on_restore ... ok
+test rebuilding_the_index_backfills_messages ... ok
+test an_archived_chats_messages_stay_counted_and_labelled ... ok
+test an_archived_project_chats_note_is_found_in_its_project_and_agents_keep_their_scope ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/search_worker.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/search_worker-9710fb078cb23571)
+
+running 11 tests
+test evidence_quota_keeps_rank_order_and_every_result_once ... ok
+test failures_are_reported_not_answered_as_empty ... ok
+test dropped_tickets_do_not_block_later_requests ... ok
+test follows_canonical_writes_incrementally_with_exact_quotes ... ok
+test a_removed_derived_directory_is_recreated_while_running ... ok
+test chat_only_notes_and_chat_sources_stay_in_their_chat ... ok
+test connections_are_bounded_ordered_and_visibility_checked ... ok
+test pages_have_exact_counts_evidence_quota_and_context_scoped_link_counts ... ok
+test restarts_reuse_or_recreate_the_derived_index ... ok
+test concurrent_handles_and_a_second_process_view_agree ... ok
+test every_offered_cursor_is_accepted_up_to_the_reachable_cap ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/shared_run.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/shared_run-2b401c7c9199274d)
+
+running 2 tests
+test selection_errors_precede_any_run_write_and_catalogue_never_substitutes ... ok
+test shared_preparation_runs_scripted_with_the_same_durable_run_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/source_intake_chat.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/source_intake_chat-fccd36a8fb24bddb)
+
+running 16 tests
+test full_import_of_one_file_through_two_spellings_observes_one_source ... ok
+test full_import_reuses_a_source_an_older_build_saved_under_another_spelling ... ok
+test a_source_saved_under_an_older_spelling_still_matches_and_is_recorded_canonically ... ok
+test keep_in_brn_reuses_a_global_source_saved_under_an_older_spelling ... ok
+test a_supply_with_a_coverage_report_reuses_a_source_saved_under_an_older_spelling ... ok
+test keep_in_brn_prefers_the_global_source_at_the_real_path ... ok
+test a_cli_then_desktop_supply_of_one_source_leaves_one_instruction_message ... ok
+test the_same_file_through_a_symlinked_folder_reuses_one_chat_and_one_source ... ok
+test a_resupply_after_an_assistant_reply_reuses_the_instruction ... ok
+test other_instruction_wording_posts_a_fresh_instruction ... ok
+test a_different_file_with_the_same_name_gets_its_own_chat_and_source ... ok
+test the_same_source_reuses_its_chat_per_scope_and_never_an_archived_or_foreign_one ... ok
+test a_different_source_in_the_same_chat_posts_its_own_instruction ... ok
+test new_owner_text_in_between_posts_a_fresh_instruction ... ok
+test a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free ... ok
+test tmp_and_private_tmp_spellings_reuse_one_chat_and_one_source ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/steering.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/steering-862dd5020fd14865)
+
+running 2 tests
+test failed_save_keeps_exact_key_intent_bound_and_has_no_message_or_fence ... ok
+test stable_key_replays_one_durable_message_after_resolution_and_reopen ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/synthetic_baseline.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/synthetic_baseline-5af20bd25772d534)
+
+running 3 tests
+test fixture_refuses_symlink_parent_before_creating_a_destination ... ok
+test fixture_refuses_existing_relative_and_invalid_size_destinations_before_writes ... ok
+test bounded_corpus_exercises_images_revisions_threads_receipts_and_reopened_search ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+     Running tests/thread_lifecycle.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/thread_lifecycle-279649e0626ca95a)
+
+running 3 tests
+test legacy_settings_without_theme_keep_their_serialized_form ... ok
+test reopen_records_reason_and_resolution_reason_is_kept ... ok
+test theme_waits_for_working_runs_and_never_stops_them ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/topics_knowledge.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/topics_knowledge-e14e359188db3873)
+
+running 11 tests
+test topics_note_must_be_a_current_general_note ... ok
+test host_owned_import_relations_are_not_relation_variants ... ok
+test a_link_to_a_superseded_note_names_the_replacement ... ok
+test archived_chat_material_and_chat_links_are_not_reported_as_broken ... ok
+test retired_notes_links_and_same_group_inputs_are_not_reported ... ok
+test supersession_keeps_recorded_conflicts_and_matches_relations ... ok
+test topics_note_lists_linked_topic_pages_in_mention_order ... ok
+test unlisted_topic_pages_are_reported_only_with_a_topics_note ... ok
+test broken_links_name_only_current_general_replacements ... ok
+test knowledge_check_reports_deterministic_findings_without_chat_material ... ok
+test hub_findings_and_the_review_message_stay_bounded ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/user_scale.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/user_scale-6ab4a4a2284cdc5f)
+
+running 1 test
+test ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.22s
+
+     Running tests/wiki_eval_seed.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/wiki_eval_seed-3ba3501f0d67861d)
+
+running 5 tests
+test invalid_fixtures_fail_with_clear_messages ... ok
+test seeding_refuses_a_data_dir_that_is_not_fresh ... ok
+test explicit_notes_links_chat_edits_imports_and_topics ... ok
+test distractors_cycle_values_and_have_unique_titles ... ok
+test seeding_is_deterministic_in_content_and_filler_pairs_are_linked ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/withdraw_proposal.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/withdraw_proposal-d1390c3809a53d8b)
+
+running 6 tests
+test withdrawing_an_owner_created_candidate_is_refused ... ok
+test withdrawing_another_chats_proposal_is_refused ... ok
+test withdrawing_an_applied_proposal_is_refused ... ok
+test the_agent_withdraws_its_own_obsolete_proposal_after_the_owner_decides ... ok
+test withdrawing_twice_replays_without_another_receipt ... ok
+test undo_after_a_withdrawal_matches_undo_after_dismiss ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/workspace_purpose.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/workspace_purpose-55b2e9fa11d8624e)
+
+running 2 tests
+test a_created_test_workspace_has_no_credential_source_and_refuses_a_second_creation ... ok
+test the_no_upgrade_open_creates_owner_workspaces_without_credentials_and_reopens_them ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/writing.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing-e5f9303e752fdcc1)
+
+running 10 tests
+test new_requests_capture_v2_setup_without_changing_the_note ... ok
+test empty_general_feedback_preserves_existing_replay_binding ... ok
+test oversized_general_feedback_refuses_without_partial_request_or_note_write ... ok
+test feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok
+test utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok
+test exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok
+test general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... ok
+test multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok
+test oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok
+test manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/writing_context.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_context-a85501614bd3572d)
+
+running 2 tests
+test knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception ... ok
+test explicit_conversations_are_scoped_durable_and_inspection_does_not_create ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 22 tests
+test overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok
+test malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden ... ok
+test capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version ... ok
+test archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata ... ok
+test knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... ok
+test setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... ok
+test revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok
+test ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... ok
+test live_canonical_setup_undo_does_not_need_its_archived_conversation ... ok
+test setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok
+test setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration ... ok
+test project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal ... ok
+test unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup ... ok
+test ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok
+test checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok
+test v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok
+test scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead ... ok
+test inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... ok
+test stored_v2_context_rejects_forged_binding_and_reference_metadata ... ok
+test scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok
+test delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay ... ok
+test first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_threads_core-e42750de0bd1a950)
+
+running 44 tests
+test backup::tests::stage_holder_child ... ignored, runs only as the child of the SIGKILL stage test
+test locator::tests::a_file_through_a_symlinked_folder_maps_to_its_real_path ... ok
+test backup::tests::occupied_destination_is_rejected_before_sqlite_copy ... ok
+test locator::tests::non_file_locators_are_unchanged ... ok
+test locator::tests::an_older_spelling_matches_and_another_file_with_the_same_name_does_not ... ok
+test locator::tests::only_a_host_recorded_source_matches_under_an_older_spelling ... ok
+test locator::tests::tmp_maps_to_private_tmp ... ok
+test backup::tests::symlink_ancestors_and_final_symlinks_are_refused_without_changes ... ok
+test backup::tests::missing_parent_and_directory_destination_preserve_source ... ok
+test backup::tests::invalid_snapshot_and_abandoned_stage_clean_up_without_final_file ... ok
+test backup::tests::publication_collision_preserves_new_destination_and_cleans_only_owned_stage ... ok
+test backup::tests::stage_keeps_final_absent_until_complete_snapshot_is_published ... ok
+test backup::tests::relative_core_destination_preserves_process_directory ... ok
+test backup::tests::parent_flush_failure_keeps_complete_published_snapshot_and_cleans_stage ... ok
+test backup::tests::a_live_stage_survives_another_backup ... ok
+test backup::tests::a_backup_sweeps_only_its_own_parent ... ok
+test backup::tests::stage_named_entries_that_are_not_brn_stages_are_never_followed_or_removed ... ok
+test run_attention::tests::a_notice_on_a_cancelled_run_is_replaced ... ok
+test run_attention::tests::an_existing_thread_write_is_edited_never_duplicated ... ok
+test run_attention::tests::an_unchanged_or_archived_chat_gets_no_write ... ok
+test run_attention::tests::clearing_terminal_notices_keeps_every_other_item ... ok
+test run_attention::tests::per_run_notice_marks_only_lease_free_runs ... ok
+test run_attention::tests::review_is_skipped_when_any_item_already_names_the_operation ... ok
+test run_attention::tests::two_runs_ended_in_one_chat_leave_one_notice ... ok
+test run_attention::tests::without_a_notice_only_the_review_is_added ... ok
+test stage::tests::a_stage_is_private_marked_locked_and_removed_on_drop ... ok
+test backup::tests::a_killed_backups_stage_is_removed_by_the_next_backup_to_that_folder ... ok
+test backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes ... ok
+test stage::tests::an_abandoned_stage_keeps_its_folder_and_frees_its_lock ... ok
+test store::storage_open_tests::data_folder_failures_are_named_in_owner_terms ... ok
+test stage::tests::a_sweep_removes_only_abandoned_stages_of_its_kind_with_exact_names ... ok
+test restore::tests::invalid_corrupt_incompatible_sources_leave_destination_and_source_unchanged ... ok
+test restore::tests::a_live_restore_stage_survives ... ok
+test store::storage_open_tests::existing_connection_path_never_creates_a_database_after_path_check ... ok
+test backup::tests::wal_snapshot_remains_standalone_and_restores_original_recovery_after_later_writes ... ok
+test restore::tests::staging_never_exposes_ready_destination ... ok
+test restore::tests::publication_failure_cleans_owned_stage_and_preserves_empty_destination ... ok
+test restore::tests::symlink_destinations_and_ancestors_are_refused_before_and_after_staging ... ok
+test restore::tests::abandoned_stage_and_sqlite_copy_failure_clean_up_without_publication ... ok
+test restore::tests::relative_source_works_absolute_destination_is_required_without_cwd_change ... ok
+test restore::tests::collision_and_rename_refuse_occupied_destination_and_clean_only_owned_stage ... ok
+test restore::tests::post_publication_flush_or_reopen_failure_preserves_complete_destination ... ok
+test restore::tests::empty_destination_and_nested_missing_parents_restore_and_preserve_source_bytes ... ok
+test restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent ... ok
+
+test result: ok. 43 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/backup_directory.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/backup_directory-ad86ffb2d307c405)
+
+running 5 tests
+test backup_selection_cannot_replay_a_delegation_receipt_with_matching_raw_string ... ok
+test stale_configure_and_its_replay_preserve_saved_folder ... ok
+test selection_requires_owner_and_existing_absolute_external_directory_including_aliases ... ok
+test folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_without_filesystem ... ok
+test explicit_backup_refuses_workspace_and_alias_and_preserves_reopen_while_parent_is_allowed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/candidate_refresh.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/candidate_refresh-2286328efbd5fb45)
+
+running 1 test
+test runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authority ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/chat_format.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/chat_format-bafcaeb4752a3563)
+
+running 1 test
+test private_note_scope_survives_serialization_without_changing_legacy_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/chat_storage.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/chat_storage-18ee8ec22973f196)
+
+running 7 tests
+test latest_composer_draft_survives_restart_and_delayed_clear_is_rejected ... ok
+test scoped_ids_assets_and_sources_do_not_enter_unrelated_context ... ok
+test derived_directory_is_allowed_only_as_a_real_directory ... ok
+test unavailable_backup_folder_leaves_old_format_and_records_unchanged ... ok
+test adopted_upgrade_requires_external_backup_and_preserves_the_v3_snapshot ... ok
+test a_known_v3_backup_restores_as_v4_without_changing_source_snapshot ... ok
+test backup_restore_and_upgrade_ignore_derived_data ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/converge.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/converge-c9225277d1dddfb3)
+
+running 4 tests
+test a_binding_mismatch_is_immutable_request ... ok
+test a_working_run_makes_archive_a_change_with_a_fence ... ok
+test the_existing_functions_still_append_on_a_no_op ... ok
+test every_converging_variant_is_unchanged_on_a_no_op ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/core.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/core-6be094f2aba70f00)
+
+running 45 tests
+test data_selection_refuses_symlink_ancestor_without_creating_database ... ok
+test configuration_replay_checks_immutable_payload_before_receipt ... ok
+test exact_protected_target_and_capability_scope ... ok
+test current_candidate_and_receipt_readers_exclude_retired_and_applied_requests ... ok
+test a_second_edit_session_names_the_open_one_and_leaves_it_untouched ... ok
+test configuration_reads_and_fences_runs_at_the_actual_writer_boundary ... ok
+test explicit_selection_refuses_old_and_foreign_identity ... ok
+test discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones ... ok
+test exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect ... ok
+test comment_utf8_anchors_and_separate_record_versions_are_checked ... ok
+test enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs ... ok
+test assets_require_owner_group_and_inherit_protection_and_dirty_guard ... ok
+test another_spelling_of_the_same_file_does_not_refresh_but_another_file_does ... ok
+test failed_candidate_replacement_keeps_original_active_and_guarded ... ok
+test host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejected ... ok
+test full_import_is_protected_and_confirmation_requires_explicit_authority ... ok
+test missing_storage_refuses_recreation_and_preserves_recovery_evidence ... ok
+test human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action ... ok
+test ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant ... ok
+test host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation ... ok
+test only_one_working_run_per_thread_and_new_invocation_can_interrupt_prior_atomically ... ok
+test pending_candidate_requires_retirement_and_confirmation_is_revision_bound ... ok
+test direct_owner_metadata_protection_and_lifecycle_changes_make_candidates_stale ... ok
+test protected_supersede_requires_distinct_capability ... ok
+test lost_prepare_and_apply_responses_replay_across_connections_and_restart ... ok
+test existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation ... ok
+test replacement_replay_binds_original_and_request_across_restart_and_application ... ok
+test persisted_guards_defer_whole_group_and_generation_cannot_resurrect ... ok
+test run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone ... ok
+test meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only ... ok
+test runtime_settings_snapshot_covers_account_changes_and_provider_aliases ... ok
+test stale_open_type_save_preserves_buffer ... ok
+test thread_review_attention_can_reference_known_operations_but_links_remain_records_only ... ok
+test undo_identity_is_bound_before_receipt_replay ... ok
+test complete_backup_restores_assets_sources_pending_candidates_history_and_buffers ... ok
+test source_observation_metadata_does_not_refresh_but_new_external_version_does ... ok
+test two_live_connections_order_dirty_guard_before_grouped_apply ... ok
+test save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set ... ok
+test wrong_reference_rolls_back_group_and_occupied_backup_remains_intact ... ok
+test working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay ... ok
+test undo_save_restores_supported_anchor_at_new_compensating_revision ... ok
+test undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents ... ok
+test workspace_settings_are_owner_only_and_persist_maintenance_review_policy ... ok
+test paused_and_review_first_grants_require_exact_target_and_action ... ok
+test undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical ... ok
+
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/current_inputs.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/current_inputs-c17370f9580df944)
+
+running 9 tests
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/cw2_visibility.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_visibility-71ef364477077027)
+
+running 7 tests
+test archived_historical_input_is_not_apply_authority ... ok
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... ok
+test actual_owner_apply_rejects_archived_historical_input_even_when_current_revision_is_visible ... ok
+test actual_owner_candidate_apply_keeps_only_working_note_selected_conversation_exception ... ok
+test canonical_view_token_ignores_local_buffers_but_tracks_exact_candidate_pool_and_access_changes ... ok
+test revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content ... ok
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/data_folder.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/data_folder-522075bbc4ead883)
+
+running 4 tests
+test a_read_only_disk_is_named ... ok
+test a_file_in_place_of_the_folder_is_named ... ok
+test a_folder_without_permission_is_named ... ok
+test a_symlinked_path_is_refused_by_name ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/delegation.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/delegation-9ae88f284ac93d0d)
+
+running 8 tests
+test missing_settings_deny_standing_writes_but_allow_scoped_and_owner_writes ... ok
+test legacy_request_bytes_hash_and_receipt_replay_after_choice_and_reopen ... ok
+test stale_provider_form_preserves_new_review_choice_and_pause ... ok
+test generic_configuration_cannot_forge_or_clear_choice ... ok
+test choices_bind_intent_preserve_concurrent_provider_and_replay_without_reapplying ... ok
+test a_settings_stop_records_interrupted_matching_its_notice ... ok
+test legacy_and_archived_settings_deny_standing_authority ... ok
+test both_choices_and_pause_fence_every_working_run_and_block_stale_connection ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/edit_tokens.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4)
+
+running 14 tests
+test bound_writes_need_their_own_token_and_refusals_write_nothing ... ok
+test owner_typing_adopts_a_caller_session_and_the_caller_token_stops ... ok
+test tokens_match_the_pattern_differ_and_only_their_hash_is_stored ... ok
+test a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen ... ok
+test actors_commit_with_receipts_and_never_change_identity ... ok
+test owner_discard_and_save_close_caller_sessions_without_a_token ... ok
+test schema_5_upgrade_is_refused_with_a_working_run ... ok
+test the_no_upgrade_open_refuses_schema_5_and_changes_nothing ... ok
+test reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces ... ok
+test schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder ... ok
+test purpose_is_set_at_creation_only_and_owner_by_default ... ok
+test a_test_backup_with_a_caller_session_restores_as_an_owner_workspace ... ok
+test older_backups_restore_as_schema_7_owner_workspaces ... ok
+test schema_5_upgrade_backs_up_first_and_ends_at_7_as_an_owner_workspace ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.52s
+
+     Running tests/inspect.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/inspect-fecdaf645c74b585)
+
+running 11 tests
+test page_limits_outside_one_to_a_hundred_are_refused ... ok
+test list_page_limits_outside_one_to_a_hundred_are_refused ... ok
+test run_page_filters_by_thread_and_state ... ok
+test record_page_filters_by_kind_in_id_order_with_a_cursor ... ok
+test receipt_page_filters_by_record_and_refuses_unknown_records ... ok
+test operation_lookup_reports_all_four_states_and_never_allocates ... ok
+test candidate_page_lists_only_unapplied_unretired_candidates ... ok
+test note_thread_needs_you_and_project_pages_match_the_app_filters ... ok
+test recovery_page_lists_open_sessions_in_id_order ... ok
+test receipt_pages_never_repeat_and_see_later_receipts ... ok
+test message_page_keeps_creation_order_per_chat ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/message_search_scope.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/message_search_scope-710d727cddbeccd0)
+
+running 11 tests
+test a_chat_with_its_own_attachments_is_searchable_only_from_itself ... ok
+test an_archived_general_chats_notes_stay_private_to_it ... ok
+test a_general_chat_is_searchable_wherever_general_notes_appear ... ok
+test partial_progress_and_writing_requests_are_never_searchable ... ok
+test a_project_without_brn_knowledge_shows_only_its_own_chats ... ok
+test a_trashed_chats_notes_stay_out_of_search_until_restore ... ok
+test a_deleted_project_hides_its_chats_and_restore_returns_them ... ok
+test a_chat_moved_out_of_a_project_stays_searchable_only_from_itself ... ok
+test a_project_chat_is_searchable_only_in_its_project ... ok
+test an_archived_project_chats_notes_stay_project_documents ... ok
+test an_archived_or_resolved_chat_keeps_its_message_scope ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/note_read.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/note_read-dc0be41bce4e6f86)
+
+running 2 tests
+test headings_ignore_fenced_code_and_range_cursors_preserve_utf8 ... ok
+test saved_tail_fact_is_readable_after_restart_without_mixing_versions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/project_format.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/project_format-950295569117a307)
+
+running 1 test
+test schema_four_requires_a_verified_external_snapshot_before_project_adoption ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/revision_read.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/revision_read-38ad1739a60f2e75)
+
+running 1 test
+test bounded_accepted_revision_pages_and_slices_survive_restart_and_archive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/search_reader.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/search_reader-cea64e946ad43833)
+
+running 3 tests
+test snapshots_report_a_rising_watermark_and_only_changed_records ... ok
+test readers_refuse_unvalidated_or_old_workspaces_without_changing_them ... ok
+test search_eligibility_matches_core_context_for_random_graphs ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/steering.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/steering-e6e901951c2fdd54)
+
+running 8 tests
+test checked_apply_failure_rolls_back_preparation_message_and_fence ... ok
+test cannot_rebind_an_existing_unrelated_committed_receipt ... ok
+test existing_wrong_thread_membership_is_rejected_without_partial_effects ... ok
+test saves_exact_message_and_fences_stale_writes_and_completion_atomically ... ok
+test lost_response_replays_after_later_run_resolution_archive_and_reopen ... ok
+test rejects_any_other_working_invocation_in_the_same_thread ... ok
+test terminal_race_keeps_terminal_state_and_accepts_only_one_message ... ok
+test invalid_destinations_text_authority_and_fence_overflow_do_not_partially_write ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/writing.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing-56b70fa92eb8fc3e)
+
+running 5 tests
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_setup-e9b887f0a22be3b5)
+
+running 12 tests
+test v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes ... ok
+test raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope ... ok
+test checked_setup_mutation_requires_active_context_even_with_current_thread_input ... ok
+test setup_is_owner_only_and_stale_groups_are_atomic ... ok
+test v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input ... ok
+test immutable_context_duplicate_identity_and_invalid_references_are_refused ... ok
+test schema6_upgrade_refuses_active_edits_and_missing_backup_before_mutation ... ok
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... ok
+test owner_host_schema6_open_uses_remembered_external_backup_first ... ok
+test upgrade_failure_after_backup_rolls_back_all_schema_changes_and_can_resume ... ok
+test schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidates ... ok
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+

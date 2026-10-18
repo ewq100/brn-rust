@@ -1,0 +1,13 @@
+{
+  "first_controller_exit": 1,
+  "stage": "json.loads combined list log after exit0 listing",
+  "exception": "JSONDecodeError: Expecting value: line 1 column 2 (char 1)",
+  "actual_list_output": " INFO No mutants to filter\n",
+  "cause": "missing -p brn-ai; --test-package selected tests, not default mutation package scope; no matching mutants selected",
+  "behavioral_verdicts_from_empty_listing": 0,
+  "manual_verdicts_preserved": 8,
+  "correction": "auto-tail continuation adds explicit package, splits stdout/stderr; does not restart manual runs, source setup or original deadline",
+  "same_segment_started_epoch": 1792182787.4923258,
+  "same_deadline_epoch": 1792184160.6215236,
+  "material_source_changed_by_controller_correction": false
+}

@@ -17,4 +17,6 @@ These synthetic fixtures belong to the maintained intake regression suite. On 11
 | `features.docx` | [source](https://github.com/ewq100/brn-rust/blob/3a3aa7ac6f2a70815ffc778a694663f729203a79/experiments/architecture-reassessment/p2-api-check/features.docx) | `04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d` |
 | `prefix-variation.docx` | [source](https://github.com/ewq100/brn-rust/blob/3a3aa7ac6f2a70815ffc778a694663f729203a79/experiments/architecture-reassessment/p2-api-check/prefix-variation.docx) | `7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709` |
 
+`textual.html` (SHA-256 `04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5`) was written by hand on 17 October 2026 for the X2 `html-textual-1` helper slice. It is synthetic public text.
+
 The existing `quay.*` and `quay-map.*` fixtures and `make-quay.py` remain the maintained PPTX fixture set. Current Threads PDF/DOCX fixtures live in `crates/brn-threads-intake/tests/fixtures/`.

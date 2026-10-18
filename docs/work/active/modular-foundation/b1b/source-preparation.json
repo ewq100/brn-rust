@@ -1,0 +1,98 @@
+{
+  "anticipated_lock_delta": "only existing brn-desktop package dependency edge to rig; deferred until explicit heavy grant; no generation now",
+  "base": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+  "before_fixture": {
+    "expected_failure": "baseline retry reads raw saved request and reaches offline provider selection; the test requires contextual refusal before selection",
+    "meaning": "real existing retry_rewrite path, saved evidence remains valid, exact no-write/feedback assertions; no missing-new-API or fabricated red test",
+    "path": "/private/tmp/brn-b1b-source-20261016/before-context-refusal-fixture.patch",
+    "sha256": "97df04a50de5ae3a4d9d8c93188122469962a4001558f7813a0d4016ab7eba26",
+    "state": "PREPARED ONLY; not executed"
+  },
+  "branch": "work/b1b-20261016",
+  "existing_writing_test_prefix_unchanged": true,
+  "heavy_commands_executed": [],
+  "kind": "SOURCE-ONLY B1b preparation; BUILD NEED; no compile/test/acceptance claim",
+  "known_pending": "No Cargo/metadata/lock/compile/lint/tests executed. Expected desktop\u2192existing-rig lock edge must be inspected only after explicit grant; source-only preparation pin is not a locked or compiled acceptance candidate.",
+  "new_native_fixtures": 2,
+  "precommit_HEAD": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+  "prepared_utc": "2026-10-16T20:41:43.963157+00:00",
+  "slot": "D1A exclusive; no polling/acquisition",
+  "source_fingerprint_sha256": "352a5393dfbda46c4fd591df1b070e7fe0307ededab03ab989ebecc1682c5e87",
+  "source_patch_sha256": "36a4082566f91f183bbc75022b4859083f05b875a4012c79a8e4bf63b0c64daf",
+  "source_paths": {
+    "crates/brn-desktop/Cargo.toml": {
+      "after_sha256": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+      "before_sha256": "672e0569e87dfa5ea7af04c8a61dcac675797b11c9095cfb8f863b50dd6d3c5a"
+    },
+    "crates/brn-desktop/src/threads_ui.rs": {
+      "after_sha256": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+      "before_sha256": "3d6fc494c9281129a8827572d4fd4ba8114e8efb69ec0efe28b86075cdac7a5e"
+    },
+    "crates/brn-desktop/src/threads_writing_tests.rs": {
+      "after_sha256": "f91bac5f41553d20bca0785acac8dcec371f4fc419ac93ce1eb3c99fd42c7e06",
+      "before_sha256": "97582c5af8dd28ae6b949d0b05c9781190d810184a680b9ead48f1d048bfa251"
+    },
+    "crates/brn-threads-app/src/lib.rs": {
+      "after_sha256": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2",
+      "before_sha256": "582d48dce2576474aa5fcf3f63ec13ba895f18bc0b927655fb51ab874dae24be"
+    },
+    "crates/brn-writing-ui/src/native.rs": {
+      "after_sha256": "cb1f03a21c8940475598b0df34f59c1fad3f769b32b3bd7b433462c621fbcd64",
+      "before_sha256": "7750bd724017f38462f8e99af09a03a3d71ed9cb8cc751db078c43328a6f92ab"
+    }
+  },
+  "static_checks": [
+    "existing desktop source outside retry/start region and one doc comment byte-identical",
+    "ordinary queue/EditNote request block byte-identical",
+    "single spawn_prepared and prepare_thread_run production call; worker tail token-equivalent except caller-supplied exact completion text",
+    "all prior panel methods/state byte-identical",
+    "entire existing writing test file prefix byte-identical; exactly two appended fixtures",
+    "additional app/dev manifest hunks exact; TOML parse passes",
+    "lock/root/writing manifest/CI/script bytes unchanged",
+    "before fixture patch applies cleanly to the baseline test file (current prefix unchanged)"
+  ],
+  "static_command_receipts": [
+    {
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "rustfmt",
+        "--edition",
+        "2024",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/brn-writing-ui/src/native.rs",
+        "crates/brn-desktop/src/threads_ui.rs",
+        "crates/brn-desktop/src/threads_writing_tests.rs",
+        "crates/brn-threads-app/src/lib.rs"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1b-source-20261016/rustfmt-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1b-source-20261016/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": ""
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1b-source-20261016/markdown-links.log",
+      "log_sha256": "e24b359bc0b9fcb13f69c440ff4f06bbc95dc25ca2049f1b701eb3ec968d73a4",
+      "summary": "Markdown links: 186 files, 914 local links, 0 failures; historical outgoing policy=docs/archive/ only"
+    }
+  ]
+}

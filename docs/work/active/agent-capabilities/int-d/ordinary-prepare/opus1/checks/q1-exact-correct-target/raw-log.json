@@ -1,0 +1,4 @@
+{
+  "encoding": "utf-8",
+  "raw": "   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n    Finished `test` profile [optimized] target(s) in 1m 21s\n     Running unittests src/lib.rs (/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9)\n\nrunning 1 test\ntest threads::writing_tests::absent_and_null_prepare_still_register_protected_candidates_without_apply_authority ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.06s\n\n"
+}

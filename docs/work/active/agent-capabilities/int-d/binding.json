@@ -1,0 +1,31 @@
+{
+  "task": "INT-D / Slice5",
+  "record_id": "int-d-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "backing_thread": "thread:delegated-task:command%3Amcp%3A71807a36-041e-4638-b672-3410e3401592%3Adelegate-task%3Abrn-d1a-sol-20261016-round1",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "base": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+  "crates": "fb307685cc0ae5fe82d2ab5870e1bf1e8257624f",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "fresh_remote_main": "Principal supplied fresh ls-remote8f768943964a77711b26d5235df146f8efe1dc6c; no worker fetch/network performed.",
+  "initial_status": "clean",
+  "heavy_inventory": "empty cargo/rustc/mutants/AI test executables before branch creation",
+  "assignment_sha256": "dbd973cb33a98853bc6e6d6c7cdffd78f296ecaeb4b4a11d47a6d8af4e4dd0e5",
+  "candidate_target": "/private/tmp/brn-int-d-20261017-target",
+  "authority": {
+    "deterministic": "sole heavy granted; checked synthetic SDK/scripted provider only",
+    "live_workflow_starts": 0,
+    "live_activation": "not granted until concrete pinned preflight/principal followup",
+    "mutants": "not granted; all prior campaigns closed",
+    "writing_INT_W": "separate read-only, not integrated"
+  },
+  "owned": [
+    "docs/work/active/agent-capabilities/int-d/** and minimal current checkpoint links",
+    "new crates/brn-ai/src/threads_int_d_tests.rs +cfg(test,scripted-runs) registration only",
+    "optional new app/CLI int_d integration tests and dedicated support; existing fixtures read-only until exact allocation",
+    "17 October principal exact-content allocation: new CLI tests/support/int_d.rs test-only Workspace/Store::prepared exporter, explicit synthetic fixture ->fresh scratch, no automatic Apply"
+  ]
+}

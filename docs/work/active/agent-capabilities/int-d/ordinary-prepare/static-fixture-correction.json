@@ -1,0 +1,7 @@
+{
+  "new_test": "guide13_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp",
+  "issue": "Cache Entry field is context, not key",
+  "fix": "Read the existing serialized context stamp",
+  "actual_execution_before_fix": false,
+  "production_changed": false
+}

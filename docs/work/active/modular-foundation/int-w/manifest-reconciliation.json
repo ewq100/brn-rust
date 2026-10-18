@@ -1,0 +1,53 @@
+{
+  "canonical_source_files": 332,
+  "canonical_fingerprint": "ab43ba50cc7ce370f329c43a8fe27d40dc41957b5248a672eb502f8d9b13558b",
+  "later_static_manifest_additions": [
+    {
+      "label": "final-markdown-links",
+      "raw_fingerprint": "458d7f0c792ced251022588a5a3bb6cc3a9347f06c8801617f2ecac7a79c8f92",
+      "raw_files": 346,
+      "added_ignored_python_bytecode": [
+        "scripts/__pycache__/check-markdown-links.cpython-314.pyc",
+        "scripts/__pycache__/ci-summary.cpython-314.pyc",
+        "scripts/__pycache__/cli_journey.cpython-314.pyc",
+        "scripts/__pycache__/evaluate-wiki-guidance.cpython-314.pyc",
+        "scripts/__pycache__/evaluate_wiki_v2.cpython-314.pyc",
+        "scripts/__pycache__/package-macos-preview.cpython-314.pyc",
+        "scripts/__pycache__/release-preview.cpython-314.pyc",
+        "scripts/__pycache__/verification_evidence.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_cli_journey.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_development_tooling.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_evaluate_wiki_v2.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_macos_packaging.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_preview_release.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_wiki_guidance_eval.cpython-314.pyc"
+      ],
+      "all_332_material_hashes_identical": true
+    },
+    {
+      "label": "final-shell-syntax",
+      "raw_fingerprint": "458d7f0c792ced251022588a5a3bb6cc3a9347f06c8801617f2ecac7a79c8f92",
+      "raw_files": 346,
+      "added_ignored_python_bytecode": [
+        "scripts/__pycache__/check-markdown-links.cpython-314.pyc",
+        "scripts/__pycache__/ci-summary.cpython-314.pyc",
+        "scripts/__pycache__/cli_journey.cpython-314.pyc",
+        "scripts/__pycache__/evaluate-wiki-guidance.cpython-314.pyc",
+        "scripts/__pycache__/evaluate_wiki_v2.cpython-314.pyc",
+        "scripts/__pycache__/package-macos-preview.cpython-314.pyc",
+        "scripts/__pycache__/release-preview.cpython-314.pyc",
+        "scripts/__pycache__/verification_evidence.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_cli_journey.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_development_tooling.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_evaluate_wiki_v2.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_macos_packaging.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_preview_release.cpython-314.pyc",
+        "scripts/tests/__pycache__/test_wiki_guidance_eval.cpython-314.pyc"
+      ],
+      "all_332_material_hashes_identical": true
+    }
+  ],
+  "unexpected_changed_or_removed_material": [],
+  "old_failed_collector_assertion_retained_in_terminal": true,
+  "no_cache_deleted": true
+}

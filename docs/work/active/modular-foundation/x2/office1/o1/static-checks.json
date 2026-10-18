@@ -1,0 +1,591 @@
+{
+  "status": "SOURCE_BUILD_NEED_UNEXECUTED",
+  "base": "37d080e724a7445b320ae024788cb1044e5f2d05",
+  "manifest_only_authorized_hunks": true,
+  "T0_oracles": [
+    {
+      "path": "crates/brn-intake/tests/fixtures/office/features.inventory.json",
+      "sha256": "237aef2062858c32e470bbd9a7754f4a3573425229d5519ee2f8cd4901a12a63",
+      "unchanged_from_T0": true,
+      "source_path": "crates/brn-intake/tests/fixtures/features.docx",
+      "source_sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/office/footnotes.inventory.json",
+      "sha256": "7b33083d9c53b4399262f5f31b1df35ca70c2257dd5b29ed89cacdb3414e4ec2",
+      "unchanged_from_T0": true,
+      "source_path": "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx",
+      "source_sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/office/harbor.inventory.json",
+      "sha256": "eacd35e86b76934a533ec4e78bebe1600960fd7053ba44ffd43c0b3a184218f0",
+      "unchanged_from_T0": true,
+      "source_path": "crates/brn-intake/tests/fixtures/harbor.docx",
+      "source_sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/office/prefix-variation.inventory.json",
+      "sha256": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3",
+      "unchanged_from_T0": true,
+      "source_path": "crates/brn-intake/tests/fixtures/prefix-variation.docx",
+      "source_sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+    }
+  ],
+  "harbor_process": [
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json",
+      "sha256": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-process.docx",
+      "sha256": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87",
+      "unchanged_from_base": true
+    }
+  ],
+  "source_map_anchor_hash_checks": [
+    {
+      "id": "X01",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X02",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X03",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X04",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X05",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X06",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X07",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X08",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/config/extraction/core.rs",
+      "sha256": "fd9e2afd7b0fc3153e5984d96e6618691b6648ccb388b002f4f6c7e6b6f77142"
+    },
+    {
+      "id": "X09",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X10",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/pptx.rs",
+      "sha256": "7ed1ac3c10458171fc92c995172a1c8e4fa4fd19640a5090cb2506254bbffcc7"
+    },
+    {
+      "id": "X11",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "X12",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/mod.rs",
+      "sha256": "e0e6f32478524459c137bd8900f0eaacdba0b051c77c7a8699f154dc3395e381"
+    },
+    {
+      "id": "X13",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "X14",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/office_metadata/core_properties.rs",
+      "sha256": "a753642b1db918c3e5e7f7fad2587abf77e885654739a79af8f909e5b824b7ca"
+    },
+    {
+      "id": "X15",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/security.rs",
+      "sha256": "76ba605e16e8d39adc091aa826be236a01d639c9983f4f593f9045df25601d76"
+    },
+    {
+      "id": "X16",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/security.rs",
+      "sha256": "76ba605e16e8d39adc091aa826be236a01d639c9983f4f593f9045df25601d76"
+    },
+    {
+      "id": "X17",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/security.rs",
+      "sha256": "76ba605e16e8d39adc091aa826be236a01d639c9983f4f593f9045df25601d76"
+    },
+    {
+      "id": "X18",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/container.rs",
+      "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955"
+    },
+    {
+      "id": "X19",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/container.rs",
+      "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955"
+    },
+    {
+      "id": "X20",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/mod.rs",
+      "sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da"
+    },
+    {
+      "id": "X21",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/mod.rs",
+      "sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da"
+    },
+    {
+      "id": "X22",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/pptx.rs",
+      "sha256": "7ed1ac3c10458171fc92c995172a1c8e4fa4fd19640a5090cb2506254bbffcc7"
+    },
+    {
+      "id": "X23",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/parser.rs",
+      "sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802"
+    },
+    {
+      "id": "X24",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/comments.rs",
+      "sha256": "e87cd04b03fe9569635ffb4e48fabf3a2a8a74b6c1b18ab71a9a530a0ec24131"
+    },
+    {
+      "id": "X25",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/revisions.rs",
+      "sha256": "f30b1877e64cc95cf0ea02ab010c5dc3b2031e55e6d38eee1c2cc09e0ff0fe89"
+    },
+    {
+      "id": "X26",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/document_structure.rs",
+      "sha256": "50edddf897a852dceb872bf95c3085a1361451d0dc57f849449d20204b68a4b9"
+    },
+    {
+      "id": "X27",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/derive/mod.rs",
+      "sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405"
+    },
+    {
+      "id": "X28",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/extractor/bytes.rs",
+      "sha256": "044f2013350f139d0b68e3400e088eb142509b9b12ae2bd41a0193e86748d24e"
+    },
+    {
+      "id": "X29",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/mod.rs",
+      "sha256": "ca9ca9e0aff3324503916e9724316e4b3fd9194b450cab661404fe253e05f9ef"
+    },
+    {
+      "id": "X30",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "Z01",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/types.rs",
+      "sha256": "224e9befc2ed901139e4d87b644aa7960c91e2ad0b3032582d55557115102eb9"
+    },
+    {
+      "id": "Z02",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/crc32.rs",
+      "sha256": "415cbbc843bab8df887756b262b7594ee5ccd0b72185042c0740c45f97d3b3c0"
+    },
+    {
+      "id": "O01",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-opc-0.3.0/src/lib.rs",
+      "sha256": "e55efcfbd475ab39b0eff13589dc0f1236dc271ec1f2c773ac7a40a2094d5ba8"
+    },
+    {
+      "id": "O02",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-opc-0.3.0/src/sanitize.rs",
+      "sha256": "1ad8c5309a95b99b8fdf95f3dcbf22c11eaa7042ee4e36a5983d50e514e6bdf3"
+    },
+    {
+      "id": "O03",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-docx-parse-0.3.0/src/xml.rs",
+      "sha256": "cc4f0f33951de555e0dc91deb2984828acd21efd7c801025cc1ec0803e831cd6"
+    },
+    {
+      "id": "O04",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-pptx-parse-0.3.0/src/xml.rs",
+      "sha256": "b94c00c190833d1d6a139d81711762a117a1977551207c82781444a364b1c2ac"
+    },
+    {
+      "id": "X31",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "X32",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "X33",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/docx.rs",
+      "sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a"
+    },
+    {
+      "id": "X34",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/document_structure.rs",
+      "sha256": "50edddf897a852dceb872bf95c3085a1361451d0dc57f849449d20204b68a4b9"
+    },
+    {
+      "id": "X35",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/parser.rs",
+      "sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802"
+    },
+    {
+      "id": "X36",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/pptx/container.rs",
+      "sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955"
+    },
+    {
+      "id": "X37",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/config/extraction/core.rs",
+      "sha256": "fd9e2afd7b0fc3153e5984d96e6618691b6648ccb388b002f4f6c7e6b6f77142"
+    },
+    {
+      "id": "X38",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/core/extractor/lenient.rs",
+      "sha256": "022d3808161ea1d0c2b3ded31b1822e000d7e86364e3ef8288fd6cab4965be54"
+    },
+    {
+      "id": "X39",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/docx/parser.rs",
+      "sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035"
+    },
+    {
+      "id": "X40",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/types/internal.rs",
+      "sha256": "928eca5136b77f3161a7e293c033966ba1cdbe1252c41e0fe251203587fbd8a9"
+    },
+    {
+      "id": "Z03",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-8.6.0/src/crc32.rs",
+      "sha256": "3d833e6be0d808fa8fb6ebe518c9237b88ff05d7952b581e6ca28ea803b7428e"
+    },
+    {
+      "id": "Z04",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zip-9.0.5/src/read/zip_archive.rs",
+      "sha256": "7f759e879808173a8cb905132e879653c802bae19df4bdddb29d8cf6c54aba68"
+    },
+    {
+      "id": "F01",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/Cargo.toml",
+      "sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4"
+    },
+    {
+      "id": "F02",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/typst-utils-0.15.1/build.rs",
+      "sha256": "6718b5615b3acf0e599c60ac0d092cbcc1ff675bab6d4810451efd571cea1748"
+    },
+    {
+      "id": "F03",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/strum_macros-0.27.2/Cargo.toml",
+      "sha256": "81f142576c960feb48f1ce061489096fbe3beb8d3c3c3c7f45a998d5cd62c49c"
+    },
+    {
+      "id": "F04",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/strum_macros-0.28.0/Cargo.toml",
+      "sha256": "49ce289db377f9e8b25772ccd2121263f05fe908072b9adaccd3bb1e095e3f4c"
+    },
+    {
+      "id": "F05",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nix-0.31.3/Cargo.toml",
+      "sha256": "36654c48d8a7941649b643d42b15750a0dd024095f8670b3e928c503339eefe6"
+    },
+    {
+      "id": "X41",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extraction/derive/mod.rs",
+      "sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405"
+    },
+    {
+      "id": "X42",
+      "path": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/src/extractors/pdf/extraction.rs",
+      "sha256": "62f571ac818b1bc3b4affe8c47b13fcc142892a81792b3d3bdfa7cde62c384a8"
+    }
+  ],
+  "test_sources": {
+    "crates/brn-intake/tests/docx_inventory.rs": {
+      "sha256": "c5aaa8285da824262d90d6f293fceb775d7941965fb8664258ef7ac9e4a82a9a",
+      "bytes": 8725,
+      "lines": 101,
+      "source_declared_tests": [
+        "current_docx_inventory_complete_ordered_schema1_and_schema2",
+        "current_docx_inventory_comparator_detects_loss_and_rebinding",
+        "current_docx_inventory_revisions_comments_source_context",
+        "current_docx_inventory_repeated_targets_keep_two_exact_occurrences",
+        "current_docx_inventory_empty_orphan_notes_and_grid_boundaries",
+        "current_office_admission_existing_hostile_inputs_and_job_limits",
+        "current_office_admission_descriptors_empty_members_and_malformed_baseline",
+        "current_office_admission_alias_dtd_depth_and_relationship_count"
+      ]
+    },
+    "crates/brn-intake/tests/office_differential.rs": {
+      "sha256": "e20bbc8ccfbe24d14578cbc97f19db696c2292c2a0da72dd4a9e09993e941be4",
+      "bytes": 16825,
+      "lines": 192,
+      "source_declared_tests": [
+        "office_xberg_docx_full_independent_inventory_and_prefix",
+        "office_xberg_docx_authored_revisions_comments_notes_and_warnings",
+        "office_xberg_docx_orphan_multitable_spans_and_repeated_figures",
+        "office_limits_pre_admission_allowances_and_actual_iteration_boundary",
+        "office_limits_central_actual_lies_zero_compressed_empty_and_descriptor",
+        "office_limits_content_cells_depth_and_repeated_story_passes"
+      ]
+    },
+    "crates/brn-intake/tests/support/office.rs": {
+      "sha256": "b31a2c1aa83ba1d4dc1e44e2cef009399c161b334eeaab8082c7dbe74afb37e1",
+      "bytes": 30105,
+      "lines": 385,
+      "source_declared_tests": []
+    }
+  },
+  "filters": {
+    "current_docx_inventory": {
+      "count": 5,
+      "status": "STATIC_ONLY_NOT_COMPILED_OR_RUN"
+    },
+    "current_office_admission": {
+      "count": 3,
+      "status": "STATIC_ONLY_NOT_COMPILED_OR_RUN"
+    },
+    "office_xberg_docx": {
+      "count": 3,
+      "status": "STATIC_ONLY_NOT_COMPILED_OR_RUN"
+    },
+    "office_limits": {
+      "count": 3,
+      "status": "STATIC_ONLY_NOT_COMPILED_OR_RUN"
+    }
+  },
+  "registry": "Allocated DOCX classes UNEXECUTED; S5 DEFERRED_UNEXECUTED_O2; no invented observations",
+  "checks": {
+    "JSON_and_TOML_parse": "PASS",
+    "manifest_structural_diff": "PASS",
+    "frozen_T0_bytes": "PASS",
+    "current_pinned_upstream_anchor_hashes": "PASS",
+    "git_diff_whitespace": "PASS",
+    "new_note_local_links": [
+      {
+        "from": "implementation-checkpoint.md",
+        "target": "graph-checkpoint.json",
+        "exists": true
+      },
+      {
+        "from": "implementation-checkpoint.md",
+        "target": "static-checks.json",
+        "exists": true
+      },
+      {
+        "from": "implementation-checkpoint.md",
+        "target": "build-need-handoff.md",
+        "exists": true
+      },
+      {
+        "from": "build-need-handoff.md",
+        "target": "implementation-checkpoint.md",
+        "exists": true
+      },
+      {
+        "from": "build-need-handoff.md",
+        "target": "graph-checkpoint.json",
+        "exists": true
+      },
+      {
+        "from": "build-need-handoff.md",
+        "target": "static-checks.json",
+        "exists": true
+      },
+      {
+        "from": "build-need-handoff.md",
+        "target": "../implementation-slice.md#future-command-order-none-executed-here",
+        "exists": true
+      }
+    ],
+    "literal_include_paths": [
+      {
+        "from": "crates/brn-intake/tests/docx_inventory.rs",
+        "path": "fixtures/water-use.png",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/docx_inventory.rs",
+        "path": "fixtures/hostile-dtd.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/docx_inventory.rs",
+        "path": "fixtures/hostile-path.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/docx_inventory.rs",
+        "path": "fixtures/hostile-inflate.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/docx_inventory.rs",
+        "path": "fixtures/hostile-members.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/harbor.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/office/harbor.inventory.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/features.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/office/features.inventory.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/prefix-variation.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/office/prefix-variation.inventory.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../../../brn-threads-intake/tests/fixtures/luna/footnotes.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/office/footnotes.inventory.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../../../brn-threads-intake/tests/fixtures/harbor-process.inventory.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../../../brn-threads-intake/tests/fixtures/harbor-process.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../../../brn-threads-intake/tests/fixtures/harbor-process.docx",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/office/parity-registry.json",
+        "exists": true
+      },
+      {
+        "from": "crates/brn-intake/tests/support/office.rs",
+        "path": "../fixtures/water-use.png",
+        "exists": true
+      }
+    ]
+  },
+  "preserved_locked_versions": {
+    "libc": [
+      "0.2.189"
+    ],
+    "either": [
+      "1.18.0"
+    ],
+    "uuid": [
+      "1.26.1"
+    ],
+    "syn": [
+      "2.0.119",
+      "3.0.6"
+    ],
+    "tokio": [
+      "1.53.1"
+    ],
+    "mail-parser": [
+      "0.11.8"
+    ]
+  },
+  "execution": {
+    "metadata": 1,
+    "compile": 0,
+    "build": 0,
+    "test": 0,
+    "formatter": 0,
+    "helper_or_extractor": 0,
+    "git_commit_hooks": "No core.hooksPath override; no executable active hooks in the common Git hooks directory."
+  },
+  "qualification": "Rust syntax/type/borrow checks and behavior are unexecuted. Static test counts are not discovery/passes. No emitted target graphs or hard resource proof.",
+  "source_size": {
+    "lines": 678,
+    "bytes": 55655
+  },
+  "metadata_test_registrations": [
+    {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "docx_inventory",
+      "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/docx_inventory.rs",
+      "edition": "2024",
+      "required-features": [
+        "helper"
+      ],
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "office_differential",
+      "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/office_differential.rs",
+      "edition": "2024",
+      "required-features": [
+        "office-differential"
+      ],
+      "doc": false,
+      "doctest": false,
+      "test": true
+    }
+  ],
+  "final_process_inventory": {
+    "matching_processes": [],
+    "reservation": "RELEASED",
+    "qualification": "One final read-only inventory, not slot polling. No task compiler/test/helper was started."
+  }
+}

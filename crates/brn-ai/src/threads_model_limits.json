@@ -1,0 +1,33 @@
+{
+  "source": "https://raw.githubusercontent.com/openai/codex/d63a9b8344cfe58bc78bbe319b560378fc8756ef/codex-rs/models-manager/models.json",
+  "retrieved": "2026-10-16",
+  "source_sha256": "943ca7fe1d19ed019054158303f0dbbd80b3bef43b3aa425a71aa7cb3fb52c2b",
+  "scope": "ChatGPT Codex Responses public catalog default; conservative fallback, not validated account metadata. Do not reuse for Copilot or API.",
+  "models": [
+    {
+      "slug": "gpt-6.1-sol",
+      "context_window": 272000
+    },
+    {
+      "slug": "gpt-6-sol",
+      "context_window": 272000
+    },
+    {
+      "slug": "gpt-6-luna",
+      "context_window": 272000
+    },
+    {
+      "slug": "gpt-5.6-sol",
+      "context_window": 272000
+    },
+    {
+      "slug": "gpt-5.6-luna",
+      "context_window": 272000
+    },
+    {
+      "slug": "gpt-5.5",
+      "context_window": 272000
+    }
+  ],
+  "entry_policy": "Explicit six-model ChatGPT Codex allowlist carried by this slice; not a complete catalog or automatic model discovery. gpt-6-astra and gpt-5.6-terra are intentionally omitted, so their model context remains unknown under the separate host estimate cap. No model availability or invocation authority is added."
+}

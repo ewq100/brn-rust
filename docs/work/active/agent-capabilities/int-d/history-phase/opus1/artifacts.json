@@ -1,0 +1,21 @@
+{
+  "receipt_sha256": "0dfe52403548d33db183a0bf9bb03653652e0fc5f5e18e6bd3276eca3a4e1aa6",
+  "compiled_artifacts": {
+    "binary": {
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "sha256": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280",
+      "dep_info": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+      "dep_info_sha256": "fde5954cb290b7ef1056125bdd79349b8aa3185e9e8c9892eeea683700ad7310",
+      "actual_build_receipt": "/private/tmp/brn-int-d-history-opus1-20261017/cli-final/receipt.json",
+      "qualification": "actual e32+WIP, later pin association by input equality; not future build SHA"
+    },
+    "generator": {
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+      "sha256": "ce2936b4d758cee2b99650c693dd13d9ef2d6eb7e7d70b66f3097590f7d3ee11",
+      "dep_info": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+      "dep_info_sha256": "92ae97d9ad86f456b364f95ad8c3181b302b40b3f386b6cee63205885777d5a9",
+      "actual_build_receipt": "/private/tmp/brn-int-d-history-opus1-20261017/cli-final/receipt.json",
+      "qualification": "actual e32+WIP, later pin association by input equality; not future build SHA"
+    }
+  }
+}

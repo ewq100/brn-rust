@@ -1,0 +1,5 @@
+# Diagnostic handoff
+
+Docs-only bounded result; [response](response.md) and [raw/source/artifact index](check-index.json) preserve every attempt. Actual test outcomes: initial compile timeout/zero tests; controlled immediate-success expectation 0/1; corrected parallel skill filter 10/2. The controlled case and full catalogue-limit case passed inside the latter run; the new fixture interfered with two other concurrent tests, so it was not landed. Original existing test bytes and all production/manifests/locks remain unchanged. No broad suite or saved-binary diagnostic was repeated.
+
+No historical failure is closed or relabelled. No permanent retry correction or accepted test is claimed. Process isolation and subsequent focused verification remain necessary before any such candidate can land. No live/provider/Auth/network/GUI/mutants/delegation or retirement edits occurred. All diagnostic test/source/artifact paths are released; sole heavy is released after the separately recorded precise process inventory. The external unaccepted source is preserved, not an implementation grant for follow-on work.

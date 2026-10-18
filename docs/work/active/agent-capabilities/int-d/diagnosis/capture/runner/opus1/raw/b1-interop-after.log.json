@@ -1,0 +1,5 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_sha256": "485d082322d582f46f765ca96cfe6ac1dc336f8b75c9de8352a58b1d7e5f4acd",
+  "text": "    Finished `test` profile [optimized] target(s) in 0.68s\n     Running unittests src/lib.rs (/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9)\n\nrunning 1 test\ntest threads::int_d_tests::capture_runner::offline_python_context_interoperates_with_exact_rust_fixture_facts ... INT_D_B1_INTEROP {\"whole_context_equal\":true,\"rust_policy_sha256\":\"34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993\",\"expected_policy_sha256\":\"34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993\",\"only_possible_difference\":\"settings.policy_sha256\",\"auth_or_runner_invocations\":0}\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 486 filtered out; finished in 0.01s\n\n"
+}

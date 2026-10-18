@@ -1,0 +1,10 @@
+--- a/crates/brn-ai/src/threads_context_budget.rs
++++ b/crates/brn-ai/src/threads_context_budget.rs
+@@ -96,7 +96,6 @@
+ }
+ pub(super) fn failure(budget: Budget) -> AiError {
+     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {
+-        origin: "context_budget".into(),
+         code: Some(
+             if budget.context.is_some() {
+                 ESTIMATE_CODE

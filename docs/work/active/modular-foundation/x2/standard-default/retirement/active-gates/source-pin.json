@@ -1,0 +1,35 @@
+{
+  "task": "brn-x2-retirement-active-gates-20261018",
+  "base": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+  "retirement_material": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+  "material_commit": "41a34dec9866accf5b90154a1986d22d6b511017",
+  "material_tree": "069800450c607c8e000f039b82f0c81f94eb79a1",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "source_sha256": {
+    "crates/brn-ai/src/skill_packages.rs": "320524bf3c17b8aa04df1b80e6a94d742cf2d15c5cdd41727d9517a18a284a7f",
+    "crates/brn-ai/src/skill_packages_tests.rs": "2e08b90f859281529d9d1accf23fe8a3ef3aede2f7b28ddc7b4146c6dc6f50e1",
+    "crates/brn-ai/src/threads_int_d_tests.rs": "8a45cea6127ed96734c09d4d59aa08047c701b78aa745f1863d7ecb0c7b01d6f"
+  },
+  "compiled_association": "Commands01-07 record HEAD0c60608 plus exact source.diff and per-file input hashes, never a future commit. Final compiled inputs equal material41a34dec source bytes. Command01 has unchanged Catalog production plus the new regression;02-07 have the explicit unlock. All binary/library/dep-info before/after bytes are retained content-addressed externally.",
+  "artifact_objects": "/private/tmp/brn-x2-retirement-active-gates-20261018/objects",
+  "before_ce477_custody": "/private/tmp/brn-x2-retirement-active-gates-20261018/custody",
+  "before_binary_sha256": "ede41ab615b33e8ae02b432f760cd9d15d0a1922b36c248dd5958348418a61c0",
+  "before_dep_info_sha256": "84b2d045f078a894e80d21160fe19265c37432a2ca553419da6b44cfe13a96be",
+  "invariance_receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/invariance.json",
+  "invariance_sha256": "5dfe1fde24903cdf56c45962a9b71f1dd3d45707f594756306ce2fa5b60ee082",
+  "rust_std_archive": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libstd-3f21d70fba8f3088.rlib",
+  "rust_std_archive_sha256": "52a9e34583f133cfd144e046de74d9447840fb15a01773cbe47aff2bdbc78c36",
+  "platform_contracts": {
+    "flock.2": "54195927032ace18230a4f926d9edfbb672fc8706267be00727d203a01b6d616",
+    "close.2": "90217028d7a7ff139ddb419f0a7673446c2c65273a9996e1ad4d76e896c255ac"
+  },
+  "stdlib_qualification": "Pinned Rust1.98.1 File::try_lock and File::unlock are exercised by the real regression. Rust source/rustdoc component is absent locally; no online documentation or installation was used. Local macOS SDK flock(2) NOTES and close(2) DESCRIPTION corroborate shared inherited descriptors, explicit LOCK_UN, and last-close release.",
+  "root_lock_sha256": "f42965383ed833cc5a4262584536018773917d499dc419af03199e52075243ac",
+  "executed_full_ai_binary_and_dep_info": {
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/deps/brn_ai-6600878fea862aee": "ccc504005d6311b915cdeb43bb0dc435b611317a167fa61db0f4cbae456543bd",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/deps/brn_ai-6600878fea862aee.d": "95a2daf8a5de5ec9999c7a2e67cf664195e96a9a604f1beaada247d521db866c"
+  },
+  "complete_artifact_index": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/06-full-ai/result.json",
+  "artifact_inventory_qualification": "Raw receipts retain the full target inventory before/after each command, including historical variants; inventory presence alone is not a claim that every artifact was emitted by that command. The exact executed test binary and dep-info are selected here from the recorded run path."
+}

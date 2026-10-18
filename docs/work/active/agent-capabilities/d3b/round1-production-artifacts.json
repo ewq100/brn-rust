@@ -1,0 +1,79 @@
+{
+  "source_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/default-build-source.json",
+  "command_receipt": "/private/tmp/brn-d3b-review1-candidate-artifacts/default-build.json",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn",
+      "sha256": "1dc0da67f959d3c1092f3990dd39e7e37733949179a89df50deeb7df816b7829",
+      "bytes": 61747216,
+      "mtime_ns": 1792224236007120221
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn.d",
+      "sha256": "6e07dff2240d47446155f2afe31fc7981c2d236f1b1c690052766ba86690926e",
+      "bytes": 8382,
+      "mtime_ns": 1792224236031029684
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-desktop",
+      "sha256": "246d20ca1176c483cf2d637ebfff4824943f30e5e5cd5ea0537e46f71048ab83",
+      "bytes": 8081760,
+      "mtime_ns": 1792224234930449023
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-desktop.d",
+      "sha256": "16b5546503048f78d0421d29dfe828607ae2d74d4acd7b3003d885292621eab9",
+      "bytes": 7934,
+      "mtime_ns": 1792224236032291197
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-intake-helper",
+      "sha256": "b47e184a823ac89ba9c1793d4766d628b2b7e09a601f5f7ceddcd35bc21e48d8",
+      "bytes": 34084368,
+      "mtime_ns": 1792220437687717283
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-intake-helper.d",
+      "sha256": "9939f474c79470bac1a7266ca8823495201b31bf8c8346e3f8134d73f80c832e",
+      "bytes": 995,
+      "mtime_ns": 1792223991017421375
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/libbrn_ai-67e710063aae6f26.rlib",
+      "sha256": "920117827369aabffdc28ffb1ebf019d0b7f143cc045d5c7bf88ccccf2411d73",
+      "bytes": 22282104,
+      "mtime_ns": 1792224233621982734
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_ai-67e710063aae6f26.d",
+      "sha256": "164500f6bb38a16c5c1fbf199f31ed533209be1b7b67fa5d02c1f3008a56a805",
+      "bytes": 4951,
+      "mtime_ns": 1792224231062839898
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/libbrn_threads_core-7b8bd7bc4f242290.rlib",
+      "sha256": "9ead0ade410eb1d63d013fa2063aca334c86bd206380b8494d50cf11e1f8f566",
+      "bytes": 13675280,
+      "mtime_ns": 1792224231105095430
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_core-7b8bd7bc4f242290.d",
+      "sha256": "0b54dfa0b9e1473c219d2b92c0bac8240d873a843395c9828e89497b09a06ce6",
+      "bytes": 3387,
+      "mtime_ns": 1792224229057235738
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/libbrn_threads_app-074779146ed70b6e.rlib",
+      "sha256": "3fee137d0a05985e44d1d4ff2509bb5d869f353cc4bb884b28459f964f165e75",
+      "bytes": 8845768,
+      "mtime_ns": 1792224234279974481
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_threads_app-074779146ed70b6e.d",
+      "sha256": "9dc473f5e687ea0e8da63de99f57aa8aa9fed671ab5f7a230bdb224edc967261",
+      "bytes": 3465,
+      "mtime_ns": 1792224233005565722
+    }
+  ],
+  "qualification": "Generic CLI/default desktop and helper after final default workspace build. Most-recently modified library per crate is recorded explicitly; do not treat every old coexisting feature artifact as current. Native test executable+dep-info are associated in native-full check. No new native-retrieval combined build/capability/e2e claim."
+}

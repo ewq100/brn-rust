@@ -2,9 +2,8 @@
 //! Anchors and node IDs are extraction-local; neither hashes nor filenames are source identity.
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, BTreeSet};
 
-pub mod prepared;
+pub mod document;
 
 pub const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
@@ -17,8 +16,6 @@ pub const MAX_RETAINED_BYTES: usize = 32 * 1024 * 1024;
 pub const MAX_IMAGE_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_IMAGE_PIXELS: u64 = 32 * 1024 * 1024;
 pub const MAX_TOTAL_IMAGE_PIXELS: u64 = 64 * 1024 * 1024;
-pub const CONVERTER: &str = "brn-intake-v1/betteroffice-0.3.0/mail-parser-0.11.8";
-
 /// Per-intake quotas may tighten the qualified hard profile, never enlarge it.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default, deny_unknown_fields)]
@@ -81,59 +78,6 @@ impl IntakeLimits {
         Ok(())
     }
 }
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct IntakeUsage {
-    pub input_bytes: usize,
-    pub expanded_bytes: usize,
-    pub package_parts: usize,
-    pub mime_parts: usize,
-    pub mime_depth: usize,
-    pub decoded_bytes: usize,
-    pub image_pixels: u64,
-    pub output_bytes: usize,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct HelperRequest {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub limits: Option<IntakeLimits>,
-    pub kind: String,
-    pub bytes: Vec<u8>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct Extraction {
-    #[serde(default)]
-    pub limits: IntakeLimits,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub consumed: Option<IntakeUsage>,
-    pub schema: u32,
-    pub converter: String,
-    pub original_sha256: [u8; 32],
-    pub markdown: String,
-    pub sources: Vec<SourceNode>,
-    pub assets: Vec<ImageAsset>,
-    pub occurrences: Vec<ImageOccurrence>,
-    pub gaps: Vec<String>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct SourceNode {
-    pub id: String,
-    pub parent: Option<String>,
-    pub name: String,
-    pub media_type: String,
-    pub locator: String,
-    pub status: String,
-    #[serde(with = "binary")]
-    pub bytes: Vec<u8>,
-    pub text: String,
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct ImageAsset {
@@ -144,19 +88,6 @@ pub struct ImageAsset {
     pub media_type: String,
     #[serde(with = "binary")]
     pub bytes: Vec<u8>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(deny_unknown_fields)]
-pub struct ImageOccurrence {
-    pub id: String,
-    pub source_id: String,
-    pub asset_id: String,
-    pub locator: String,
-    pub alt: Option<String>,
-    /// UTF-8 byte range in `Extraction.markdown`, including the checked asset link.
-    pub start: usize,
-    pub end: usize,
 }
 
 pub fn digest(bytes: &[u8]) -> [u8; 32] {
@@ -176,210 +107,6 @@ pub fn asset_file_name(asset: &ImageAsset) -> Result<String, String> {
     Ok(format!("{}.{}", hex(&asset.sha256), ext))
 }
 
-fn bounded(value: &str, max: usize, what: &str) -> Result<(), String> {
-    if value.is_empty() || value.len() > max || value.contains('\0') {
-        Err(format!("invalid {what}"))
-    } else {
-        Ok(())
-    }
-}
-fn id(value: &str) -> Result<(), String> {
-    bounded(value, 256, "id")?;
-    if value
-        .bytes()
-        .all(|b| b.is_ascii_alphanumeric() || b"-_: .".contains(&b))
-        && !value.contains(' ')
-    {
-        Ok(())
-    } else {
-        Err("unsafe id".into())
-    }
-}
-impl Extraction {
-    /// Validate untrusted helper output before writing any blob or using any evidence.
-    /// This validates envelope integrity; full image decoding belongs to the isolated helper.
-    pub fn validate(&self) -> Result<(), String> {
-        if self.schema != 1 {
-            return Err("unsupported extraction schema".into());
-        }
-        self.limits.validate()?;
-        bounded(&self.converter, 1024, "converter")?;
-        if self.markdown.len() > MAX_TEXT_BYTES
-            || self.sources.is_empty()
-            || self.sources.len() > MAX_SOURCES
-            || self.assets.len() > MAX_ASSETS
-            || self.occurrences.len() > MAX_OCCURRENCES
-            || self.gaps.len() > 2048
-        {
-            return Err("extraction collection/text budget".into());
-        }
-        let mut source_ids = BTreeSet::new();
-        let mut source_locators = BTreeSet::new();
-        let mut retained = 0usize;
-        let mut text = 0usize;
-        for (i, source) in self.sources.iter().enumerate() {
-            id(&source.id)?;
-            bounded(&source.name, 4096, "source name")?;
-            bounded(&source.media_type, 256, "source media type")?;
-            bounded(&source.locator, 8192, "source locator")?;
-            if !matches!(
-                source.status.as_str(),
-                "complete" | "partial" | "unprocessed" | "retained-inline" | "container"
-            ) {
-                return Err("invalid source status".into());
-            }
-            if i == 0 {
-                if source.parent.is_some()
-                    || source.bytes.len() > self.limits.max_input_bytes
-                    || digest(&source.bytes) != self.original_sha256
-                {
-                    return Err("root original mismatch".into());
-                }
-            } else if !source
-                .parent
-                .as_ref()
-                .is_some_and(|parent| source_ids.contains(parent))
-            {
-                return Err("missing, cyclic or unordered source parent".into());
-            }
-            if !source_ids.insert(source.id.clone())
-                || !source_locators.insert((source.parent.clone(), source.locator.clone()))
-            {
-                return Err("duplicate source identity/locator".into());
-            }
-            retained = retained
-                .checked_add(source.bytes.len())
-                .ok_or("retained size overflow")?;
-            text = text
-                .checked_add(source.text.len())
-                .ok_or("text size overflow")?;
-            if retained > MAX_RETAINED_BYTES || text > MAX_TEXT_BYTES {
-                return Err("source payload budget".into());
-            }
-            if !source.text.is_empty() && !self.markdown.contains(&source.text) {
-                return Err("source extracted text has no exact global correspondence".into());
-            }
-            if source.status == "unprocessed" && !source.text.is_empty() {
-                return Err("unprocessed source has factual text".into());
-            }
-        }
-        let mut assets = BTreeMap::new();
-        let mut image_bytes = 0usize;
-        let mut pixels = 0u64;
-        for asset in &self.assets {
-            if asset.bytes.is_empty()
-                || digest(&asset.bytes) != asset.sha256
-                || asset.id != format!("asset-{}", hex(&asset.sha256))
-            {
-                return Err("asset identity/hash mismatch".into());
-            }
-            asset_file_name(asset)?;
-            let area = u64::from(asset.width) * u64::from(asset.height);
-            pixels += area;
-            image_bytes = image_bytes
-                .checked_add(asset.bytes.len())
-                .ok_or("image size overflow")?;
-            if area == 0
-                || area > self.limits.max_image_pixels
-                || pixels > self.limits.max_total_image_pixels
-                || image_bytes > MAX_IMAGE_BYTES
-            {
-                return Err("image budget".into());
-            }
-            if assets.insert(asset.id.as_str(), asset).is_some() {
-                return Err("duplicate asset".into());
-            }
-        }
-        let mut occurrence_ids = BTreeSet::new();
-        let mut occurrence_locators = BTreeSet::new();
-        let mut used_assets = BTreeSet::new();
-        let mut ranges = Vec::new();
-        for occurrence in &self.occurrences {
-            id(&occurrence.id)?;
-            bounded(&occurrence.locator, 8192, "occurrence locator")?;
-            if occurrence
-                .alt
-                .as_ref()
-                .is_some_and(|s| s.len() > 8192 || s.contains('\0'))
-            {
-                return Err("invalid image alt".into());
-            }
-            let asset = assets
-                .get(occurrence.asset_id.as_str())
-                .ok_or("missing occurrence asset")?;
-            if !source_ids.contains(&occurrence.source_id)
-                || !occurrence_ids.insert(&occurrence.id)
-                || !occurrence_locators.insert((&occurrence.source_id, &occurrence.locator))
-            {
-                return Err("invalid occurrence association".into());
-            }
-            let fragment = self
-                .markdown
-                .get(occurrence.start..occurrence.end)
-                .filter(|s| !s.is_empty())
-                .ok_or("invalid UTF-8 occurrence range")?;
-            let file_name = asset_file_name(asset)?;
-            if !fragment.contains(&file_name) {
-                return Err("occurrence range does not bind its asset".into());
-            }
-            used_assets.insert(occurrence.asset_id.as_str());
-            ranges.push((occurrence.start, occurrence.end));
-        }
-        ranges.sort_unstable();
-        if ranges.windows(2).any(|r| r[0].1 > r[1].0) || used_assets.len() != assets.len() {
-            return Err("overlapping occurrences or unused asset".into());
-        }
-        for gap in &self.gaps {
-            bounded(gap, 16384, "gap")?;
-        }
-        let mut counter = SizeCounter(0);
-        serde_json::to_writer(&mut counter, self).map_err(|e| e.to_string())?;
-        if counter.0 > self.limits.max_output_bytes {
-            return Err("configured output byte quota".into());
-        }
-        if let Some(usage) = &self.consumed {
-            let decoded = self
-                .sources
-                .iter()
-                .skip(1)
-                .map(|s| s.bytes.len())
-                .sum::<usize>();
-            if usage.input_bytes != self.sources[0].bytes.len()
-                || usage.decoded_bytes != decoded
-                || decoded > self.limits.max_decoded_bytes
-                || usage.expanded_bytes > self.limits.max_expanded_bytes
-                || usage.package_parts > self.limits.max_package_parts
-                || usage.mime_parts > self.limits.max_mime_parts
-                || usage.mime_depth > self.limits.max_mime_depth
-                || usage.image_pixels != pixels
-                || pixels > self.limits.max_total_image_pixels
-                || self.assets.iter().any(|a| {
-                    u64::from(a.width) * u64::from(a.height) > self.limits.max_image_pixels
-                })
-                || usage.output_bytes != counter.0
-            {
-                return Err("consumed intake scope differs from payload or quota".into());
-            }
-        }
-        Ok(())
-    }
-}
-struct SizeCounter(usize);
-impl std::io::Write for SizeCounter {
-    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-        self.0 = self
-            .0
-            .checked_add(bytes.len())
-            .ok_or_else(|| std::io::Error::other("output size overflow"))?;
-        if self.0 > MAX_OUTPUT_BYTES {
-            return Err(std::io::Error::other("output protocol budget"));
-        }
-        Ok(bytes.len())
-    }
-    fn flush(&mut self) -> std::io::Result<()> {
-        Ok(())
-    }
-}
 mod binary {
     use base64::{Engine, engine::general_purpose::STANDARD};
     use serde::{Deserialize, Deserializer, Serializer};
@@ -394,9 +121,6 @@ mod binary {
         STANDARD.decode(encoded).map_err(serde::de::Error::custom)
     }
 }
-
-#[cfg(feature = "helper")]
-pub mod helper;
 
 /// Bounded complete PNG validation for retained historical image records.
 /// This is format-independent decoding, with the historical record budget.

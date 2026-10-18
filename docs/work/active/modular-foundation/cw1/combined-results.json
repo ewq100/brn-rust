@@ -1,0 +1,135 @@
+[
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-retrieval",
+      "--features",
+      "native",
+      "--lib",
+      "--test",
+      "model_download",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 3.548,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-00.log",
+    "counts": [
+      35,
+      0,
+      0
+    ],
+    "test_targets": 2
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-threads-app",
+      "--features",
+      "native-retrieval",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 38.059,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-01.log",
+    "counts": [
+      218,
+      0,
+      1
+    ],
+    "test_targets": 32
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "brn",
+      "--features",
+      "native-retrieval",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 4.224,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-02.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-retrieval",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 6.567,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-03.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-retrieval",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 5.646,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-04.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-retrieval",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 15.443,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/combined-05.log",
+    "counts": [
+      95,
+      0,
+      0
+    ],
+    "test_targets": 1
+  }
+]

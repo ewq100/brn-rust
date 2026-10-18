@@ -8,7 +8,10 @@ pub mod capability_probe;
 mod chat;
 pub mod codex_auth;
 pub mod conversion;
+pub mod document_refine;
 mod error;
+#[path = "threads_mcp.rs"]
+pub mod mcp;
 #[cfg(any(test, feature = "capability-spike"))]
 mod proposal_tools;
 #[cfg(any(test, feature = "capability-spike"))]
@@ -17,6 +20,8 @@ mod provider_fixture_runtime;
 mod provider_formats_tests;
 mod resend;
 pub mod run_lease;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+pub mod skill_packages;
 pub mod threads;
 pub mod threads_guides;
 #[cfg(any(test, feature = "capability-spike"))]
@@ -162,3 +167,6 @@ pub struct AiFailureDetail {
     pub phase: Option<String>,
 }
 pub type AiResult<T> = std::result::Result<T, AiError>;
+
+#[path = "threads_skills.rs"]
+pub mod thread_skills;

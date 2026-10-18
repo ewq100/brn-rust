@@ -1,0 +1,631 @@
+{
+  "version": 1,
+  "status": "OBSERVED_O1_PRODUCTION_PROMOTION_BLOCKED",
+  "oracle_pin": "54b3372608d6b022a7550137aea158800029d3a4",
+  "classes": {
+    "S1": {
+      "status": "OBSERVED_PARTIAL_IDENTITY_NO_CONTENT_RANGES",
+      "requires": "Exact repeated occurrence, image target/identity and content-range bindings; public image_index exists."
+    },
+    "S2": {
+      "status": "OBSERVED_COMMENT_CONTEXT_GAP",
+      "requires": "Authored synthetic comments with dates, ranges, author, parent/resolved; T0 source comments absent."
+    },
+    "S3": {
+      "status": "OBSERVED_SPAN_AND_NESTING_GAPS",
+      "requires": "Full ordered table cells/coordinates, horizontal/vertical spans, nested and multiple tables."
+    },
+    "S4": {
+      "status": "OBSERVED_AMBIGUOUS_MARKERS_AND_TABLE_REFERENCE_GAP",
+      "requires": "Distinct fn/en same-ID references, literal markers, table references and cached NOTEREF association."
+    },
+    "S5": {
+      "status": "DEFERRED_UNEXECUTED_O2",
+      "requires": "PPTX harbor/quay slide order/hidden/source-part/shape/comment evidence; never an observed DOCX claim."
+    },
+    "S6": {
+      "status": "OBSERVED_RESOURCE_AND_INVENTORY_GAPS",
+      "requires": "Full source inventory including revisions/comments/empty/orphan stories, warning classes and silent optional-read loss; malformed acceptance/resource boundaries measured separately."
+    },
+    "S7": {
+      "status": "OBSERVED_PREFIX_BODY_LOSS",
+      "requires": "Full prefix-independent body/stories/cells/figures; no source omission expected."
+    }
+  },
+  "observations": {
+    "aggregate-cell-cap": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "30191466a476679d401ebb432aa24a30ce54cd1d333a233de23fc9d4942b4868",
+      "actual_sha256": "a1dd5c3c956c2bb8352711d3bf0af051b9386b69a1bf123661bce6770b563c81",
+      "raw_observation_sha256": "9bf3637e0f892db342e52c86b185aa9922338cd600cce735460eb28b5717452e",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "content-cap": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "321674f1006db6eeac2b3330d82f061c3d4faf7d6c21ce3e5e001e90e13bb66c",
+      "actual_sha256": "7e0f6a64c57f44f7497d59545eee98797f1c9773c03452cede3fcbc9958b4716",
+      "raw_observation_sha256": "17df9780f97dd6685f12ecffdfa82ee0211aedbda6034469b5f8acece0defb98",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-comments": {
+      "class": "S2",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "e86a03b5dcb2dff1141120978c83e28b08401485cbaa2a127342fbdd519076d4",
+      "actual_sha256": "92ac7ff81a445038ed10ec5a929ea1b54c34698438efcd6d089c99665fffaf76",
+      "raw_observation_sha256": "cc845c59ad900f9819339e30abf0d1c72e0520b9bef6a10a70fa1260c2ffbfbc",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-features-full-context": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "0fb30290d7523a6094936b162ac9bcaae6503bcb12098ace52c72eb84e2aad32",
+      "actual_sha256": "93b0a5faa42ed8c972f70300836bc809b5cf2ca58d5e40e87337622e15919a1a",
+      "raw_observation_sha256": "ed8aa668562d3182944da43ee62de9d667f4f0a4652ade6d2140abf6abd84347",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-features-occurrences": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "2172cd853f0e25f8ca0a29ebc7c7bf026d2ae5fdf9f77c51ea172bf1a91d1c04",
+      "actual_sha256": "a935abb611e07d0eb9b9fdcca54b7432a54563c0592eb1ad4b690e325e09c97b",
+      "raw_observation_sha256": "07741762550b65c0521843d2d89e15a288487c4e920b9512e76a57f2a04e0b17",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-footnotes-full-context": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "bad52ef7bf165edd0f3ea31ea9f0ec3a083b2f25ad5d880d733b478cb523b5bb",
+      "actual_sha256": "6dd72f53a9ab0af0a3c72c8e5dc50a7c009defe8074448b5dc2ad330f34b9876",
+      "raw_observation_sha256": "f5412a886e6f9f6e0951707447c154a795a19019d97922300b449e2c8d359517",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-footnotes-occurrences": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "3221a34791ee51e4c8cc90d4bb9b63f7e05168b35c9b5ba0bad24cae37b61619",
+      "actual_sha256": "3e4429b87d929e571cd0d3c1b7570f9c2664adbe91b65de613205c4115e7d123",
+      "raw_observation_sha256": "e88cb83dceb885b0c4f5b681d12feb5049ad379576001db6b2629d848b639f5f",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-grids": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "9a6bf6076f3b5b6eef60bce47f6414b628875888833a8567ec85f5089c27a381",
+      "actual_sha256": "09b19120b3b6d3d0d36eb7efe973a10b13d28b653ea5d9030d783bed7855bb13",
+      "raw_observation_sha256": "99f0467d3edaae5c8e05784edd7b9959682f6a11827c8730c1000af4f3b75140",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-harbor-full-context": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "67f2a12714ecb73405755c3f2d5321c1cae275381d60ab50ba7b8d25a6c9e2e8",
+      "actual_sha256": "6de3ded458762d5e93b1764802002568f4bc9fe39a776c9b14fdb23a9ed9ccef",
+      "raw_observation_sha256": "c4be852a183091cc2552f5e0c4e0f84f1e9d6d98f305b3c557be8569cd0ab491",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-harbor-occurrences": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "024360c0ebceaf3bb1313c5d3211f32d68cca3f619cdbabcba8df120ff65d9c3",
+      "actual_sha256": "c3e2dd963c2ba43dcf83f702f4492e0c3c32e1ac9e5198cba50a56a95235ef4e",
+      "raw_observation_sha256": "c76da177b6c6d1a21be0f39a924db870e3e1dae777a711eba7d0aae268605dd0",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-harbor-process-full-context": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "620eec52656f42442aa11fc816ba0cd40a17f8152f4f4d5a2cd313311802e232",
+      "actual_sha256": "ab5638b313838eaefcba1ee07e0b0f5f3466f2c090af26ed9814eecaaf484e84",
+      "raw_observation_sha256": "794b3ad2914466a1b738cbf3b52faac49c58441d64c44a03bde0a4289993dcbb",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-harbor-process-occurrences": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "b5c2251eeba7e35e234b45ea54be6a4cc1ee7dc1ff4a9af069415999eff17a97",
+      "actual_sha256": "deb040567ac4fbfdca279e77f13044ad600c7823e9862f1dcc211f30f79a0cc3",
+      "raw_observation_sha256": "ba853afad2ee5dc1d104ad23342cda6ef4a69ccdb46d5f8ac84e31f153ba75d3",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-notes": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "12f6d6f87d9969d85a5b096493388df85aaaebed5b23f2c3a8689c0b34c08088",
+      "actual_sha256": "196c0b30b2280e779c486ee3a4d279290b382a8029259ec64b81a19a0fa7f2e3",
+      "raw_observation_sha256": "f4f83282a9d368ecd0f44229b398bf722648f106b40c930a6b2038e8f99aea62",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-orphan": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "1911fc6549a165a04afdf6799e4829a3c377f504d8eb884bd50fac3c5402ea67",
+      "actual_sha256": "8901fe106b093bc59a1f99152f6f9316180321c16ed0de2d3b9111fc6ac06d2c",
+      "raw_observation_sha256": "1f3c99f57811ee286436bc2e7ed7af249393c019c2453ebe5e9eac9543880657",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-prefix-variation-full-context": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "67f2a12714ecb73405755c3f2d5321c1cae275381d60ab50ba7b8d25a6c9e2e8",
+      "actual_sha256": "0fc2b6a7f809e558f2d73adde3b89e0b582aa0a4065bd0765c3eed730bbb99f9",
+      "raw_observation_sha256": "30e9e26bb78481f53928d8d107bb2b0605ee7d6e5e52e8e7bd0c286a8b9d834d",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-prefix-variation-occurrences": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "024360c0ebceaf3bb1313c5d3211f32d68cca3f619cdbabcba8df120ff65d9c3",
+      "actual_sha256": "eb31ba887bd6374f3404e78e10cd79ebf9792f7218d572e8fb562ef3cab3fbba",
+      "raw_observation_sha256": "b5c16e798ded4c05a50ac93c3c920125b784cfced4366b84bcbdcd177235e1d1",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/07-current-projection.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-relationship-count": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "7c0b45890d355526c018724cef2134d1e5e8426ba622d7c670601cdb5043af8d",
+      "actual_sha256": "91ae73fdd24cd2aaa7052594ce1e442c68a175b2f9585cc52f13f1e1b91e5768",
+      "raw_observation_sha256": "7a031cd8f78a3dfaa8154e1c39f36f4e34360c6a858f715be7629d7e6a9d79e5",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "current-size-word/document.xml--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "111a99b1c55948cfca848e4e1e8646259acf11523ff635320a98663735e09e32",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "8cc081875e83388cc16a88d890d8d03d36cdb55c9f7dabf144f435ae51ceac5c",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "current-size-word/document.xml-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "73404fd854233d19e99e3d45a63e9127b1350f5ef15b31d9291973fd99872fc0",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "edae1d53bc31ccaee5385137370d776406fba9280394224b0359a13629e2e799",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "current-size-word/footnotes.xml--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "581fb07387af2aaa1856f909bcdbe837ff5a2046fcbcb8ae0a1b04edf4c57017",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "a57c08e80413c3dcc9f72037a98bef74298b6b610f9b3ab20d8e2bf3f1622e22",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "current-size-word/footnotes.xml-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "3f9720940820e17f41af23343a2934fe0b4ba06ae990b4135ef2f712a2f24392",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "1b243dae9555318bf58f62e12e4c654d853d8c29df6a05e6c217f518aec5886a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "current-size-word/media/same.png--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "5efd7b8ae7b327415601b14791e2d0bfe0b64bcf7ade7c3b209611e12dfc5db1",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "84843b5240a45ac2631aee1dcc031ee7a801966343e06e95add4469ed9e11b29",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "current-size-word/media/same.png-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "d97fe5a221e887730556139021c042429169180af20e57fb37177f682ca76ed4",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "140f7cf7c1b4aa0efc73dc0293f974b3bbfe379761313e4d4617f330f28673f6",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
+    },
+    "entity-cap": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "efdbe9ca6d243beaa74031b6a16a3c530c50b1245debf5fc0b6eac9e617305de",
+      "actual_sha256": "18469f5b935dc944c94fd3aa6602c1d1ad572f350f98478e7787495b36b9b2cf",
+      "raw_observation_sha256": "b473bbe263c85db0c2c7f142516d96b144274a7a96592dfe4dfab0e28fadce09",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "features-all-stories": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "02222f8b96888d71ea4be8b0a23c48d4c6c76875479acedc99de8e72c7a80df8",
+      "actual_sha256": "9b0ba99f59c90b3a07a4149d6fa09b2f796b7aab93656343a5c546e51f94b52f",
+      "raw_observation_sha256": "0912fee8a8b381beb2dc65f2d496a3920653007cdc8ea36a3ea3be936fc51198",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "features-body": {
+      "class": "S6",
+      "measurement": "EqualProjection",
+      "expected_sha256": "84a9ba93d2d0bfc5e09b5abdf68479f9ccaf79fe2a7382de721bcb959025d212",
+      "actual_sha256": "84a9ba93d2d0bfc5e09b5abdf68479f9ccaf79fe2a7382de721bcb959025d212",
+      "raw_observation_sha256": "b46e3e0730658158a24f4d613173e63f549ab00553f7ec69c9fd8a997ee8f985",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "features-cells": {
+      "class": "S3",
+      "measurement": "EqualProjection",
+      "expected_sha256": "e83b35a4f75f4df098119ab8b140851d9ba5e316f36850ed6ac9f24f2cba3eca",
+      "actual_sha256": "e83b35a4f75f4df098119ab8b140851d9ba5e316f36850ed6ac9f24f2cba3eca",
+      "raw_observation_sha256": "639a99c3de3c3686547e001f4d6710f3ea4b0541312cc3e1cf897a8f7c8540b6",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "features-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "8595e14cf87e7e39a2baef49f70f881d6ccbb65f4fb1e7d12f83a64f349c729a",
+      "actual_sha256": "872cbb5a0bf48ea36d74936b3a2cad4166d0207e65601882ce4f4c87eaef947a",
+      "raw_observation_sha256": "2650fced17afdae9d216f7b00bf6903675b1ea2b60fa4e99692af3ab47eed312",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "footnotes-all-stories": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "7835f7e4675491778561ba1c974428e36d9c0366910f3e23447150330e737d77",
+      "actual_sha256": "ee3a1caf1651769b1a75345a654b942564f073f198b1ffeedbf022fef055a94f",
+      "raw_observation_sha256": "904b3918fb8d3921c3f9ce919e7272e48dec703f7abfee7898ab5e8cb8df3702",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "footnotes-body": {
+      "class": "S6",
+      "measurement": "DifferentProjection",
+      "expected_sha256": "462c3d022ae2208b877836bd092fda6dd7bdaed69e6e44da7e5674f77b157833",
+      "actual_sha256": "cff3bdf91eafe66653779ac531f442cd3bcc1331c94309da0d8eb49642fdf23e",
+      "raw_observation_sha256": "184366b09531116863746272f1a2a380a76add765f650228931a5840ea59d735",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "footnotes-cells": {
+      "class": "S3",
+      "measurement": "DifferentProjection",
+      "expected_sha256": "6a0e64bad1777b88ba1ef07e89591c24764de3da13fdf1539c97722f9526e578",
+      "actual_sha256": "e84e1766b108cdb3bd0712e29eae788f3d5721f97c2c421eaa20000b69c63e10",
+      "raw_observation_sha256": "743b97fc90fd9ac94da106179ef834b3e21c5ac5e9a2d24346e0393903ac9482",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "footnotes-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "e4641f2be91a0ac8e72dc5cbb394411029d2059fc2d0361db451b9c4334168c5",
+      "actual_sha256": "1a4da0752c565631b9bc13dcaddc04b5b4d4717e35147d3e588dc1fa9b761304",
+      "raw_observation_sha256": "f6d8811d9a50a38af61797392ae1a47011742aab629f42ac0084155b11e54d96",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "footnotes-typed-associations": {
+      "class": "S4",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "b93047ab2658a3535ffaa9254777cdb8c73dc4c78d25e7ff3a38b89ac54d49fc",
+      "actual_sha256": "ee3a1caf1651769b1a75345a654b942564f073f198b1ffeedbf022fef055a94f",
+      "raw_observation_sha256": "1058f4de7278682d644cb6785547f7838771ab94c93751a0a59183dd80c9562a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-all-stories": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "ac9c2d276795f840069cb2a8e58306f64ffa96fc8cc782ead85a9bf518518846",
+      "actual_sha256": "33d076454f37ae39b513941af2f13bd84be80ae903a5c800b39da7a19f26fd65",
+      "raw_observation_sha256": "338875ecba264345bbaba7074412212f7d51d4708c70bf5a5465b756909ae341",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-body": {
+      "class": "S6",
+      "measurement": "EqualProjection",
+      "expected_sha256": "84a9ba93d2d0bfc5e09b5abdf68479f9ccaf79fe2a7382de721bcb959025d212",
+      "actual_sha256": "84a9ba93d2d0bfc5e09b5abdf68479f9ccaf79fe2a7382de721bcb959025d212",
+      "raw_observation_sha256": "0aab2c100c6a8d7925e2836d02a57350c8b1b6e2f6c8523037ef7f6ec287211a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-cells": {
+      "class": "S3",
+      "measurement": "EqualProjection",
+      "expected_sha256": "e83b35a4f75f4df098119ab8b140851d9ba5e316f36850ed6ac9f24f2cba3eca",
+      "actual_sha256": "e83b35a4f75f4df098119ab8b140851d9ba5e316f36850ed6ac9f24f2cba3eca",
+      "raw_observation_sha256": "9909b2f36c116ab8c7e8d6390b3fc5e8ace3558a8e051a13655461c9474943d8",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "8595e14cf87e7e39a2baef49f70f881d6ccbb65f4fb1e7d12f83a64f349c729a",
+      "actual_sha256": "fd280e69dec47285feba96e4ee33db4f7f720e118f452afe5f477902240520af",
+      "raw_observation_sha256": "b3fd90a8c68d03d9603022f4a9d009b93319e5a2f688e97f6c07dbbea3dd21a8",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-process-all-stories": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "94629317ec840901b5934f1698b5c8bf2ee7acb50a7f8ebc8abaa3b85e4097cd",
+      "actual_sha256": "ef8c150a08cca786f2dfad6a993a52926e0eabb1ad4c3f869a298a50dd74f0be",
+      "raw_observation_sha256": "d7487415532fa5a972bf1626feb8f12eef6ab6268915302e51bdf6b1d041ffaa",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-process-body": {
+      "class": "S6",
+      "measurement": "EqualProjection",
+      "expected_sha256": "94852d08b73658d058e6b468f523289c8fe66d16b4c955fca9053534adf34abf",
+      "actual_sha256": "94852d08b73658d058e6b468f523289c8fe66d16b4c955fca9053534adf34abf",
+      "raw_observation_sha256": "73198c2162362c1eda4478f3614b42f0bb58bd1b46135ceb1f850754b8444f9a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-process-cells": {
+      "class": "S3",
+      "measurement": "EqualProjection",
+      "expected_sha256": "e0737a97fd10b96f0e1a1642fee9ba35c3991b874209b2f355d76c03384fd764",
+      "actual_sha256": "e0737a97fd10b96f0e1a1642fee9ba35c3991b874209b2f355d76c03384fd764",
+      "raw_observation_sha256": "bf2fd95912b0486d58fe360585461a769709ee2b6ad64127065e169762f468e7",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "harbor-process-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "a2a16d60e8286020bc9212084551b4deba7fe9f20dec4a48cec26b2c1a8a2453",
+      "actual_sha256": "9418c9d4b9b88fc42755b18fb0bcb69aa963c138ab8d6fd3f9f76d8ff3c52c55",
+      "raw_observation_sha256": "6bb27b69e6e0ff81dcd196c035d56d8977b4b241a6b0c1ee281a8d2e1bcccc89",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "iteration-budget-fixed-source": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "2736100e977aae614dc2af841d26cc781db5190587008f0a235ecbf92aa9e7cb",
+      "actual_sha256": "9ac76f6a9f5a5ef3bc90ae7ea5794b61e7810e38ae332b068feb5a9078e1fc62",
+      "raw_observation_sha256": "02359123e262152d7cbbd668841754ff0dc234f4291e5b12be29833626fda50d",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "prefix-variation-all-stories": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "ac9c2d276795f840069cb2a8e58306f64ffa96fc8cc782ead85a9bf518518846",
+      "actual_sha256": "287f3b8dbb1ee4baf4a6fe4a327cc56957cbfc5e1aef2e268e3169a01d8e4c7e",
+      "raw_observation_sha256": "3e86cfa193159e64c998e52c3eeee0d58c5162e6fc7ac4bf9056c3a44322cc47",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "prefix-variation-body": {
+      "class": "S7",
+      "measurement": "DifferentProjection",
+      "expected_sha256": "84a9ba93d2d0bfc5e09b5abdf68479f9ccaf79fe2a7382de721bcb959025d212",
+      "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "raw_observation_sha256": "b0178616318ce7a7b7b4c5707e29f13197c50cb2b032e5e073f59ca9faee6a40",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "prefix-variation-cells": {
+      "class": "S3",
+      "measurement": "DifferentProjection",
+      "expected_sha256": "e83b35a4f75f4df098119ab8b140851d9ba5e316f36850ed6ac9f24f2cba3eca",
+      "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "raw_observation_sha256": "1044e4f7ae3c842c643daebb78b8e37c5fe44419a18e8a560ab9938f6128df87",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "prefix-variation-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "8595e14cf87e7e39a2baef49f70f881d6ccbb65f4fb1e7d12f83a64f349c729a",
+      "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "raw_observation_sha256": "2b330ce079b83aebc11f977015d831c322400c303ec487e1e8868f8aead4e290",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "repeated-header-pass-candidate": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "ef29f133b483d56a41257fd03be5e43d71984f6e486c54796544c89a42ece273",
+      "actual_sha256": "cd19d0ca74e24c0faf3c105338b2ad44ea6661a3ad625ab27991a7c46f02d5b8",
+      "raw_observation_sha256": "4587170a6dd03e823e0ef383b82074d9380e9b71a8641efb968c7d4922845ef1",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-comments": {
+      "class": "S2",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "1b754cbc4260986e54bf81aceb3960f193eeb82e5335f0e785b518aea1919571",
+      "actual_sha256": "b4e355df0713f2379d7d8c2709253ac71679ec3868da607e53c7018218349b3e",
+      "raw_observation_sha256": "9de0ac067b86f99fce5fdb4a1690f9e23c4148baf01ab3b246e05771f954ab5d",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-dtd-admission": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "aa740a0f06be31a87266585260fe22360b3e276669046b40d5748a01b1662f47",
+      "actual_sha256": "79a09455e708663e13cf5334808364ce1a3477163360cb0065cd3fc7db1bbd3b",
+      "raw_observation_sha256": "6be3f5326b99ecd984bdc5206d012b8567d6e4a45822a007179c34746f39304d",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Review1 P2 corrects only the checked-boundary requirement. Bare actual evidence is unchanged; both current-schema refusals are direct exact-string assertions on the same input. Future checked Xberg admission remains OPEN.",
+      "review1_p2_correction": {
+        "original_expected_sha256": "c8120d31f6a1f64234393cc7702a950cc0d22fdc3091a2e880ba21cd21ed947e",
+        "original_source_commit": "53546fecf46226c0684250a1091057b5276fc15b",
+        "original_raw_association": "raw_observation_sha256 and raw_log retain the original expected/actual capture; expected_sha256 now pins the corrected checked-boundary requirement"
+      }
+    },
+    "xberg-empty-orphan": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "bcab9afd444a863db04fe6ebbc5b9b0dcb3288312b623b97123fa34e7fc2ee0b",
+      "actual_sha256": "1dfedd52af9923423655feb62321f59958fb1be9d8376272fceebb57da5e9f20",
+      "raw_observation_sha256": "c7a61494c971cbc641f67e6fea0ca106a062517b330c076ee4aa3e01ad6b9521",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-escaping-relationship": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "de2229a1c7b92777cf62d1873fbc6f57ca55830581012375f6baef446aae6aab",
+      "actual_sha256": "bab22333dcf2e6fb283a8e8a9d2f9b0202ac66a423d59bd8a0d44cc79e54af11",
+      "raw_observation_sha256": "8f6365d634d6187fe68851711dbec9662f356d65dab4cd3f9ad4e27f0f8068ac",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-grids": {
+      "class": "S3",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "9a6bf6076f3b5b6eef60bce47f6414b628875888833a8567ec85f5089c27a381",
+      "actual_sha256": "9dfa13a570ab48fedde3b1d44d681602ad5cb618b3f1c45f241a9296fac7040f",
+      "raw_observation_sha256": "13a25c45e9e4f2ac79e3d756fc16cc346720a0edeb6b6b08a155591420121019",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-note-collisions": {
+      "class": "S4",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "647c7c3511e81c895cacb1122dd8ca39de48577616c5641c1ec0bdbddc125425",
+      "actual_sha256": "b5ec39f6a7966af4d6eaa9cc695cce4b62b67f1ff46f90e0649bc8a308c63ed7",
+      "raw_observation_sha256": "5a7a7de39e95a676ee8c0807356ac568c1e44a76a049c02ce7b0f224ee05d02a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-repeated-images": {
+      "class": "S1",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "2226d947868e24e9ee5d461868fbf5ead65b582c5f94e7602d01c46334ad08e4",
+      "actual_sha256": "1255e51488ebd66707d9fdbe63825b17be1942ae0163e4ee260590a781d0c549",
+      "raw_observation_sha256": "494e7bfb1ccba6159a4e09104876b1a45707d312f3a77e80d34812d4cf7a52aa",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-revisions": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "30875a840c37fc57f321a488ab78a51ec6f6ed1c47096e682a1151f2f313d87c",
+      "actual_sha256": "7931f25f805e0ff3a45791818ab84afd2a9678b007e5b243b21e106e354f9f7c",
+      "raw_observation_sha256": "e5ccf5c7363fec7aac487e744713563817d4f389ac59b69dec354350cb9e64b0",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xberg-size-word/document.xml--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "9709b062a0341cf9adcbe3494372023c4c8b885eea0a4a0332a282dedb2dd50c",
+      "actual_sha256": "1ec1d52d87765e47734f833f951b02a9d5b8118ef08f481a187221e0b2852707",
+      "raw_observation_sha256": "983e0badffba24d0be47dcd7e0786be22b27d51f1e55e47c4297eae7976711ac",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-size-word/document.xml-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "5d97159689808412a33082dd87f1b0836eebeb66f68f0468cdab3228f603c4f7",
+      "actual_sha256": "62fcf771829ef0118ffa08e9bd80aee3ed6fe0172d3ad6760465f96ca8ea4bf0",
+      "raw_observation_sha256": "0d9b4f9cfd30b6b3d798b9502d4468659f883943fe7888a3fcaaa4f9d9f4ac00",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-size-word/footnotes.xml--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "35bdba0b882d529b1c009c3421397009c05aec276292cc1345204c0285d845cf",
+      "actual_sha256": "9b348cd1d13057399cc888bae84f841037b30e203ddcff9ba05e16e27fbdca9e",
+      "raw_observation_sha256": "e7e98b7000cfc0b3586844840290b697ff94255088a81ec7f2b40dfa053a003c",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-size-word/footnotes.xml-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "2ce7a8814fd94aa85a1dd31618530703ca613726c36667e298bddbe2467cf0d1",
+      "actual_sha256": "62fcf771829ef0118ffa08e9bd80aee3ed6fe0172d3ad6760465f96ca8ea4bf0",
+      "raw_observation_sha256": "4cc539a37dfd8b4f24f144ba529a91ab885c0b45701cedf4e83019dff63192f4",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-size-word/media/same.png--1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "ebf9f1aba937945522c2542ac6ee2ea408d1c72250d609d11d449e62d1ed12c9",
+      "actual_sha256": "b784e90b9e3b4699060bd6e1aa3b4f3848b92164b5cbe1548b8a845417b15e38",
+      "raw_observation_sha256": "2100954f529c68b6855fd6815dcbe02d05b3315886eef0c82e0a41041ec2ab37",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-size-word/media/same.png-1": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "c126a328785081d05d363ed6ef15b62643372852fbde29586a63e349e6bc248f",
+      "actual_sha256": "b784e90b9e3b4699060bd6e1aa3b4f3848b92164b5cbe1548b8a845417b15e38",
+      "raw_observation_sha256": "012b1d1bc2b461b27190485aeae8b5189d1fdef1a5bc3a2f16795b881ca02ef6",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
+    },
+    "xberg-warning-policy": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "0170e9b740e361eebb716a6407e80545ac4ffe77152e988b4b13c726ea06a247",
+      "actual_sha256": "49e43bbfb728ce2ca1e2e41f9941c8633e76eec83595e9fc388bae72cd18ed79",
+      "raw_observation_sha256": "610c489cf277d2a6bab48609f011f4868efebee1ecd7258f9e9fdf292b12773f",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/21-typed-semantic-assertions.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xml-depth-cap": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "b069ac15a1a76877225bbb56d5f0241cc312f7bc795ac0e9da56684d643fd9d1",
+      "actual_sha256": "bbea7cb51824b80c8aa78cf0685a648cab06b407ed2b41f1397d42d9b68fca20",
+      "raw_observation_sha256": "26235d6c0bf504018174998f36b4e9c10e82887c488867cbdfcabdb7d32d0b9f",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    },
+    "xml-event-policy": {
+      "class": "S6",
+      "measurement": "EvidenceOnly",
+      "expected_sha256": "6be46d3b135f5098496d8b2704b31c46a84fd727d75d4d8e9cfda2ae46db73b5",
+      "actual_sha256": "dd09f95e44288d2272082c28a6a7e21d11c16ac3bfe1ce2c937f8fedc20b9ac6",
+      "raw_observation_sha256": "0909e75fad7821a5dbb5625544303d676c42b2c1632c958fa04d8bde05b89133",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+    }
+  },
+  "measurement_protocol": "All listed observations came from real O1 runs. Full expected/actual values and failing originals remain in retained logs and measured-observations.json; canonical hashes permanently assert source expectations and actual evidence. Typed assertions separately cover revisions, comments, note collisions/table references, spans/nesting, orphan/header order, prefix body loss, images and resource causes. EvidenceOnly is never whole fidelity proof. Unknown/unregistered observations fail after this measured pin.",
+  "promotion": "BLOCKED until all independent source/evidence/resource/host/nested-attachment/retirement gates close; passing observation capture alone is insufficient.",
+  "limits": "Pre-admission E/P and E+P iterations are candidates, not a hard heap/DOM/allocation proof. No production Office route is changed. Existing SDK/widget/PDF/platform/native-human/live qualifications remain carried.",
+  "resource_gates": {
+    "DTD": "BLOCKED: real Xberg accepts unused internal DTD; the original refusal assertion remains failing. Current helper refuses. No production fix or quota change.",
+    "events": "Current 200000-event refusal versus accepted Xberg 200001-run case; same admission not proved.",
+    "iterations": "E+P header case refuses at 7302 with cap 7301. Fixed Boundary case threshold 24/23. No automatic quota raising.",
+    "consistency": "Current accepts all six central-size lies; Xberg required undersize refuses and optional-note undersize silently drops note without warning. Both directions still require pre-admission consistency."
+  },
+  "retained_raw_capture": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/measured-observations.json",
+    "sha256": "2ec0a979533abc29e292c4596130341a48ef4d570f173fb9a2e88f1d5634d6e3"
+  }
+}

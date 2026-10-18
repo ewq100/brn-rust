@@ -1,0 +1,23 @@
+{
+  "task": "D1B authorized implementation and scripted/offline verification",
+  "provider": "Codex (T3 Codex harness)",
+  "model": "gpt-6.1-sol",
+  "branch": "work/d1b-20261017",
+  "base": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "crates_tree": "3aa58760b268a20302ddabf449da9e0625704150",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "bound_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "initial_unrelated_changes": [],
+  "heavy": "D1B exclusive grant; candidate fixed source-root target, no live/native downloads",
+  "source_owner": "D1B allocated AI summary/budget/run-start/trace/focused tests and d1b docs; principal owns other production paths",
+  "D1A_mutation_finalized": {
+    "charged": 1387.7971494197845,
+    "unused": 412.20285058021545,
+    "no_D1B_reuse": true
+  },
+  "epoch": 1792185597.382306,
+  "additional_allocations": [
+    "Exact sha2=0.10 dev-to-production move; Cargo.lock unchanged",
+    "Append ONE test only in crates/brn-threads-app/tests/export_metadata.rs; existing prefix preserved"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "prior_checks": [
+    "focused-initial4/0",
+    "scripted-clippy0"
+  ],
+  "change": "new test-only absent ToolResult must have UNKNOWN source kind, rather than NONE",
+  "reason": "static inspection of capture projection; no test failed and no production defect inferred",
+  "new_edge_assertions": [
+    "missing result all UNKNOWN",
+    "foreign stdIO source stays UNKNOWN without message",
+    "synthetically constructed AiError::Storage has static storage class (not a Store failure witness)"
+  ],
+  "preserved_prior_artifact": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "5e8d44bf748530a198396659d4f3b979907549c513eadacf3dbcd63143f72e9c",
+    "mtime": 1792247657.902909,
+    "receipt_mtime": 1792247659.0568697,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+  },
+  "preserved_prior_source_sha256": "b90c21cc57e083fff6e4fd74df9c00cd5fb028e0789b97ad27ddf8f4150ae792"
+}

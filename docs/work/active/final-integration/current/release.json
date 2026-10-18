@@ -1,0 +1,69 @@
+{
+  "format": "BRN-FINAL-COMBINED-REVIEW-FOLLOWUP-RELEASE-V1",
+  "round": 1,
+  "recorded_utc": "2026-10-18T16:12:15.021132+00:00",
+  "material": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+  "package_material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+  "authority": "Parent explicit 18 October round1 cfg-only allocation reacquired sole-heavy for this followup; prior release remains historical.",
+  "global_heavy_processes": [],
+  "owned_controller_or_child_pgids_live": [],
+  "owned_script_query": {
+    "exit": 1,
+    "stdout": ""
+  },
+  "controllers": [
+    {
+      "controller_pid": 86820,
+      "controller_pgid": 86820,
+      "child_pid": 86905,
+      "child_pgid": 86905,
+      "phase": "01-fmt",
+      "exit": 0
+    },
+    {
+      "controller_pid": 86959,
+      "controller_pgid": 86959,
+      "child_pid": 86980,
+      "child_pgid": 86980,
+      "phase": "02-summary-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 87830,
+      "controller_pgid": 87830,
+      "child_pid": 87915,
+      "child_pgid": 87915,
+      "phase": "03-ai-scripted-strict-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 89248,
+      "controller_pgid": 89248,
+      "child_pid": 89333,
+      "child_pgid": 89333,
+      "phase": "04-final-docs-static",
+      "exit": 0
+    }
+  ],
+  "all_controllers_and_children_completed_reaped": true,
+  "inventory": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/final-process-inventory.txt",
+    "sha256": "10030de78156fe07dbb7a712e7171656d935a186f8451cf7016aa6a3cf8663cc",
+    "process_count": 752,
+    "scope": "Global command names and exact followup controller/child PGIDs; no environment/Auth inspection."
+  },
+  "prior_release": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/before-current/release.json",
+    "sha256": "23d467b46f101872be7a138336e42d3b52b7ffc70ae170cab6fc7fa42300ab2d",
+    "material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d"
+  },
+  "sole_heavy": "RELEASED",
+  "no_further_heavy_work_by_worker": true,
+  "paths_released_to_parent": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018"
+  ],
+  "unchanged_prior_artifact_paths": "Prior package/helper/native/retrieval/CLI artifacts were inspected read-only and remain unchanged; no rebuild or retag.",
+  "remaining": "Parent independent NEW round2 then PR/required CI/main CI; no worker publication."
+}

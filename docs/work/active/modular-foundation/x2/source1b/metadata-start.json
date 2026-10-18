@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "cargo",
+    "+1.98.1",
+    "metadata",
+    "--format-version",
+    "1",
+    "--manifest-path",
+    "/private/tmp/brn-x2-source1b-20261017/Cargo.toml",
+    "--filter-platform",
+    "aarch64-apple-darwin"
+  ],
+  "pid": 14895,
+  "pgid": 14895,
+  "controller_pid": 14893,
+  "tmpdir": "/private/tmp/brn-x2-source1b-20261017/tmp",
+  "start_unix": 1792268082.256444,
+  "manifest_before": "9c85e21bedb8cd9dd9627d4d29427865e8df1bb1884777eb998b12ebb91a1e14",
+  "seedlock_sha256": "b5d6f8483304c913a264ac4b188d1429995322b513e8d8c2ea4de91f919b547f"
+}

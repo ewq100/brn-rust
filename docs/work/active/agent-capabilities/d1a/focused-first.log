@@ -1,0 +1,19 @@
+   Compiling rig-memory v0.44.0
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)
+error: no rules expected `::`
+   --> crates/brn-ai/src/threads.rs:505:16
+    |
+465 | macro_rules! tool {
+    | ----------------- when calling this macro
+...
+505 |     note_search::read_message
+    |                ^^ no rules expected this token in macro call
+    |
+note: while trying to match meta-variable `$handler:ident`
+   --> crates/brn-ai/src/threads.rs:466:62
+    |
+466 |     ($tool:ident,$name:literal,$args:ty,$description:literal,$handler:ident) => {
+    |                                                              ^^^^^^^^^^^^^^
+
+error: could not compile `brn-ai` (lib test) due to 1 previous error

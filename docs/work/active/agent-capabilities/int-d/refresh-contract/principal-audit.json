@@ -1,0 +1,113 @@
+{
+  "material_pin": "f590632e3cfee763898d8d165208f7aaafd4875e",
+  "evidence_head": "8bd4875f81297ac941d70f92cb9db7199dd9060e",
+  "input_count": 334,
+  "changed_input_count": 6,
+  "changed_inputs": [
+    "crates/brn-ai/src/threads_budget_tests.rs",
+    "crates/brn-ai/src/threads_guides.rs",
+    "crates/brn-ai/src/threads_history.rs",
+    "crates/brn-ai/src/threads_summary_tests.rs",
+    "crates/brn-ai/src/threads_writing_tests.rs",
+    "crates/brn/tests/agent_runs.rs"
+  ],
+  "checks": [
+    {
+      "label": "before-registered",
+      "exit": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.02s"
+      ],
+      "source_delta_paths": [
+        "crates/brn-ai/src/threads_budget_tests.rs",
+        "crates/brn-ai/src/threads_guides.rs",
+        "crates/brn-ai/src/threads_history.rs",
+        "crates/brn-ai/src/threads_summary_tests.rs",
+        "crates/brn-ai/src/threads_writing_tests.rs",
+        "crates/brn/tests/agent_runs.rs"
+      ]
+    },
+    {
+      "label": "candidate-budget",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 464 filtered out; finished in 1.33s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "candidate-guide-cache",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 497 filtered out; finished in 0.08s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "candidate-history",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 492 filtered out; finished in 0.10s"
+      ],
+      "source_delta_paths": [
+        "crates/brn/tests/agent_runs.rs",
+        "crates/brn/tests/support/mod.rs",
+        "crates/brn/tests/support/stub.rs"
+      ]
+    },
+    {
+      "label": "candidate-writing",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 479 filtered out; finished in 0.36s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "cli-contract",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.47s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "cli-provenance",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.90s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "format",
+      "exit": 0,
+      "summaries": [],
+      "source_delta_paths": []
+    },
+    {
+      "label": "full-ai",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 496 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 36.43s"
+      ],
+      "source_delta_paths": []
+    },
+    {
+      "label": "strict-ai",
+      "exit": 0,
+      "summaries": [],
+      "source_delta_paths": []
+    },
+    {
+      "label": "doc-links",
+      "exit": 0,
+      "summaries": [],
+      "source_delta_paths": []
+    }
+  ],
+  "artifact_paths_verified": 8,
+  "errors": [],
+  "audit_tooling_note": "Initial read-only inventory lookup assumed prior task final-artifacts.json name and failed; corrected from rg --files to current full-ai-artifacts.json/cli-artifacts.json before audit. No product/build result affected.",
+  "qualifications": "Read-only hashes/rawcounts and exact history production-prefix invariance audit; no builds/tests/Auth/Store. Candidate-history retains transient CLI/support formatting hashes explicitly indexed; later fullAI/final checks match pin. No remote wire acceptance, new live, goal/owner/main acceptance inferred."
+}

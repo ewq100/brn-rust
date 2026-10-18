@@ -1,0 +1,15 @@
+{
+  "compiled_input_count": 334,
+  "changed_inputs": [
+    "crates/brn/tests/int_d.rs",
+    "crates/brn/tests/support/int_d.rs"
+  ],
+  "other332_unchanged": true,
+  "two_old_Rust_prefixes_unchanged": true,
+  "production_manifest_lock_AI_capture_unchanged": true,
+  "scripts": {
+    "docs/work/active/agent-capabilities/int-d/check-observer.py": "3d1a08f8a2e7a06be5b0846267b0b928f421d4165ace2a902f348e5dbcff0524",
+    "docs/work/active/agent-capabilities/int-d/observe-workflow.py": "a1b436de13aadfc59aa8bcb6ae3a63f2fcc5503d03ce2babad1ec40bc62cf92b",
+    "docs/work/active/agent-capabilities/int-d/prepare-qualification.py": "42d3a4f5f5f702e250f53f7b045327631b715351214816b66a7da5710fc8ef40"
+  }
+}

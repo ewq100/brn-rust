@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/tmp/brn-int-w-guard-20261017/finalize.py", line 52, in <module>
+    links=subprocess.run(['python3','scripts/check-markdown-links.py'],cwd=root,capture_output=True,text=True);assert links.returncode==0,links.stdout+links.stderr
+                                                                                                                      ^^^^^^^^^^^^^^^^^^^
+AssertionError: Markdown links: 231 files, 1174 local links, 1 failures; historical outgoing policy=docs/archive/ only
+docs/work/active/modular-foundation/int-w/guard-recheck.md:23: guard-recheck/release.json: missing file
+

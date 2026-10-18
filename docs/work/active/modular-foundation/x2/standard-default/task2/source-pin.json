@@ -1,0 +1,69 @@
+{
+  "material_commit": "fef94e1adbeec3dc5e48e6b5b1feb593d4792a4d",
+  "material_tree": "85bb62df8b6c0ef441dd5c867fb0c25f89ba82ad",
+  "base": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+  "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+  "compiled_input_identity": "Precommit WIP bytes, preserved in content-addressed objects; all 32 match 16-strict-affected inputs and material Git blobs. Subsequent final tests use identical inputs. No future commit SHA was inserted into command receipts.",
+  "sources": {
+    "crates/brn-ai/src/conversion.rs": "d1d94712cabe73412cd3e228de82f0e53bde8b8eb409d28c7ded88a9a5604561",
+    "crates/brn-ai/src/document_refine.rs": "d31d7ed983a3debd65d930ded34e0daf2fbc10aba49a33d53888aeb997a37fd7",
+    "crates/brn-ai/src/document_refine_tests.rs": "def2e3fd9e3595195b2cd3e965e69806a94af8312ae11ec2391fb54319a0972c",
+    "crates/brn-ai/src/lib.rs": "808174fcdb683ae5ffce581ff5124c861bd88733ad0c9d53647dba9e496ee44f",
+    "crates/brn-ai/src/threads.rs": "b25bda02bb732c7cc4249db00c53536fc676bf1e0fda80be9159cc7870bafc8e",
+    "crates/brn-ai/src/threads_sources.rs": "6ed1069eb5ec1d5dbd00ff31b15529be6d6d08589babfa822df1c70f9672f419",
+    "crates/brn-ai/src/threads_sources_tests.rs": "34b53fde3d2d5f813d566a59fe796124502be9b296da100cf32bde430b59b267",
+    "crates/brn-intake/src/document.rs": "bcec95efed816c3a734c733396614d0cbf0e06d6f79ff4b23e11b710655a9ce6",
+    "crates/brn-threads-app/src/intake.rs": "37a80a9db1e16a7c76e77284a6c06e0ae6cc4e5d7716e4cdaf4eb72eef6279ac",
+    "crates/brn-threads-app/src/keyed.rs": "3402e23708e553c4e20f0663e8611550cbcfb38efa53a2cafc678ae68fcb947f",
+    "crates/brn-threads-app/src/lib.rs": "874dba904ea1ffcd022333dfd0a23d73c49c3f64bd4b344b519197b7b3f7b25d",
+    "crates/brn-threads-app/src/settings.rs": "2d4f47394891b2f50aecaa64790ccb545aa192e48be1d76a28f8a4bf58153576",
+    "crates/brn-threads-app/tests/cw2_review.rs": "0089f08931a16238bfe594f42d41fbb6d87bb67f9006d1323fa74d79871e3750",
+    "crates/brn-threads-app/tests/daily_workflow_eval.rs": "fe170d05a270685e69e9c6a3c5f15177453aef11c858bfc2ca3c157e33cb37ed",
+    "crates/brn-threads-app/tests/document_conversion_settings.rs": "745bf8544945efc0150a5aaa6063a8ec676563a768f26df1d8e43a743fe6f968",
+    "crates/brn-threads-app/tests/product.rs": "a65e793f3c371a162e1b161225af9cecb2922d7010446db9b3aba13f950064c9",
+    "crates/brn-threads-app/tests/source_intake_chat.rs": "a799cb4b2771d4ad968eec82171cede88535d2351262a3e783ab4b3022a40416",
+    "crates/brn-threads-core/src/backup.rs": "10d7ceda89d955270337964ab003cd63bfdaef671d9de6c0ea997c26324f7b08",
+    "crates/brn-threads-core/src/restore.rs": "0e2b1ac27901b4006e1476f90a4620df3c736ad4974d4246fac44eeffd42f776",
+    "crates/brn-threads-core/src/store.rs": "7ddcf824c8c68913905e0047b41b5f259934b598525e72451c6ce3cf02732d5d",
+    "crates/brn-threads-core/src/types.rs": "fe08e5fc4af515066e262af348a73d1c497f9c0bd5753bf88fa2c79e1f5efb1e",
+    "crates/brn-threads-core/src/upgrade.rs": "7a7d78338faf648979ab85c0568066acc9f650f2af09baf29355c2ca97fcb424",
+    "crates/brn-threads-core/tests/core.rs": "68615e9f536932de71544fb8498c867f2b9c3757597496806a8fccbb091cdbe6",
+    "crates/brn-threads-core/tests/current_inputs.rs": "c1608d2483dab9e38bc6767b1a7adcc1282e051b50ae832ba329ceec451218fe",
+    "crates/brn-threads-core/tests/document_conversion.rs": "c3a1bd60facac41664a890e4aa5c91434879a97723a91e335357c330950291a1",
+    "crates/brn-threads-core/tests/edit_tokens.rs": "cb3693a5b57fc59566c016334c73ead291879f2de393ee5a0852475ae2437618",
+    "crates/brn-threads-core/tests/writing.rs": "1d426c50a7bcd38fd265926a9d80e3c5a36e202d40e2956e63f2efc5f8b10a76",
+    "crates/brn-threads-core/tests/writing_setup.rs": "71372f53d45a0d6460fda91a1df411d23521351d318e81dd7883460f6d2c199a",
+    "crates/brn-threads-intake/src/documents.rs": "40c2f04b313937ed71cef117c6c49cc1166a9ad96f0073748bb3d17df69365ed",
+    "crates/brn-threads-intake/src/lib.rs": "0f27db37e536c46f226eb6b6cc6a6c5724a127f3ebbf747597657e07204752d8",
+    "crates/brn-threads-intake/tests/document_modes.rs": "42f47454a7f6bde667ece4b7803d6a06d0a35f297ed7d457b4b962d3ae06a11e",
+    "crates/brn/src/main.rs": "9d2125415cd18e3bfdef75b169efa593430a144914608174adfec06c0f9f04e6"
+  },
+  "protected": {
+    "base": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+    "branch": "work/x2-office-prep-20261018",
+    "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+    "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "root_manifests_unchanged": true,
+    "task1_tools_scripts_patches_unchanged": true,
+    "task1_document_module_original_prefix_unchanged": true,
+    "helper_artifacts_unchanged": {
+      "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper": "af2c86403c3f58b5d122e62c4910d7b118fe251961299a507e0a1263f0835113",
+      "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper-brn": "2b40f963d63fbca633dce3be61be4a95ae4c907a1fdb49f83901f30ced0e6372"
+    }
+  },
+  "actual_old9_artifact": {
+    "/private/tmp/brn-x2-standard-task2-20261018/before-target/debug/brn": "38d5d4d9d5c370647ab07e758d801097c8a58d5acd824db43d546fdc768b0f4b",
+    "/private/tmp/brn-x2-standard-task2-20261018/before-target/debug/brn.d": "2ad3b07701715779897879e2b6579bba8b02c4b25347cf34f631293ec72e6b0e"
+  },
+  "artifacts_index": "/private/tmp/brn-x2-standard-task2-20261018/evidence/selected-final-artifacts.json",
+  "content_addressed_objects": "/private/tmp/brn-x2-standard-task2-20261018/objects",
+  "feature_fingerprints": "/private/tmp/brn-x2-standard-task2-20261018/evidence/final-feature-fingerprints.json",
+  "targets": {
+    "before": "/private/tmp/brn-x2-standard-task2-20261018/before-target",
+    "candidate": "/private/tmp/brn-x2-standard-task2-20261018/candidate-target"
+  },
+  "actual_schema9_snapshot": {
+    "path": "/private/tmp/brn-x2-standard-task2-20261018/schema9-with-note.sqlite3",
+    "sha256": "a062ab85539a88f2a6c8b0a5b07f7ca158dfebc922eb53310f8d47f9c0899fc0"
+  }
+}

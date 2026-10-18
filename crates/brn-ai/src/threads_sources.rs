@@ -46,6 +46,7 @@ pub(super) fn source_metadata(
     reference: &str,
     chat: Option<&str>,
     source_ids: &[String],
+    start: usize,
 ) -> AiResult<Value> {
     let source_record = store
         .records_for_chat(chat)
@@ -56,7 +57,32 @@ pub(super) fn source_metadata(
                 && matches!(&record.data, RecordData::Source(source) if source.locator == reference && source_ids.contains(&record.id))
         })
         .map(|record| json!({"id":record.id,"version":record.version}));
-    source_value(sources, reference, source_record)
+    // source_value is also used by ingestion; adapt only the read_source tool.
+    let mut out = source_value(sources, reference, source_record)?;
+    let text = out["text"].as_str().ok_or_else(rejected)?.to_owned();
+    if !text.is_char_boundary(start) {
+        return Err(rejected());
+    }
+    out["start"] = json!(start);
+    out["total_bytes"] = json!(text.len());
+    let prefix = context_budget::fit_prefix(&text[start..], |prefix| {
+        let end = start + prefix.len();
+        out["text"] = json!(prefix);
+        out["end"] = json!(end);
+        out["next_start"] = json!((end < text.len()).then_some(end));
+        out["complete"] = json!(start == 0 && end == text.len());
+        context_budget::result_fits(&out)
+    })
+    .ok_or_else(context_budget::result_failure)?;
+    let end = start + prefix.len();
+    out["text"] = json!(prefix);
+    out["end"] = json!(end);
+    out["next_start"] = json!((end < text.len()).then_some(end));
+    out["complete"] = json!(start == 0 && end == text.len());
+    if !context_budget::result_fits(&out) {
+        return Err(context_budget::result_failure());
+    }
+    Ok(out)
 }
 /// The `read_source` value for a reference, given its already-found Source record.
 pub(super) fn source_value(
@@ -189,6 +215,7 @@ fn retained_useful_report(
         })
     };
     let previous_report = coverage.report.clone().unwrap_or_else(|| ImportReport {
+        conversion: None,
         status: ImportStatus::Unchecked,
         issues: coverage
             .gaps
@@ -269,7 +296,11 @@ fn retained_useful_report(
     } else {
         previous_report.status
     };
-    Some(ImportReport { status, issues })
+    Some(ImportReport {
+        conversion: previous_report.conversion,
+        status,
+        issues,
+    })
 }
 
 fn combined_status(first: ImportStatus, second: ImportStatus) -> ImportStatus {
@@ -489,6 +520,7 @@ pub(super) fn materialize_selected_sources(
         }
         if existing_full_import.is_none() && selected_sources.len() > 1 {
             let mut report = ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![],
             };
@@ -531,6 +563,7 @@ pub(super) fn materialize_selected_sources(
             && let Some(coverage) = &mut note.import
         {
             let report = coverage.report.get_or_insert_with(|| ImportReport {
+                conversion: None,
                 status: ImportStatus::Unchecked,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Unverified,
@@ -539,6 +572,15 @@ pub(super) fn materialize_selected_sources(
                         .into(),
                 }],
             });
+            if selected_sources.len() != 1
+                || previous
+                    .import
+                    .as_ref()
+                    .is_none_or(|import| import.source != selected_sources[0].1.id)
+                || report.conversion != retained.conversion
+            {
+                report.conversion = None;
+            }
             report.status = combined_status(report.status, retained.status);
             for issue in retained.issues {
                 if !report.issues.contains(&issue) {

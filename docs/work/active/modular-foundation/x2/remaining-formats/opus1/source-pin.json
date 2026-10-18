@@ -1,0 +1,107 @@
+{
+  "schema": "remaining-formats-opus1-source-pin/1",
+  "repo_precommit_HEAD": "d3a0b4989a6c0f8824c039aef4768b53d2e30d03",
+  "repo_precommit_tree": "8c2ffe92f38e49a73497bf4ba32afd15c2fba0ad",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "compiled_driver": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/driver.rs",
+    "sha256": "b3f7a09b4ab2c26eb40e5d71400927be4faf3e43d0447fc4eb1f7e265aeafca0"
+  },
+  "compiled_driver_lines": 890,
+  "old_driver_sha256": "378707b91f247ea5cc38eae19a4ecd1498ddf149d32a88fc664eb769ff0ea80c",
+  "compiled_driver_diff": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-compiled-driver.diff",
+    "sha256": "ad4c90768152e6d8f254e7270954fd7307d0349658e73caa30a92d09c5314e57"
+  },
+  "unchanged_other_27_test_bodies_and_all_fixture_helper_source": true,
+  "accepted_xberg": {
+    "git": "ce3bce28f1e6e7393efe27cfad61f8159208d286",
+    "tree": "d3ffa3c20128dc8182e7cb7a6c6049a93ba7cb1d",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "all_774_accepted_tracked_files_equal": true,
+    "published_files_plus_accepted_namespace_helper": 765,
+    "accepted_archive_external_adjuncts": 9,
+    "patches": [
+      {
+        "name": "0001-docx-table-grid-spans.patch",
+        "sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7"
+      },
+      {
+        "name": "0003-docx-namespaces.patch",
+        "sha256": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f"
+      },
+      {
+        "name": "0004-pptx-order-hidden.patch",
+        "sha256": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d"
+      },
+      {
+        "name": "0005-docx-comment-references.patch",
+        "sha256": "b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1"
+      }
+    ]
+  },
+  "all_774_tracked_xberg_files_match_accepted_commit": true,
+  "harness": {
+    "root": "/private/tmp/brn-x2-remaining-formats-20261018/harness",
+    "git": "8b1d69bd8681e8c4be552069d86e4e16d6f07b21",
+    "tree": "73828d62743e9952821863bd7012b13eb1b20935",
+    "manifest": {
+      "path": "/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.toml",
+      "sha256": "d53ef974f447c8c5bd6b4e8898f5fa9d111fe4a2cfa056541b07d1468abe00ac"
+    },
+    "lock": {
+      "path": "/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.lock",
+      "sha256": "7b9919e7ef9acea984257f5dfcf2e2b069645ea6dedcf71c50c06d0e07070279"
+    },
+    "target": "/private/tmp/brn-x2-remaining-formats-20261018/target",
+    "TMPDIR": "/private/tmp/brn-x2-remaining-formats-20261018/opus1-private-tmp",
+    "TMPDIR_mode": "0o700"
+  },
+  "root_lock": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/Cargo.lock",
+    "sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229"
+  },
+  "normal_dependencies_cfg_test_false": [
+    "xberg",
+    "brn-intake",
+    "brn-threads-intake"
+  ],
+  "emitted_registry_identities": 276,
+  "identities_features_equal_prior_audited_emitted_graph": true,
+  "no_metadata_resolution_or_graph_change": true,
+  "historical_corpus_docs_receipts_unchanged": true,
+  "prior_corpus": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/corpus.json",
+    "sha256": "2c74f4493e83cd0ad58b21aa3f747fa5bb47b97079255b5ffda603c9a848d6e5"
+  },
+  "prior_source_pin": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/source-pin.json",
+    "sha256": "2381291de6ed9db19a016e2cc77ed7dce938bc8e716149c04d8ec81fb9e61ee7"
+  },
+  "prior_check_index": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/check-index.json",
+    "sha256": "0e04726342a9e9e82ad98638519cb28cd10936ab220a2f72837f1a229fb1c958"
+  },
+  "report": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/opus1/opus-review-round1.txt",
+    "sha256": "12f8be13546163ecc4fed358d8ae791f486a096c4290e2d819939551a437fb6f"
+  },
+  "requirements": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/opus1/requirements.txt",
+    "sha256": "3aa5ed5a8dcf890f56c084ee5f9f24dfeede4a8c1b0fe2ae3f9f3983acd349f2"
+  },
+  "history_preservation": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-history/preservation.json",
+    "sha256": "e2f6fd2608bf480cdae2cf58d19eb9865c20541e86eb48b55f026918e09928ed"
+  },
+  "preserved_original_artifacts": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-history/original-artifacts.json",
+    "sha256": "bf3e4158c6d193f4e9cfb9a257055c8aead7149acdca612ec05721182733784b"
+  },
+  "source_snapshots_logs_artifact_objects": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-qualification.json",
+    "sha256": "85dee73d2a020d11222e76208a69de27a862b66d0ce8ae6135c9961805decf28"
+  },
+  "actual_postcommit_pin": "External evidence/opus1-final-repo-pin.json written only after actual commit creation."
+}

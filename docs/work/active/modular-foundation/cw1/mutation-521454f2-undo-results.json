@@ -1,0 +1,220 @@
+{
+  "candidate": "521454f2d6f4a3ef446a4e972663ac8980451499",
+  "tree": "cb8c754fa04186678f6b406cdaf7c39a851dc68f",
+  "receipt": {
+    "candidate": "521454f2d6f4a3ef446a4e972663ac8980451499",
+    "command": [
+      "cargo",
+      "mutants",
+      "-p",
+      "brn-threads-core",
+      "--test-package",
+      "brn-threads-core",
+      "--test-package",
+      "brn-threads-app",
+      "--file",
+      "crates/brn-threads-core/src/store.rs",
+      "--re",
+      "Store::undo",
+      "--in-diff",
+      "/private/tmp/brn-cw1-20261016-evidence/corrected/undo-followup.diff",
+      "--output",
+      "/private/tmp/brn-cw1-20261016-evidence/corrected/mutation-undo-followup",
+      "--jobs",
+      "1",
+      "--timeout",
+      "10",
+      "--build-timeout",
+      "60",
+      "--cargo-arg=--locked",
+      "--cargo-arg=--offline",
+      "--cargo-arg=--test=writing_setup",
+      "--cargo-arg=--test=writing"
+    ],
+    "exit": 1,
+    "seconds": 120.058,
+    "timebox_reached": true,
+    "prior_mutation_seconds": 1651.33,
+    "shared_cap_seconds": 1800
+  },
+  "selected": 17,
+  "completed": 13,
+  "attempted_including_interrupted": 14,
+  "counts": {
+    "caught": 10,
+    "missed": 2,
+    "timeout": 0,
+    "unviable": 1
+  },
+  "unfinished": [
+    {
+      "name": "crates/brn-threads-core/src/store.rs:703:30: replace == with != in Store::undo",
+      "status": "InterruptedDuringBuild",
+      "reason": "Shared mutation time box; no verdict claimed."
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:704:32: delete ! in Store::undo",
+      "status": "NotStarted",
+      "reason": "Shared mutation time box; no verdict claimed."
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:718:29: replace && with || in Store::undo",
+      "status": "NotStarted",
+      "reason": "Shared mutation time box; no verdict claimed."
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:717:27: replace && with || in Store::undo",
+      "status": "NotStarted",
+      "reason": "Shared mutation time box; no verdict claimed."
+    }
+  ],
+  "outcomes": [
+    {
+      "name": "crates/brn-threads-core/src/store.rs:615:9: replace Store::undo -> Result<ApplyOutcome> with Ok(Default::default())",
+      "outcome": "Unviable",
+      "raw_log_sha256": "1a81f9c8f209b1dcfdfcf322414c23b26970fa467a8715bb13b13352a2833faf",
+      "raw_diff_sha256": "c978b536fb0610d2b9edd8db4bba7657deb41209f72f72dc9ee35ce14a509d42",
+      "phase_seconds": {
+        "Build": 2.014583291
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:678:29: replace && with || in Store::undo",
+      "outcome": "MissedMutant",
+      "raw_log_sha256": "3a3d66970f136467151953b2c8f8c6133573b64ca544b8d4fd2d72d77c572f43",
+      "raw_diff_sha256": "8b159d208e4925c58e684b59b473aea1a8e2c79a5bf834f9f74238c40540f373",
+      "phase_seconds": {
+        "Build": 7.447799167,
+        "Test": 2.041738958
+      },
+      "disposition": {
+        "category": "equivalent_with_read_cost",
+        "actual_recheck": true,
+        "reason": "The outer predicate only decides whether to load projected rows. The inner needs_conversation predicate still excludes archived/general/private/canonically visible setup restores. Changing AND to OR adds a redundant read without adding inputs or changing a checked outcome."
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:678:17: delete ! in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "34f3c5a70da12504e8dca243546945c76a052b3ceeb04ae282f2ce0a2ed068a0",
+      "raw_diff_sha256": "8f001edb738c7cf4b0d4c22107cbbb62a72800c4cde392b85bedcaf471a20bce",
+      "phase_seconds": {
+        "Build": 7.069027833,
+        "Test": 1.396036875
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:686:42: replace != with == in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "38639e2b679e3784978d1eadab0431f19bbb1248e5ad5249f1c30f00743a471f",
+      "raw_diff_sha256": "7160149fe4b41737f5dbca5ccc9ac50c14ea3edd79f38fe8524da0000c932665",
+      "phase_seconds": {
+        "Build": 7.025957,
+        "Test": 1.355148125
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:702:28: replace && with || in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "e08a155c8475032725473df5cf3844fb491307b515a9d2160d05faad2d94a583",
+      "raw_diff_sha256": "ece808c3aa3b4f4b1658a331ccac28622cb075abe26c123c5a8538a825dae0a9",
+      "phase_seconds": {
+        "Build": 7.089072208,
+        "Test": 1.340558166
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:699:25: replace && with || in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "78a47d3a933926dda953ccbaac92acecd54bbe5f7bbb997c29374a5f8020bb3a",
+      "raw_diff_sha256": "63ef6e1e8f3c85382698fb4f4deec9894240cd491dc0159528732d9c0eb4fff1",
+      "phase_seconds": {
+        "Build": 7.201035791,
+        "Test": 1.519844416
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:698:21: delete ! in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "9e677266038579e2bd96550fc6ea6de76ee4a278642e5dbf09942acaf4771843",
+      "raw_diff_sha256": "a58eb20621ebd9ba40c6e9274751044d2865b81fdf9c51dbb3c61715ce58552c",
+      "phase_seconds": {
+        "Build": 7.615804125,
+        "Test": 1.3957329170000001
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:701:33: replace && with || in Store::undo",
+      "outcome": "MissedMutant",
+      "raw_log_sha256": "b40571b31eb0bd3b533fed834e8aa2b5eba65071eea27b06a009978810ec798b",
+      "raw_diff_sha256": "fb57fc569971b213e8281c45fb6e605cbb3ee41cde06cacaa4a90fdb0d0cee7f",
+      "phase_seconds": {
+        "Build": 8.292113791,
+        "Test": 2.045752583
+      },
+      "disposition": {
+        "category": "redundant_checked_restore_guard",
+        "actual_recheck": true,
+        "reason": "Valid Project scope identity always has its retained Project row. OR can also treat a private scope as Project-like only when its Note is already canonically unavailable; subsequent canonical scope/active/usable validation still rejects it. For available private Notes the inner visible check keeps no conversation dependency. This is fail-closed redundancy on valid checked state, not global equivalence for arbitrary corrupt records."
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:700:41: replace == with != in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "f52b33a02c0e055f306fe83ff73a41e00c087a1b73b9265e5f38cb778f9a28cd",
+      "raw_diff_sha256": "6f9ce7bd68034be3b2c7e3217aa1d3d1e8b2b30726eb5626689940cc473e7eac",
+      "phase_seconds": {
+        "Build": 7.28939625,
+        "Test": 1.3916084579999999
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:702:31: delete ! in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "6b3530ae2147388f3096354fd249c87ec2266ab69c2db097f185819dba760fa8",
+      "raw_diff_sha256": "651350be9335ea104e2a0ca766823544b94df509c1a869b1f236bce4ab3f3205",
+      "phase_seconds": {
+        "Build": 7.14136425,
+        "Test": 1.363383084
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:706:29: replace && with || in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "8eb89538eb800872dacb38da67c4bf1c28ca2cb77ca8af1edb808d6d7fe3daf0",
+      "raw_diff_sha256": "70759df62d40d5428ebda219e34f96a6de8e23a2ca521ee26e18aa37fd08bdf9",
+      "phase_seconds": {
+        "Build": 7.485704667,
+        "Test": 1.37464475
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:705:29: replace && with || in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "fb94e1122a78f698f84c2c60db93ef8211ba79b9774d5830ca98a83e7cbe393b",
+      "raw_diff_sha256": "ddc5aadbe0ba35d67b8fc00dc7714af07eb95512d8512b78ff3cdeb35ec697cd",
+      "phase_seconds": {
+        "Build": 7.15070525,
+        "Test": 1.479921292
+      }
+    },
+    {
+      "name": "crates/brn-threads-core/src/store.rs:704:29: replace && with || in Store::undo",
+      "outcome": "CaughtMutant",
+      "raw_log_sha256": "bb95176bed78fc4fc28b642673bcc8f7ccfe86eeea4ae51cab975d789412e58e",
+      "raw_diff_sha256": "e769bd1ac6d282da54ed2bf2606e20697960ed6f87579a85e70c9929adfe0615",
+      "phase_seconds": {
+        "Build": 7.315781208,
+        "Test": 1.54908275
+      }
+    }
+  ],
+  "shared_total_seconds": 1771.388,
+  "shared_cap_seconds": 1800,
+  "remaining_unused_seconds": 28.612,
+  "limits": [
+    "Incomplete selected run: 13 completed, one interrupted build, three not started.",
+    "No earlier missed variant is relabeled caught merely because new tests now pass.",
+    "No further mutation commands after explicit heavy slot release."
+  ]
+}

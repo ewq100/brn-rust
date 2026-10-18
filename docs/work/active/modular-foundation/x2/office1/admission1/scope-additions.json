@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-admission1-recorder-allocation-20261018.json",
+    "sha256": "44b0d756cabe686e9d15b43b2eae99ab6ab5cd82ea5c04a2fb2cff56e72d77e5",
+    "verbatim": "{\n  \"task\": \"brn-x2-office-admission1-package-consistency-20261018\",\n  \"decision\": \"approved_exact_support_recorder_hunk\",\n  \"reason\": \"new expected refusal has no schema1.Ok.usage; existing unwrap assumes historical success\",\n  \"scope\": \"tests/support/office.rs current-size-* normalization only; conditionally remove output_bytes from existing usage object using non-inserting lookups; keep refusal evidence unchanged\",\n  \"historical_evidence\": \"preserved; no retroactive relabel\",\n  \"production_scope\": \"unchanged\",\n  \"timestamp\": \"2026-10-18T00:59:27.564706+00:00\"\n}\n"
+  },
+  {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-admission1-paired-capture-allocation-20261018.md",
+    "sha256": "db7bf556c2c728716b2868953dfb91a4ef083f4b343e4fc18ffadc34bc83acc5",
+    "verbatim": "Allow these six paired-current baseline updates. Exact additional allocation: parity-registry.json ONLY the six xberg-size-* observation actual/raw-capture associations whose current member changes from historical acceptance to new size-specific refusal. Preserve each old complete row/hash/raw association in admission1 history/evidence; expected_sha256, EvidenceOnly class and source fixtures stay unchanged. Together with the six already allocated current-size-* rows, exactly twelve rows may change; other fifty-two remain byte-equivalent. Explicitly compare each new capture's xberg value to its historical raw value using canonical key ordering/complete value equality, and assert this unchanged bare-Xberg result for all six. Do not overwrite historical logs or relabel old results. New current result must be actual observed size-mismatch refusal, backed by existing both-schema guard assertions; don't normalize it away or claim Xberg fixed. If adding these checks needs test code, allocate ONLY the existing size-metadata test loop in office_differential.rs and narrowly necessary support recorder conditional already approved; no other differential tests/production/deps scope. Preserve unsuccessful full-union run, then rerun affected target and remaining required checks after Cargo is reaped. Record this precise allocation and revised 12/52 scope in handoff.\n"
+  },
+  {
+    "qualification": "Full requirements text is retained; only surplus blank lines at EOF are removed for repository whitespace checks. Original exact bytes remain at the original allocation path and in the external evidence root.",
+    "original_requirements_path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/original-requirements.txt",
+    "original_requirements_sha256": "6f89561a31ee6a120bb783cc814882280041a549735fcef23dbe408314bb19c6"
+  }
+]

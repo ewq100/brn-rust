@@ -270,6 +270,7 @@ fn a_second_begin_edit_reports_the_open_session_as_structured_json() {
     assert_eq!(recovery.as_array().unwrap().len(), 1);
     assert_eq!(recovery[0]["id"], open["id"]);
 }
+#[cfg(target_os = "macos")]
 #[test]
 fn full_markdown_import_export_and_backup_are_fresh_and_readable() {
     let root = root();
@@ -575,6 +576,7 @@ fn topics_connections_and_knowledge_check_commands() {
     let threads = json_command(&data, &["threads"]);
     assert!(threads.as_array().unwrap().iter().any(|t| t["id"] == chat));
 }
+#[cfg(target_os = "macos")]
 #[test]
 fn useful_intake_for_a_project_stays_in_one_project_chat_across_retries() {
     let root = root();

@@ -1,0 +1,70 @@
+{
+  "precommit_head": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "actual_test_wip_diff_sha256": "104030b5d62415f904e49dab86ef7c37c93d3c3e815b9fb79e229e5a960442ef",
+  "test_source_fingerprints_match": true,
+  "artifacts": [
+    {
+      "identity": "candidate",
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b",
+      "sha256": "19bc92c1e054eeb4a9c7a2b961ea92eb13e13483b5b84dc50733fd5bcdc4388a"
+    },
+    {
+      "identity": "candidate",
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b.d",
+      "sha256": "b932f453efa4adcca8ee8e1c8b4e58ad209ed8c4d5a47bd3585f1b9108d9ed81",
+      "source_paths": [
+        "crates/brn-ai/src/threads.rs",
+        "crates/brn-ai/src/threads_budget_tests.rs"
+      ]
+    },
+    {
+      "identity": "candidate",
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "80b05027171355cf768c10db2c2ec1c6ec836771022ef18996086be8c7005393"
+    },
+    {
+      "identity": "candidate",
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_threads_core-441e246c1aee373f.d",
+      "sha256": "bd88004075cf45aadd032d109c90c2f144f2b09917c15cb3230e3aaebb9bb6cf",
+      "source_paths": [
+        "crates/brn-threads-core/src/projects.rs"
+      ]
+    },
+    {
+      "identity": "before",
+      "path": "/private/tmp/brn-d1a-20261016-target/review2-before-artifacts/debug/deps/brn_ai-28a197b27edef53b",
+      "sha256": "c429c90501b30767396254e03642f76b8ec414c927cedc7c3db4875bdeb2b265"
+    },
+    {
+      "identity": "before",
+      "path": "/private/tmp/brn-d1a-20261016-target/review2-before-artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+      "sha256": "059c1d4d656a148f48ea959be5cbeae54c200fe42303418e3b330acc3ea68e78",
+      "source_paths": [
+        "crates/brn-ai/src/threads.rs",
+        "crates/brn-ai/src/threads_budget_tests.rs"
+      ]
+    },
+    {
+      "identity": "before",
+      "path": "/private/tmp/brn-d1a-20261016-target/review2-before-artifacts/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "b617a4ff5a188c826213348540ecd48f02189d6ed5a799fba544dc81e01ccec7"
+    },
+    {
+      "identity": "before",
+      "path": "/private/tmp/brn-d1a-20261016-target/review2-before-artifacts/debug/deps/brn_threads_core-441e246c1aee373f.d",
+      "sha256": "d85e27e0baaac135d02e7bfe47e2d936829f6d198a53ae2f2dfd9497abee13dc",
+      "source_paths": [
+        "crates/brn-threads-core/src/projects.rs"
+      ]
+    }
+  ],
+  "cli": {
+    "passed": 161,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": 20
+  },
+  "unchanged_core_manifests_lock": true,
+  "material_diff_from_accepted_base_sha256": "2e90f4dfe144a25cb797a702f3594446b2a8b18ed02742379f18ff27be26dde6",
+  "precommit_crates_diff_sha256": "7016d676c49a1719b11d27fc4403591cace1a3fbd6b7f0f2ed676259b4729021"
+}

@@ -1,0 +1,1386 @@
+{
+  "base_evidence_HEAD": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+  "reviewed_base_source": "a499712d96c48e36b47df43e7a281f3cfcd90636",
+  "qualification": "Execution records use actual precommitHEAD+dirtypatch; later committedpin association is separate. No futureSHA attribution. Beforebinaries/depinforetained. Other artifacts are hashes captured after phase; not all older bytes retained. No new mutations/guardpredicatechanges.",
+  "corrected_input_hashes": {
+    ".github/actions/setup-rust/action.yml": "d0fe9400e9e98f75b1c384faf60cca8388c8cf5a5a026fcf017bf227a474bb07",
+    ".github/copilot-instructions.md": "896b9a5681d8ea555d87b85761ff8d647ac0f7d39dc414c2b51f92df53d34c53",
+    ".github/workflows/ci.yml": "fe3282d8466cbed9203e0f12f997f1e24e2744b08707d589b73df8ff26fc07eb",
+    ".github/workflows/preview-release.yml": "bb0439fbd63296f03a2eefcf14c90937a137dbf00244e0efadbb1db91caa3af1",
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "agent/BRN.md": "82b4765df086ad04d10c4eff7268c38128c47c02b90fdf330632dbd5eaedb225",
+    "agent/roles/research-scout.md": "2c72fe74b0f1d30063a9a9576f1692c46c47a1081d5af418310ddcefe9ec8ccf",
+    "agent/skill-examples/document-review/SKILL.md": "be8af6de3d6fb0d550aa0c4104877a1edf7744b3d473537ec9e04dc8285734f1",
+    "agent/skill-examples/document-review/references/checklist.md": "ae0752ca2a1cbe7f7760281b4eb94889585cbf41c925217ada931f049d8a7a1e",
+    "agent/skills/intake/SKILL.md": "bc3ca07b2b80263239a32182a4e958d4c47428202fedf7378c2fb21b5ffa3f73",
+    "agent/skills/maintain-notes/SKILL.md": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff",
+    "agent/skills/prepare-reply/SKILL.md": "102d2b830bb6402476884993bd9b0ca087cf4cb4283821ebb980ae8e0f2f76b7",
+    "agent/skills/resolve-conflict/SKILL.md": "89659b077b0beaf921d0134fcc36830b45e23c9c2f1a5e82c44dc49240494310",
+    "crates/brn-ai/Cargo.toml": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+    "crates/brn-ai/README.md": "2a112ee2314998997d5105f46a110c8f612de85591cff45d14e97999a902d2db",
+    "crates/brn-ai/examples/provider_capabilities.rs": "58c4bf604531973e7959704de54c012bf1d0a466bbcb50f27fea01c3ef7b4fdb",
+    "crates/brn-ai/examples/qualify_conversion.rs": "ac0582120c12d4b72ecf3fd578a7f270e0673d4116a73ced2db7cfd692ae5f01",
+    "crates/brn-ai/src/action_candidates.rs": "cb41022f3f8211bc0ad7bac0336305f9347410d622d8012513fac8abc20a928d",
+    "crates/brn-ai/src/auth.rs": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+    "crates/brn-ai/src/behavior.rs": "bc6c0ed0cdc586b036268db4ff519488dc66648aa740c0075629d34bccd8d0ca",
+    "crates/brn-ai/src/capability_probe.rs": "46dace916f9528fb95e1a38002e4f897f9af5791fd0a0aedebf07ff95416a3d6",
+    "crates/brn-ai/src/chat.rs": "aa2c5507149267339b9afbce5be6839bc68e46cabdae494e9b1188ef40a4afef",
+    "crates/brn-ai/src/codex_auth.rs": "a18dfe82e54833c6d2eb56ce907bc9fc23cbb0b4e0bdbb0ab3909e29fc5e5dba",
+    "crates/brn-ai/src/conversion.rs": "bba4fcd120ecde2df1b8eeb6c1e31c1ed91f908a3592ad88a4bb6e78d01576c9",
+    "crates/brn-ai/src/conversion_tests.rs": "811b362fe10619f0038854a7d32b0c3b53b2187434a0a60c6e29e5a798c2d00b",
+    "crates/brn-ai/src/error.rs": "a65a90fa98fa81062efaf408a9489014e234c23657653f65d3d8c48e4369b3d5",
+    "crates/brn-ai/src/fixtures/capability.png": "ef016c9a976b5c618e1942fad4dcbaee48ff5b4d4599df2de9874438c4a64ae4",
+    "crates/brn-ai/src/lib.rs": "20ef52563b0cf46e281e2882e74b6301a8337d5a44eaa23b048cc15971051379",
+    "crates/brn-ai/src/proposal_tools.rs": "38914d7211302841a4db639bdc76e860c0e6c591dfcef23c82d0c9bbb88538fe",
+    "crates/brn-ai/src/provider_fixture_runtime.rs": "4e78c1d8f4545fcb711e14b8028ba5f33f80844309bdfd890775362143d9d223",
+    "crates/brn-ai/src/provider_formats_tests.rs": "4806009c6a7c290a4b55fd23304acad5776c5bf9fb9d85821bdb0f36f080223b",
+    "crates/brn-ai/src/provider_stderr_tests.rs": "d0d6c88ab7ba3cfe23524aabe3b44ddd43b0f49c8bfeed629a1f4a6d91b757c1",
+    "crates/brn-ai/src/resend.rs": "4a318fe996d135a24152645456ce05d8277a0823cf9561dbce84baa7ce6dae72",
+    "crates/brn-ai/src/run_lease.rs": "af3b3e5b106a9c75ba898ce35eb4e681018b6a26c20814cfcfc9a68ea9267939",
+    "crates/brn-ai/src/skill_packages.rs": "eab28159a6d5954a10f1493d0e1de38c0d8df43db2c2548f4404518e99a49082",
+    "crates/brn-ai/src/skill_packages_fs.rs": "bda47adc90b0d95a121f6317e6f0d9a6deedea65b6eaf6e0212cedc91f5ea65f",
+    "crates/brn-ai/src/skill_packages_tests.rs": "23309ae394a7e768afd1ee60a843588b389931ab234768c32d3dabd0ccd5eae7",
+    "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+    "crates/brn-ai/src/threads_budget_tests.rs": "85cd4af31544ea70667536d07521ca709956d2a3198247cb58b036eaf02ad511",
+    "crates/brn-ai/src/threads_cache_tests.rs": "e8bbde96140545755faa01b83f066b4ca865581c3e388debffb21955a1bad126",
+    "crates/brn-ai/src/threads_chat_tests.rs": "953ae329c2f98694d54715f1ec9700dc701fa2ad8ac745dacf3550fce8ab68bf",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697",
+    "crates/brn-ai/src/threads_current_inputs_tests.rs": "86ddb8cd19e50eaa6954c70ab5899daa9562eb5262711cd4881603e4510bf7a4",
+    "crates/brn-ai/src/threads_cw2_tests.rs": "21b52a6d3818ff8300ebbaa939c1f4d1ec4a38f54ef5b4ce0386c6a33ef542c0",
+    "crates/brn-ai/src/threads_delegation_tests.rs": "9522fb68ac4748a9a295101f15224bce9419d84712eeb35df4c0b0b9a7bb65ef",
+    "crates/brn-ai/src/threads_guides.rs": "3fd7f380778757f6595316f6a9d75ed2e4d114837fe29b7bbfed78e4654d7ccd",
+    "crates/brn-ai/src/threads_history.rs": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+    "crates/brn-ai/src/threads_intake.rs": "71ddf51d921eb2e70527bb5005f25e9d60e3f251e10b54a3d8bf218eed805a6b",
+    "crates/brn-ai/src/threads_intake_tests.rs": "8620759dec6a1c186fd8b1b9b1a961aefdd04a9c6cdd6afcbf50097f8f351e61",
+    "crates/brn-ai/src/threads_model_limits.json": "58b95516f632e0f8f8141bc49b677d596f5e184f396d9e17264276336ff69f06",
+    "crates/brn-ai/src/threads_project_tests.rs": "201ea6bec8023e1224c843026fa5e905b3a5b98bccdaadeff41dd2390cdb5f3c",
+    "crates/brn-ai/src/threads_reads.rs": "22a3ab59c66b84d4744d2b800f0d1d7a452c01e3697b001ea196e6871ddc5730",
+    "crates/brn-ai/src/threads_reads_tests.rs": "9472e502cbc616747a7c81d90da21edaf992b22d23faa79faabd932bc31d3966",
+    "crates/brn-ai/src/threads_research.rs": "eeab5b095a54853658ecad75b994f11c7f83bfabc3ab421095847838d27c5c31",
+    "crates/brn-ai/src/threads_research_tests.rs": "46f9f7fbdf3ff65f473a4dbfdb5ece0afe32940c50c2dd0e73fc3764beb67258",
+    "crates/brn-ai/src/threads_search.rs": "5fc049cdcc76386e666cc41204fdb8fc8c10d60af3279cf31967ad407fce4a6d",
+    "crates/brn-ai/src/threads_search_tests.rs": "7656f9700bf212ecd1ac40a727615e59d8cd38a99554c0a0aaf6d87a53bedd67",
+    "crates/brn-ai/src/threads_sources.rs": "fc7be8a299da5d4817c62203c8c21b77b6caef8939b548e4f82d7b3e477ced31",
+    "crates/brn-ai/src/threads_sources_tests.rs": "9adc6c6f4bcc642d38b67da78b5cadd8ea5ea40325c46623a209a3c678d6933b",
+    "crates/brn-ai/src/threads_steering_tests.rs": "9772c9c8d28d3b01661088320de5f6a8d17cdb398c6056ddf7c1dc849109222c",
+    "crates/brn-ai/src/threads_summary.rs": "a3e0cafe36537bf9ffa7c3c1661d40dabdaf4586d505d02232f96d7ad394aa6e",
+    "crates/brn-ai/src/threads_summary_tests.rs": "ea5231eb0fcedfc1920e87ade44f0328019299fed1e9e78f68213a2cb1e33563",
+    "crates/brn-ai/src/threads_trace.rs": "d8a71f3a1c23ab3d57a8a43a367b8b46e41d346b50f802ccc6b052f954503c88",
+    "crates/brn-ai/src/threads_writing_tests.rs": "d08373e8561631323ec2ddfff0a658dd6ca046a0651b60d589ad7e89c86e52fb",
+    "crates/brn-ai/src/tools.rs": "7ce0b41e7a000d8b548ac97b8a8bc670d1589d96eded39fb1d85aeb000eba64e",
+    "crates/brn-ai/src/visual.rs": "e3b6ea0b58c52189d4436617100927e9ad76f54c9ae280b00eed599c6260e50c",
+    "crates/brn-desktop/Cargo.toml": "c45c73f5e6c8b17f7839f70835ab0fe498b101c081f87c174c87dbf7ec83f829",
+    "crates/brn-desktop/README.md": "939d7b7744a2deb40fc0b2e500d643d287c4a78b476cd4f50b29ef099307d649",
+    "crates/brn-desktop/src/main.rs": "50fce489fcd7c032e7c26d66a9acb68ebfc3529597170549b7da191f6b692896",
+    "crates/brn-desktop/src/threads_backup_tests.rs": "da072667f9daf70807736d09fa5df6e9c28b73d393d963660af40f60796daa62",
+    "crates/brn-desktop/src/threads_chat.rs": "755f257e9413cb39a29784cc96cd4ce2cd07a1822e9c44b392c31e492a465790",
+    "crates/brn-desktop/src/threads_chat_tests.rs": "b4f208ae67a2d2b5c549480a329ec0b982fab72f040a0f4256128be80f3db85e",
+    "crates/brn-desktop/src/threads_components.rs": "d3a695b7d0cbbe9075f4428e55d8db684d72b8c6a26bbb3ee73c9c6003c1bc37",
+    "crates/brn-desktop/src/threads_connections.rs": "1a6975d6c55c92617a4c0ca857e64ed61475506beb77534a5331a9ec168f7270",
+    "crates/brn-desktop/src/threads_context_actions.rs": "629f05c665d264addf3d87b227a1eeea7258b4b4dbb2363df3868d5e888584e9",
+    "crates/brn-desktop/src/threads_context_actions_tests.rs": "961d450df453f07f3aa894144d3cedeab9725977a94ce45a62a858817b0b460d",
+    "crates/brn-desktop/src/threads_dialogs_tests.rs": "c201dbdc7e009d9414ecd7f2e5fe489ef152571ca72a98601144fa1133260d18",
+    "crates/brn-desktop/src/threads_diff.rs": "0fa9a1a69538cd6bce6f6de3012617499926c8c263c4ca0e408b5a29c0c0c1ee",
+    "crates/brn-desktop/src/threads_document.rs": "c89a52ff04e37711301e8b4714caef715bc892b4c1b6060e93ce2eac4a59fea8",
+    "crates/brn-desktop/src/threads_document_tests.rs": "c44af96161662fa889a839784ab47a35fc899a989dc158f95e39e81b74750443",
+    "crates/brn-desktop/src/threads_focus_tests.rs": "c654e632d8bc80359825bf2f9d3bfe39d5fc978737de056b190c16c6c1202a82",
+    "crates/brn-desktop/src/threads_format.rs": "993363feebf14759d0679b6668b8ac02c3dc1e303b74d2e419e3f764a95f6666",
+    "crates/brn-desktop/src/threads_intake_tests.rs": "260f37de4d36e0ae77eff8fc93a225bbc7586d533d88d0b01f8ecd6c226fc01b",
+    "crates/brn-desktop/src/threads_layout.rs": "accac5718b9e585c7a9f5bb4427a5a3314d4eba956db90fc1a118e6f425ed879",
+    "crates/brn-desktop/src/threads_lists.rs": "f39301da515c97deca5797b2f5659f8f22eca7f479ac609481f95606f0ced7b6",
+    "crates/brn-desktop/src/threads_omakase_tests.rs": "4b33bf78db1db9a51e7921ebc46cf821fa60cf035623b45cd66610235928374b",
+    "crates/brn-desktop/src/threads_pages_tests.rs": "b42b253b1a91f03a10046a51496e65f09ad6915233952177edb392ef03a16886",
+    "crates/brn-desktop/src/threads_polish_tests.rs": "2fc9b8ebda80bae0e8e242dc84456f855292ce7248a09c1127ab6ea09c808bbc",
+    "crates/brn-desktop/src/threads_projects.rs": "e8f6fa3de63cf472d70d5f3dc8f5c9dac871477eafd4eb5d290a38c8f78a7cf5",
+    "crates/brn-desktop/src/threads_projects_tests.rs": "4303883718a5fb79655b24094e94c420fd5e2720c95ff0e99cec164a472a6fc0",
+    "crates/brn-desktop/src/threads_review_tests.rs": "7046d0bce697cbbaab37a0a8b868cc6b73011f977691f91dfea16db24ccfd556",
+    "crates/brn-desktop/src/threads_search.rs": "668b676fdb802b3ede8944a8554114e853fab23c80ade422b64215857066e747",
+    "crates/brn-desktop/src/threads_shell.rs": "7d0dd32298cfdae5baa9cc722718a703157cbef0ddc45fa9e7fa63385b5fd2d1",
+    "crates/brn-desktop/src/threads_state.rs": "1490fe8ff18e17a71790098fd69141f0acd5347dd5e109fff0ff06628a79857c",
+    "crates/brn-desktop/src/threads_steering_tests.rs": "0aa0400c2ab895d851568f430fcb292897429920f44452a4d9ed9daeda15978f",
+    "crates/brn-desktop/src/threads_theme.rs": "0efc3540ad084c772c70b36ddeb91c96848c4f357e7168d681b93b54324e46b1",
+    "crates/brn-desktop/src/threads_tiled_tests.rs": "d8d7299f8e020739b5c31c4b3ac036e815a42795cb458a68810a4edecc4c494a",
+    "crates/brn-desktop/src/threads_tiles.rs": "5e8307e21394f0ad2e92dbd7f4dc6b68a764e8bce5e26fb6201e12823e9c4c3e",
+    "crates/brn-desktop/src/threads_ui.rs": "784303d897627e02391a2688c1d68744145ac7e41b52f86a199eeb06d90278ec",
+    "crates/brn-desktop/src/threads_workbench.rs": "f0659f8c444855f153693e4a4a2cdcd4e6ec117e615ee89f6e733d84d779cd28",
+    "crates/brn-desktop/src/threads_workbench_tests.rs": "b90d3dc34608ddf165569020daff701f1e668e84687cb59b197a8ef3537ccf98",
+    "crates/brn-desktop/src/threads_writing.rs": "f63fa16c4f260e906fe4b8fc834fd10aae1fd4747668653e7f69d54f84cab056",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "62b39eb68c0a753327155bb800f1f4fd96c874d9ab9852296af5353d3d0a62ac",
+    "crates/brn-intake/Cargo.toml": "ef10870cab9736b29a00f6b78cbe55531e859393a20bff3871a484e4d31cba03",
+    "crates/brn-intake/README.md": "d0d24a6fd0752d8840100ce2b51cb42a0a2e00671b9a479b5a434ed158bfa159",
+    "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+    "crates/brn-intake/src/helper.rs": "c243dace17a64bac8f017246093e7ad6c28b302581fb31b0e6f7f062a69252ba",
+    "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+    "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+    "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+    "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+    "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+    "crates/brn-intake/src/lib.rs": "fdcfe7e838ac438416d1b2a4f4b217d632db67c8c107c3f7fe1ba02aff8ae94f",
+    "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+    "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+    "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+    "crates/brn-intake/tests/fixtures/README.md": "5e12a62618f1898f7491821a9c180807ff32ef64b74d44a52fc8ff762dc4d685",
+    "crates/brn-intake/tests/fixtures/features.docx": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d",
+    "crates/brn-intake/tests/fixtures/forecast.xlsx": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704",
+    "crates/brn-intake/tests/fixtures/harbor.docx": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+    "crates/brn-intake/tests/fixtures/harbor.pptx": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+    "crates/brn-intake/tests/fixtures/hostile-dtd.docx": "c5da4fb9c60f4c9455f6216ddef345c059953f3879afbb849239a3d5b8fb967b",
+    "crates/brn-intake/tests/fixtures/hostile-inflate.docx": "c79196faaded8e6d6f9eeb2a2b733607ee1e7b49a7affc076a0bb9c1b033d019",
+    "crates/brn-intake/tests/fixtures/hostile-members.docx": "befb44dbb220473403906cbbf4485e5561f5714e9dd8a171647cd22b561c32f2",
+    "crates/brn-intake/tests/fixtures/hostile-path.docx": "c85c4bad47aa98a3b763eade88307968da6ab18a42619d9a2d54007a841ecb74",
+    "crates/brn-intake/tests/fixtures/make-quay.py": "842f6af32e03d7e753a9dc29ec84398e0d5f0bae8c26d8068a0b4a6497bae714",
+    "crates/brn-intake/tests/fixtures/plural.eml": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14",
+    "crates/brn-intake/tests/fixtures/prefix-variation.docx": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709",
+    "crates/brn-intake/tests/fixtures/quay-map.jpg": "6a780dae8fa6a378b29effbabc6c10d8a0a659da56177f74145ee746484e96ca",
+    "crates/brn-intake/tests/fixtures/quay-map.png": "c3f5feba0efb93f37544885e543dad0ae156624b1e4b651985895b7599de3711",
+    "crates/brn-intake/tests/fixtures/quay.pptx": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+    "crates/brn-intake/tests/fixtures/single.eml": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+    "crates/brn-intake/tests/fixtures/water-use.png": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d",
+    "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+    "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+    "crates/brn-intake/tests/protocol.rs": "14fbee2b90af769cc18c09084018287577b7099047ab8ebd6c54c162cbeb3af8",
+    "crates/brn-intake/tests/restricted_helper.rs": "3e5ead64430a942d03c59fa167f11637086a16ddf10835817c49cd824987af14",
+    "crates/brn-retrieval/Cargo.toml": "6264cdf9f313bb7eb62db128e24316cc120b8299deaa0f3660b623051e6812c1",
+    "crates/brn-retrieval/README.md": "b851c0e8e7d5f2f035f286705fd9e7c5d620a92c1db82b1f000d7f2ecb92b60b",
+    "crates/brn-retrieval/src/embedding.rs": "28d889685bc33742b90ae4f87a80e60df4a92bbd25bdaebcb4d8d1048304769d",
+    "crates/brn-retrieval/src/lib.rs": "6de88a037430434167e5156b7a6ffb4feff75686e837d569d9e9da7bf5166fbc",
+    "crates/brn-retrieval/src/markdown_chunk.rs": "fb81dd747a06dc39721a8962b6ad01c498a9c5dc7bcb11f3406ba5741a03ca44",
+    "crates/brn-retrieval/src/native.rs": "5b2839188b506dc9bc162c532c53839a284fdc00373ef2ce47213b4a9804e777",
+    "crates/brn-retrieval/src/native/download.rs": "f5d8cfd4b506978f29d6d02ee1466120585e467d4ef713f7cb8256db306567c3",
+    "crates/brn-retrieval/src/native/download_tests.rs": "7577ef6580d412e11b3aeb6854f1debd9ba6e31e0a37bca4e88f9c90419e0973",
+    "crates/brn-retrieval/src/search_index.rs": "94efb75c085c933130196aa2681aa47624674f6a2a3074522c1280992044cc70",
+    "crates/brn-retrieval/src/snippet.rs": "d89a6ed8d41dae93300d75906d8e7d13cd7cdaae1921c363cfe89d3c0f8a1298",
+    "crates/brn-retrieval/tests/local_embedder.rs": "67b1c20c5ebfe24c8c5c85a27cf67a1ae367d1d4e2a96027215982128ddb10b8",
+    "crates/brn-retrieval/tests/model_download.rs": "cb778263e44ce53e4989ab5775175188e88cbb2fd2d5c30bfdf53dea13bee6cf",
+    "crates/brn-retrieval/tests/search_index.rs": "1227b9fbeaefa1624c203a31a44806b9cdfe3571839a3943119acd739e0eb9a4",
+    "crates/brn-threads-app/Cargo.toml": "dd8cc20026768a1ffc703c5cd7dfe93933f4bdea2c67b4c6c9dfe848e7766880",
+    "crates/brn-threads-app/README.md": "4e06b34ad1632dfcb2cde54a489b9fcf29e8d0a6426c682ec2a93328649ec69b",
+    "crates/brn-threads-app/examples/retrieval_eval.rs": "b6a6b0cf69492b70beda58c3194ca8cf2b2fba614ee51c692663603431b178d2",
+    "crates/brn-threads-app/examples/retrieval_eval/support.rs": "cebd3ae31233f232ddef6ae926e4c2219e555e90d1162ea0305ee6fd6a38e270",
+    "crates/brn-threads-app/examples/synthetic_baseline.rs": "dd2da5e1b594ea49f56fee4cb96b3b0b10b88e0741bae5f0e45389fb2a30ace0",
+    "crates/brn-threads-app/examples/synthetic_baseline/support.rs": "564426be0de42252e2303dbab551e72c8277516b8f9ae987ef744f660364477a",
+    "crates/brn-threads-app/examples/wiki_eval_seed.rs": "fcae6e96ae02755c5d50cdd13b4b80adbcf52239cf50c6428c0aeb8dbee11670",
+    "crates/brn-threads-app/examples/wiki_eval_seed/seed.rs": "bffe290e78231f0b313af69ebac4163f61280d5910d30c1df473964704df6ab1",
+    "crates/brn-threads-app/src/assets.rs": "9f209070e18ada05c50380273899b72a83fc2b0e0001700b497873e184b59c54",
+    "crates/brn-threads-app/src/chat.rs": "8d5382ef0ad3a6dd1cf2c79c2c59e1be4608c1eff91bf05ae8773020bec9396b",
+    "crates/brn-threads-app/src/converge.rs": "ff2c57504c698cc2950818d32c8235a8b1edaeadc4ba523619d4c980df16eb11",
+    "crates/brn-threads-app/src/decisions.rs": "4711dd359b16432c4e90ec2e62be980cb372a52c1f61021494bb9de38d0b982c",
+    "crates/brn-threads-app/src/export.rs": "f255be8db5e5c61ae0af4e5895cfb1b5b217cffd3d7f9c9275c7c99f4541d199",
+    "crates/brn-threads-app/src/intake.rs": "3d935a5ab37cbb28ef10c76502045896e95db031bf2b2815717b19f251fac034",
+    "crates/brn-threads-app/src/keyed.rs": "6ee6f149e5519c56156ea3686a589ee5ac3893ac49356ecc97b362930bc2830b",
+    "crates/brn-threads-app/src/knowledge.rs": "5f9f436fc24814b4743606507383653e1e9a3e4d573fe90d31c383bd67ca9b7a",
+    "crates/brn-threads-app/src/lib.rs": "4c2b9f82ad5a6670fba5c64135ed9b5158c4cf95e8a3018836d279ee9a667397",
+    "crates/brn-threads-app/src/projects.rs": "353cf34a37fc0973ee9c1e57b19e39b5e68dc1c0f79add82bad946abcf18c9eb",
+    "crates/brn-threads-app/src/refresh.rs": "1a3fd0233d988a4412673deee9d709756bb404f2b91532988d6401e0d3be65a7",
+    "crates/brn-threads-app/src/relations.rs": "a3e68d61e7e2361b5b8e67c78138a231eed25116ed054bd2d85637341eed359b",
+    "crates/brn-threads-app/src/review.rs": "5881da88e4a9d8e63a1d0a22918e20313039698e33f4f8e2a0a729f132ada8b2",
+    "crates/brn-threads-app/src/review_groups.rs": "a78640cb5ac7336d56b71a90bc2058545b251b2cbc114a717059bdd9310ecaaa",
+    "crates/brn-threads-app/src/run.rs": "7d3583e8a8b8952adab7fdf06dd79274bc0a1d93f3dfd80f0abe575bc6f77716",
+    "crates/brn-threads-app/src/search.rs": "e857d4f6a6fd19febe3e599a38812875fe5e8790fab50fdf340fdc5587ec48b5",
+    "crates/brn-threads-app/src/settings.rs": "c2091dbbbe8ea8d8d20946ab1c4f9d02358547e3ec03b037d7b703949f02a68f",
+    "crates/brn-threads-app/src/skills.rs": "6d038b77161a1fe73cfb6886952f6438ff1eb94ca00d280b3d6ae1e21af1fee7",
+    "crates/brn-threads-app/src/steering.rs": "77c5213c400ea9959600e74a86f19bfb54a3a1c07ed0fd5f34c60ee2b7432eab",
+    "crates/brn-threads-app/src/topics.rs": "1065253ecc145e84147f10a133990a903406de55ad67c98c976482eb7fb27cb5",
+    "crates/brn-threads-app/src/writing.rs": "eb6198e019bc9e874728adb941d7bb8c44f7d9dcdf9d07b9e58c96da6edae9a1",
+    "crates/brn-threads-app/tests/agent_eval_journeys.rs": "5f4ac01c0da8bdf107baf81894dc82b5ce76348f0d541015ba3af8b2450e1061",
+    "crates/brn-threads-app/tests/agent_journeys.rs": "8f349b55e39ce76dc4d2295eaa1d546dc2f616b070376a1653de561f62e3f5bc",
+    "crates/brn-threads-app/tests/backup_directory.rs": "982e9e683030ef268011fd645db1da3370fc6e526e4d33441cb6022f9560aaf1",
+    "crates/brn-threads-app/tests/chat.rs": "b5aaed8c3b4e92b6e7cebdd49d8b40ae4c46fe6dd5797d8ce9c3f8236939c654",
+    "crates/brn-threads-app/tests/chat_decisions.rs": "6555832ff7546bd8ecbb14d0ce2d7ea85257fa20a7981f9992de6df2fcc52e34",
+    "crates/brn-threads-app/tests/cw2_review.rs": "cd7245057b6ffde562e55b053bda5769d67df301a9e6dec46c7093a390539628",
+    "crates/brn-threads-app/tests/daily_workflow_eval.rs": "c1c8e7458d482e4207afff5977e0ffb1207b8897d948600235aad0cdf9b86d58",
+    "crates/brn-threads-app/tests/delegation.rs": "2d90d3a6a3284ef2c4388230e7538f5184fdde0a91c4bf2f9d129c63d15d3d40",
+    "crates/brn-threads-app/tests/export_metadata.rs": "574d7183f6853429a912e57bd0cab8a8a1480f49065173adc3a9aa693b546ada",
+    "crates/brn-threads-app/tests/fixtures/retrieval_golden.json": "6450ba8ebe901b8b89387428c988f0fab9e58106728c896df433a41229c92c46",
+    "crates/brn-threads-app/tests/host_intake.rs": "c68d8d44396d26f62c96943a77d9fad8c5c3c47daf3041c0e24eb90a2ce0e6cb",
+    "crates/brn-threads-app/tests/import_coverage.rs": "fef8d89f176db36ccf829ea42afa0b61e0134b76e2af393c22368790e3c8dc2f",
+    "crates/brn-threads-app/tests/keyed_owner_operations.rs": "f6cc61fa5b10c911941af8848160a90f5a3d07792c315f4ca2b22fdc88d06909",
+    "crates/brn-threads-app/tests/killed_run_candidate.rs": "81155f5cb68b1353ce4ff22aeb281b9f35997455d2eaa7fd42b1382d01ac9088",
+    "crates/brn-threads-app/tests/product.rs": "dfd81d0295a648072089fb86a696c940f06958070bfc02dd56ac39d05c86372f",
+    "crates/brn-threads-app/tests/projects.rs": "6d30161f54ab34818edba2e8bdcbf600e16f433adc13a91603a5d977be1227e5",
+    "crates/brn-threads-app/tests/retrieval_eval.rs": "70ffdc17a5a055aea9a454960bd537d7dd7e0acf75389568f7be55d8098739a6",
+    "crates/brn-threads-app/tests/run_recovery.rs": "99113e10df5936a4c1a067973928d0e612716858b3a222ab6a7cc6464d1f9c23",
+    "crates/brn-threads-app/tests/search_dense.rs": "86d048f01c938dc6c3463e40b12f192240d0e836e59e2160e3c34e4c54d16388",
+    "crates/brn-threads-app/tests/search_messages.rs": "c2a61105c7dcfa4326dc2a78bba465337b5a6b1945f6e48e30226c49569cb25f",
+    "crates/brn-threads-app/tests/search_worker.rs": "04b0b3fadbad651d3d87f0e3c830752ba8db85316aaaa604ef35063c013c4e89",
+    "crates/brn-threads-app/tests/shared_run.rs": "65b03d31062cdb8b21a1a4a3df7abc10616f6feb2acaed678e9c58deecd40c07",
+    "crates/brn-threads-app/tests/skills.rs": "a43acbc8b5297f6ffcbc5fa969ce94183d134dc28aac77f1636e8adc42fcb4b4",
+    "crates/brn-threads-app/tests/source_intake_chat.rs": "21547071fd941b2e4b1663c501a186eee2ac134b90d9cffb8cc7c955ae5f7da6",
+    "crates/brn-threads-app/tests/steering.rs": "9aa286ac90ce169706ff71aded96e2358e376a06f9c3b185adebe82d6d02f1d1",
+    "crates/brn-threads-app/tests/synthetic_baseline.rs": "ebad516e8591ecdfc1284b2db95156bb3cb000daa67fb0001a13ad953f8d3c0f",
+    "crates/brn-threads-app/tests/thread_lifecycle.rs": "655e161d53eb1ba79b85b6705b99e94033c7b5327e4ab8b3b58acd3c902879a5",
+    "crates/brn-threads-app/tests/topics_knowledge.rs": "9272b70005e1424cb61cfd7bd68d2d707545de860ec768cba4fde2e09a296960",
+    "crates/brn-threads-app/tests/user_scale.rs": "28da8a70aeb1c8281d6228ce7bf3ddfe090d2f5a6b1b09ecdf2647a8d3d8dcc5",
+    "crates/brn-threads-app/tests/wiki_eval_seed.rs": "bc676539c16f8a9af68fcba49ee8c67ee1be43239c42d1cbc7b869e5c4de5963",
+    "crates/brn-threads-app/tests/withdraw_proposal.rs": "e84b9ae7b9cce577ebc8d4c5bed89f0b01d51a0c21c24bd0fbbf04910f790d9a",
+    "crates/brn-threads-app/tests/workspace_purpose.rs": "6ab6208f63798a55006dbf767b082f7e7b19adfd7b81a16b79873c65c7212e04",
+    "crates/brn-threads-app/tests/writing.rs": "179c793d6d58bab9fbcac5d26d0009cf7c1382de5fdf5c199e883b0311b79cff",
+    "crates/brn-threads-app/tests/writing_context.rs": "3924f7af33f8103c4af4b83f4c98e233a4383b42f8467c27651f0d5b14f61028",
+    "crates/brn-threads-app/tests/writing_setup.rs": "241ef3a5e87d8e0e1d02487aba5e43759664428196a0f2546a91937ee036f2b8",
+    "crates/brn-threads-core/Cargo.toml": "75afba32ce5ecdd9d9f17f9e86f1f8ebf7522330e8c28dd5485b90d7672f3bd1",
+    "crates/brn-threads-core/README.md": "765e537f27de04d6671f4ddb0e352739c00635ab89d0641dd699cec8042c443f",
+    "crates/brn-threads-core/src/backup.rs": "7753364a044ab47d68d608e0587b628b20df7c226b4c3c66c05d59f65f337157",
+    "crates/brn-threads-core/src/chat.rs": "387c8cc3c9e5e6bba96ab23d694059879a55800c7b952c33b73d42041dd91835",
+    "crates/brn-threads-core/src/context.rs": "6180027d696e8bd1a36c5169078594640e4559bc0031302c0660c944655acb0a",
+    "crates/brn-threads-core/src/converge.rs": "494500444b98ddebe923a8a4257bc8bfc1f2701c24fd541170671ec88b3f8c6b",
+    "crates/brn-threads-core/src/edit.rs": "bacd61369d064110037ba97bcaf3f5f5034ce483f955ca364eca40ee18921b56",
+    "crates/brn-threads-core/src/inspect.rs": "5ab4c813d07bdc9adba458c80827db1afb0f30bf9d1182d6c937cf468f6a7c25",
+    "crates/brn-threads-core/src/lib.rs": "cf0509dea4df4f71584be681d29f8dc66f891939447cf27bf5a7e1c57f7aff1b",
+    "crates/brn-threads-core/src/locator.rs": "ee45fc9cdddf8f9bf5c2452d4867ae3fb9554d06548f9175b5549f4537ff5832",
+    "crates/brn-threads-core/src/projects.rs": "fd531dfabfcadb94f265b86ac6dfc89d5c891170b224fbe9b29ee2d4d50a6584",
+    "crates/brn-threads-core/src/read.rs": "28f6f40120863c307a5e9daf12d111461a509a9be5c5a7fd46bdf55827850426",
+    "crates/brn-threads-core/src/reader.rs": "bed4ae74fcfa41d41c512ad6a8f3ffa399501b532d98ea760e2b23558b6f2d2f",
+    "crates/brn-threads-core/src/restore.rs": "fac2fa49449a36dde949a445ceea41b8613b02744b982b174c81b3126ff08b66",
+    "crates/brn-threads-core/src/revision_read.rs": "918484cb38bbb8a8df2b737c46cb7d2ac8b477dee0e69d485d4a60454c50c5b9",
+    "crates/brn-threads-core/src/run_attention.rs": "0841d41a16c86a42058088b045c11283d50b3dc0498994260c84ecea151bf06d",
+    "crates/brn-threads-core/src/stage.rs": "2f1a267dbbf21d30ab9ce07930085dabe4b7305ae3ed983ebe499371c17528cd",
+    "crates/brn-threads-core/src/steering.rs": "218708c09ea9de9f7e91718fad6c8e8561d3e15069cdadaa87c37c8f57029cd9",
+    "crates/brn-threads-core/src/store.rs": "0448933031a988990361a8c1ed80ee05bc6eda3b5130482acd629752da1767d5",
+    "crates/brn-threads-core/src/types.rs": "dabc9fa0bdab920cf01439524edba99465f3bc08c395e1ebe65475183608f923",
+    "crates/brn-threads-core/src/upgrade.rs": "1cd5946ae9cf62eb0b963919abcfed78438ca2e8528bef9ad91c19145659132e",
+    "crates/brn-threads-core/src/writing.rs": "ba497e5fa68be773c2932d71c62d838a28a697b5decfc8628920e0e812983184",
+    "crates/brn-threads-core/tests/backup_directory.rs": "2d75a9b3eda8ad529e7bec54dcce4a94c041e5d863fce086a86b1dbe9a57631e",
+    "crates/brn-threads-core/tests/candidate_refresh.rs": "09bfdfe8dee61a83086fb4a6a7c0a0b1a90430a316119ee0dadb7580ed6a288a",
+    "crates/brn-threads-core/tests/chat_format.rs": "66654fba481fc0069e61d7003a5b52ffcd9f415677297eb169e91ab5a141afd5",
+    "crates/brn-threads-core/tests/chat_storage.rs": "c36c3c3f11f5d6e89a6bc9de86135ce686ac7a329056ca1087da4ef3acfce019",
+    "crates/brn-threads-core/tests/converge.rs": "ff2e206ba0760f7e640f9878295e4bcdda02c8567ffec7723354a600a05c29a7",
+    "crates/brn-threads-core/tests/core.rs": "a6520b4ccd8e76b4859b98dd081cef6f1369ae871c4fd4de4c76fc25cd3c83fe",
+    "crates/brn-threads-core/tests/current_inputs.rs": "e5a90cffe6422d14c708788e8ad655fb6dea35c902ce7b787fe2365ef48e72c4",
+    "crates/brn-threads-core/tests/cw2_visibility.rs": "f7bcd405247875396b8b5afcdf7165764b0573737514458deeaea70a4d706f4c",
+    "crates/brn-threads-core/tests/data_folder.rs": "75008bdd3933c2848d7b41321f9740e8f2845ac24364ab38ddbb848e2b78dd70",
+    "crates/brn-threads-core/tests/delegation.rs": "ab138a0c11cc5df16d5fe25075f39ffadc04b08138d7a5a96389b84b6ecbeb9c",
+    "crates/brn-threads-core/tests/edit_tokens.rs": "f535c856f54871df806693b84f840257d4fdb5abacca48e4eeaacbc7b1e88192",
+    "crates/brn-threads-core/tests/inspect.rs": "8bf5a887c1276a9d7ae538161f8bc121458da4cf45041f44ba2c8601e906567f",
+    "crates/brn-threads-core/tests/message_search_scope.rs": "b343e3c2f6179b8028fac76aabc56b8d53e191dd59072400ff7300e51ac3d012",
+    "crates/brn-threads-core/tests/note_read.rs": "3747cc2946626654fa84856fcd578deba500a90b4ded0ae3b6e9b97c58e3e3df",
+    "crates/brn-threads-core/tests/project_format.rs": "fa95ac61da64271a5fca46643a52363225c38a381470806fba08a2fed8720d58",
+    "crates/brn-threads-core/tests/revision_read.rs": "24f5bfb73a898464eb7335a1bbb84519c7c70a04ef8bb88258a3a8f57d1b2569",
+    "crates/brn-threads-core/tests/search_reader.rs": "02726f49fcfe53afd5d18df8bfab469e301b3c8b878bb2ce9c069b43ce743b41",
+    "crates/brn-threads-core/tests/steering.rs": "207de3da82ee2c52d1fdda6fdb3cbcf1c087d4089c6cc7e839e7a70fe9df2224",
+    "crates/brn-threads-core/tests/writing.rs": "4c368bea49f3c4ec55bd92ade5608509f714e8651bf7adbb9c5f10a371398409",
+    "crates/brn-threads-core/tests/writing_setup.rs": "cbf8b8bd0555014937d146ffbbfa583160d2be980eec488ed364a23ad1676bce",
+    "crates/brn-threads-intake/Cargo.toml": "0bb7d50c6fcc8cdeb18835ab4c492dfbfa204e8241af2d3617c3f3aadb677b4e",
+    "crates/brn-threads-intake/README.md": "7ba9218e6266944b79c6e291bec2ed536cfd2c37ff1f3c541844b28e9972c5eb",
+    "crates/brn-threads-intake/src/docx_markdown.rs": "a3dbe14cbc233552d52ecee18d00255fd65acbe5ed08d2d6fbd587982073a78d",
+    "crates/brn-threads-intake/src/lib.rs": "44c68a45e1608938822fef6f4fdb9098a94efb3d2e3e9671a844509c85543fdc",
+    "crates/brn-threads-intake/src/pdf_tools.rs": "f23b1367920b2c309125922dc9fe48e7c672f688e71920c5828dba8da61ee06f",
+    "crates/brn-threads-intake/src/prepared.rs": "03ba7af4c53324b600a83f08f8411283755d2797b92930b810c4abcd5c11f155",
+    "crates/brn-threads-intake/src/process.rs": "326f35c55d209acebe4a4efed4eec935c859628aef362ce7927a373fb8a096de",
+    "crates/brn-threads-intake/src/transient.rs": "cc0c7a43cd488323af0bf75cfc1ea3b7d23e16d301844e7901de3c9a09d1d69e",
+    "crates/brn-threads-intake/tests/fixtures/harbor-process.docx": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87",
+    "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52",
+    "crates/brn-threads-intake/tests/fixtures/harbor-study.inventory.json": "3515de028f527aafb7f57209d76ddb152a0df149fea1f6c5c9c38ca1f2335690",
+    "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+    "crates/brn-threads-intake/tests/fixtures/luna/README.md": "e50392792736d5b8c9432bf6e5ede1d66b324233702055a11bcaf72f90574aff",
+    "crates/brn-threads-intake/tests/fixtures/luna/blank-comments.xlsx": "2e6aa4e183e9e958f502d76798cf8b4158649a5e800968b2166d10fe6709a8ba",
+    "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+    "crates/brn-threads-intake/tests/fixtures/luna/metadata.eml": "cf7cc11598ed0c4e6e28c761d467ad77f91e53c0f9ace8b697ba854369c3eb56",
+    "crates/brn-threads-intake/tests/fixtures/luna/nested.html": "1d7075c5616605ad1d35907d06fa385ab2a2d3a6d73756ad60d304e040281dd2",
+    "crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf": "ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244",
+    "crates/brn-threads-intake/tests/qualification.rs": "040f4644d420c20e4d3e1790e2e446f6cf35baf786942c645b70677b35556e91",
+    "crates/brn/Cargo.toml": "b06112cea5a1f9dfb0c353f4279b4182e77a04c24ee5d5e37611abf93d590338",
+    "crates/brn/README.md": "094f22eb406d6ceb6e9b364ec67642477391ff93cc0d518609dd4d8ac4677810",
+    "crates/brn/src/contract.rs": "f322a848384667620f69ba2bfd5cafd96081eedd2ebdb5a70c61cc7d0d9f0abe",
+    "crates/brn/src/help.rs": "b4d8c3c665220bfed8fd6c72c877b4a1852580db0a3f5eb3be5be3e1f87326f9",
+    "crates/brn/src/input.rs": "9ec4202229ba2e8a3f68a9a3176b1d0f86008399f931fbcffba79bee00eca359",
+    "crates/brn/src/inspect.rs": "8d5d91c6b1dcc70737d0aab6de149afeea826c4876cc38af924de37d9ddb6ea2",
+    "crates/brn/src/main.rs": "cc3d6bc8dc343b5bd7e117f2e97bb49cbfd909ed12b6fd2b2e3c321dc59cce98",
+    "crates/brn/src/spec.rs": "bdf86a7c1cf5aafaff4e93ca107db6b13ac704a43e098994e2c439e47a2f4a16",
+    "crates/brn/src/stop.rs": "3e5218b3e11d77f93a30c6c9c4603bbec20f42a51670dbb03a8429e1af008ea9",
+    "crates/brn/tests/agent_authority.rs": "95f9afb2ad1beaabf21e381ac06610337cd78d90111004590496c8fcbf25fc15",
+    "crates/brn/tests/agent_bounds.rs": "96dcb412ff61f5a98f4e0c6511c30e9748c75ceff01516f03d5dce5193345089",
+    "crates/brn/tests/agent_contract.rs": "320be90f7e431fe494146d0ab302b049f3f6911279313b84f381b4de83acadd0",
+    "crates/brn/tests/agent_converge.rs": "5c390180b12b621d9d09bc9e9b3f2078952d3d50a1582e9bbe7a62f8ced09d3b",
+    "crates/brn/tests/agent_credentials.rs": "6712761dc780ef8d035cb595103a28bacfe1faa9d1c1e1b176b392eb64c7501f",
+    "crates/brn/tests/agent_credentials_existing.rs": "081cc2bca900560cfa1b33b95da65ef798ba81a5df18912032d70cf1fb18f46f",
+    "crates/brn/tests/agent_discovery.rs": "2021976d6fb516dd8393adde69c664d6a7541a1e62cbd85e56e4e2f48a70ca37",
+    "crates/brn/tests/agent_edits.rs": "9fda5e6ca83d6a23a44f721a87e8bde163636d8a5a2a75bb30a3c1ce49c8e351",
+    "crates/brn/tests/agent_inspect.rs": "38e530bd52e407794c4f635b033ea80fc281110c31b67f2563373fa7a0d5cb5d",
+    "crates/brn/tests/agent_lists.rs": "153184e53d369ebc95c1106abb70036b7bac3bd6345f2c94747dea5fb8615050",
+    "crates/brn/tests/agent_reasons.rs": "7884ac185b2be309e2f194c20d0ee9e96dc761b1d69d3fa4a260e8dcc5ca0bc0",
+    "crates/brn/tests/agent_retry.rs": "2a16d669a02f7c44b76d14fab05fc8e24ce45fbc45df204072424b7de7180a32",
+    "crates/brn/tests/agent_runs.rs": "239e03f6bbcccd34c22cc2524756d5f2fa93e00963e519aaeee87dc7fb124fac",
+    "crates/brn/tests/agent_upgrade.rs": "e47521113eb45ab649eb3ac1264ebf03ccc7b015f210c23a57138890983d70af",
+    "crates/brn/tests/data_folder.rs": "f91db5bf5fe48400ab060b97f7c7246ed9c12e97efd73a1f8bdfff899bed16be",
+    "crates/brn/tests/edit_authority_guard.rs": "8295cd8b41454582978899b552949eb461d604da0b41971254594b013c6eb39c",
+    "crates/brn/tests/search_messages.rs": "494732a8455b64b1d46271f2004be187f8205c8e07049ba1f40b7b0e3b1f4ffd",
+    "crates/brn/tests/skill_packages.rs": "07dfd44e008ef833a104fb70c662aff6be49e956fe206d8e8c03a41f8a6d9b23",
+    "crates/brn/tests/source_locator.rs": "0e0e70f6368534d9f8702d46c17bb6dfe4f270194f60c12fb84f7b31b4e6a6b9",
+    "crates/brn/tests/support/mod.rs": "6bcf9ab737f124ee32a21ec37e0e1c031a79bef5441258033fbb42f229768346",
+    "crates/brn/tests/support/stub.rs": "464783dfed50443b653dd7bbd85e622b401015c5af3744b54cdf84ad57c5c299",
+    "crates/brn/tests/threads.rs": "7188b9e3b71ddbac9f5f48e5bce2eb072901cda871dec14dbeed11b09b96eb60",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "scripts/check-intake-retirement.py": "b65a7c0634fc92b8dd404bb591a804d53dc934f5cae93f2a3f6e31950383205c",
+    "scripts/check-markdown-links.py": "6fd83e3030dffea93a05eb37a3ba9621b11f3c4162cbebbcfb036f0660ca9b0e",
+    "scripts/check-provider-retirement.py": "68d5c5b3510e8fdc6bf2a4298be6d22b245ff4ad6be47d78a4dc95a8a3a7fe90",
+    "scripts/ci-summary.py": "a934f23737236125f6a100ac907587a37a71df7f6227436071f1292f59aa39a7",
+    "scripts/cli_journey.py": "fe1d8ffbb90396c3f2d839960a75e50734dc1774f44946b9913828eccd96ab25",
+    "scripts/development-preflight.py": "83d8258e8fc9043612ee81c9d03240076a950c8a43b9af131901fef97722f13a",
+    "scripts/evaluate-wiki-guidance.py": "819f8a02151c3a49016a296d4209d637396b789a2276d2f819736628fc44e4ae",
+    "scripts/evaluate_wiki_v2.py": "67a4fe20c6422dd87cbe002f88f3214e507ab5dc04e34779d48fdbfa30a43a69",
+    "scripts/fixtures/wiki-eval-cases-v2.json": "9b9b7e36dd17c52678960ab02035a2ffb6b27d03b92a5ab96a32bdb866d243b2",
+    "scripts/fixtures/wiki-guidance-cases.json": "6f8e0666fccd5e52986702732cc7c041a94f2ce109522b47fe03ee0848c6e7dd",
+    "scripts/make-macos-app.sh": "1823a8522e7291e765557bbc2499fd431914f78be93b96a628c630f59fd54aee",
+    "scripts/package-macos-preview.py": "25e8a1c81bbf8fd728f74eb81836852898864a078f4ad0f9056e5a92f6d8f07d",
+    "scripts/qualification/threads-runtime/live-journeys.py": "6ebfba58afea5e5156576b7f3446d66d0a54eee1a209253e45c22c80c098158b",
+    "scripts/release-preview.py": "977d09d94c6c6ba1bbfeceb299e4677cc1beb221bebf9f1c5867d8a0f70af282",
+    "scripts/report-sizes.sh": "14f0d4a3df4f9ed2680b047a0ef287c779ac5473d2f2f30158db2eee72bf705c",
+    "scripts/test-make-macos-app.sh": "a56fdc15b4f903d9ce912e1d088133f6078ea44d55d2e46e33e62589ada7e3a5",
+    "scripts/tests/test_cli_journey.py": "ef50256156aa750a3730bc606d35a465cdc102835c21e3bab321287777bfb865",
+    "scripts/tests/test_development_tooling.py": "7c8823e94701c82b1db6d1fe5f6a28c938dff9d8a2492c87c4c9eb1becc70a17",
+    "scripts/tests/test_evaluate_wiki_v2.py": "3d1f9c021d6e54a6d9af819246c7bda6cd87a006d61dfcefcd2a912ceab668a3",
+    "scripts/tests/test_macos_packaging.py": "d7d4e4090866a725c56f8ef513f42411ebac51ac841b008d97e88fddfcf646b0",
+    "scripts/tests/test_preview_release.py": "0d0534d8ad39b052633bd0cffe55d63acebefcdaba37413fd36316c856d2fbee",
+    "scripts/tests/test_wiki_guidance_eval.py": "a4d55ae543c63bc717a34ce3abb2b011c066f878fe54111a2ccc94cd890f62a5",
+    "scripts/verification_evidence.py": "1224e3bd71264714a58ae7b2b913b9d4527b8a7ffaf411bce9456a4c5d7a742f",
+    "scripts/verify-desktop-shell.sh": "f0917a22bd31c6c3b01fa9eae98140a0b5cf2f0e7f51fca26ffa111d0ca785a9",
+    "scripts/verify-end-to-end-fixtures.py": "abfdbeb11adce12eb8883363604037441d36dcb3ddb778897d6b981e481f3594",
+    "scripts/verify-end-to-end.sh": "cf47f13d6691d378b3b2cb821dee51f29437c698adf5d090a9cead60c0e17841",
+    "scripts/verify-storage.sh": "cc84b634b6aa816050dead761f9fba0e2e69cf12f20e308c4714ad476e6daf6b"
+  },
+  "patches_by_sha256": {
+    "ee96943677ff162d70ad28423ea95ab0bb52e23d1baaab492b4cbd47dbe0f09d": "diff --git a/crates/brn-ai/src/skill_packages_tests.rs b/crates/brn-ai/src/skill_packages_tests.rs\nindex 84ccba7a..aca133a1 100644\n--- a/crates/brn-ai/src/skill_packages_tests.rs\n+++ b/crates/brn-ai/src/skill_packages_tests.rs\n@@ -382,9 +382,15 @@ fn well_formed_body_digest_and_file_name_binding_refuse_without_deletion() {\n         assert!(validate(artifact.files.clone(), false).is_ok());\n         let changed = serde_json::to_vec(&artifact).unwrap();\n         disk::write(&path, &changed).unwrap();\n+        let error = inspect(&store, \"document-review\").unwrap_err();\n         assert!(\n-            inspect(&store, \"document-review\").is_err(),\n-            \"name change: {change_name}\"\n+            !matches!(\n+                error\n+                    .get_ref()\n+                    .and_then(|e| e.downcast_ref::<PackageRefusal>()),\n+                Some(PackageRefusal::DigestConflict)\n+            ),\n+            \"stored package damage is not an actionable digest conflict (name change: {change_name}): {error}\"\n         );\n         assert!(list(&store).is_err());\n         assert!(remove(&store, \"document-review\", &info.digest).is_err());\ndiff --git a/crates/brn/tests/skill_packages.rs b/crates/brn/tests/skill_packages.rs\nindex 02b9d1d9..ecdfed1f 100644\n--- a/crates/brn/tests/skill_packages.rs\n+++ b/crates/brn/tests/skill_packages.rs\n@@ -160,3 +160,87 @@ fn actual_lock_permission_denied_is_io_error_not_caller_refusal() {\n     assert_eq!(value[\"error\"][\"code\"], \"io_error\");\n     assert_eq!(run(&root, true, &data, &[\"skills\"]).code, 0);\n }\n+\n+#[test]\n+fn damaged_stored_package_is_not_an_actionable_digest_conflict() {\n+    let root = Root::new();\n+    let data = root.workspace(\"data\");\n+    package(&root, &data);\n+    let valid = run(\n+        &root,\n+        true,\n+        &data,\n+        &[\"skill-inspect\", \"--name\", \"document-review\"],\n+    );\n+    assert_eq!(valid.code, 0, \"{}\", valid.stdout);\n+    let digest = valid.envelope()[\"result\"][\"info\"][\"digest\"]\n+        .as_str()\n+        .unwrap()\n+        .to_owned();\n+    let path = data.join(\"skills/document-review.json\");\n+    let original = std::fs::read(&path).unwrap();\n+    let other = root.join(\"other-package\");\n+    std::fs::create_dir(&other).unwrap();\n+    std::fs::write(\n+        other.join(\"SKILL.md\"),\n+        \"---\\nname: other-review\\ndescription: Another review.\\n---\\nSeparate instructions.\\n\",\n+    )\n+    .unwrap();\n+    let mut changed: serde_json::Value = serde_json::from_slice(&original).unwrap();\n+    let text = changed[\"files\"][\"SKILL.md\"].as_str().unwrap();\n+    changed[\"files\"][\"SKILL.md\"] = serde_json::json!(format!(\"{text}\\nValid changed body.\\n\"));\n+    // Malformed JSON and well-formed bytes with a stale digest are both stored\n+    // damage, not a removable version conflict with an inspectable new digest.\n+    for bytes in [b\"not JSON\".to_vec(), serde_json::to_vec(&changed).unwrap()] {\n+        std::fs::write(&path, &bytes).unwrap();\n+        for args in [\n+            vec![\"skills\"],\n+            vec![\"skill-inspect\", \"--name\", \"document-review\"],\n+            vec![\n+                \"skill-remove\",\n+                \"--name\",\n+                \"document-review\",\n+                \"--digest\",\n+                digest.as_str(),\n+            ],\n+            vec![\"skill-install\", \"--source\", other.to_str().unwrap()],\n+        ] {\n+            let result = run(&root, true, &data, &args);\n+            assert_eq!(result.code, 6, \"{args:?}: {}\", result.stdout);\n+            let value = result.envelope();\n+            assert_eq!(value[\"status\"], \"rejected\");\n+            assert_eq!(value[\"error\"][\"code\"], \"invalid_request\");\n+            assert!(\n+                value[\"error\"][\"details\"].get(\"reason\").is_none(),\n+                \"stored damage must not recommend digest-conflict recovery: {value}\"\n+            );\n+            assert_eq!(std::fs::read(&path).unwrap(), bytes);\n+            assert!(!data.join(\"skills/other-review.json\").exists());\n+        }\n+    }\n+    std::fs::write(&path, original).unwrap();\n+    assert_eq!(\n+        run(\n+            &root,\n+            true,\n+            &data,\n+            &[\"skill-inspect\", \"--name\", \"document-review\"]\n+        )\n+        .code,\n+        0\n+    );\n+    let removed = run(\n+        &root,\n+        true,\n+        &data,\n+        &[\n+            \"skill-remove\",\n+            \"--name\",\n+            \"document-review\",\n+            \"--digest\",\n+            &digest,\n+        ],\n+    );\n+    assert_eq!(removed.code, 0, \"{}\", removed.stdout);\n+    assert_eq!(removed.envelope()[\"result\"][\"removed\"], true);\n+}\n",
+    "564ded6d8b459157ff492a1a595b679078be5b6a9cb779c431ba5b926e75a160": "diff --git a/crates/brn-ai/src/skill_packages.rs b/crates/brn-ai/src/skill_packages.rs\nindex f7ca3573..426afe13 100644\n--- a/crates/brn-ai/src/skill_packages.rs\n+++ b/crates/brn-ai/src/skill_packages.rs\n@@ -312,7 +312,7 @@ impl Catalog {\n             || package.info.digest != artifact.digest\n             || package.info.name != name\n         {\n-            return Err(conflict());\n+            return Err(bad(\"installed package identity/digest mismatch\"));\n         }\n         Ok(Some(package))\n     }\ndiff --git a/crates/brn-ai/src/skill_packages_tests.rs b/crates/brn-ai/src/skill_packages_tests.rs\nindex 84ccba7a..aca133a1 100644\n--- a/crates/brn-ai/src/skill_packages_tests.rs\n+++ b/crates/brn-ai/src/skill_packages_tests.rs\n@@ -382,9 +382,15 @@ fn well_formed_body_digest_and_file_name_binding_refuse_without_deletion() {\n         assert!(validate(artifact.files.clone(), false).is_ok());\n         let changed = serde_json::to_vec(&artifact).unwrap();\n         disk::write(&path, &changed).unwrap();\n+        let error = inspect(&store, \"document-review\").unwrap_err();\n         assert!(\n-            inspect(&store, \"document-review\").is_err(),\n-            \"name change: {change_name}\"\n+            !matches!(\n+                error\n+                    .get_ref()\n+                    .and_then(|e| e.downcast_ref::<PackageRefusal>()),\n+                Some(PackageRefusal::DigestConflict)\n+            ),\n+            \"stored package damage is not an actionable digest conflict (name change: {change_name}): {error}\"\n         );\n         assert!(list(&store).is_err());\n         assert!(remove(&store, \"document-review\", &info.digest).is_err());\ndiff --git a/crates/brn/tests/skill_packages.rs b/crates/brn/tests/skill_packages.rs\nindex 02b9d1d9..ecdfed1f 100644\n--- a/crates/brn/tests/skill_packages.rs\n+++ b/crates/brn/tests/skill_packages.rs\n@@ -160,3 +160,87 @@ fn actual_lock_permission_denied_is_io_error_not_caller_refusal() {\n     assert_eq!(value[\"error\"][\"code\"], \"io_error\");\n     assert_eq!(run(&root, true, &data, &[\"skills\"]).code, 0);\n }\n+\n+#[test]\n+fn damaged_stored_package_is_not_an_actionable_digest_conflict() {\n+    let root = Root::new();\n+    let data = root.workspace(\"data\");\n+    package(&root, &data);\n+    let valid = run(\n+        &root,\n+        true,\n+        &data,\n+        &[\"skill-inspect\", \"--name\", \"document-review\"],\n+    );\n+    assert_eq!(valid.code, 0, \"{}\", valid.stdout);\n+    let digest = valid.envelope()[\"result\"][\"info\"][\"digest\"]\n+        .as_str()\n+        .unwrap()\n+        .to_owned();\n+    let path = data.join(\"skills/document-review.json\");\n+    let original = std::fs::read(&path).unwrap();\n+    let other = root.join(\"other-package\");\n+    std::fs::create_dir(&other).unwrap();\n+    std::fs::write(\n+        other.join(\"SKILL.md\"),\n+        \"---\\nname: other-review\\ndescription: Another review.\\n---\\nSeparate instructions.\\n\",\n+    )\n+    .unwrap();\n+    let mut changed: serde_json::Value = serde_json::from_slice(&original).unwrap();\n+    let text = changed[\"files\"][\"SKILL.md\"].as_str().unwrap();\n+    changed[\"files\"][\"SKILL.md\"] = serde_json::json!(format!(\"{text}\\nValid changed body.\\n\"));\n+    // Malformed JSON and well-formed bytes with a stale digest are both stored\n+    // damage, not a removable version conflict with an inspectable new digest.\n+    for bytes in [b\"not JSON\".to_vec(), serde_json::to_vec(&changed).unwrap()] {\n+        std::fs::write(&path, &bytes).unwrap();\n+        for args in [\n+            vec![\"skills\"],\n+            vec![\"skill-inspect\", \"--name\", \"document-review\"],\n+            vec![\n+                \"skill-remove\",\n+                \"--name\",\n+                \"document-review\",\n+                \"--digest\",\n+                digest.as_str(),\n+            ],\n+            vec![\"skill-install\", \"--source\", other.to_str().unwrap()],\n+        ] {\n+            let result = run(&root, true, &data, &args);\n+            assert_eq!(result.code, 6, \"{args:?}: {}\", result.stdout);\n+            let value = result.envelope();\n+            assert_eq!(value[\"status\"], \"rejected\");\n+            assert_eq!(value[\"error\"][\"code\"], \"invalid_request\");\n+            assert!(\n+                value[\"error\"][\"details\"].get(\"reason\").is_none(),\n+                \"stored damage must not recommend digest-conflict recovery: {value}\"\n+            );\n+            assert_eq!(std::fs::read(&path).unwrap(), bytes);\n+            assert!(!data.join(\"skills/other-review.json\").exists());\n+        }\n+    }\n+    std::fs::write(&path, original).unwrap();\n+    assert_eq!(\n+        run(\n+            &root,\n+            true,\n+            &data,\n+            &[\"skill-inspect\", \"--name\", \"document-review\"]\n+        )\n+        .code,\n+        0\n+    );\n+    let removed = run(\n+        &root,\n+        true,\n+        &data,\n+        &[\n+            \"skill-remove\",\n+            \"--name\",\n+            \"document-review\",\n+            \"--digest\",\n+            &digest,\n+        ],\n+    );\n+    assert_eq!(removed.code, 0, \"{}\", removed.stdout);\n+    assert_eq!(removed.envelope()[\"result\"][\"removed\"], true);\n+}\n"
+  },
+  "phases": [
+    {
+      "phase": "before-package",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--locked",
+        "--offline",
+        "skill_packages::tests::well_formed_body_digest_and_file_name_binding_refuse_without_deletion",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/private/tmp/brn-d3a-opus2-20261017-verification/before-package-jyvwj3vi",
+      "patch_sha256": "ee96943677ff162d70ad28423ea95ab0bb52e23d1baaab492b4cbd47dbe0f09d",
+      "start_utc": "2026-10-17T06:05:24.799166+00:00",
+      "pid": 98797,
+      "pgid": 98797,
+      "exit_code": 101,
+      "seconds": 12.827030749991536,
+      "end_utc": "2026-10-17T06:05:37.626471+00:00",
+      "log_sha256": "79c9348bc90370c62740a341c36b97b584d241146dff4fde7a1794f95287bb8c",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0",
+          "430"
+        ]
+      ],
+      "source_unchanged": true,
+      "artifacts": {
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-58f3aef2ef8a3a7d": {
+          "sha256": "a1061aba866883913a71505646bd28aef898edca8ac379e3613447f19125ffd7",
+          "bytes": 32370640,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-58f3aef2ef8a3a7d.d",
+          "dep_info_sha256": "871ba72b56720412513eeb8ea76e1fab42af780c9bfb10aabdc35366ead8cdfe",
+          "absolute_source_root_present": true,
+          "retained_binary": "/private/tmp/brn-d3a-opus2-20261017-verification/frozen-before/before-package/brn_ai-58f3aef2ef8a3a7d"
+        }
+      },
+      "input_overrides_vs_corrected": {
+        "crates/brn-ai/src/skill_packages.rs": "87d3fadbd0a135e77762c9350e512d7727d124682ede6b2fb9ba8bd535dadd84"
+      },
+      "log_text": "   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n    Finished `test` profile [optimized] target(s) in 12.00s\n     Running unittests src/lib.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-58f3aef2ef8a3a7d)\n\nrunning 1 test\n\nthread 'skill_packages::tests::well_formed_body_digest_and_file_name_binding_refuse_without_deletion' (31019562) panicked at crates/brn-ai/src/skill_packages_tests.rs:386:9:\nstored package damage is not an actionable digest conflict (name change: false): skill identity conflicts with installed bytes; inspect, remove with its exact digest, then install\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest skill_packages::tests::well_formed_body_digest_and_file_name_binding_refuse_without_deletion ... FAILED\n\nfailures:\n\nfailures:\n    skill_packages::tests::well_formed_body_digest_and_file_name_binding_refuse_without_deletion\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 430 filtered out; finished in 0.03s\n\nerror: test failed, to rerun pass `-p brn-ai --lib`\n"
+    },
+    {
+      "phase": "before-cli",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "damaged_stored_package_is_not_an_actionable_digest_conflict",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/private/tmp/brn-d3a-opus2-20261017-verification/before-cli-b8br5_jq",
+      "patch_sha256": "ee96943677ff162d70ad28423ea95ab0bb52e23d1baaab492b4cbd47dbe0f09d",
+      "start_utc": "2026-10-17T06:05:56.135862+00:00",
+      "pid": 98998,
+      "pgid": 98998,
+      "exit_code": 101,
+      "seconds": 8.685198792023584,
+      "end_utc": "2026-10-17T06:06:04.821280+00:00",
+      "log_sha256": "a354e8c51dacfa8597fb36496fb6d4fbb8ca8976ce65eeaf0888fe82ab91e101",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0",
+          "5"
+        ]
+      ],
+      "source_unchanged": true,
+      "artifacts": {
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-8a5c1e63f80940fe": {
+          "sha256": "5e0b9d389a63634c60d28d162aec21f69d01172e3cc60bd8041c64c54f694d3d",
+          "bytes": 1395472,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-8a5c1e63f80940fe.d",
+          "dep_info_sha256": "b89bbf376a5fcb7dda5830d6b83b0ef1700a3b0d93898fd0773b0c2e0e34120f",
+          "absolute_source_root_present": false,
+          "retained_binary": "/private/tmp/brn-d3a-opus2-20261017-verification/frozen-before/before-cli/skill_packages-8a5c1e63f80940fe"
+        }
+      },
+      "input_overrides_vs_corrected": {
+        "crates/brn-ai/src/skill_packages.rs": "87d3fadbd0a135e77762c9350e512d7727d124682ede6b2fb9ba8bd535dadd84"
+      },
+      "log_text": "   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-app)\n   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `test` profile [optimized] target(s) in 7.79s\n     Running tests/skill_packages.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-8a5c1e63f80940fe)\n\nrunning 1 test\n\nthread 'damaged_stored_package_is_not_an_actionable_digest_conflict' (31021261) panicked at crates/brn/tests/skill_packages.rs:213:13:\nstored damage must not recommend digest-conflict recovery: {\"contract\":3,\"command\":\"skills\",\"ok\":false,\"status\":\"rejected\",\"exit\":6,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"invalid_request\",\"message\":\"Skill package digest conflict; inspect the current digest before removing or reinstalling\",\"details\":{\"reason\":\"skill_digest_conflict\"}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest damaged_stored_package_is_not_an_actionable_digest_conflict ... FAILED\n\nfailures:\n\nfailures:\n    damaged_stored_package_is_not_an_actionable_digest_conflict\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.57s\n\nerror: test failed, to rerun pass `-p brn --test skill_packages`\n"
+    },
+    {
+      "phase": "corrected-scripted",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--lib",
+        "--bins",
+        "--tests",
+        "--no-fail-fast",
+        "--locked",
+        "--offline"
+      ],
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/private/tmp/brn-d3a-opus2-20261017-verification/corrected-scripted-is3f_297",
+      "patch_sha256": "564ded6d8b459157ff492a1a595b679078be5b6a9cb779c431ba5b926e75a160",
+      "start_utc": "2026-10-17T06:06:11.476462+00:00",
+      "pid": 99286,
+      "pgid": 99286,
+      "exit_code": 0,
+      "seconds": 80.86627758305985,
+      "end_utc": "2026-10-17T06:07:32.343351+00:00",
+      "log_sha256": "4d240c5b7f8c94d7becbd03719976ecdce648fa7e294ccb1d6fa437737f99116",
+      "summaries": [
+        [
+          "ok",
+          "27",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "23",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "7",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "13",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "441",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "9",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "15",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "ok",
+          "19",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "8",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "12",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "4",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "16",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "3",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "11",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "5",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "6",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "10",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "2",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "ok",
+          "22",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "artifacts": {
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6": {
+          "sha256": "1d4f05fa18e644201f0f0a035fab0b23df662d0c0822035d59c352f0dd31ead9",
+          "bytes": 1369712,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6.d",
+          "dep_info_sha256": "c7e2db053bdb4c0e0c1a8c9b02124aebe64f2e35834091f2bbd028708fbc2c54",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_bounds-a3a54729fae95563": {
+          "sha256": "40f5964272fdd6871f8a9f4bd6b5adcfa6c7d92f47a3bf113e59afbe2c678df3",
+          "bytes": 1391600,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_bounds-a3a54729fae95563.d",
+          "dep_info_sha256": "0924872ccb895c9a795ba6e12b0f81ae1d973270d1763049ba06f56428699d18",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b": {
+          "sha256": "46031f4d0d1f3ce76c23e7f4eea2f6262f2d9cc938bd1893abe1f163d3a2bb60",
+          "bytes": 1564640,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b.d",
+          "dep_info_sha256": "140cc787dccf50152ec96528ede79826f54777a7bbaa65e9aca24f8e56b395cb",
+          "absolute_source_root_present": true
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581": {
+          "sha256": "19773c638e7b4220cd26d7f43270f33ff2a79f9eb5dfbc6d043e7b0d95bb0043",
+          "bytes": 1463264,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581.d",
+          "dep_info_sha256": "9d96c3960b2c2487cd281aa4941f8fabec3307653aadbcb00e3e3f738dfe4dc5",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3": {
+          "sha256": "a185b6896567ff6ca8991e096f97b037189fa7ccc71520ff84134b6f12d1a857",
+          "bytes": 1334560,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3.d",
+          "dep_info_sha256": "a60fdbfae999b698815049a26b32788647c57f1f26b2e29098efe5582f0ecbaf",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a": {
+          "sha256": "44c6513d4bdcb3bf6e4285077b5234809cf2cebc76c64d9bcb65f6d36d7ed7f9",
+          "bytes": 5230176,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a.d",
+          "dep_info_sha256": "cb16a191c4d7639f02b89fb129338697ddd410050f5fb019362009294e4d6b41",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_discovery-32011cdae19c7310": {
+          "sha256": "7c109be2621df0bb9565866fed0233fb5392d4ce5e688a040f9d1ddfbf04675d",
+          "bytes": 1408256,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_discovery-32011cdae19c7310.d",
+          "dep_info_sha256": "ae1d6935f160183b71e77b79d5b2fa1d0ffc05a1d0650edd49f5a74cc6345495",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7": {
+          "sha256": "74e997b3ddb8588a33feff20dc8daf50c974ae9db59039d968685a30b0c356ea",
+          "bytes": 1512544,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7.d",
+          "dep_info_sha256": "d8f21548b4efd586ae38984915922935b66e4feb2dcf728cf6b7a22700839987",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34": {
+          "sha256": "7fcde213cf2074abac2ae07184213874bca96af232c4d90d8cad36eb03e11413",
+          "bytes": 23575984,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34.d",
+          "dep_info_sha256": "c3283e4d2466b4a84710b9d821264e84c149e7dcb68bbbcd99bd2d6217eed572",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_inspect-66eca910df681833": {
+          "sha256": "db9244de2dabe84405d4bd94e65852d5058a52bacd83f0c70610b7f8e4f71bd3",
+          "bytes": 1428640,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_inspect-66eca910df681833.d",
+          "dep_info_sha256": "cd543f519f75de6b75f485ef15207c45045d6c05298bdf20cb5740193a5c8eff",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726": {
+          "sha256": "d9dedfa7fef3c4be9d2d29e19c117b1e426d0c157722538e77402f4f48cf1b2f",
+          "bytes": 22818080,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726.d",
+          "dep_info_sha256": "780868ecd5857f92e0e9bbd78edd0e3a618e5eff3c0a4b4c6fdce399d00801ad",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_lists-741c2a84de34e927": {
+          "sha256": "17f8250620759166379d0bdd13786ecfea45d5f6a5e3fa0381ba6f636c0f9fa0",
+          "bytes": 1541664,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_lists-741c2a84de34e927.d",
+          "dep_info_sha256": "ea84135444d628ea716763e016b3d5d077eb6d17b14e5862f2a0f0f553845bf6",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_reasons-c1c9061922871f22": {
+          "sha256": "7ce917bfd28444def2db222a5a1fceb5b8cb0e204110aa5e3bac966588a6ccf2",
+          "bytes": 1330320,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_reasons-c1c9061922871f22.d",
+          "dep_info_sha256": "d46c00a9e73e92c5515de983a3dae293a5ed19db9effc7ca4bbf3b86c10d408d",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_retry-f732f16389df1bba": {
+          "sha256": "f2430e485fc41464f9f7615f5abf836433cbdabe269feae5efeda07df947a8a6",
+          "bytes": 1365968,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_retry-f732f16389df1bba.d",
+          "dep_info_sha256": "97ee3f6d9c01dad79f6fd06405fa8dd141912314de71803261fa9f0582c4d7b0",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_runs-60a1083ad1b59280": {
+          "sha256": "5f9ea32866da7f5a34507286252be402c9d7ff3ca71c1d0d3e3b00d0d5da3e3e",
+          "bytes": 1538128,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_runs-60a1083ad1b59280.d",
+          "dep_info_sha256": "0b8c20915518e05cd529a6077b6f2eecb434fb94b15f3fdc4420c18b870c9be3",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f": {
+          "sha256": "42c6ce8def25958db7569ebb91af0e116bae48e7661b005c45e1c7932e4d8f30",
+          "bytes": 1390000,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f.d",
+          "dep_info_sha256": "cd55aa7cb5658637b54b9e2ea52b16c24ef31a5cfe7ac8b28cdef924bd862123",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-79fff5246ba7c117": {
+          "sha256": "07e99bbffdcd090bd41799cb8c2149855446966eaeadae87f04b6de0934a37de",
+          "bytes": 5213632,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-79fff5246ba7c117.d",
+          "dep_info_sha256": "95ae49c8b4786f4e059d0b963f2acf7aa44d0b7929b43cf1d226aa18510aab03",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/brn-c641312bd95cd13d": {
+          "sha256": "5585ac6206b2b21848be9e4842b212e85b270bc9049ff1305f435462d5f8e98e",
+          "bytes": 6423760,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn-c641312bd95cd13d.d",
+          "dep_info_sha256": "664059e603975c7cb6b20f836088f2f3c4154cbb6112af6db68b206cf560c3c6",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+          "sha256": "17fd4fd775486a291b37b9ee894b18aeee97f8a27b2023359bd7378d9b276388",
+          "bytes": 32570880,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d",
+          "dep_info_sha256": "f47bf94ad02da22af3fbd219b7a8636b1bc89fcad7d6504c34a404ccf1914efe",
+          "absolute_source_root_present": true
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029": {
+          "sha256": "e26ff23ffb27c21ea4f2e25b8afe920311ac56ed6485c4601c22c79abe49c765",
+          "bytes": 5637104,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029.d",
+          "dep_info_sha256": "6ee2ae6823b17e6c67d688b075379e3cb373cbddbeb9379bba5b360b79ee4868",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/chat-6d229c59711a914c": {
+          "sha256": "1efc591e5770e669d1ad825a9a83feb1b333a86a046502e9995e09c8ae7124f8",
+          "bytes": 6811888,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat-6d229c59711a914c.d",
+          "dep_info_sha256": "d10fcafec8d4c634d8cb579b43c7badb0c0e4c02b8e18a6910f6e26e9372788f",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71": {
+          "sha256": "0e284e06b7d35dce1fb17753f65387ef0c93a747bb4aa2138da08a08f088ee37",
+          "bytes": 5254784,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71.d",
+          "dep_info_sha256": "74c545c86741a811cb605d7fd3ccf2795e0dd902c88ac6cf8ee14deb91abb4da",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_review-4149b5213329a9c6": {
+          "sha256": "214a136a6b94d3395748638edceef019607244fcd4eb7f3cffc0e69bfd127533",
+          "bytes": 23394144,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_review-4149b5213329a9c6.d",
+          "dep_info_sha256": "e4ee5f3bdfae4ad19e3a0f1de7abcbfd5fbcc34178cbaa8abf6492a8c163f92d",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771": {
+          "sha256": "a8c4f7c92a419afb3659e3aaa238409a2ffc8e06801cc7b787f1381847968fd9",
+          "bytes": 22982672,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771.d",
+          "dep_info_sha256": "e219d03188dc20766783f0686b636d4d7cec01497977dd00259f92c0a787f9be",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-9f3ade6894fc423a": {
+          "sha256": "077a5e9ac100694c80cdc2c96f646f92d7f733e355f260bd71f91f8721f58e4d",
+          "bytes": 1260512,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-9f3ade6894fc423a.d",
+          "dep_info_sha256": "84db09b77505dcdb2c226e2921ae5201b3f10a899db48b02d937a408dfa1c0db",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-c1df2edf5b8adce5": {
+          "sha256": "6c1c6e6d7d01c1635e1745dcc6936a0a3b16470bb5c494e77b4c6adb71ff5a24",
+          "bytes": 6291168,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-c1df2edf5b8adce5.d",
+          "dep_info_sha256": "7f9364c5f8a602dbd60d712f381f897aa3c0a8261eaaf131994f9c30e6f443b9",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce": {
+          "sha256": "044e28332655df7ff91ac04eed3cc2596b6665574ea387274e49292131859281",
+          "bytes": 965376,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce.d",
+          "dep_info_sha256": "711d27c98127f4736de7b0ef9bdc3a9f881da4dcc0db85b417fd2150d8700c97",
+          "absolute_source_root_present": true
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/export_metadata-23f752b11028facc": {
+          "sha256": "eb2753f92adb25415967f87351a0887ce50d52ded61d4b8a84a500548c7977b6",
+          "bytes": 6502448,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/export_metadata-23f752b11028facc.d",
+          "dep_info_sha256": "d43dfac0834f8bce18b6ac7b510740cd48811694cd372108363250b36a59c9d5",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/host_intake-719f8b289be0d5cf": {
+          "sha256": "44e391850e90b84a5a3a2c974af7b402d902e2190a518bb7276c5dd400125f96",
+          "bytes": 23020848,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/host_intake-719f8b289be0d5cf.d",
+          "dep_info_sha256": "f5e5deb5847a13ee94b068bea0aabb5413b72db6bd0f0627f12faf2854b8a9c1",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/import_coverage-647f2e6524b08322": {
+          "sha256": "c50e561dfd5177c0fd37fe26a0db45524b7a508ac1de2e2a3e9f873c5a685c44",
+          "bytes": 5346720,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/import_coverage-647f2e6524b08322.d",
+          "dep_info_sha256": "e4d952119195b6ab93c68d6643fb76361d9184936c3de82d3c7470762549ccd4",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3": {
+          "sha256": "eb6d34ef8ad000e5274366ad42bf12d130014f72c9aae0b523f2806e494622db",
+          "bytes": 6057616,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3.d",
+          "dep_info_sha256": "93c456e8c9d60be91320d58a46e29d129eb0a0196b2d25e73596d046a1bafeba",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f": {
+          "sha256": "80278f5878fbad5990ef9a3df3ba20de27b7129eac4894776c18ed080398b71f",
+          "bytes": 22128736,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f.d",
+          "dep_info_sha256": "f69de0f949eb61f4cc8010bd3d02919dabebae27a427cd07df24e4fcc4c19ce6",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/product-8d1beaaf747b75a1": {
+          "sha256": "aefa15649bcbe6874a2d9732473fc46854db9daf22231573e7378fa9cae47ddf",
+          "bytes": 7108960,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/product-8d1beaaf747b75a1.d",
+          "dep_info_sha256": "c012256ff8fb50ffd8fc7e4d16ecd990887c1a2073515cca9d4c1cb9a1dd33b4",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/projects-89dcdb40005368ce": {
+          "sha256": "938c9f87ecd1ab0f5074d1292d1b5a2a5165c07ebafc1021cfafb8770fa9a78a",
+          "bytes": 6944304,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/projects-89dcdb40005368ce.d",
+          "dep_info_sha256": "65aba124d9192abebb19a51e3129e78a9525deb7d10ba1664fd7a4e03ed5ae56",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c": {
+          "sha256": "c453164c9f38dc20df8815d4cb1d2c03b0d53614ccb6f45bad9600ea368c63df",
+          "bytes": 6933136,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c.d",
+          "dep_info_sha256": "8c661700d74e2b32170f3cf9a897efedd068ca4360566692e4158ddf4f165870",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/run_recovery-690e93fd458fd777": {
+          "sha256": "27b0e8f92bfcaaca50a4556635a1821c0af735bf40f3cccb33c8282aceb112ae",
+          "bytes": 6558160,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/run_recovery-690e93fd458fd777.d",
+          "dep_info_sha256": "9e93b1f92c355d557f90d23ccea16bc8624d0fc3ff624b4c3babe55d5bc50480",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd": {
+          "sha256": "a1e690e6599b8f9b2ae2cac147f623503bd1eb8143afcdeabd102ac471a982ae",
+          "bytes": 6354624,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd.d",
+          "dep_info_sha256": "39a7f856bd5e3c405a35f78e74438df5d6decfab84c0b8e87724b43367831986",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457": {
+          "sha256": "2758f30b124104ce699a9a4c8c1c5d3db1356f735a420109d0409383e519b24d",
+          "bytes": 22981504,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457.d",
+          "dep_info_sha256": "dfc402e50d28ba5cbd54e4165a4f7aabc0cb2eaee53a8e81ccbfdcd6d0e8e725",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0": {
+          "sha256": "186b723f15a5e90f5199572e3bcbf598178077e7b4cff493d66ef5d3fd126faf",
+          "bytes": 1262272,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0.d",
+          "dep_info_sha256": "bf90994f573218f27304d89a5057cbccdabb3440e8e60b3dfcc79914465c5c7d",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/search_worker-ce089018352e80e5": {
+          "sha256": "91c3e6efb059773c037f8dc65620e9f72c179636900201f8f093429bf4060fb4",
+          "bytes": 6442960,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/search_worker-ce089018352e80e5.d",
+          "dep_info_sha256": "01de9a15ab609330d347b2c2feaa48f4c3ed87e5d1ab2e75e583ad9df48c651f",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/shared_run-c1f460e042519b91": {
+          "sha256": "5857948c3e439d2d780bb4292dd86e55634225c169e6a15044f158f86feb192c",
+          "bytes": 22597728,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/shared_run-c1f460e042519b91.d",
+          "dep_info_sha256": "d742fe1f90791b3619cffb3252dae2cf669c52b563764a3b0106c0059f532005",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-312af0f250c874a8": {
+          "sha256": "183bea28f8d2cb1797fd9a2f62283a962b8a83ea34867d6994a5008cfcd088af",
+          "bytes": 1395472,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-312af0f250c874a8.d",
+          "dep_info_sha256": "de81ec4a0393db9bb00a0db2ca258fc72a8e03774a8ae0950cd0fbfc272616f3",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/skills-d9806e23ee0a7041": {
+          "sha256": "0263f4d06bf2e386efa4ea29b3b65f453e6515c2e6e0785cd64019a3b456b5b3",
+          "bytes": 6563840,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/skills-d9806e23ee0a7041.d",
+          "dep_info_sha256": "1d245b0bbcf3441dc4b1d64172e551780c34d8e40bc6d2ba4e1af0961d2abd29",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753": {
+          "sha256": "33d411d651808e65622b7d59d64af41a544381dedb3343af9cb0eb47db6402ad",
+          "bytes": 22164384,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753.d",
+          "dep_info_sha256": "73c3949ace2b1721cb619cd175899426fe1040ac7e4b53205886ecdce2b420d6",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/source_locator-33733f44cf22960e": {
+          "sha256": "188a5a8157643cbbba01fc0b8f7397138ff83f3d9f9e03fc135764e773a2ff65",
+          "bytes": 1961728,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/source_locator-33733f44cf22960e.d",
+          "dep_info_sha256": "24fb75917fd47806e89f0d6edef562b7e414fdef70e08e9221c59f86d90a164a",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-653a376bf778ec2a": {
+          "sha256": "91e760da5871f5fed854778413c050cd63f7d66f32c4166e9452f62fcd1f6423",
+          "bytes": 5218064,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/steering-653a376bf778ec2a.d",
+          "dep_info_sha256": "eed743d5d14cf76cc476f05f40dbb73f92d13f94171907826f9bdf23b64cd904",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95": {
+          "sha256": "c7b9919b3c7a6a34a0bb9b8fb344dd6e3d9c79fb85984310edcf8a3212d1eb16",
+          "bytes": 6628416,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95.d",
+          "dep_info_sha256": "e0bf05633a5bf3569c9e5fc6b5619a23583196d38ddfba7bb2569e9c4b82d8dd",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585": {
+          "sha256": "e2b36482798848a2b790b20356461123774c7a39daad0f234fee38789a96ca63",
+          "bytes": 5157904,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585.d",
+          "dep_info_sha256": "5d1973cdf782cdefd4f1d70a97c355e8451f81f6b5509599a73b1ea03d121d98",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/threads-893db2178c805560": {
+          "sha256": "c174a0d99cd7f762328cb593c6d51e8976ce5aaa17f2c6567e95563ad5509f1e",
+          "bytes": 2082304,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/threads-893db2178c805560.d",
+          "dep_info_sha256": "0b1d1c5fb6a90aad02a32b9c1d60ed3187100b5b51fd0fa88bc8647c01d8308a",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1": {
+          "sha256": "8368f0460ecf532573a0a2b646989be3098e677d7ee2437e6ae72e48378f1482",
+          "bytes": 6071536,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1.d",
+          "dep_info_sha256": "a3f90d036adb9c6fdc480ff2be5e57076c789b8913bce475d2514d1ddd155fe1",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/user_scale-502959ef30d7885b": {
+          "sha256": "356e2f8c05c06976dd8c60d868b73c3775115d7332472da9b441c5ac452612fd",
+          "bytes": 6329008,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/user_scale-502959ef30d7885b.d",
+          "dep_info_sha256": "de3b0bd226f178c9a73da3146efa36bb08cecddc99c2d906fdf488dfebcd871c",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4": {
+          "sha256": "3d2629ce4161d9dfc017047dd3697b319b581f815d49272447e58c93d1a7b481",
+          "bytes": 6120128,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4.d",
+          "dep_info_sha256": "35a13245a9a477366fb85e6c7716a0aacbd653772a96d39aec1923b7887da06f",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22": {
+          "sha256": "d2133d3b6bb55d5512ea5f879e8c233a112be0310be28de906d0628ff5eec4c9",
+          "bytes": 21811824,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22.d",
+          "dep_info_sha256": "1e9cd5a44eacb6cf5cf045e738a17db869971f9b3633e4ae03fc456c81ae48a1",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02": {
+          "sha256": "c8dcade57b13286abbe4b741242210c67de338119c9d0752147429e938a2f22a",
+          "bytes": 5118352,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02.d",
+          "dep_info_sha256": "5e7f052aa9f75a39fe0c249942404639a476875a9df173850512cdd4e3d6a40e",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-264e212abab448cb": {
+          "sha256": "3af639671a86812ff003b924b053d447a541137c020f1a4ecf6c129744be6b80",
+          "bytes": 5642240,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing-264e212abab448cb.d",
+          "dep_info_sha256": "51bad679b9b86dee4b1c88b789d1898593fbd55adfaa442b73419fe84c352671",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_context-492379e739bec000": {
+          "sha256": "9ccd192f7e1bbeb820041481b1acd1da4a9b7c919aecc9a5ba4c158a72d80cbb",
+          "bytes": 6084384,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_context-492379e739bec000.d",
+          "dep_info_sha256": "d2c5520574402bb5ff6e70cf5185fb22674c8d9869e24d13dce73193a650b2d9",
+          "absolute_source_root_present": false
+        },
+        "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a": {
+          "sha256": "0e5d5d412fb48b9516cb8d0ccb252ba188aa81a1e06e30828c5a6701f1a94cf7",
+          "bytes": 7317504,
+          "dep_info_path": "/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a.d",
+          "dep_info_sha256": "a5b0f6bbc9cfcfd5fc3bcfc71c97a8557db74ee0f0ff2569ab9b41e00abf8dd4",
+          "absolute_source_root_present": false
+        }
+      },
+      "input_overrides_vs_corrected": {},
+      "log_text": "   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-app)\n   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `test` profile [optimized] target(s) in 20.99s\n     Running unittests src/main.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/brn-c641312bd95cd13d)\n\nrunning 27 tests\ntest contract::tests::every_ai_error_kind_has_one_run_error_mapping ... ok\ntest contract::tests::skill_errors_keep_io_and_unavailable_meanings_without_global_reclassification ... ok\ntest contract::tests::receipts_give_operation_and_changed_only_when_applied ... ok\ntest cw2_run_tests::shared_selection_retains_cli_invalid_provider_and_effort_contract ... ok\ntest input::tests::a_set_cancel_flag_interrupts_before_reading ... ok\ntest contract::tests::statuses_and_codes_are_one_to_one_and_complete ... ok\ntest input::tests::relative_paths_and_a_reused_stdin_are_refused_at_parse ... ok\ntest contract::tests::envelopes_refuse_on_usage_and_rejected_and_never_echo_bad_keys ... ok\ntest contract::tests::run_terminals_tell_sigint_from_another_writer ... ok\ntest spec::tests::cli_keys_are_byte_identical_to_round_one ... ok\ntest contract::tests::refusal_reasons_name_live_service_messages ... ok\ntest contract::tests::every_domain_outcome_maps_to_its_status ... ok\ntest contract::tests::destinations_are_classified_as_caller_input ... ok\ntest spec::tests::global_options_are_not_command_options_and_every_command_has_help ... ok\ntest spec::tests::key_validation_matches_the_published_pattern ... ok\ntest spec::tests::key_refusal_applies_only_to_commands_that_take_a_key ... ok\ntest spec::tests::outcomes_list_every_label_of_the_returned_types ... ok\ntest spec::tests::required_lists_follow_the_first_use_order ... ok\ntest input::tests::content_is_exact_utf8_without_nul ... ok\ntest spec::tests::text_options_have_file_variants_and_class_meanings_are_pinned ... ok\ntest spec::tests::description_is_one_line_with_the_owner_rule ... ok\ntest spec::tests::only_intake_has_conditional_requirements ... ok\ntest spec::tests::owner_marks_match_the_owner_decision_table ... ok\ntest contract::tests::every_error_variant_maps_to_one_code_and_details_shape ... ok\ntest contract::tests::committed_review_cleanup_is_internal_and_keeps_the_replay_class ... ok\ntest input::tests::the_limit_is_inclusive_and_one_more_byte_is_refused ... ok\ntest spec::tests::retry_for_agrees_with_the_description_for_every_command_and_variant ... ok\n\ntest result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n     Running tests/agent_authority.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_authority-ed7d0443641a05a6)\n\nrunning 5 tests\ntest the_actor_option_wins_over_the_variable_and_bad_values_are_refused_before_opening ... ok\ntest every_envelope_reports_authority_and_nulls_where_nothing_opened ... ok\ntest actors_show_in_history_and_operation_and_a_keyed_retry_keeps_the_first ... ok\ntest a_restored_copy_of_a_test_workspace_is_an_owner_workspace ... ok\ntest purpose_test_is_creation_only_and_test_is_the_only_value ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s\n\n     Running tests/agent_bounds.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_bounds-a3a54729fae95563)\n\nrunning 12 tests\ntest default_mode_sigterm_keeps_default_disposition ... ok\ntest sigint_envelopes_report_stop_sigint ... ok\ntest sigterm_during_stdin_wait_is_terminated_and_creates_nothing ... ok\ntest timeout_with_time_to_spare_changes_nothing ... ok\ntest timeout_values_are_refused_before_opening ... ok\ntest timeout_during_fifo_wait_is_a_soft_deadline ... ok\ntest sigint_then_sigterm_still_hard_stops ... ok\ntest sigint_then_deadline_still_hard_stops ... ok\ntest held_lock_past_deadline_hard_stops_with_one_line ... ok\ntest busy_then_keyed_retry_applies_once ... ok\ntest held_write_lock_reports_busy_and_creates_nothing ... ok\ntest begin_edit_under_a_held_lock_is_busy ... ok\n\ntest result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.55s\n\n     Running tests/agent_contract.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_contract-97e26e4cb23c7f4b)\n\nrunning 23 tests\ntest sigint_while_a_fifo_has_no_writer_is_interrupted ... ok\ntest keyed_keep_in_brn_retry_replays ... ok\ntest closed_stdout_does_not_panic ... ok\ntest sigint_while_stdin_stays_open_is_interrupted_and_creates_nothing ... ok\ntest open_edit_session_reports_edit_session_open ... ok\ntest default_mode_domain_outcomes_still_exit_zero ... ok\ntest large_text_beyond_argv_limits_is_saved_through_a_file ... ok\ntest ask_refused_before_the_provider_is_rejected_not_failed ... ok\ntest symlinked_data_dir_is_data_folder_unusable ... ok\ntest keyed_markdown_full_import_replays_and_title_change_conflicts ... ok\ntest json_success_envelope_has_every_field_and_result_matches_default_mode ... ok\ntest terminal_sources_are_refused_without_blocking ... ok\ntest not_found_destination_exists_and_unsafe_directory_are_rejected ... ok\ntest deferred_undo_exits_4_and_keyed_retry_applies_the_same_compensation ... ok\ntest refuse_retry_after_an_interrupted_first_attempt_applies_once ... ok\ntest unkeyed_deferred_undo_reports_duplicate ... ok\ntest text_files_and_stdin_preserve_exact_multiline_unicode ... ok\ntest caller_input_mistakes_after_open_are_usage_or_rejected_not_internal ... ok\ntest stale_generation_closed_and_ignored_exit_3_with_current_versions ... ok\ntest text_input_refusals_create_nothing ... ok\ntest usage_errors_are_json_with_stable_codes_and_create_nothing ... ok\ntest machine_description_lists_every_parsed_command_and_matches_readme ... ok\ntest keyed_creates_replay_and_reuse_with_other_inputs_is_refused ... ok\n\ntest result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.32s\n\n     Running tests/agent_converge.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_converge-7db6f6d8b2d74581)\n\nrunning 5 tests\ntest default_mode_unchanged_prints_the_unchanged_object ... ok\ntest keyed_archive_retry_after_a_change_replays_the_original_receipt ... ok\ntest archive_with_a_working_run_records_a_change ... ok\ntest repeated_archive_and_resolve_are_unchanged_without_a_receipt ... ok\ntest repeated_unarchive_move_link_unlink_are_unchanged ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s\n\n     Running tests/agent_credentials.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials-4f3e93c88f0ddfc3)\n\nrunning 4 tests\ntest refused_ask_stays_refused_and_records_nothing ... ok\ntest ask_without_credentials_is_refused_before_any_commit ... ok\ntest cli_created_workspace_has_no_credential_source ... ok\ntest provider_intake_without_credentials_is_refused_before_conversion ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n     Running tests/agent_credentials_existing.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_credentials_existing-7d940f608227906a)\n\nrunning 1 test\ntest existing_workspace_keeps_its_stored_auth_file ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n     Running tests/agent_discovery.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_discovery-32011cdae19c7310)\n\nrunning 11 tests\ntest help_after_an_unknown_command_is_unknown_command ... ok\ntest bare_and_unknown_invocations_keep_their_exits_and_help_text ... ok\ntest data_dir_and_timeout_are_accepted_after_the_command ... ok\ntest every_envelope_has_contract_3_page_stop_and_authority ... ok\ntest repeated_global_options_are_repeated_option ... ok\ntest usage_after_opening_may_initialise_a_fresh_directory ... ok\ntest relative_backup_and_restore_paths_are_refused_before_opening ... ok\ntest machine_mode_reads_on_missing_or_empty_dirs_are_missing_workspace ... ok\ntest enum_values_are_refused_before_the_workspace_opens ... ok\ntest service_ranges_and_trash_are_refused_before_opening ... ok\ntest every_command_has_text_and_json_help_matching_the_description ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s\n\n     Running tests/agent_edits.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_edits-fbc84dc98d7362f7)\n\nrunning 8 tests\ntest edit_session_open_never_names_the_session ... ok\ntest recipe_save_retry_replays_saved ... ok\ntest tokens_arrive_once_by_result_or_owner_only_file_and_are_read_from_a_file_or_stdin ... ok\ntest a_restored_copy_holds_its_sessions_for_the_desktop ... ok\ntest reclaim_rotates_the_token_in_test_workspaces_only ... ok\ntest stale_save_recovery_recipe_from_the_readme_completes ... ok\ntest token_refusals_name_no_token_and_write_nothing ... ok\ntest the_token_never_leaks_into_outputs_exports_backups_or_the_database ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s\n\n     Running tests/agent_inspect.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_inspect-66eca910df681833)\n\nrunning 11 tests\ntest runs_page_validates_options_and_lists_nothing_on_a_fresh_workspace ... ok\ntest page_refusals_after_opening_name_the_cause ... ok\ntest identical_page_reads_return_identical_pages ... ok\ntest operation_lookup_refuses_bad_forms_and_never_allocates ... ok\ntest read_pages_detect_a_change_between_pages ... ok\ntest candidates_and_operation_report_unapplied_candidates ... ok\ntest records_page_by_kind_and_cursor ... ok\ntest page_options_are_refused_before_opening ... ok\ntest operation_by_key_finds_every_keyed_command ... ok\ntest revisions_and_revision_read_page_through_a_large_note ... ok\ntest history_pages_are_bounded_stable_and_filter_by_record ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s\n\n     Running tests/agent_lists.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_lists-741c2a84de34e927)\n\nrunning 5 tests\ntest seeded_review_chat_lists_its_message ... ok\ntest messages_page_a_chat_in_creation_order ... ok\ntest list_page_options_are_refused_before_opening ... ok\ntest lists_without_page_options_are_unchanged ... ok\ntest remaining_lists_page_to_their_unpaged_output ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s\n\n     Running tests/agent_reasons.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_reasons-c1c9061922871f22)\n\nrunning 5 tests\ntest oversized_project_title_reason_is_size_limit ... ok\ntest incomplete_project_delete_actions_reason_is_project_boundary ... ok\ntest stale_project_settings_reason_is_version_mismatch ... ok\ntest search_thread_naming_a_note_reason_is_wrong_kind ... ok\ntest trashed_project_chat_reason_is_inactive_target ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n     Running tests/agent_retry.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_retry-f732f16389df1bba)\n\nrunning 7 tests\ntest knowledge_check_key_requires_seed_chat ... ok\ntest keyed_undo_with_a_different_original_is_key_conflict ... ok\ntest keyed_topics_create_retries_without_a_second_note ... ok\ntest keyed_keep_in_brn_with_a_different_note_is_key_conflict ... ok\ntest keyed_full_intake_retry_with_another_spelling_replays ... ok\ntest keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder ... ok\ntest keyed_seed_chat_replays_and_ignores_later_findings ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s\n\n     Running tests/agent_runs.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_runs-60a1083ad1b59280)\n\nrunning 12 tests\ntest stub_ask_completes ... ok\ntest stub_ask_on_an_unknown_chat_never_contacts_the_stub ... ok\ntest stub_provider_error_ends_failed ... ok\ntest stub_sigterm_interrupts_a_held_stream ... ok\ntest configure_then_ask_reaches_the_provider ... ok\ntest stub_killed_ask_leaves_a_working_run ... ok\ntest stub_run_receipts_carry_no_actor_and_the_cli_apply_carries_it ... ok\ntest stub_candidate_goes_stale_after_owner_edit ... ok\ntest runs_page_filters_by_thread_and_state ... ok\ntest stub_sigint_interrupts_a_held_stream ... ok\ntest stub_model_candidate_review_apply_and_dismiss ... ok\ntest stub_deadline_interrupts_a_held_stream ... ok\n\ntest result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.12s\n\n     Running tests/agent_upgrade.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_upgrade-4430e83b17f02e3f)\n\nrunning 4 tests\ntest upgrade_backs_up_first_and_the_upgraded_store_works ... ok\ntest a_read_on_a_schema_5_store_is_refused_and_leaves_it_byte_unchanged ... ok\ntest upgrade_is_refused_while_a_schema_5_edit_is_open ... ok\ntest a_write_on_a_schema_5_store_is_refused_and_changes_nothing ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/data_folder.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/data_folder-9f3ade6894fc423a)\n\nrunning 3 tests\ntest a_data_folder_on_a_read_only_disk_is_named ... ok\ntest a_file_given_as_the_data_folder_is_named ... ok\ntest a_symlink_to_an_empty_or_missing_folder_is_refused_as_a_symlink ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\n\n     Running tests/edit_authority_guard.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/edit_authority_guard-7a1fe374ac9adfce)\n\nrunning 2 tests\ntest every_pattern_trips_on_a_sample_and_the_bound_twins_do_not ... ok\ntest the_cli_and_the_app_crate_never_call_owner_host_edit_functions ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running tests/search_messages.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-a7eebe2f3fe351e0)\n\nrunning 2 tests\ntest search_page_cursor_follows_the_message_lane ... ok\ntest search_lists_a_saved_chat_message_with_its_chat ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s\n\n     Running tests/skill_packages.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/skill_packages-312af0f250c874a8)\n\nrunning 6 tests\ntest relative_source_is_usage_before_any_workspace_io ... ok\ntest absent_inspect_is_not_found_and_preserves_workspace ... ok\ntest actual_catalog_lock_contention_is_busy_and_retryable ... ok\ntest actual_lock_permission_denied_is_io_error_not_caller_refusal ... ok\ntest installed_instruction_package_survives_cli_reopen_and_digest_bound_removal ... ok\ntest damaged_stored_package_is_not_an_actionable_digest_conflict ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s\n\n     Running tests/source_locator.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/source_locator-33733f44cf22960e)\n\nrunning 2 tests\ntest useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat ... ok\ntest two_cli_useful_intakes_of_one_source_post_one_instruction ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n     Running tests/threads.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/threads-893db2178c805560)\n\nrunning 13 tests\ntest ask_refuses_an_unknown_trace_level_before_any_provider_call ... ok\ntest explicit_backup_inside_workspace_is_refused_and_next_open_preserves_records ... ok\ntest delegation_help_and_invalid_values_are_explicit_and_leave_data_unopened ... ok\ntest missing_storage_refuses_init_and_reads_preserving_marker_and_recovery_evidence ... ok\ntest a_second_begin_edit_reports_the_open_session_as_structured_json ... ok\ntest explicit_directory_old_format_and_invalid_commands_refuse_without_touching_data ... ok\ntest save_recovers_across_processes_replays_and_undo_keeps_later_edit ... ok\ntest topics_connections_and_knowledge_check_commands ... ok\ntest helper_setting_is_off_by_default_explicit_and_kept_until_turned_off ... ok\ntest useful_intake_for_a_project_stays_in_one_project_chat_across_retries ... ok\ntest full_markdown_import_export_and_backup_are_fresh_and_readable ... ok\ntest explicit_delegation_choices_survive_reopen_and_pause_without_implicit_consent ... ok\ntest search_pages_report_exact_counts_and_reject_bad_cursors ... ok\n\ntest result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s\n\n     Running unittests src/lib.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/brn_ai-28a197b27edef53b)\n\nrunning 442 tests\ntest auth::tests::disconnect_metadata_policy_refuses_foreign_entries_and_non_files ... ok\ntest action_candidates::tests::checked_reference_requires_signed_revision_and_exact_lowercase_hash ... ok\ntest action_candidates::tests::all_fourteen_fields_are_required_nulls_round_trip_and_shapes_are_closed ... ok\ntest action_candidates::tests::candidate_bounds_cover_nested_references_and_leave_domain_semantics_to_workflow ... ok\ntest auth::tests::in_repository_and_symlinked_ancestor_paths_are_rejected ... ok\ntest auth::tests::copilot_completion_uses_rig_route_unless_responses_is_forced ... ok\ntest auth::tests::code_expiry_has_retry_copy_without_automatic_retry ... ok\ntest auth::tests::cancelled_lock_waiter_never_touches_cache_or_transport ... ok\ntest auth::tests::login_error_tightens_partial_cache_and_does_not_retain_http_body ... ok\ntest auth::tests::dropping_login_future_also_tightens_partial_cache ... ok\ntest auth::tests::cancellation_tightens_partial_login_and_disconnect_cannot_recreate_it ... ok\ntest auth::tests::disconnect_refuses_directories_and_unsafe_folders_before_deleting ... ok\ntest auth::tests::empty_oauth_reply_does_not_create_a_success_shaped_client ... ok\ntest auth::tests::copilot_discovery_failure_is_not_fallback ... ok\ntest auth::tests::copilot_discovery_returns_only_the_actual_authenticated_list ... ok\ntest auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected ... ok\ntest auth::tests::selection_and_provider_wire_values_are_explicit_and_validated ... ok\ntest auth::tests::malformed_github_token_is_reconnect_not_connected ... ok\ntest auth::tests::malformed_display_metadata_is_storage_not_expired_login ... ok\ntest auth::tests::missing_identity_is_explicit_and_permission_drift_is_refused ... ok\ntest auth::tests::disconnect_deletes_only_target_provider_and_owned_client_releases_lock ... ok\ntest behavior::tests::qualified_instructions_and_proposal_capabilities_remain_exact ... ok\ntest auth::tests::copilot_catalog_ids_and_duplicates_are_validated_atomically ... ok\ntest capability_probe::tests::citations_are_deduplicated_and_capped_across_repeated_snapshots ... ok\ntest auth::tests::subscription_models_require_auth_and_handle_network_and_precancellation_safely ... ok\ntest capability_probe::tests::citations_reject_unsafe_urls_and_bound_titles ... ok\ntest capability_probe::tests::only_completed_hosted_search_items_establish_web_evidence ... ok\ntest capability_probe::tests::failure_projection_keeps_only_status_class_and_allowlisted_rejection ... ok\ntest capability_probe::tests::text_cap_preserves_exact_utf8_prefix_without_normalization ... ok\ntest capability_probe::tests::read_arguments_require_the_exact_fixture_and_schema ... ok\ntest auth::tests::real_chatgpt_connect_and_refresh_tighten_caches_without_default_printing ... ok\ntest auth::tests::refresh_is_serialized_and_disconnect_waits_for_its_finalization ... ok\ntest auth::tests::status_is_offline_and_identity_is_display_only ... ok\ntest auth::tests::empty_token_and_invalid_expiry_are_reconnect_not_success_or_panic ... ok\ntest auth::tests::other_provider_login_and_status_progress_while_chatgpt_login_waits ... ok\ntest auth::tests::unsafe_folder_modes_and_symlinks_are_rejected ... ok\ntest chat::tests::activity_uses_only_explicit_public_summaries_and_keeps_raw_reasoning_private ... ok\ntest chat::tests::completed_response_wins_over_later_stop ... ok\ntest chat::tests::first_error_stops_and_preserves_exact_partial_once ... ok\ntest chat::tests::failures_record_their_origin_and_the_last_stream_phase ... ok\ntest chat::tests::limit_flag_wins_over_simultaneous_stop_without_reason_matching ... ok\ntest chat::tests::final_answer_reconciles_preview_and_ordinary_stream_agrees ... ok\ntest chat::tests::cancellation_keeps_preview_partial_without_final_event ... ok\ntest chat::tests::non_stop_finishes_keep_only_the_reason_label ... ok\ntest chat::tests::both_provisional_and_authoritative_answers_are_bounded ... ok\ntest chat::tests::rewrite_consumed_completion_wins_later_stop_and_failure_discards_partial ... ok\ntest chat::tests::eof_fails_and_final_text_replaces_preview ... ok\ntest auth::tests::models_network_wait_does_not_hold_auth_lock_and_cancels ... ok\ntest conversion::tests::malformed_plan_diagnostics_expose_only_static_shapes_and_positions ... ok\ntest auth::tests::real_copilot_connect_caches_name_and_tightens_all_files ... ok\ntest conversion::tests::precancel_and_oversized_prompt_do_not_read_credentials_or_send_requests ... ok\ntest auth::tests::unsafe_replacement_during_login_never_reports_success ... ok\ntest auth::tests::disconnect_unlinks_owned_symlinks_and_hardlinks_without_touching_targets ... ok\ntest error::tests::detail_is_absent_from_legacy_json_and_round_trips ... ok\ntest error::tests::provider_codes_pass_only_the_allow_list ... ok\ntest error::tests::pinned_chatgpt_string_wrappers_are_mapped_without_retaining_diagnostics ... ok\ntest error::tests::quotation_failures_have_distinct_fixed_safe_messages ... ok\ntest error::tests::provider_replies_keep_only_status_origin_and_allowlisted_identifiers ... ok\ntest codex_auth::tests::unsafe_path_or_provider_is_refused_before_authentication ... ok\ntest error::tests::safe_errors_never_retain_raw_payloads ... ok\ntest codex_auth::tests::malformed_and_api_key_files_refuse_without_fallback_or_secret_errors ... ok\ntest error::tests::rig_failures_get_distinct_safe_origins_and_unchanged_messages ... ok\ntest error::tests::statuses_codes_and_bounded_delays_are_allowlisted ... ok\ntest error::tests::typed_transport_auth_storage_and_provider_errors_are_safe_and_distinct ... ok\ntest conversion::tests::plain_text_stays_provider_free_and_progress_has_no_source_payload ... ok\ntest proposal_tools::tests::knowledge_protocol_is_closed_and_requires_every_candidate_and_quote_field ... ok\ntest proposal_tools::tests::outer_protocol_is_closed_and_requires_all_three_explicit_fields ... ok\ntest auth::tests::missing_expired_and_malformed_caches_never_start_device_login ... ok\ntest proposal_tools::tests::quote_errors_on_action_tools_keep_the_existing_error_boundary ... ok\ntest proposal_tools::tests::quote_feedback_is_allowlisted_and_never_serializes_error_metadata ... ok\ntest auth::tests::stale_copilot_cache_does_not_block_chatgpt_or_explicit_disconnect ... ok\ntest proposal_tools::tests::quote_tool_schemas_leave_nullable_occurrence_optional_and_conflict_ids_owned ... ok\ntest proposal_tools::tests::action_tool_schema_is_equivalent_to_the_frozen_manual_contract ... ok\ntest proposal_tools::tests::knowledge_defaults_refuse_and_whole_receipts_are_bounded_without_truncation ... ok\ntest proposal_tools::tests::complete_receipt_limit_refuses_oversize_without_truncation ... ok\ntest conversion::tests::conversion_uses_dedicated_high_model_without_tools_or_history ... ok\ntest conversion::tests::table_review_hashes_bind_host_formatted_values_and_uncertainty ... ok\ntest conversion::tests::page_images_use_typed_high_detail_and_exact_host_hashes ... ok\ntest conversion::tests::indexed_page_source_stays_user_data_and_optional_order_stays_typed ... ok\ntest provider_formats_tests::actual_sse_first_error_preserves_partial_and_discards_later_text ... ok\ntest conversion::tests::refusal_malformed_truncated_and_eof_never_become_candidates_or_fallback ... ok\ntest provider_formats_tests::actual_tools_enforce_utf8_note_cap_and_adapter_result_caps ... ok\ntest provider_formats_tests::actual_subscription_formats_continue_tools_and_text_only_history ... ok\ntest provider_formats_tests::action_proposal_tool_tests::private_image_collections_share_proposal_runtime_and_preserve_all_rig_routes ... ok\ntest provider_formats_tests::ask_effort_tests::explicit_ask_parser_failure_retains_exact_provisional_text_without_retry ... ok\ntest provider_formats_tests::action_read_tool_tests::registered_action_read_tools_continue_exactly_on_both_rig_routes_and_rewrite ... ok\ntest chat::tests::rewrite_exact_final_output_limit_is_complete_without_emitting ... ok\ntest provider_formats_tests::action_proposal_tool_tests::registered_action_proposal_tool_is_ask_only_and_continues_exactly_on_all_rig_routes ... ok\ntest provider_formats_tests::capability_probe_formats::probe_first_parser_error_keeps_exact_partial_and_discards_later_text ... ok\ntest proposal_tools::tests::knowledge_bounds_refuse_before_dispatch_and_leave_domain_rules_to_workflow ... ok\ntest provider_formats_tests::ask_effort_tests::explicit_ask_stop_retains_provisional_text_and_skips_final_completion ... ok\ntest provider_formats_tests::capability_probe_formats::probe_image_serializes_exact_fixture_png_and_copilot_vision_header ... ok\ntest proposal_tools::tests::bounded_input_refuses_before_dispatch_using_utf8_and_whole_json_bytes ... ok\ntest provider_formats_tests::capability_probe_formats::probe_cancellation_retains_parsed_partial_and_precancelled_sends_no_request ... ok\ntest provider_formats_tests::action_proposal_tool_tests::clarification_followup_and_abstention_preserve_optional_owner_on_all_rig_routes ... ok\ntest provider_formats_tests::conflict_tool_tests::applied_intake_conflict_guidance_and_dispatch_use_the_existing_rig_routes ... ok\ntest provider_formats_tests::capability_probe_formats::probe_low_high_freeze_route_effort_model_and_single_synthetic_read ... ok\ntest provider_formats_tests::capability_probe_formats::probe_responses_web_parses_hosted_search_and_native_text_citations_once ... ok\ntest provider_formats_tests::conflict_tool_tests::enabled_report_dispatches_exact_closed_protocol_and_tentative_instructions_on_all_routes ... ok\ntest provider_formats_tests::ask_effort_tests::explicit_ask_effort_preserves_model_last_twenty_pairs_and_tool_continuation ... ok\ntest provider_formats_tests::conflict_tool_tests::maximum_escaped_report_and_occurrence_domain_rules_remain_within_the_defensive_input_cap ... ok\ntest provider_formats_tests::conflict_tool_tests::legacy_backends_safely_refuse_both_conflict_callbacks_in_real_routes ... ok\ntest provider_formats_tests::ask_effort_tests::ask_language_contract_with_effort_preserves_current_question_and_mixed_source_quotes ... ok\ntest provider_formats_tests::ask_effort_tests::ask_language_contract_preserves_current_question_and_mixed_source_quotes ... ok\ntest provider_formats_tests::conflict_tool_tests::lookup_accepts_maximum_utf8_protocol_bytes_without_clipping_arguments ... ok\ntest provider_formats_tests::empty_partial_history_keeps_question_but_omits_empty_assistant_on_wire ... ok\ntest provider_formats_tests::history_is_limited_to_last_twenty_text_pairs ... ok\ntest conversion::tests::model_deadline_and_stop_bound_a_stalled_transport ... ok\ntest provider_formats_tests::capability_probe_formats::probe_provider_failures_are_safe_and_never_retry_or_fallback ... ok\ntest provider_formats_tests::eight_rounds_allow_final_ninth_call_parallel_tools_count_once ... ok\ntest provider_formats_tests::investigation_budget_tests::final_answer_at_budget_and_invalid_limits_do_not_add_calls ... ok\ntest provider_formats_tests::capability_probe_formats::probe_read_rejects_invalid_parallel_repeated_or_missing_tools_without_retry ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::enabled_knowledge_tool_registers_closed_schema_and_continues_on_all_rig_routes ... ok\ntest provider_formats_tests::conflict_tool_tests::report_is_absent_without_inbox_opt_in_even_when_backend_supports_callback ... ok\ntest provider_formats_tests::http_and_malformed_sse_errors_have_no_retry_or_raw_retention ... ok\ntest provider_formats_tests::conflict_tool_tests::conflict_lookup_preserves_default_explicit_scopes_opaque_cursor_and_incomplete_page ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::legacy_knowledge_input_omitting_additional_paths_dispatches_empty_on_all_rig_routes ... ok\ntest provider_formats_tests::conflict_tool_tests::both_conflict_tools_share_eight_round_budget_and_refuse_ninth_before_dispatch ... ok\ntest provider_formats_tests::pre_cancelled_turn_sends_no_completion ... ok\ntest provider_formats_tests::provider_stderr_tests::provider_stderr_child ... ignored, only the parent test launches this isolated synthetic stderr fixture\ntest provider_formats_tests::conflict_tool_tests::conflict_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes ... ok\ntest provider_formats_tests::malformed_nonobject_tool_arguments_fail_before_dispatch_with_zero_retry_budget ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::knowledge_tool_is_absent_and_cannot_dispatch_for_ordinary_ask_read_only_and_rewrite ... ok\ntest provider_formats_tests::investigation_budget_tests::configured_rounds_refuse_before_dispatch_and_parallel_tools_count_once ... ok\ntest provider_formats_tests::ninth_tool_round_dispatches_zero_tools ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::typed_quote_refusals_continue_without_exposing_diagnostics_on_all_rig_routes ... ok\ntest provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr ... ok\ntest provider_formats_tests::response_less_transport_failure_is_safe_network_without_retry ... ok\ntest provider_formats_tests::rewrite_tests::explicit_effort_has_only_the_three_supported_serialized_values ... ok\ntest provider_formats_tests::raw_evidence_tools_tests::raw_prefix_and_copied_fullhash_ranges_use_all_real_rig_routes ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::knowledge_tool_shares_the_eight_round_budget_and_never_dispatches_the_ninth ... ok\ntest provider_formats_tests::ranged_read_tools_tests::range_tool_advertisement_dispatch_and_exact_output_use_all_real_rig_routes ... ok\ntest provider_formats_tests::responses_final_snapshot_reconciles_preview_and_tool_loop_once ... ok\ntest provider_formats_tests::rewrite_tests::rewrite_stop_discards_partial_and_precancelled_sends_no_completion ... ok\ntest provider_formats_tests::rewrite_tests::rewrite_effort_model_and_read_only_continuation_use_exact_wire_routes ... ok\ntest provider_formats_tests::conflict_tool_tests::malformed_lookup_is_refused_before_underlying_read_on_all_routes ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::quote_occurrence_defaults_and_domain_values_reach_workflow_on_all_rig_routes ... ok\ntest provider_formats_tests::ranged_read_tools_tests::range_tool_rejects_inconsistent_backend_output_in_all_real_rig_routes ... ok\ntest provider_formats_tests::action_read_tool_tests::action_read_tool_argument_and_output_bounds_refuse_whole_results_without_retry ... ok\ntest provider_formats_tests::scoped_read_tools_tests::explicit_scope_keeps_query_byte_limit_hit_limit_and_empty_path_validation_on_each_route ... ok\ntest provider_formats_tests::stop_after_partial_does_not_consume_final_or_duplicate_text ... ok\ntest provider_formats_tests::scoped_read_tools_tests::explicit_scope_keeps_utf8_truncation_and_search_page_result_caps_on_each_route ... ok\ntest provider_formats_tests::subscription_catalog_tests::authenticated_subscription_catalog_preserves_wire_identity_and_server_order ... ok\ntest provider_formats_tests::rewrite_tests::rewrite_failure_refusal_and_malformed_streams_discard_raw_partials_without_retry ... ok\ntest provider_formats_tests::subscription_catalog_tests::subscription_catalog_uses_protocol_compatibility_instead_of_brn_package_version ... ok\ntest provider_formats_tests::unexpected_absolute_urls_fail_closed_in_private_transport ... ok\ntest provider_formats_tests::unknown_tool_fails_without_dispatch_retry_or_name_leak ... ok\ntest provider_formats_tests::subscription_catalog_tests::subscription_catalog_statuses_are_safe_without_fallback_or_retry ... ok\ntest provider_formats_tests::visual_tests::visual_missing_known_finish_rejects_complete_json_and_done_without_retry ... ok\ntest provider_formats_tests::subscription_catalog_tests::malformed_subscription_catalog_is_an_atomic_safe_failure ... ok\ntest provider_formats_tests::visual_tests::visual_cancel_discards_partials_and_precancelled_sends_no_completion ... ok\ntest provider_formats_tests::rust_argument_validation_and_safe_failed_results_continue_without_retry ... ok\ntest provider_formats_tests::rewrite_tests::rewrite_keeps_eight_read_rounds_and_refuses_the_ninth_without_retry ... ok\ntest provider_formats_tests::scoped_read_tools_tests::legacy_implementers_keep_omitted_current_and_refuse_explicit_other_scopes_on_each_route ... ok\ntest resend::tests::a_refused_connection_is_resent_once ... ok\ntest resend::tests::a_reset_after_the_request_was_sent_is_not_resent ... ok\ntest provider_formats_tests::visual_tests::visual_nonstop_provider_finish_rejects_even_complete_json_without_retry ... ok\ntest resend::tests::a_run_resends_at_most_its_budget ... ok\ntest resend::tests::a_second_transient_failure_of_the_same_request_is_returned ... ok\ntest resend::tests::rejections_and_limits_are_never_resent ... ok\ntest resend::tests::a_transient_status_is_resent_once_byte_for_byte_and_recorded ... ok\ntest provider_formats_tests::scoped_read_tools_tests::explicit_scopes_reach_all_three_tools_and_keep_flattened_exact_outputs_on_each_route ... ok\ntest run_lease::tests::foreign_ids_and_symlinked_paths_are_refused_and_count_as_live ... ok\ntest run_lease::tests::a_held_lease_is_live_and_a_dropped_or_abandoned_one_is_not ... ok\ntest run_lease::tests::a_free_leftover_lease_is_removed_and_a_held_one_is_kept ... ok\ntest provider_formats_tests::visual_tests::visual_prompt_and_actual_output_limits_refuse_without_clipping_or_fallback ... ok\ntest skill_packages::tests::descriptor_anchor_does_not_follow_replaced_source_ancestor ... ok\ntest skill_packages::tests::atomic_exclusive_publish_and_management_lock_preserve_existing_bytes ... ok\ntest provider_formats_tests::rewrite_tests::rewrite_input_and_actual_streamed_output_have_hard_byte_bounds ... ok\ntest provider_formats_tests::visual_tests::visual_typed_image_and_task_text_preserve_routes_effort_guard_and_no_tools ... ok\ntest skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins ... ok\ntest provider_formats_tests::scoped_read_tools_tests::invalid_scope_and_unknown_properties_refuse_before_any_underlying_read_on_each_route ... ok\ntest skill_packages::tests::competing_real_installs_have_one_identity_no_overwrite_and_owner_retry ... ok\ntest provider_formats_tests::ranged_read_tools_tests::range_tool_refuses_invalid_arguments_without_backend_dispatch ... ok\ntest provider_formats_tests::raw_evidence_tools_tests::raw_tool_refuses_bad_arguments_backend_authority_and_legacy_without_partial_data ... ok\ntest provider_formats_tests::visual_tests::visual_provider_errors_malformed_stream_and_tool_attempt_fail_without_retry ... ok\ntest skill_packages::tests::remove_rechecks_real_replacement_and_rolls_back_without_deleting_it ... ok\ntest skill_packages::tests::symlink_ancestors_leaf_fifo_hardlink_and_foreign_catalog_are_refused ... ok\ntest resend::tests::a_read_timeout_after_the_request_was_sent_is_not_resent ... ok\ntest threads::budget_tests::encoded_capacity_that_cannot_fit_one_utf8_character_returns_no_passage ... ok\ntest skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime ... ok\ntest skill_packages::tests::encoded_large_payload_file_count_total_depth_and_artifact_tamper_are_bounded ... ok\ntest skill_packages::tests::unsupported_references_scripts_collisions_and_encoding_fail_before_install ... ok\ntest skill_packages::tests::well_formed_body_digest_and_file_name_binding_refuse_without_deletion ... ok\ntest provider_formats_tests::conflict_tool_tests::report_and_lookup_whole_output_caps_and_callback_failures_never_fabricate_empty_records ... ok\ntest threads::budget_tests::copilot_parent_provider_overflow_is_context_failure_without_route_fallback ... ok\ntest threads::budget_tests::exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message ... ok\ntest threads::budget_tests::copilot_parent_chat_and_responses_keep_route_effort_and_send_no_output_cap ... ok\ntest threads::budget_tests::escaped_source_pages_exactly_in_actual_model_loop_without_claiming_whole_read ... ok\ntest threads::budget_tests::exact_request_estimate_boundary_counts_real_tools_and_response_reserve ... ok\ntest threads::budget_tests::escaped_maximum_note_read_pages_in_actual_model_history_and_tracks_only_delivered_ranges ... ok\ntest threads::budget_tests::exact_discussion_refuses_writing_scope_even_for_an_otherwise_visible_owner_message ... ok\ntest threads::budget_tests::full_v2_writing_context_is_mandatory_even_under_a_tiny_test_budget ... ok\ntest threads::budget_tests::bounded_reference_delivery_cannot_validate_an_undelivered_writing_quotation ... ok\ntest threads::budget_tests::escaped_historical_revision_pages_without_current_evidence_grants ... ok\ntest threads::budget_tests::historical_instruction_is_tool_evidence_and_cannot_grant_protected_apply_or_survive_stop ... ok\ntest threads::budget_tests::exact_message_scope_is_fresh_across_knowledge_off_move_archive_delete_and_restore ... ok\ntest threads::budget_tests::exact_tool_result_admission_boundary_reaches_the_next_real_dispatch ... ok\ntest threads::budget_tests::next_request_checks_actual_growing_tools_and_results_without_rewriting_the_prefix ... ok\ntest threads::budget_tests::large_committed_apply_delivers_compact_receipt_and_continues_model_loop ... ok\ntest threads::budget_tests::oversized_tool_result_is_not_admitted_and_later_batch_writes_do_not_run ... ok\ntest threads::budget_tests::overflowing_compact_metadata_acknowledges_exact_identity_and_omissions ... ok\ntest threads::budget_tests::oversized_old_bilingual_message_is_exactly_retrievable_beyond_old_prefix ... ok\ntest threads::budget_tests::provider_context_exceeded_and_local_limit_share_display_attention_and_terminal_path ... ok\ntest threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... ok\ntest threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... ok\ntest threads::budget_tests::sourced_limits_are_exact_route_entries_and_unknown_is_not_a_universal_window ... ok\ntest threads::budget_tests::sanitized_provider_cannot_spoof_a_local_brn_estimate_notice ... ok\ntest provider_formats_tests::conflict_tool_tests::malformed_report_fields_and_byte_bounds_never_invoke_underlying_callback ... ok\ntest threads::budget_tests::nonlast_section_next_start_honors_core_end_for_whole_and_encoded_cropped_reads ... ok\ntest threads::cache_tests::cache_keys_are_per_chat_bounded_header_safe_and_codex_only ... ok\ntest threads::budget_tests::small_budget_keeps_mandatory_input_and_stops_zero_model_calls ... ok\ntest threads::budget_tests::reserved_roles_and_private_other_chat_never_leak_through_history_query_or_exact_passages ... ok\ntest threads::budget_tests::selected_real_figure_prepares_full_owner_candidate_with_compact_model_output ... ok\ntest provider_formats_tests::action_proposal_tool_tests::strict_action_candidates_refuse_legacy_missing_unknown_and_unbounded_input_on_all_rig_routes ... ok\ntest threads::cache_tests::a_failed_turn_after_the_reply_started_is_not_resent ... ok\ntest threads::cache_tests::a_repeated_transient_failure_ends_the_run_with_its_safe_detail_in_the_trace ... ok\ntest threads::cache_tests::a_transient_status_mid_run_is_resent_identically_once_and_traced ... ok\ntest threads::budget_tests::copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refuses_without_trimming ... ok\ntest threads::cache_tests::copilot_runs_carry_no_cache_key_in_scope_or_body ... ok\ntest threads::cache_tests::trace_records_each_turns_cached_input ... ok\ntest threads::cache_tests::without_the_pin_rig_draws_a_new_session_per_request ... ok\ntest threads::cache_tests::re_sends_are_reported_without_a_trace ... ok\ntest threads::chat_tests::a_queue_claim_excludes_nonqueued_start_in_another_chat_until_acknowledgement ... ok\ntest threads::chat_tests::foreign_inline_asset_urls_cannot_be_written_or_finalized_in_an_unrelated_chat ... ok\ntest threads::chat_tests::private_context_scopes_generated_notes_and_binds_exact_local_source_observation ... ok\ntest threads::cache_tests::codex_runs_pin_one_session_and_an_append_only_prefix_on_either_credential_route ... ok\ntest skill_packages::tests::installed_catalog_limit_and_nonregular_artifacts_are_fail_closed ... ok\ntest threads::chat_tests::unrelated_chat_cannot_read_private_ids_history_or_apply_new_foreign_refs ... ok\ntest threads::cache_tests::different_chats_get_different_session_ids ... ok\ntest threads::continuation_tests::allocated_before_prepare_is_not_a_completed_operation ... ok\ntest threads::continuation_tests::applied_before_result_reconciles_exact_receipt_and_replays_without_new_version ... ok\ntest threads::continuation_tests::continuation_is_optional_in_the_actual_request_and_cannot_grant_note_read ... ok\ntest threads::continuation_tests::budget_without_report_keeps_exact_owner_objective_and_late_finish_cannot_write ... ok\ntest threads::continuation_tests::pending_candidate_after_owner_edit_is_stale_and_old_scope_cannot_write ... ok\ntest threads::current_inputs_tests::runtime_input_schema_accepts_omitted_explicit_current_and_historical_only ... ok\ntest threads::continuation_tests::prepared_before_result_is_not_an_applied_receipt ... ok\ntest threads::continuation_tests::structured_plan_survives_budget_and_fresh_dispatch_without_completion_claim ... ok\ntest threads::chat_tests::queued_partial_failure_and_stop_resume_reuse_exact_instruction_and_reject_old_claim ... ok\ntest threads::continuation_tests::retained_claims_and_operation_reference_never_inherit_a_protected_edit_grant ... ok\ntest threads::continuation_tests::receipt_stays_applied_after_owner_edit_and_replay_preserves_the_later_text ... ok\ntest threads::current_inputs_tests::runtime_refresh_can_explicitly_replace_an_old_current_candidate_with_historical_citation ... ok\ntest threads::budget_tests::prior_progress_and_operation_receipts_are_bounded_in_the_actual_request ... ok\ntest threads::current_inputs_tests::runtime_fresh_replacement_replays_after_input_changes_and_explicit_history_remains_valid ... ok\ntest threads::continuation_tests::structured_limits_and_unowned_real_operation_refs_reject_before_progress_effect ... ok\ntest threads::continuation_tests::retired_candidate_and_currently_hidden_operation_are_not_relabelled_applied ... ok\ntest threads::current_inputs_tests::runtime_current_reads_stale_before_or_after_prepare_with_no_saved_summary ... ok\ntest threads::cw2_tests::actual_ranges_and_quotes_are_persisted_not_declared_inputs_and_prepare_retry_is_immutable ... ok\ntest threads::cw2_tests::general_writing_search_passes_canonical_general_scope_to_the_real_host_seam ... ok\ntest threads::cw2_tests::general_run_does_not_gain_other_private_notes_when_selected_conversation_changes ... ok\ntest threads::history::tests::historical_read_is_explicit_bounded_and_distinct_from_current ... ok\ntest threads::host_intake::tests::one_line_without_names_gives_lead_and_terms ... ok\ntest threads::host_intake::tests::oversized_lists_and_values_are_clipped_with_a_pointer_to_the_tool ... ok\ntest threads::host_intake::tests::queries_are_deterministic_bounded_and_skip_empty_text ... ok\ntest threads::host_intake::tests::queries_prefer_names_and_the_first_line_over_filler ... ok\ntest threads::host_intake::tests::retrieval_status_distinguishes_none_failed_partial_and_ok ... ok\ntest threads::cw2_tests::top_k_snippet_exposure_binds_version_without_inventing_exact_read_coverage ... ok\ntest threads::host_intake::tests::the_payload_is_brought_under_the_ceiling_in_a_fixed_order ... ok\ntest threads::host_intake::tests::the_query_budget_is_split_across_sources_and_the_rest_reported ... ok\ntest threads::host_intake::tests::the_same_text_in_two_sources_shares_its_queries ... ok\ntest threads::history::tests::refresh_is_atomic_version_checked_idempotent_and_does_not_grant_protected_apply ... ok\ntest threads::history::tests::registered_runtime_history_and_refresh_tools_apply_fresh_candidate_and_store_one_answer ... ok\ntest threads::cw2_tests::oversized_prefix_read_is_recorded_as_partial_and_ranges_can_finish_it ... ok\ntest threads::intake_tests::a_cancelled_run_does_not_wait_for_the_build ... ok\ntest threads::cw2_tests::fabricated_or_unread_quotations_are_rejected_before_a_candidate_exists ... ok\ntest threads::history::tests::refresh_supports_previous_run_family_but_refuses_other_threads_and_superseded_scope ... ok\ntest threads::delegation_tests::pending_runtime_requires_review_but_scoped_owner_instruction_still_applies ... ok\ntest threads::intake_tests::a_finished_build_marks_shown_pages_read_and_frames_the_data ... ok\ntest threads::cw2_tests::unavailable_required_current_reference_returns_safe_invalid_before_allocating_proposal ... ok\ntest threads::intake_tests::no_searchable_terms_means_no_retrieval_not_ok ... ok\ntest threads::budget_tests::canonical_seventy_messages_preserve_early_requirement_without_the_old_forty_cut ... ok\ntest threads::intake_tests::a_page_is_shown_whole_or_listed_for_reading_never_cut ... ok\ntest threads::intake_tests::link_neighbours_are_checked_against_what_the_chat_sees ... ok\ntest threads::intake_tests::ids_the_chat_cannot_see_never_reach_the_prompt ... ok\ntest threads::intake_tests::failed_searches_are_reported_as_failed_or_partial ... ok\ntest threads::intake_tests::several_sources_share_the_query_and_text_budgets ... ok\ntest threads::reads::tests::slices_count_only_when_they_cover_the_whole_note ... ok\ntest threads::intake_tests::two_sources_each_get_a_query ... ok\ntest threads::intake_tests::without_a_search_the_context_says_so ... ok\ntest threads::intake_tests::the_summary_trace_has_counts_but_neither_query_text_nor_source_words ... ok\ntest threads::project_tests::moving_a_live_chat_fences_runtime_and_preserves_its_history_and_paused_queue ... ok\ntest threads::project_tests::model_authority_cannot_change_the_host_context_epoch ... ok\ntest threads::delegation_tests::invocation_input_reports_only_current_host_policy_and_keeps_settings_binding ... ok\ntest threads::reads_tests::a_replacement_of_a_note_that_was_not_read_is_invalid ... ok\ntest threads::project_tests::deleting_working_project_retains_checked_progress_and_displayed_partial_answer_through_trash ... ok\ntest threads::cw2_tests::exhaustive_freshness_stales_but_ordinary_actual_read_edit_stays_historical ... ok\ntest threads::reads_tests::a_read_of_an_older_version_does_not_cover_a_newer_one ... ok\ntest threads::reads_tests::a_whole_exact_id_read_allows_the_replacement ... ok\ntest threads::project_tests::project_instructions_discussion_and_current_document_context_use_real_handlers ... ok\ntest threads::reads_tests::creating_a_note_needs_no_read ... ok\ntest threads::reads_tests::a_write_that_keeps_the_markdown_needs_no_read ... ok\ntest threads::reads_tests::an_applied_replacement_counts_as_read_for_the_next_one ... ok\ntest threads::reads_tests::an_owner_edit_grant_still_needs_the_note_read ... ok\ntest threads::budget_tests::mandatory_oversize_unknown_route_stops_production_before_any_provider_request ... ok\ntest threads::research_tests::an_unavailable_helper_never_falls_back_and_the_parent_continues ... ok\ntest threads::research_tests::a_helper_has_five_tool_rounds ... ok\ntest threads::research_tests::findings_are_bounded ... ok\ntest threads::research_tests::a_helper_provider_outage_is_unavailable_with_status_but_no_provider_text ... ok\ntest threads::reads_tests::a_truncated_read_does_not_but_reading_through_to_the_end_does ... ok\ntest threads::research_tests::a_helper_sub_run_holds_its_parent_lease_and_saves_no_run ... ok\ntest threads::research_tests::codex_helpers_use_their_own_cache_key_and_only_the_owner_model ... ok\ntest threads::research_tests::budgets_cap_calls_sub_runs_and_concurrency ... ok\ntest threads::intake_tests::a_slow_build_falls_back_to_the_plain_prompt ... ok\ntest threads::research_tests::copilot_helper_provider_overflow_is_budget_without_unavailability_or_fallback ... ok\ntest threads::project_tests::reviewed_project_rewrite_applies_after_attention_but_context_movement_invalidates_it ... ok\ntest threads::research_tests::exact_citations_are_verified_and_the_report_is_framed_untrusted ... ok\ntest threads::research_tests::copilot_helpers_route_through_the_copilot_client ... ok\ntest threads::research_tests::a_helper_past_its_rounds_gets_one_report_turn ... ok\ntest threads::research_tests::helper_dispatch_keeps_append_only_history_under_the_shared_guard ... ok\ntest threads::research_tests::helper_provider_context_limit_is_budget_with_safe_diagnostics_and_no_fallback ... ok\ntest threads::research_tests::helper_admitted_read_exhausts_tiny_next_dispatch_budget_without_trimming ... ok\ntest threads::research_tests::helper_request_budget_refuses_before_any_scripted_dispatch ... ok\ntest threads::research_tests::forged_hidden_and_moved_citations_are_dropped_or_flagged ... ok\ntest threads::research_tests::helper_reads_never_count_toward_the_parent_full_read_guard ... ok\ntest threads::research_tests::helper_read_records_never_returns_conversation_or_run_progress ... ok\ntest threads::research_tests::helper_growth_uses_its_chosen_route_budget_instead_of_parent_catalog_limit ... ok\ntest threads::research_tests::helper_resends_are_recorded_in_the_helper_trace ... ok\ntest threads::research_tests::research_rejects_scope_fields_from_the_model ... ok\ntest threads::research_tests::helpers_are_read_only_and_cannot_spawn_helpers ... ok\ntest threads::research_tests::injected_report_text_gains_no_authority ... ok\ntest threads::research_tests::hidden_history_and_superseded_notes_are_never_verified ... ok\ntest threads::research_tests::unavailable_reasons_are_fixed_text ... ok\ntest threads::research_tests::helpers_read_long_notes_in_capped_slices ... ok\ntest threads::research_tests::oversized_helper_batches_and_bad_reports_are_recoverable ... ok\ntest provider_formats_tests::knowledge_proposal_tool_tests::knowledge_protocol_and_owner_refusals_continue_safely_on_all_rig_routes ... ok\ntest threads::search_tests::search_arguments_are_strict_and_bounded ... ok\ntest threads::research_tests::helper_traces_nest_and_keep_text_out_below_full ... ok\ntest threads::search_tests::source_runs_start_with_intake_playbooks_and_more_rounds ... ok\ntest threads::research_tests::misplaced_quotes_are_relocated_only_when_unique_and_visible ... ok\ntest threads::search_tests::a_model_argument_cannot_choose_the_search_context ... ok\ntest threads::research_tests::the_helper_is_never_offered_withdraw_proposal ... ok\ntest threads::search_tests::a_broken_store_rule_is_reported_as_invalid_with_its_reason ... ok\ntest threads::research_tests::project_without_brn_knowledge_hides_global_notes_from_helpers ... ok\ntest threads::research_tests::the_input_token_budget_stops_helpers ... ok\ntest threads::search_tests::hidden_notes_are_refused_like_missing_ones_and_outages_are_not ... ok\ntest threads::search_tests::search_tools_use_the_run_chat_and_report_activity ... ok\ntest threads::search_tests::with_search_a_listing_names_notes_compactly_and_ids_read_them_whole ... ok\ntest threads::research_tests::missing_helper_credentials_are_unavailable_on_both_routes ... ok\ntest threads::search_tests::without_host_search_the_tools_are_not_offered ... ok\ntest threads::research_tests::setting_off_or_rewrite_leaves_research_unregistered ... ok\ntest threads::source_tests::changed_source_identity_refuses_old_transient_figure_before_publication ... ok\ntest threads::research_tests::long_notes_carry_a_research_hint_only_when_research_is_offered ... ok\ntest threads::source_tests::fingerprint_only_host_source_cannot_be_rewritten_by_model_without_report ... ok\ntest threads::source_tests::damaged_figure_identity_and_unknown_transient_link_refuse_without_publication ... ok\ntest threads::source_tests::committed_figure_receipt_replays_after_later_source_change ... ok\ntest threads::search_tests::summary_traces_hash_queries_and_off_records_nothing ... ok\ntest threads::source_tests::selected_complete_second_source_cannot_hide_first_source_detected_omission ... ok\ntest threads::steering_tests::copilot_run_uses_credentials_folder_even_when_codex_file_is_configured ... ok\ntest threads::source_tests::source_changed_after_prepare_refuses_runtime_and_core_owner_apply_atomically ... ok\ntest threads::steering_tests::archived_destination_after_preparation_skips_credentials ... ok\ntest threads::steering_tests::configuration_change_after_preparation_skips_credentials ... ok\ntest threads::steering_tests::fresh_queued_preparation_has_no_previous_owner_scope_and_uses_current_input ... ok\ntest threads::source_tests::model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group ... ok\ntest threads::summary::filesystem_tests::cache_refuses_symlink_fifo_oversize_and_cleans_failed_stage_without_touching_target ... ok\ntest threads::research_tests::at_most_three_helpers_run_at_once ... ok\ntest threads::source_tests::action_source_input_guard_checks_used_source_without_blocking_unused_source ... ok\ntest threads::steering_tests::stop_before_worker_skips_credentials_stale_tools_and_completion ... ok\ntest threads::source_tests::useful_intake_model_tools_retain_selected_figure_omissions_and_replay_without_raw_archive ... ok\ntest threads::steering_tests::prepared_run_id_exists_before_worker_and_precancel_skips_credentials ... ok\ntest threads::summary_tests::checked_bootstrap_fingerprint_is_trim_stable_and_rejects_invalid_credential ... ok\ntest threads::summary_tests::mandatory_overflow_still_refuses_before_any_provider_or_compactor_request ... ok\ntest threads::summary_tests::missing_copilot_bootstrap_leaves_summary_uncached_and_preserves_chat ... ok\ntest threads::summary_tests::derived_instructions_cannot_become_system_authority_or_note_read_evidence ... ok\ntest threads::summary_tests::canonical_generation_change_rejects_publication_even_when_run_and_sources_stay_live ... ok\ntest threads::summary_tests::model_backed_summary_precedes_chat_without_chat_cache_authority ... ok\ntest threads::summary_tests::optional_summary_degrades_to_fitting_plain_input_then_dispatches ... ok\ntest threads::summary_tests::resolved_account_change_invalidates_without_a_settings_or_history_change ... ok\ntest threads::summary_tests::incremental_summary_carries_prior_and_freezes_append_only_chat_prefix ... ok\ntest threads::summary_tests::cold_reopen_reuses_valid_coverage_then_corruption_and_loss_recompute ... ok\ntest threads::summary_tests::malformed_or_invented_summary_has_visible_gap_and_keeps_mandatory_request ... ok\ntest threads::summary_tests::review1::access_token_rotation_keeps_same_chatgpt_account_coverage ... ok\ntest threads::summary_tests::copilot_compaction_uses_same_chosen_account_model_effort_and_wire_without_caps ... ok\ntest threads::summary_tests::review1::compactor_empty_chat_refusal_retries_same_model_on_responses_once ... ok\ntest threads::tests::activity_reports_apply_domain_outcomes_without_exposing_results ... ok\ntest threads::summary_tests::review1::complete_validated_cache_ignores_busy_writer_lease ... ok\ntest threads::summary_tests::applied_receipts_get_host_stamps_but_proposals_cannot_be_summarized_as_applied ... ok\ntest threads::summary_tests::semantic_coverage_is_derived_without_canonical_summary_message ... ok\ntest threads::summary_tests::review1::well_formed_cache_digest_corruption_recomputes_with_other_stamps_unchanged ... ok\ntest threads::tests::bounded_tool_rounds_and_cancel_keep_distinct_terminal_states ... ok\ntest threads::summary_tests::zero_optional_history_fallback_does_not_schedule_compaction ... ok\ntest threads::tests::copilot_chat_route_refusal_retries_same_model_on_responses_once ... ok\ntest threads::summary_tests::review1::exchanged_copilot_rotation_reuses_bootstrap_but_account_switch_invalidates ... ok\ntest threads::tests::failure_notices_name_the_cause_in_owner_terms_and_only_true_recovery ... ok\ntest threads::tests::creation_remap_preserves_prose_and_only_changes_identity_fields ... ok\ntest threads::summary_tests::review1::compactor_context_overflow_or_partial_refusal_never_retries_responses ... ok\ntest threads::summary_tests::review1::unrelated_project_members_and_current_sources_do_not_invalidate ... ok\ntest threads::tests::explicit_decision_creation_is_authorized_without_expanding_to_another_note ... ok\ntest threads::tests::malformed_read_plus_valid_mutation_dispatches_nothing_and_makes_no_retry ... ok\ntest threads::tests::missing_required_nullable_argument_rejects_whole_batch ... ok\ntest threads::summary_tests::timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it ... ok\ntest threads::tests::durable_candidate_retry_receipt_and_fresh_continue_have_no_source_archive ... ok\ntest threads::tests::completed_fresh_run_clears_only_superseded_host_terminal_blockers_after_reopen ... ok\ntest threads::summary_tests::stop_and_concurrent_configuration_change_never_publish_inflight_summary ... ok\ntest threads::tests::credential_open_failure_finalizes_run_and_precancel_is_interrupted ... ok\ntest threads::tests::real_responses_final_replaces_preview_and_is_saved_once ... ok\ntest threads::tests::protected_changes_require_review_and_new_continue_fences_old_tools ... ok\ntest threads::tests::production_catalog_tools_report_activity_and_tool_loop_saves_only_final_once ... ok\ntest threads::summary_tests::project_move_knowledge_off_delete_restore_and_source_versions_invalidate_cache ... ok\ntest threads::tests::terminal_notices_are_recognised_including_every_earlier_saved_text ... ok\ntest threads::tests::model_message_mutations_and_refresh_are_rejected_before_dispatch ... ok\ntest threads::tests::an_interrupted_or_failed_run_keeps_its_prepared_candidate_in_review ... ok\ntest threads::tests::malformed_json_arguments_unknown_tools_and_unknown_finish_fail_closed ... ok\ntest threads::budget_tests::raw_http_history_prefix_survives_consecutive_runs_until_a_coarse_cut ... ok\ntest threads::tests::repeated_failures_keep_one_notice_naming_the_cause_until_an_interrupt_replaces_it ... ok\ntest threads::tests::sequential_useful_intake_preserves_short_fact_qualifications_without_figure_or_link ... ok\ntest threads::tests::restarted_run_reads_saved_note_tail_through_version_bound_range_tool ... ok\ntest threads::tests::the_run_lease_lasts_from_preparation_until_the_run_returns ... ok\ntest threads::writing_tests::ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance ... ok\ntest threads::writing_tests::mock_rewrite_prepares_review_without_apply_and_finishes_without_changing_the_note ... ok\ntest threads::tests::requalifying_a_source_respelled_since_an_older_build_drops_its_retained_omission ... ok\ntest threads::tests::selected_owner_scope_is_language_independent_and_bound_to_message_target_version ... ok\ntest threads::writing_tests::owner_reviewed_rewrite_receipt_replays_without_reapplying_content ... ok\ntest threads::tests::quotations_sources_and_old_request_do_not_grant_protected_authority ... ok\ntest threads::tests::a_notice_saved_by_an_earlier_build_is_replaced_not_duplicated ... ok\ntest threads::writing_tests::prose_only_rewrite_fails_and_saved_request_remains_available_for_retry ... ok\ntest threads_guides::tests::fixed_catalog_has_valid_frontmatter_and_rejects_paths ... ok\ntest threads_guides::tests::guidance_says_when_to_withdraw_an_obsolete_proposal ... ok\ntest tools::tests::eighth_tool_round_is_allowed_and_ninth_is_refused ... ok\ntest tools::tests::note_cap_preserves_utf8_and_exact_prefix ... ok\ntest tools::tests::note_results_require_explicit_conflict_knowledge_without_unknown_to_zero ... ok\ntest tools::tests::oversized_page_is_rejected_not_silently_changed ... ok\ntest tools::tests::query_and_limit_validation_uses_bytes ... ok\ntest tools::tests::raw_reply_preserves_exact_bytes_empty_ranges_and_prefix_rounding ... ok\ntest tools::tests::raw_reply_refuses_malformed_bounds_hash_and_classification ... ok\ntest tools::tests::raw_reply_string_bounds_refuse_whole_without_truncating_utf8 ... ok\ntest tools::tests::raw_request_defaults_strict_fields_and_exact_bounds ... ok\ntest visual::tests::png_transport_checks_only_exact_signature_and_encoded_byte_bound ... ok\ntest visual::tests::private_transport_refuses_oversized_collection_before_model_admission ... ok\ntest threads::writing_tests::rewrite_cannot_apply_an_older_ordinary_candidate ... ok\ntest threads::writing_tests::rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_scope ... ok\ntest threads::writing_tests::setup_configuration_is_never_model_readable_or_model_writable ... ok\ntest threads::writing_tests::rewrite_rejects_oversized_saved_context_and_preserves_request_after_failed_startup ... ok\ntest threads::tests::wrong_protected_target_stale_version_and_structural_change_are_denied ... ok\ntest threads::writing_tests::v2_model_request_uses_canonical_metadata_without_content_and_excludes_revoked_references ... ok\ntest threads::writing_tests::captured_note_comment_or_chat_changes_stale_owner_reviewed_apply ... ok\ntest threads::writing_tests::rewrite_forces_all_current_inputs_and_review_for_ordinary_and_protected_notes ... ok\ntest threads::tests::sequential_useful_intake_keeps_retained_prior_omissions_but_allows_requalification ... ok\ntest threads::writing_tests::rewrite_uses_full_saved_chat_and_never_posts_synthetic_owner_messages_on_retry ... ok\ntest threads::tests::sequential_complete_requalification_reduces_prior_aggregate_status ... ok\ntest threads::writing_tests::rewrite_rejects_forged_snapshot_foreign_thread_and_transient_sources ... ok\ntest threads::writing_tests::rewrite_rejects_target_metadata_and_extra_writes ... ok\ntest threads::research_tests::parent_cancel_stops_helpers ... ok\n\ntest result: ok. 441 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.13s\n\n     Running unittests src/lib.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/brn_threads_app-c988a8f11e37f029)\n\nrunning 2 tests\ntest skills::tests::skill_management_preserves_os_faults_and_domain_refusals ... ok\ntest review::batch_work_tests::unrelated_request_routing_does_no_canonical_verification_and_hint_grants_nothing ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n     Running tests/agent_eval_journeys.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_eval_journeys-afc31cd69d908d34)\n\nrunning 8 tests\ntest r3_current_gate_rule_is_on_the_first_page ... ok\ntest r7_private_offer_stays_in_its_chat ... ok\ntest r1_described_subject_is_on_the_first_page ... ok\ntest r5_current_tariff_version_is_found ... ok\ntest r4_scattered_evidence_is_one_link_from_the_topic_page ... ok\ntest r8_deep_section_is_read_at_its_offset ... ok\ntest r2_alias_resolves_through_the_linked_roster ... ok\ntest s2_review_names_the_links_one_change_group_resolves ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.56s\n\n     Running tests/agent_journeys.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/agent_journeys-aa293e56c9d2b726)\n\nrunning 4 tests\ntest another_chats_private_note_stays_invisible_to_search_and_connections ... ok\ntest retrieval_finds_and_reads_the_target_section_within_three_rounds ... ok\ntest maintenance_applies_within_eight_rounds_and_finds_its_own_change ... ok\ntest a_stale_candidate_is_refreshed_from_current_search_results ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.25s\n\n     Running tests/backup_directory.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/backup_directory-79fff5246ba7c117)\n\nrunning 4 tests\ntest explicit_app_backup_refuses_storage_and_saved_parent_folder_remains_supported ... ok\ntest restored_saved_descendant_is_refused_at_dispatch ... ok\ntest saved_destination_revalidated_against_restored_workspace_and_alias ... ok\ntest saved_folder_persists_across_reopen_and_backup_restore_and_each_backup_is_fresh ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s\n\n     Running tests/chat.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/chat-6d229c59711a914c)\n\nrunning 9 tests\ntest old_global_import_binding_replays_identical_receipt ... ok\ntest archived_attachment_replays_before_mutable_destination_checks ... ok\ntest competing_dispatchers_claim_exactly_one_instruction ... ok\ntest queue_edit_reorder_and_archive_preserve_attention ... ok\ntest keeping_a_chat_note_copies_its_referenced_private_figure_without_promoting_the_source_document ... ok\ntest dispatch_claim_replay_restart_and_competing_process_cannot_repost_instruction ... ok\ntest keep_globalizes_each_owned_figure_source_without_promoting_other_private_documents ... ok\ntest late_or_forged_completion_does_not_advance_and_stop_preserves_saved_partial ... ok\ntest retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_note ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s\n\n     Running tests/chat_decisions.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/chat_decisions-25ebcbb80a5abd71)\n\nrunning 4 tests\ntest decision_capture_does_not_promote_private_documents_or_figures ... ok\ntest reviewed_decision_keeps_general_figure_references_and_their_versions ... ok\ntest reviewed_decision_is_exact_protected_linked_replayable_and_undoable ... ok\ntest changed_partial_owner_or_fabricated_replies_cannot_be_captured ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n     Running tests/cw2_review.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/cw2_review-4149b5213329a9c6)\n\nrunning 2 tests\ntest general_writing_uses_real_search_counts_and_never_delivers_new_private_retained_material ... ok\ntest scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s\n\n     Running tests/daily_workflow_eval.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/daily_workflow_eval-e40d169027f68771)\n\nrunning 1 test\ntest daily_workflow_with_contradiction_reply_restart_and_resupply ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n     Running tests/delegation.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/delegation-c1df2edf5b8adce5)\n\nrunning 3 tests\ntest fresh_workspace_starts_pending_and_resume_requires_a_choice ... ok\ntest configure_cannot_choose_and_manual_work_remains_available_while_pending ... ok\ntest both_choices_persist_and_pause_resume_preserve_selected_mode ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n     Running tests/export_metadata.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/export_metadata-23f752b11028facc)\n\nrunning 5 tests\ntest later_source_observation_does_not_attribute_its_version_to_preserved_note ... ok\ntest source_links_without_import_coverage_are_exported ... ok\ntest plain_note_empty_body_and_asset_body_have_valid_metadata_and_snapshot_hashes ... ok\ntest metadata_quotes_arbitrary_titles_sources_and_preserves_existing_frontmatter_body ... ok\ntest derived_summary_is_absent_from_export_backup_and_current_or_restored_search ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s\n\n     Running tests/host_intake.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/host_intake-719f8b289be0d5cf)\n\nrunning 15 tests\ntest a_chat_without_sources_gets_no_host_context ... ok\ntest when_every_search_fails_the_retrieval_is_failed_not_ok ... ok\ntest without_search_the_source_is_still_present_and_the_tools_remain ... ok\ntest a_source_without_searchable_terms_reports_none_and_keeps_discovery_open ... ok\ntest another_chats_private_note_never_reaches_the_prompt_or_the_trace ... ok\ntest a_full_trace_keeps_the_query_text_for_evaluation ... ok\ntest the_first_prompt_carries_the_source_and_the_related_page_at_its_version ... ok\ntest link_neighbours_exclude_notes_the_chat_cannot_see ... ok\ntest a_summary_trace_has_counts_without_query_text_or_source_words ... ok\ntest a_scripted_model_completes_the_intake_in_two_rounds ... ok\ntest source_text_claiming_host_authority_neither_frames_the_data_nor_grants_a_write ... ok\ntest a_project_without_brn_knowledge_gets_no_general_notes_injected ... ok\ntest several_sources_each_get_a_query_and_the_prompt_stays_bounded ... ok\ntest a_source_is_capped_and_a_big_page_is_listed_never_shown_cut ... ok\ntest replacing_a_page_that_was_only_listed_needs_a_full_read_first ... ok\n\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s\n\n     Running tests/import_coverage.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/import_coverage-647f2e6524b08322)\n\nrunning 2 tests\ntest separate_conversion_candidates_preserve_one_protected_full_import_and_undo ... ok\ntest full_import_persists_detected_loss_separately_from_unverified_coverage ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n     Running tests/keyed_owner_operations.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/keyed_owner_operations-e6ae85552ba9c0f3)\n\nrunning 11 tests\ntest keyed_full_import_replay_detects_a_changed_title ... ok\ntest keyed_note_and_thread_creation_replay_and_refuse_other_content ... ok\ntest open_without_default_credentials_stores_no_auth_file ... ok\ntest keyed_full_import_replay_after_reimport_is_none ... ok\ntest keyed_undo_retries_its_deferred_compensation_and_then_replays ... ok\ntest keyed_full_import_replay_does_not_bypass_an_archived_chat ... ok\ntest keyed_full_import_replay_matches_html_source_bytes ... ok\ntest keyed_seed_chat_replays_first_findings ... ok\ntest keyed_topics_create_converges ... ok\ntest converged_twins_share_host_keys_and_authority ... ok\ntest unkeyed_creation_and_undo_stay_distinct_per_call ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\n\n     Running tests/killed_run_candidate.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/killed_run_candidate-f5a872fc354f2a1f)\n\nrunning 17 tests\ntest native_check_store_with_a_killed_intake_and_its_candidate ... ignored, writes a store for the owner's native check; set BRN_DWR_NATIVE_DATA and BRN_DWR_NATIVE_MODE\ntest continue_beside_a_live_run_adds_no_notice_and_keeps_its_lease ... ok\ntest a_deliberate_stop_of_a_live_run_adds_no_notice_and_keeps_its_lease ... ok\ntest the_delegation_choice_after_a_kill_leaves_one_notice_and_a_review_for_the_candidate ... ok\ntest continue_after_the_settings_stop_clears_its_notice_when_the_run_starts ... ok\ntest continue_in_the_killed_chat_starts_without_a_notice_and_removes_the_lease ... ok\ntest the_settings_change_also_stops_a_run_that_is_still_live ... ok\ntest resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_once ... ok\ntest stop_archive_and_steer_of_a_live_run_add_no_notice ... ok\ntest stop_after_a_failure_treats_a_lease_free_run_as_interrupted_work ... ok\ntest resume_or_dispatch_after_a_kill_adds_the_review_and_removes_the_free_lease_file ... ok\ntest the_owners_stop_adds_no_notice_but_brns_own_stops_still_do ... ok\ntest stop_archive_and_steer_of_a_killed_run_review_its_candidate_and_remove_the_lease ... ok\ntest continue_after_a_crash_clears_the_notice_when_the_next_run_starts ... ok\ntest converging_archive_and_chat_move_remove_free_leases ... ok\ntest project_changes_and_project_imports_leave_the_notice_and_the_review ... ok\ntest archive_keeps_existing_attention_and_adds_no_notice_for_a_killed_run ... ok\n\ntest result: ok. 16 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.23s\n\n     Running tests/product.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/product-8d1beaaf747b75a1)\n\nrunning 19 tests\ntest missing_storage_never_opens_an_empty_workspace_or_rewrites_evidence ... ok\ntest review_replacement_remaps_created_records_refs_and_applies_exact_final_text ... ok\ntest review_remap_requires_exact_known_asset_token_and_keeps_failed_original_active ... ok\ntest an_open_edit_session_is_a_typed_app_error_naming_note_and_session ... ok\ntest export_refuses_occupied_or_incomplete_outputs_without_partial_publication ... ok\ntest export_keeps_asset_id_prefixes_distinct ... ok\ntest accepted_review_clears_only_matching_attention_and_replay_finishes_cleanup_once ... ok\ntest replacement_attention_follows_new_candidate_and_acceptance_preserves_other_questions ... ok\ntest message_history_uses_durable_receipt_order_and_preserves_creation_order_after_edit ... ok\ntest configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions ... ok\ntest export_rejects_complete_unknown_asset_url_even_when_known_identity_is_its_prefix ... ok\ntest independent_whole_note_and_action_selection_requires_new_displayed_candidate ... ok\ntest dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on_retry ... ok\ntest selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence ... ok\ntest review_selection_preserves_structural_new_record_dependencies_and_exact_bases ... ok\ntest update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup ... ok\ntest selected_review_groups_and_replacement_preserve_current_or_historical_note_inputs ... ok\ntest full_import_retains_assets_source_identity_and_rejects_changed_retry_input ... ok\ntest current_search_excludes_pending_revisions_and_rebuilds_after_save_archive_restore ... ok\n\ntest result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s\n\n     Running tests/projects.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/projects-89dcdb40005368ce)\n\nrunning 8 tests\ntest stale_preview_and_changed_trash_fail_atomically_without_losing_records ... ok\ntest existing_terminal_private_actions_go_to_trash_without_becoming_general_and_restore_terminal ... ok\ntest unlink_preserves_private_retention_elsewhere_and_last_link_requires_explicit_keep ... ok\ntest moved_chat_keeps_private_provenance_and_undo_does_not_erase_it ... ok\ntest private_actions_on_shared_documents_need_explicit_choices_and_never_leak ... ok\ntest project_context_shared_identity_knowledge_setting_movement_and_replay ... ok\ntest project_import_retains_source_figures_and_private_history_after_shared_origin_deletion ... ok\ntest delete_preview_guards_choices_and_restore_preserve_later_shared_work ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s\n\n     Running tests/retrieval_eval.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/retrieval_eval-f5f070e1d364983c)\n\nrunning 12 tests\ntest scattered_and_supersession_metrics_follow_their_definitions ... ok\ntest metrics_follow_their_definitions ... ok\ntest golden_fixture_satisfies_structural_and_lexical_rules ... ok\ntest validation_refuses_literal_matches_and_dangling_relevance ... ok\ntest validation_refuses_the_new_strata_rule_violations ... ok\ntest new_strata_notes_have_the_structure_their_metrics_need ... ok\ntest corpus_is_deterministic_and_seed_sensitive ... ok\ntest visibility_check_counts_leaks_and_credits_in_chat_finds ... ok\ntest metrics_reflect_a_known_ranking_through_the_retriever_seam ... ok\ntest small_evaluation_runs_end_to_end_with_sane_baseline ... ok\ntest worker_index_keeps_solved_strata_finds_inflections_and_respects_chats ... ok\ntest identical_seeds_give_identical_ranks_despite_random_record_ids ... ok\n\ntest result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.63s\n\n     Running tests/run_recovery.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/run_recovery-690e93fd458fd777)\n\nrunning 4 tests\ntest recovery_runs_once_and_cannot_be_undone ... ok\ntest a_live_run_keeps_blocking_resume_and_dispatch ... ok\ntest a_second_orphan_in_the_same_chat_leaves_one_notice ... ok\ntest resume_after_a_crash_interrupts_the_orphan_once_and_dispatches_the_queue_once ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n     Running tests/search_dense.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/search_dense-8f0cf2e83cff5ecd)\n\nrunning 6 tests\ntest the_embedding_model_must_be_chosen_before_search_starts ... ok\ntest a_failing_model_is_reported_and_keyword_search_still_answers ... ok\ntest without_a_model_semantic_coverage_is_none ... ok\ntest dense_lane_finds_paraphrases_with_prefixes_and_reports_coverage ... ok\ntest semantic_matches_must_stand_out_and_never_reorder_keyword_matches ... ok\ntest coverage_is_partial_right_after_a_sync_and_private_passages_cannot_crowd_out ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s\n\n     Running tests/search_messages.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/search_messages-4ee9d7b7119e6457)\n\nrunning 11 tests\ntest agent_search_never_returns_messages ... ok\ntest owner_messages_are_found_and_partial_progress_is_not ... ok\ntest a_private_attachment_chat_is_searchable_only_from_itself ... ok\ntest a_saved_reply_is_found_with_its_chat ... ok\ntest project_chats_appear_only_in_their_project_search ... ok\ntest an_archived_chats_messages_stay_counted_and_labelled ... ok\ntest message_pages_follow_the_cursor ... ok\ntest a_v3_index_is_rebuilt_so_an_archived_chat_is_rescoped ... ok\ntest archived_chats_stay_labelled_and_trashed_chats_return_on_restore ... ok\ntest rebuilding_the_index_backfills_messages ... ok\ntest an_archived_project_chats_note_is_found_in_its_project_and_agents_keep_their_scope ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s\n\n     Running tests/search_worker.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/search_worker-ce089018352e80e5)\n\nrunning 11 tests\ntest evidence_quota_keeps_rank_order_and_every_result_once ... ok\ntest failures_are_reported_not_answered_as_empty ... ok\ntest dropped_tickets_do_not_block_later_requests ... ok\ntest connections_are_bounded_ordered_and_visibility_checked ... ok\ntest chat_only_notes_and_chat_sources_stay_in_their_chat ... ok\ntest follows_canonical_writes_incrementally_with_exact_quotes ... ok\ntest a_removed_derived_directory_is_recreated_while_running ... ok\ntest pages_have_exact_counts_evidence_quota_and_context_scoped_link_counts ... ok\ntest restarts_reuse_or_recreate_the_derived_index ... ok\ntest concurrent_handles_and_a_second_process_view_agree ... ok\ntest every_offered_cursor_is_accepted_up_to_the_reachable_cap ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s\n\n     Running tests/shared_run.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/shared_run-c1f460e042519b91)\n\nrunning 2 tests\ntest selection_errors_precede_any_run_write_and_catalogue_never_substitutes ... ok\ntest shared_preparation_runs_scripted_with_the_same_durable_run_identity ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n     Running tests/skills.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/skills-d9806e23ee0a7041)\n\nrunning 1 test\ntest owner_package_reopen_and_real_backup_export_retention_exclusion ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n     Running tests/source_intake_chat.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/source_intake_chat-fc0e7da455bfa753)\n\nrunning 16 tests\ntest full_import_of_one_file_through_two_spellings_observes_one_source ... ok\ntest full_import_reuses_a_source_an_older_build_saved_under_another_spelling ... ok\ntest a_supply_with_a_coverage_report_reuses_a_source_saved_under_an_older_spelling ... ok\ntest keep_in_brn_reuses_a_global_source_saved_under_an_older_spelling ... ok\ntest keep_in_brn_prefers_the_global_source_at_the_real_path ... ok\ntest a_source_saved_under_an_older_spelling_still_matches_and_is_recorded_canonically ... ok\ntest a_resupply_after_an_assistant_reply_reuses_the_instruction ... ok\ntest a_cli_then_desktop_supply_of_one_source_leaves_one_instruction_message ... ok\ntest the_same_file_through_a_symlinked_folder_reuses_one_chat_and_one_source ... ok\ntest a_different_file_with_the_same_name_gets_its_own_chat_and_source ... ok\ntest other_instruction_wording_posts_a_fresh_instruction ... ok\ntest the_same_source_reuses_its_chat_per_scope_and_never_an_archived_or_foreign_one ... ok\ntest a_different_source_in_the_same_chat_posts_its_own_instruction ... ok\ntest new_owner_text_in_between_posts_a_fresh_instruction ... ok\ntest a_chat_whose_run_is_still_live_is_not_reused_until_its_lease_is_free ... ok\ntest tmp_and_private_tmp_spellings_reuse_one_chat_and_one_source ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s\n\n     Running tests/steering.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/steering-653a376bf778ec2a)\n\nrunning 2 tests\ntest failed_save_keeps_exact_key_intent_bound_and_has_no_message_or_fence ... ok\ntest stable_key_replays_one_durable_message_after_resolution_and_reopen ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running tests/synthetic_baseline.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/synthetic_baseline-ea024e8cb7b8de95)\n\nrunning 3 tests\ntest fixture_refuses_symlink_parent_before_creating_a_destination ... ok\ntest fixture_refuses_existing_relative_and_invalid_size_destinations_before_writes ... ok\ntest bounded_corpus_exercises_images_revisions_threads_receipts_and_reopened_search ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s\n\n     Running tests/thread_lifecycle.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/thread_lifecycle-3e5a4cd05f5ed585)\n\nrunning 3 tests\ntest legacy_settings_without_theme_keep_their_serialized_form ... ok\ntest reopen_records_reason_and_resolution_reason_is_kept ... ok\ntest theme_waits_for_working_runs_and_never_stops_them ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n     Running tests/topics_knowledge.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/topics_knowledge-cdf97f0c38b138c1)\n\nrunning 11 tests\ntest topics_note_must_be_a_current_general_note ... ok\ntest host_owned_import_relations_are_not_relation_variants ... ok\ntest a_link_to_a_superseded_note_names_the_replacement ... ok\ntest archived_chat_material_and_chat_links_are_not_reported_as_broken ... ok\ntest retired_notes_links_and_same_group_inputs_are_not_reported ... ok\ntest unlisted_topic_pages_are_reported_only_with_a_topics_note ... ok\ntest supersession_keeps_recorded_conflicts_and_matches_relations ... ok\ntest topics_note_lists_linked_topic_pages_in_mention_order ... ok\ntest knowledge_check_reports_deterministic_findings_without_chat_material ... ok\ntest broken_links_name_only_current_general_replacements ... ok\ntest hub_findings_and_the_review_message_stay_bounded ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s\n\n     Running tests/user_scale.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/user_scale-502959ef30d7885b)\n\nrunning 1 test\ntest ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s\n\n     Running tests/wiki_eval_seed.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/wiki_eval_seed-22823373806e32b4)\n\nrunning 5 tests\ntest invalid_fixtures_fail_with_clear_messages ... ok\ntest seeding_refuses_a_data_dir_that_is_not_fresh ... ok\ntest explicit_notes_links_chat_edits_imports_and_topics ... ok\ntest distractors_cycle_values_and_have_unique_titles ... ok\ntest seeding_is_deterministic_in_content_and_filler_pairs_are_linked ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n     Running tests/withdraw_proposal.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/withdraw_proposal-a5d01c3f8d177c22)\n\nrunning 6 tests\ntest withdrawing_an_owner_created_candidate_is_refused ... ok\ntest withdrawing_another_chats_proposal_is_refused ... ok\ntest withdrawing_an_applied_proposal_is_refused ... ok\ntest the_agent_withdraws_its_own_obsolete_proposal_after_the_owner_decides ... ok\ntest withdrawing_twice_replays_without_another_receipt ... ok\ntest undo_after_a_withdrawal_matches_undo_after_dismiss ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s\n\n     Running tests/workspace_purpose.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/workspace_purpose-be268aa67bd01e02)\n\nrunning 2 tests\ntest a_created_test_workspace_has_no_credential_source_and_refuses_a_second_creation ... ok\ntest the_no_upgrade_open_creates_owner_workspaces_without_credentials_and_reopens_them ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running tests/writing.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/writing-264e212abab448cb)\n\nrunning 10 tests\ntest new_requests_capture_v2_setup_without_changing_the_note ... ok\ntest oversized_general_feedback_refuses_without_partial_request_or_note_write ... ok\ntest empty_general_feedback_preserves_existing_replay_binding ... ok\ntest exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok\ntest utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok\ntest general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... ok\ntest feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok\ntest multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok\ntest oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok\ntest manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n     Running tests/writing_context.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/writing_context-492379e739bec000)\n\nrunning 2 tests\ntest knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_exception ... ok\ntest explicit_conversations_are_scoped_durable_and_inspection_does_not_create ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n     Running tests/writing_setup.rs (/private/tmp/brn-d3a-20261017-target/debug/deps/writing_setup-c058baa7cd92b18a)\n\nrunning 22 tests\ntest overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok\ntest malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden ... ok\ntest capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version ... ok\ntest ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... ok\ntest knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... ok\ntest archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata ... ok\ntest revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok\ntest setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... ok\ntest setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok\ntest live_canonical_setup_undo_does_not_need_its_archived_conversation ... ok\ntest checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok\ntest setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration ... ok\ntest project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal ... ok\ntest unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup ... ok\ntest ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok\ntest v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok\ntest inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... ok\ntest scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead ... ok\ntest scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok\ntest stored_v2_context_rejects_forged_binding_and_reference_metadata ... ok\ntest delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay ... ok\ntest first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move ... ok\n\ntest result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s\n\n"
+    },
+    {
+      "phase": "corrected-clippy",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/scripted-runs,brn-ai/capability-spike",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/private/tmp/brn-d3a-opus2-20261017-verification/corrected-clippy-ilj7d5dy",
+      "patch_sha256": "564ded6d8b459157ff492a1a595b679078be5b6a9cb779c431ba5b926e75a160",
+      "start_utc": "2026-10-17T06:07:40.240044+00:00",
+      "pid": 2600,
+      "pgid": 2600,
+      "exit_code": 0,
+      "seconds": 5.692833666922525,
+      "end_utc": "2026-10-17T06:07:45.933234+00:00",
+      "log_sha256": "c9db4618c8bddb666a0b3f67e5c5fe310016e1d8351f555410012546a6e54ba1",
+      "summaries": [],
+      "source_unchanged": true,
+      "artifacts": {},
+      "input_overrides_vs_corrected": {},
+      "log_text": "    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-app)\n    Checking brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `dev` profile [unoptimized] target(s) in 5.47s\n"
+    },
+    {
+      "phase": "corrected-fmt",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "head": "32e571f5f43993f1691e0d1eaf8ed66a95ecdca0",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "target": "/private/tmp/brn-d3a-20261017-target",
+      "TMPDIR": "/private/tmp/brn-d3a-opus2-20261017-verification/corrected-fmt-ggbutg46",
+      "patch_sha256": "564ded6d8b459157ff492a1a595b679078be5b6a9cb779c431ba5b926e75a160",
+      "start_utc": "2026-10-17T06:07:51.230293+00:00",
+      "pid": 2798,
+      "pgid": 2798,
+      "exit_code": 0,
+      "seconds": 1.2478458340046927,
+      "end_utc": "2026-10-17T06:07:52.478409+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "source_unchanged": true,
+      "artifacts": {},
+      "input_overrides_vs_corrected": {},
+      "log_text": ""
+    }
+  ],
+  "release": {
+    "utc": "2026-10-17T06:09:55.556091+00:00",
+    "all_five_tool_sessions_reaped": [
+      69631,
+      37317,
+      1110,
+      10841,
+      42238
+    ],
+    "own_cargo_pgids": [
+      98797,
+      98998,
+      99286,
+      2600,
+      2798
+    ],
+    "precise_heavy_executables": [],
+    "material_inputs_unchanged_after_checks": 337,
+    "heavy_slot": "RELEASED to principal; no further build/test planned for this correction",
+    "mutation_commands_run": 0,
+    "original_mutation_charge_unchanged_seconds": 776.2950060367584,
+    "original_mutation_unused_seconds": 1023.7049939632416
+  }
+}

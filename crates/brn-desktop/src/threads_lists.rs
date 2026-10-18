@@ -3,7 +3,7 @@
 use super::layout::{Preset, TileKind};
 use super::state::linked;
 use super::theme::ThemeId;
-use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState};
+use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState, record_in_chat};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Latest receipt position and commit time for records and the threads their
@@ -215,10 +215,8 @@ fn civil_year(day: i64) -> i64 {
 pub(super) fn is_background(receipt: &Receipt) -> bool {
     receipt.needs_refresh.is_empty()
         && !receipt.writes.is_empty()
-        && receipt
-            .writes
-            .iter()
-            .all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+        && (receipt.writes.iter().all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
+            || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_app::WRITING_CONTEXT_ROLE)))
 }
 
 /// A recorded reason as the owner reads it: chat-control bookkeeping drops
@@ -536,6 +534,7 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
         .iter()
         .filter(|r| !r.archived)
         .filter(|r| matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none() && n.chat.is_none()))
+        .filter(|r| record_in_chat(r, records, None))
         .map(|r| r.id.as_str())
         .collect();
     let mut inbound: BTreeMap<&str, usize> = BTreeMap::new();
@@ -552,7 +551,11 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
         .iter()
         .filter(|record| !record.archived)
         .filter_map(|record| match &record.data {
-            RecordData::Note(note) if note.superseded_by.is_none() && note.chat.is_none() => {
+            RecordData::Note(note)
+                if note.superseded_by.is_none()
+                    && note.chat.is_none()
+                    && record_in_chat(record, records, None) =>
+            {
                 Some(NoteRow {
                     id: record.id.clone(),
                     title: note.title.clone(),

@@ -1,0 +1,6 @@
+{
+  "path": "crates/brn/tests/agent_runs.rs",
+  "allocation": "EXACT one existing starts_with literal12->13; all surrounding bytes identical",
+  "before_sha256": "9922e12ec86dcfc5db261fbd19b8b9126ec47caa1fc711aded4325e6e0bb72f9",
+  "after_sha256": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812"
+}

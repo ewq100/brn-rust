@@ -431,6 +431,12 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
             message: "Choose useful, full, or chat with --thread",
         },
     ),
+    (
+        "document-conversion",
+        "converter",
+        Grammar::Enum(&["xberg", "xberg-brn"]),
+    ),
+    ("document-conversion", "ai", Grammar::Enum(&["off", "on"])),
     ("configure", "provider", PROVIDER),
     ("configure", "helper-provider", PROVIDER),
     ("configure", "effort", EFFORT),
@@ -439,6 +445,7 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("backup", "destination", Grammar::AbsolutePath),
     ("export", "destination", Grammar::AbsolutePath),
     ("restore", "source", Grammar::AbsolutePath),
+    ("skill-install", "source", Grammar::AbsolutePath),
     ("upgrade", "backup-directory", Grammar::AbsolutePath),
     ("init", "purpose", Grammar::Enum(&["test"])),
     ("begin-edit", "token-out", Grammar::AbsolutePath),
@@ -669,6 +676,62 @@ pub(crate) static COMMANDS: &[Spec] = &[
         bounded_form: Some("candidates --limit N [--cursor C]"),
         ..read("candidates", &["limit", "cursor"], &[])
     },
+    read("skills", &["project"], &[]),
+    read("skill-inspect", &["name", "project"], &["name"]),
+    cmd(
+        "skill-install",
+        &["source"],
+        &["source"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
+    cmd(
+        "skill-remove",
+        &["name", "digest"],
+        &["name", "digest"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
+    setting(
+        "skill-enable",
+        &["id", "digest", "project"],
+        &["id", "digest"],
+    ),
+    setting(
+        "skill-disable",
+        &["id", "digest", "project"],
+        &["id", "digest"],
+    ),
+    setting("skill-select", &["id", "project"], &["id"]),
+    setting("skill-clear", &["id", "project"], &["id"]),
+    read("mcp-status", &["thread"], &[]),
+    cmd(
+        "mcp-discover",
+        &["endpoint"],
+        &["endpoint"],
+        YES,
+        Converge,
+        None,
+        NONE,
+        &[],
+    ),
+    setting("mcp-configure", &["policy"], &["policy"]),
+    cmd(
+        "mcp-disable",
+        &[],
+        &[],
+        YES,
+        Converge,
+        None,
+        ReceiptAt::Field,
+        CONVERGE_OUTCOMES,
+    ),
     read("settings", &[], &[]),
     setting("pause", &[], &[]),
     setting("resume", &[], &[]),
@@ -815,6 +878,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
         Some(Replay),
         ReceiptAt::Arm,
         RECEIPT_OUTCOMES,
+    ),
+    setting(
+        "document-conversion",
+        &["converter", "ai"],
+        &["converter", "ai"],
     ),
     setting("delegation", &["choice"], &["choice"]),
     Spec {
@@ -999,9 +1067,11 @@ pub(crate) static COMMANDS: &[Spec] = &[
             "record-decision",
             "trace",
             "prompt-file",
+            "mcp-tool",
+            "mcp-input",
         ],
         &["thread", "prompt"],
-        Owner::WithOptions(&["edit-note", "record-decision"]),
+        Owner::WithOptions(&["edit-note", "record-decision", "mcp-tool"]),
         Duplicate,
         None,
         ReceiptAt::Terminal,
@@ -1396,8 +1466,18 @@ mod tests {
             ("backup", &["destination"]),
             ("note-create", &["title", "text"]),
             ("thread-start", &["title"]),
+            ("document-conversion", &["converter", "ai"]),
             ("delegation", &["choice"]),
             ("read", &["id"]),
+            ("skill-inspect", &["name"]),
+            ("skill-install", &["source"]),
+            ("skill-remove", &["name", "digest"]),
+            ("skill-enable", &["id", "digest"]),
+            ("skill-disable", &["id", "digest"]),
+            ("skill-select", &["id"]),
+            ("skill-clear", &["id"]),
+            ("mcp-discover", &["endpoint"]),
+            ("mcp-configure", &["policy"]),
             ("revisions", &["note"]),
             ("revision", &["note", "version"]),
             ("search", &["query"]),
@@ -1440,10 +1520,20 @@ mod tests {
     #[test]
     fn owner_marks_match_the_owner_decision_table() {
         let yes = [
+            "mcp-discover",
+            "mcp-configure",
+            "mcp-disable",
+            "skill-install",
+            "skill-remove",
+            "skill-enable",
+            "skill-disable",
+            "skill-select",
+            "skill-clear",
             "apply",
             "dismiss",
             "undo",
             "configure",
+            "document-conversion",
             "delegation",
             "pause",
             "resume",
@@ -1469,7 +1559,7 @@ mod tests {
             let name = described["name"].as_str().unwrap();
             assert_eq!(described["owner_decision"], yes.contains(&name), "{name}");
             let options = match name {
-                "ask" => json!(["edit-note", "record-decision"]),
+                "ask" => json!(["edit-note", "record-decision", "mcp-tool"]),
                 "intake" => json!(["project"]),
                 _ => json!([]),
             };
@@ -1514,8 +1604,21 @@ mod tests {
         assert!(INTAKE_OUTCOMES.contains(&"Deferred"));
         for spec in COMMANDS {
             let expected: &[&str] = match spec.name {
-                "apply" | "keep-in-brn" | "delegation" | "configure" | "pause" | "resume"
-                | "topics-choose" | "undo" | "topics-create" => APPLY_OUTCOMES,
+                "apply"
+                | "keep-in-brn"
+                | "document-conversion"
+                | "delegation"
+                | "configure"
+                | "pause"
+                | "resume"
+                | "topics-choose"
+                | "undo"
+                | "topics-create"
+                | "skill-enable"
+                | "skill-disable"
+                | "skill-select"
+                | "skill-clear"
+                | "mcp-configure" => APPLY_OUTCOMES,
                 "intake" => INTAKE_OUTCOMES,
                 "save" => SAVE_OUTCOMES,
                 "update-buffer" => BUFFER_OUTCOMES,
@@ -1524,7 +1627,7 @@ mod tests {
                 "ask" => TERMINAL_OUTCOMES,
                 "read" => READ_OUTCOMES,
                 "archive" | "resolve" | "unarchive" | "chat-move" | "project-link"
-                | "project-unlink" => CONVERGE_OUTCOMES,
+                | "project-unlink" | "mcp-disable" => CONVERGE_OUTCOMES,
                 _ if spec.receipt == ReceiptAt::Root || spec.receipt == ReceiptAt::Arm => {
                     RECEIPT_OUTCOMES
                 }

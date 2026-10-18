@@ -1,0 +1,6 @@
+{
+  "raw_path": "/private/tmp/brn-int-d-history-phase-20261017/local-preparation/r2-generate.stdout",
+  "sha256": "7808e95cb57bf56f79cf2893d7df6e9f8173038cdc921fc23bc7697b8eab5347",
+  "encoding": "UTF-8 text as exact JSON string",
+  "text": "\nrunning 1 test\ntest checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selection ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.17s\n\n"
+}

@@ -1,0 +1,90 @@
+{
+  "old_base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "old_binary_sha256": "5c9579ca7562a58e22461e4792c30064241d41286cdbec42ed603345a791150b",
+  "old_dep_info_sha256": "0ea244d23c860f0fc987ce5e254e8b2d385d0e0af1843ace54aba6b2ee1c9a86",
+  "candidate_build_receipt": "cli-build-initial.json",
+  "candidate_binary_sha256": "1bd86176ee7055b64f333b994139360f543c12a48483ced100b1acdaeab48270",
+  "candidate_dep_info_sha256": "6e07dff2240d47446155f2afe31fc7981c2d236f1b1c690052766ba86690926e",
+  "commands": [
+    {
+      "args": [
+        "/private/tmp/brn-d3b-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/data",
+        "records"
+      ],
+      "exit": 6,
+      "stdout": "{\"contract\":3,\"command\":\"records\",\"ok\":false,\"status\":\"rejected\",\"exit\":6,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"upgrade_required\",\"message\":\"workspace schema 7 needs an upgrade to schema 8; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first\",\"details\":{\"schema_found\":7,\"schema_required\":8}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/private/tmp/brn-d3b-20261017-before-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/data",
+        "skill-enable",
+        "--id",
+        "installed:review",
+        "--digest",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit": 2,
+      "stdout": "{\"contract\":3,\"command\":null,\"ok\":false,\"status\":\"usage\",\"exit\":2,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"unknown_command\",\"message\":\"Unknown command; run --help\",\"details\":{\"command\":\"skill-enable\"}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/private/tmp/brn-d3b-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/data",
+        "upgrade",
+        "--backup-directory",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/backups"
+      ],
+      "exit": 0,
+      "stdout": "{\"contract\":3,\"command\":\"upgrade\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"converge\",\"changed\":[],\"conflict\":null,\"result\":{\"upgraded\":true,\"data\":\"/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/data\"},\"error\":null,\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/private/tmp/brn-d3b-20261017-before-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/data",
+        "records"
+      ],
+      "exit": 6,
+      "stdout": "{\"contract\":3,\"command\":\"records\",\"ok\":false,\"status\":\"rejected\",\"exit\":6,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"unsafe_directory\",\"message\":\"incompatible or unsafe data directory: database application/schema identity mismatch\",\"details\":{}},\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/private/tmp/brn-d3b-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/restored",
+        "restore",
+        "--source",
+        "/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/backups/brn-before-schema-8-8c0e8a89-06ba-40ca-b3eb-10edcfe2da41.sqlite3"
+      ],
+      "exit": 0,
+      "stdout": "{\"contract\":3,\"command\":\"restore\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"refuse\",\"changed\":[],\"conflict\":null,\"result\":{\"restored\":\"/private/tmp/brn-d3b-20261017-schema7-fixture-corrected/restored\",\"workspace_purpose\":\"owner\"},\"error\":null,\"page\":null,\"stop\":null,\"authority\":{\"workspace_purpose\":null,\"cli_authority\":null,\"enforced\":false,\"actor\":null}}\n",
+      "stderr": ""
+    }
+  ],
+  "schema7_fixture_receipt": "schema7-fixture.json",
+  "expected_sha256": "449d064f465d820fecaa8eccea14ac81b5bc006f67442befe349b5e7f46831d3",
+  "backup_sha256": "17b21a55a5c12bb10a32ae2e00cecd4577a6035561f1e89889f97ea5e2f5b009",
+  "checks": [
+    "new refuses7 byte unchanged",
+    "old feature absence unchanged",
+    "explicit external-backed7->8 upgrade all canonical tables byte-value unchanged",
+    "pre-upgrade source snapshot remains7",
+    "actual old executable refuses8 byte unchanged",
+    "restore upgrades unpublished copy and preserves v1/candidate/receipt tables; source7 untouched"
+  ],
+  "status": "PASS"
+}

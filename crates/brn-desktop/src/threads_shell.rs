@@ -72,13 +72,7 @@ pub(super) fn item(
     item
 }
 
-pub(super) fn pill(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) -> Button {
-    button(id)
-        .label(label)
-        .compact()
-        .ghost()
-        .h(tokens::COMPACT_CONTROL)
-}
+pub(super) use brn_writing_ui::native::pill;
 
 /// Collapses whitespace so a title renders on one line; the element
 /// truncates it with an ellipsis instead of cutting the text.
@@ -302,7 +296,7 @@ impl ThreadsUi {
                 TileKind::Threads.label().into(),
                 TileKind::Threads.label().into(),
             ),
-            TileKind::Note => match (&self.review, &self.note) {
+            TileKind::Note => match (&self.writing.review, &self.writing.note) {
                 (_, Some(open)) => named(one_line(&title(&open.record))),
                 (Some(review), None) => named(format!(
                     "Review · {}",
@@ -551,15 +545,16 @@ impl ThreadsUi {
             );
         // Comments sit beside the text only when the panels' minimums leave
         // room for the margin; the Note's bars fold by its resolved width.
-        self.margin_mode =
+        self.writing.margin_mode =
             layout::margin_mode(f32::from(window.viewport_size().width), &self.layout, false);
         let note_width = self.note_panel_width(window);
         // The toolbar folds by what this note's row needs, measured from
         // its labels, status chip and comment count.
-        self.note_fit = note_width.map_or(layout::NoteFit::Full, |width| {
+        self.writing.note_fit = note_width.map_or(layout::NoteFit::Full, |width| {
             layout::NoteFit::for_width(width, self.note_toolbar_needs(window))
         });
-        self.review_fit = note_width.map_or(layout::ReviewFit::Full, layout::ReviewFit::for_width);
+        self.writing.review_fit =
+            note_width.map_or(layout::ReviewFit::Full, layout::ReviewFit::for_width);
         self.chat_narrow = self
             .panel_width(TileKind::Chat, window)
             .is_some_and(|width| width < CHAT_NARROW);
@@ -681,7 +676,7 @@ impl ThreadsUi {
     /// margin while it shows beside the text, nothing when stacked.
     fn note_margin_width(&self) -> f32 {
         if self.comments_beside() {
-            self.margin_mode.width()
+            self.writing.margin_mode.width()
         } else {
             0.
         }
@@ -1251,7 +1246,7 @@ impl ThreadsUi {
         }
         // The open note's save state stays visible even when its panel is
         // hidden: unsaved saves on click, saved opens Changes.
-        if let Some(open) = &self.note {
+        if let Some(open) = &self.writing.note {
             let name = one_line(&title(&open.record));
             bar = bar.child(if open.session.is_some() {
                 pill("status-save", "● Unsaved · ⌘S")
@@ -1649,6 +1644,7 @@ impl ThreadsUi {
 
 impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.refresh_writing_review_cache();
         let _retained = (&self.subscriptions, &self.poll);
         let p = pal();
         self.schedule_focus_first(window);
@@ -1686,14 +1682,24 @@ impl Render for ThreadsUi {
             .bg(rgb(p.paper))
             .text_color(rgb(p.ink))
             .on_action(cx.listener(|this, _: &Save, window, cx| {
-                if this.review.as_ref().is_some_and(|review| review.edited) {
+                if this
+                    .writing
+                    .review
+                    .as_ref()
+                    .is_some_and(|review| review.edited)
+                {
                     this.prepare_review_edit(window, cx);
-                } else if this.note.is_some() {
+                } else if this.writing.note.is_some() {
                     this.save(window, cx);
                 }
             }))
             .on_action(cx.listener(|this, _: &Ask, window, cx| {
-                if this.comment_input.focus_handle(cx).is_focused(window) {
+                if this
+                    .writing
+                    .comment_input
+                    .focus_handle(cx)
+                    .is_focused(window)
+                {
                     this.post_comment(window, cx);
                 } else {
                     this.ask(window, cx);

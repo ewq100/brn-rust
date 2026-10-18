@@ -1,0 +1,24 @@
+{
+  "closed_runner_artifacts": [
+    {
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "original": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0",
+      "both_unchanged": true
+    },
+    {
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "original": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e",
+      "both_unchanged": true
+    }
+  ],
+  "before_copy": {
+    "source": "/private/tmp/brn-int-d-ordinary-prepare-before-source",
+    "target": "/private/tmp/brn-int-d-ordinary-prepare-before-target",
+    "unchanged_production_files": 331,
+    "only_test_patch": "M crates/brn-ai/src/threads_writing_tests.rs",
+    "no_remotes": true,
+    "restoration_note": "No mutations were run. Exact-base production remains unchanged; the intentional before test-only patch remains as preserved evidence."
+  }
+}

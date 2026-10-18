@@ -10,16 +10,16 @@ struct FakeSearch {
 impl RunNoteSearch for FakeSearch {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
         hybrid: bool,
     ) -> std::result::Result<NoteSearchPage, NoteSearchError> {
-        self.calls
-            .lock()
-            .unwrap()
-            .push(format!("search {chat} {query} {limit} {cursor:?} {hybrid}"));
+        self.calls.lock().unwrap().push(format!(
+            "search {} {query} {limit} {cursor:?} {hybrid}",
+            chat.unwrap_or("general")
+        ));
         Ok(NoteSearchPage {
             total: 1,
             shown: 1,
@@ -42,15 +42,15 @@ impl RunNoteSearch for FakeSearch {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
     ) -> std::result::Result<NoteNeighbourhood, NoteSearchError> {
-        self.calls
-            .lock()
-            .unwrap()
-            .push(format!("connections {chat} {note} {hops} {sources}"));
+        self.calls.lock().unwrap().push(format!(
+            "connections {} {note} {hops} {sources}",
+            chat.unwrap_or("general")
+        ));
         if note == "hidden" {
             return Err(NoteSearchError::Rejected);
         }
@@ -223,7 +223,23 @@ async fn summary_traces_hash_queries_and_off_records_nothing() {
     .await;
     let trace = finish_trace(&scope, &answer).unwrap();
     assert_eq!(trace.level, TraceLevel::Summary);
-    assert_eq!(trace.guide, crate::threads_guides::BUNDLE_VERSION);
+    let RecordData::Run(run) = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap()
+        .data
+    else {
+        panic!()
+    };
+    assert_eq!(trace.guide, run.guide_identity);
+    let digest = trace
+        .guide
+        .strip_prefix(&format!("{}:", crate::threads_guides::BUNDLE_VERSION))
+        .expect("frozen catalogue identity");
+    assert!(brn_threads_core::skill_digest_valid(digest));
     assert_eq!((trace.rounds, trace.calls.len()), (2, 2));
     let text = serde_json::to_string(&trace).unwrap();
     assert!(!text.contains("secret harbor"), "{text}");
@@ -363,5 +379,5 @@ fn source_runs_start_with_intake_playbooks_and_more_rounds() {
         let text = crate::threads_guides::read_skill(id).unwrap();
         assert!(with.contains(text) && !without.contains(text));
     }
-    assert!(with.contains("- resolve-conflict:") && without.contains("- intake:"));
+    assert!(with.contains("\"id\":\"resolve-conflict\"") && without.contains("\"id\":\"intake\""));
 }

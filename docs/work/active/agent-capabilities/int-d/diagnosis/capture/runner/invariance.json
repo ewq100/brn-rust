@@ -1,0 +1,13 @@
+{
+  "base": "f0c2ae65b432fc87f45fa8618035106ddad3b239",
+  "whole_previous_test_prefix_byte_identical": true,
+  "changed_compiled_source": [
+    "crates/brn-ai/src/threads_int_d_tests.rs"
+  ],
+  "appended_lines": 1454,
+  "parent_threads_and_two_cfg_calls_unchanged": true,
+  "all_other_source_manifests_lock_auth_core_native_scripts_unchanged": true,
+  "new_included_input": "docs/work/active/agent-capabilities/int-d/diagnosis/capture/material-hashes.json",
+  "new_included_input_unchanged_from_base": true,
+  "non_test_binary_equivalence": "Not claimed. Source/cfg-only isolation; no hosted/Linux/Windows execution."
+}

@@ -1,0 +1,6 @@
+{
+  "raw_path": "/private/tmp/brn-int-d-history-phase-20261017/local-preparation/r2-candidate-final-runs.stdout",
+  "sha256": "30596210fbd83600fe7dcb1c362a97c43f95a49c9ce892d946da12c65e9197ea",
+  "encoding": "UTF-8 text as exact JSON string",
+  "text": "{\"contract\":3,\"command\":\"runs\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"runs\":[],\"shown\":0,\"cursor\":null,\"total\":null},\"error\":null,\"page\":{\"limit\":20,\"shown\":0,\"cursor\":null,\"total\":null},\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}

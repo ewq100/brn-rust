@@ -1,0 +1,30 @@
+{
+  "not_build_or_test_failures": true,
+  "attempts": [
+    {
+      "stage": "initial binding/copy verifier",
+      "exit": 1,
+      "error": "fatal: path absolute checkout INT-D prepare-qualification.py exists on disk, but not in HEAD; git show HEAD:<absolute> exited128",
+      "effect": "Scratch directories only; no source copy/fetch yet. Corrected Git-relative path verification passed334+3."
+    },
+    {
+      "stage": "initial provenance verifier",
+      "exit": 1,
+      "error": "FileNotFoundError: xberg-1.3.10/.cargo-checksum.json",
+      "effect": "No source/cache mutation; actual cache has no checksum file. Replaced assumption with direct verified .crate SHA+all archive-file/source equality."
+    },
+    {
+      "stage": "read-only source discovery",
+      "errors": [
+        "rg guessed src/config and extractor/core registry paths absent",
+        "zsh unmatched security*/extractors* globs",
+        "guessed native src/document.rs and src/parser paths absent; actual split modules read",
+        "guessed extraction/html.rs, html inline_images directory, options.rs and types/prelude.rs absent; actual modules/files read"
+      ],
+      "effect": "No extraction/compiler/test or source edits; direct links in final tables resolve to actual files. Some tool displays truncated large read output; no PASS/count inferred from truncation."
+    }
+  ],
+  "fetch_attempts": 1,
+  "fetch_exit": 0,
+  "no_retry": true
+}

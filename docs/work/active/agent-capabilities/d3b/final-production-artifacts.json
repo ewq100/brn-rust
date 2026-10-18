@@ -1,0 +1,58 @@
+{
+  "source_receipt": "default-build-final-source.json",
+  "command_receipt": "default-build-final.json",
+  "native_combined_source_receipt": "native-combined-build-source.json",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn",
+      "sha256": "13c81dffdd433b3a6e42bc4d103cd442c6911bd03710dcb397b1772172068620",
+      "bytes": 61746864
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn.d",
+      "sha256": "6e07dff2240d47446155f2afe31fc7981c2d236f1b1c690052766ba86690926e",
+      "bytes": 8382
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-desktop",
+      "sha256": "115f25cbb64e869cda5487c66e24774087fa91a7f1090f0790cae36728086625",
+      "bytes": 8081392
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-desktop.d",
+      "sha256": "16b5546503048f78d0421d29dfe828607ae2d74d4acd7b3003d885292621eab9",
+      "bytes": 7934
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-intake-helper",
+      "sha256": "b47e184a823ac89ba9c1793d4766d628b2b7e09a601f5f7ceddcd35bc21e48d8",
+      "bytes": 34084368
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/brn-intake-helper.d",
+      "sha256": "9939f474c79470bac1a7266ca8823495201b31bf8c8346e3f8134d73f80c832e",
+      "bytes": 995
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/.fingerprint/brn-desktop-d0450189a2363992/bin-brn-desktop.json",
+      "sha256": "30592bf1256772fa7ef416421a6493d17687ed6d37b05d1bc2af612a69cb6673",
+      "bytes": 1141,
+      "features": "[\"default\", \"native-retrieval\", \"native-ui\"]",
+      "observed_after_subsequent_default_build": "feature-specific deps artifact, not the overwritten generic desktop link"
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-d0450189a2363992",
+      "sha256": "60fd1501ddf13394a76b10d95b84cb4366695e1b7794201f27d38fe0c52c11bc",
+      "bytes": 192414144,
+      "features": "[\"default\", \"native-retrieval\", \"native-ui\"]",
+      "observed_after_subsequent_default_build": "feature-specific deps artifact, not the overwritten generic desktop link"
+    },
+    {
+      "path": "/private/tmp/brn-d3b-20261017-target/debug/deps/brn_desktop-d0450189a2363992.d",
+      "sha256": "8bdfd53535a8442c1e087ae0c68b9a5008bcfe1af4cf1c2cf3ca4826a451258f",
+      "bytes": 2649,
+      "features": "[\"default\", \"native-retrieval\", \"native-ui\"]",
+      "observed_after_subsequent_default_build": "feature-specific deps artifact, not the overwritten generic desktop link"
+    }
+  ]
+}

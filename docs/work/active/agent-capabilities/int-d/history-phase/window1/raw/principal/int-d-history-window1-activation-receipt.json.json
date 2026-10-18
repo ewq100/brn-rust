@@ -1,0 +1,7 @@
+{
+  "source_path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/int-d-history-window1-activation-receipt.json",
+  "sha256": "d7b745dd90fb6b1c74a947816ca58aca834ca3689d2aa9ece27eb4ab1cbb180a",
+  "bytes": 822,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"path\": \"/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/activation.json\",\n  \"sha256\": \"3c7126206a5325db69ddee68c13090efc864d2efe840edea61f35945afd227d1\",\n  \"activation\": {\n    \"format\": \"BRN-INT-D-HISTORY-1\",\n    \"task\": \"int-d-history-phase-20261017\",\n    \"state\": \"ACTIVATED\",\n    \"source_pin\": \"39a67e4f010e39e7675c220b0df6b3a842e47c5f\",\n    \"preflight_sha256\": \"79d8c6131f405e7a2dd0bf0a29b18255e202fddcaff3bab370f47708b358b69c\",\n    \"max_starts\": 4,\n    \"issued_at\": 1792264774,\n    \"expires_at\": 1792265674\n  },\n  \"principal_disposition\": \"8e92f97e2f8579eba0212e24f9dfe1922f345d3b\",\n  \"readiness_audit_sha256\": \"4a157100012518bcba47f850570d33542518b221f090330433edde751737e3ae\",\n  \"starts_at_creation\": 0,\n  \"authority\": \"Owner L + principal bounded history disposition; exact reviewed method only\"\n}\n"
+}

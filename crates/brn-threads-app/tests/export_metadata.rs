@@ -335,3 +335,69 @@ fn later_source_observation_does_not_attribute_its_version_to_preserved_note() {
     assert!(!header.contains("v2"));
     assert!(!header.contains("Friday"));
 }
+
+/// Filesystem exclusion fixture, not a model-generation or cache-reuse proof.
+#[test]
+fn derived_summary_is_absent_from_export_backup_and_current_or_restored_search() {
+    let (root, mut app) = fixture();
+    let op = app
+        .store
+        .allocate_operation("summary exclusion positive")
+        .unwrap();
+    let id = op.creation_id(0);
+    apply(
+        &mut app,
+        "summary exclusion positive",
+        vec![Put {
+            id: id.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note::working("Canonical positive", "Mondaypositivecanary")),
+        }],
+    );
+    let canonical = app.store.records().unwrap();
+    let marker = "Derivedsummaryonlycanary";
+    let cache = app
+        .store
+        .derived_directory()
+        .unwrap()
+        .join("thread-summary-exclusion-fixture.json");
+    std::fs::write(&cache, format!("{{\"untrusted_summary\":\"{marker}\"}}")).unwrap();
+    assert!(std::fs::read_to_string(&cache).unwrap().contains(marker));
+    assert!(!app.search("Mondaypositivecanary").unwrap().is_empty());
+    assert!(app.search(marker).unwrap().is_empty());
+    let destination = root.path().join("exclusion-export");
+    let manifest = app.export_now(&destination).unwrap();
+    assert!(manifest.files.iter().any(|f| f.record == id));
+    assert!(!serde_json::to_string(&manifest).unwrap().contains(marker));
+    let mut positive = false;
+    for file in &manifest.files {
+        let text = std::fs::read_to_string(destination.join(&file.path)).unwrap();
+        assert!(!text.contains(marker));
+        positive |= text.contains("Mondaypositivecanary");
+    }
+    assert!(positive);
+    let backup = root.path().join("summary-exclusion.sqlite");
+    app.store.backup(&backup).unwrap();
+    let restored = root.path().join("restored-summary-exclusion");
+    let restored_store = Store::restore(&backup, &restored).unwrap();
+    assert_eq!(restored_store.records().unwrap(), canonical);
+    assert!(
+        !restored
+            .join("derived/thread-summary-exclusion-fixture.json")
+            .exists()
+    );
+    drop(restored_store);
+    let mut restored_app = Workspace::open(&restored).unwrap();
+    assert!(
+        !restored_app
+            .search("Mondaypositivecanary")
+            .unwrap()
+            .is_empty()
+    );
+    assert!(restored_app.search(marker).unwrap().is_empty());
+    std::fs::remove_file(cache).unwrap();
+    assert_eq!(app.store.records().unwrap(), canonical);
+    assert!(!app.search("Mondaypositivecanary").unwrap().is_empty());
+    assert!(app.search(marker).unwrap().is_empty());
+}

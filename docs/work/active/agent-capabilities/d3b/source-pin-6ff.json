@@ -1,0 +1,28 @@
+{
+  "material_pin": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "tree": "dc12c1d0eb2f1ce16287d122c8f403df676892d2",
+  "crates_tree": "9749d9bdfa61d2db0092d57f202502ace2bd08ab",
+  "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "branch": "work/d3b-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "full_diff_path": "/private/tmp/brn-d3b-20261017-artifacts/source-pin-full.diff",
+  "full_diff_sha256": "5426e17ab3dfc764b385618d870b84e8a8add8050e346b9c00f83134936189af",
+  "material_inputs": 273,
+  "material_matches_precommit_qualification": true,
+  "status_at_pin": "clean",
+  "candidate_cli_sha256": "13c81dffdd433b3a6e42bc4d103cd442c6911bd03710dcb397b1772172068620",
+  "candidate_cli_dep_info_sha256": "6e07dff2240d47446155f2afe31fc7981c2d236f1b1c690052766ba86690926e",
+  "normal_source_receipt": "default-build-final-source.json",
+  "brief": "docs/work/active/agent-capabilities/d3b/review-brief.md",
+  "live": "authorized/prepared,0workflow starts; no credentials opened by worker",
+  "mutation": "not granted/not started",
+  "decision_document_eof_formatting": {
+    "path": "docs/work/active/agent-capabilities/owner-live-qualification-20261017.md",
+    "authority": "principal exact EOF-only exception,17 October2026",
+    "before_sha256": "9b03fcc5b4230c83a2f388ae99593192d37964d4b0242ea5175f992f320d6d3a",
+    "after_sha256": "c92d410091dc1d177b3db18123bee5ddd7e44c2e927cb9088c6f451fab745610",
+    "bytes_removed": 1,
+    "nonblank_text_identical": true,
+    "single_terminal_newline": true
+  }
+}

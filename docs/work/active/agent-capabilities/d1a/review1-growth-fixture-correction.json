@@ -1,0 +1,7 @@
+{
+  "reason": "fixture-only: replace invalid4MiBassistanttext rejected by existing chat.rs155/128KiB outputguard with bounded admittedread_note growth; max_tool_rounds8 legitimately selected; production unchanged",
+  "before_test_sha256": "e7cdf1d24040701026397463ce9310d17280eb1646d6442e0b05aa8151c20987",
+  "candidate_test_sha256": "2d8bbf6f1aa5fab6a8f439f5ac71e41398629ae6c7788e5970237abdcb15da8c",
+  "initial_focused_receipt": "review1-candidate-focused.json",
+  "valid_growth_focused_receipt": "review1-focused-valid-growth.json"
+}

@@ -1,0 +1,232 @@
+{
+  "precommit_head": "95781baa94617e712ad29c289ebdaa2566ea8002",
+  "base_tree": "a237891ec0a0dd13ce07d2c2686d8ec2ebe7306c",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "literal_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161",
+  "branch": "work/x2-office-prep-20261018",
+  "compiled_source": {
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "crates/brn-intake/Cargo.toml": "e9a85a7722edc240b3ce733f95c9ad379fec7962afdd287aa9e91e7e403d8802",
+    "crates/brn-intake/src/helper.rs": "c7571d13e7ffd9dc886c40c8ead4efa8b63396a15185316f4f86b3db99a3f44a",
+    "crates/brn-intake/tests/docx_inventory.rs": "b24ebddb4ef865e0fdd447589763e7b545af3ac92a793f8455e1e2f656fb6587",
+    "crates/brn-intake/tests/office_differential.rs": "b86e1966b40d997084a6bf925b4cce32727a78f31798f45c137377310ec4f1f4",
+    "crates/brn-intake/tests/support/office.rs": "13ac04d8edc64e887d22183c2547112f3130f0dc359a05a392314b2e7ce6f030",
+    "crates/brn-intake/tests/fixtures/office/parity-registry.json": "f735e7eb19187eed4a3fe8d7533b5d339eaad1025b271824e9afe4babcd08179",
+    "docs/work/active/modular-foundation/x2/office1/admission1/historical-size-observations.json": "6e651a04312aefe1463af64512de92a2152f6a2f307aabbcd56ad1cebcc44e9c"
+  },
+  "tracked_source_diff_sha256": "de2c5d15ef8aa2b83c25fe67304139bd905f4cbef4761f77a2a14e7f1481cde4",
+  "diff_qualification": "Tracked production/test/registry diff at measurement; separately hashed historical JSON is the new compile-time input. Final documentation delta is frozen externally before commit.",
+  "before": {
+    "freeze_commit": "1b7034dc9165b53cfa288a2219c09b81c0188f52",
+    "freeze_tree": "654f6528318a8673a45176a77024e6cd3abf1e14",
+    "compiled_as": "95781baa94617e712ad29c289ebdaa2566ea8002 plus exact test-only diff c2ab7c81cecb264824d6f531d5dcf4a80df8b1607c7c98274cf54d8e765473bb",
+    "freeze_time_qualification": "Committed after measurement without source edits or rebuilding; run receipts retain their actual precommit HEAD and source hashes.",
+    "status": ""
+  },
+  "before_control": {
+    "new_guard_test_suffix_sha256": "a603b1cbfb4081734d457f69fb8bd2abda38b9021a2eda9e7e94633078151820",
+    "before_source": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/before-source",
+    "before_head": "95781baa94617e712ad29c289ebdaa2566ea8002",
+    "same_new_test_and_fixture_code": true,
+    "old_production_unchanged": true
+  },
+  "same_malformed_input_receipt": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/final-before-after-inputs.json",
+  "ordinary_helper": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/brn-intake-helper",
+    "sha256": "5e1b5525616de54fcf7cbf464fe1eba4778664a5b3d3de3322ddd0bfe6d27dbb",
+    "bytes": 34088768,
+    "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/5e1b5525616de54fcf7cbf464fe1eba4778664a5b3d3de3322ddd0bfe6d27dbb"
+  },
+  "union_helper_bound_to_host": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/brn-intake-helper",
+    "sha256": "ec96f8219deb92f2b481b5d4706633b2e20f7d2748ccf013370e5a45b837e537",
+    "bytes": 40337024,
+    "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/ec96f8219deb92f2b481b5d4706633b2e20f7d2748ccf013370e5a45b837e537"
+  },
+  "host_binding_verified": true,
+  "helper_profile_qualification": "Helper-first build 05 used dev opt_level 0. Cargo all-targets emitted the regular helper at test-profile opt_level 1 (not the bin test harness); final union helper 14 matches host 15 exactly. All artifact versions remain preserved.",
+  "effective_xberg_features": {
+    "02-build-ordinary-helper": [
+      "html"
+    ],
+    "05-build-union-helper": [
+      "html",
+      "notebook",
+      "office"
+    ]
+  },
+  "readonly": {
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "crates/brn-intake/Cargo.toml": "e9a85a7722edc240b3ce733f95c9ad379fec7962afdd287aa9e91e7e403d8802",
+    "docs/work/active/modular-foundation/x2/office1/o1/measurement-receipt.json": "e44f516ef80b06d536b8571f304016820d5b73f0b6bf010ed356a546e1de6cd8",
+    "crates/brn-intake/tests/fixtures/office/harbor.inventory.json": "eacd35e86b76934a533ec4e78bebe1600960fd7053ba44ffd43c0b3a184218f0",
+    "crates/brn-intake/tests/fixtures/office/features.inventory.json": "237aef2062858c32e470bbd9a7754f4a3573425229d5519ee2f8cd4901a12a63",
+    "crates/brn-intake/tests/fixtures/office/prefix-variation.inventory.json": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3",
+    "crates/brn-intake/tests/fixtures/office/footnotes.inventory.json": "7b33083d9c53b4399262f5f31b1df35ca70c2257dd5b29ed89cacdb3414e4ec2",
+    "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52"
+  },
+  "registry": {
+    "changed": [
+      "current-size-word/document.xml--1",
+      "current-size-word/document.xml-1",
+      "current-size-word/footnotes.xml--1",
+      "current-size-word/footnotes.xml-1",
+      "current-size-word/media/same.png--1",
+      "current-size-word/media/same.png-1",
+      "xberg-size-word/document.xml--1",
+      "xberg-size-word/document.xml-1",
+      "xberg-size-word/footnotes.xml--1",
+      "xberg-size-word/footnotes.xml-1",
+      "xberg-size-word/media/same.png--1",
+      "xberg-size-word/media/same.png-1"
+    ],
+    "unchanged_count": 52,
+    "unchanged_raw_row_sha256": {
+      "aggregate-cell-cap": "99197e358463a5dc4c6461865070b12f3f0cb003582246ab36b60e5c624fe60b",
+      "content-cap": "4e5134d2e363d7dacf4af4bc86f125f2cbb413cca663482b75a83b2f0896f32a",
+      "current-comments": "c7732185b3e84e5da932afe77536f77b2b7e7afcdb44c436e2ac401330024768",
+      "current-features-full-context": "94cb7ec1cc5844e6ae24ad374a85642143b329aa73dc5b63ece7e169aedd558e",
+      "current-features-occurrences": "27d976313a549c91098887396c42b10c135f60b4acd061c330fb8c74fb41bec3",
+      "current-footnotes-full-context": "eebbbfcfa6f665d172d7cbb9f6ce27cb1f07cd60f586fc19d1a5ebdaf2519688",
+      "current-footnotes-occurrences": "541c9f72e31c1d3772a776736ac14d2378eee43c3b07f7cfc96fd2d6997f5853",
+      "current-grids": "41b0a51c1a50020fcc1a7cdd16faf039f2eab6fdebe531dd7afc84fd2cd9d2a2",
+      "current-harbor-full-context": "2b3d3ba4ee309ced2537d923dc808802b85f380a18f3703b7374f81042ecea9b",
+      "current-harbor-occurrences": "d97c56a19e56cf69f433b43d2990c2cd6d2828005d3ca517430ff6c1b6dc078f",
+      "current-harbor-process-full-context": "c22640b2b28ca0b3ac508fa0b907b9f7e2e38740135b4864bce69d424cddda5c",
+      "current-harbor-process-occurrences": "e3e787cb0309a29be3b3d6f26371ecbb1d9e472b5af86962782145a90c454637",
+      "current-notes": "fcb22c3f413dcdd74bf393bd647800967e7c62632e8a2f25c8fa3342a7edf83d",
+      "current-orphan": "87302622a6b3d220f3707c1938bd12f04be451ebee9cc9c56c0ead7a22673c18",
+      "current-prefix-variation-full-context": "8c3ee637bf50435040c33fddf4860d9917391491109e0dc09548afcf87c4f218",
+      "current-prefix-variation-occurrences": "2b653f1ca9e76e56daad1aa282550edc3f9bb61483c9f0b202896f65646b7da2",
+      "current-relationship-count": "0c918b3319ac827d8bc2336cd1461a1dba4310f94c326b48a2fad9907d94e556",
+      "entity-cap": "66862e9d31da9290594ba7f0ee7339df2261cbc66d8bec2626bfd16f95bdf256",
+      "features-all-stories": "1912096228a8e87e5541ba50df1f84870d4444593a3159a5d1e346cf42ea6e10",
+      "features-body": "4f2583db08a680e0967e1812b70ef961b700eb4acd08a9163e93cd4e6c01cecf",
+      "features-cells": "c1900225167588f745de4cf96b760d77ad56b8fd01f83b93936b8fd5e0999bda",
+      "features-images": "ebe82ae17151e2bfd7be9a6574b154e25753d56d67468a649f03e09c43ed7e46",
+      "footnotes-all-stories": "9cca232a1dd1b815340afdaae4bd12d6cc33584e5ea0ea14cf170951939b519e",
+      "footnotes-body": "3c5b34fba6a3dc204e2f7387bb997842560e03e48284e002f4d9fba8da903326",
+      "footnotes-cells": "c2110744030d855c5737dcebabb59ef70bda18ee348f75c9ef5cf437750b54f4",
+      "footnotes-images": "bf2aa2a1b06f20d753dee422b3644c06a0f774d34532e05c1bea9cc72002ae75",
+      "footnotes-typed-associations": "74eb243ed6db336480574d4b491c7e96f9843e95889ef4e81d76dc40c71956b4",
+      "harbor-all-stories": "8b536329d3c897f147461dff09e2d8cda90e7d4b53d555a239260b59e6daa17a",
+      "harbor-body": "1134e252fbc0f48609bec9eeba6376a1e2fd828e34e553682a45332c509a3fd4",
+      "harbor-cells": "c810e23f9f0fe5c771dbfa552560d23ca31132eb2c246ca4395f7b93ea1b800d",
+      "harbor-images": "070b46b17698de4840aa3f933c820dc201ff9facd3ff6e5de55725e6a2e05217",
+      "harbor-process-all-stories": "5a41d4f757b7e3375a01d257ed9b76b720233eee1f3d066cd0d900009d7dd9f8",
+      "harbor-process-body": "5d7c853e465cbb55e918f0721530b6745be8b4b0922b429ea6e7174e462b3134",
+      "harbor-process-cells": "e217afbf5811a0f7a9b8384966e66725370103c21c7ee3de9badd509fc291f37",
+      "harbor-process-images": "1df0f928ff9e4e4df89d310fdf08c595f9a038aced58f71f811ab38828844071",
+      "iteration-budget-fixed-source": "00c8a97e1fc2f48a342a7064b2d496befefce358d76797519756ad37c8943660",
+      "prefix-variation-all-stories": "6dfda139e8905f61e231565787fac5c7b0a8fc3810c844e5939f2f05e661d773",
+      "prefix-variation-body": "357f06262020f8f22d002057e5ceecf694474dc13f6eb28357bc9c48c4514493",
+      "prefix-variation-cells": "27859397c8bea290caae82b70ebf5cebd0c3bcc299e149a5fe7674a57926ea76",
+      "prefix-variation-images": "dcf195ee654aefee15f0c24db52799fc8c10730af9785ec3c6b9ecf0d12b2258",
+      "repeated-header-pass-candidate": "54d7a9f02c73dd7056f6bd61bbe5a5c3d68a9f24ad2c1934de44c6bfbe7bca1c",
+      "xberg-comments": "0d0cbbe7ff3d5882ef0f9e24b048dff18bb437f614dd5d5511f9cfb93106d468",
+      "xberg-dtd-admission": "16f61dfe09c4a348e97d3befd13e4b43f8422cae04c565d01cd723bcce2ecee3",
+      "xberg-empty-orphan": "fbaf95eb90d01db10ba9a0987c29412fa5efda1165d8c7b23ef9e625a6e35f97",
+      "xberg-escaping-relationship": "a218d1f71fabe3e6e57cec30cae15505025881a18b53c11e22544aa70310f6fa",
+      "xberg-grids": "a720b4d23f5f4cdbe472b9ac009e1ea087ba45b7d7d3faa0576773ed707da513",
+      "xberg-note-collisions": "1efe7675976224e3477e564c91f99b5adee414808a10032e725798301292dc71",
+      "xberg-repeated-images": "5a0a538148c9594bf46ab2324c19c232428d1cf538ba93694e2f14e05eae2b7c",
+      "xberg-revisions": "d56fafc33884d1e04758e567d5f5af71149c9865a3f887a2bda1352fced67175",
+      "xberg-warning-policy": "5197291e70190a5cc270eee3d36f428caf029d732f87a41f6b2934234e16e6b6",
+      "xml-depth-cap": "ac0c0514c6b3963bd4f837d572f207dae7e27fdec02a0ffe693354ea71843ba6",
+      "xml-event-policy": "c74d67cb89f6cb35df59f056bb726dfc815ff8c0fc36c518b6d036802d1b9257"
+    },
+    "complete_xberg_equality_witnesses": [
+      "xberg-size-word/document.xml--1",
+      "xberg-size-word/document.xml-1",
+      "xberg-size-word/footnotes.xml--1",
+      "xberg-size-word/footnotes.xml-1",
+      "xberg-size-word/media/same.png--1",
+      "xberg-size-word/media/same.png-1"
+    ]
+  },
+  "production_scope": "Only admit_package changes; charges remain at original point; no directory data consistency claim.",
+  "compiled_test_artifacts": {
+    "13-before-private-tmp": [
+      {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/before-source/target/admission1-before-20261018/debug/deps/docx_inventory-6bef94b4c77021a8",
+        "sha256": "93be4319af30220bef1b9453f8c8f8b41003af258d50cf9674fb5975e7302130",
+        "bytes": 36642384,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/93be4319af30220bef1b9453f8c8f8b41003af258d50cf9674fb5975e7302130"
+      },
+      {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/before-source/target/admission1-before-20261018/debug/deps/docx_inventory-6bef94b4c77021a8.d",
+        "sha256": "ee0aee1f8e027973e7ed713ba7534d26583472a969ab7f991e3dbf956f7812ad",
+        "bytes": 4419,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/ee0aee1f8e027973e7ed713ba7534d26583472a969ab7f991e3dbf956f7812ad"
+      }
+    ],
+    "14-union-all-targets-private-tmp": [
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/office_differential-82aba775d3a84c1b.d",
+        "sha256": "1a71fc03763f6c80addeb45c5fa3e933ea123c26fffe682f4913cec46cfacc4f",
+        "bytes": 3653,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/1a71fc03763f6c80addeb45c5fa3e933ea123c26fffe682f4913cec46cfacc4f"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/docx_inventory-fdfc6e1b97927337",
+        "sha256": "c1adec43fdeb2a4fec99c404a9cf284cb047096a0e6f64701002aaf9f7ef5922",
+        "bytes": 42906752,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/c1adec43fdeb2a4fec99c404a9cf284cb047096a0e6f64701002aaf9f7ef5922"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/office_differential-82aba775d3a84c1b",
+        "sha256": "896c8d0f811acb4ba5cba2d5140335045b89c8c20f7dbd72007d9d59ae276c03",
+        "bytes": 43446336,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/896c8d0f811acb4ba5cba2d5140335045b89c8c20f7dbd72007d9d59ae276c03"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/docx_inventory-fdfc6e1b97927337.d",
+        "sha256": "018fb369d041a46ee49d0fc35616d0b334ebba84bfe8405fd4e1e5d8a66dd41f",
+        "bytes": 4297,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/018fb369d041a46ee49d0fc35616d0b334ebba84bfe8405fd4e1e5d8a66dd41f"
+      }
+    ],
+    "18-ordinary-all-targets-final": [
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/docx_inventory-6bef94b4c77021a8",
+        "sha256": "6a158eae99e15eb5187534773d468ee3b964075cc66e40558c9578c13f8727c6",
+        "bytes": 36677552,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/6a158eae99e15eb5187534773d468ee3b964075cc66e40558c9578c13f8727c6"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/docx_inventory-6bef94b4c77021a8.d",
+        "sha256": "4200390f113810a49a5050db1a32e739acca25fa4f40f9ff98f5254440692656",
+        "bytes": 4297,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/4200390f113810a49a5050db1a32e739acca25fa4f40f9ff98f5254440692656"
+      }
+    ],
+    "15-host-private-tmp": [
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/qualification-0c924b72a02b690f.d",
+        "sha256": "70ce0669d4af6111676e3da94352551ea1873cb22851a338e68aa8930f003bdc",
+        "bytes": 2103,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/70ce0669d4af6111676e3da94352551ea1873cb22851a338e68aa8930f003bdc"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/qualification-0c924b72a02b690f",
+        "sha256": "0cd1f0f999879fd3d22600439647832550593b5b401203a1a3053eedb864b604",
+        "bytes": 4076160,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/0cd1f0f999879fd3d22600439647832550593b5b401203a1a3053eedb864b604"
+      }
+    ],
+    "12-ai-conversion-private-tmp": [
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/brn_ai-d4dff1a2cbf1a84a",
+        "sha256": "fd4910240bc6e8d4a198c91dc7600516de0fd15e945d2438f29cad81b636c8c0",
+        "bytes": 41091696,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/fd4910240bc6e8d4a198c91dc7600516de0fd15e945d2438f29cad81b636c8c0"
+      },
+      {
+        "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/brn_ai-d4dff1a2cbf1a84a.d",
+        "sha256": "fcdfd7dfb00f6e8572ad73498a9f309df65438496376053795b7387a1bd507d4",
+        "bytes": 8438,
+        "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/artifact-by-sha/fcdfd7dfb00f6e8572ad73498a9f309df65438496376053795b7387a1bd507d4"
+      }
+    ]
+  }
+}

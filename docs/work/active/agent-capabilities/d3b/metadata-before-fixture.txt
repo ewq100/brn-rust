@@ -1,0 +1,7 @@
+    #[test]
+    fn runtime_descriptions_are_parsed_from_packaged_frontmatter() {
+        for skill in CATALOG {
+            let metadata = skill_metadata(skill.text).unwrap();
+            assert!(preamble(&[]).contains(metadata.description), "{} metadata was replaced", skill.id);
+        }
+    }

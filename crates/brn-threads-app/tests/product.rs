@@ -50,6 +50,7 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
                     outcome: "Partial".into(),
                     gaps: vec![],
                     report: Some(ImportReport {
+                        conversion: None,
                         status: ImportStatus::Partial,
                         issues: vec![],
                     }),
@@ -801,6 +802,7 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
         .allocate_operation("host run and human Action")
         .unwrap();
     let run = Run {
+        loaded_skill_details: vec![],
         instruction: None,
         queue_claim: None,
         thread: thread.id.clone(),

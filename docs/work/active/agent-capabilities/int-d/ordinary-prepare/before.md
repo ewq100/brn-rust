@@ -1,0 +1,8 @@
+# Exact-base before witnesses
+
+Production is exact5352/a65 in genuine synthetic Git copy `/private/tmp/brn-int-d-ordinary-prepare-before-source`, initial synthetic commit4133d1d42f16d61a430fa609480b2104acabecc5; no remotes/history/credentials. Target `/private/tmp/brn-int-d-ordinary-prepare-before-target` is separate from candidate and original runner targets. Only appended writing test code differs. Full test patches and hashes are retained in this directory; binary/.d copies remain in owned scratch.
+
+- `before-offered`: compiled and executed actual request capture;1passed/2failed. Ordinary and legacyv1 actual parameters are object|null instead of null-only; saved-setupv2 matches full schema. This initial test reused the pre-existing fresh synthetic fixture's default purpose; it is not the explicit Test-purpose qualification.
+- `before-test-purpose`: test-only adjustment explicitly sets Test before begin and removes unnecessary async helper.15passed/3failed across writing tests. The two actual-schema failures remain; unsupported ordinary-object+retain_progress fails the expected InvalidToolUse assertion with actual Completed. The loop stops at the first failing ordinary order, so other before batch arms are not claimed executed.15 positive tests, including v2 schema, remain passing. This is behavioral red, not compiler/API failure.
+
+Both raw commands are unchanged production, locked/offline Rust1.98.1/jobs1/incremental0, fresh TMPDIR, source unchanged during command. All failed assertions/raw logs and both test-only patches remain. Before artifacts are preserved before candidate compilation, never reused at the candidate target. Neither run opened owner data/auth or made paid calls. No old live evidence is relabelled.

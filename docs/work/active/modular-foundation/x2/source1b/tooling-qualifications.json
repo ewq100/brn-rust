@@ -1,0 +1,37 @@
+{
+  "Cargo_commands": 1,
+  "Cargo_failures": 0,
+  "compiler_test_extractor_commands": 0,
+  "source_read_discovery_failures": [
+    {
+      "kind": "guessed_path_absent",
+      "examples": [
+        "zip9 src/read.rs (actual split read modules)",
+        "HTML converter/table (actual converter/block/table)",
+        "astral-tl src/parser.rs (actual parser/base.rs)",
+        "PostProcessorConfig guessed path (actual config/processing.rs)",
+        "pipeline/initialization path (actual core/pipeline/initialization)",
+        "types/document.rs and images.rs (actual extraction/document_structure files)",
+        "extraction/docx/container.rs (actual parser.rs)"
+      ],
+      "qualification": "rg/sed source-discovery errors retained in tool transcript; corrected by listing/reading actual source; not compiler/test/extraction failures"
+    },
+    {
+      "kind": "shell_parse_error",
+      "raw_safe_output": "zsh:1: parse error near `}'",
+      "qualification": "malformed read-only brace-list command; no source/Cargo/extraction action; corrected read only"
+    },
+    {
+      "kind": "unmatched_source_glob",
+      "raw_safe_output": "zsh:1: no matches found: .../xberg-1.3.10/src/core/config/url*.rs",
+      "qualification": "remaining independent read-only commands in that shell completed; actual follow_document_urls cfg source read separately"
+    },
+    {
+      "kind": "static_metadata_projection_setup",
+      "raw_safe_class": "no matching manifest dependency: serde_toon vs package serde_toon_format",
+      "qualification": "first Python-only feature-edge projection aborted on a library/package name alias before producing its result; corrected matching by package identity, no Cargo/compiler/source change"
+    }
+  ],
+  "negative_rg_no_match": "some rg commands exit1 when no pattern matches; not behavioral evidence",
+  "tests": "none executed; no behavioral PASS/FAIL from static source reads"
+}

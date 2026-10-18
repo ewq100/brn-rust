@@ -42,6 +42,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.clone(),
@@ -691,7 +692,7 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
                 assets: vec![],
                 source_sha256: [0; 32],
                 source_reference: "/missing/file.md".into(),
-                converter: "synthetic".into(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
                 sources: vec![],
                 coverage: brn_threads_intake::Coverage {
                     status: brn_threads_intake::CoverageStatus::Unchecked,
@@ -704,6 +705,8 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
                     result: Box::new(Ok(converted)),
                     title: "Attachment".into(),
                     chat: Some(f.thread.clone()),
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
                 })
                 .unwrap();
             ui.poll_worker(window, cx);
@@ -738,7 +741,7 @@ fn long_queue_and_attachment_labels_keep_controls_inside_the_chat_tile(cx: &mut 
                 assets: vec![],
                 source_sha256: [0; 32],
                 source_reference: "/missing/long-name.md".into(),
-                converter: "synthetic".into(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
                 sources: vec![],
                 coverage: brn_threads_intake::Coverage {
                     status: brn_threads_intake::CoverageStatus::Unchecked,
@@ -940,7 +943,7 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                     )
                     .unwrap();
                 if human_typing {
-                    ui.note_editor.update(cx, |editor, cx| {
+                    ui.writing.note_editor.update(cx, |editor, cx| {
                         editor.set_value("Human draft stays visible", window, cx)
                     });
                 }
@@ -958,10 +961,13 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                         "completion must not reopen a hidden Note panel"
                     );
                 } else if human_typing {
-                    assert_eq!(ui.note_editor.read(cx).value(), "Human draft stays visible");
+                    assert_eq!(
+                        ui.writing.note_editor.read(cx).value(),
+                        "Human draft stays visible"
+                    );
                 } else {
-                    assert_eq!(ui.note.as_ref().unwrap().record.version, 2);
-                    assert_eq!(ui.note_editor.read(cx).value(), "After edit");
+                    assert_eq!(ui.writing.note.as_ref().unwrap().record.version, 2);
+                    assert_eq!(ui.writing.note_editor.read(cx).value(), "After edit");
                 }
             })
         })
@@ -1018,6 +1024,7 @@ fn synthetic_run(ui: &mut ThreadsUi, key: &str, thread: &str, run: Run) -> Strin
 fn run_template(ui: &ThreadsUi, state: RunState) -> Run {
     let settings = ui.workspace.settings().unwrap();
     Run {
+        loaded_skill_details: vec![],
         instruction: None,
         queue_claim: None,
         thread: String::new(),

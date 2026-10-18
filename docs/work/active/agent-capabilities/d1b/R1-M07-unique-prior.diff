@@ -1,0 +1,11 @@
+diff --git a/crates/brn-ai/src/threads_summary.rs b/crates/brn-ai/src/threads_summary.rs
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -688,6 +688,7 @@
+         Ok(())
+     }
+     .await;
++    if result.is_err() { entry = None; }
+     // Revalidation also covers the cached/failure path before model exposure.
+     if let Ok(now) = snapshot(scope, &account, compactor.effort) {
+         entry = entry.filter(|e| valid(e, &now.key, &now.chunks) && e.chunks <= evicted.len());

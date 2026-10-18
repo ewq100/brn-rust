@@ -75,6 +75,8 @@ impl ImportIssue {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ImportReport {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conversion: Option<DocumentConversionProvenance>,
     pub status: ImportStatus,
     pub issues: Vec<ImportIssue>,
 }
@@ -219,14 +221,51 @@ pub struct Run {
     pub budget: u64,
     pub effort: String,
     pub loaded_skills: Vec<String>,
+    /// Host-verified identities of instruction files actually delivered. No bodies.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub loaded_skill_details: Vec<SkillLoad>,
     pub fence: u64,
     pub state: RunState,
     pub progress: String,
     pub operations: Vec<OperationId>,
     pub sources: Vec<String>,
 }
+/// Canonical document engine choice; independent of model refinement.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DocumentConverter {
+    #[default]
+    Xberg,
+    XbergBrn,
+}
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DocumentConversionSettings {
+    pub converter: DocumentConverter,
+    pub ai: bool,
+}
+impl DocumentConversionSettings {
+    fn is_default(&self) -> bool {
+        self == &Self::default()
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DocumentConversionProvenance {
+    pub settings: DocumentConversionSettings,
+    pub engine_identity: String,
+}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkspaceSettings {
+    #[serde(
+        default,
+        skip_serializing_if = "DocumentConversionSettings::is_default"
+    )]
+    pub document_conversion: DocumentConversionSettings,
+    /// Owner configuration only; no invocation-local data grant is persisted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcp: Option<McpPolicy>,
+    /// Canonical owner policy; installation alone never enables a package.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub skills: Vec<SkillBinding>,
     pub provider: String,
     pub model: String,
     pub effort: String,
@@ -249,6 +288,122 @@ pub struct WorkspaceSettings {
     /// `research` tool. The parent model never chooses or changes it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub helper: Option<HelperSettings>,
+}
+
+/// One explicitly approved anonymous local connection, disabled by default.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpPolicy {
+    pub endpoint: String,
+    /// Empty only for disabled configuration awaiting explicit discovery.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub server_digest: String,
+    pub enabled: bool,
+    pub tools: Vec<McpApprovedTool>,
+    pub access: Vec<McpAccess>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpApprovedTool {
+    pub name: String,
+    pub metadata_digest: String,
+    pub schema_digest: String,
+    pub contract: McpInputContract,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpInputContract {
+    Empty,
+    Query,
+}
+/// General excludes private/Project context. Chat means that exact chat only;
+/// Project means its current member chats, never another Project's policy.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum McpAccess {
+    General,
+    Chat(String),
+    Project(String),
+}
+
+/// Exact content approved by the owner in one scope. Workspace bindings apply
+/// to general chats only; a project needs its own explicit installed binding.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SkillBinding {
+    pub id: String,
+    pub digest: String,
+    pub project: Option<String>,
+    pub enabled: bool,
+    pub selected: bool,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SkillPolicyChange {
+    Set(SkillBinding),
+    Select {
+        id: Option<String>,
+        digest: Option<String>,
+        project: Option<String>,
+    },
+    Clear {
+        id: String,
+        project: Option<String>,
+    },
+    /// Disable this exact installed identity in every scope before removal.
+    Revoke {
+        id: String,
+        digest: String,
+    },
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SkillLoad {
+    pub id: String,
+    pub origin: String,
+    pub project: Option<String>,
+    pub package_digest: String,
+    pub file: String,
+    pub file_digest: String,
+}
+impl WorkspaceSettings {
+    pub fn validate_skills(&self) -> crate::Result<()> {
+        let mut identities = BTreeSet::new();
+        let mut selections = BTreeSet::new();
+        if self.skills.len() > 128 {
+            return Err(crate::Error::Invalid(
+                "at most 128 scoped skill bindings".into(),
+            ));
+        }
+        for binding in &self.skills {
+            if !skill_id_valid(&binding.id)
+                || !skill_digest_valid(&binding.digest)
+                || binding.project.as_ref().is_some_and(|p| {
+                    p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+                })
+                || !identities.insert((&binding.project, &binding.id))
+                || (binding.selected && (!binding.enabled || !selections.insert(&binding.project)))
+            {
+                return Err(crate::Error::Invalid(
+                    "invalid, duplicate or conflicting scoped skill binding".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+pub fn skill_id_valid(id: &str) -> bool {
+    let name = id.strip_prefix("installed:").unwrap_or(id);
+    (1..=64).contains(&name.len())
+        && name.as_bytes()[0].is_ascii_lowercase()
+        && name
+            .bytes()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
+}
+pub fn skill_digest_valid(digest: &str) -> bool {
+    digest.len() == 64
+        && digest
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 
 /// An explicit helper selection with its own explicit credential route. An
@@ -281,6 +436,7 @@ pub enum RecordData {
     Settings(WorkspaceSettings),
     ChatControl(ChatControl),
     Project(crate::Project),
+    WritingSetup(crate::WritingSetup),
 }
 
 /// Host recovery/control state; model tools cannot edit or read this record.

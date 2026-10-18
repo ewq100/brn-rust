@@ -566,6 +566,14 @@ impl Auth {
         Ok((!token.is_empty()).then(|| token.to_owned()))
     }
 
+    /// Stable summary-cache identity from the same checked bootstrap file.
+    /// Raw credential bytes stay inside the existing validated reader.
+    pub(crate) fn github_token_fingerprint(&self) -> AiResult<Option<String>> {
+        use sha2::{Digest, Sha256};
+        self.github_token()
+            .map(|token| token.map(|token| format!("{:x}", Sha256::digest(token.as_bytes()))))
+    }
+
     async fn github_name(&self) -> AiResult<Option<String>> {
         let Some(token) = self.github_token()? else {
             return Ok(None);

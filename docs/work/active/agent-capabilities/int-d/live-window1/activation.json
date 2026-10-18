@@ -1,0 +1,30 @@
+{
+  "state": "ACTIVATED",
+  "source_pin": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "preflight": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/preflight.json",
+  "preflight_sha256": "0148ad45fa1ed0cb38d7bd52274546bf13b5f06ddb64633ca713f95a5617547d",
+  "authority": "Existing owner L plus principal concrete first-window activation, 17 October 2026. This is qualification authorization, not source/semantic acceptance.",
+  "max_workflow_starts": 12,
+  "route": {
+    "provider": "Codex/ChatGPT",
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "auth_reference": "/Users/evokessler/.codex/auth.json",
+    "credential_contents": "do not inspect or copy",
+    "fallback": false
+  },
+  "mcp": false,
+  "helpers": false,
+  "automatic_apply": false,
+  "limits": {
+    "rounds_each": 8,
+    "host_timeout_seconds_each": 120,
+    "serial": true,
+    "failed_stopped_continue_count": true
+  },
+  "method": "Only exact pinned 8-case order/4pairs/2repeats each of history and StopContinue. Same-binary configuration comparison only, no D1A/B causal improvement or live MCP claim. Stop stage miss stays gap. No extra attempts or replacement fixtures.",
+  "failure_policy": "Stop on actual unsuccessful workflow or auth refusal; retain ledger/raw outcomes, no retry/fallback. No edits to pinned source/corpus/prompts/artifacts. Report harness/runtime defect before any correction.",
+  "assessment": "Actual exact synthetic Prepared export for principal assessment; no Apply/Undo provider actions or blanket output approval. Deterministic owner Apply/replayUndo is separate.",
+  "audit": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/int-d-principal-preflight-audit.json",
+  "review": "Independent Opus1 pending; no acceptance inferred."
+}

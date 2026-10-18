@@ -80,6 +80,7 @@ async fn stop_before_worker_skips_credentials_stale_tools_and_completion() {
         prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "late old tool".into(),
                 request: ChangeRequest {
                     reason: "Stale output".into(),

@@ -1,0 +1,11 @@
+--- crates/brn-ai/src/threads_sources.rs
++++ source-offset
+@@ -65,7 +65,7 @@
+     }
+     out["start"] = json!(start);
+     out["total_bytes"] = json!(text.len());
+-    let prefix = context_budget::fit_prefix(&text[start..], |prefix| {
++    let prefix = context_budget::fit_prefix(&text, |prefix| {
+         let end = start + prefix.len();
+         out["text"] = json!(prefix);
+         out["end"] = json!(end);

@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/error.rs
++++ b/crates/brn-ai/src/error.rs
+@@ -26,7 +26,7 @@
+                     "The BRN request-size estimate cap was reached; the model context limit is unknown.",
+                 )
+             }
+-            "brn_request_size_estimate_exceeded" if detail.origin == "context_budget" => Some(
++            "brn_request_size_estimate_exceeded" => Some(
+                 "The BRN request-size estimate reached the selected-route admission budget; model token fit is not proven.",
+             ),
+             "brn_tool_result_admission_exceeded" if detail.origin == "context_budget" => {

@@ -1,0 +1,78 @@
+{
+  "observed_at": "2026-10-17T12:24:44.651641+00:00",
+  "material": "cc8338beb885d1f59a547fb47ca4043d40ffbe9f",
+  "evidence_head": "237816d185b50e1da5d28b6462d9b7aaf3b7f1d5",
+  "checks_audited": {
+    "check-index.json": 86,
+    "opus1-check-index.json": 20
+  },
+  "entries_without_count_field": [
+    [
+      "check-index.json",
+      "before-format-initial.json"
+    ],
+    [
+      "check-index.json",
+      "cli-before-absence.json"
+    ],
+    [
+      "check-index.json",
+      "cli-dev-graph-delta.json"
+    ],
+    [
+      "check-index.json",
+      "mcp-initial.json"
+    ],
+    [
+      "check-index.json",
+      "metadata-dev.json"
+    ],
+    [
+      "check-index.json",
+      "metadata-receipt.json"
+    ],
+    [
+      "opus1-check-index.json",
+      "before-format-initial.json"
+    ]
+  ],
+  "campaign_commands_audited": 6,
+  "restored_material": {
+    "candidate": {
+      "checked": 328,
+      "mismatches": []
+    },
+    "copy": {
+      "checked": 328,
+      "mismatches": []
+    }
+  },
+  "opus2_verbatim_sha256": "f4442cf1c0bd395aeae5a60c885161ba2a04f1731a70ab6362ffee5f30f307c6",
+  "campaign_budget": {
+    "used_seconds": 597.7771217919653,
+    "unused_seconds": 2.222878208034672,
+    "cap_seconds": 600,
+    "start": {
+      "record": "d4-four-guard-20261017",
+      "start_monotonic": 689402.669295541,
+      "start_wall": 1792239174.208218,
+      "cap_seconds": 600,
+      "qualification": "Clock begins at first receipt action before campaign planning, reading allocation or setup; no prior allowance transfer."
+    },
+    "end_monotonic": 690000.446421416,
+    "head": "237816d185b50e1da5d28b6462d9b7aaf3b7f1d5",
+    "crates": "fb307685cc0ae5fe82d2ab5870e1bf1e8257624f",
+    "candidate_and_copy328_restored": true,
+    "status": "clean",
+    "outcomes": {
+      "M01": "CAUGHT",
+      "M02": "CAUGHT",
+      "M03": "CAUGHT",
+      "M04": "NO_VERDICT_DEADLINE"
+    },
+    "release": "EXPLICIT sole heavy/allD4paths release; no further heavy commands.",
+    "qualification": "Includes planning/setup/copied baselines/all variant commands/stop/reap/hash/doc/report read-copy/receipt cleanup/evidence commit. No reset/extension. 3 catches are scoped observations, not full campaign/source acceptance."
+  },
+  "errors": [],
+  "scope": "Read-onlyreceipt/log/artifact-receipt hashes/rawcounts where present/material/source-restoration audit. No rerun; overwritten per-run binaries not asserted retained; relative core dep-info qualification preserved. Initial audit schema-assumption KeyError corrected, not product failure."
+}

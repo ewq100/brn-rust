@@ -52,7 +52,7 @@ fn node(id: &str) -> ConnectionNode {
 impl RunNoteSearch for Scripted {
     fn search(
         &self,
-        _chat: &str,
+        _chat: Option<&str>,
         query: &str,
         _limit: usize,
         _cursor: Option<&str>,
@@ -95,7 +95,7 @@ impl RunNoteSearch for Scripted {
     }
     fn connections(
         &self,
-        _chat: &str,
+        _chat: Option<&str>,
         note: &str,
         _hops: u8,
         _sources: bool,

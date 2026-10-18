@@ -51,6 +51,7 @@ fn runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authorit
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    loaded_skill_details: vec![],
                     instruction: None,
                     queue_claim: None,
                     thread: thread.clone(),

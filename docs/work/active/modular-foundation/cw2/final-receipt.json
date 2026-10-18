@@ -1,0 +1,166 @@
+{
+  "generated_utc": "2026-10-16T18:45:48Z",
+  "status": "independently source-approved; final evidence-only handoff to principal",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d",
+  "branch": "work/cw2-20261016",
+  "base": "3e09b979dbe5204098d871469d0ed280186db20d",
+  "source_pin": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+  "crates_tree": "53bcfa293e56c04c629b5eb80fee306d955d3eae",
+  "source_fingerprint": {
+    "receipt": "r2-source-pin.json",
+    "sha256": "fea3964a803f30dda0c892c223ad9b77a7464f9eb2292355889facb51229f069",
+    "all_204_rust_byte_hashes_match": true,
+    "receipt_recorded_head_preserved": true
+  },
+  "ownership": {
+    "receipt": "path-ownership.json",
+    "sha256": "9e72e4f78dde21331d647abd67b97d2b1028b538abfaa4a33a090892e0a02f48",
+    "all_owned_path_hashes_match": true,
+    "desktop_hunk_limits": "handoff.md"
+  },
+  "acceptance_mapping": "handoff.md#acceptance-mapping-original-f01f22",
+  "normal_checks": [
+    {
+      "receipt": "r2-core-app-complete.json",
+      "recorded_head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "all_source_files_match_committed_pin": true,
+      "counts": [
+        442,
+        0,
+        2
+      ],
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "--lib",
+        "--tests"
+      ],
+      "log_sha256": "ccc413cb0beb210afee75c331f2782609e65bd6b277b8bbc2e74fda6f55d164c"
+    },
+    {
+      "receipt": "r2-native-final-source.json",
+      "recorded_head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "all_source_files_match_committed_pin": true,
+      "counts": [
+        310,
+        0,
+        1
+      ],
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop"
+      ],
+      "log_sha256": "06b922447e1bc43f1d2df54d87eb1ea33a39369dc93e93f4e5765e6be86e63c7"
+    },
+    {
+      "receipt": "r2-strict-lint-corrected.json",
+      "recorded_head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "all_source_files_match_committed_pin": true,
+      "counts": null,
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "brn-ai/scripted-runs,brn-desktop/native-ui,brn-desktop/native-test-support",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "log_sha256": "579a10433a4ba74df7282ee8f7835681bd792289d04c07b05f60ecec15ec4097"
+    },
+    {
+      "receipt": "r2-format.json",
+      "recorded_head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "all_source_files_match_committed_pin": true,
+      "counts": null,
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "earlier_normal_features": {
+    "pin": "144848ffd86f8705f156553aeef418de23d204a5",
+    "index": "r1-pin-normal-summary.json",
+    "qualification": "AI/CLI/capability/retrieval/combined144848 receipts retained with original pin, not rerun claims."
+  },
+  "mutation": {
+    "outcomes": "mutation-outcomes.json",
+    "sha256": "39684d451535139d50a4904f382f91bbf3d956ddc22ca2b5d14ac7856b3f8ebf",
+    "original_total_cap_seconds": 1800,
+    "total_shared_seconds": 1604.808563916944,
+    "unused_seconds": 195.19143608305603,
+    "latest_pin_selected": 5,
+    "latest_pin_caught": 5,
+    "qualification": "Earlier Missed and phase-interrupted/unexecuted cases remain actual verdicts; no complete pass or retroactive kills."
+  },
+  "review": {
+    "round1": "CHANGES_REQUIRED d4a51409; report/response retained",
+    "round2": "CHANGES_REQUIRED144848; previous material findings resolved per report, final typing blocker corrected at12b0",
+    "round3": {
+      "verdict": "APPROVED",
+      "approved_source": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+      "report": "opus-review-round3.md",
+      "sha256": "78b509bcd65496c972eccc04d3df00171da497603846259fbe5484304cd6da97",
+      "verbatim_copy_matches_original": true,
+      "scope": "144848..12b0 final cache/token/request-batch correction and real typing proof",
+      "limits": "SOURCE approval only. Reviewer mutation-pending wording predates actual five-ID recheck receipts; actual mutation ledger is separate and partial."
+    },
+    "prior_findings": "Prior CLI/format/Undo/selection/HIGH canonical read-search privacy/safe refusal/immutable replacement issues remain resolved per round2 and principal round3 disposition."
+  },
+  "authority_state": {
+    "heavy_slot": "Explicitly released to principal by completion handoff after final docs-only commit; no further worker build/test/mutation work.",
+    "production_and_shared_files": "All CW2-owned source/test/shared UI files explicitly released to principal by completion handoff; no retained worker ownership.",
+    "exact_path_map": "path-ownership.json; all mapped paths handed back without source changes",
+    "B1a": "Principal owns next allocation; worker grants no implicit B1a edit/integration authority.",
+    "principal_owns": "local acceptance, integration, next slice and B1a allocation"
+  },
+  "process_check": {
+    "receipt": "final-release-process.json",
+    "sha256": "9b45d91f02be32a8c87eada9b506ec557cf6374fbe600b83d901c1008a76e1ac",
+    "active_heavy_children": []
+  },
+  "open_limits": [
+    "No full F21 or whole program qualification",
+    "No hosted CI or native human observation",
+    "Known PDF environment gap and original widget-B attribution remain open",
+    "Partial mutation campaigns with genuine survivors and unexecuted scope",
+    "Deferred pre-existing privileged raw owner compensation replacement ancestry limitation",
+    "Shared-Note comments privacy decision remains open",
+    "No publication/main merge/release/live provider or owner data use",
+    "Nonblocking LOW per-render operations eligibility scan remains disclosed; no global constant-time claim."
+  ],
+  "previous_checkpoint": "0e021191e96ddfa33d5661096cc5ffdfa675e7ef",
+  "final_docs_head": "Reported by final completion handoff after commit; intentionally no self-referential SHA."
+}

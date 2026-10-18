@@ -1,0 +1,42 @@
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 2.27s
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 21 tests
+test overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok
+test first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move ... FAILED
+test malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden ... ok
+test archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata ... ok
+test capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version ... ok
+test knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... ok
+test revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok
+test setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... ok
+test ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... ok
+test setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok
+test setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration ... ok
+test unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup ... ok
+test v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok
+test checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok
+test project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal ... ok
+test ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok
+test scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead ... ok
+test inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... ok
+test stored_v2_context_rejects_forged_binding_and_reference_metadata ... ok
+test scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok
+test delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay ... ok
+
+failures:
+
+---- first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move stdout ----
+
+thread 'first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move' (27138839) panicked at crates/brn-threads-app/tests/writing_setup.rs:1429:17:
+general/archive: Stale { records: ["1773372f-4f29-4984-a562-5b3f553b01aa:0"] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move
+
+test result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+error: test failed, to rerun pass `-p brn-threads-app --test writing_setup`

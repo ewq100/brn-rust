@@ -1,0 +1,747 @@
+{
+  "source": {
+    "pin": "fa0bb1221224db3f8e6710a6647b6d4c2f3592d6",
+    "crates_tree": "60e9089de1867f6517d6c8aeb3227c5cc3f8a748",
+    "source_sha256": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+    "association": "All final Cargo receipts recorded these same frozen input hashes before and after, preceding this commit. No future-SHA start claim.",
+    "base": "695f750af5103550239830a541b3673e107c624c"
+  },
+  "entry": {
+    "time_utc": "2026-10-17T23:17:28.356102+00:00",
+    "head": "ccbcf422eaa97c73694001410e238844dc0eace8",
+    "material": "695f750af5103550239830a541b3673e107c624c",
+    "heavy": [],
+    "before_root": "/private/tmp/brn-x2-html-r2/before-src",
+    "before_target": "/private/tmp/brn-x2-html-r2/target-before",
+    "candidate_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+    "candidate_target": "/private/tmp/brn-x2-html-r1/target",
+    "provider": "Codex GPT-6.1 Sol; no Kiro",
+    "retention": "Existing r1 targets/artifacts untouched; entry binaries/.d copied before rebuild."
+  },
+  "before_association": {
+    "base_sha256": "a187f54aa0ecedcc6b4da2f971ff09dc89837f3483229ac70f5d5fdaf1d7c473",
+    "before_documents_sha256": "151aa5912df6db4f7f1fde6c92a5493ea63651cf879666ba394d29d410680bd9",
+    "witness_sha256": "863d144fd9784b7cce222a43026e4e775d87650b42477445bdd3c67a9c70c180",
+    "only_change": "witness.rs inserted inside existing cfg(test) module; production unchanged from 695f750a"
+  },
+  "before_note": "Genuine fresh 695 checkout plus identical appended cfg(test) witnesses only. No production edit, and no reuse of bbf target. Both behavioral failures reached actual convert/integrity; no compilation error is counted as red.",
+  "candidate_target": "/private/tmp/brn-x2-html-r1/target",
+  "before_target": "/private/tmp/brn-x2-html-r2/target-before",
+  "source_freeze": "No source edit during any Cargo command; receipts record identical input hashes before and after. Candidate hashes equal later material pin, without claiming commands started at future commit.",
+  "commands": [
+    {
+      "label": "before-helper-build",
+      "side": "before",
+      "args": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--locked",
+        "--offline",
+        "-j1"
+      ],
+      "cwd": "/private/tmp/brn-x2-html-r2/before-src",
+      "target": "/private/tmp/brn-x2-html-r2/target-before",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-before",
+      "started_utc": "2026-10-17T23:17:49.500944+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "151aa5912df6db4f7f1fde6c92a5493ea63651cf879666ba394d29d410680bd9",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 33594,
+      "exit": 0,
+      "seconds": 128.91072929208167,
+      "source_unchanged": true,
+      "raw_log_sha256": "038daa9571333226be644e58a6938fd4dae67d8ec0b5ffbf05e473c1f6bd387e",
+      "totals": null
+    },
+    {
+      "label": "before-witnesses",
+      "side": "before",
+      "args": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--no-fail-fast",
+        "r2_"
+      ],
+      "cwd": "/private/tmp/brn-x2-html-r2/before-src",
+      "target": "/private/tmp/brn-x2-html-r2/target-before",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-before",
+      "started_utc": "2026-10-17T23:20:02.187539+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "151aa5912df6db4f7f1fde6c92a5493ea63651cf879666ba394d29d410680bd9",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 35669,
+      "exit": 101,
+      "seconds": 356.55116687493864,
+      "source_unchanged": true,
+      "raw_log_sha256": "5d1236f4d3dfda432ddae2d3d0f16add66b6afda0843ba28766e6ac5b780a9b6",
+      "totals": {
+        "passed": 0,
+        "failed": 2,
+        "ignored": 0
+      }
+    },
+    {
+      "label": "final-documents",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--no-fail-fast",
+        "documents"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:27:02.124514+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 39610,
+      "exit": 0,
+      "seconds": 0.3013931249734014,
+      "source_unchanged": true,
+      "raw_log_sha256": "eda1658c2551255c939cadf52d5d23fc96ec36b561869850810097fb1d5625fd",
+      "totals": {
+        "passed": 27,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "label": "final-fmt",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:27:36.826511+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 40488,
+      "exit": 0,
+      "seconds": 1.3695124170044437,
+      "source_unchanged": true,
+      "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "totals": null
+    },
+    {
+      "label": "final-helper-alltargets",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--no-fail-fast"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:27:04.772933+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 39790,
+      "exit": 0,
+      "seconds": 7.2588212919654325,
+      "source_unchanged": true,
+      "raw_log_sha256": "a14c81f97ef930c3184a0c920043693f834692812a52b307aa8415119c76805d",
+      "totals": {
+        "passed": 95,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "label": "final-helper-build",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--locked",
+        "--offline",
+        "-j1"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:26:29.284954+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 39444,
+      "exit": 0,
+      "seconds": 2.7018007079605013,
+      "source_unchanged": true,
+      "raw_log_sha256": "e8e5ed06b1d71678ba4e5ff8abf8479d4f2f64ef58b5bc811ce81ea3cf98d346",
+      "totals": null
+    },
+    {
+      "label": "final-helper-clippy",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:27:26.395950+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 40039,
+      "exit": 0,
+      "seconds": 4.453786208061501,
+      "source_unchanged": true,
+      "raw_log_sha256": "6a43b0bc47a89685447cb9cfd31876a86acb5e6441831316b5d44783a3af3970",
+      "totals": null
+    },
+    {
+      "label": "final-witnesses",
+      "side": "candidate",
+      "args": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j1",
+        "--no-fail-fast",
+        "r2_"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:26:46.984163+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 39564,
+      "exit": 0,
+      "seconds": 3.8666084579890594,
+      "source_unchanged": true,
+      "raw_log_sha256": "d98af9ae4e33c48283511e3ccd90936438e4a6de96e71e0ca8b1f17576cd412f",
+      "totals": {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "label": "docs-links",
+      "side": "candidate",
+      "args": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+      "target": "/private/tmp/brn-x2-html-r1/target",
+      "tmpdir": "/private/tmp/brn-x2-html-r2/tmp-candidate",
+      "started_utc": "2026-10-17T23:29:30.187964+00:00",
+      "source_sha256": {
+        "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+        "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+        "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+        "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+        "crates/brn-intake/src/bin/brn-intake-helper.rs": "7297061f1cfa3c635f4338db9c29a9af90fbb6a068f7326b3fa9c1a017ced44e",
+        "crates/brn-intake/src/helper/documents/html_admission.rs": "a9ec58d11e6b0ace2b45d6b74cd2822549e553f5c886b9b1cdcdb3efc23d169c",
+        "crates/brn-intake/src/helper/documents.rs": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e",
+        "crates/brn-intake/src/helper/pptx.rs": "d1ccbf449f0990f4d2b5e97732813b2d8e10f1f077adad96a675adaecd23c7cc",
+        "crates/brn-intake/src/helper/prepared/html.rs": "c354efd570cbc403fe2218929b5abab08f3e165705d1a3d13244948304f9ba56",
+        "crates/brn-intake/src/helper/prepared/pptx.rs": "13c34da0c174141e1923360e2a45f90945a4ebe503e5ca50ec2a9585a0d2ce0d",
+        "crates/brn-intake/src/helper/prepared/xlsx.rs": "6be6e88bb067f071e95c0668328b6742382498a03c0bf87b5d5e3ed720da81e2",
+        "crates/brn-intake/src/helper/prepared.rs": "27d4592f13e7b994aa2ce50a2ab8541ab30f5a093213c81e3f2d34abc083336b",
+        "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+        "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+        "crates/brn-intake/src/prepared/formatting.rs": "994d5edbbd514efe65fab2f0306430d6a2f6504fb07861b52ac91f7e86abec4d",
+        "crates/brn-intake/src/prepared/tests.rs": "70a59dff4df93161dfb7c342312c24b13892d95f34070f37f52058a2eb6f906c",
+        "crates/brn-intake/src/prepared.rs": "2f4befbe98c32c9dd3028a879e8a856d34c72f3339340838e77ec6e8cdd0c1d1",
+        "crates/brn-intake/tests/maintained.rs": "06595f3a95e969db0b20e03fa0515ad8997011d01c308038506d07bd980a8e2c",
+        "crates/brn-intake/tests/pptx.rs": "717d3c9f99a6e35114409b78b31a82c6398e19c160d471b1709d906193ae3944",
+        "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+        "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605"
+      },
+      "pid": 41019,
+      "exit": 1,
+      "seconds": 0.39162025006953627,
+      "source_unchanged": true,
+      "raw_log_sha256": "ce5c0002a13d5ecae1c85fca9528282c679b149a3e8fbda2d2809414d056d568",
+      "totals": null
+    }
+  ],
+  "logs": [
+    {
+      "path": "logs/before-helper-build.log.gz",
+      "raw_sha256": "038daa9571333226be644e58a6938fd4dae67d8ec0b5ffbf05e473c1f6bd387e",
+      "stored_sha256": "63cfe8e3e8e8bc132d9e8d17788d0b2ea12c2ab3c3b830f28adb1a75c851e6b2",
+      "raw_bytes": 8797,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/before-witnesses.log.gz",
+      "raw_sha256": "5d1236f4d3dfda432ddae2d3d0f16add66b6afda0843ba28766e6ac5b780a9b6",
+      "stored_sha256": "3ded7852edf7920e7c01e593cea987d3bee979b2a818a51bdc8cd58f3080826a",
+      "raw_bytes": 9082,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-documents.log.gz",
+      "raw_sha256": "eda1658c2551255c939cadf52d5d23fc96ec36b561869850810097fb1d5625fd",
+      "stored_sha256": "0db9a292c1ba8334a41d3ea9d948a2b9318bde605bdeb91a151bfe3f635a02df",
+      "raw_bytes": 2811,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-helper-alltargets.log.gz",
+      "raw_sha256": "a14c81f97ef930c3184a0c920043693f834692812a52b307aa8415119c76805d",
+      "stored_sha256": "8e92102359e3ecd9b0e3e05d621aecaae889fabf5ef9fd64a4c0c7714d9697f6",
+      "raw_bytes": 9971,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-helper-build.log.gz",
+      "raw_sha256": "e8e5ed06b1d71678ba4e5ff8abf8479d4f2f64ef58b5bc811ce81ea3cf98d346",
+      "stored_sha256": "17a2a7a990431de56ef19ef62df45baa3722a07446ff22a4df45ccfef5ed313f",
+      "raw_bytes": 164,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-helper-clippy.log.gz",
+      "raw_sha256": "6a43b0bc47a89685447cb9cfd31876a86acb5e6441831316b5d44783a3af3970",
+      "stored_sha256": "5b1924e60384b109e26987a16a4fc4f34743435b21dd969b0d94a2a6cf0bd417",
+      "raw_bytes": 164,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/final-witnesses.log.gz",
+      "raw_sha256": "d98af9ae4e33c48283511e3ccd90936438e4a6de96e71e0ca8b1f17576cd412f",
+      "stored_sha256": "2c4365aab53adffccf0abb3eee6d9eea9abea0afc52bf04951e08781a78a4494",
+      "raw_bytes": 765,
+      "transformation": "gzip only; decompression reproduces raw bytes exactly, no path rewriting"
+    },
+    {
+      "path": "logs/docs-links.log.gz",
+      "raw_sha256": "ce5c0002a13d5ecae1c85fca9528282c679b149a3e8fbda2d2809414d056d568",
+      "stored_sha256": "a3979d8ee684637121169a0f0e3735ec7f2ae0c9692b56c6fe1e47792bc7e34f",
+      "raw_bytes": 687,
+      "transformation": "gzip only; no path rewriting"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/695-documents.rs",
+      "bytes": 47096,
+      "sha256": "a187f54aa0ecedcc6b4da2f971ff09dc89837f3483229ac70f5d5fdaf1d7c473"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/695-to-pin.diff.gz",
+      "bytes": 159060,
+      "sha256": "159d22a7dc30218d7f7506d91f91983bd596e6126e73a85cfaaeeb425870fd87"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/781-to-pin.diff.gz",
+      "bytes": 577644,
+      "sha256": "4c7637901ca753820c9b47d81b3b4cd514cc9abcfdb2e231c36f152f598c5b68"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-brn-intake-helper",
+      "bytes": 85645280,
+      "sha256": "fdbeaa537222fb4f326b041f083856eabf20ad4a395adc709bfa497dea204cce"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-brn-intake-helper.d",
+      "bytes": 1037,
+      "sha256": "b25d58f021b734109e0150286f583fe0953083006cd9242c7e03a194b474f8d7"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-brn_intake-af54ed7c72f92c2a",
+      "bytes": 36219216,
+      "sha256": "078e9beba64a11848be37882071d93b6e0a979004a2d36fa899304aeb24656af"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-brn_intake-af54ed7c72f92c2a.d",
+      "bytes": 2503,
+      "sha256": "32e54eba5935c2928c3431715c469a845cff337f39ef5cec683a6eec0d5fd769"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-brn_intake-fa2b9defa052e73f.d",
+      "bytes": 2099,
+      "sha256": "877671c242715a63798fda28c2bf01ccfaa2f0b7ea64cc64bb2bb0a85cdb472e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-documents.rs",
+      "bytes": 48238,
+      "sha256": "151aa5912df6db4f7f1fde6c92a5493ea63651cf879666ba394d29d410680bd9"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/before-test-only.diff.gz",
+      "bytes": 568,
+      "sha256": "74685ceb55d1c58187afb37e3fd120e56f41dace324868110edec6968daa51c8"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn-intake-helper",
+      "bytes": 34087712,
+      "sha256": "69180ae3e025e39b72dd6cfb47eea2d27f8dd77c9fd58060593034b8901e27b8"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn-intake-helper.d",
+      "bytes": 1198,
+      "sha256": "776d27e02eb2dfcdba9995a81227b550436cc856b81a11f3720490e9effcc1f9"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-2ed787057422bb3f.d",
+      "bytes": 2628,
+      "sha256": "b67f17fa186d8c3a2ff723a4e54066cbbac929ae6779f2ed98512c8747c2c109"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-44620380edb94b1f.d",
+      "bytes": 2078,
+      "sha256": "432aa91aacb6cd4db51e127179fcf79621f22b63377b92829b768c2c1a9c3931"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-913ee1e63d397640.d",
+      "bytes": 1669,
+      "sha256": "72ce4c67c2fc6ae01a5cdf098d13857248f8c6532a92e6bc9f9cfb34a3e16b7d"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-af54ed7c72f92c2a",
+      "bytes": 36218368,
+      "sha256": "926a5c3d8f8a0b17b5e20f17977ae2d441b3e27d752b94ab696edf3479656353"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-af54ed7c72f92c2a.d",
+      "bytes": 2489,
+      "sha256": "aba91a50c7a6ea822680c282aedc8503979fea8d339070a6b56e428a2953f287"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-f38d576d4ad1625a.d",
+      "bytes": 682,
+      "sha256": "3ddd10e91977b14a8d736f195fddd6ee2a3624013d572c5535be78b519c38727"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/entry-brn_intake-fa2b9defa052e73f.d",
+      "bytes": 2078,
+      "sha256": "2ddb279b8b7437ea82fc05a1c910440fa65d6c3b4431bfc68e1d21957218abd3"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-2ed787057422bb3f.d",
+      "bytes": 2628,
+      "sha256": "b67f17fa186d8c3a2ff723a4e54066cbbac929ae6779f2ed98512c8747c2c109"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-44620380edb94b1f.d",
+      "bytes": 2078,
+      "sha256": "432aa91aacb6cd4db51e127179fcf79621f22b63377b92829b768c2c1a9c3931"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-913ee1e63d397640.d",
+      "bytes": 1669,
+      "sha256": "72ce4c67c2fc6ae01a5cdf098d13857248f8c6532a92e6bc9f9cfb34a3e16b7d"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-af54ed7c72f92c2a",
+      "bytes": 36220080,
+      "sha256": "ce574a77409986536689bc8d67be738a892628256ccab22cec059a0d0b3ed363"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-af54ed7c72f92c2a.d",
+      "bytes": 2489,
+      "sha256": "aba91a50c7a6ea822680c282aedc8503979fea8d339070a6b56e428a2953f287"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-f38d576d4ad1625a.d",
+      "bytes": 682,
+      "sha256": "3ddd10e91977b14a8d736f195fddd6ee2a3624013d572c5535be78b519c38727"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-brn_intake-fa2b9defa052e73f.d",
+      "bytes": 2078,
+      "sha256": "2ddb279b8b7437ea82fc05a1c910440fa65d6c3b4431bfc68e1d21957218abd3"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-dev-brn-intake-helper",
+      "bytes": 85645280,
+      "sha256": "9e88ce34a0ed38b0579bc66cd4c4d7eec2143d37afad05b0b24076b058388d07"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-dev-brn-intake-helper.d",
+      "bytes": 1198,
+      "sha256": "776d27e02eb2dfcdba9995a81227b550436cc856b81a11f3720490e9effcc1f9"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-documents.rs",
+      "bytes": 52060,
+      "sha256": "bca9d8c2cc7220d354d6c053fce73f69ff2559537423b1563b07279f280e355e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-test-brn-intake-helper",
+      "bytes": 34087776,
+      "sha256": "fca5a92f357fe62e6d0fc185b6a8195c470d095baf8966e3b9fee1ec179bbf29"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/final-test-brn-intake-helper.d",
+      "bytes": 1198,
+      "sha256": "776d27e02eb2dfcdba9995a81227b550436cc856b81a11f3720490e9effcc1f9"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/artifacts/source-only.diff.gz",
+      "bytes": 2127,
+      "sha256": "5f08bcf3bc9e715b7654be5ac3cc19be5e88ebd4bb460bd01ab6dcaaa8b80b00"
+    }
+  ],
+  "review_verbatim_sha256": "f1d1639f3834ce1d42ad86015974c4ec6ae0a13f47be3d7b9e0e0728d62dd620",
+  "scripts": [
+    {
+      "path": "/private/tmp/brn-x2-html-r2/run.py",
+      "sha256": "e264953b4a9a9bc0be1798bcf98dee969f4ea51581f4b88b8ddf90112a18e71a"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/witness.rs",
+      "sha256": "863d144fd9784b7cce222a43026e4e775d87650b42477445bdd3c67a9c70c180"
+    },
+    {
+      "path": "/private/tmp/brn-x2-html-r2/supplement.rs",
+      "sha256": "c9398c554559cece71af3d03c2342d58cf679dc4e4f54ad2d45e6cc7093179ea"
+    }
+  ],
+  "historical_qualifications": [
+    "Previous 91/0 helper and 35/1PDF/3 host results remain associated with 695; not new-pin passes.",
+    "Earlier workspace/native/retrieval qualifications remain historical and were not rerun.",
+    "Original 37 initial-html log gzip copies have the separately documented machine-path transformation; opus1/opus2 use byte-preserving gzip.",
+    "Integrity remains a lossy truncation defense, not a fidelity proof; no hard RSS/thread/syscall or all-document claim."
+  ],
+  "next": "Parent focused precision review, not worker delegation/self-acceptance/new family.",
+  "documentation_qualification": {
+    "command": "python3 scripts/check-markdown-links.py",
+    "exit": 1,
+    "failures": 3,
+    "scope": "All three failures are machine-local file:line links in opus-review-round2.md copied verbatim as explicitly required. No report-byte/checker modification or scope expansion; remaining documentation gate is qualified.",
+    "verbatim_preserved": true
+  },
+  "release_receipt": "release.json",
+  "material_crates_tree": "60e9089de1867f6517d6c8aeb3227c5cc3f8a748"
+}

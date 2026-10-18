@@ -1,0 +1,32 @@
+{
+  "status": "BUILD NEED: SOURCE-ONLY low followup, uncompiled/unexecuted",
+  "time_utc": "2026-10-16T23:25:39.897356+00:00",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d2-20261017",
+  "actual_HEAD": "28fd322d3a1712647a196a34c03297839c1786cf",
+  "approved_material": "d252a505db0b2d96d3584746f92cc7401ece472a",
+  "approved_crates": "7549da38caeeb0095617b2c9f07fe12830b1f82f",
+  "changed_allocated_sha256": {
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "crates/brn-ai/src/threads_continuation_tests.rs": "1f1e8963b9e79016f2ac155ebbca3e80ede4063a9acff78682080310eaa7d01a",
+    "docs/architecture/threads-behavior.md": "e7f8481b47d0aad6600291ca06b99de7517484f530ce01f3d10d18e6ee654d90"
+  },
+  "full_report_sha256": "cbefe53e6be3f950bd03bfef95793d0d8c73709bc239ece875096a43ebcb18c0",
+  "preparation_diff": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-preparation.patch",
+  "preparation_diff_sha256": "1dd3ba60bbd967b9821dae2aec91ba227896b50e4bb07b069697f66886fcb76a",
+  "static_scope_checks": {
+    "continuation_only_description_strings_changed": true,
+    "only_one_existing_test_changed": true,
+    "other_material_hashes_unchanged": 288,
+    "original_NeedsReview_protection_no_effect_ledger_system_assertions_preserved": true,
+    "report_verbatim": true
+  },
+  "static_checks": [
+    "direct Rust1.98.1 rustfmt completed",
+    "git diff --check completed"
+  ],
+  "heavy_owner": "B3 exclusively; no Cargo/metadata/build/test/lint/mutants/list/headless or process polling performed",
+  "new_assertion_execution": "NOT RUN; prior430/0/1 belongs d252 source, no assertion-only behavioral red claim",
+  "D2_mutation": "ungranted/unstarted; proposed <=4guards/300s requires later explicit grant",
+  "D1A_D1B_budgets": "closed; no transfer"
+}

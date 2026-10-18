@@ -1,0 +1,11 @@
+diff --git a/crates/brn-ai/src/threads_summary.rs b/crates/brn-ai/src/threads_summary.rs
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -569,7 +569,6 @@
+                 .one_turn(self.model.clone(), self.responses, &input, budget)
+                 .await;
+             if let Some(model) = &self.responses_fallback
+-                && !emitted
+                 && copilot_responses_retry(self.responses, &answer, &self.cancel)
+             {
+                 answer = self.one_turn(model.clone(), true, &input, budget).await.0;

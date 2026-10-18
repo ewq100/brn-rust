@@ -1,0 +1,11 @@
+# Frozen oracle-correction handoff
+
+[Response](response.md), [full review](opus-review-round1.txt), [allocation](requirements.txt), [checks](check-index.json), [source pin](source-pin.json) and [release](release.json) describe the single P2 delta for parent inspection. Historical evidence is immutable at `d3a0b4989a6c0f8824c039aef4768b53d2e30d03`.
+
+The real standalone `NESTED` control passes the corrected shared body/header/identity projection. The actual parent still has zero children and fails its original count requirement. Focused: **1 pass / 1 fail**,27 filtered. Full: **29 tests,12 pass /17 fail**,zero ignored/filtered. All original28 outcomes are unchanged; none of the17 genuine gaps was turned green. Strict all-target harness Clippy and static checks pass. All73 historical complete captures and17 inputs remain equal in both new executions; new positive captures are separate.
+
+Compiled driver SHA `b3f7a09b4ab2c26eb40e5d71400927be4faf3e43d0447fc4eb1f7e265aeafca0`; external harness `8b1d69bd8681e8c4be552069d86e4e16d6f07b21`, tree `73828d62743e9952821863bd7012b13eb1b20935`. Xberg remains `ce3bce28f1e6e7393efe27cfad61f8159208d286`; same276 emitted graph, manifests/locks and fixed target. Original and new binaries/rlib/.d/source snapshots/raw logs/captures are preserved under `/private/tmp/brn-x2-remaining-formats-20261018/evidence`, with content-addressed artifact objects outside target. Actual repository SHA/tree/full base delta are written to external `evidence/opus1-final-repo-pin.json` only after commit creation.
+
+Parent low-impact delta inspection is separate; no worker acceptance or next fix. Raw child payload/locator/parent provenance remains unproved; standalone metadata success is not nested identity parity. All measured gaps and semantic/resource/restricted-runtime/license/all-eight/host/owner/carried gates remain open. Encrypted PDF is deferred with unsupported outcome unimplemented/unverified here; ordinary PDF remains required. PDF source stayed untouched.
+
+**Sole heavy and ALL eight allocated paths are released** with every own controller/Cargo/test/helper/runtime child reaped and precise inventory empty. No further Cargo, delegation, publication or production work follows.

@@ -1,0 +1,190 @@
+{
+  "cases": [
+    {
+      "mode": "absent",
+      "mock_requests": 1,
+      "capture": [
+        {
+          "event": "dispatch",
+          "dispatch": 2,
+          "round": 1,
+          "arguments": "PARSED",
+          "writing": "ABSENT",
+          "request_key": {
+            "bytes": 26,
+            "sha256": "9a01314fffba1b7cd3a96645f0e7fc49e9eaed85ee083c1f6572bcb5383a249b"
+          },
+          "writes": {
+            "total": 1,
+            "omitted": 0,
+            "shown": [
+              {
+                "id": "d2e1ff0a-4d79-4df4-bfa8-ac5414862fd9:1",
+                "expected_version": 2,
+                "kind": "Note"
+              }
+            ]
+          },
+          "inputs": {
+            "total": 3,
+            "omitted": 0,
+            "shown": [
+              {
+                "record": "d2e1ff0a-4d79-4df4-bfa8-ac5414862fd9:1",
+                "version": 2,
+                "expectation": "Current"
+              },
+              {
+                "record": "24d467d6-8215-41fc-a8a7-d7a3d63f1dcf:0",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "24d467d6-8215-41fc-a8a7-d7a3d63f1dcf:1",
+                "version": 1,
+                "expectation": "Current"
+              }
+            ]
+          }
+        },
+        {
+          "status": "success",
+          "native_kind": "NONE",
+          "source_kind": "NONE",
+          "event": "outcome",
+          "dispatch": 2,
+          "round": 1
+        }
+      ],
+      "guarded_interrupted_fence": 2,
+      "note_and_note_receipts_unchanged": true
+    },
+    {
+      "mode": "null",
+      "mock_requests": 1,
+      "capture": [
+        {
+          "event": "dispatch",
+          "dispatch": 2,
+          "round": 1,
+          "arguments": "PARSED",
+          "writing": "NULL",
+          "request_key": {
+            "bytes": 26,
+            "sha256": "9a01314fffba1b7cd3a96645f0e7fc49e9eaed85ee083c1f6572bcb5383a249b"
+          },
+          "writes": {
+            "total": 1,
+            "omitted": 0,
+            "shown": [
+              {
+                "id": "408e1d85-1654-4318-ba25-88283e5bc33f:1",
+                "expected_version": 2,
+                "kind": "Note"
+              }
+            ]
+          },
+          "inputs": {
+            "total": 3,
+            "omitted": 0,
+            "shown": [
+              {
+                "record": "408e1d85-1654-4318-ba25-88283e5bc33f:1",
+                "version": 2,
+                "expectation": "Current"
+              },
+              {
+                "record": "04bd8455-e929-41ae-a9a7-c520b6ce9d9b:0",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "04bd8455-e929-41ae-a9a7-c520b6ce9d9b:1",
+                "version": 1,
+                "expectation": "Current"
+              }
+            ]
+          }
+        },
+        {
+          "status": "success",
+          "native_kind": "NONE",
+          "source_kind": "NONE",
+          "event": "outcome",
+          "dispatch": 2,
+          "round": 1
+        }
+      ],
+      "guarded_interrupted_fence": 2,
+      "note_and_note_receipts_unchanged": true
+    },
+    {
+      "mode": "object-long",
+      "mock_requests": 1,
+      "capture": [
+        {
+          "event": "dispatch",
+          "dispatch": 2,
+          "round": 1,
+          "arguments": "PARSED",
+          "writing": "OBJECT",
+          "request_key": {
+            "bytes": 26,
+            "sha256": "9a01314fffba1b7cd3a96645f0e7fc49e9eaed85ee083c1f6572bcb5383a249b"
+          },
+          "writes": {
+            "total": 1,
+            "omitted": 0,
+            "shown": [
+              {
+                "id": "9234fa97-03b6-43bd-b713-9217a6ec342d:1",
+                "expected_version": 2,
+                "kind": "Note"
+              }
+            ]
+          },
+          "inputs": {
+            "total": 3,
+            "omitted": 0,
+            "shown": [
+              {
+                "record": "9234fa97-03b6-43bd-b713-9217a6ec342d:1",
+                "version": 2,
+                "expectation": "Current"
+              },
+              {
+                "record": "f22edf8c-a54d-4623-819d-42cac8237383:0",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "f22edf8c-a54d-4623-819d-42cac8237383:1",
+                "version": 1,
+                "expectation": "Current"
+              }
+            ]
+          }
+        },
+        {
+          "status": "error",
+          "native_kind": "other",
+          "source_kind": "tool_rejected",
+          "event": "outcome",
+          "dispatch": 2,
+          "round": 1
+        }
+      ],
+      "guarded_interrupted_fence": 2,
+      "note_and_note_receipts_unchanged": true
+    },
+    {
+      "mode": "apply-first",
+      "mock_requests": 1,
+      "capture": [],
+      "guarded_interrupted_fence": 2,
+      "note_and_note_receipts_unchanged": true
+    }
+  ],
+  "historical_cause": "UNKNOWN",
+  "live_starts": 0
+}

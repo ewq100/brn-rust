@@ -17,6 +17,12 @@ The selected provider, model, reasoning effort and credential location are expli
 
 Implementation: [entry point](src/main.rs), [shared app](../brn-threads-app/src/lib.rs), [checked core](../brn-threads-core/README.md). [Threads acceptance evidence](../../docs/archive/threads-rebuild/evidence.md) distinguishes code, offline/live checks, native interaction and owner acceptance.
 
+## Document conversion
+
+`document-conversion --converter xberg|xberg-brn --ai off|on` changes the checked workspace preference for subsequent imports. Defaults are Xberg and AI Off, explicitly present in `settings.document_conversion`. Xberg + BRN layer uses the accepted optional bundle; AI On applies fixed GPT-6 Luna/high after either converter. Settings changes do not import files or rewrite existing notes. Useful information still needs its separate agent credentials.
+
+The trusted host resolves `brn-xberg-helper` and `brn-xberg-helper-brn` beside the CLI executable. Development/tests may set absolute `BRN_XBERG_HELPER` and `BRN_XBERG_HELPER_BRN` paths. Missing or wrong selected artifacts refuse without fallback. All eight kinds use this path, including Text and Markdown; no Poppler discovery is required. Saved import/source reports retain the captured converter, bundle and AI state. Keyed full/chat/project retries must also match that variant before conversion or Auth. A new key with another variant retains a separate protected note on the same Source.
+
 ## Agents and scripts
 
 Coding agents, tests and diagnostic scripts should use the machine contract: put `--json` first.
@@ -67,13 +73,15 @@ Test harnesses on synthetic data act as the owner, in test workspaces (`init --p
 |---|---|---|
 | `true` | `apply`, `dismiss` | Accept or reject one exact reviewed candidate. |
 | `true` | `undo` | Owner Undo compensation. |
-| `true` | `configure`, `delegation`, `pause`, `resume` | Provider, model, effort and helper selection; delegation policy; pausing or resuming maintenance. |
+| `true` | `skill-install`, `skill-remove`, `skill-enable`, `skill-disable`, `skill-select`, `skill-clear` | Local instruction configuration and canonical scoped enablement/selection are owner decisions; installation alone never enables. |
+| `true` | `mcp-discover`, `mcp-configure`, `mcp-disable` | Anonymous local MCP discovery/approval/revocation; no data grant follows from enablement. |
+| `true` | `configure`, `document-conversion`, `delegation`, `pause`, `resume` | Provider, model, effort and helper selection; delegation policy; pausing or resuming maintenance. |
 | `true` | `project-create`, `project-chat`, `project-document`, `project-settings`, `chat-move`, `project-link`, `project-unlink`, `project-delete`, `project-restore` | Project membership, settings and instructions are owner-only configuration. |
 | `true` | `keep-in-brn` | Moves a private chat attachment into general knowledge. |
 | `true` | `archive`, `resolve`, `unarchive` | Chat archive state is owner-controlled. Archive interrupts that chat's runs and pauses saved queue work for every chat; unarchive never resumes it, and the CLI has no command that resumes the chat queue. |
 | `true` | `topics-create`, `topics-choose` | Sets the workspace's root Topics note. |
 | `true` | `upgrade`, `model-install` | Changes a workspace schema; downloads the pinned model. |
-| options | `ask` with `--edit-note` or `--record-decision` | Grants that run authority to edit the named note, or saves a reply as a protected decision. |
+| options | `ask` with `--edit-note`, `--record-decision` or `--mcp-tool` | Grants that run authority to edit the named note, saves a reply as a protected decision, or authorizes one exact transient external input. |
 | options | `intake` with `--project` | Adds the document to the project's membership. |
 | options | `intake --intent chat --thread <PROJECT_ID>` | `--thread` naming a project attaches the document to that project (`owner_decision_when` in the description). Behavior is unchanged; prefer `--intent project --project ID`. |
 | `false` | every other command | Reads, your own edit sessions (`reclaim-edit` included, test workspaces only), ordinary notes and chats, `queue`, knowledge check, export, backup, restore into a fresh directory, init, intake without `--project`. |
@@ -84,7 +92,7 @@ Attach a document to a project only with `--intent project --project ID`, which 
 
 A workspace the CLI creates (an explicit `--data-dir` that did not exist) starts with no provider credential source: `settings` shows `auth_file` and `credentials_dir` as null. Only an explicit `configure --provider NAME --model ID --effort LEVEL --auth-file ABSOLUTE_FILE` (Codex) or `--credentials-dir ABSOLUTE_DIR` (Copilot), on the owner's instruction, sets one. Workspaces that already exist, including ones the desktop created, keep their stored Settings. Desktop shows no sign-in file for such a workspace; choose one in Settings before running work.
 
-In machine mode, `ask`, useful intake and the intake of a format that needs conversion by a model (anything but Markdown and text) are refused with `credentials_not_configured` before any provider contact or commit. `ask` also runs useful intake, so the intake check fires first and the `ask` check guards both. A keyed intake retry that replays (Retries) needs no credentials. Default mode keeps the previous path, where the run reports its own failure.
+In machine mode, `ask`, useful intake and document conversion with captured AI On are refused with `credentials_not_configured` when no credential source is configured, before any provider contact or commit. Full imports with AI Off use the chosen document helper for all eight kinds without conversion credentials. `ask` also runs useful intake, so the intake check fires first and the `ask` check guards both. A keyed intake retry that replays (Retries) needs no credentials. Default mode keeps the previous path, where the run reports its own failure.
 
 ### Workspace purpose and actor
 
@@ -151,7 +159,7 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `missing_option` | usage | Required option absent (checked before the workspace opens). A missing edit token is `{option: "token-file"}`. | `{option}` |
 | `invalid_value` | usage | Bad integer, enum or yes/no value (including `projects --trash` other than `yes` or `no`), key format, relative path, `--trace`, a page `--limit` out of range or a malformed `--cursor`, `--hops` over 255 or `--budget` over 65535, or malformed `--actions` JSON. All but `--actions` are checked before the workspace opens. | `{option, expected}` (`expected` is human text) |
 | `invalid_input` | usage | `--NAME-file` problem; a `--token-file` problem (`token_format`, `unreadable`, `is_terminal`, `stdin_reused`); an unreadable or empty intake source; an unreadable or malformed `--preview-file`. | `{option, reason}`, plus `max_bytes` for `too_large` |
-| `not_found` | rejected | Unknown record or operation; `read` returning null. | `{}` |
+| `not_found` | rejected | Unknown record, operation or inspected installed skill; `read` returning null. | `{}` |
 | `invalid_request` | rejected | The shared service refused the request (core `Invalid`, app `Invalid`, including the helper-selection refusals); `connections --hops` outside 1..2 and `ask --budget` outside 1..32, refused before the workspace opens with the service's text; `--thread must name a chat`; `--project must name an active project`; a `backup` or `export` destination, or a `--token-out` file, whose parent is missing; an `ask` or useful intake refused by the run service (`ToolRejected`, `ModelRefused`). | `{}`, `{option}`, `{option: "destination"\|"token-out", reason: "parent_missing"}`, or `{kind}` for `ask`; plus `reason` when the refusal is one the contract names (below) |
 | `key_conflict` | rejected | The same key with a different request. | `{key}` with `--key`, else `{}` |
 | `unsafe_directory` | rejected | Foreign or newer format, missing database, a symlinked backup or restore parent, non-empty restore target, backup inside the workspace; `upgrade` refused (no backup folder, a Working run or an open edit session; the workspace stays unchanged). An older BRN schema is `upgrade_required`. A symlinked data folder is `data_folder_unusable`. | `{}` |
@@ -160,21 +168,21 @@ Reachability from the CLI: every CLI write runs with owner authority and no run,
 | `session_token_invalid` | rejected | `update-buffer`, `save` or `discard` with a `--token-file` token that cannot write to the session: `mismatch` when another token holds it (for example one `reclaim-edit` replaced), `desktop` when only the owner, in the desktop app, can continue or close it. Nothing was written. | `{reason}` |
 | `test_workspace_required` | rejected | `reclaim-edit` in an owner workspace. Nothing was written; report the open edit to the owner, who recovers it in the desktop. | `{workspace_purpose: "owner"}` |
 | `upgrade_required` | rejected | Any command except `upgrade`, `restore` and `model-install` on a workspace with an older BRN schema (3, 4 or 5), reads included. The CLI never upgrades implicitly; nothing in the folder was changed. The message names `brn upgrade --backup-directory ABSOLUTE_DIR`, which backs up first. Default mode prints the message as one line, exit 1. | `{schema_found, schema_required}` |
-| `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or a non-Markdown/text intake on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
+| `credentials_not_configured` | rejected | Machine mode: `ask`, useful intake, or AI-On document conversion on a workspace with no credential source. Nothing was committed and no provider was contacted. | `{provider}` |
 | `missing_workspace` | rejected | Machine mode: a read command (retry class `read`) named a `--data-dir` that does not exist or is an empty folder. Nothing was created. Check the path, or run `init` deliberately. Default mode still initialises the folder. A symlinked data folder or ancestor is never missing: it is `data_folder_unusable` `symlink_refused`, also when the link points to an empty or missing folder. | `{}` |
 | `data_folder_unusable` | rejected | The data folder cannot be used (core `Error::DataFolder`). A symlinked data folder is `symlink_refused`; the message names the folder, `details` never do. | `{problem}`: `read_only`, `permission_denied`, `not_a_directory`, `symlink_refused` or `missing_parent` |
 | `unavailable` | failed | Semantic search or a model folder is unusable; no native retrieval in this build; conversion unsupported on this platform or format; model install refused. | `{}` or `{reason: "model_install"}` |
 | `provider_failed` | failed | `ask` or useful intake: any other `AiErrorKind` (none is known to reach `Err` from `run` at `771116f0`; kept as a fallback); also `ConversionFailure::Provider`. | `{kind}` in snake_case |
 | `conversion_failed` | failed | Document conversion failed. | `{reason}` |
 | `timeout` | failed | Document conversion exceeded its time limit, or the `--timeout` deadline passed before the command committed. | `{}` for conversion; `{deadline_seconds, hard}` for `--timeout` |
-| `busy` | failed | SQLite stayed locked past the 5 s busy timeout (another writer holds the workspace). This transaction did not commit, although earlier steps of the command may have. | `{}` |
+| `busy` | failed | SQLite stayed locked past the 5 s busy timeout, or the skill catalogue management lock is held. The refused transaction or package action did not commit, although earlier steps of a command may have. | `{}` |
 | `interrupted` | interrupted | SIGINT while waiting for input, before opening, during an intake read or conversion, or during a model download. | `{}` |
 | `terminated` | terminated | SIGTERM (machine mode) at any point where SIGINT or the deadline is observed. | `{}`, or `{hard: true}` after a hard stop |
 | `storage_error` | internal | Unexpected SQLite or record-encoding failure; an `ask` run storage error. | `{}` |
-| `io_error` | internal | Other I/O failures on the CLI's own paths. | `{}` |
+| `io_error` | internal | Other I/O failures on CLI paths or in the shared skill-management service. | `{}` |
 | `internal` | internal | Result encoding failed; input reader stopped; a committed review whose cleanup failed. | `{}`, `{applied: true}` or `{dismissed: true}` |
 
-`invalid_request` `details.reason` names the kind of refusal, from the shared service's exact texts; the code stays `invalid_request`, and an unlisted refusal has no `reason`: `version_mismatch` (a project, deletion preview, candidate or settings snapshot changed: re-read and decide), `inactive_target` (the chat, project or document is archived, trashed or missing: restore or choose another), `project_boundary` (the change would cross a project's membership rules), `size_limit` (a text over a shared-service field limit), `wrong_kind` (the ID names another kind of record, for example `--thread` naming a note), `workspace_exists` (`init --purpose test` on a folder that already holds a workspace), `edit_closed` (`reclaim-edit` of a closed session). There is no `protected` reason: a model-side protected write is `needs_review`, and the CLI's owner writes may edit protected notes.
+`invalid_request` `details.reason` names the kind of refusal, from the shared service's exact texts; the code stays `invalid_request`, and an unlisted refusal has no `reason`: `version_mismatch` (a project, deletion preview, candidate or settings snapshot changed: re-read and decide), `inactive_target` (the chat, project or document is archived, trashed or missing: restore or choose another), `project_boundary` (the change would cross a project's membership rules), `size_limit` (a text over a shared-service field limit), `wrong_kind` (the ID names another kind of record, for example `--thread` naming a note), `workspace_exists` (`init --purpose test` on a folder that already holds a workspace), `edit_closed` (`reclaim-edit` of a closed session). `skill_digest_conflict` identifies an actionable install/removal digest conflict (inspect the current identity before deciding to remove/reinstall). A damaged stored artifact is plain `invalid_request` without `reason`. There is no `protected` reason: a model-side protected write is `needs_review`, and the CLI's owner writes may edit protected notes.
 
 `ToolRejected` and `ModelRefused` are almost always pre-provider refusals from `begin`/`Selection::validate`; `finish` can also return `ToolRejected` after provider contact when the run record is inconsistent; the class stays `invalid_request`/`refuse`. The pre-provider refusals cover a missing, archived or closed chat, a prompt over 128 KiB, an `--edit-note` not at `--base`, a settings mismatch and a useful-intake source over 1 MiB. Real provider failures end as an `ask` terminal `Failed` (`failed`).
 
@@ -261,6 +269,18 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `needs-you` | no | read | — | no |
 | `history` | no | read | — | no |
 | `candidates` | no | read | — | no |
+| `skills` | no | read | — | no |
+| `skill-inspect` | no | read | — | no |
+| `skill-install` | no | converge | — | yes |
+| `skill-remove` | no | converge | — | yes |
+| `skill-enable` | no | converge | — | yes |
+| `skill-disable` | no | converge | — | yes |
+| `skill-select` | no | converge | — | yes |
+| `skill-clear` | no | converge | — | yes |
+| `mcp-status` | no | read | — | no |
+| `mcp-discover` | no | converge | — | yes |
+| `mcp-configure` | no | converge | — | yes |
+| `mcp-disable` | no | converge | — | yes |
 | `settings` | no | read | — | no |
 | `pause` | no | converge | — | yes |
 | `resume` | no | converge | — | yes |
@@ -285,6 +305,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `model-install` | no | converge (a verified destination downloads nothing) | — | yes |
 | `note-create` | yes | duplicate | replay | no |
 | `thread-start` | yes | duplicate | replay | no |
+| `document-conversion` | no | converge | — | yes |
 | `delegation` | no | converge | — | yes |
 | `read` | no | read | — | no |
 | `revisions` | no | read | — | no |
@@ -306,7 +327,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `unarchive` | yes | converge | replay | yes |
 | `keep-in-brn` | yes | duplicate (a retry after Deferred applies under a new operation) | replay | yes |
 | `queue` | yes | duplicate | replay | no |
-| `ask` | no | duplicate (new model turn) | — | with --edit-note, --record-decision |
+| `ask` | no | duplicate (new model turn) | — | with --edit-note, --record-decision, --mcp-tool |
 | `intake` | yes | duplicate (a prepared but unapplied first attempt stays as a candidate) | replay | with --project |
 | `intake` (--intent useful) | no | duplicate (`--key` is refused) | — | with --project |
 | `configure` | no | converge | — | yes |
@@ -315,7 +336,7 @@ A key names one intended change. Reuse it only to retry the same command with th
 | `restore` | no | refuse (`unsafe_directory` after success) | — | no |
 | `upgrade` | no | converge | — | yes |
 
-Keyed edge cases: different inputs under the same key give `key_conflict` (a different title or text for `note-create`, a different thread for `queue`, a different title for `intake`). A keyed full/chat/project intake replays when bytes, path, scope and title match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. A changed title, path or scope under the key is `key_conflict`, also before conversion. A keyed `undo` that was Deferred keeps its prepared compensation; the retry applies exactly that operation and reports the same `operation`. A keyed `topics-create` replays the Topics note and points Topics at it again; if Topics was changed in between, use a new key. A keyed `knowledge-check --seed-chat yes` reuses the chat and message its first attempt committed, so later findings do not change the replay; `--key` without `--seed-chat yes` is `conflicting_options`. Its envelope `operation` is the message; `operation --key K --command knowledge-check` lists the chat operation in `related`. `ask` and useful intake take no key: after a lost `ask` response, `runs --thread T --limit 5` and `read --id RUN` show what happened.
+Keyed edge cases: different inputs under the same key give `key_conflict` (a different title or text for `note-create`, a different thread for `queue`, a different title for `intake`). A keyed full/chat/project intake replays when bytes, path, scope, title and captured converter/AI/bundle match a committed import, without converting or sending the document again; if that import found the bytes already imported, the retry converts again and records only an observation. A changed title, path, scope or captured converter/AI/bundle under the key is `key_conflict`, also before conversion. A keyed `undo` that was Deferred keeps its prepared compensation; the retry applies exactly that operation and reports the same `operation`. A keyed `topics-create` replays the Topics note and points Topics at it again; if Topics was changed in between, use a new key. A keyed `knowledge-check --seed-chat yes` reuses the chat and message its first attempt committed, so later findings do not change the replay; `--key` without `--seed-chat yes` is `conflicting_options`. Its envelope `operation` is the message; `operation --key K --command knowledge-check` lists the chat operation in `related`. `ask` and useful intake take no key: after a lost `ask` response, `runs --thread T --limit 5` and `read --id RUN` show what happened.
 
 ### Recovery recipes
 
@@ -430,3 +451,33 @@ $ brn --json --data-dir "$D" undo --operation "$OP" --key undo-1   # exit 4, "op
 ```
 
 The maintained journey runner, `scripts/cli_journey.py BRN_BINARY`, completes a full synthetic journey through this contract alone and is part of `scripts/verify-end-to-end.sh`.
+
+
+## Local instruction package management
+
+Owner-authorized `skills`, `skill-inspect --name NAME`, `skill-install --source ABSOLUTE_FOLDER` and `skill-remove --name NAME --digest SHA256` use the shared app service and the normal `--json` envelope. Install/remove are marked owner decisions in machine help; an actor name is not authority. List/inspect expose exact origin/installation scope/digest and retention metadata. Identical install is idempotent, different bytes conflict, and remove checks the exact current digest. There is no keyed canonical receipt for this machine-local configuration. Installation copies only bounded UTF-8 instruction/reference files and leaves original folders untouched. No scripts/dependencies execute and installation does not enable runtime loading.
+
+`skill-enable --id ID --digest SHA256 [--project ID]` and `skill-disable` set exact scoped canonical policy; `skill-select --id ID|none [--project ID]` chooses one enabled available skill or clears selection. `skill-clear --id ID [--project ID]` removes an explicit policy entry (packaged skills then use their enabled default). These owner decisions use the shared checked Settings transaction and fence active runs without restarting them. Workspace bindings apply to general chats; Project chats require their own explicit installed binding. `skills [--project ID]` adds a scoped `policy` view alongside the global owner installation inventory; `skill-inspect --name NAME [--project ID]` adds policy and preserves unavailable canonical identities even when bytes cannot be inspected. Installation metadata `enabled` describes its installation default; runtime enablement is the scoped policy.
+
+Explicit selection admits the exact SKILL.md into frozen, budgeted untrusted user context; other enabled bodies and references load lazily from the validated snapshot. Guidance cannot change permissions, scopes, checked writes or connectors. `runs` adds bounded opaque `guide_identity`, up to 16 currently permitted `loaded_skill_details`, and `loaded_skill_details_total`/`loaded_skill_details_omitted` after scope filtering. A file identity records admission of at least a portion of that exact file; it does not prove the whole file was read or processed upstream. Removed local packages do not erase permitted historical file identities; moving/deleting context hides old Project metadata and counts. No instruction bodies are stored in Run metadata.
+
+Current schema is **10**: converter/AI preferences extend the canonical Settings protocol; canonical scoped skill policy, selection, delivered identities and optional MCP policy are part of SQLite snapshots; active external-data grants are transient only. Local installed package bytes remain excluded from snapshots and Markdown exports. Restore retains exact canonical references; missing or mismatched selected bytes refuse before provider dispatch. Explicit reinstall of the exact original may satisfy a persisted binding on a fresh run; there is no name fallback, source-folder lookup, automatic enablement or download. CLI opens of schemas 3–9 refuse unchanged until explicit external-backed `upgrade`; old schema-9 executables refuse schema 10. Existing payloads, hashes and receipts are not rewritten. The contract-3 historical schema-6 notes below describe that earlier transition, not the current format.
+
+**Retention:** installed package bytes are not included in current BRN SQLite backups or Markdown exports. Preserve originals for reinstall; same-workspace reopen retains the snapshot, but backup restore supplies only canonical work/assets/receipts and the compiled built-ins. Runtime enablement and fail-closed handling of missing restored packages are D3b work, not part of these management commands. See [D3a plan and evidence](../../docs/work/active/agent-capabilities/d3a/plan.md).
+
+
+Skill management has a macOS/Linux filesystem backend. The skill commands remain discoverable on other platforms and return `unavailable`/`failed` before opening a workspace or touching package files. No unsupported-target compile result is claimed by local Mac tests. A relative `skill-install --source` is `invalid_value`/`usage` before I/O. Absent `skill-inspect` is `not_found`/`rejected`; actionable install/removal digest conflicts are `invalid_request`/`rejected` with `details.reason: skill_digest_conflict`. A damaged stored artifact is a plain `invalid_request` without `reason`. Actual catalogue lock contention is `busy`/`failed`, including read-only list/inspect; retry after the management operation finishes. Real disk/permission failures retain `io_error`/`internal`; they are not caller validation failures. These command-specific classifications do not reinterpret other CLI I/O errors.
+
+Frontmatter is the documented **literal, not-YAML** subset. A value runs literally to the end of its single line: `description: a #b` keeps `#b`, and `null`/`true` are text rather than YAML types. Instructions remain untrusted. Bidi-format display handling and first-folder crash recovery are not claimed by this inactive management slice.
+
+Owner `skills` / `skill-inspect` inventory is workspace-wide installation configuration. `--project` selects only the separate canonical `policy` projection; it never filters the deliberately requested artifact inspection. `PackageInfo.scope` describes installation scope, and its `enabled:false` is the inactive installation default, not the effective scoped `policy.enabled`. Removal deliberately removes the global artifact and revokes exact matching bindings across scopes. Runtime/composer discovery and loaded provenance remain current-scope only; models cannot invoke owner management.
+
+`loaded_skill_details` records exact instruction files admitted to the run context, not proof of upstream processing. Legacy `loaded_skills` may indicate justified builtin source preloads even when dispatch later refuses; it is not delivered-file evidence or authority. Current-scope CLI/native provenance uses only the structured details.
+
+## Anonymous local MCP client
+
+`mcp-status [--thread ID]` shows current-scope approved tool metadata without connecting. `mcp-discover --endpoint http://127.0.0.1:PORT/mcp` explicitly discovers bounded untrusted metadata; it neither approves nor invokes tools. `mcp-configure --policy JSON` stores an exact reviewed `McpPolicy` (or `null` to clear). `mcp-disable` fences active use and disables subsequent dispatch. Remote/authenticated endpoints, DNS, proxies and redirects are unsupported. Only the exact fixed Empty/Query schemas are supported; `readOnlyHint` alone never approves a tool. Server initialization metadata is self-reported and cannot attest unchanged implementation or behavior.
+
+`ask ... --mcp-tool EXACT_REMOTE_NAME --mcp-input JSON` explicitly authorizes ONE exact typed transient input for this prepared invocation. Both options are required together; the host binds the current instruction/context/settings and Run fence after durable preparation. Installation, skills, policy enablement, chat prose and model/tool output cannot grant external data egress. Without a grant MCP tools are omitted and local work remains available. Continue/restart/backup/restore never recovers a grant, and a skill load that advances the Run fence invalidates it rather than silently renewing authority. Stop/disconnect cannot undo already-sent remote processing.
+
+Policy and approved digest references are canonical SQLite data; raw reviewed input and raw tool results are not automatically archived in Run metadata/traces/backups. A legitimate model-authored reply may quote received material and follows ordinary saved-message behavior; this is distinct from raw transcript retention. Full trace records safe outcome/source identity/coverage only. The supplied input is inspectable in transient owner controls and the actual provider request; it is not a credential channel.

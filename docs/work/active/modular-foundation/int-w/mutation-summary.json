@@ -1,0 +1,101 @@
+{
+  "INT_W_new_campaign": "NOT GRANTED; none run",
+  "CW2_original_cap_seconds": 1800,
+  "CW2_total_seconds": 1604.808563916944,
+  "CW2_prior_phases": [
+    {
+      "pin": "f282f7f645142acb9640a8a474a51d956a6288bb",
+      "phase": "core",
+      "selected": 104,
+      "counts": {
+        "Failure": 1
+      },
+      "unexecuted": 104,
+      "interrupted": false
+    },
+    {
+      "pin": "f282f7f645142acb9640a8a474a51d956a6288bb",
+      "phase": "ai",
+      "selected": 94,
+      "counts": {
+        "Failure": 1
+      },
+      "unexecuted": 94,
+      "interrupted": false
+    },
+    {
+      "pin": "f282f7f645142acb9640a8a474a51d956a6288bb",
+      "phase": "app",
+      "selected": 136,
+      "counts": {
+        "Success": 1,
+        "Unviable": 64,
+        "CaughtMutant": 24,
+        "MissedMutant": 48
+      },
+      "unexecuted": 0,
+      "interrupted": false
+    },
+    {
+      "pin": "144848ffd86f8705f156553aeef418de23d204a5",
+      "phase": "core-critical",
+      "selected": 31,
+      "counts": {
+        "Success": 1,
+        "Unviable": 3,
+        "CaughtMutant": 25,
+        "MissedMutant": 3
+      },
+      "unexecuted": 0,
+      "interrupted": false
+    },
+    {
+      "pin": "144848ffd86f8705f156553aeef418de23d204a5",
+      "phase": "ai-critical",
+      "selected": 113,
+      "counts": {
+        "Success": 1,
+        "Unviable": 29,
+        "CaughtMutant": 16,
+        "MissedMutant": 8
+      },
+      "unexecuted": 60,
+      "interrupted": true
+    },
+    {
+      "pin": "144848ffd86f8705f156553aeef418de23d204a5",
+      "phase": "app-changed",
+      "selected": 120,
+      "counts": {
+        "Success": 1,
+        "Unviable": 5,
+        "CaughtMutant": 21,
+        "MissedMutant": 19
+      },
+      "unexecuted": 75,
+      "interrupted": true
+    },
+    {
+      "pin": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+      "phase": "core-scope-history-token",
+      "selected": 4,
+      "counts": {
+        "Success": 1,
+        "CaughtMutant": 4
+      },
+      "unexecuted": 0,
+      "interrupted": false
+    },
+    {
+      "pin": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+      "phase": "app-request-route",
+      "selected": 1,
+      "counts": {
+        "Success": 1,
+        "CaughtMutant": 1
+      },
+      "unexecuted": 0,
+      "interrupted": false
+    }
+  ]
+}

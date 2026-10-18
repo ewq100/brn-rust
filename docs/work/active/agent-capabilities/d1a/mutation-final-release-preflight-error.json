@@ -1,0 +1,6 @@
+{
+  "phase": "release receipt process parsing",
+  "error": "ValueError: invalid literal for int() with base 10: 'PID'",
+  "cause": "ps header row not skipped",
+  "no_heavy_command_or_source_change": true
+}

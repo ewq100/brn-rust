@@ -128,6 +128,7 @@ class PublicationTests(unittest.TestCase):
         self.archive.write_bytes(b"synthetic archive bytes")
         self.receipt = self.root / f"{name}.manifest.json"
         self.receipt.write_text(json.dumps(dict(self.approved, source_sha=SHA, signing="ad-hoc; not notarized",
+            binaries={name: {} for name in ("brn-desktop", "brn-xberg-helper", "brn-xberg-helper-brn")},
             archive=dict(name=self.archive.name, sha256=release.packaging.digest(self.archive), bytes=self.archive.stat().st_size))))
         (self.root / "SHA256SUMS").write_text("".join(f"{release.packaging.digest(path)}  {path.name}\n" for path in (self.archive, self.receipt)))
 
@@ -162,6 +163,18 @@ class PublicationTests(unittest.TestCase):
         (self.root / "SHA256SUMS").write_text("wrong")
         with self.assertRaises(ValueError):
             release.validate_delivery(self.root, self.approved, SHA)
+
+    def test_missing_adapted_or_legacy_binary_set_is_not_releasable(self):
+        before = self.receipt.read_bytes()
+        for names in [("brn-desktop", "brn-xberg-helper"),
+                      ("brn-desktop", "brn-intake-helper"),
+                      ("brn-desktop", "brn-xberg-helper", "brn-xberg-helper-brn", "extra")]:
+            delivered = json.loads(before)
+            delivered["binaries"] = {name: {} for name in names}
+            self.receipt.write_text(json.dumps(delivered))
+            with self.assertRaisesRegex(ValueError, "exactly desktop"):
+                release.validate_delivery(self.root, self.approved, SHA)
+        self.receipt.write_bytes(before)
 
     def test_existing_published_release_is_never_overwritten(self):
         api = FakeGithub(existing={"draft": False})

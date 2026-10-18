@@ -1,0 +1,33 @@
+{
+  "receipt": "review1-ai-full-traced.json",
+  "precommit_head": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "actual_command_diff_sha256": "4d57e76fbed38015a33011a1f761ddd32074cb5a6088c671f45b9741daaf2122",
+  "note": "command ran against owned correction WIP; this does not claim a later commit SHA existed at test time",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b",
+      "sha256": "a751f85e6e6b2d9a50e0230060662a2e9428845d17db028e43bcc984313e8dd3"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_ai-28a197b27edef53b.d",
+      "sha256": "b932f453efa4adcca8ee8e1c8b4e58ad209ed8c4d5a47bd3585f1b9108d9ed81",
+      "material_source_paths": [
+        "crates/brn-ai/src/threads_budget_tests.rs",
+        "crates/brn-ai/src/threads_research_tests.rs"
+      ]
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "80b05027171355cf768c10db2c2ec1c6ec836771022ef18996086be8c7005393"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/debug/deps/brn_threads_core-441e246c1aee373f.d",
+      "sha256": "bd88004075cf45aadd032d109c90c2f144f2b09917c15cb3230e3aaebb9bb6cf",
+      "material_source_paths": [
+        "crates/brn-threads-core/src/projects.rs"
+      ]
+    }
+  ],
+  "core_unchanged_source_sha256": "fd531dfabfcadb94f265b86ac6dfc89d5c891170b224fbe9b29ee2d4d50a6584",
+  "prior_candidate_core_same": true
+}

@@ -37,10 +37,11 @@ Full-note import shares the same notes, assets, source references, and protectio
 |---|---|
 | `brn-threads-core` | Authoritative SQLite state, checked changes, authorization, replay, history, Undo and backup/restore |
 | `brn-threads-app` | Shared application operations, run coordination, fresh current-note search and publication |
-| `brn-threads-intake` | Transient DOCX/PDF conversion, import intent, source coverage and necessary assets |
-| `brn-intake` | Bounded extraction protocol and maintained restricted converter helper |
+| `brn-threads-intake` | Restricted stock/adapted Xberg process adapter, import intent, source coverage and necessary assets |
+| `brn-intake` | Light bounded document DTO, PNG/assets and exact helper identity contracts |
 | `brn-ai` | Provider/auth transport, bounded Threads runtime/tools and packaged guidance |
 | `brn-retrieval` | Derived keyword/vector indexes and optional explicit local embedding support |
+| `brn-writing-ui` | Desktop-independent writing panel, editor/view state and disposable real-Workspace development host |
 | `brn-desktop` | Headless desktop entry and optional GPUI workspace/state |
 | `brn` | Thin CLI over the shared service |
 

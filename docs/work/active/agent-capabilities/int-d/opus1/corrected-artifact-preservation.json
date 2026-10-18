@@ -1,0 +1,42 @@
+{
+  "rows": [
+    {
+      "check": "cli-int-d-corrected",
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+      "sha256": "c76a9c4e3a6d9913cfe20706734702ba6fad732373551b0c80e2843b97723345",
+      "mtime": 1792244589.6916559,
+      "receipt_mtime": 1792244590.93226,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+      "dep_info_sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2",
+      "preserved_path": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/cli-int-d-corrected-binary",
+      "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/cli-int-d-corrected.d"
+    },
+    {
+      "check": "ai-int-d-selected-positive",
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "5159ba6df6352042a49eb8e294dd729b34dfaab34fca70a718fc62bff1b88538",
+      "mtime": 1792244696.0492723,
+      "receipt_mtime": 1792244697.2327094,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+      "preserved_path": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/ai-int-d-selected-positive-binary",
+      "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/ai-int-d-selected-positive.d"
+    },
+    {
+      "check": "app-int-d-selected-positive",
+      "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-5e4677bac93bc6f6",
+      "sha256": "7a6ef31ccfad0a95929b29d5e3b151c58df5a2f56858862e64a3129ecb86d7d7",
+      "mtime": 1792244821.8508103,
+      "receipt_mtime": 1792244822.8086395,
+      "not_modified_after_receipt": true,
+      "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-5e4677bac93bc6f6.d",
+      "dep_info_sha256": "81f072bc0c7f91db807f194e879fce0c9ab262e0bc8a9fd3d21fd1e7f1980aec",
+      "preserved_path": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/app-int-d-selected-positive-binary",
+      "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/app-int-d-selected-positive.d"
+    }
+  ],
+  "all_copies_sha_verified": true,
+  "association": "Actual c6d+WIP checks;333 material hashes later matched to material pin, not a fabricated contemporaneous future SHA."
+}

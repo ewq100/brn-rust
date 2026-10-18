@@ -1,8 +1,8 @@
 # BRN Threads macOS preview
 
-`v0.1.0-preview.2` is a macOS Apple Silicon preview of the Omakase tiled workspace. Write, Chat and Solo layouts arrange resizable tiles for threads, notes, chat, linked work, Actions, What changed, Settings and compare, with a ⌘K launcher, status bar and five themes. Notes are typed in place with margin comments; AI rewrites are reviewed as tracked changes in the note and applied only as shown, with Undo. Threads resolve and reopen on reply. The download contains the native desktop, maintained intake helper and compiled runtime guides. Local writing and keyword search work offline. Configure the selected provider/account in Settings for inference; no provider credentials or embedding models ship in the archive.
+`v0.1.0-preview.2` is a macOS Apple Silicon preview of the Omakase tiled workspace. Write, Chat and Solo layouts arrange resizable tiles for threads, notes, chat, linked work, Actions, What changed, Settings and compare, with a ⌘K launcher, status bar and five themes. Notes are typed in place with margin comments; AI rewrites are reviewed as tracked changes in the note and applied only as shown, with Undo. Threads resolve and reopen on reply. The current source candidate packages the native desktop, stock Xberg helper, optional BRN helper and compiled runtime guides. These source changes do not republish or change the approved preview version manifest. Local writing and keyword search work offline. Configure the selected provider/account in Settings for inference; no provider credentials or embedding models ship in the archive.
 
-Since `v0.1.0-preview.1`: the Omakase shell and in-place review ([#125](https://github.com/ewq100/brn-rust/pull/125)), GPUI Kit 0.7.3 with refreshed Markdown typography and selection/context-menu fixes ([#126](https://github.com/ewq100/brn-rust/pull/126)), and safer resumption of interrupted release drafts ([#124](https://github.com/ewq100/brn-rust/pull/124)). The storage schema is unchanged, so the same workspace opens in this version.
+Since `v0.1.0-preview.1`: the Omakase shell and in-place review ([#125](https://github.com/ewq100/brn-rust/pull/125)), GPUI Kit 0.7.3 with refreshed Markdown typography and selection/context-menu fixes ([#126](https://github.com/ewq100/brn-rust/pull/126)), and safer resumption of interrupted release drafts ([#124](https://github.com/ewq100/brn-rust/pull/124)). The historical preview.2 UI release left its storage schema unchanged. The current source candidate uses schema10; older stores require the existing backup-first upgrade, and older executables refuse the newer schema.
 
 This is a preview with **native interaction, live-provider acceptance and broader cold-restart/recovery acceptance still deferred or pending**. Builds and deterministic state tests establish their recorded scope, not daily-use acceptance. Use disposable material until those journeys have been accepted. No Windows, Intel Mac or Linux release is supplied.
 
@@ -16,7 +16,9 @@ The Finder launcher supplies an explicit absolute workspace path on your Mac:
 
 That location is stable across preview versions. The core creates a fresh workspace and validates its marker, application identity and supported schema on each open. Foreign/nonempty unmarked directories, symlink paths and marked stores with missing storage are refused; existing data is never migrated or copied from another BRN installation. Startup errors are written to `~/Library/Logs/BRN Threads/startup.log` and shown in TextEdit.
 
-DOCX, EML and PPTX intake use the bundled helper. PDF conversion requires the external Poppler executables `pdftotext` and `pdfimages`; install Poppler separately if needed. Finder lookup checks common Homebrew prefixes as well as the inherited path. Explicit `BRN_PDFTOTEXT` and `BRN_PDFIMAGES` overrides remain authoritative. Scanned/complex/math PDF fidelity remains unqualified, and any partial import coverage stays visible.
+Settings → Documents selects **Xberg** (default) or **Xberg + BRN layer**, with independent AI conversion **Off** by default. Both supplied helpers cover PDF, DOCX, PPTX, XLSX, EML, HTML, Text and Markdown through the normal pinned API. Conversion Off needs no provider credentials; On uses the existing fixed dedicated conversion model after the selected helper. A missing/wrong helper refuses without fallback. Useful-information's subsequent agent still has its separate credential/authority requirement.
+
+Both helpers live beside the desktop in `Contents/Resources/bin`; recipients need no build tree, developer override, Poppler or runtime source download. The optional copy contains only the four accepted Office patches and explicit UTF8 Text/Markdown identity projection; no new PDF/XLSX/EML/HTML fidelity repair is implied. Stock limitations remain visible. Encrypted PDF support is explicitly deferred; no new refusal or complete PDF fidelity claim is made.
 
 ## First-use provider setup
 
@@ -37,15 +39,24 @@ On an Apple Silicon Mac with the [repository setup](setup.md), build from an app
 ```sh
 export MACOSX_DEPLOYMENT_TARGET=15.0
 cargo rustc --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
-cargo rustc --release -p brn-intake --features helper --bin brn-intake-helper --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
+cargo build --release -p brn --locked --offline
+bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$PWD/target/document-helpers"
+cargo tree --locked --offline -p brn-desktop --features native-ui --target aarch64-apple-darwin --edges normal,build --prefix none --format '{p}' > target/desktop-target-graph.txt
+python3 scripts/package-macos-preview.py --prepare-notices "$PWD/target/distribution-notices" \
+  --graph target/desktop-target-graph.txt \
+  --graph target/document-helpers/receipts/stock-target-graph.txt \
+  --graph target/document-helpers/receipts/adapted-target-graph.txt
 python3 scripts/package-macos-preview.py \
   --binary "$PWD/target/release/brn-desktop" \
-  --intake-helper "$PWD/target/release/brn-intake-helper" \
+  --xberg-helper "$PWD/target/document-helpers/artifacts/brn-xberg-helper" \
+  --xberg-helper-brn "$PWD/target/document-helpers/artifacts/brn-xberg-helper-brn" \
+  --notices "$PWD/target/distribution-notices" \
   --source-sha "$(git rev-parse HEAD)" --output-dir "$PWD/dist-preview"
-python3 scripts/tests/test_macos_packaging.py --qualify-app "$PWD/dist-preview/BRN Threads.app"
+python3 scripts/tests/test_macos_packaging.py --qualify-app "$PWD/dist-preview/BRN Threads.app" \
+  --host-cli "$PWD/target/release/brn"
 ```
 
-Packaging requires Python 3.11+, an absent output directory and Apple's `lipo`, `otool`, `codesign` and `ditto`. Both binaries must be arm64-only and link exclusively to `/usr/lib` or `/System/Library`. Packaging signs each binary and the bundle ad hoc, verifies it, creates the ZIP, extracts it to another location and verifies its signature again. It never opens the native app. Fixture qualification runs only headless startup/foreign-data refusal and a bounded synthetic helper conversion.
+Packaging requires Python 3.11+, an absent output directory and Apple's `lipo`, `otool`, `codesign` and `ditto`. All three binaries must be arm64-only and link exclusively to `/usr/lib` or `/System/Library`. Packaging signs each binary and the bundle ad hoc, verifies it, creates the ZIP, extracts it to another location and verifies its signature again. It never opens the native app. Fixture qualification runs headless startup/foreign-data refusal and both relocated helpers on all eight representative typed inputs. With --host-cli, it also copies that test-only CLI beside copies of the signed relocated helpers, then imports all eight in both modes with AI Off and no developer helper overrides; the CLI is not shipped in the app. Fixture bytes remain test inputs; source/build directories are excluded from executable discovery, not deleted. The bundle retains target graphs, locks, checksum-verified registry source archives (including their legal notices), optional patches and BRN helper sources under Resources/notices.
 
 ## Publication gate
 

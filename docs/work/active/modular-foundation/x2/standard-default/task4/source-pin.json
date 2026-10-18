@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "task4_base": "3958dbd0a491893a6c155b40f3b03a92d7cfc66f",
+  "feature_base": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+  "material_commit": "89987e5c99498842762ee8a3713c3691c954c09b",
+  "material_tree": "54cb59c3e4bbe2a6452ba793bd2488276132cf6a",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "compiled_source_association": "Per-command HEAD plus complete inputs.json and source.diff bind actual precommit/committed bytes, binaries, libraries and .d. Material89987 changes only Unix test gates and reproduction documentation after ee326; commands28\u201339 use material89987. Earlier graph/binary qualifications remain bound to their recorded original source; no future SHA is called compiled.",
+  "task4_material_files": {
+    ".github/workflows/ci.yml": "670b3e86640d7ee9f5a557905d575c0b797127a87393289c3cc8cce72e5b06d5",
+    ".github/workflows/preview-release.yml": "8a8363c6f8c650cb01c90c87bec33b510b93c88309e29c32b317227e9a49ba23",
+    "crates/brn-ai/src/document_refine_tests.rs": "6a5940b0adf6616fbb4d6e310837bf38a305d3109f72dfb7b38e437fe51bd35d",
+    "crates/brn-desktop/src/threads_documents_tests.rs": "dce65bec01ff6a20eeb763b2511c30c008baadf320cbcfc1dbc5abfdac722dad",
+    "crates/brn-threads-intake/tests/document_modes.rs": "675c403a61e699048c4f6d96a549935ba52d0dc16d6ff4913e825a2a8818d2f4",
+    "crates/brn/README.md": "3309754445c035a17c907e6c518e188ed205b25c3991ebdb97a24fef20626e28",
+    "crates/brn/src/main.rs": "335a325a0d2c65ac57c2d6794e5f48d4eddb40b08786499772e53633a5122a43",
+    "crates/brn/tests/agent_discovery.rs": "8e2e218e86c053522f86ef04c7975948f719ac7b161524b7223b85dd606a39aa",
+    "crates/brn/tests/document_modes.rs": "a3abc0b4e3f352905229a5c46de950e3b1e4377b83b10f2921ae8c246de08fe0",
+    "docs/development/preview-release.md": "5b00f2e62ef43a28568ccbd4ebfd967f261df31594b2b08aec1e9971e58ad326",
+    "docs/development/setup.md": "7dec6486ad1586b76af9a914a1feeb69421b0de14a264cd3dcd4ca69eb6a7ab4",
+    "docs/development/verification.md": "0e7340e7b0ee71f1c0c1b234a40e02b10d46a26f4dc880b179ffe9d6eeec2f63",
+    "docs/work/active/modular-foundation/x2/standard-default/task4/skill-failure.md": "c69f15efdc168dbf5deb8ae6dcb61b302c0213e31956af8ee184de2bd16506ab",
+    "docs/work/active/modular-foundation/x2/standard-default/verification.md": "6f9ee54650a2ff808cc754203d6454e0ef378e5120bba0f3b54d6259f64adc4e",
+    "scripts/build-document-helpers.sh": "0abe63a0c0c11a1a31fbfc376330ab3e957ed56c28f4df7d4008ff78d7d516d2",
+    "scripts/make-macos-app.sh": "e9a46666b2af103c8d8250607392d2c1d74e818d7f9ddfaa9497a02ba2639c16",
+    "scripts/package-macos-preview.py": "76f236a072cc6c35dbc4db256ad92bd2e03aa79271e31c1011b8cb95814bbd0e",
+    "scripts/release-preview.py": "e3b1b4bf6a9a84c6758f8b05d18f646ea0d59a74f27b80455f887b7d68b54dca",
+    "scripts/test-make-macos-app.sh": "660c2aa6f59c1e1c1d4d97c50622a0896521d1aaeec7709446c2a7b93eb25caf",
+    "scripts/tests/test_macos_packaging.py": "e6041043852539b41a0f948f2bcbbf25eadc53bc26a40a44d2a600350102ea7d",
+    "scripts/tests/test_preview_release.py": "cd842e666991f534c10c0ed2b7e384ca061d5e2c70f6c1d7aea18f9053b34b8d",
+    "scripts/verify-end-to-end.sh": "276af675ac790002c59c131c9d4b20e89dd94e0c5a9fb26104ec68e8b8b46cc2",
+    "scripts/verify-storage.sh": "35fcdf07ed2f189e15db71f819caa7c5897b879c656ab65a143cdd723a2b0559",
+    "tools/xberg-intake-helper/tests/eight_kinds.rs": "c6c376d56515c1339925e8c6c89fadf907b69d3203da8c0d1ca7508f9bfaba1d",
+    "tools/xberg-intake-helper/tests/identity.rs": "94231d56efb6458d418f1c4883201cfb90d39c312c426c00d5c6f88ef2ac8cad"
+  },
+  "unchanged_from_task4_base": {
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "release/preview.json": "5e7bb981024cb33001d4a6809a64ab429eb0e85160a0b57c1269c5f1b993310b",
+    "crates/brn-intake/src/helper_runtime.rs": "d7d5a66d0175a9d59da09799d81c349d898c6ede69241793c3e96ed3ab1ea9ae",
+    "crates/brn-intake/src/document.rs": "bcec95efed816c3a734c733396614d0cbf0e06d6f79ff4b23e11b710655a9ce6",
+    "scripts/prepare-xberg-adapted.py": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5",
+    "tools/xberg-intake-helper/Cargo.toml": "2f45d3df9291736a1c19c5466c34ac8898ffe7a29df7238c19fd782b7400e4f9",
+    "tools/xberg-intake-helper/Cargo.lock": "c5f2e24e6ac5d6d753f07e7b8193fd5c6c785f35c117def8b953fce6d6f4e8ca",
+    "tools/xberg-intake-helper/adapted.Cargo.lock": "da006868c68e1f72bfb8960de119be9326c8789e69e85917e6ee5d20f08f376d",
+    "tools/xberg-intake-helper/src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0",
+    "tools/xberg-intake-helper/src/engine.rs": "f6d3748654cb37b305d6b8ffcf829d4d631fe5b75d70ed25492e6c7a30e5030d",
+    "tools/xberg-intake-helper/src/project.rs": "95418c3b7b5bd20de8b6a7ee751fdf6363e07f0b5aa422363d09f90b2b5e8d3f",
+    "patches/xberg/1.3.10/0001-docx-table-grid-spans.patch": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7",
+    "patches/xberg/1.3.10/0003-docx-namespaces.patch": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f",
+    "patches/xberg/1.3.10/0004-pptx-order-hidden.patch": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d",
+    "patches/xberg/1.3.10/0005-docx-comment-references.patch": "b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1"
+  },
+  "feature_material_diff_sha256": "9fa1486b2a9ad04f71bc595b2d6d1724f334723ab70ef18e3cec429c1ce1e59c",
+  "task4_material_diff_sha256": "bfac9c90892385a877524c5923598a32c8ad5f90226ef53b74c7c044a3bd7993",
+  "prior_artifacts_reverified": {
+    "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper": "af2c86403c3f58b5d122e62c4910d7b118fe251961299a507e0a1263f0835113",
+    "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper-brn": "2b40f963d63fbca633dce3be61be4a95ae4c907a1fdb49f83901f30ced0e6372",
+    "/private/tmp/brn-x2-standard-task2-20261018/before-target/debug/brn": "38d5d4d9d5c370647ab07e758d801097c8a58d5acd824db43d546fdc768b0f4b",
+    "/private/tmp/brn-x2-standard-task2-20261018/before-target/debug/brn.d": "2ad3b07701715779897879e2b6579bba8b02c4b25347cf34f631293ec72e6b0e",
+    "/private/tmp/brn-x2-standard-task3-20261018/candidate-target/debug/brn": "1218974c9e8317b545ff9fe6074173371e3109a87fd478df7d82259d1e20ee72",
+    "/private/tmp/brn-x2-standard-task3-20261018/candidate-target/debug/brn-desktop": "1c64e9b9fa6dab60c060a74fd7e48f127ffe8b18b54c7023d7652b2d0a0cd522"
+  },
+  "final_artifacts": {
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn": "f69067b4805009c011f1fa097fef6bde36eb908fca8482aa95bbe8958844ab4d",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn.d": "f2c3e8c92e32d589f5e4e40aa5687ccd52ab5151dc6c80891ff0f7030d008af6",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn-desktop": "fb4158567e22564101fdf6faf6c61a9a225145b9317edc5f7ec2c6e3edc6e081",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn-desktop.d": "516b265f7dd56adb84dec6f66c2b477dac0d00fea893cb770c1ec4ada29026a1",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn-intake-helper": "0385ef26a756f2a3118837ba3f265153f672cac467e434cb36fd39316472d649",
+    "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/brn-intake-helper.d": "5fbbd013b51907710844ee07aaa9419afb049c3e1bc722823dc8a6784659799f",
+    "/private/tmp/brn-x2-standard-task4-20261018/helpers/artifacts/brn-xberg-helper": "3cd8a679457c3296fb045c5134de1914dbd2ba1ed030f5f7b64addd072aecfb1",
+    "/private/tmp/brn-x2-standard-task4-20261018/helpers/artifacts/brn-xberg-helper-brn": "ccee055ae0cf2c25276f12d1d626b1ea665e796cef5c8e8709b8299b40782b97"
+  },
+  "package_audit": {
+    "qualified_receipt": "/private/tmp/brn-x2-standard-task4-20261018/distribution-corrected/BRN-Threads-v0.1.0-preview.2-macos-arm64.manifest.json",
+    "sha256": "0fce8d696b636d4c8b4a8f2b1a492f097188c7ad6e665b01ab1eb43209a4aa90",
+    "original_incorrect_source_argument": "2cf0e3c6cbe69a73bb35d49362922cbb3a74bdda",
+    "invalid_metadata_directory": "/private/tmp/brn-x2-standard-task4-20261018/distribution",
+    "corrected_source": "2cf0e3c6cf8c322759b74eab2849e243ef990f60",
+    "binaries": {
+      "brn-desktop": {
+        "sha256": "8ce3c2f962fa35d3157b7968075466b9c83d1446fd912191fd5f1f5ad6c4a1a0",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+          "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+          "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+          "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libobjc.A.dylib",
+          "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+          "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+          "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+          "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+          "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+          "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+          "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+          "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+          "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+          "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+          "/usr/lib/libsandbox.1.dylib",
+          "/usr/lib/libiconv.2.dylib",
+          "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+        ],
+        "source_binary_sha256": "a1919cbe5d30c927df8ec075413b780d81867c056cb1946cee5c4fcf0e6a256d"
+      },
+      "brn-xberg-helper": {
+        "sha256": "66892e4cbdef8b50cf1f5e0b92dd0e31c382f9b446e14b8c1740424b2c7c76d2",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "3cd8a679457c3296fb045c5134de1914dbd2ba1ed030f5f7b64addd072aecfb1"
+      },
+      "brn-xberg-helper-brn": {
+        "sha256": "419921f8501cd7c46a995f42e09d8c99ceed46cfbf5fe1007020c218be3e36b4",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "ccee055ae0cf2c25276f12d1d626b1ea665e796cef5c8e8709b8299b40782b97"
+      }
+    },
+    "archive": {
+      "name": "BRN-Threads-v0.1.0-preview.2-macos-arm64.zip",
+      "sha256": "2f7abb50bac4ea3b5e323204b6e71f12964dadcd14002c8783669f890509f265",
+      "bytes": 185257758
+    },
+    "typed_flows": 16,
+    "source_and_build_remain_present": "excluded from helper execution/discovery; not deleted"
+  },
+  "xberg_effective_feature_receipts": [
+    {
+      "mode": "stock",
+      "path": "/private/tmp/brn-x2-standard-task4-20261018/helpers/stock/debug/.fingerprint/xberg-acf66d81fa899533/lib-xberg.json",
+      "sha256": "42a43c081e4ada3c72908cfceeb60cde7c5989c12d5d732a102b061866436b3b",
+      "features": [
+        "email",
+        "excel",
+        "html",
+        "image-encode",
+        "notebook",
+        "office",
+        "pdf",
+        "pdf-native",
+        "tokio-runtime"
+      ]
+    },
+    {
+      "mode": "stock",
+      "path": "/private/tmp/brn-x2-standard-task4-20261018/helpers/stock/debug/.fingerprint/xberg-d1568f93ee90c5b0/lib-xberg.json",
+      "sha256": "f236453b94b3fb1201983f3cc4e4ba7b4825617acd286c034fbb34a554ba2659",
+      "features": [
+        "email",
+        "excel",
+        "html",
+        "image-encode",
+        "notebook",
+        "office",
+        "pdf",
+        "pdf-native",
+        "tokio-runtime"
+      ]
+    },
+    {
+      "mode": "adapted",
+      "path": "/private/tmp/brn-x2-standard-task4-20261018/helpers/adapted/debug/.fingerprint/xberg-ac1bfb680cfc7fdf/lib-xberg.json",
+      "sha256": "7c6f4b29a03acb04ca60dd7361d62ebe1a50bb0bc80d27c58f6566a35caf504e",
+      "features": [
+        "email",
+        "excel",
+        "html",
+        "image-encode",
+        "notebook",
+        "office",
+        "pdf",
+        "pdf-native",
+        "tokio-runtime"
+      ]
+    },
+    {
+      "mode": "adapted",
+      "path": "/private/tmp/brn-x2-standard-task4-20261018/helpers/adapted/debug/.fingerprint/xberg-bcead27ca495d4ff/lib-xberg.json",
+      "sha256": "054ec4e37f6b30aad0d68e4c58ac1b0d4c9a00632ccc82714df7118b8ffe851c",
+      "features": [
+        "email",
+        "excel",
+        "html",
+        "image-encode",
+        "notebook",
+        "office",
+        "pdf",
+        "pdf-native",
+        "tokio-runtime"
+      ]
+    }
+  ],
+  "adapted_manifest": {
+    "path": "target/xberg-adapted/source-manifest.json",
+    "sha256": "de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae",
+    "file_count": 765,
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "patches": [
+      {
+        "name": "0001-docx-table-grid-spans.patch",
+        "sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7"
+      },
+      {
+        "name": "0003-docx-namespaces.patch",
+        "sha256": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f"
+      },
+      {
+        "name": "0004-pptx-order-hidden.patch",
+        "sha256": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d"
+      },
+      {
+        "name": "0005-docx-comment-references.patch",
+        "sha256": "b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1"
+      }
+    ]
+  },
+  "receipts_root": "/private/tmp/brn-x2-standard-task4-20261018",
+  "receipt_hashes": {
+    "evidence/prior-artifacts.json": "dde47ed0c49d6b87479411ac02bcbe8c1cb2f18643e400f69f70d39c86986416",
+    "evidence/package-audit.json": "9e63c29ce355800acd2893c54a99fc5adae8b46e05da9cd50712a7bc1245cfad",
+    "evidence/ort-preflight.json": "aa5a3f2df7be835836f627231900c86ed20f457b7357e3409ff131139f44b780",
+    "evidence/windows-test-gates.json": "003015264a98eae68313c0641a4ad9ece08a8f9775cb64cf3b68088928dc2dd7",
+    "evidence/static-results.json": "f30f796d36911e2a1f73f26b640f7e58e7241f14e07cfbfb994022f6e27e6f7c",
+    "notices/index.json": "f106621e5d952b390c193d276d64594c9ab5ae9e7820aaf810cd54458ced536d",
+    "notices/packages.json": "51de9b9df4cc9b934e8ae82099e5d4c3ead72336a81c37751a87120eefa4ed2c",
+    "skill-failure-custody/custody.json": "158f8341c8352b0d403506d94e3334da9d22f5c0d769c29c644387e50f8de8fa"
+  }
+}

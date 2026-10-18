@@ -10,16 +10,7 @@ use gpui_kit::component::switch::Switch;
 use gpui_kit::component::tooltip::Tooltip;
 use gpui_kit::{SharedString, WeakEntity};
 
-pub(super) fn scroll(id: impl Into<gpui_kit::ElementId>) -> gpui_kit::Stateful<gpui_kit::Div> {
-    div()
-        .id(id)
-        .size_full()
-        .overflow_y_scroll()
-        .flex()
-        .flex_col()
-        .gap_1()
-        .p_2()
-}
+pub(super) use brn_writing_ui::native::scroll;
 
 /// A compact clickable list row with optional trailing metadata.
 pub(super) fn row(
@@ -1894,7 +1885,10 @@ impl ThreadsUi {
             SettingsSection::General => self.general_settings(cx),
             SettingsSection::Models => self.models_settings(cx),
             SettingsSection::Delegation => self.working_knowledge(cx),
+            SettingsSection::Documents => self.documents_settings(cx),
             SettingsSection::Data => self.data_settings(cx),
+            SettingsSection::Skills => self.skills_settings(cx),
+            SettingsSection::Mcp => self.mcp_settings(cx),
         };
         div()
             .size_full()

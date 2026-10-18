@@ -164,6 +164,7 @@ fn email() -> brn_ai::threads::TransientSource {
         text: EMAIL.into(),
         fingerprint: Some("mari-crane-email-v1".into()),
         report: Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Unchecked,
             issues: vec![],
         }),

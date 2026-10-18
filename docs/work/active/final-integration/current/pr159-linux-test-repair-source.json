@@ -1,0 +1,186 @@
+{
+  "format": "BRN-PR159-LINUX-TEST-REPAIR-SOURCE-V1",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+  "branch": "work/final-combined-20261018",
+  "parent": "42aa9a3b802b356eee9fb1b09fea0232e1ea5a7c",
+  "material": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+  "tree": "d9e966fe07bc9a005131b64b4c3cbfc69efdb810",
+  "crates_tree": "c5d47ca92a9c50f187f66bb44edc9ab0a7a6043d",
+  "cache_material": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+  "cache_evidence": "42aa9a3b802b356eee9fb1b09fea0232e1ea5a7c",
+  "evidence": {
+    "binding.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/binding.json",
+      "sha256": "683f1138c5a6dad19f352b9eaa3963da90017f2f31e180d5a38df9f5b15cd100",
+      "bytes": 1287
+    },
+    "hosted-linux.log": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/hosted-linux.log",
+      "sha256": "75677edfbbcd0d2b2fe69570c64c4863c11902990e20be11319d985781fe9572",
+      "bytes": 412214
+    },
+    "platform-source-audit.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/platform-source-audit.json",
+      "sha256": "6510916cb3866f959a78b2d3b0d132172a5019711b3ba976af761963e93cd909",
+      "bytes": 3283
+    },
+    "verified-helper-siblings.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/verified-helper-siblings.json",
+      "sha256": "b18aeee8856cca51ee3230d7e628fbacf8f2eb127ee3519a36670dc63c793ee1",
+      "bytes": 667
+    },
+    "installed-targets.txt": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/installed-targets.txt",
+      "sha256": "19afaf54e1c73ed8d742a22e5ad23c0fc9875c0697df22365652435250dd2496",
+      "bytes": 21
+    },
+    "protected-before.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/protected-before.json",
+      "sha256": "e060a1eec5ba241a839a723b212eb5176351295922788f8c91cc1491d05fe597",
+      "bytes": 45365
+    },
+    "protected-after.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/protected-after.json",
+      "sha256": "4ad539c12f9b99a8a4386a53db8d5156e63ec3cb1066b57741e9ccb61e212718",
+      "bytes": 1193
+    },
+    "compiled-test-artifacts.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/compiled-test-artifacts.json",
+      "sha256": "a0a981724a789ae6c1c76a72055f991ec286aefc1df3af41631c6c2f8ea30967",
+      "bytes": 4132
+    },
+    "linux-test-only.patch": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/linux-test-only.patch",
+      "sha256": "3ee1c397cc8cff10a9373bc4b876bcaba690ba122be35415ccf150ed7c9a9f57",
+      "bytes": 15824
+    },
+    "combined-ci-material.patch": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/combined-ci-material.patch",
+      "sha256": "5f24edeb888eaece5888bcf983a7fcd1e4cbbd8e29f7d751f52090ccb4c55785",
+      "bytes": 21787
+    },
+    "run.py": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/run.py",
+      "sha256": "56206cd66f56980a5ef7060457be5ff90eb50f1af885c3c7ef0b875cf3f2cecb",
+      "bytes": 3774
+    }
+  },
+  "hosted_failure_map": {
+    "material": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+    "conversion_specific_Mac_only": {
+      "crates/brn/tests/agent_contract.rs": [
+        "keyed_markdown_full_import_replays_and_title_change_conflicts"
+      ],
+      "crates/brn/tests/agent_retry.rs": [
+        "keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder",
+        "keyed_full_intake_retry_with_another_spelling_replays"
+      ],
+      "crates/brn/tests/source_locator.rs": [
+        "useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat",
+        "two_cli_useful_intakes_of_one_source_post_one_instruction"
+      ],
+      "crates/brn/tests/threads.rs": [
+        "full_markdown_import_export_and_backup_are_fresh_and_readable",
+        "useful_intake_for_a_project_stays_in_one_project_chat_across_retries"
+      ]
+    },
+    "mixed_portable_original_tests_retained": {
+      "crates/brn/tests/agent_contract.rs": [
+        "keyed_keep_in_brn_retry_replays"
+      ],
+      "crates/brn/tests/agent_credentials.rs": [
+        "provider_intake_without_credentials_is_refused_before_conversion"
+      ],
+      "crates/brn/tests/agent_inspect.rs": [
+        "operation_by_key_finds_every_keyed_command"
+      ],
+      "crates/brn/tests/agent_lists.rs": [
+        "lists_without_page_options_are_unchanged",
+        "remaining_lists_page_to_their_unpaged_output"
+      ],
+      "crates/brn/tests/agent_retry.rs": [
+        "keyed_keep_in_brn_with_a_different_note_is_key_conflict"
+      ]
+    },
+    "source_only_nonMac_counterpart": "agent_credentials::off_conversion_is_unavailable_without_effects_for_both_converters; stock/BRN x full/chat, records/history/threads/runs unchanged",
+    "checked_fixture": "Workspace::owner_change protected Note.chat Some(existing thread), import None; no SQL or fake conversion report; Mac direct fixture test exercises same helper",
+    "assert_macro_counts_not_a_semantic_proof": {
+      "crates/brn-threads-intake/tests/intake_safety.rs": {
+        "before_assert_macros": 8,
+        "after_assert_macros": 8
+      },
+      "crates/brn/tests/source_locator.rs": {
+        "before_assert_macros": 10,
+        "after_assert_macros": 10
+      },
+      "crates/brn/tests/agent_retry.rs": {
+        "before_assert_macros": 52,
+        "after_assert_macros": 52
+      },
+      "crates/brn/tests/agent_credentials.rs": {
+        "before_assert_macros": 15,
+        "after_assert_macros": 22
+      },
+      "crates/brn/tests/agent_inspect.rs": {
+        "before_assert_macros": 83,
+        "after_assert_macros": 83
+      },
+      "crates/brn/tests/agent_lists.rs": {
+        "before_assert_macros": 47,
+        "after_assert_macros": 51
+      },
+      "crates/brn/tests/agent_contract.rs": {
+        "before_assert_macros": 217,
+        "after_assert_macros": 217
+      },
+      "crates/brn/tests/threads.rs": {
+        "before_assert_macros": 125,
+        "after_assert_macros": 125
+      },
+      "crates/brn/tests/support/mod.rs": {
+        "before_assert_macros": 21,
+        "after_assert_macros": 22
+      }
+    },
+    "intake_glob_cfg": "target_os=macos, matching its only consumers; portable safety case remains fully qualified",
+    "installed_targets": [
+      "aarch64-apple-darwin"
+    ],
+    "qualification": "No Linux or Windows local execution. Exact-head CI must validate nonMac branches. Mac positive assertion expressions retained in actual diff; macro counts are inventory only."
+  },
+  "compiled_artifacts": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/compiled-test-artifacts.json",
+    "sha256": "a0a981724a789ae6c1c76a72055f991ec286aefc1df3af41631c6c2f8ea30967",
+    "bytes": 4132
+  },
+  "protected": {
+    "material": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+    "only_changed_source_since_cache_evidence": [
+      "crates/brn-threads-intake/tests/intake_safety.rs",
+      "crates/brn/tests/agent_contract.rs",
+      "crates/brn/tests/agent_credentials.rs",
+      "crates/brn/tests/agent_inspect.rs",
+      "crates/brn/tests/agent_lists.rs",
+      "crates/brn/tests/agent_retry.rs",
+      "crates/brn/tests/source_locator.rs",
+      "crates/brn/tests/support/mod.rs",
+      "crates/brn/tests/threads.rs"
+    ],
+    "all_other_tracked_source_byte_identical_count": 389,
+    "cache_action_and_generator_test_bytes_unchanged_since_64d76b3c": true,
+    "all_prior_artifacts_and_real_generated_tree_files_byte_identical_count": 2187,
+    "root_lock_sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "package_source": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+    "package_zip_sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196",
+    "qualification": "No production/core/dependency/lock/platform behavior change; no package/helper/native rebuild. Previously preserved artifact copies and real generated source unchanged; current CLI test/dep-info associations are separate."
+  },
+  "cache_phase_source_record": "pr159-cache-repair-source.json",
+  "Windows_parent_disposition": "Unchanged separate parent disposition: 26 ordered normalized errors identical to main baseline, nonrequired and not green; no platform/Auth rewrite.",
+  "qualification": "Mac tests/lint pass. Linux nonMac branch execution requires exact-head CI; no Windows green, production change or other CI closure. Prior package/broad receipts retain original pins. Parent independent inspection/push/watch/required CI/merge/main CI remain.",
+  "final_evidence_commit": "Actual SHA reported after docs-only commit, not predicted.",
+  "release": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/release-inventory.json",
+    "sha256": "983f0475807c5491e1ec1fbd85eeba093ce673303ae961635ce20b5c691692d8",
+    "bytes": 4369
+  }
+}

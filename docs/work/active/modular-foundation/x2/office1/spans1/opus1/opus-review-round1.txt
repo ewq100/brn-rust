@@ -1,0 +1,69 @@
+**CHANGES_REQUIRED — one P2 must-fix in the bounded span component.** No additional correctness, security or scope blocker found. **Full S3, Office promotion and all-eight-document readiness remain NOT READY.**
+
+Reviewed clean HEAD `5b0a0fda1af4be27a1c81720bb5d08c5aaf30d0a`, tree `113914f3c22ec2ffad130b591961904900d9a217`, against BRN base `983a7ec0a76054754059c3f138a594da0088d60b` and pristine Xberg 1.3.10. The repository delta contains nine patch/provenance/evidence files; the actual upstream production delta is exactly three files, 112 insertions and 10 deletions. Accepted A1 code remains unchanged.
+
+**Must-fix: P2 — quadratic lookup for parallel vertical merges.**
+
+Location: [parser.rs:1101](/private/tmp/brn-x2-office-s3-20261018/final/xberg/src/extraction/docx/parser.rs:1101), distributed at [patch line 75](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/patches/xberg/1.3.10/0001-docx-table-grid-spans.patch:75).
+
+Every continuation starts `previous.iter().find(...)` from the beginning. For C adjacent vertical merge chains, a continuation row performs:
+
+`1 + 2 + … + C = C(C+1)/2`
+
+tuple comparisons. Across R rows, this new geometry pass can therefore require Θ(R·C²) work.
+
+A concrete source-level trigger is a rectangular, unstyled table with C unit-width restart cells in row zero and matching continuation cells in row one. With 4,096 columns, those 8,192 parsed cells cause **8,390,656 lookup comparisons**. This is an analytical operation count, not an executed benchmark or timing claim.
+
+The pinned parser limits each individual `gridSpan` to 1024; it does not cap the number of `tblGrid` columns at 1024. Its cell and XML budgets bound input parsing, while this added lookup loop consumes no iteration budget. Pristine dense construction and the unstyled fallback do not contain this particular quadratic lookup. Finite input limits do not make it linear.
+
+Both `previous` and the current cells already follow increasing source-column order. Replace the repeated full search with a monotone cursor over the previous row’s active entries, preserving exact column/span matching and immediate-row continuity. Keep the correction local; no quota or parser-policy change is needed.
+
+Verification should include several simultaneous chains across at least three rows, with chains ending or restarting independently and mixed widths. Preserve the current orphan, mismatch and interrupted-chain expectations. The current positive fixtures exercise only one active chain at a time and do not expose this cost.
+
+**Standards and implementation assessment**
+
+Apart from that performance finding, the implementation is appropriately narrow:
+
+- Checked conversions, column addition and span increments avoid new arithmetic panic paths.
+- Positive spans and exact row-width qualification establish the rectangular scope.
+- Active merges are replaced after every row, preventing continuation across a gap. Exact column and width prevent accidental cross-chain association.
+- Real empty origins remain cells; covered slots produce no duplicate origins. Text equality does not determine geometry.
+- Body styles are resolved in row-major coordinate order, satisfying the new binary search’s ordering assumption.
+- Body, header and footer paths attach to the exact returned element index. Caption insertion cannot redirect attachment.
+- First-row header fields and the existing header/footer style behavior are preserved.
+
+The shared cleanup at [derive/mod.rs:503](/private/tmp/brn-x2-office-s3-20261018/final/xberg/src/extraction/derive/mod.rs:503) implements the supplemental allocation exactly: it clears the envelope only after removing the native-grid key and finding no remaining attributes. Pre-existing empty maps remain present; unrelated attributes survive. JSON parsing, warning behavior, matching and fallback remain unchanged.
+
+**Spec and semantic assessment**
+
+No additional must-fix against the allocated behavior was found.
+
+The generated grid reaches the existing `table_to_grid`/`native_grid_matches_table` consumer. The public typed assertions establish surviving geometry, rather than merely successful metadata encoding. Missing grids, ragged rows and unmatched continuations fall back without changing the legacy dense projection.
+
+The parser still omits `gridBefore`/`gridAfter`; the omitted-leading-row witness remains unqualified. This patch establishes neither nested-table fidelity nor namespace repair.
+
+The six existing-public-API consumer cases meaningfully cover absent attributes, empty/no-key maps, native-only attributes, native plus another attribute, invalid JSON and a content-mismatching grid. Global native-PDF reach is accurately disclosed. Real PDF execution remains unexecuted.
+
+**Tests and retained evidence**
+
+The successfully compiled before/final test files have identical SHA-256 `351bf6c9…bb61`. Retained logs establish:
+
+- Pristine: **1 passed / 6 failed**.
+- Final: **6 passed / 1 failed**.
+- Both runs: zero ignored or filtered tests.
+
+The surviving failure is the same `complete_reference_output_controls` assertion at `tests/spans.rs:492`. I independently compared canonical complete prefix-variation captures: they are identical before and final, with empty content/tables and retained header/footer nodes. **That existing namespace failure is not the reason for this verdict.** It can remain a clearly qualified limitation of bounded component approval.
+
+The literal geometry expectations cover the footnotes three-column origin, authored horizontal/vertical/combined merges, repeated strings, real empty origins, styled banner, exact story binding and span 1024. The footnotes expectation agrees with the independent inventory.
+
+I inspected the complete comparison implementation and retained result for 22 DOCX outputs plus six consumer outputs. Its exclusions are explicit: semantic grids receive separate dimension, coverage and retained-origin comparisons; all other public values must compare equal. Removed cells must be empty covered slots. This is compatibility evidence alongside the independent geometry expectations, not whole-document fidelity proof.
+
+Selective custody checks matched the archive SHA, distributable patch SHA, all three pristine/compiled/independently-applied source hashes, test hashes, before/final logs and receipts, four retained dep-info hashes, root lock and base-to-pin diff hash. Recorded effective features are `html,notebook,office`, with normal dependency `cfg(test)=false`. Harness Clippy and direct formatting receipts pass; dependency-wide Clippy is not established. Initial compiler/formatting errors remain preserved.
+
+**Deferred gates and review limits**
+
+Complete XML/DTD/read-set/resource qualification, namespace handling, annotations/notes/comments, locators, nested tables, renderer association, PPTX O2, restricted runtime and root adoption remain separate gates. No A1 reopening is warranted.
+
+This review used read-only source, Git, evidence and selective hashing. No files were written; no Cargo, builds, tests, lint, formatting, project executables, network/Auth, GUI or delegation ran. No mutable PDF checkout was inspected.
+
+Standards/complexity findings: **one P2**. Additional spec/semantic findings: **zero**. Parent retains disposition, acceptance and integration ownership.

@@ -1,0 +1,21 @@
+{
+  "schema": "xlsx1-owner-scope-stop-release/1",
+  "status": "STOPPED_AT_OWNER_SCOPE_CHANGE_UNACCEPTED_OPTIONAL_WIP",
+  "owner_scope_steering_recorded": true,
+  "current_command_reaped_exit_code": 0,
+  "no_further_checks_Cargo_or_production_edits": true,
+  "sole_heavy_released": true,
+  "all_paths_released": true,
+  "process_inventory_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/owner-scope-stop-20261018/process-inventory.json",
+  "heavy_process_count": 0,
+  "own_running_processes": 0,
+  "boundary_state_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/owner-scope-stop-20261018/boundary-state.json",
+  "boundary_state_sha256": "907828cd7c4a19abee0cc1f2a4bfa0c3ae26c33e78dff92bdc2b6be2f3280ea9",
+  "root_HEAD": "50f469f8d2925b8615ede099b1106cda558a5885",
+  "no_new_material_commit": true,
+  "staged_boundary_diff_sha256": "1581d5831777924373fe2bc6f1fc06a49d2aa612f80eba194ec9634443f3f9c2",
+  "compiled_source_and_artifacts_preserved": true,
+  "current_new_release_and_handoff_unstaged_documentation_only": true,
+  "optional_mode_unclarified_no_acceptance_or_default_implementation": true,
+  "no_PDF_access": true
+}

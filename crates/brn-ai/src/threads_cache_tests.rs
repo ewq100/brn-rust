@@ -1,6 +1,6 @@
 use super::*;
 
-fn sse(events: &[Value]) -> String {
+pub(super) fn sse(events: &[Value]) -> String {
     let mut text = String::new();
     for event in events {
         text.push_str(&format!("data: {event}\n\n"));
@@ -9,7 +9,7 @@ fn sse(events: &[Value]) -> String {
     text
 }
 
-fn tool_turn(n: u32, response: &str) -> String {
+pub(super) fn tool_turn(n: u32, response: &str) -> String {
     let reasoning = json!({"type":"reasoning","id":format!("rs_{n}"),"summary":[],"encrypted_content":format!("ENC{n}")});
     let call = json!({"type":"function_call","id":format!("fc_{n}"),"call_id":format!("call_{n}"),"name":"retain_progress","arguments":format!("{{\"summary\":\"step {n}\"}}"),"status":"completed"});
     sse(&[
@@ -22,7 +22,7 @@ fn tool_turn(n: u32, response: &str) -> String {
     ])
 }
 
-fn final_turn() -> String {
+pub(super) fn final_turn() -> String {
     sse(&[
         json!({"type":"response.completed","sequence_number":1,"response":{
         "id":"resp_last","object":"response","created_at":1,"status":"completed","model":"gpt-6.1-sol",
@@ -31,7 +31,7 @@ fn final_turn() -> String {
     ])
 }
 
-fn script() -> rig::test_utils::SequencedHttpClient {
+pub(super) fn script() -> rig::test_utils::SequencedHttpClient {
     rig::test_utils::SequencedHttpClient::new([
         rig::test_utils::MockHttpResponse::success_typed(tool_turn(1, "r1"), "text/event-stream"),
         rig::test_utils::MockHttpResponse::success_typed(tool_turn(2, "r2"), "text/event-stream"),
@@ -40,7 +40,7 @@ fn script() -> rig::test_utils::SequencedHttpClient {
 }
 
 /// A synthetic Codex auth file, as `codex_client` accepts it.
-fn codex_file(root: &tempfile::TempDir) -> PathBuf {
+pub(super) fn codex_file(root: &tempfile::TempDir) -> PathBuf {
     use std::os::unix::fs::PermissionsExt;
     let file = root.path().join("auth.json");
     std::fs::write(
@@ -75,7 +75,7 @@ fn credentials_dir(root: &tempfile::TempDir) -> PathBuf {
 
 /// Stores the credential route in the workspace Settings, which `prepare_run`
 /// requires the request to match.
-fn configure(request: &ThreadRunRequest, provider: &str) {
+pub(super) fn configure(request: &ThreadRunRequest, provider: &str) {
     let mut store = Store::open(&request.data_dir).unwrap();
     let RecordData::Settings(mut settings) = store
         .records()
@@ -159,7 +159,7 @@ fn session_ids(requests: &[rig::test_utils::CapturedHttpRequest]) -> Vec<String>
         .collect()
 }
 
-fn body(request: &rig::test_utils::CapturedHttpRequest) -> Value {
+pub(super) fn body(request: &rig::test_utils::CapturedHttpRequest) -> Value {
     serde_json::from_slice(&request.body).unwrap()
 }
 
@@ -283,6 +283,13 @@ async fn trace_records_each_turns_cached_input() {
         .map(|u| (u.input, u.cached_input))
         .collect();
     assert_eq!(turns, [(1000, 0), (2000, 128), (10, 0)]);
+    for (turn, (input, cached)) in turns.iter().enumerate() {
+        println!(
+            "scripted usage turn {} cached-input share: {cached}/{input} = {:.2}% (synthetic provider usage, not a live metric)",
+            turn + 1,
+            100.0 * *cached as f64 / *input as f64
+        );
+    }
     let total = trace.usage.unwrap();
     assert_eq!((total.input, total.cached_input), (3010, 128));
 }

@@ -1,0 +1,8 @@
+{
+  "source_pin": "695f750af5103550239830a541b3673e107c624c",
+  "crates_tree": "0670fb3198fde3ece1bb392a3bc272d8ce3edc40",
+  "base": "781c34dc466d6a6a210cdae4cf75e1096521c70d",
+  "reviewed_pin": "bbf107e370a5c5dc35a7588e97c477d5639401a6",
+  "compiled_bytes_match_pin": true,
+  "note": "Commands started on frozen precommit source bytes; their recorded source hashes equal this pin. No claim those commands started at the later commit ID. Original broad bbf107e3 results stay historical."
+}

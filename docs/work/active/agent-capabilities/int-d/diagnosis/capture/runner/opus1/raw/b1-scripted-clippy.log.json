@@ -1,0 +1,5 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_sha256": "399ccb647fcf854bd9fe9a8e96429c6a5d0a3129e08b40d556ca26e7c4478959",
+  "text": "    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-ai)\n    Finished `dev` profile [unoptimized] target(s) in 5.17s\n"
+}

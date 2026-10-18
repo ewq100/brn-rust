@@ -1,0 +1,8 @@
+{
+  "note": "Individual sample runs after native lanes. The agent_bounds executable is baseline default-feature test binary but CARGO_BIN_EXE_brn now resolves final native-retrieval CLI. These process wall timings are observed samples, not comparable per-test baseline feature benchmark or global ranking.",
+  "brn": {
+    "path": "/private/tmp/brn-c0-20261016-target/debug/brn",
+    "bytes": 105194048,
+    "sha256": "881c98b553e3ee81e4eef649430e1fe4fe25301dc12f41adba1d97b4d3af8b50"
+  }
+}

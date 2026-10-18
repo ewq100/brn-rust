@@ -1,0 +1,276 @@
+{
+  "production_pin": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+  "binding": {
+    "production_pin": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+    "synthetic_git_commit": "2e6acbbc062215e5bc4b20ac63873af8fc1e3896",
+    "source_root": "/private/tmp/brn-d3b-review1-before-source",
+    "target": "/private/tmp/brn-d3b-review1-before-target",
+    "test_only_patch_sha256": "f13f38552a65a092509b9f5cebd2fae1fe6be73de892503debfd716d676e2315",
+    "unchanged_material_hashes": 270,
+    "mismatches": [],
+    "test_paths": [
+      "crates/brn-ai/src/threads_skills_tests.rs",
+      "crates/brn-desktop/src/threads_skills_tests.rs",
+      "crates/brn-threads-core/tests/skill_policy.rs"
+    ]
+  },
+  "checks": [
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before-valid-package.json",
+      "receipt_sha256": "d3b2a3076ac48fb20bec8e2c065575aa93ffcf733e15458f0adb31874eb5e343",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::skills_tests::"
+      ],
+      "exit": 0,
+      "seconds": 21.42305312503595,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before-valid-package.log",
+      "raw_log_sha256": "b5411afa621d46a4fccbab5d85e110ac215aef49a1876d840258e117c56a8153",
+      "raw_summary_count": 1,
+      "counts": [
+        10,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before-valid-package-source.json",
+      "source_receipt_sha256": "6a31bb2c2bcf9044ac6dc1da6ee47306e439f0200edbdb8859893ea5d15568c4",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "ed419cd94e97eaccec526e425cdbc0dc93fe031592558703ea55dc0c74b33d5a",
+          "bytes": 32971664
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "1bcf616d2559c7dd15e10d8987f29652fa862a696a913074fa8510afa59348a1",
+          "bytes": 7756
+        }
+      ]
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before.json",
+      "receipt_sha256": "266eb1d742c032b5e85bf92cdd3751fe1b43e4674f198aa142bab178098bd934",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::skills_tests::"
+      ],
+      "exit": 101,
+      "seconds": 60.15314304200001,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before.log",
+      "raw_log_sha256": "f5c7f466f97c1b7e6fdce59483fa0e4a0c86bc3d929ac97de68da50033660e47",
+      "raw_summary_count": 1,
+      "counts": [
+        9,
+        1,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/ai-ranges-before-source.json",
+      "source_receipt_sha256": "55585e965b3b35d7f53c39175d7872e736be3ca784900c2d8ad59449ea046709",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "3021384170565ba912de58463a35e47baa487acf66607ab987d5bc30d2aeb36c",
+          "bytes": 32971664
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "1bcf616d2559c7dd15e10d8987f29652fa862a696a913074fa8510afa59348a1",
+          "bytes": 7756
+        }
+      ]
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before-stronger.json",
+      "receipt_sha256": "904be876d9aa7e0fec2576c08ef20b9a72cbe818a1a946290efdfd58951cdb7e",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "skill_policy",
+        "project_selection_is_exact_and_clear_remains_available_after_archive",
+        "--",
+        "--exact"
+      ],
+      "exit": 101,
+      "seconds": 1.7721485838992521,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before-stronger.log",
+      "raw_log_sha256": "33397dfeecaca3f54ee9c74983f473eeaf3c019a3fbff6abc19e73b6118b4d1b",
+      "raw_summary_count": 1,
+      "counts": [
+        0,
+        1,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before-stronger-source.json",
+      "source_receipt_sha256": "6a31bb2c2bcf9044ac6dc1da6ee47306e439f0200edbdb8859893ea5d15568c4",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/skill_policy-c92372093c5add22",
+          "sha256": "423836501ab64071440e97fe3e0ac8f1cb9c96ad34758d7b2434aaee97c48199",
+          "bytes": 4344224
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/skill_policy-c92372093c5add22.d",
+          "sha256": "7ea2bda1c7e5eb45914011aa6dc64288c541be767bbfe51f57a5b6d381d5197c",
+          "bytes": 313
+        }
+      ]
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before.json",
+      "receipt_sha256": "cb85dab35f6ec393225512682663e9370ce0b0cc70a1a1ae9e087cedaa7b6fb7",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "skill_policy",
+        "project_selection_is_exact_and_clear_remains_available_after_archive",
+        "--",
+        "--exact"
+      ],
+      "exit": 101,
+      "seconds": 23.36036674992647,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before.log",
+      "raw_log_sha256": "506fed0e95521d698d54ac5bb95a74c73e90d02676c45147edc57f9fb327ec60",
+      "raw_summary_count": 1,
+      "counts": [
+        0,
+        1,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/core-deselect-before-source.json",
+      "source_receipt_sha256": "55585e965b3b35d7f53c39175d7872e736be3ca784900c2d8ad59449ea046709",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/skill_policy-c92372093c5add22",
+          "sha256": "18ad387a1eafbed62b18a4242c3d77e1e08f4061a6ecec77f12be1ae95abb822",
+          "bytes": 4343792
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/skill_policy-c92372093c5add22.d",
+          "sha256": "7ea2bda1c7e5eb45914011aa6dc64288c541be767bbfe51f57a5b6d381d5197c",
+          "bytes": 313
+        }
+      ]
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before-qualified.json",
+      "receipt_sha256": "5987c3c2822bc06f8225ac3f1992d5fd427836dffa24bb3bf196f3162cf8a1e7",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "threads_ui::skills_tests::native_inventory_can_enable_one_package_in_each_scope_without_copying_policy",
+        "--",
+        "--exact"
+      ],
+      "exit": 101,
+      "seconds": 1.0587666250066832,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before-qualified.log",
+      "raw_log_sha256": "f25f5dd12cc9528091e3dce8d3865562cd0952ed052c89d91225e2ea2fb1750f",
+      "raw_summary_count": 1,
+      "counts": [
+        0,
+        1,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before-qualified-source.json",
+      "source_receipt_sha256": "55585e965b3b35d7f53c39175d7872e736be3ca784900c2d8ad59449ea046709",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_desktop-64d021fbd43861a5",
+          "sha256": "afe91353d8450bd4f221f9c580b3179069528f173b4ac3bd4f4cc12b6e8b2da0",
+          "bytes": 72029104
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_desktop-64d021fbd43861a5.d",
+          "sha256": "708d3630c99d9911abc4eeeced3b9a55f634cdb8886bfd0d835f5e8b34288749",
+          "bytes": 5123
+        }
+      ]
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before.json",
+      "receipt_sha256": "9bac625d1161f0537809b9fbe102a6ed0bf7b55909348de238349d4d8780d893",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "native_inventory_can_enable_one_package_in_each_scope_without_copying_policy",
+        "--",
+        "--exact"
+      ],
+      "exit": 0,
+      "seconds": 170.9363565830281,
+      "raw_log": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before.log",
+      "raw_log_sha256": "459846f83077e02f788bbe3e68841e50e2c8e4e48a760f3450cc1f4624b54f37",
+      "raw_summary_count": 1,
+      "counts": [
+        0,
+        0,
+        0
+      ],
+      "source_receipt": "/private/tmp/brn-d3b-review1-before-artifacts/native-inventory-before-source.json",
+      "source_receipt_sha256": "55585e965b3b35d7f53c39175d7872e736be3ca784900c2d8ad59449ea046709",
+      "test_artifacts": [
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_desktop-64d021fbd43861a5",
+          "sha256": "afe91353d8450bd4f221f9c580b3179069528f173b4ac3bd4f4cc12b6e8b2da0",
+          "bytes": 72029104
+        },
+        {
+          "path": "/private/tmp/brn-d3b-review1-before-target/debug/deps/brn_desktop-64d021fbd43861a5.d",
+          "sha256": "708d3630c99d9911abc4eeeced3b9a55f634cdb8886bfd0d835f5e8b34288749",
+          "bytes": 5123
+        }
+      ]
+    }
+  ],
+  "fixture_correction": {
+    "production_pin": "6ff0ccdbd7753b07966dbcdc655880a039ef3284",
+    "patch_sha256": "60ae8f3a20fa62d48c2e714c9ed51e2ede6f4c33335499e06f16388ab2c7e7ef",
+    "initial_ai_result": "9passed/1failed; oversized reference fixture SKILL.md had no nonblank instruction body,so package installation refused before any budget path. Not behavioral production proof.",
+    "correction": "Add actual instruction body without changing bounds or assertions. Strengthen core negative identity demotions against selected=true prior,then forbid reselect after deselection. No production changes in before copy."
+  },
+  "qualification": "Native unqualified exact selector0test is not proof; core/native intended0/1 are behavioral red. Initial AI9/1 was invalid fixture,corrected10/0 proves unchanged existing range guards."
+}

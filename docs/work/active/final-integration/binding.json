@@ -1,0 +1,197 @@
+{
+  "schema": "brn-final-integration-binding/3",
+  "recorded": "2026-10-17",
+  "task": "final-integration source-only preparation (Kiro Sonnet 5.5)",
+  "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ca8b0a32",
+  "initial": {
+    "branch": "t3/prepare-final-integration-plan",
+    "head": "9b47b285d23bb5f89db02ba398244827032fab6b",
+    "tree": "5556c9143388816cb3e8b2e88b48ec125a290ac0",
+    "status": "clean",
+    "worktree_origin": "T3 allocated from parent local main"
+  },
+  "chosen_base": {
+    "sha": "73ea9ca777e00d348966e37e8402f3eb68ecb20b",
+    "tree": "74d6dfb216585787e3d913ee45117868a2d2ceb9",
+    "crates_tree": "bdc0a22a29e1aec741a78916ae5d0a7748531864",
+    "subject": "docs(x2): reconcile source audit and stage first HTML adapter",
+    "why": "exact base named by the dispatch; descendant of local main 9b47b285 and cached origin 8f768943"
+  },
+  "work_branch": {
+    "name": "work/final-integration-20261017",
+    "existed_before": false,
+    "created_with": "git switch -c work/final-integration-20261017 73ea9ca777e00d348966e37e8402f3eb68ecb20b",
+    "note": "the T3 generated branch t3/prepare-final-integration-plan still points at 9b47b285 and was left in place"
+  },
+  "observed_refs_no_network": {
+    "origin/main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c (previous cached 8f768943964a77711b26d5235df146f8efe1dc6c)",
+    "main (parent root)": "9b47b285d23bb5f89db02ba398244827032fab6b",
+    "work/int-w-20261017": "d2d84e665e64de14a15f4704eb0868c553c2885a, checkout t3-239c29dc clean at read time",
+    "work/x2-intake-20261017": "781c34dc466d6a6a210cdae4cf75e1096521c70d at last read; 73ea9ca777e00d348966e37e8402f3eb68ecb20b when first read (moved by a docs-only commit while this task ran); checkout t3-9527c407 read only",
+    "parent root repos/brn-rust": "main 9b47b285; untracked .vscode/ and experiments/ unchanged"
+  },
+  "authority_read": [
+    "owner-kiro-final-integration-20261017.md (full)",
+    "AGENTS.md (base and origin/main versions)",
+    "docs/status.md (partial, truncated at 30000 characters; origin/main snapshot top)",
+    "docs/architecture/invariants.md (full)",
+    "docs/architecture/threads-target.md and threads-behavior.md (headings, D-S/D-M/D3b/D4 amendments; not read in full)",
+    "docs/development/{setup,verification,workflow}.md (full), strategic-programming.md (origin/main)",
+    "build-sequence README, modular-foundation plan, agent-capabilities plan, owner-live-qualification, CW2/B1a/B1b/B3/B4/INT-W/INT-D/history dispositions",
+    "X2 owner-scope-all-documents, plan, first-html-slice, acceptance, allocation (first 80 lines), source1b/handoff, handoff, Opus3 round 3",
+    "master plan section 13, INT-W native outline, INT-W f-cases and verification",
+    "D4 Opus2 failure discussion, widget-confirmation README, .github/workflows/ci.yml, scripts/verify-*.sh"
+  ],
+  "not_read_in_full": [
+    "docs/architecture/threads-target.md",
+    "docs/architecture/threads-behavior.md",
+    "docs/work/active/modular-foundation/evidence.md",
+    "per-slice evidence JSON and logs",
+    "Opus review reports of D lane slices",
+    "D1A/D1B/D2/D3a/D3b dispositions (status paragraphs and plan summaries used instead)"
+  ],
+  "commands_executed": {
+    "git_reads": "rev-parse, log, diff (stat/name-status/numstat/-U0/-U1), show, grep, ls-tree, for-each-ref, worktree list, merge-base, rev-list, status --no-optional-locks on other checkouts",
+    "git_writes": [
+      "git switch -c work/final-integration-20261017 (new ref and worktree HEAD move in this checkout)",
+      "git merge-tree --write-tree x3 and a few --messages variants (unreferenced tree/blob objects in the shared object store; no ref, index or working-tree change)",
+      "one local commit of the new files below"
+    ],
+    "other": [
+      "python3 read-only lock package-set comparison and JSON generation (scratch under /tmp, removed)",
+      "python3 scripts/check-markdown-links.py and git diff --check on the new files"
+    ]
+  },
+  "not_executed": [
+    "cargo (any subcommand, including metadata)",
+    "rustc/clippy/rustfmt",
+    "test, build or lint of any kind, including a helper test",
+    "Store or CLI fixture creation",
+    "Auth, provider, network, fetch, download",
+    "GUI",
+    "cargo-mutants",
+    "live starts",
+    "heavy-slot acquisition or polling",
+    "delegation"
+  ],
+  "owned_paths": [
+    "existing docs/work/active/final-integration/*",
+    "docs/work/active/final-integration/opus2/{opus-review-round2.md,response.md,checks.json,handoff.md}"
+  ],
+  "read_only_paths": "all production, tests, manifests, lock, CI, scripts, runtime, INT-W and X2 files and docs",
+  "release": {
+    "heavy_slot": "never acquired; none held (revision 2 also)",
+    "paths": "all paths owned by this task released to the principal at commit",
+    "processes": "no cargo/rustc/clippy/rustdoc/mutants started; no child processes"
+  },
+  "claims_not_made": [
+    "Xberg done",
+    "final product merged",
+    "verified",
+    "native-observed",
+    "owner-accepted",
+    "hosted CI",
+    "compiled combined graph"
+  ],
+  "revision2": {
+    "recorded": "2026-10-18",
+    "start": {
+      "branch": "work/final-integration-20261017",
+      "head": "d4574398516000f63d45e38f168b2a8294ca8951",
+      "tree": "d08b12cc77dc440d3a2d012953f42bc7386a9a1f",
+      "status": "clean (verified before editing)",
+      "same_checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ca8b0a32",
+      "no_new_worktree": true,
+      "no_delegation": true
+    },
+    "review_input": {
+      "report": "~/.codex/brn-build-orchestration/2026-10-16/final-integration-kiro-opus-review-round1.md",
+      "report_sha256": "65422c3e80159d9fc70b857fa54bedd58c64c22758c3516606ef8a04728d2211",
+      "copied_verbatim_to": "docs/work/active/final-integration/opus1/opus-review-round1.md (cmp identical)",
+      "terminal_json": "final-integration-kiro-opus-review-round1-terminal.json: latestTerminalSummary equals the report except one trailing newline; status completed, model claude-opus-5.5",
+      "corrections_message": "final-integration-kiro-opus1-corrections-20261018.md",
+      "family_disposition": "x2-html-toml-family-disposition-20261018.json"
+    },
+    "read_only_inputs": {
+      "x2_html_wip": {
+        "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+        "branch": "work/x2-html-20261017",
+        "head": "781c34dc466d6a6a210cdae4cf75e1096521c70d",
+        "dirty": true,
+        "files_read": [
+          "Cargo.lock",
+          "docs/work/active/modular-foundation/x2/html1/graph-gate.json",
+          "docs/work/active/modular-foundation/x2/html1/metadata.stdout.json.gz",
+          "docs/work/active/modular-foundation/x2/html1/linkcheck-after.log",
+          "docs/work/active/modular-foundation/x2/html1/linkcheck-before.log (head)"
+        ],
+        "hashes": {
+          "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+          "graph-gate.json": "7358546a2ed85ea204e12796ac67a39e686fd81f6d627082270742a32de166cf",
+          "metadata.stdout.json.gz": "11831ac5d1d9bfa39ba2c7512db80f0bf368b5ec53432872673738d6d86fff3a",
+          "metadata.stdout (uncompressed)": "aa1a8b35405ccf7c21dc86ca7bde41ac68e697b3d7a29a0263f411eaa4528367"
+        },
+        "use": "facts only; no import, no WIP claimed as a pin or source approval; no status or cargo commands run there"
+      },
+      "registry_manifest": "~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-core-0.44.0/Cargo.toml (text read)"
+    },
+    "owned_paths": [
+      "docs/work/active/final-integration/{plan.md,inventory.json,binding.json,handoff.md,merge-simulation.md}",
+      "docs/work/active/final-integration/opus1/{opus-review-round1.md,response.md,checks.json,handoff.md}",
+      "docs/work/active/final-integration/{NF1-test-spec.md,status-draft.md}"
+    ],
+    "commands_executed": [
+      "git reads (rev-parse, status --porcelain, log, diff, show, grep)",
+      "shasum -a 256 and cmp on the copied report",
+      "cp of the report into opus1/",
+      "python3 read-only parses of Git lock blobs, the X2 WIP Cargo.lock and the gzipped metadata JSON (stdlib json/gzip/re; no Cargo)",
+      "scripts/check-markdown-links.py; git diff --check"
+    ],
+    "not_executed": [
+      "cargo (any subcommand)",
+      "rustc/clippy/rustfmt",
+      "build, test, lint, formatter of any kind",
+      "Store, CLI, Auth, provider, network, fetch, download, GUI, mutants, live",
+      "heavy slot acquisition or polling",
+      "commands in other checkouts beyond read-only git status/rev-parse",
+      "git merge-tree (not rerun in revision 2)"
+    ],
+    "not_read_in_full": [
+      "docs/architecture/threads-target.md and threads-behavior.md (journey table, full-note and amendments read; rest by heading)",
+      "per-slice evidence logs",
+      "X2 source-audit and source1b JSON ledgers (disposition and WIP gate receipt used)",
+      "uncommitted X2 HTML source files (not opened)"
+    ]
+  },
+  "revision3": {
+    "recorded": "2026-10-18",
+    "start": {
+      "branch": "work/final-integration-20261017",
+      "head": "ae63fb7d5110327c8aecad5684e65e0573267fe4",
+      "tree": "5f877d636499f613af3cdd74c5cf23a2e75016c1",
+      "status": "clean (verified before editing)",
+      "same_checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ca8b0a32",
+      "no_new_worktree": true,
+      "no_delegation": true
+    },
+    "review_input": {
+      "report": "~/.codex/brn-build-orchestration/2026-10-16/final-integration-kiro-opus-review-round2.md",
+      "report_sha256": "b39d1b1e3998b3fa1bd6d99844f266da611d48aac7bb27ec7c71ba7c6c58a74d",
+      "copied_verbatim_to": "docs/work/active/final-integration/opus2/opus-review-round2.md (cmp identical)",
+      "terminal_json": "status completed, claude-opus-5.5; summary equals report except one trailing newline",
+      "precision_message": "final-integration-kiro-opus2-precision-20261018.md"
+    },
+    "owned_paths": [
+      "existing docs/work/active/final-integration/*",
+      "docs/work/active/final-integration/opus2/{opus-review-round2.md,response.md,checks.json,handoff.md}"
+    ],
+    "unchanged": "opus1/opus-review-round1.md (round 1 report) is not modified",
+    "not_executed": [
+      "cargo",
+      "build/test/lint/format",
+      "Store/CLI/Auth/provider/network/fetch/GUI/mutants",
+      "heavy slot",
+      "import of the X2 WIP; no interruption of the X2 verification task"
+    ]
+  }
+}

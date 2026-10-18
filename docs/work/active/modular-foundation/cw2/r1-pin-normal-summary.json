@@ -1,0 +1,250 @@
+{
+  "source_pin": "144848ffd86f8705f156553aeef418de23d204a5",
+  "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+  "checks": [
+    {
+      "receipt": "r1-pin-core-ai-app-cli.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--lib",
+        "--bins",
+        "--tests"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        953,
+        0,
+        3
+      ],
+      "log_sha256": "176a0105f22685bdf077dda15927e5f75aef813939f09835e2df2ff23a4bbac0"
+    },
+    {
+      "receipt": "r1-pin-native.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        310,
+        0,
+        1
+      ],
+      "log_sha256": "782ce2dfd88f37469624bf63a6ad5579e43477d942ac84dbdd82a4df482e7a90"
+    },
+    {
+      "receipt": "r1-pin-capability.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "capability-spike",
+        "--all-targets"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        357,
+        0,
+        1
+      ],
+      "log_sha256": "544b656e3b01ffb478b459b332ebf4ef5de686868ecb68d9b7d13576eec3bb0a"
+    },
+    {
+      "receipt": "r1-pin-native-retrieval-app.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-app",
+        "--features",
+        "native-retrieval"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        239,
+        0,
+        1
+      ],
+      "log_sha256": "8e1dca9931fbcc0330d805d2b64e07e63ce6fa27bc1fd919283c2b04e90d5ee2"
+    },
+    {
+      "receipt": "r1-pin-combined-build.json",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "brn/native-retrieval,brn-desktop/native-ui,brn-desktop/native-retrieval"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": null,
+      "log_sha256": "c8ccfdb2225f4bf87ed377cdc5e3d4f4a0f264507a477cea67530cb8920a66a5"
+    },
+    {
+      "receipt": "r1-pin-combined-desktop.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-retrieval"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        95,
+        0,
+        0
+      ],
+      "log_sha256": "824ce67439b00890e4ef12370a377af8bb9a2e577f2f12f7605ce96722357553"
+    },
+    {
+      "receipt": "r1-pin-feature-lint.json",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "brn-ai/scripted-runs,brn-ai/capability-spike,brn-threads-app/native-retrieval,brn/native-retrieval,brn-desktop/native-ui,brn-desktop/native-test-support,brn-desktop/native-retrieval",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": null,
+      "log_sha256": "94ccda313afce7e99614278af997117c02ecb3b7e93a77fb9bb2d63eabb3efe1"
+    },
+    {
+      "receipt": "r1-pin-headless-serial.json",
+      "command": [
+        "python3",
+        "docs/work/active/modular-foundation/cw2/headless-check.py"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        2,
+        0,
+        0
+      ],
+      "log_sha256": "7bda529186b527dd83abadcdad6e1fdc3f83b3ee40bb853a5ca322f26ed784a1"
+    },
+    {
+      "receipt": "r1-pin-retrieval-no-assets.json",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-retrieval",
+        "--features",
+        "native",
+        "--lib",
+        "--test",
+        "model_download"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": [
+        35,
+        0,
+        0
+      ],
+      "log_sha256": "a88e650699175d9673fbb65fc40b8c82cb7b794c2eb760eaad35b02f9323b101"
+    },
+    {
+      "receipt": "r1-pin-format.json",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "head": "144848ffd86f8705f156553aeef418de23d204a5",
+      "crates_tree": "430d1746d27ec718974b96bac0dfa6845c55e025",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "counts": null,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": [
+    "No default workspace rerun/PDF environment fix; source affected suites only.",
+    "No GUI/live provider/model downloads/hosted CI/human native/full F21 claim.",
+    "First headless check overlapped lint due sequencing error; retained diagnostic receipt superseded by successful serial headless receipt.",
+    "Separate f282 mutation results remain original-pin evidence; supplement remains original total1800s cap."
+  ]
+}

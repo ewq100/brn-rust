@@ -1,0 +1,151 @@
+{
+  "actual_precommit_HEAD": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+  "approved_295_manifest_only_mismatch": [
+    "crates/brn-desktop/src/threads_writing_tests.rs"
+  ],
+  "approved_production_HEAD": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-low-window-20261017/affected-native-diff.patch",
+      "dirty_diff_sha256": "613331cf0cd56f16ce4fb373c20226cb6ed86ecc0c5a58f53e5983883f714c70",
+      "duration_seconds": 18.785874458029866,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-low-window-20261017/synthetic-tmp"
+      },
+      "executed_artifacts_after_command": [
+        {
+          "bytes": 71087328,
+          "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+          "sha256": "fa2853d9eebfe78ffb3863f000938bdf87314530d5dce568a93d1c296ab45ee2"
+        }
+      ],
+      "exit_code": 0,
+      "external_model_directory_env": "explicitly absent; no model assets authorized",
+      "finished_utc": "2026-10-16T21:14:12.534619+00:00",
+      "head": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+      "label": "affected-native",
+      "log": "/private/tmp/brn-b1b-low-window-20261017/affected-native.log",
+      "log_sha256": "e163ed00bdbda25e04a29cda55de61910f99143b64cbd20a910ff3b4f0ec6710",
+      "source_identity_sha256": "4818c17009dd717f16744e83b8cbdb05bbfecb9355eba8fe528d570a6fdfaced",
+      "source_manifest": "/private/tmp/brn-b1b-low-window-20261017/affected-native-source.json",
+      "source_manifest_sha256": "9f19891915b4c281c12c8e87c4bb3b74178df6e9b30fde3ee1c773c7d5223d0c",
+      "started_utc": "2026-10-16T21:13:53.748549+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-low-window-20261017/native-test-support-clippy-diff.patch",
+      "dirty_diff_sha256": "613331cf0cd56f16ce4fb373c20226cb6ed86ecc0c5a58f53e5983883f714c70",
+      "duration_seconds": 3.6811067080125213,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-low-window-20261017/synthetic-tmp"
+      },
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "external_model_directory_env": "explicitly absent; no model assets authorized",
+      "finished_utc": "2026-10-16T21:14:18.699649+00:00",
+      "head": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+      "label": "native-test-support-clippy",
+      "log": "/private/tmp/brn-b1b-low-window-20261017/native-test-support-clippy.log",
+      "log_sha256": "7856e82a583f8d56d2abc4eae8b36201c65cb750b3ba3a7b54e22e37c78ca9af",
+      "source_identity_sha256": "4818c17009dd717f16744e83b8cbdb05bbfecb9355eba8fe528d570a6fdfaced",
+      "source_manifest": "/private/tmp/brn-b1b-low-window-20261017/native-test-support-clippy-source.json",
+      "source_manifest_sha256": "9f19891915b4c281c12c8e87c4bb3b74178df6e9b30fde3ee1c773c7d5223d0c",
+      "started_utc": "2026-10-16T21:14:15.018309+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "dirty_diff": "/private/tmp/brn-b1b-low-window-20261017/fmt-all-diff.patch",
+      "dirty_diff_sha256": "613331cf0cd56f16ce4fb373c20226cb6ed86ecc0c5a58f53e5983883f714c70",
+      "duration_seconds": 1.2504687089240178,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "ORT_LIB_PATH": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-low-window-20261017/synthetic-tmp"
+      },
+      "executed_artifacts_after_command": [],
+      "exit_code": 0,
+      "external_model_directory_env": "explicitly absent; no model assets authorized",
+      "finished_utc": "2026-10-16T21:14:47.236396+00:00",
+      "head": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+      "label": "fmt-all",
+      "log": "/private/tmp/brn-b1b-low-window-20261017/fmt-all.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_identity_sha256": "4818c17009dd717f16744e83b8cbdb05bbfecb9355eba8fe528d570a6fdfaced",
+      "source_manifest": "/private/tmp/brn-b1b-low-window-20261017/fmt-all-source.json",
+      "source_manifest_sha256": "9f19891915b4c281c12c8e87c4bb3b74178df6e9b30fde3ee1c773c7d5223d0c",
+      "started_utc": "2026-10-16T21:14:45.985620+00:00"
+    }
+  ],
+  "guard_recheck": "Separately authorized ONE omission; not yet started when these checks completed. Total authorized cap 300s including setup/baseline/mutation/restore/reap/verification.",
+  "historical_receipts_and_original_before_proof_unchanged": true,
+  "kind": "B1b LOW correction affected checks; no broad repeat",
+  "limits": "No principal acceptance, full F21, hosted, native-human or owner claim. Original carried PDF/pdftoppm failure remains.",
+  "production_manifest_lock_unchanged": true,
+  "recorded_utc": "2026-10-16T21:16:00.016283+00:00",
+  "scope": "Only affected renamed fixture; native-ui,native-test-support strict all-target desktop Clippy; cargo fmt all check. No full workspace/native script/combined/headless repetition.",
+  "source_fingerprint_sha256": "ffcc9df9231bcb4a5d7cefc03ac4ea5eafaac0ae093fae3ebc369e5f543fa8c0",
+  "source_hashes": {
+    "Cargo.lock": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "crates/brn-desktop/Cargo.toml": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+    "crates/brn-desktop/src/threads_ui.rs": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
+    "crates/brn-threads-app/src/lib.rs": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2",
+    "crates/brn-writing-ui/src/native.rs": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb"
+  },
+  "static_diff": "git diff --check passed",
+  "static_links": "round1-response.md and verification.md relative links resolve",
+  "target": "/private/tmp/brn-b1a-20261016-target; same literal bound source root only"
+}

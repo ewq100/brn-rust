@@ -1,0 +1,9 @@
+# B4 Opus2 shortcut correction
+
+[Full Opus2 report](opus-review-round2.md) confirmed the first correction and identified one remaining advertised shortcut mismatch. The shared panel and desktop use cmd-shift-r for Rewrite; the development host incorrectly bound cmd-shift-enter. No other reviewed item is reopened.
+
+The principal changes exactly one host binding string and the matching existing journey key/assertion strings. Source base is clean evidence HEAD4b04bc03; the actual precommit source/diffs and all332 material inputs are retained in [four phase receipts](opus2-shortcut-checks.json). All existing action handlers, shared runtime/Workspace, permissions, test=true, dependencies, lock and CI remain unchanged.
+
+The test was changed first to press the advertised cmd-shift-r while production retained the old binding. It compiled and failed0/1/4filtered at the intended shared-start assertion: no rewrite run existed. After the one-string binding fix, the same source-root target rebuilt and all five host fixtures passed. Strict native/test-support all-target writing Clippy and workspace formatting passed. Every phase preserved unchanged inputs during execution, exact raw log/diff bytes and actual executable/dep-info fingerprints; older executable bytes are not all retained separately. There is no fabricated future pin or zero-test proof.
+
+These four checks are proportional to the three changed lines. Earlier native library44/desktop287+1ignore/default1115+1PDF+6ignore and source associations are not relabelled or repeated. No mutation, GUI, live provider, owner data, publication or main merge occurred. All own sessions completed and the filtered heavy inventory is empty. Fresh principal-owned Opus3 confirms this narrow correction before local acceptance. Native-human/menu-click/IME/picker/GUI-quit, hosted/full F21/INT-W/owner/program and PDF qualification remain open.

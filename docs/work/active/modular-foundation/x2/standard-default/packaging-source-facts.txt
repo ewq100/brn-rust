@@ -1,0 +1,51 @@
+Presentation copy: one Markdown hard-break's trailing spaces removed for repository whitespace checks. The complete original response remains in the principal orchestration record x2-two-mode-packaging-source-facts-result-20261018.txt and the task result. No source statement changed.
+
+Read-only at clean `8acffb9ee23dd24b24e0ee3b5a41a833a05850d1`. No files written, Cargo executed, delegation or heavy slot acquired.
+
+1. **Two differently sourced Xberg copies are not prohibited by Xberg’s manifest.**
+
+   Xberg1.3.10 is an `rlib`, declares no package `links`, and its build script emits cfg/build-ID information—not native link directives. The native-PDF package likewise declares `rlib`, `build=false` and no `links`. This establishes no manifest-level ban on registry-stock plus path-adapted aliases; it is **not an executed dual-copy link result**. [Xberg manifest](/private/tmp/brn-x2-remaining-formats-20261018/xberg/Cargo.toml:1022), [build script](/private/tmp/brn-x2-remaining-formats-20261018/xberg/build.rs:1), [native package manifest](/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-native-pdf-1.3.10/Cargo.toml:12).
+
+   There is a concrete shared-dependency constraint: `rayon-core1.13.0` declares `links="rayon-core"` expressly to prevent multiple Rayon-core instances. Two Xberg aliases sharing that same registry dependency do not create two Rayon-core packages; differently sourced/versioned Rayon-core copies would conflict. Its global thread pool also remains process-wide. [Manifest](/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/Cargo.toml:15), [explicit build-script explanation](/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/build.rs:1), [Xberg global initialization](/private/tmp/brn-x2-remaining-formats-20261018/xberg/src/core/config/concurrency.rs:697).
+
+   **A workspace-wide `[patch.crates-io] xberg=adapted` cannot preserve a registry-stock alias.** Renaming dependencies does not scope that patch. The existing measurement harness contains precisely this global replacement and therefore is not an isolated stock graph. The current BRN workspace itself has no `[patch]`. [Harness manifest](/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.toml:15), [root manifest](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/Cargo.toml:1).
+
+   Reproducibility detail: Xberg’s build ID uses an override or enclosing Git HEAD/diff. Two materialized copies inside the same ignored directory can inherit the same enclosing Git identity; that ID is not automatically a stock/adapted content discriminator. [Build-ID implementation](/private/tmp/brn-x2-remaining-formats-20261018/xberg/build.rs:122).
+
+2. **The same BRN helper source is mechanically reusable in separate standalone workspaces, but current source is not already the requested Stock converter.**
+
+   `brn-intake` has explicit package fields, registry dependencies, **no workspace-inherited fields, no sibling path dependency and no build script**. Its binary imports `brn_intake` and calls its public helper functions. There is no source-level requirement to duplicate the helper implementation merely to select its dependency source in separate workspace roots. Root dev/test profiles, however, are separate workspace-root inputs and would not be inherited automatically. [Intake manifest](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/Cargo.toml:1), [binary](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/bin/brn-intake-helper.rs:66), [root profiles](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/Cargo.toml:6).
+
+   Exact existing constraints:
+
+   - `helper` enables the legacy readers together with Xberg; its Xberg dependency enables only `html`. Current routing still invokes BetterOffice/MIME readers. Building this source twice changes dependency selection, not that routing. [Features/dependencies](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/Cargo.toml:7), [dispatch](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/helper.rs:80).
+   - Current helper pins mail-parser `=0.11.8`; Xberg email requires `^0.11.9`. The measured standalone graph deliberately left the BRN helper feature off and used the frozen comparator executable. It does not establish an unchanged all-eight helper build. [BRN pin](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/Cargo.toml:28), [Xberg requirement](/private/tmp/brn-x2-remaining-formats-20261018/xberg/Cargo.toml:1226), [recorded qualification](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/response.md:42).
+   - The HTML caller already changes preprocessing, autolinks and escaping, and applies its restricted admission/integrity policy. Merely supplying stock package bytes would still inherit those caller adaptations. [Caller configuration](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/helper/documents.rs:54).
+   - Request fields are only `limits`, `kind`, `bytes`; binary arguments distinguish ordinary extraction and `--prepare`. There is no converter-selection or AI-toggle field. Host schema1 validation also matches the current converter identity exactly. [Request](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/lib.rs:101), [arguments](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/bin/brn-intake-helper.rs:53), [identity check](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-threads-intake/src/lib.rs:278).
+   - Desktop discovery, bundling, signing and relocation qualification currently name **one** `brn-intake-helper`. CLI additionally accepts `BRN_INTAKE_HELPER`. CI builds and qualifies one root-workspace helper graph. [Desktop](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-desktop/src/threads_ui.rs:3572), [CLI](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn/src/main.rs:921), [bundle copy](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/scripts/make-macos-app.sh:54), [signing/relocation](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/scripts/package-macos-preview.py:85), [CI](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/.github/workflows/ci.yml:71).
+
+   Archive materialization has no manifest requirement to commit a vendor tree. `/target/` is already ignored. The published normalized `Cargo.toml` is standalone; `Cargo.toml.orig` retains upstream workspace inheritance and is not its standalone replacement. No current root build script performs this materialization. [Ignore rule](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/.gitignore:1), [original manifest](/private/tmp/brn-x2-remaining-formats-20261018/xberg/Cargo.toml.orig:1).
+
+   “Stock” also does not imply `features=["full"]`: pinned defaults are only Tokio-runtime/SIMD; Excel explicitly requires Tokio. Feature selection and explicit host security configuration remain distinct from package-source selection. [Features](/private/tmp/brn-x2-remaining-formats-20261018/xberg/Cargo.toml:289).
+
+3. **Exact accepted optional upstream bundle**
+
+   Archive1.3.10 SHA-256:
+   `f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d`
+
+   Apply in this order:
+
+   | Patch | SHA-256 |
+   |---|---|
+   | 0001 DOCX spans | `92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7` |
+   | 0003 namespaces | `e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f` |
+   | 0004 PPTX order/hidden/associations | `aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d` |
+   | 0005 DOCX comment references | `b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1` |
+
+   Combined production pin: **`ce3bce28f1e6e7393efe27cfad61f8159208d286`**, tree **`d3ffa3c20128dc8182e7cb7a6c6049a93ba7cb1d`**. Recorded reconstruction covers765 package files; nine additional tracked adjuncts are not package production material. [Bundle/source manifest](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/patches/xberg/1.3.10/0005-source-manifest.json:21).
+
+   The production union is18 files: shared `derive/mod.rs`; DOCX `drawing`, `math/{collect,elements,mod}`, `mod`, `parser`, `section`, `styles/mod`, `table/mod`, `xml_names`; PPTX `comments`, `container`, `elements`, `metadata`, `mod`, `parser`; and `extractors/docx.rs`. Exact individual hashes are retained in the selected-source manifests.
+
+   **Outside that accepted bundle:** 0007 Excel work remains unaccepted checkpoint material; PDF0002/0006 remain frozen/unaccepted and were not accessed; unfinished raw-cell/MIME/verbatim/resource/integration work is not included. Existing BRN HTML/A1 adaptations are separate root production source, pinned here by intake source tree `5e84c17df071d2f4bd9e4da4ed01f0d077a57641`, not additional upstream patches. [Comment5 acceptance](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/office1/comment5/principal-disposition.md:3), [unaccepted Excel checkpoint](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/xlsx1/release.json:2).
+
+No dual-copy compilation, new packaging qualification or implementation is claimed.

@@ -1,0 +1,113 @@
+{
+  "format": "BRN-PR159-COMBINED-CI-REPAIR-RELEASE-V1",
+  "material": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+  "recorded_utc": "2026-10-18T16:48:58.427390+00:00",
+  "global_heavy_processes": [],
+  "owned_controller_or_child_pgids_live": [],
+  "controllers_completed_and_reaped": [
+    {
+      "controller_pid": 2096,
+      "controller_pgid": 2096,
+      "child_pid": 2108,
+      "child_pgid": 2108,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248",
+      "phase": "01-cleanup-shell-parse"
+    },
+    {
+      "controller_pid": 2204,
+      "controller_pgid": 2204,
+      "child_pid": 2216,
+      "child_pgid": 2216,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248",
+      "phase": "02-focused-python"
+    },
+    {
+      "controller_pid": 2958,
+      "controller_pgid": 2958,
+      "child_pid": 2972,
+      "child_pgid": 2972,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248",
+      "phase": "03-preserved-synthetic-witness"
+    },
+    {
+      "controller_pid": 4148,
+      "controller_pgid": 4148,
+      "child_pid": 4164,
+      "child_pgid": 4164,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248",
+      "phase": "04-docs-whitespace"
+    },
+    {
+      "controller_pid": 8239,
+      "controller_pgid": 8239,
+      "child_pid": 8376,
+      "child_pgid": 8376,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248",
+      "phase": "01-fmt"
+    },
+    {
+      "controller_pid": 8522,
+      "controller_pgid": 8522,
+      "child_pid": 8621,
+      "child_pgid": 8621,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248",
+      "phase": "02-affected-cli-tests"
+    },
+    {
+      "controller_pid": 10677,
+      "controller_pgid": 10677,
+      "child_pid": 10771,
+      "child_pgid": 10771,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248",
+      "phase": "03-cli-intake-strict-lint"
+    },
+    {
+      "controller_pid": 11507,
+      "controller_pgid": 11507,
+      "child_pid": 11554,
+      "child_pgid": 11554,
+      "exit": 0,
+      "namespace": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248",
+      "phase": "04-final-docs-static"
+    }
+  ],
+  "own_controller_queries": [
+    {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/run.py",
+      "exit": 1,
+      "stdout": ""
+    },
+    {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/run.py",
+      "exit": 1,
+      "stdout": ""
+    }
+  ],
+  "inventory": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/final-process-inventory.txt",
+    "sha256": "6f6ee317772df669f01176592c2051a97b31273f082e82e88305b0a508de38cf",
+    "process_count": 756,
+    "scope": "Global process names and exact cache/Linux followup controller/child PGIDs; no environment/Auth inspection."
+  },
+  "sole_heavy": "RELEASED",
+  "no_further_heavy_work_by_worker": true,
+  "supersedes_cache_phase_retained_slot": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/release-inventory.json",
+    "sha256": "4b7721fa7d394a67926d307a3331dabcf195e0ce07453332f66394b840f31aa8"
+  },
+  "paths_released_to_parent": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248",
+    "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248"
+  ],
+  "untouched_real_generated_source": "target/xberg-adapted: no generator or cleanup was run here; all hashes unchanged.",
+  "remaining": "Parent independent inspection/push/PR watch/four required exact-head checks/merge/main CI. Linux and Windows local execution not claimed; no worker publication. Artifacts retained in parent custody."
+}

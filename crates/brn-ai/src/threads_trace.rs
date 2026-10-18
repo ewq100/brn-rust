@@ -81,6 +81,17 @@ pub struct RunTrace {
     /// Helper sub-runs started by `research` calls, in start order.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub helpers: Vec<HelperTrace>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub summary: Option<SummaryTrace>,
+}
+
+/// Separate compactor request accounting; no derived or source content.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct SummaryTrace {
+    pub outcome: String,
+    pub covered_chunks: usize,
+    pub target_chunks: usize,
+    pub usage: Option<TraceUsage>,
 }
 
 /// One helper sub-run under the same structure-only rules as its parent.
@@ -135,6 +146,7 @@ struct State {
     stopped: Option<String>,
     host_context: Option<Value>,
     helpers: Vec<HelperTrace>,
+    summary: Option<SummaryTrace>,
     retries: Vec<crate::AiFailureDetail>,
 }
 
@@ -312,6 +324,9 @@ impl TraceCollector {
         let Some(value) = value else {
             return Value::Null;
         };
+        if tool.starts_with("mcp_") {
+            return json!({"source_identity":value.get("source_identity"),"coverage":value.get("coverage"),"untrusted":true});
+        }
         match tool {
             "search_notes" => json!({
                 "total": value.get("total"), "shown": value.get("shown"),
@@ -473,6 +488,12 @@ impl TraceCollector {
         }
     }
 
+    pub(crate) fn summary(&self, summary: SummaryTrace) {
+        if let Ok(mut state) = self.state.lock() {
+            state.summary = Some(summary);
+        }
+    }
+
     pub(crate) fn finish(&self, guide: &str, search: bool, max_rounds: u16) -> RunTrace {
         let state = self.state.lock().map(|s| {
             (
@@ -486,6 +507,7 @@ impl TraceCollector {
                 s.host_context.clone(),
                 s.helpers.clone(),
                 s.retries.clone(),
+                s.summary.clone(),
             )
         });
         let (
@@ -499,6 +521,7 @@ impl TraceCollector {
             host_context,
             helpers,
             provider_retries,
+            summary,
         ) = state.unwrap_or_default();
         RunTrace {
             format: 1,
@@ -518,6 +541,7 @@ impl TraceCollector {
             helpers,
             provider_retries,
             failure: None,
+            summary,
         }
     }
 }

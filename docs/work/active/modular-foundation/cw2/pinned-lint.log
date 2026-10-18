@@ -1,0 +1,6 @@
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Checking brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 5.08s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

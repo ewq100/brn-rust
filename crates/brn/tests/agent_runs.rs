@@ -415,3 +415,312 @@ fn stub_killed_ask_leaves_a_working_run() {
     assert_eq!(all[0]["guards_writes"], false);
     assert!(runs(&root, &data, &["--state", "working"]).is_empty());
 }
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+#[test]
+fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_after_move() {
+    let root = root();
+    let data = root.workspace("data");
+    let mut script = (0..15)
+        .map(|n| {
+            tool(
+                &format!("ref{n}"),
+                "read_skill",
+                json!({"id":"installed:run-review","path":format!("references/ref{n}.md")}),
+            )
+        })
+        .collect::<Vec<_>>();
+    script.push(tool("builtin", "read_skill", json!({"id":"intake"})));
+    script.push(answer("Checked the selected instructions."));
+    script.push(answer("General context only."));
+    let stub = Stub::start(script);
+    let chat = configured(&root, &data, &stub);
+    let receipt = ok(
+        &root,
+        &data,
+        &["project-create", "--title", "Private skill scope"],
+    );
+    let project = receipt["writes"][0]["after"]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    ok(
+        &root,
+        &data,
+        &["chat-move", "--thread", &chat, "--project", &project],
+    );
+    let source = root.join("run-package");
+    std::fs::create_dir_all(source.join("references")).unwrap();
+    let mut text="---\nname: run-review\ndescription: Synthetic scoped review.\n---\nSCOPED_SELECTED_CANARY\n".to_owned();
+    for n in 0..15 {
+        std::fs::write(
+            source.join(format!("references/ref{n}.md")),
+            format!("Exact synthetic reference {n}"),
+        )
+        .unwrap();
+        text.push_str(&format!("[Reference {n}](references/ref{n}.md)\n"));
+    }
+    std::fs::write(source.join("SKILL.md"), text).unwrap();
+    let info = ok(
+        &root,
+        &data,
+        &["skill-install", "--source", source.to_str().unwrap()],
+    );
+    let digest = info["digest"].as_str().unwrap();
+    let selection = call(
+        &root,
+        &data,
+        &[
+            "skill-select",
+            "--id",
+            "installed:run-review",
+            "--project",
+            &project,
+        ],
+    );
+    assert_error(&selection, "rejected", "invalid_request");
+    assert!(stub.requests().is_empty());
+    ok(
+        &root,
+        &data,
+        &[
+            "skill-enable",
+            "--id",
+            "installed:run-review",
+            "--digest",
+            digest,
+            "--project",
+            &project,
+        ],
+    );
+    ok(
+        &root,
+        &data,
+        &[
+            "skill-select",
+            "--id",
+            "installed:run-review",
+            "--project",
+            &project,
+        ],
+    );
+    // Explicit owner inventory is global; the separately requested policy is
+    // exact scope and cannot disclose P1 enablement/selection in another scope.
+    let p2_receipt = ok(&root, &data, &["project-create", "--title", "Other scope"]);
+    let p2 = p2_receipt["writes"][0]["after"]["id"].as_str().unwrap();
+    for scope in [None, Some(p2)] {
+        let args = scope.map_or(vec!["skills"], |id| vec!["skills", "--project", id]);
+        let inventory = ok(&root, &data, &args);
+        assert!(inventory["skills"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|s| s["id"] == "installed:run-review"));
+        assert!(!inventory["policy"]
+            .to_string()
+            .contains("installed:run-review"));
+        assert!(!inventory["policy"].to_string().contains(digest));
+        let args = scope.map_or(vec!["skill-inspect", "--name", "run-review"], |id| {
+            vec!["skill-inspect", "--name", "run-review", "--project", id]
+        });
+        let inspected = ok(&root, &data, &args);
+        assert!(inspected["files"]["SKILL.md"]
+            .as_str()
+            .unwrap()
+            .contains("SCOPED_SELECTED_CANARY"));
+        assert_eq!(inspected["policy"], json!([]));
+    }
+    let result = call(
+        &root,
+        &data,
+        &[
+            "ask",
+            "--thread",
+            &chat,
+            "--prompt",
+            "Use the selected review instructions",
+            "--budget",
+            "24",
+        ],
+    );
+    assert_eq!(result["outcome"], "Completed", "{result}");
+    assert_eq!(stub.requests().len(), 17);
+    let requests = stub.requests();
+    let first = &requests[0];
+    assert!(first["messages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|m| m["role"] == "user" && m.to_string().contains("SCOPED_SELECTED_CANARY")));
+    assert!(!first["messages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|m| m["role"] == "system" && m.to_string().contains("SCOPED_SELECTED_CANARY")));
+    let listed = runs(&root, &data, &["--thread", &chat]);
+    assert_eq!(listed.len(), 1);
+    assert_eq!(listed[0]["loaded_skill_details_total"], 17);
+    assert_eq!(listed[0]["loaded_skill_details_omitted"], 1);
+    assert_eq!(
+        listed[0]["loaded_skill_details"].as_array().unwrap().len(),
+        16
+    );
+    assert!(listed[0]["guide_identity"]
+        .as_str()
+        .unwrap()
+        .starts_with("brn-threads-guidance-14:"));
+    assert!(listed[0]["loaded_skill_details"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|d| d["project"] == project && d["package_digest"] == digest));
+    ok(
+        &root,
+        &data,
+        &["skill-remove", "--name", "run-review", "--digest", digest],
+    );
+    assert_eq!(
+        runs(&root, &data, &["--thread", &chat])[0]["loaded_skill_details"],
+        listed[0]["loaded_skill_details"],
+        "historical permitted identity does not need local bytes"
+    );
+    ok(
+        &root,
+        &data,
+        &["chat-move", "--thread", &chat, "--project", "none"],
+    );
+    let moved = runs(&root, &data, &["--thread", &chat]);
+    assert_eq!(moved[0]["loaded_skill_details"], json!([]));
+    assert_eq!(moved[0]["loaded_skill_details_total"], 0);
+    assert_eq!(moved[0]["loaded_skill_details_omitted"], 0);
+    let serialized = moved[0].to_string();
+    assert!(!serialized.contains("run-review"));
+    assert!(!serialized.contains("references/ref"));
+    assert!(!serialized.contains(digest));
+    let general = ask(&root, &data, &chat);
+    assert_eq!(general["outcome"], "Completed");
+    let last = stub.requests().pop().unwrap();
+    assert!(!last.to_string().contains("SCOPED_SELECTED_CANARY"));
+    assert!(!last.to_string().contains("installed:run-review"));
+}
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+#[test]
+fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_contact() {
+    let root = root();
+    let data = root.workspace("original");
+    let stub = Stub::start(vec![answer("MUST_NOT_DISPATCH")]);
+    let chat = configured(&root, &data, &stub);
+    let note = id(&ok(
+        &root,
+        &data,
+        &[
+            "note-create",
+            "--title",
+            "Retained work",
+            "--text",
+            "CANONICAL_SKILL_RECOVERY_POSITIVE",
+        ],
+    ));
+    let source = root.join("restore-package");
+    std::fs::create_dir(&source).unwrap();
+    std::fs::write(source.join("SKILL.md"),"---\nname: restore-review\ndescription: Synthetic restored selection.\n---\nLOCAL_INSTRUCTION_BYTES_CANARY\n").unwrap();
+    let package = ok(
+        &root,
+        &data,
+        &["skill-install", "--source", source.to_str().unwrap()],
+    );
+    let digest = package["digest"].as_str().unwrap();
+    ok(
+        &root,
+        &data,
+        &[
+            "skill-enable",
+            "--id",
+            "installed:restore-review",
+            "--digest",
+            digest,
+        ],
+    );
+    ok(
+        &root,
+        &data,
+        &["skill-select", "--id", "installed:restore-review"],
+    );
+    let canonical = ok(&root, &data, &["settings"]);
+    let backup = root.join("skill-backup.sqlite3");
+    ok(
+        &root,
+        &data,
+        &["backup", "--destination", backup.to_str().unwrap()],
+    );
+    let restored = root.join("restored");
+    ok(
+        &root,
+        &restored,
+        &["restore", "--source", backup.to_str().unwrap()],
+    );
+    assert!(!restored.join("skills").exists());
+    assert_eq!(ok(&root, &restored, &["settings"]), canonical);
+    let before = ok(&root, &restored, &["read", "--id", &note]);
+    let result = ask(&root, &restored, &chat);
+    assert_error(&result, "failed", "unavailable");
+    assert_eq!(result["error"]["message"],"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
+    assert!(
+        stub.requests().is_empty(),
+        "no auth, summary or chat dispatch"
+    );
+    assert_eq!(ok(&root, &restored, &["settings"]), canonical);
+    assert_eq!(ok(&root, &restored, &["read", "--id", &note]), before);
+    assert!(runs(&root, &restored, &[]).is_empty());
+}
+
+#[test]
+fn every_packaged_builtin_can_be_explicitly_selected_and_is_actually_delivered() {
+    let root = root();
+    let data = root.workspace("builtins");
+    let ids = [
+        "intake",
+        "maintain-notes",
+        "resolve-conflict",
+        "prepare-reply",
+    ];
+    let texts = [
+        include_str!("../../../agent/skills/intake/SKILL.md"),
+        include_str!("../../../agent/skills/maintain-notes/SKILL.md"),
+        include_str!("../../../agent/skills/resolve-conflict/SKILL.md"),
+        include_str!("../../../agent/skills/prepare-reply/SKILL.md"),
+    ];
+    let stub = Stub::start(
+        ids.iter()
+            .map(|_| answer("Builtin guidance considered."))
+            .collect(),
+    );
+    let chat = configured(&root, &data, &stub);
+    for (n, id) in ids.iter().enumerate() {
+        ok(&root, &data, &["skill-select", "--id", id]);
+        let result = ask(&root, &data, &chat);
+        assert_eq!(result["status"], "ok", "{result}");
+        assert_eq!(stub.requests().len(), n + 1);
+        assert!(
+            stub.requests()[n]["messages"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|m| m["role"] == "system"
+                    && m["content"]
+                        .as_array()
+                        .is_some_and(|parts| parts.iter().any(|part| part["type"] == "text"
+                            && part["text"]
+                                .as_str()
+                                .is_some_and(|text| text.contains(texts[n]))))),
+            "{id}: exact selected body absent from actual system text blocks"
+        );
+        let saved = runs(&root, &data, &["--thread", &chat]);
+        assert!(saved.iter().any(|r| r["loaded_skill_details"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|d| d["id"] == *id && d["origin"] == "builtin" && d["file"] == "SKILL.md")));
+    }
+}

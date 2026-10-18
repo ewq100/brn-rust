@@ -1,0 +1,79 @@
+**CHANGES_REQUIRED — one P2 blocker in the new paragraph-reference map’s lifecycle.** The ordinary XML-versus-literal correction is sound, but discarded paragraph references can leak onto another emitted paragraph.
+
+Reviewed clean checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161`:
+
+- Branch: `work/x2-office-prep-20261018`
+- HEAD: `d1fe4fd594d5e832fef55eefc5a3d8954089f0bd`
+- Tree: `dfe45fd20f5db78dab3e86e977931657e4cc67bc`
+- Baseline: `c4b4b12abe2794a43a8071a337b9e2af99385d81`
+- Cached `origin/main`: `57c710ccec2b007c4d8a25c9f1d1b5c1c539907c`; no fetch.
+- 0005 SHA-256: `1ad26162df6da822227351d4057c19935bc39af86baf580e77ea5d86cffea776`
+- Final Xberg: `cf7ae27165613a7e1e2dd3580bb110202a09792c`, tree `5451c1a9cf3c7c5edf596d30a972873c0dfbfff5`
+- Before/final harness tree: `cc3dca481b695035481ae52d870e2de5da9ec6fb`
+
+**P2 — references survive replacement of their owning paragraph.**
+
+The new capture at [parser.rs:3002](/private/tmp/brn-x2-docx-comment5-20261018/final/xberg/src/extraction/docx/parser.rs:3002) immediately stores IDs under `current_paragraph_index`. At [parser.rs:2613](/private/tmp/brn-x2-docx-comment5-20261018/final/xberg/src/extraction/docx/parser.rs:2613), another paragraph start replaces `current_paragraph` and reuses `out.paragraphs.len()`, without discarding that index’s pending comment IDs.
+
+For this well-formed XML fragment inside the document body, with comment definition 7 present:
+
+```xml
+<w:p>
+  <w:r><w:commentReference w:id="7"/></w:r>
+  <w:p><w:r><w:t>Kept paragraph</w:t></w:r></w:p>
+</w:p>
+```
+
+Static execution tracing establishes:
+
+1. The outer paragraph records comment 7 under index 0.
+2. The inner paragraph replaces the outer paragraph, still using index 0.
+3. Closing the inner paragraph commits `"Kept paragraph"` as paragraph 0; the outer paragraph’s runs have been discarded.
+4. The exporter’s new lookup at [docx.rs:287](/private/tmp/brn-x2-docx-comment5-20261018/final/xberg/src/extractors/docx.rs:287) attaches comment 7 to `"Kept paragraph"`.
+
+Before 0005, the emitted paragraph contains no marker and receives no comment relationship. Thus this is a new misassociation from retained map state on malformed Word structure admitted by the existing parser. It violates the allocated paragraph-local identity requirement.
+
+The smallest remedy is to discard the new map entry when an active body paragraph is replaced at the same pending index, so abandoned IDs cannot belong to its replacement. Add a source-authored public regression asserting the retained paragraph has no comment relationship while the definition remains. This correction can stay within the two allocated files and the existing event vocabulary. It does not require general malformed-document fidelity work.
+
+This finding is source-traced, **not independently executed**, consistent with the review’s prohibition on tests and probes.
+
+**Other correctness and scope findings**
+
+The complete production delta is exactly two files, **14 additions / 9 deletions**. It introduces no public DTO/schema, dependency, generic location framework or BRN routing change.
+
+For ordinary paragraph structure, ownership is coherent: capture uses the paragraph vector’s index, and export uses that same index rather than an emitted-node counter. Empty-paragraph omission and page-break elements do not shift it. Actual marker rendering makes marker-bearing paragraphs nonempty. Heading, list and existing relationship derivation preserve their demonstrated source mappings.
+
+The map’s per-paragraph vectors preserve encounter order and repeated IDs; no hash-map iteration controls export order. Existing `cmt{id}` keys, empty-ID guard, CommentRef machinery, definition ordering and public FootnoteReference relationship class remain intact. Literal, split-run and escaped authored text no longer supplies semantic authority.
+
+Namespace classification remains URI-aware, with qualified Word IDs required. Table capture is excluded; only the main-document map reaches `Document`. Header/footer/note/comment parses use separate local outputs, so their maps cannot become main-body references. Their existing association gaps remain open.
+
+I independently confirmed byte-identical flat comment validation and typed-note event blocks, plus unchanged ordered parser budget expressions. Rendering, definitions/orphans and error propagation are outside the production delta. The added map consumes additional storage; unchanged budget calls do not establish heap or total-work bounds.
+
+**Tests and retained evidence**
+
+I inspected the complete 651-line driver and its assertions. The retained identical-driver executions establish **before 5 passed / 7 failed → final 12 passed / 0 failed**, with zero ignored or filtered tests.
+
+Assertions substantiate exact literal wording, real relationship counts/targets/pages, heading Group and ListItem sources, four ordered repeated-reference relationships, distinct footnote/endnote targets, exact missing-definition warnings, namespace positives/negatives, non-body exclusion and the complete page-boundary node sequence.
+
+The 12 tests produce 15 final source vectors. All 13 common before/final input vectors are byte-identical. The before namespace test stops at its canonical failure; final executes all three variants.
+
+Independent retained-data comparisons confirmed:
+
+- **30 complete legacy JSON values equal**
+- **24 legacy DOCX input vectors equal**
+- **86 complete order4 JSON values equal**
+- Exact authored bold annotation at bytes **9–13**, before and final
+
+The retained unchanged regression targets report **25/0** and **21/0**. Strict all-target harness Clippy passes. Compiler errors E0658/E0507 remain separately recorded. Attempt 04’s **11/1** failure was the omitted PageBreak index assertion: I confirmed unchanged production source and the subsequent stronger complete-sequence assertion.
+
+**Custody and qualifications**
+
+All nine command receipt/raw-log hashes matched their pins. Selected source snapshots matched the fixed before/final sources. I verified eight selected executable/library/dep-info bindings, including actual files and retained content-addressed copies. Compiler records and recorded working directories associate them with the expected harness and Xberg roots.
+
+Actual before/final/Clippy registry identity/feature unions match accepted order4: **239 identities**, with normal-dependency Xberg using `html/notebook/office` and test profile false. The accepted regression drivers and harness lock are unchanged; the manifest delta is only test registration.
+
+Independent in-memory reconstruction from the hashed cached archive and 0001 → 0003 → 0004 → 0005 matched all **765 package files**; nine archive-external adjuncts remain unchanged. Nine committed delivery-file hashes and the root lock also match. This is a meaningful independent subset, not a repetition of the parent’s complete custody audit.
+
+Broader comment metadata, non-body associations/locators, annotation/layout/table/rendering/OCR/chart fidelity, XML/DTD/read-set/preallocation/heap/repeated-work/resource containment, restricted runtime, license custody, root adoption and all-eight retirement remain open. Order4’s deferred invalid-show assertion remains deferred. Carried PDF/SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications are unchanged.
+
+No files or reports were written. No Cargo, metadata, builds, tests, lint, project executables, network/provider/Auth, GUI, mutants, polling or delegation ran. The frozen PDF task was not inspected. This report makes no acceptance, integration, runtime-cutover or merge claim.

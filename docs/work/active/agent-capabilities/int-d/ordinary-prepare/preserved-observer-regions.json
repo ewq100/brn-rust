@@ -1,0 +1,10 @@
+{
+  "const CAPTURE_PREFIX:": {
+    "unchanged": true,
+    "sha256": "dfc59eddd397313257aeae69c486ce1c69be46b01ab5c546de10674f4dd586e7"
+  },
+  "#[test]\nfn capture_projection_": {
+    "unchanged": true,
+    "sha256": "2ba4a229970e881d64e69e4abf9a41afa450cc3edda0a377bda5c7fd148ef89f"
+  }
+}

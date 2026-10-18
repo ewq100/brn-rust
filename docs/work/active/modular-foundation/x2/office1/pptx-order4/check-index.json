@@ -1,0 +1,363 @@
+{
+  "schema": "pptx-order4-check-index/1",
+  "checks": [
+    {
+      "label": "01-before-initial",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/01-before-initial/receipt.json",
+      "receipt_sha256": "dbdcd3605e37b7a9395e2761b0a1c190a13902fd3e05f08f69493d45d739070a",
+      "raw_log_sha256": "df4e3c02db3b90341f64ac6131c2bd0eb4c3936a30ee2eb8f94c05626216a715",
+      "exit_code": 101,
+      "test_summary": [],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "02-before-behavior",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/02-before-behavior/receipt.json",
+      "receipt_sha256": "b09565f08f709df0f6857f3e9c804838e292cd6c9a0ad3b00fc8a2eece1fba1b",
+      "raw_log_sha256": "66941b79a698d538bacfe337ea1549a05da1b6035ddc32e33a6fade8c1619420",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 0 passed; 14 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "03-before-corrected-projection",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/03-before-corrected-projection/receipt.json",
+      "receipt_sha256": "34521e89a59b3244f291333b78929645c32183cc561d9116fedfea690013d4e0",
+      "raw_log_sha256": "aca9c092932c01ec3bbb36d12c3d098234eab810883ff5051610d15b1cd332d1",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 12 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "05-before-association-controls",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/05-before-association-controls/receipt.json",
+      "receipt_sha256": "18ba2c3b04c9187e01289a06900f8892100c45dcb3c04fe4270024aa5aa6b797",
+      "raw_log_sha256": "620b0f1e7654fa66884fb2b280ded61b9b87973b025a27ae3935da4deb627493",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "06-before-frozen-driver",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/06-before-frozen-driver/receipt.json",
+      "receipt_sha256": "2c2e2b04054ec5b59c34740d6b0065afcaba20d05fb5ac39b75b27f5d2475e44",
+      "raw_log_sha256": "6c85b0fefb4d820ab9e9822006ede34146118a416c4a1bd1f9ed89ee9caccc6b",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 16 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "07-final-initial",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/07-final-initial/receipt.json",
+      "receipt_sha256": "2e3c48385f1d4932cf05f465826098fd037bd928b59f81aefa372f0dbed56112",
+      "raw_log_sha256": "42042affc78fd7cc891aac615c85201e3f1cdddd535c774559e612003b3aa6ef",
+      "exit_code": 101,
+      "test_summary": [],
+      "target": "pptx_order",
+      "phase": "final"
+    },
+    {
+      "label": "08-before-recovery-boundary",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/08-before-recovery-boundary/receipt.json",
+      "receipt_sha256": "6466c22b2407a5256ee38e9c9eb4c849058fbd57790843aab683e200644667ac",
+      "raw_log_sha256": "fc1cbcc0f2001ea579068eef21621ead0c7d1efce2c2ad06098649e6ab566654",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 18 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "09-final-checked-recovery",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/09-final-checked-recovery/receipt.json",
+      "receipt_sha256": "3edb5c7597a596ec36471130ea14900c83ceeb9e2afe8cfc7f010dba326b0ac6",
+      "raw_log_sha256": "32d60665b298dcca5102759db0b2a2a17f5aa64d597d68b7bd4c8229aa9450e0",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 18 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      ],
+      "target": "pptx_order",
+      "phase": "final"
+    },
+    {
+      "label": "10-before-final-driver",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/10-before-final-driver/receipt.json",
+      "receipt_sha256": "c95a60d6a9e872eb9768332a2290c6afb4beddba741d17643f34eb71cb413cba",
+      "raw_log_sha256": "ede07a140a9e3d9d897ff9f8042c42623e7c4123f23c934676086471b2278abe",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 19 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "11-final-unqualified",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/11-final-unqualified/receipt.json",
+      "receipt_sha256": "2b3e72e9c3fbec52e375c1eb2da0ffcbfb2429fc14b832629b668977d6873287",
+      "raw_log_sha256": "9fa101a0c9ef06978a99a9cbd08900cba1c0fd2b75c0459434b3b86b9681c708",
+      "exit_code": 0,
+      "test_summary": [
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+      ],
+      "target": "pptx_order",
+      "phase": "final"
+    },
+    {
+      "label": "12-before-exact-final-driver",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/12-before-exact-final-driver/receipt.json",
+      "receipt_sha256": "f5722495fad8674db0d81179e2e25cef59c050b7c5daeb65f0e6d993a5d7ddae",
+      "raw_log_sha256": "1e95b3afc46b8392fe55a511522d895ecb7c2462e17cd557422fd923087cc200",
+      "exit_code": 101,
+      "test_summary": [
+        "test result: FAILED. 2 passed; 19 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      ],
+      "target": "pptx_order",
+      "phase": "before"
+    },
+    {
+      "label": "13-final-exact-driver",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/13-final-exact-driver/receipt.json",
+      "receipt_sha256": "bf3353194c9d11b77f0f72ecd87461d3f7e44fcf780146af54113d5d3ed3f9eb",
+      "raw_log_sha256": "c96989b3f722e66a54616afec54b03a473a2602d0c5210cb7d5e90308540d539",
+      "exit_code": 0,
+      "test_summary": [
+        "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+      ],
+      "target": "pptx_order",
+      "phase": "final"
+    },
+    {
+      "label": "14-final-namespace-regression",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/14-final-namespace-regression/receipt.json",
+      "receipt_sha256": "d92e17dc51ec1d3252f6381ea38239d51b57f774ef7328c8efb048cbe368cff1",
+      "raw_log_sha256": "e4ef518cde91b4ca7442e78ca6c81ab7e08f7427a81a4d33ec11401f67ba51be",
+      "exit_code": 0,
+      "test_summary": [
+        "test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s"
+      ],
+      "target": "namespaces",
+      "phase": "final"
+    },
+    {
+      "label": "15-clippy",
+      "receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/15-clippy/receipt.json",
+      "receipt_sha256": "d195ff152894122434dfcfde6e392631ca69bf4c6c891b19b89a389024b425b3",
+      "raw_log_sha256": "18885088cc20804b6a295bbfa905003f39d5689a740f4120519459d74fe1dd12",
+      "exit_code": 0,
+      "test_summary": [],
+      "target": "clippy --all-targets -D warnings",
+      "phase": "final"
+    }
+  ],
+  "new_test_outcomes": [
+    {
+      "test": "o2_alias_default_and_relationship_namespace",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_boolean_lexemes_and_foreign_attribute",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_comments_follow_actual_slide_relationship",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_empty_present_sequence_never_sweeps",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_empty_real_comment_part_preserves_presence",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_external_foreign_and_duplicate_relationships_refuse",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_foreign_declaration_not_a_presentation",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_harbor_valid_source_control",
+      "before": "ok",
+      "final": "ok",
+      "classification": "preserved_positive_control"
+    },
+    {
+      "test": "o2_invalid_relationship_identity_never_fabricates_content",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_missing_presentation_preserves_numeric_recovery",
+      "before": "ok",
+      "final": "ok",
+      "classification": "preserved_positive_control"
+    },
+    {
+      "test": "o2_missing_presentation_relationship_recovery_is_checked",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_missing_slide_part_warns_without_index_shift",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_nonnumeric_declared_sequence_excludes_unreferenced",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_opc_foreign_attribute_names_do_not_supply_authority",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_optional_metadata_absent_orphans_excluded",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_optional_metadata_invalid_relationships_never_bind",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_owned_notes_nonnumeric_targets",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_page_limit_counts_declared_including_hidden",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_present_broken_declaration_never_recovers_numerically",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_quay_declared_order_and_hidden",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    },
+    {
+      "test": "o2_quay_notes_follow_declared_slide",
+      "before": "FAILED",
+      "final": "ok",
+      "classification": "compiled_behavior_gap_corrected"
+    }
+  ],
+  "regression": {
+    "namespace_s3_tests": 25,
+    "passed": 25,
+    "old_driver_bytes_unchanged": true,
+    "whole_legacy_values_equal": 30,
+    "docx_inputs_equal": 24,
+    "comparison_receipt": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/compatibility.json",
+    "comparison_sha256": "bd3fba861d642d7b133468d80adcba01ac3d400ebd96b628ab70e799e70fbff4"
+  },
+  "static_receipts": {
+    "reproduction": {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/reproduction.json",
+      "sha256": "be6d1063037afde63c227a9c092985ca138ec56c8085b55f2bafdc0a80d95450"
+    },
+    "source_graph_artifacts": {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/source-artifact-audit.json",
+      "sha256": "c8016aa091ae99c0e7425df93236f86a38f7c906b2d11c227422e2a6db3d02af"
+    },
+    "source_inventory": {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/source-inventory-crosscheck.json",
+      "sha256": "54d63fdfb8617afbf2f66e87b8cd987254972a75f4e4e6f76aa9889ef75592c5"
+    },
+    "heavy_release": {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/heavy-release-inventory.json",
+      "sha256": "04373d21d9dcd06772d64f29ff96ddb710e48ac284ec021df59dca2d5d0078fa"
+    },
+    "formatting_and_initial_doclinks": {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/static-checks.json",
+      "sha256": "30504cbd1f1de42b413dba965132d71f52f3c627bb529c2ce10df6c976595682",
+      "doclinks_initial_failure": "Expected release.json not yet written and one relative path depth typo; original log retained, final result recorded separately."
+    }
+  },
+  "static_script_attempts_preserved": [
+    "04-uncompiled-format-attempt: no compilation; original formatting restored and narrow patch re-exported",
+    "reproduce-initial-failure.json: checker included nine archive-external accepted adjuncts; first reproduction root retained",
+    "audit-evidence-initial-failure.json: local receipt variable shadowing; no behavioral failure"
+  ],
+  "external_scripts": [
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/run_lane.py",
+      "sha256": "c78493f62b35d356eebea519b82b42173648060b8ee89e901a5af06d55a8b9e6"
+    },
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/check_compatibility.py",
+      "sha256": "7de59f7a1fe749f6b0e395c97806eaf3ebdcc7fac10e356957311654f915c6b5"
+    },
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/reproduce_patch.py",
+      "sha256": "14b4d104f3badeab9ec4a4f35a7a72f88da36c62ff2619557f30bf62a9d6071d"
+    },
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/source_inventory.py",
+      "sha256": "3b8c845e3ff2fb3c22753048859c6b776c7029ea44f9452015be6c4a9103e491"
+    },
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/audit_evidence.py",
+      "sha256": "b6f511936a03b4266064f746e95f99f8270b66f4ae78819f9fa1e53fc1e1d366"
+    },
+    {
+      "path": "/private/tmp/brn-x2-pptx-order4-20261018/inventory.py",
+      "sha256": "ea3eb546b24c9b23b791bbf2274178715e31426c559192d7cbc62d415e2a3ac0"
+    }
+  ],
+  "verification_qualifications": [
+    "Strict all-target HARNESS Clippy; Xberg compiled as normal dependency, not full upstream lint or cfg(test).",
+    "No RSS/time/security-bound qualification, native-PDF execution, root BRN adoption or full all-eight parity."
+  ],
+  "full_argv_and_snapshots": "Every indexed immutable receipt includes complete argv/environment/Git/source hashes; sibling raw.log, source/, compiler-messages.json, before-artifacts.json and after-artifacts.json preserve raw material."
+}

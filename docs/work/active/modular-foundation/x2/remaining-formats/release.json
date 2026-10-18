@@ -1,0 +1,28 @@
+{
+  "schema": "remaining-format-release/1",
+  "status": "MEASURED_UNMET_GATES_FROZEN_FOR_PARENT_REVIEW",
+  "heavy_released_utc": "2026-10-18T05:39:51Z",
+  "heavy_inventory": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/heavy-release-inventory.json",
+    "sha256": "c5b5672443fe2a78b45e9119c03dfc23e8d7e7b4d3d0c6cba1b5f9e2ef88f415",
+    "count": 0
+  },
+  "all_sessions_controllers_compilers_tests_helper_children_reaped": true,
+  "all_owned_paths_released_on_clean_frozen_handoff": [
+    "docs/work/active/modular-foundation/x2/remaining-formats/requirements.txt",
+    "docs/work/active/modular-foundation/x2/remaining-formats/corpus.json",
+    "docs/work/active/modular-foundation/x2/remaining-formats/driver.rs",
+    "docs/work/active/modular-foundation/x2/remaining-formats/response.md",
+    "docs/work/active/modular-foundation/x2/remaining-formats/check-index.json",
+    "docs/work/active/modular-foundation/x2/remaining-formats/source-pin.json",
+    "docs/work/active/modular-foundation/x2/remaining-formats/handoff.md",
+    "docs/work/active/modular-foundation/x2/remaining-formats/release.json"
+  ],
+  "external_roots_targets_sources_artifacts_preserved_released": "/private/tmp/brn-x2-remaining-formats-20261018",
+  "no_next_slice_started": true,
+  "production_root_graph_old_sources_oracles_unchanged": true,
+  "encrypted_PDF": "Explicitly Deferred; clear unsupported outcome required but not implemented/verified",
+  "non_encrypted_PDF": "Required; component/regression/fidelity/cutover remain pending",
+  "all_other_semantic_resource_runtime_license_all8_and_carried_gates_open": true,
+  "postcommit_identity": "External evidence/final-repo-pin.json after actual commit creation."
+}

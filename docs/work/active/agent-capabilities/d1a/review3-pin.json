@@ -1,0 +1,10 @@
+{
+  "pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+  "tree": "18f7abf2dc76ff7e623486ef062ae7c9af9a7108",
+  "crates_tree": "3aa58760b268a20302ddabf449da9e0625704150",
+  "clean_at_pin": true,
+  "parent": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "precommit_source_association": "review3-source-association.json",
+  "epoch": 1792184878.6360168,
+  "actual_material_delta_sha256": "6e5d5e55736377c9d9632643b6537267b820ac570afd906f9d77d62d6fec57f7"
+}

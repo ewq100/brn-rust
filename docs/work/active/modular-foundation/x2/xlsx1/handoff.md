@@ -1,0 +1,13 @@
+# Owner-scope checkpoint — stopped, uncommitted
+
+Owner now wants standard Xberg conversion as the default for all eight formats, with our thin/adapted layer optional; the optional-mode definition is pending. This steering supersedes the former delivery sequence. No normal-default task, further custom fix, review, adoption or rollback is started.
+
+Stopped at the next safe boundary: the in-flight static-check command finished and reaped with exit0. No further Cargo, production edits or new checks followed. Only this requested checkpoint, exact process/source-state inspection and stop documentation were produced. Earlier delivery drafts are retained as WIP; their prospective clean-commit/review language does not imply completion or acceptance.
+
+Root remains `50f469f8d2925b8615ede099b1106cda558a5885`, tree `03fcc93fffb4dd82e011fd4a0bf9d80ea4473f50`, branch `work/x2-office-prep-20261018`. There is **no new material commit**. The12 staged new paths are preserved exactly in external `evidence/owner-scope-stop-20261018/boundary-staged.diff` and `boundary-files/`; the boundary working diff was empty. This handoff and release now add documentation-only unstaged changes recording the stop. Production source/patch/test material is unchanged at the boundary and remains **unaccepted optional work**.
+
+Scratch Xberg `33da0434a104ddf253801e7db9638cf0e8b45b3b`, tree `8ae13438dfa237e6cc79a951ecbea51a76ef0ee0`; Excel SHA `c7987cfbfcc0820be739066aadc854d69b93fa287a2b68736fce99fd2add0cc9`. Harness `07ab11b5a25a1500e5fe8c096624626597338658`, tree `1f8029d79b7499d5fd7f9cde8484decbe42c2149`. Both scratch Git roots are clean. Existing before/final source snapshots, every failed attempt, binaries/rlib/.d, full captures, logs and content-addressed artifact objects remain preserved under `/private/tmp/brn-x2-xlsx-references1-20261018`. The complete stop state is external `evidence/owner-scope-stop-20261018/boundary-state.json`.
+
+Last completed results: before10controls4/6; minimal10controls9/1 (GettingData still failed); unchanged29-measurement14/15; strict harness lint and the already-running static command exit0. These are historical boundary results, not acceptance or full-format parity. No remaining gap was fixed after steering. Existing scope/qualification records remain source-qualified; optional-mode semantics and canonical-plan/default implementation await principal/owner clarification. Frozen PDF stayed untouched.
+
+**SOLE HEAVY and ALL paths are released.** Exact boundary process inventory contains0 heavy processes; all own Cargo/test/helper/runtime children/controllers are reaped. Sources/targets/evidence are retained, with no cleanup, source destruction, publication or follow-on work.

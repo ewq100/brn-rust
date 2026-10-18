@@ -117,6 +117,7 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState, progress
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.into(),
@@ -347,6 +348,7 @@ fn resume_queue_names_the_waiting_messages_while_the_pending_reply_may_still_run
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
                                 instruction: pending.message.clone(),
                                 queue_claim: pending.dispatch.clone(),
                                 thread: thread.into(),
@@ -585,6 +587,8 @@ fn a_saved_working_reply_stops_only_through_its_confirming_dialog(cx: &mut TestA
 #[gpui_kit::test]
 fn a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note(cx: &mut TestAppContext) {
     use polish_tests::{fixture, on_window, record_rewrite_run, update};
+    // Control real-time dialog entrance motion while testing confirmation behavior.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx, 1250., 860., "Saved text for a rewrite.");
     let thread = update(cx, &f, |view, window, cx| {
         let thread = view.workspace.new_thread("Rewrite chat").unwrap().id;

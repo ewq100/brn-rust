@@ -1,0 +1,348 @@
+{
+  "pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+  "baseline": "PASS393/0/1",
+  "mutants": [
+    {
+      "id": "final:post-apply-full-output",
+      "source_pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "file": "crates/brn-ai/src/threads.rs",
+      "outcome": "Caught",
+      "diff_sha256": "654704c9d38f8b0f633c42e7d7689855507cce870b0a74b618c2f18ecf186bc0",
+      "mutated_source_sha256": "04f2bc2c4d78ff3a0f9422a0b88b01194c898a41cf05722975f2ae498e12e0fc",
+      "build": {
+        "label": "post-apply-full-output-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "--no-run"
+        ],
+        "started_elapsed": 76.70016193389893,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 21838,
+        "exit_code": 0,
+        "status": "Success",
+        "ended_elapsed": 88.29708313941956,
+        "log_sha256": "23ed4016b97110df80dc5e1799eda5dd0732f664db606c5a788d30668df55ec0"
+      },
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "1baf645b29de2e261b4cd1c8d2a0f43cb3939b02e5c0dc0f422492930a5c6c42"
+        },
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "f165888deb73b7cb6ef1b9a4add1d3e706f18ad430ed1cb5df932eda2728ea37"
+        }
+      ],
+      "test": {
+        "label": "post-apply-full-output-test",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib"
+        ],
+        "started_elapsed": 88.3098349571228,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22171,
+        "exit_code": 101,
+        "status": "Failure",
+        "ended_elapsed": 92.92874097824097,
+        "log_sha256": "cc4191a12d879fe0b2a119397b3fd81db96ab03a60c79e8cdbf99bdff89a8184"
+      },
+      "failing_tests": [
+        "test threads::budget_tests::large_committed_apply_delivers_compact_receipt_and_continues_model_loop ... FAILED",
+        "test threads::budget_tests::overflowing_compact_metadata_acknowledges_exact_identity_and_omissions ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "final:ack-refresh-omitted-count",
+      "source_pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "file": "crates/brn-ai/src/threads.rs",
+      "outcome": "Caught",
+      "diff_sha256": "9a2cfeac264bbe40f3ce7810790a4eb1a59e498c0d7f356e768c82c30396b071",
+      "mutated_source_sha256": "c8bfcb00668bf95be64b8fb3ab05c1021a28b4ec858c62ab9c51c5909dcf24f8",
+      "build": {
+        "label": "ack-refresh-omitted-count-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "--no-run"
+        ],
+        "started_elapsed": 92.93482422828674,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22255,
+        "exit_code": 0,
+        "status": "Success",
+        "ended_elapsed": 103.63249921798706,
+        "log_sha256": "66aa65481f51bfc71569617272af2c903a2a881fed0ef2a2db62d36a279fb798"
+      },
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "c421e18d677eb15a3e4d8f60756b4901a148508ee6e0e0399fcd02d813863ea3"
+        },
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "f165888deb73b7cb6ef1b9a4add1d3e706f18ad430ed1cb5df932eda2728ea37"
+        }
+      ],
+      "test": {
+        "label": "ack-refresh-omitted-count-test",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib"
+        ],
+        "started_elapsed": 103.64542412757874,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22629,
+        "exit_code": 101,
+        "status": "Failure",
+        "ended_elapsed": 108.16000986099243,
+        "log_sha256": "eb6f851d2fa5b41301f2961314bd777724fa11a785ea08a55ae3cf8280a08fbf"
+      },
+      "failing_tests": [
+        "test threads::budget_tests::overflowing_compact_metadata_acknowledges_exact_identity_and_omissions ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "final:source-offset",
+      "source_pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "file": "crates/brn-ai/src/threads_sources.rs",
+      "outcome": "Caught",
+      "diff_sha256": "602ed988e1bcf12e33e1f14e390798f7b627196e905ce496cec3d719bd9dfa8e",
+      "mutated_source_sha256": "45b1e43f97f25221764fc12cfc4b7309a1823525c88684263f22abb339d01d59",
+      "build": {
+        "label": "source-offset-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "--no-run"
+        ],
+        "started_elapsed": 108.16447710990906,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22684,
+        "exit_code": 0,
+        "status": "Success",
+        "ended_elapsed": 117.7174220085144,
+        "log_sha256": "3f1a83d1c18c8a294ce80eb88b10e3b6a3ec3ebc4663416814d440092213d755"
+      },
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "1b57f913528452e4449815b791314cacc142a7428ec6a01eea24eb36e48fe3df"
+        },
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "f165888deb73b7cb6ef1b9a4add1d3e706f18ad430ed1cb5df932eda2728ea37"
+        }
+      ],
+      "test": {
+        "label": "source-offset-test",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib"
+        ],
+        "started_elapsed": 117.7307620048523,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22733,
+        "exit_code": 101,
+        "status": "Failure",
+        "ended_elapsed": 122.10139989852905,
+        "log_sha256": "415bcc9eb1d8440067505f7c86cda83f4d3f00896253feacb228a2bde9498a4f"
+      },
+      "failing_tests": [
+        "test threads::budget_tests::escaped_source_pages_exactly_in_actual_model_loop_without_claiming_whole_read ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "final:section-end",
+      "source_pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "file": "crates/brn-ai/src/threads.rs",
+      "outcome": "Caught",
+      "diff_sha256": "77f52f67744015fc92f7ca7497665e36c5b56f2c6731287238170e1e829f5731",
+      "mutated_source_sha256": "8088c4515d1acf904d34e0ea79065db853a3b740c84e191090a0db502f6c886f",
+      "build": {
+        "label": "section-end-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "--no-run"
+        ],
+        "started_elapsed": 122.11128807067871,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22805,
+        "exit_code": 0,
+        "status": "Success",
+        "ended_elapsed": 131.9851438999176,
+        "log_sha256": "2f5935065d530f4f6a0b7d314a43b4c7bf8133235e014d8bfd149ab31a8e5757"
+      },
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "6daf6f4f2d0e0864ede757b2571e740494394c2e3b84f23786fdd7fb64bde19d"
+        },
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "f165888deb73b7cb6ef1b9a4add1d3e706f18ad430ed1cb5df932eda2728ea37"
+        }
+      ],
+      "test": {
+        "label": "section-end-test",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib"
+        ],
+        "started_elapsed": 132.00005912780762,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22899,
+        "exit_code": 101,
+        "status": "Failure",
+        "ended_elapsed": 136.39961218833923,
+        "log_sha256": "24c684f10c2b00418dbf9ad535a6bc805fb45c60731f25968278cdaf070eedc1"
+      },
+      "failing_tests": [
+        "test threads::budget_tests::nonlast_section_next_start_honors_core_end_for_whole_and_encoded_cropped_reads ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "final:utf8-plus-one-recheck",
+      "source_pin": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "outcome": "Caught",
+      "diff_sha256": "1a0bed905e718f4c613a6f5051388e1623bc582cce4c3ccd6dc0f598156e4c89",
+      "mutated_source_sha256": "4acd2178dff07ea6dd01e54bcbffcdb6fbd63e01bc57f6935ab1468bcfbc892e",
+      "build": {
+        "label": "utf8-plus-one-recheck-build",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib",
+          "--no-run"
+        ],
+        "started_elapsed": 136.40292406082153,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 22960,
+        "exit_code": 0,
+        "status": "Success",
+        "ended_elapsed": 146.43463492393494,
+        "log_sha256": "45da58785a94b713c299db1cd1b3e317e276057a00bbc8a682585dc6be4d77e8"
+      },
+      "artifacts": [
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b",
+          "sha256": "6963dba40174d354d911f7842d2847e7a612f7f1cadff6ba42a73449d0c1c6bd"
+        },
+        {
+          "path": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+          "sha256": "f165888deb73b7cb6ef1b9a4add1d3e706f18ad430ed1cb5df932eda2728ea37"
+        }
+      ],
+      "test": {
+        "label": "utf8-plus-one-recheck-test",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "scripted-runs",
+          "--lib"
+        ],
+        "started_elapsed": 146.44862294197083,
+        "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+        "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+        "pid": 23146,
+        "exit_code": 101,
+        "status": "Failure",
+        "ended_elapsed": 150.84934902191162,
+        "log_sha256": "97c4645652e78bcdb32e5c8b16cbcb1f4cf0e3a10b744c3aeba17269e235821f"
+      },
+      "failing_tests": [
+        "test threads::budget_tests::encoded_capacity_that_cannot_fit_one_utf8_character_returns_no_passage ... FAILED"
+      ],
+      "source_restored": true
+    }
+  ],
+  "counts": {
+    "Caught": 5
+  },
+  "prior_efc_raw_outcomes_unchanged": true,
+  "excluded_efc_slash_one": "qualified redundant only under exact inspected production preconditions; raw MISSED preserved",
+  "artifact_hashes": "phase-time snapshots in copied target; later builds overwrite that copied target, never the candidate target"
+}

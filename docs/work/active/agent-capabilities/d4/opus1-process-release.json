@@ -1,0 +1,16 @@
+{
+  "material": "cc8338beb885d1f59a547fb47ca4043d40ffbe9f",
+  "crates": "fb307685cc0ae5fe82d2ab5870e1bf1e8257624f",
+  "source_hashes_checked": 328,
+  "compiled_inputs_identical": true,
+  "heavy_inventory": [],
+  "own_controllers_or_target_children": [],
+  "inventory_method": "ps pid/ppid/pgid/comm plus transient args matching own scratch/target paths; only non-content process identifiers retained; current observer and ancestors excluded.",
+  "all_commands_reaped": true,
+  "before_source": "/private/tmp/brn-d4-opus1-before-source",
+  "before_source_head": "85973343cd3fd2b16bbecf478a28565016664012",
+  "before_source_status": "",
+  "mutation": "Not started; no copied campaign source or restoration needed, no added mutant verdicts. Conditional600s not consumed or transferred.",
+  "release": "Explicitly release sole heavy slot and all owned D4 paths to principal after evidence-only commit; material remains frozen for fresh review.",
+  "qualification": "This receipt is captured before evidence-only commit; source/material is frozen, pending evidence documents are not represented as a wholly clean worktree."
+}

@@ -1,0 +1,354 @@
+{
+  "schema": "remaining-formats-opus1-checks/1",
+  "status": "ORACLE_CORRECTED_MEASURED_GAPS_REMAIN_PARENT_INSPECTION_PENDING",
+  "finding": "P2: full child rendered content cannot equal body-only wording",
+  "actual_focused": {
+    "passed": 1,
+    "failed": 1,
+    "ignored": 0,
+    "filtered": 27,
+    "positive": "eml_nested_standalone_positive",
+    "failure": "eml_nested_source_identity_retained: actual children0, expected1"
+  },
+  "actual_full": {
+    "declarations": 29,
+    "passed": 12,
+    "failed": 17,
+    "ignored": 0,
+    "filtered": 0,
+    "candidate_differences": 16,
+    "current_prepared_omission": 1,
+    "capture_receipt_only_passes": 2
+  },
+  "outcomes": [
+    {
+      "test": "a_capture_complete_values_evidence_only",
+      "result": "ok"
+    },
+    {
+      "test": "current_route_support_and_decode_policy",
+      "result": "ok"
+    },
+    {
+      "test": "current_text_and_markdown_keep_complete_bytes",
+      "result": "ok"
+    },
+    {
+      "test": "eml_current_payloads_and_scope",
+      "result": "ok"
+    },
+    {
+      "test": "eml_current_prepared_nested_body_is_not_silent_loss",
+      "result": "FAILED"
+    },
+    {
+      "test": "eml_headers_and_attachment_names",
+      "result": "ok"
+    },
+    {
+      "test": "eml_html_body_complete_paragraphs",
+      "result": "ok"
+    },
+    {
+      "test": "eml_nested_source_identity_retained",
+      "result": "FAILED"
+    },
+    {
+      "test": "eml_nested_standalone_positive",
+      "result": "ok"
+    },
+    {
+      "test": "eml_plain_alternative_not_discarded",
+      "result": "FAILED"
+    },
+    {
+      "test": "html_textual_control_is_not_rich_adoption",
+      "result": "ok"
+    },
+    {
+      "test": "markdown_blank_lines_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "markdown_bom_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "markdown_crlf_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "markdown_fence_links_images_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "source_input_receipts",
+      "result": "ok"
+    },
+    {
+      "test": "text_blank_lines_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "text_bom_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "text_crlf_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "text_markup_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "text_no_final_newline_exact",
+      "result": "FAILED"
+    },
+    {
+      "test": "xlsx_current_source_facts",
+      "result": "ok"
+    },
+    {
+      "test": "xlsx_error_value_lexeme",
+      "result": "FAILED"
+    },
+    {
+      "test": "xlsx_forecast_table_and_page",
+      "result": "ok"
+    },
+    {
+      "test": "xlsx_formula_absolute_association",
+      "result": "FAILED"
+    },
+    {
+      "test": "xlsx_missing_cache_formula_cell_is_retained",
+      "result": "FAILED"
+    },
+    {
+      "test": "xlsx_numeric_identifier_precision",
+      "result": "FAILED"
+    },
+    {
+      "test": "xlsx_sheet_order_hidden_and_empty",
+      "result": "ok"
+    },
+    {
+      "test": "xlsx_sparse_absolute_geometry",
+      "result": "FAILED"
+    }
+  ],
+  "phases": [
+    {
+      "label": "opus1-01-focused",
+      "receipt_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-01-focused/receipt.json",
+      "receipt_sha256": "234c58690dd255769f14ebccbade9041e79d923da800111ec5d0cd828754fdc6",
+      "log_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-01-focused/raw.log",
+      "log_sha256": "0a355c357c604adfd7f7bffae3394986e90fd27dfbff2390e303cdf8b120cc64",
+      "exit_code": 101,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "remaining",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1",
+        "eml_nested_"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-remaining-formats-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-remaining-formats-20261018/opus1-private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "source_count": 800,
+      "harness_git": "8b1d69bd8681e8c4be552069d86e4e16d6f07b21",
+      "harness_tree": "73828d62743e9952821863bd7012b13eb1b20935",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "test_lines": [
+        "running 2 tests",
+        "test eml_nested_source_identity_retained ... FAILED",
+        "test eml_nested_standalone_positive ... ok",
+        "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.65s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test remaining`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "opus1-02-full-measurement",
+      "receipt_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-02-full-measurement/receipt.json",
+      "receipt_sha256": "eccac00f520c33e327346690d6b0dda10641e32b5c8a27edd338d7e87cea44db",
+      "log_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-02-full-measurement/raw.log",
+      "log_sha256": "de98a6e79c4af819725b3c190e5f4e4147f9f69ab458abbc7c0bb383e991e23b",
+      "exit_code": 101,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "remaining",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-remaining-formats-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-remaining-formats-20261018/opus1-private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "source_count": 800,
+      "harness_git": "8b1d69bd8681e8c4be552069d86e4e16d6f07b21",
+      "harness_tree": "73828d62743e9952821863bd7012b13eb1b20935",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "test_lines": [
+        "running 29 tests",
+        "test a_capture_complete_values_evidence_only ... ok",
+        "test current_route_support_and_decode_policy ... ok",
+        "test current_text_and_markdown_keep_complete_bytes ... ok",
+        "test eml_current_payloads_and_scope ... ok",
+        "test eml_current_prepared_nested_body_is_not_silent_loss ... FAILED",
+        "test eml_headers_and_attachment_names ... ok",
+        "test eml_html_body_complete_paragraphs ... ok",
+        "test eml_nested_source_identity_retained ... FAILED",
+        "test eml_nested_standalone_positive ... ok",
+        "test eml_plain_alternative_not_discarded ... FAILED",
+        "test html_textual_control_is_not_rich_adoption ... ok",
+        "test markdown_blank_lines_exact ... FAILED",
+        "test markdown_bom_exact ... FAILED",
+        "test markdown_crlf_exact ... FAILED",
+        "test markdown_fence_links_images_exact ... FAILED",
+        "test source_input_receipts ... ok",
+        "test text_blank_lines_exact ... FAILED",
+        "test text_bom_exact ... FAILED",
+        "test text_crlf_exact ... FAILED",
+        "test text_markup_exact ... FAILED",
+        "test text_no_final_newline_exact ... FAILED",
+        "test xlsx_current_source_facts ... ok",
+        "test xlsx_error_value_lexeme ... FAILED",
+        "test xlsx_forecast_table_and_page ... ok",
+        "test xlsx_formula_absolute_association ... FAILED",
+        "test xlsx_missing_cache_formula_cell_is_retained ... FAILED",
+        "test xlsx_numeric_identifier_precision ... FAILED",
+        "test xlsx_sheet_order_hidden_and_empty ... ok",
+        "test xlsx_sparse_absolute_geometry ... FAILED",
+        "test result: FAILED. 12 passed; 17 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test remaining`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "opus1-03-clippy",
+      "receipt_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-03-clippy/receipt.json",
+      "receipt_sha256": "eeec3ee3e0390f26265aa2d28dcc8fcd46a4080e0dd2795eebf8ba6afab5ea94",
+      "log_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-03-clippy/raw.log",
+      "log_sha256": "e0fe0569ee9fbbb66f57c3332e32211176314ea03ef82441c1ae4c9cbed3766b",
+      "exit_code": 0,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "clippy",
+        "--manifest-path",
+        "/private/tmp/brn-x2-remaining-formats-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-remaining-formats-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-remaining-formats-20261018/opus1-private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "source_count": 800,
+      "harness_git": "8b1d69bd8681e8c4be552069d86e4e16d6f07b21",
+      "harness_tree": "73828d62743e9952821863bd7012b13eb1b20935",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "test_lines": []
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "opus1-01-focused",
+      "whole_json_values_equal": 73,
+      "identical_input_vectors": 17,
+      "differences": []
+    },
+    {
+      "label": "opus1-02-full-measurement",
+      "whole_json_values_equal": 73,
+      "identical_input_vectors": 17,
+      "differences": []
+    }
+  ],
+  "positive_controls": [
+    {
+      "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-positive/68579/result.json",
+      "sha256": "d4b65d8b5a2992bd81a4398f52f2797dbcf337b36101efce7268af67e868923f",
+      "input_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-positive/68579/input.eml",
+      "input_sha256": "920d4d3e722c0b45124114f272a67e38b44c77aec508c57619699127d3e3e51b",
+      "input_bytes": 233,
+      "same_shared_assertions_executed": true
+    },
+    {
+      "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-positive/68734/result.json",
+      "sha256": "0748f4407e6f6115fec66b5039f07cedec7e550325b944e2e3abff3683e1cf7c",
+      "input_path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-positive/68734/input.eml",
+      "input_sha256": "920d4d3e722c0b45124114f272a67e38b44c77aec508c57619699127d3e3e51b",
+      "input_bytes": 233,
+      "same_shared_assertions_executed": true
+    }
+  ],
+  "qualification": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-qualification.json",
+    "sha256": "85dee73d2a020d11222e76208a69de27a862b66d0ce8ae6135c9961805decf28"
+  },
+  "static_check_receipt": "External evidence/opus1-static-checks.json, generated after all new files exist; hashes bound by evidence/opus1-final-static-precommit.json before commit.",
+  "strict_harness_all_targets_clippy_exit_code": 0,
+  "dependency_wide_lint_claim": false,
+  "static_checker_attempt1": {
+    "path": "/private/tmp/brn-x2-remaining-formats-20261018/evidence/opus1-qualification-attempt1.json",
+    "sha256": "98c96a0dde35abd908b7b849cdaec70330536589d2f71c0b15eee3166b163851"
+  },
+  "static_checker_correction": "Public serde omits empty errors; static verifier uses optional key. Rust result.errors.is_empty assertion unchanged; no Cargo correction/retry."
+}

@@ -1,0 +1,433 @@
+{
+  "task": "int-d-capture-runner-20261017",
+  "checks": [
+    {
+      "name": "runner-focused-initial",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "1d6ef12abdd10b46b3321e82d85461983aaf96bef62218c47aa934e91209fffb",
+      "files": {
+        "raw/runner-focused-initial.json": "86a793fedddf56559ad19b2890da6d1dad7493954db8c93795dcf1fead70912b",
+        "raw/runner-focused-initial-artifacts.json": "fb90d4c2c14d88e5bfcf659e4e9e5dc9bb3076913d36123dafd525812d040269",
+        "raw/runner-focused-initial.log.json": "45aa71cce92e16eee4c460182f3110ef8cce315c0ff4c770a9402ccd03b05ee0"
+      }
+    },
+    {
+      "name": "runner-focused-typed",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          5,
+          1,
+          1
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "1374484892b9d2ff04713ed56fcac3fffa56403822fb458aa3970468cc664e57",
+      "files": {
+        "raw/runner-focused-typed.json": "540195869d870f5ec512098d29e7239af5b335e7459239baf06392e3dfcf61e9",
+        "raw/runner-focused-typed-artifacts.json": "61f79fb030c1f5c9a8d77b695a240db1afe80cc801b495277938883d16ef6dd0",
+        "raw/runner-focused-typed.log.json": "fccb237709f0c63c9fd4ad3d9c451278e4c7767d9a91f709b8eaefc6231ad891"
+      }
+    },
+    {
+      "name": "runner-focused-fixture-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "d02eb136225add838424baa9768db1018858b279170dbfd93e6a9564fe4ad635",
+      "files": {
+        "raw/runner-focused-fixture-corrected.json": "4d518d6bfca6db71d18c7a9fc4d088808fe872bc65105a4e84be66112e87e3d5",
+        "raw/runner-focused-fixture-corrected-artifacts.json": "a24f3437ce1e9ed19f58740b55a51a9fbf562656b283944fee07e3ecaa39bc46",
+        "raw/runner-focused-fixture-corrected.log.json": "b5da0a86cf50ce1fd22f4e0b19560c8d96d77a6df87af00692f1620849f34441"
+      }
+    },
+    {
+      "name": "runner-focused-context",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          5,
+          1,
+          1
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "47e97bd559debfe35e092bdd358c2e60ce66f0fce7543648460497121c50f877",
+      "files": {
+        "raw/runner-focused-context.json": "40e8a71315c744dfeb824dd09239eaa2fa669ff3fefc37b58c58de762e6142ef",
+        "raw/runner-focused-context-artifacts.json": "4008ec3408643065e7a813887c53977d02a57cebb7c5de438edc04c8f3aa88ca",
+        "raw/runner-focused-context.log.json": "b34db03c1522e648b16faaad847082553f6d550f439dc5c81e0d8791139f079b"
+      }
+    },
+    {
+      "name": "runner-focused-bound",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          5,
+          1,
+          1
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "d412702d4a874e06b946c0762c482cc51aa98198db068cfe3f383145509e82e8",
+      "files": {
+        "raw/runner-focused-bound.json": "adf10ea7f13b00f1925c7d797e37f45eef2642fdc4e444537b153d1fc4b98c23",
+        "raw/runner-focused-bound-artifacts.json": "ed4f85123351387b309d2378e8187743b0c19fe6a171d20c60a19d1a87f5119b",
+        "raw/runner-focused-bound.log.json": "f22835e992f85cba51d02d338c8463339387ab29327a7101063ff5bf6204db6a"
+      }
+    },
+    {
+      "name": "runner-focused-history",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [
+        [
+          5,
+          1,
+          1
+        ]
+      ],
+      "source_count": 333,
+      "source_unchanged": true,
+      "diff_sha256": "d412702d4a874e06b946c0762c482cc51aa98198db068cfe3f383145509e82e8",
+      "files": {
+        "raw/runner-focused-history.json": "f39d52d2ba86e33e63c291c6d5396eee336557fa938e0211761152d0832dfec4",
+        "raw/runner-focused-history-artifacts.json": "5a13f8e14f27818ba02c79d7b11d2cebc1c43ad1a300d6be9a38c0d04d317d13",
+        "raw/runner-focused-history.log.json": "27e5ce98acb1632c0c3ec3b88377c729d78d98c84b2b720dd5b157c7bf4ac6e4"
+      }
+    },
+    {
+      "name": "runner-focused-identity",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "counts": [],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "65682b43e2c70e252b03f8a8046a7482eaf989aa53981431e4a677aea70e0d60",
+      "files": {
+        "raw/runner-focused-identity.json": "bb7d1d1486238c78839369d6cb403a0f3ddc830573709f63c5a2042ba3f946f5",
+        "raw/runner-focused-identity-artifacts.json": "c135301f943e1a199bf5a72af27f6b42162b2542515885b61ecc77c981756008",
+        "raw/runner-focused-identity.log.json": "101605338c19d15a6399a71fa3769a68db8c93497d7bda02b918354b81d518d3"
+      }
+    },
+    {
+      "name": "runner-scripted-clippy-initial",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 101,
+      "counts": [],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "76cd258f28ce6b2c038e429febb5f289c785a5fda1db81999dd7bd1265f4c56e",
+      "files": {
+        "raw/runner-scripted-clippy-initial.json": "7f3cf67399ba3286c617fe418b6d77a6e23237865cf5d0e4f487ccfc79185df6",
+        "raw/runner-scripted-clippy-initial-artifacts.json": "6bade0314d348a40c0f743261672a226a9ea83d22f741f1542c993599efbcda7",
+        "raw/runner-scripted-clippy-initial.log.json": "d2a6bc198781156176c54d900a7aafcc95eadca99173713bd892e56cb0b4e6fb"
+      }
+    },
+    {
+      "name": "runner-scripted-clippy-shaped",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "counts": [],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "044da9e47ddb29e1decf4ce1b1950434cb2dfd4a536e6c65ef88b5230b96868b",
+      "files": {
+        "raw/runner-scripted-clippy-shaped.json": "cb8a824a64a9e35eded9ce1de5d17f5b8104c44a4d25635e9f32dcb581f4b9cc",
+        "raw/runner-scripted-clippy-shaped-artifacts.json": "67453e3e6b83e15797a51e47fdecc89e7760881ae59c6c0aa4d5db4a2a4efe6d",
+        "raw/runner-scripted-clippy-shaped.log.json": "81e99489d0d0b94c04153381955f422a4c20c1d02afdca8e9dafd92e7a9035f9"
+      }
+    },
+    {
+      "name": "runner-focused-shaped",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          6,
+          0,
+          1
+        ]
+      ],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "044da9e47ddb29e1decf4ce1b1950434cb2dfd4a536e6c65ef88b5230b96868b",
+      "files": {
+        "raw/runner-focused-shaped.json": "3a4c20e216dc7439679bc91fcdeac32540d2b3766b761037e296bd0fe84273ca",
+        "raw/runner-focused-shaped-artifacts.json": "80dc1fd1626f04efbc088960712fd3db0386c3f29acfb2ac36225eca9fa182a3",
+        "raw/runner-focused-shaped.log.json": "aabea672104667b5abedbc90b38f986eef964a83d4086eba148c28c711260736"
+      }
+    },
+    {
+      "name": "runner-cli-generator",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "int_d",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "counts": [
+        [
+          4,
+          0,
+          0
+        ]
+      ],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "044da9e47ddb29e1decf4ce1b1950434cb2dfd4a536e6c65ef88b5230b96868b",
+      "files": {
+        "raw/runner-cli-generator.json": "1aa625577aa36861ccf1de3511b6588108687f143f2a7d4ea15ba41b569a7bf6",
+        "raw/runner-cli-generator-artifacts.json": "ff40d5d2b092840a206f67ac4fcae3a50853f827297b7328105dd385f405dd5f",
+        "raw/runner-cli-generator.log.json": "30b629496d5666da323332f74428b8209261776664b760883938578b2ace99d9"
+      }
+    },
+    {
+      "name": "runner-format",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "counts": [],
+      "source_count": 334,
+      "source_unchanged": true,
+      "diff_sha256": "044da9e47ddb29e1decf4ce1b1950434cb2dfd4a536e6c65ef88b5230b96868b",
+      "files": {
+        "raw/runner-format.json": "905e62ef69b98c16b7833edc02d708c14e563fc994f67bf76f428eaf0e05130f",
+        "raw/runner-format-artifacts.json": "df118a1418221f3829599abb109fb1dd64c4a4eb768190ec6c9b0169c5dee3f0",
+        "raw/runner-format.log.json": "8c2155a6de6cb8016fae49e409226cfb5b8391cdcff8e9a1037d5e9070cde762"
+      }
+    }
+  ],
+  "earlier_source_versions": [
+    {
+      "name": "bound-project-fixture-failure-source.rs",
+      "source_sha256": "e4655bfc359d3e7ee7dc9acbba442affbf84ea7fdf56dc355217761e6ed20b17",
+      "patch": "raw/bound-project-fixture-failure-source.patch.json",
+      "patch_sha256": "733cb62061896766722fc5d2e7f3ed3083427b6d897ab426ff02c70a9089ffe1",
+      "encoded_patch_sha256": "e6976b7194e838595c090c1775c13948125f8e32d1e8b9d42728ad6181bc8f85"
+    },
+    {
+      "name": "history-position-fixture-failure-source.rs",
+      "source_sha256": "ee1234c457b63c31e6cb7237c373cf13119fd19433edc53a45fcaa078157e316",
+      "patch": "raw/history-position-fixture-failure-source.patch.json",
+      "patch_sha256": "e895f5e5929680fe0a8dd53164d0f0d3d587e1a502a7f65dce883b69320a8b3c",
+      "encoded_patch_sha256": "97ebc4315ee753ccb6f7f096b9c1db3c01e9eb1472eb101f5c903904ab5fe489"
+    },
+    {
+      "name": "initial-compiler-source.rs",
+      "source_sha256": "00d4d95bfaa96ea63b5d1a36b563a40ab399dc3e5e6cb3facc637c2013ff0296",
+      "patch": "raw/initial-compiler-source.patch.json",
+      "patch_sha256": "6dd803829498fa4001c0e030ebccb859edeb5c38fc2a5119b73b27be97f7b6a0",
+      "encoded_patch_sha256": "a666caa7695c476511f8b224e161acc33aa9db8ab381cdb9fc9b986292d74536"
+    },
+    {
+      "name": "lint-style-source.rs",
+      "source_sha256": "9435ff57350d4942b9d1663809b58d1cee225a4ae1b4cd274928574450915bdf",
+      "patch": "raw/lint-style-source.patch.json",
+      "patch_sha256": "0b184bb0baa5d1e123a91c22b8e63590505644442350115a95467276f3c4027a",
+      "encoded_patch_sha256": "009e44f4eca50c19a18355ddbec3d697ec76a2c37ee019e0cf198e21f9a04639"
+    },
+    {
+      "name": "operation-state-compiler-source.rs",
+      "source_sha256": "2aa4f00c201ae64ed127df89137f6d01f85a1125e8023b717d464d855e63ea41",
+      "patch": "raw/operation-state-compiler-source.patch.json",
+      "patch_sha256": "33137308e197c56d02438aacecca2268b70b751e06e341c737c00a67ade3241b",
+      "encoded_patch_sha256": "77af19bb9cf6c6616e557d81dc421909660a6735920052582924bb980732a3fd"
+    },
+    {
+      "name": "tuple-compiler-failure-source.rs",
+      "source_sha256": "a5ecb73e3e6d5602cebf9e532a237e3d04bc8eb7d08a11e4c2b57c16fd95a8fe",
+      "patch": "raw/tuple-compiler-failure-source.patch.json",
+      "patch_sha256": "b09bbffe1cd4c8f7b519837b64283a173ad88ce38b510a04d660456312da73be",
+      "encoded_patch_sha256": "bf9dc2b2f6a8a1bef25779d78901b771ca0ba96c141aea729750db1d5cf340de"
+    },
+    {
+      "name": "typed-fixture-failure-source.rs",
+      "source_sha256": "289f757e83dd13f132cf601a5cb6601cda675bbd9247cb5f22a07380316ca788",
+      "patch": "raw/typed-fixture-failure-source.patch.json",
+      "patch_sha256": "aafe0523f451a396793cfe8b6e8e947799ded03aa6450f9adf1a03e70f37ace2",
+      "encoded_patch_sha256": "03ec828dca1afd6170b92e7f81c001a9f84c27061da55b32686e1513fd3f7b91"
+    }
+  ],
+  "accidental_repeat": "runner-focused-history: correction script assertion failed before writing; shell proceeded to repeat unchanged known history-fixture failure. Both command/source hashes retained. Not behavioral proof or rerun-to-green.",
+  "initial_input_map_qualification": "First commands recorded333source entries. Additional unchanged included capture/material-hashes.json is bound by baseGit bytes+depinfo; final wrapper/source_checks record334. No retroactive334 claim.",
+  "new_before_red": "None. API/compiler/fixture mistakes are not production defects. Historical3calls UNKNOWN.",
+  "default_ignored": "Exactly1Macmanual test ignored; never positively invoked; gate uses fake Auth counter only.",
+  "live_starts": 0
+}

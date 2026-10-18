@@ -76,6 +76,7 @@ pub(super) fn rewrite_fixture(
     owner_write(&mut store, "writing-feedback", writes);
     let op = store.allocate_operation("saved-writing-request").unwrap();
     let snapshot = WritingSnapshot {
+        setup: None,
         request_message: op.creation_id(0),
         thread: request.thread.clone(),
         note,
@@ -109,6 +110,7 @@ pub(super) fn rewrite_fixture(
 
 fn proposal(snapshot: &WritingSnapshot) -> PrepareArgs {
     PrepareArgs {
+        writing: None,
         request_key: "whole-note".into(),
         request: snapshot.change_request("Tuesday").unwrap(),
     }
@@ -364,7 +366,8 @@ fn rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_sco
         read_source(
             &scope,
             SourceArgs {
-                reference: "outside-snapshot".into()
+                reference: "outside-snapshot".into(),
+                start: 0,
             }
         )
         .is_err()
@@ -652,4 +655,573 @@ async fn prose_only_rewrite_fails_and_saved_request_remains_available_for_retry(
         snapshot
     );
     assert!(store.candidates().unwrap().is_empty());
+}
+
+#[test]
+fn setup_configuration_is_never_model_readable_or_model_writable() {
+    let (_root, request, note) = super::tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation("private-configuration").unwrap();
+    let setup = WritingSetup {
+        note,
+        chat: None,
+        brief: Some("Owner setup metadata".into()),
+        references: vec![],
+    };
+    owner_write(
+        &mut store,
+        "private-configuration",
+        vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(setup.clone()),
+        }],
+    );
+    let (scope, _) = begin(&request).unwrap();
+    for ids in [vec![], vec![op.creation_id(0)]] {
+        let records = read_records(&scope, ReadArgs { ids, query: None }).unwrap();
+        assert!(!records.to_string().contains("Owner setup metadata"));
+        assert!(!records.to_string().contains("WritingSetup"));
+    }
+    assert!(!parse_valid(
+        "prepare_changes",
+        &json!({"request_key":"forged-config","request":{"reason":"model config","writes":[{"id":"new","expected_version":null,"archived":false,"data":{"WritingSetup":setup}}],"inputs":[]}})
+    ));
+}
+
+#[test]
+fn v2_model_request_uses_canonical_metadata_without_content_and_excludes_revoked_references() {
+    let (_root, mut request, mut snapshot) = rewrite_fixture(false, 0);
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let reference_op = store.allocate_operation("v2-reference").unwrap();
+    owner_write(
+        &mut store,
+        "v2-reference",
+        vec![Put {
+            id: reference_op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(Note::working(
+                "Secret reference title",
+                "REFERENCE CONTENT NOT CAPTURED",
+            )),
+        }],
+    );
+    let setup_op = store.allocate_operation("v2-setup").unwrap();
+    owner_write(
+        &mut store,
+        "v2-setup",
+        vec![Put {
+            id: setup_op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(WritingSetup {
+                note: snapshot.note.id.clone(),
+                chat: None,
+                brief: Some("Use concise prose".into()),
+                references: vec![WritingReference {
+                    note: reference_op.creation_id(0),
+                    purpose: WritingPurpose::Style,
+                }],
+            }),
+        }],
+    );
+    let marker = store.allocate_operation("v2-marker").unwrap();
+    snapshot.request_message = marker.creation_id(0);
+    snapshot.setup = Some(WritingSnapshotSetup {
+        requirements: WritingReadRequirements::default(),
+        chat: None,
+        input: RevisionInput {
+            record: setup_op.creation_id(0),
+            version: 1,
+            expectation: InputExpectation::Current,
+        },
+        brief: Some("Use concise prose".into()),
+        references: vec![WritingReferenceVersion {
+            note: reference_op.creation_id(0),
+            version: 1,
+            purpose: WritingPurpose::Style,
+        }],
+    });
+    owner_write(
+        &mut store,
+        "v2-marker",
+        vec![Put {
+            id: snapshot.request_message.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Message(Message {
+                thread: request.thread.clone(),
+                role: WRITING_REQUEST_ROLE.into(),
+                text: snapshot.message_text().unwrap(),
+            }),
+        }],
+    );
+    request.owner_request = Some(OwnerRequest::RewriteNote {
+        request_message: snapshot.request_message.clone(),
+    });
+    let (scope, input) = begin(&request).unwrap();
+    assert!(input.contains("Use concise prose"));
+    assert!(input.contains(&reference_op.creation_id(0)));
+    assert!(!input.contains("REFERENCE CONTENT NOT CAPTURED"));
+    assert!(!input.contains("Secret reference title"));
+    drop(scope);
+    let writing_request = request.owner_request.take();
+    request.prompt = "Ordinary chat without writing setup".into();
+    let (ordinary_scope, history) = begin(&request).unwrap();
+    assert!(!history.contains("Use concise prose"));
+    let read = read_records(
+        &ordinary_scope,
+        ReadArgs {
+            ids: vec![snapshot.request_message.clone()],
+            query: None,
+        },
+    )
+    .unwrap();
+    assert!(!read.to_string().contains("Use concise prose"));
+    drop(ordinary_scope);
+    request.owner_request = writing_request;
+    let reference = store.record(&reference_op.creation_id(0)).unwrap().unwrap();
+    owner_write(
+        &mut store,
+        "archive-reference",
+        vec![Put {
+            id: reference.id,
+            expected_version: Some(1),
+            archived: true,
+            data: reference.data,
+        }],
+    );
+    let (scope, input) = begin(&request).unwrap();
+    assert!(!input.contains(&reference_op.creation_id(0)));
+    assert!(!input.contains("REFERENCE CONTENT NOT CAPTURED"));
+    assert!(
+        read_note(
+            &scope,
+            ReadNoteArgs {
+                id: reference_op.creation_id(0),
+                version: 1,
+                start: 0,
+                max_bytes: 1024,
+                section: false
+            }
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn ordinary_chat_setup_preserves_runtime_source_scope_and_delegated_maintenance() {
+    let (_root, mut request, note) = super::tests::fixture();
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation("ordinary-context-setup").unwrap();
+    let scope = writing_setup_scope(&store.records().unwrap(), Some(&request.thread)).unwrap();
+    owner_write(
+        &mut store,
+        "ordinary-context-setup",
+        vec![Put {
+            id: op.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::WritingSetup(WritingSetup {
+                note: note.clone(),
+                chat: scope,
+                brief: Some("Ordinary brief".into()),
+                references: vec![],
+            }),
+        }],
+    );
+    request.sources = vec![TransientSource::text(
+        "https://example.invalid/cw1-public-source",
+        "Synthetic source, no fetching",
+    )];
+    let (scope, _) = begin(&request).unwrap();
+    assert!(!scope.private_context);
+    let source = scope
+        .store
+        .lock()
+        .unwrap()
+        .records()
+        .unwrap()
+        .into_iter()
+        .find(
+            |r| matches!(&r.data,RecordData::Source(s) if s.locator==request.sources[0].reference),
+        )
+        .unwrap();
+    assert!(matches!(source.data,RecordData::Source(s) if s.chat.is_none()));
+    super::tests::read_all(&scope);
+    let record = scope.store.lock().unwrap().record(&note).unwrap().unwrap();
+    let mut data = record.data;
+    let RecordData::Note(n) = &mut data else {
+        panic!()
+    };
+    n.markdown = "Preserved ordinary delegated maintenance".into();
+    let prepared: Prepared = serde_json::from_value(
+        prepare(
+            &scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "ordinary-maintenance".into(),
+                request: ChangeRequest {
+                    reason: "Ordinary scoped setup must not change delegation".into(),
+                    writes: vec![Put {
+                        id: note,
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data,
+                    }],
+                    inputs: vec![],
+                },
+            },
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let result = apply(
+        &scope,
+        ApplyArgs {
+            operation: prepared.operation.as_str().into(),
+        },
+    )
+    .unwrap();
+    assert_eq!(result["outcome"], "Applied");
+}
+
+fn contract_scope(mode: &str) -> (tempfile::TempDir, ThreadRunRequest, Arc<Scope>, String) {
+    let (root, request) = match mode {
+        "ordinary" => {
+            let (root, request, _) = tests::fixture();
+            (root, request)
+        }
+        "v1" => {
+            let (root, request, _) = rewrite_fixture(true, 0);
+            (root, request)
+        }
+        "v2" => {
+            let (root, request, _, _) =
+                cw2_tests::fixture("First Ω requirement.\n", WritingReadRequirements::default());
+            (root, request)
+        }
+        _ => panic!("unknown synthetic mode"),
+    };
+    Store::open(&request.data_dir)
+        .unwrap()
+        .set_workspace_purpose(WorkspacePurpose::Test)
+        .unwrap();
+    let (scope, input) = begin(&request).unwrap();
+    (root, request, scope, input)
+}
+async fn offered_prepare_contract(mode: &str) {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let (_root, _, scope, input) = contract_scope(mode);
+    let model = MockCompletionModel::from_stream_turns([vec![
+        MockStreamEvent::final_response_with_total_tokens(1),
+    ]]);
+    let _answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert_eq!(model.request_count(), 1);
+    let requests = model.requests();
+    assert_eq!(
+        serde_json::to_value(&requests[0].tools).unwrap(),
+        json!(budget_tool_definitions(&scope)),
+        "budget and runtime must use the same definitions"
+    );
+    let offered = &requests[0]
+        .tools
+        .iter()
+        .find(|t| t.name == "prepare_changes")
+        .unwrap()
+        .parameters;
+    let full = schema("prepare_changes");
+    let mut expected = full.clone();
+    if mode != "v2" {
+        expected["properties"]["writing"] = json!({"type":"null"});
+    }
+    assert_eq!(
+        *offered, expected,
+        "actual {mode} CompletionRequest must match its supported writing contract"
+    );
+}
+#[tokio::test]
+async fn ordinary_offered_prepare_contract() {
+    offered_prepare_contract("ordinary").await;
+}
+#[tokio::test]
+async fn v1_offered_prepare_contract() {
+    offered_prepare_contract("v1").await;
+}
+#[tokio::test]
+async fn v2_offered_prepare_contract() {
+    offered_prepare_contract("v2").await;
+}
+
+#[tokio::test]
+async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
+    use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+    for mode in ["ordinary", "v1", "v2"] {
+        for copilot in [false, true] {
+            let (_root, request, scope, input) = contract_scope(mode);
+            let http = SequencedHttpClient::new([MockHttpResponse::success_typed(
+                cache_tests::final_turn(),
+                "text/event-stream",
+            )]);
+            let model = if copilot {
+                let client = rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
+                    .with_base_url("https://copilot.example.invalid")
+                    .connect(DynHttpClient::new(http.clone()));
+                crate::auth::copilot_completion(&client, request.selection.model.clone(), true)
+                    .into()
+            } else {
+                let client = rig::providers::openai::OpenAIConfig::with_key(
+                    &rig::providers::chatgpt::DIALECT,
+                    "synthetic-not-a-credential",
+                )
+                .connect(DynHttpClient::new(http.clone()));
+                rig_core::DynModel::<rig_core::operation::Completion>::from(
+                    client.responses(request.selection.model.clone()),
+                )
+            };
+            let _answer = run_model(
+                model,
+                scope.clone(),
+                &input,
+                ReasoningEffort::Medium,
+                4,
+                true,
+                CancellationToken::new(),
+                Arc::new(|_| {}),
+            )
+            .await;
+            assert_eq!(http.requests().len(), 1);
+            let requests = http.requests();
+            assert!(requests[0].uri.ends_with("/responses"));
+            let body: Value = serde_json::from_slice(&requests[0].body).unwrap();
+            assert_eq!(body["model"], "gpt-6.1-sol");
+            assert_eq!(body["reasoning"]["effort"], "medium");
+            let tool = body["tools"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|t| t["name"] == "prepare_changes")
+                .unwrap();
+            assert_eq!(tool["strict"], copilot);
+            if mode == "v2" {
+                assert_eq!(
+                    tool["parameters"]["properties"]["writing"],
+                    schema("prepare_changes")["properties"]["writing"]
+                );
+            } else {
+                assert_eq!(
+                    tool["parameters"]["properties"]["writing"],
+                    json!({"type":"null"})
+                );
+            }
+            assert_eq!(
+                tool["parameters"]["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|v| v == "writing"),
+                copilot
+            );
+            if !copilot {
+                assert_eq!(
+                    tool["parameters"],
+                    PrepareChanges::for_scope(&scope).parameters()
+                );
+            }
+            let refresh = body["tools"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|t| t["name"] == "refresh_candidate")
+                .unwrap();
+            assert_eq!(refresh["strict"], copilot);
+            assert_eq!(
+                refresh["parameters"]["properties"]
+                    .as_object()
+                    .unwrap()
+                    .keys()
+                    .map(String::as_str)
+                    .collect::<std::collections::BTreeSet<_>>(),
+                ["operation", "request_key", "request"]
+                    .into_iter()
+                    .collect()
+            );
+            assert_eq!(
+                refresh["parameters"]["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<std::collections::BTreeSet<_>>(),
+                ["operation", "request_key", "request"]
+                    .into_iter()
+                    .collect()
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["request"],
+                tool["parameters"]["properties"]["request"]
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["request_key"],
+                tool["parameters"]["properties"]["request_key"]
+            );
+            assert_eq!(
+                refresh["parameters"]["properties"]["operation"]["type"],
+                "string"
+            );
+            for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
+                assert!(body.get(field).is_none());
+            }
+        }
+    }
+}
+
+#[tokio::test]
+async fn absent_and_null_prepare_still_register_protected_candidates_without_apply_authority() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    for mode in ["ordinary", "v1"] {
+        for explicit_null in [false, true] {
+            let (root, request, note, change) = if mode == "ordinary" {
+                let (root, request, note) = tests::fixture();
+                let mut store = Store::open(&request.data_dir).unwrap();
+                store.set_workspace_purpose(WorkspacePurpose::Test).unwrap();
+                let record = store.record(&note).unwrap().unwrap();
+                let RecordData::Note(mut data) = record.data else {
+                    panic!()
+                };
+                data.protected = true;
+                owner_write(
+                    &mut store,
+                    "protect-contract",
+                    vec![Put {
+                        id: note.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                );
+                let record = store.record(&note).unwrap().unwrap();
+                let RecordData::Note(mut data) = record.data else {
+                    panic!()
+                };
+                data.markdown = "Tuesday proposed only".into();
+                let change = ChangeRequest {
+                    reason: "Synthetic protected proposal".into(),
+                    writes: vec![Put {
+                        id: note.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                    inputs: vec![],
+                };
+                (root, request, note, change)
+            } else {
+                let (root, request, snapshot) = rewrite_fixture(true, 0);
+                Store::open(&request.data_dir)
+                    .unwrap()
+                    .set_workspace_purpose(WorkspacePurpose::Test)
+                    .unwrap();
+                let change = snapshot.change_request("Tuesday proposed only").unwrap();
+                (root, request, snapshot.note.id.clone(), change)
+            };
+            let _root = root;
+            let (scope, input) = begin(&request).unwrap();
+            let original = scope.store.lock().unwrap().record(&note).unwrap().unwrap();
+            let operation = scope
+                .store
+                .lock()
+                .unwrap()
+                .allocate_operation(&format!("{}:proposal:supported-contract", scope.run))
+                .unwrap();
+            let mut args = json!({"request_key":"supported-contract","request":change});
+            if explicit_null {
+                args["writing"] = Value::Null;
+            }
+            let mut turns = vec![];
+            if mode == "ordinary" {
+                turns.push(vec![
+                    MockStreamEvent::tool_call(
+                        "read",
+                        "read_records",
+                        json!({"ids":[note],"query":null}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ]);
+            }
+            turns.push(vec![
+                MockStreamEvent::tool_call("prepare", "prepare_changes", args),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]);
+            turns.push(vec![
+                MockStreamEvent::tool_call(
+                    "apply",
+                    "apply_changes",
+                    json!({"operation":operation.as_str()}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]);
+            turns.push(vec![MockStreamEvent::final_response_with_total_tokens(1)]);
+            let model = MockCompletionModel::from_stream_turns(turns);
+            let activity = Arc::new(Mutex::new(Vec::new()));
+            let emitted = activity.clone();
+            let answer = run_model(
+                model.clone(),
+                scope.clone(),
+                &input,
+                ReasoningEffort::Medium,
+                4,
+                true,
+                CancellationToken::new(),
+                Arc::new(move |event| {
+                    if let AiEvent::Activity(message) = event {
+                        emitted.lock().unwrap().push(message);
+                    }
+                }),
+            )
+            .await;
+            assert!(
+                matches!(answer.terminal, AiTerminal::Completed),
+                "{mode}/{explicit_null}: {:?}",
+                answer.terminal
+            );
+            assert_eq!(
+                model.request_count(),
+                if mode == "ordinary" { 4 } else { 3 }
+            );
+            assert_eq!(
+                activity
+                    .lock()
+                    .unwrap()
+                    .iter()
+                    .filter(|message| message.as_str() == "< apply_changes · NeedsReview")
+                    .count(),
+                1,
+                "{mode}/{explicit_null}: expected one actual NeedsReview outcome"
+            );
+            let store = scope.store.lock().unwrap();
+            let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+                panic!()
+            };
+            assert_eq!(run.operations, vec![operation.clone()]);
+            assert_eq!(
+                store.prepared(&operation).unwrap().request.writes,
+                change.writes
+            );
+            assert!(store.receipt(&operation).unwrap().is_none());
+            assert_eq!(store.record(&note).unwrap().unwrap(), original);
+        }
+    }
 }

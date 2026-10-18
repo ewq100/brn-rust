@@ -56,6 +56,11 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
     // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     ok(&root, &data, &["init"]);
+    ok(
+        &root,
+        &data,
+        &["document-conversion", "--converter", "xberg", "--ai", "on"],
+    );
     let before = history_total(&root, &data);
     let html = root.file("doc.html", b"<html><body><h1>Doc</h1></body></html>");
     let markdown = root.file("doc.md", b"# Doc\n\nBody.\n");
@@ -75,13 +80,68 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
     }
     assert_eq!(history_total(&root, &data), before);
     assert_eq!(ok(&root, &data, &["threads"]), json!([]));
-    // Markdown needs no provider: a full import still works.
+    ok(
+        &root,
+        &data,
+        &["document-conversion", "--converter", "xberg", "--ai", "off"],
+    );
+    // AI Off needs no conversion provider; the converter host is macOS-only.
+    #[cfg(not(target_os = "macos"))]
+    let before_off = (
+        ok(&root, &data, &["records"]),
+        ok(&root, &data, &["history"]),
+    );
     let full = call(
         &root,
         &data,
         &["intake", "--source", &markdown, "--intent", "full"],
     );
+    #[cfg(target_os = "macos")]
     assert_eq!(full["outcome"], "Applied", "{full}");
+    #[cfg(not(target_os = "macos"))]
+    {
+        assert_error(&full, "failed", "unavailable");
+        assert_eq!(ok(&root, &data, &["records"]), before_off.0);
+        assert_eq!(ok(&root, &data, &["history"]), before_off.1);
+        assert_eq!(ok(&root, &data, &["runs"])["runs"], json!([]));
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+#[test]
+fn off_conversion_is_unavailable_without_effects_for_both_converters() {
+    let root = Root::new();
+    let data = root.workspace("data");
+    let chat = id(&ok(&root, &data, &["thread-start", "--title", "Existing"]));
+    let source = root.file("doc.md", b"# Doc\n\nBody.\n");
+    for converter in ["xberg", "xberg-brn"] {
+        ok(
+            &root,
+            &data,
+            &[
+                "document-conversion",
+                "--converter",
+                converter,
+                "--ai",
+                "off",
+            ],
+        );
+        let records = ok(&root, &data, &["records"]);
+        let history = ok(&root, &data, &["history"]);
+        let threads = ok(&root, &data, &["threads"]);
+        for intent in ["full", "chat"] {
+            let mut argv = vec!["intake", "--source", source.as_str(), "--intent", intent];
+            if intent == "chat" {
+                argv.extend(["--thread", chat.as_str()]);
+            }
+            let refused = call(&root, &data, &argv);
+            assert_error(&refused, "failed", "unavailable");
+            assert_eq!(ok(&root, &data, &["records"]), records);
+            assert_eq!(ok(&root, &data, &["history"]), history);
+            assert_eq!(ok(&root, &data, &["threads"]), threads);
+            assert_eq!(ok(&root, &data, &["runs"])["runs"], json!([]));
+        }
+    }
 }
 
 #[test]

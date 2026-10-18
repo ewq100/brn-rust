@@ -1,0 +1,149 @@
+{
+  "task": "int-d-capture-runner-20261017",
+  "material_pin": "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+  "crates": "d6a6454bb377f4a2cb7cef2611a640de5be4dc69",
+  "timestamp": 1792251060.541261,
+  "precise_heavy_inventory": [],
+  "completed_reaped_sessions": [
+    7197,
+    26714,
+    66110,
+    31460,
+    80364,
+    71685,
+    6534,
+    8306,
+    33034,
+    65114,
+    11153,
+    60861,
+    79979
+  ],
+  "inputs_reverified": 334,
+  "preserved_artifacts_verified": [
+    {
+      "kind": "final_binary",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "8460c5df3217954c164d25a1aeed7dff6a2628d3c57ebe5c2fca012e93627049"
+    },
+    {
+      "kind": "final_dep_info",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+    },
+    {
+      "kind": "prior_binary",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "c7765d2a0871f547327c618cdcc9b7d14ce0c0f46c85de447ee9ef17304586c2"
+    },
+    {
+      "kind": "prior_dep_info",
+      "path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+    },
+    {
+      "kind": "original_live_binary",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1",
+      "sha256": "01c129beecc1d3dc165ffee9e0783cfa6fc828d36e72a58802bbbe89ac935c40"
+    },
+    {
+      "kind": "original_live_dep_info",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1.d",
+      "sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+    },
+    {
+      "kind": "original_live_binary",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424",
+      "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74"
+    },
+    {
+      "kind": "original_live_dep_info",
+      "path": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424.d",
+      "sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54"
+    },
+    {
+      "kind": "passing-runner-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/passing-runner-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "passing-runner-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/passing-runner-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "ebfcbd6a504f2d31ed2360d09d94a1e444cb20e920880baf486d985ab633e164"
+    },
+    {
+      "kind": "prior-passing-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034"
+    },
+    {
+      "kind": "prior-passing-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/prior-passing-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "8460c5df3217954c164d25a1aeed7dff6a2628d3c57ebe5c2fca012e93627049"
+    },
+    {
+      "kind": "typed-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/typed-fixture-failure-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "typed-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/typed-fixture-failure-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "0c3b10e9adcb674a7b805f0e090913e6a7719090a4b3cdbe200f22cc25793ce1"
+    },
+    {
+      "kind": "bound-project-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/bound-project-fixture-failure-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "bound-project-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/bound-project-fixture-failure-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "60c0994cbcd6dda7f64c96de9a4e1d1f8eab0f8a90afe702238ab6d8728129fb"
+    },
+    {
+      "kind": "history-position-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/history-position-fixture-failure-artifact/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "history-position-fixture-failure-artifact",
+      "path": "/private/tmp/brn-int-d-capture-runner-20261017-evidence/history-position-fixture-failure-artifact/brn_ai-0a77908ed974f7b9",
+      "sha256": "fadfd2d8b5faa9b8558b42424180700f82321004468e50ef3420dc8f1c7e0d0a"
+    }
+  ],
+  "normal_auth_or_paid_provider_starts": 0,
+  "ignored_runner_invocations": 0,
+  "activation_or_real_start_reservation_created": false,
+  "local_reference_only_configure_count": 1,
+  "no_active_run_fixture": "New checked control/candidate have0Runs; no ask/Continue/runner executed.",
+  "release": "Explicitly RELEASE sole heavy slot AND ALL allocated paths. Material frozen; final docs-only handoff commit may follow.",
+  "source_or_future_activation_acceptance": "Parent owned; not claimed.",
+  "qualification": "Mock/gate tests and checked preflight preparation only. Original3failures UNKNOWN, closed2start window; O1/O2/O3/PDF/SDK/widget/platform/compatibility/INT-W/main/owner/program/live I01 gaps retained.",
+  "preserved_test_artifact_receipt_associations": [
+    {
+      "kind": "passing-runner-artifact",
+      "receipt": "runner-focused-shaped",
+      "binary_sha256": "ebfcbd6a504f2d31ed2360d09d94a1e444cb20e920880baf486d985ab633e164",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "typed-fixture-failure-artifact",
+      "receipt": "runner-focused-typed",
+      "binary_sha256": "0c3b10e9adcb674a7b805f0e090913e6a7719090a4b3cdbe200f22cc25793ce1",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "bound-project-fixture-failure-artifact",
+      "receipt": "runner-focused-context",
+      "binary_sha256": "60c0994cbcd6dda7f64c96de9a4e1d1f8eab0f8a90afe702238ab6d8728129fb",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "kind": "history-position-fixture-failure-artifact",
+      "receipt": "runner-focused-bound",
+      "binary_sha256": "fadfd2d8b5faa9b8558b42424180700f82321004468e50ef3420dc8f1c7e0d0a",
+      "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    }
+  ]
+}

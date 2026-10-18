@@ -14,9 +14,9 @@ exit "${BRN_TEST_EXIT:-0}"
 BIN
 chmod +x "$binary"
 expect_failure() { if "$@" >"$scratch/refusal" 2>&1; then echo 'Unexpected launcher success' >&2; exit 1; fi; }
-expect_failure bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/missing.app" --binary "$binary"
-bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/Threads.app" --binary "$binary" --data-dir "$data_dir"
-expect_failure bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/Threads.app" --binary "$binary" --data-dir "$data_dir"
+expect_failure bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/missing.app" --binary "$binary" --xberg-helper "$binary" --xberg-helper-brn "$binary"
+bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/Threads.app" --binary "$binary" --xberg-helper "$binary" --xberg-helper-brn "$binary" --data-dir "$data_dir"
+expect_failure bash "$repo_root/scripts/make-macos-app.sh" --output "$scratch/Threads.app" --binary "$binary" --xberg-helper "$binary" --xberg-helper-brn "$binary" --data-dir "$data_dir"
 export BRN_TEST_ARGS="$scratch/args" BRN_LAUNCH_LOG_DIR="$scratch/logs" BRN_LAUNCH_TEST_NO_OPEN=1
 "$scratch/Threads.app/Contents/MacOS/BRN-Threads"
 [[ "$(head -n 1 "$scratch/args")" == --data-dir ]]

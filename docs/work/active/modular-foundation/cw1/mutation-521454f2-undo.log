@@ -1,0 +1,7 @@
+Found 17 mutants to test
+ok       Unmutated baseline in 4s build + 1s test
+MISSED   crates/brn-threads-core/src/store.rs:678:29: replace && with || in Store::undo in 7s build + 2s test
+MISSED   crates/brn-threads-core/src/store.rs:701:33: replace && with || in Store::undo in 8s build + 2s test
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Build
+Error: interrupted

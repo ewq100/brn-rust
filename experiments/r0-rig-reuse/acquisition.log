@@ -1,0 +1,37 @@
+    Updating crates.io index
+     Locking 29 packages to latest Rust 1.98.1 compatible versions
+      Adding atomic-waker v1.1.2
+      Adding base64 v0.23.1
+      Adding bitflags v2.13.2
+      Adding http-body v1.1.0
+      Adding http-body-util v0.1.5
+      Adding httparse v1.10.1
+      Adding hyper v1.12.0
+      Adding hyper-util v0.1.21
+      Adding ipnet v2.12.2
+      Adding mio v1.2.4
+      Adding reqwest v0.13.5
+    Updating rmcp v2.0.0 -> v2.2.0 (available: v3.5.1)
+    Updating serde_json v1.0.149 -> v1.0.151 (available: v1.0.154)
+      Adding socket2 v0.6.5
+      Adding sse-stream v0.2.6
+      Adding sync_wrapper v1.0.2
+    Updating tokio v1.50.0 -> v1.53.1 (available: v1.53.3)
+    Updating tokio-macros v2.6.1 -> v2.7.2
+    Updating tokio-util v0.7.18 -> v0.7.19 (available: v0.7.20)
+      Adding tower v0.5.3
+      Adding tower-http v0.6.11
+      Adding tower-layer v0.3.3
+      Adding tower-service v0.3.3
+      Adding try-lock v0.2.5
+      Adding want v0.3.2
+      Adding wasi v0.11.1+wasi-snapshot-preview1
+      Adding wasm-bindgen-futures v0.4.79
+      Adding wasm-streams v0.5.0
+      Adding web-sys v0.3.106
+ Downloading crates ...
+  Downloaded mio v1.2.4
+  Downloaded want v0.3.2
+  Downloaded sse-stream v0.2.6
+  Downloaded hyper v1.12.0
+  Downloaded rmcp v2.2.0

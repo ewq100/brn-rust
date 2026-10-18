@@ -1,0 +1,11 @@
+# Remaining-format frozen handoff
+
+[Response/matrix](response.md), [requirements](requirements.txt), [independent facts](corpus.json), [compiled driver](driver.rs), [check index](check-index.json) and [source pin](source-pin.json) are ready for parent inspection/review. Actual final **28 tests: 11 passed / 17 failed**, zero ignored/filtered. Failures comprise 16 candidate differences and one current prepared EML omission; capture/receipt passes are not parity. Strict harness Clippy and static checks pass. No production/root graph/old oracle or patch changed.
+
+Concrete gaps: all nine verbatim vectors differ; XLSX loses exact precision, source grid/formula coordinates, original error spelling and an uncached formula origin; EML loses plain alternative/source-child identity, and current prepared intake omits nested body text. Headers/duplicate names, selected HTML wording, current attachment bytes/scopes, forecast table binding and hidden/empty sheet controls pass. Complete source inputs and raw values are retained across every failed attempt.
+
+Accepted Xberg remains `ce3bce28f1e6e7393efe27cfad61f8159208d286`; final harness `78d23e0e211ce3983f0c4a3249f180387fe539bb`, tree `bb236009596da8bff9fe137a269eb4c8d47039c4`; driver SHA `378707b91f247ea5cc38eae19a4ecd1498ddf149d32a88fc664eb769ff0ea80c`. Metadata277 versus emitted276 identities are distinguished, no graph unknowns. Current comparator remains the frozen mail0.11.8 A1 binary; candidate uses audited0.11.9/Tokio1.53.2 only in scratch. External evidence/artifacts are immutable under `/private/tmp/brn-x2-remaining-formats-20261018`.
+
+Encrypted PDF is **Explicitly Deferred**, clear unsupported outcome required but not implemented/verified. Non-encrypted PDF remains required with component/regression/fidelity/cutover pending. No interrupted PDF scratch access or new PDF claim occurred.
+
+All owned processes/children/controllers are reaped, precise heavy inventory empty; **sole heavy and all eight paths are released** on this frozen handoff. No follow-on work starts. The separate PDF allocation is next eligible after principal scheduling. Other semantic/resource/runtime/license/adoption and carried gates remain open. Actual root SHA/tree/base-to-pin diff are written after commit to external `evidence/final-repo-pin.json`; no future identity is fabricated.

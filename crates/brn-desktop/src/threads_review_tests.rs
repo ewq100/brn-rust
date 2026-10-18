@@ -5,8 +5,8 @@ use super::polish_tests::{
     Fixture, assert_in, change_saved, choose, fixture, menu_rows, on_window, type_edit, update,
     window_bounds,
 };
-use super::writing::{COMMENTS_FLOOR, ProposalShape, review_footer};
 use super::*;
+use brn_writing_ui::writing::{COMMENTS_FLOOR, ProposalShape, review_footer};
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
 const TEXT: &str = "# Pilot\n\nThe quick brown fox jumps.\n\nKeep this line.";
@@ -290,9 +290,9 @@ fn assert_after(window: &Window, before: &str, primary: &str) {
 
 fn select(cx: &mut TestAppContext, f: &Fixture, word: &str) {
     update(cx, f, |view, _, cx| {
-        let text = view.note_editor.read(cx).value().to_string();
+        let text = view.writing.note_editor.read(cx).value().to_string();
         let start = text.find(word).unwrap();
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_selected_range(start..start + word.len(), cx)
         });
         view.track_selection(cx);
@@ -415,8 +415,8 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     ];
     on_window(cx, &f, |window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.margin_mode, MarginMode::Stacked);
-        assert_eq!(view.review_fit, ReviewFit::Icons);
+        assert_eq!(view.writing.margin_mode, MarginMode::Stacked);
+        assert_eq!(view.writing.review_fit, ReviewFit::Icons);
         // The review bar replaces the toolbar; only one of them renders.
         assert!(window.try_find("note-toolbar").is_none());
         assert_one_row(window, &bar_ids);
@@ -474,7 +474,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     // The toggle opens the section between the review text and the footer.
     on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
     on_window(cx, &f, |window, cx| {
-        assert!(f.view.read(cx).comments_expanded);
+        assert!(f.view.read(cx).writing.comments_expanded);
         assert_one_row(window, &bar_ids);
         let text = window.find("review-body").bounds();
         let section = window.find("comments-section").bounds();
@@ -497,9 +497,10 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     // the draft and returns focus to the review text.
     update(cx, &f, |view, window, cx| {
         let start = TEXT.find("brown").unwrap();
-        let version = view.note.as_ref().unwrap().record.version;
-        view.comment_anchor = Some((f.note.id.clone(), version, start..start + 5, "brown".into()));
-        view.comment_input.update(cx, |editor, cx| {
+        let version = view.writing.note.as_ref().unwrap().record.version;
+        view.writing.comment_anchor =
+            Some((f.note.id.clone(), version, start..start + 5, "brown".into()));
+        view.writing.comment_input.update(cx, |editor, cx| {
             editor.set_value("Draft kept", window, cx);
             editor.focus(window, cx);
         });
@@ -509,16 +510,23 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     });
     on_window(cx, &f, |window, cx| window.press("escape", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(!view.comments_expanded);
-        assert!(view.review.is_some(), "Escape never leaves the review");
+        assert!(!view.writing.comments_expanded);
         assert!(
-            view.diff_editor
+            view.writing.review.is_some(),
+            "Escape never leaves the review"
+        );
+        assert!(
+            view.writing
+                .diff_editor
                 .read(cx)
                 .focus_handle(cx)
                 .is_focused(window)
         );
-        assert!(view.comment_anchor.is_some());
-        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+        assert!(view.writing.comment_anchor.is_some());
+        assert_eq!(
+            view.writing.comment_input.read(cx).value().as_ref(),
+            "Draft kept"
+        );
     });
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("comments-section").is_none())
@@ -535,14 +543,18 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     on_window(cx, &f, |window, cx| window.click("review-read-result", cx));
     escape_from_comments(cx, &f);
     update(cx, &f, |view, window, cx| {
-        assert!(view.review_reading && !view.comments_expanded);
+        assert!(view.writing.review_reading && !view.writing.comments_expanded);
         assert!(
-            view.candidate_view
+            view.writing
+                .candidate_view
                 .read(cx)
                 .focus_handle()
                 .is_focused(window)
         );
-        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+        assert_eq!(
+            view.writing.comment_input.read(cx).value().as_ref(),
+            "Draft kept"
+        );
     });
     // While editing the final text, it returns focus to the text being
     // edited.
@@ -550,26 +562,31 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     choose(cx, &f, "Edit final text");
     escape_from_comments(cx, &f);
     update(cx, &f, |view, window, cx| {
-        assert!(view.review_editing && !view.comments_expanded);
+        assert!(view.writing.review_editing && !view.writing.comments_expanded);
         assert!(
-            view.review_editor
+            view.writing
+                .review_editor
                 .read(cx)
                 .focus_handle(cx)
                 .is_focused(window)
         );
-        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+        assert_eq!(
+            view.writing.comment_input.read(cx).value().as_ref(),
+            "Draft kept"
+        );
     });
 }
 
 /// Open the stacked section, focus the kept draft inside it and press
 /// Escape.
 fn escape_from_comments(cx: &mut TestAppContext, f: &Fixture) {
-    if !cx.read(|cx| f.view.read(cx).comments_expanded) {
+    if !cx.read(|cx| f.view.read(cx).writing.comments_expanded) {
         on_window(cx, f, |window, cx| window.click("toggle-margin", cx));
     }
     update(cx, f, |view, window, cx| {
-        assert!(view.comments_expanded);
-        view.comment_input
+        assert!(view.writing.comments_expanded);
+        view.writing
+            .comment_input
             .update(cx, |editor, cx| editor.focus(window, cx));
     });
     on_window(cx, f, |window, _| {
@@ -739,8 +756,11 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
         let case = format!("{width}x600, 2 notes");
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
-            assert!(view.review_inputs && view.comments_expanded, "{case}");
-            assert_eq!(view.review_fit, ReviewFit::Icons, "{case}");
+            assert!(
+                view.writing.review_inputs && view.writing.comments_expanded,
+                "{case}"
+            );
+            assert_eq!(view.writing.review_fit, ReviewFit::Icons, "{case}");
             assert_footer_whole(
                 window,
                 "Approving saves exactly these 2 notes, including protected notes. 2 comments stay open until you mark them addressed.",
@@ -792,8 +812,11 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
         let case = format!("{width}x600, editing");
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
-            assert!(view.review_inputs && view.review_editing, "{case}");
-            assert!(view.comments_expanded, "{case}");
+            assert!(
+                view.writing.review_inputs && view.writing.review_editing,
+                "{case}"
+            );
+            assert!(view.writing.comments_expanded, "{case}");
             assert_footer_whole(window, PROTECTED_FOOTER, &case);
             assert_shared_height(window, &comments, &case);
             assert!(window.find("review-blocked-reason").visible(), "{case}");
@@ -817,7 +840,11 @@ fn review_comments_render_beside_the_text_at_1250x860(cx: &mut TestAppContext) {
         review_rewrite(cx, &f, &thread, REVISED);
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
-            assert_eq!((view.margin_mode, view.review_fit), (mode, fit), "{width}");
+            assert_eq!(
+                (view.writing.margin_mode, view.writing.review_fit),
+                (mode, fit),
+                "{width}"
+            );
             let margin = window.find("writing-feedback").bounds();
             assert_eq!(margin.size.width, px(mode.width()));
             assert!(margin.left() >= window.find("review-body").bounds().left());
@@ -893,10 +920,10 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
         assert_eq!(window.find("note-bar").label(), Some(PROTECTED_FOOTER));
     });
     update(cx, &f, |view, window, cx| {
-        view.review_editor.update(cx, |editor, cx| {
+        view.writing.review_editor.update(cx, |editor, cx| {
             editor.set_value(format!("{REVISED}\n\nAdded."), window, cx)
         });
-        if let Some(review) = &mut view.review {
+        if let Some(review) = &mut view.writing.review {
             review.edited = true;
         }
     });
@@ -906,7 +933,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     on_window(cx, &f, |window, cx| window.click("cancel-final", cx));
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(!view.review_editing && !view.review.as_ref().unwrap().edited);
+        assert!(!view.writing.review_editing && !view.writing.review.as_ref().unwrap().edited);
     });
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("prepare-final").is_none());
@@ -918,9 +945,10 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     // Changes | Result keep their focus.
     on_window(cx, &f, |window, cx| window.click("review-read-result", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(view.review_reading);
+        assert!(view.writing.review_reading);
         assert!(
-            view.candidate_view
+            view.writing
+                .candidate_view
                 .read(cx)
                 .focus_handle()
                 .is_focused(window)
@@ -928,9 +956,10 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     });
     on_window(cx, &f, |window, cx| window.click("review-show-changes", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(!view.review_reading);
+        assert!(!view.writing.review_reading);
         assert!(
-            view.diff_editor
+            view.writing
+                .diff_editor
                 .read(cx)
                 .focus_handle(cx)
                 .is_focused(window)
@@ -942,7 +971,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     choose(cx, &f, "Keep for later");
     let kept = cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.review.is_none());
+        assert!(view.writing.review.is_none());
         assert_eq!(view.candidates.len(), 1);
         view.candidates[0].clone()
     });
@@ -953,7 +982,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     choose(cx, &f, "Dismiss");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.review.is_none());
+        assert!(view.writing.review.is_none());
         assert!(view.candidates.is_empty());
         let RecordData::Note(saved) = view.workspace.store.note(&f.note.id).unwrap().unwrap().data
         else {
@@ -1133,7 +1162,7 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
         let comments = comment_ids(cx, &f);
         let case = format!("{width}x{height}");
         on_window(cx, &f, |window, cx| {
-            assert_eq!(f.view.read(cx).margin_mode, mode, "{case}");
+            assert_eq!(f.view.read(cx).writing.margin_mode, mode, "{case}");
             let chat = window.within("tile-chat");
             assert!(
                 comments
@@ -1189,7 +1218,7 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
         view.apply_layout(Preset::Solo, window, cx);
     });
     on_window(cx, &f, |window, cx| {
-        assert_eq!(f.view.read(cx).margin_mode, MarginMode::Wide);
+        assert_eq!(f.view.read(cx).writing.margin_mode, MarginMode::Wide);
         assert!(window.find("writing-feedback").visible());
     });
     // Without comments or a draft the margin stays closed; the toggle opens it.
@@ -1257,16 +1286,17 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     select(cx, &f, "brown");
     on_window(cx, &f, |window, cx| window.press("cmd-/", cx));
     update(cx, &f, |view, window, cx| {
-        assert_eq!(view.margin_mode, MarginMode::Stacked);
-        assert!(view.comments_expanded);
-        assert_eq!(view.comment_anchor.as_ref().unwrap().3, "brown");
+        assert_eq!(view.writing.margin_mode, MarginMode::Stacked);
+        assert!(view.writing.comments_expanded);
+        assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "brown");
         assert!(
-            view.comment_input
+            view.writing
+                .comment_input
                 .read(cx)
                 .focus_handle(cx)
                 .is_focused(window)
         );
-        view.comment_input.update(cx, |editor, cx| {
+        view.writing.comment_input.update(cx, |editor, cx| {
             editor.set_value("Name the colour", window, cx)
         });
     });
@@ -1288,20 +1318,25 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     select(cx, &f, "fox");
     on_window(cx, &f, |window, cx| window.press("cmd-/", cx));
     update(cx, &f, |view, window, cx| {
-        view.comment_input
+        view.writing
+            .comment_input
             .update(cx, |editor, cx| editor.set_value("Draft kept", window, cx));
     });
     on_window(cx, &f, |window, cx| window.press("escape", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(!view.comments_expanded);
+        assert!(!view.writing.comments_expanded);
         assert!(
-            view.note_editor
+            view.writing
+                .note_editor
                 .read(cx)
                 .focus_handle(cx)
                 .is_focused(window)
         );
-        assert_eq!(view.comment_anchor.as_ref().unwrap().3, "fox");
-        assert_eq!(view.comment_input.read(cx).value().as_ref(), "Draft kept");
+        assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "fox");
+        assert_eq!(
+            view.writing.comment_input.read(cx).value().as_ref(),
+            "Draft kept"
+        );
         assert!(view.worker.is_none(), "Escape never starts or stops work");
     });
     on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
@@ -1312,19 +1347,19 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
 
     // Collapsing keeps the list's scroll position.
     update(cx, &f, |view, _, cx| {
-        view.comments_scroll.scroll_to_bottom();
+        view.writing.comments_scroll.scroll_to_bottom();
         cx.notify();
     });
-    let offset = cx.read(|cx| f.view.read(cx).comments_scroll.offset());
+    let offset = cx.read(|cx| f.view.read(cx).writing.comments_scroll.offset());
     assert!(offset.y < px(0.), "{offset:?}");
     on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("comments-section").is_none())
     });
     on_window(cx, &f, |window, cx| window.click("toggle-margin", cx));
-    cx.read(|cx| assert_eq!(f.view.read(cx).comments_scroll.offset(), offset));
+    cx.read(|cx| assert_eq!(f.view.read(cx).writing.comments_scroll.offset(), offset));
     update(cx, &f, |view, _, cx| {
-        view.comments_scroll.scroll_to_item(0);
+        view.writing.comments_scroll.scroll_to_item(0);
         cx.notify();
     });
 
@@ -1333,9 +1368,9 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
         window.click(format!("reveal-comment-{}", quick), cx)
     });
     update(cx, &f, |view, _, cx| {
-        let editor = view.note_editor.read(cx);
+        let editor = view.writing.note_editor.read(cx);
         assert_eq!(editor.value().get(editor.selected_range()), Some("quick"));
-        assert!(view.comments_expanded);
+        assert!(view.writing.comments_expanded);
     });
     on_window(cx, &f, |window, _| {
         assert!(window.find("comments-section").visible())
@@ -1353,8 +1388,11 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     });
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.note.as_ref().unwrap().session.is_none(), "saved first");
-        assert_eq!(view.comment_anchor.as_ref().unwrap().3, "Added");
+        assert!(
+            view.writing.note.as_ref().unwrap().session.is_none(),
+            "saved first"
+        );
+        assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "Added");
     });
     on_window(cx, &f, |window, cx| {
         assert_draft_in(window, window.find("comments-section").bounds());
@@ -1365,13 +1403,28 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     // kept, blocks the rewrite until excluded, and the owner reattaches the
     // feedback by commenting on the passage again.
     update(cx, &f, |view, window, cx| {
-        let text = view.note_editor.read(cx).value().replace("quick", "slow");
-        view.note_editor
+        let text = view
+            .writing
+            .note_editor
+            .read(cx)
+            .value()
+            .replace("quick", "slow");
+        view.writing
+            .note_editor
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
         view.preserve_visible_note_input(cx);
         view.save(window, cx);
     });
-    let version = cx.read(|cx| f.view.read(cx).note.as_ref().unwrap().record.version);
+    let version = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .note
+            .as_ref()
+            .unwrap()
+            .record
+            .version
+    });
     on_window(cx, &f, |window, _| {
         let card = window.within(format!("comment-card-{}", quick));
         assert!(card.try_find(format!("comment-quote-{}", quick)).is_some());
@@ -1383,7 +1436,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     });
     // Unlocated comments sort last; the owner scrolls the section to it.
     update(cx, &f, |view, _, cx| {
-        view.comments_scroll.scroll_to_bottom();
+        view.writing.comments_scroll.scroll_to_bottom();
         cx.notify();
     });
     on_window(cx, &f, |window, _| {
@@ -1402,7 +1455,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
         window.click(format!("include-comment-{}", quick), cx)
     });
     on_window(cx, &f, |window, cx| {
-        assert!(f.view.read(cx).excluded_comments.contains(&quick));
+        assert!(f.view.read(cx).writing.excluded_comments.contains(&quick));
         assert!(window.try_find("writing-blocked-reason").is_none());
         assert_eq!(
             window.find("rewrite-note").label(),
@@ -1412,8 +1465,8 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     select(cx, &f, "slow");
     on_window(cx, &f, |window, cx| window.press("cmd-/", cx));
     update(cx, &f, |view, window, cx| {
-        assert_eq!(view.comment_anchor.as_ref().unwrap().3, "slow");
-        view.comment_input.update(cx, |editor, cx| {
+        assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "slow");
+        view.writing.comment_input.update(cx, |editor, cx| {
             editor.set_value("Sharper verb", window, cx)
         });
     });
@@ -1422,7 +1475,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
     // Rewrite with AI captures every included comment and the overall
     // feedback (offline, so no AI starts).
     update(cx, &f, |view, window, cx| {
-        view.general_feedback.update(cx, |editor, cx| {
+        view.writing.general_feedback.update(cx, |editor, cx| {
             editor.set_value("Tighten the opening.", window, cx)
         });
     });
@@ -1440,7 +1493,7 @@ fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
             .unwrap()
             .into_iter()
             .map(|entry| entry.record.id)
-            .filter(|id| !view.excluded_comments.contains(id))
+            .filter(|id| !view.writing.excluded_comments.contains(id))
             .collect();
         assert_eq!(captured, included);
         // Quick (excluded) stays out; Keep, brown and slow go in.
@@ -1469,6 +1522,7 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
                             expected_version: None,
                             archived: false,
                             data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
                                 instruction: Some(request),
                                 queue_claim: None,
                                 thread: thread.into(),
@@ -1519,7 +1573,7 @@ fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppCont
     });
     type_edit(cx, &f, " Added.");
     update(cx, &f, |view, _, cx| {
-        view.comments_expanded = true;
+        view.writing.comments_expanded = true;
         cx.notify();
     });
     on_window(cx, &f, |window, _| {
@@ -1562,7 +1616,7 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
     let reason = "Run failed: Synthetic provider stopped before finishing the rewrite.";
     failed_rewrite(cx, &f, &thread, reason);
     update(cx, &f, |view, _, cx| {
-        view.comments_expanded = true;
+        view.writing.comments_expanded = true;
         cx.notify();
     });
     let comments = comment_ids(cx, &f);
@@ -1666,7 +1720,7 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
     });
     type_edit(cx, &f, " My words.");
     update(cx, &f, |view, _, cx| {
-        view.comments_expanded = true;
+        view.writing.comments_expanded = true;
         cx.notify();
     });
     on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
@@ -1709,7 +1763,7 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
     });
     type_edit(cx, &f, " My words.");
     update(cx, &f, |view, _, cx| {
-        view.comments_expanded = true;
+        view.writing.comments_expanded = true;
         cx.notify();
     });
     on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));

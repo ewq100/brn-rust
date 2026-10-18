@@ -1,0 +1,107 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-app)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 14.08s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-fe552c32c531fd20)
+
+running 95 tests
+test threads_ui::formatting::tests::fence_behind_a_container_nested_at_three_spaces_encloses ... ok
+test threads_ui::formatting::tests::deeply_indented_container_content_is_untouched ... ok
+test tests::data_is_explicit_and_absolute ... ok
+test threads_ui::formatting::tests::emphasis_syntax_elsewhere_on_the_line_is_refused ... ok
+test threads_ui::diff::tests::identical_and_unicode_text_have_no_marks_and_valid_boundaries ... ok
+test threads_ui::diff::tests::heavy_rewrite_uses_whole_paragraph_blocks ... ok
+test threads_ui::formatting::tests::block_toggle_preserves_unicode_indent_blank_lines_and_crlf ... ok
+test threads_ui::formatting::tests::block_prefixes_preserve_link_and_code_contents ... ok
+test threads_ui::formatting::tests::active_line_and_empty_final_line_map_the_caret ... ok
+test threads_ui::formatting::tests::complete_markers_unwrap_at_line_start_and_on_later_lines ... ok
+test threads_ui::formatting::tests::block_touches_whole_lines_but_excludes_the_next_line ... ok
+test threads_ui::diff::tests::light_edit_marks_words_and_reconstructs_both_texts ... ok
+test threads_ui::formatting::tests::fence_with_info_string_encloses_following_lines ... ok
+test threads_ui::formatting::tests::fenced_and_indented_code_are_untouched ... ok
+test threads_ui::formatting::tests::four_space_content_inside_a_quote_is_not_a_fence_opener ... ok
+test threads_ui::formatting::tests::indented_pseudo_fences_do_not_fence_the_plain_line_between ... ok
+test threads_ui::formatting::tests::inline_edge_whitespace_stays_outside_valid_markers ... ok
+test threads_ui::formatting::tests::inline_refuses_empty_multiline_and_whitespace ... ok
+test threads_ui::formatting::tests::inline_toggle_accepts_content_or_complete_markers ... ok
+test threads_ui::formatting::tests::invalid_ranges_never_slice_or_panic ... ok
+test threads_ui::formatting::tests::mid_line_selection_on_a_non_final_line_formats_in_place ... ok
+test threads_ui::formatting::tests::mixed_block_prefixes_do_not_double_format_existing_lines ... ok
+test threads_ui::formatting::tests::multi_line_prefixes_map_selections_across_every_newline ... ok
+test threads_ui::formatting::tests::one_sided_or_exact_markers_are_refused_not_mangled ... ok
+test threads_ui::diff::tests::oversized_inputs_fall_back_to_blocks_and_preview_is_bounded ... ok
+test threads_ui::formatting::tests::ordered_and_nested_container_fences_are_untouched ... ok
+test threads_ui::formatting::tests::repeated_quoted_passages_keep_the_unselected_occurrence ... ok
+test threads_ui::formatting::tests::reversed_selection_at_valid_boundaries_is_refused ... ok
+test threads_ui::formatting::tests::selection_ending_inside_an_existing_prefix_anchors_at_its_start ... ok
+test threads_ui::formatting::tests::short_fully_marked_italic_word_still_unwraps ... ok
+test threads_ui::formatting::tests::tab_indented_short_line_after_short_lines_is_still_code ... ok
+test threads_ui::formatting::tests::three_space_indented_container_fence_still_encloses ... ok
+test threads_ui::formatting::tests::unicode_and_repeated_text_keep_the_selected_occurrence ... ok
+test threads_ui::formatting::tests::unsafe_inline_syntax_is_a_noop ... ok
+test threads_ui::formatting::tests::whitespace_only_multiline_selection_is_a_noop ... ok
+test tests::an_unusable_data_folder_reads_in_owner_terms_at_startup ... ok
+test threads_ui::layout::area_tests::replacing_companions_and_reordered_navigation_keeps_deliberate_splits ... ok
+test threads_ui::layout::area_tests::settings_and_solo_do_not_destroy_the_working_arrangement ... ok
+test threads_ui::layout::tests::maximize_restores_and_focus_cycles_visible_tiles ... ok
+test threads_ui::layout::tests::open_close_toggle_replace_areas_and_mark_custom ... ok
+test threads_ui::layout::tests::ordinary_navigation_reuses_three_areas ... ok
+test threads_ui::layout::tests::presets_and_solo_follow_the_focused_tile ... ok
+test threads_ui::layout::tests::resize_moves_one_gap_within_bounds ... ok
+test threads_ui::layout::tests::swap_and_move_keep_slot_widths ... ok
+test threads_ui::layout::width_tests::margin_mode_picks_the_widest_placement_that_fits ... ok
+test threads_ui::layout::width_tests::solo_gives_the_note_the_wide_margin ... ok
+test threads_ui::layout::width_tests::review_bar_folds_in_order_as_the_note_narrows ... ok
+test threads_ui::layout::width_tests::note_toolbar_folds_in_order_as_the_note_narrows ... ok
+test threads_ui::layout::width_tests::write_weights_resolve_against_the_renderer_minimums ... ok
+test threads_ui::lists::tests::day_numbers_match_the_civil_calendar ... ok
+test threads_ui::lists::tests::human_times_read_as_today_or_a_short_local_date ... ok
+test threads_ui::lists::tests::launcher_commands_name_every_destination_including_projects ... ok
+test threads_ui::presentation_tests::finish_tones_follow_the_owner_stop_and_the_recorded_run ... ok
+test threads_ui::lists::tests::recent_chats_says_no_chats_yet_only_without_chats ... ok
+test threads_ui::lists::tests::launcher_finds_resolved_threads_notes_and_commands ... ok
+test threads_ui::lists::tests::launcher_lists_matching_chat_messages_after_the_label_matches ... ok
+test threads_ui::state::tests::a_recorded_notice_is_the_recovery_reason_and_progress_is_detail ... ok
+test threads_ui::state::tests::an_archived_chat_keeps_the_recorded_reason_and_waits_for_unarchive ... ok
+test threads_ui::state::tests::continue_path_checks_the_pending_chat_then_the_newest_request ... ok
+test threads_ui::state::tests::document_drafts_are_isolated_from_home_and_other_documents ... ok
+test threads_ui::state::tests::headings_in_fences_do_not_become_sections ... ok
+test threads_ui::state::tests::linked_work_is_bidirectional_unique_and_excludes_archived_connections ... ok
+test threads_ui::state::tests::only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing ... ok
+test threads_ui::state::tests::mapped_comment_requires_exact_revision_and_utf8_quote ... ok
+test threads_ui::state::tests::posting_clears_only_the_submitted_destination_draft ... ok
+test threads_ui::state::tests::recovery_cards_count_the_queue ... ok
+test threads_ui::state::tests::recovery_cards_state_the_recorded_reason_and_what_the_button_does ... ok
+test threads_ui::state::tests::refresh_follow_ups_name_changes ... ok
+test threads_ui::state::tests::repeated_quote_anchors_only_the_selected_occurrence_and_never_relocates ... ok
+test threads_ui::state::tests::review_labels_name_every_target_note_and_mark_protection ... ok
+test threads_ui::state::tests::saved_notices_name_changes_and_the_refresh_follow_up ... ok
+test threads_ui::state::tests::saved_working_run_can_continue_only_without_a_local_worker_and_in_an_open_thread ... ok
+test threads_ui::state::tests::stale_and_deferred_changes_have_distinct_non_success_copy ... ok
+test threads_ui::state::tests::unlocated_comments_say_what_is_true ... ok
+test threads_ui::state::tests::unresolved_or_partial_mapping_never_enables_current_passage ... ok
+test threads_ui::theme::tests::every_theme_keeps_readable_text_controls_and_tints ... ok
+test threads_ui::theme::tests::every_theme_keeps_tones_tints_and_the_danger_fill_readable ... ok
+test threads_ui::theme::tests::keys_round_trip_and_unknown_values_use_the_default ... ok
+test threads_ui::workbench::tests::a_recorded_notice_leads_and_progress_is_secondary ... ok
+test threads_ui::workbench::tests::run_outcomes_keep_the_recorded_reason_and_their_tone ... ok
+test threads_ui::workbench::tests::the_first_matching_writing_row_owns_the_primary ... ok
+test threads_ui::lists::tests::all_threads_filters_and_groups_by_day ... ok
+test threads_ui::state::integrity_tests::resolving_a_discussion_keeps_the_linked_waiting_obligation ... ok
+test threads_ui::state::tests::pending_display_does_not_infer_consent_from_legacy_maintenance_flags ... ok
+test threads_ui::lists::tests::bookkeeping_and_reasons_read_as_the_owner_sees_them ... ok
+test tests::fresh_startup_reopens_and_refuses_other_data ... ok
+test threads_ui::lists::tests::sidebar_hides_resolved_and_bounds_open_threads ... ok
+test threads_ui::state::integrity_tests::reading_stays_clean_first_edit_defers_changes_and_save_closes_guard ... ok
+test threads_ui::state::integrity_tests::delayed_generation_cannot_discard_or_replace_a_newer_edit ... ok
+test threads_ui::state::integrity_tests::unsent_owner_message_remains_continuable_without_a_run_after_reopen ... ok
+test threads_ui::state::integrity_tests::stale_save_preserves_full_typed_buffer_across_restart ... ok
+test threads_ui::state::integrity_tests::saved_feedback_mapping_survives_restart_and_retains_removed_passage ... ok
+test threads_ui::state::integrity_tests::newest_run_uses_creation_order_without_cancelling_saved_working_state ... ok
+test threads_ui::presentation_tests::brn_assets_serve_kit_defaults_and_the_added_icons ... ok
+test threads_ui::lists::tests::notes_view_stays_bounded_at_five_thousand_notes ... ok
+
+test result: ok. 95 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s

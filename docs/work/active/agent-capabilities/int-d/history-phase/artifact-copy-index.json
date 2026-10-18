@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/private/tmp/brn-int-d-history-phase-20261017/qualified-artifacts/brn",
+    "sha256": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280"
+  },
+  {
+    "path": "/private/tmp/brn-int-d-history-phase-20261017/qualified-artifacts/int_d-8d0cf15fe49e4a41.d",
+    "sha256": "bf1bfd91affbbac5faf1eeaa3ff6c00147d7389ba947e7183379e89c7c1936cf"
+  },
+  {
+    "path": "/private/tmp/brn-int-d-history-phase-20261017/qualified-artifacts/brn-f4074be051a4fb89.d",
+    "sha256": "9f4c346d5a8c3a16c3946382522809a9f90b2272b42b6d134420292fc51536cf"
+  },
+  {
+    "path": "/private/tmp/brn-int-d-history-phase-20261017/qualified-artifacts/int_d-8d0cf15fe49e4a41",
+    "sha256": "2dd139892bde495d5d6a245c27eae0edf7384756016bb450dd9ff2849fd9f6ce"
+  }
+]

@@ -1,0 +1,434 @@
+{
+  "qualification": "local fake CLI process harness only; no BRN/provider/auth calls; not runtime semantic evidence",
+  "head_at_check": "c6d3f54bd13f1c75d2d344bf61c9ca6fbdfdf713",
+  "observer_sha256": "ceafbe431fd9d459de60b33c62947322303a5ed73b98967cecfbfe5fdc8c10e3",
+  "test_sha256": "cd05f8ce5e8c8b2ddc1e817adf294b4f50f1076a697a276aab33789dc4a5e909",
+  "cases": [
+    {
+      "case": "stop",
+      "exit": 0,
+      "repeat_exit": 2,
+      "reserved_starts": 2,
+      "fake_ask_processes": 2,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792244461.567838,
+            "actual_poll_command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "2",
+              "candidates",
+              "--limit",
+              "100"
+            ],
+            "poll_python_timeout_seconds": 3,
+            "stop_signal_sent": true,
+            "exit": 130,
+            "elapsed_seconds": 0.0987252090126276,
+            "observed_candidate": {
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "writes": [
+                {
+                  "id": "synthetic-note",
+                  "version": 1
+                }
+              ]
+            },
+            "stop_stage": "actual candidate observed",
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Interrupted",
+              "traced_model_turns": 2,
+              "rounds": 1,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 50,
+                "cached_share": 0.5
+              },
+              "turn_usage": [],
+              "summary": null,
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "candidate_inspection": {
+              "exit": 0,
+              "output": "/private/tmp/brn-int-d-candidate-export-20261017-stop-brn-int-d-observer-process-0gtao3l6-1-ask",
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "automatic_apply": false
+            }
+          },
+          {
+            "ordinal": 1,
+            "phase": "continue",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/stop-brn-int-d-observer-process-0gtao3l6/continue.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792244461.863517,
+            "continuation_measurement": "after observed Stop",
+            "exit": 0,
+            "elapsed_seconds": 1.0131814579945058,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Completed",
+              "traced_model_turns": 1,
+              "rounds": 0,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 25,
+                "cached_share": 0.25
+              },
+              "turn_usage": [],
+              "summary": null,
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            },
+            "candidate_inspection": {
+              "exit": 0,
+              "output": "/private/tmp/brn-int-d-candidate-export-20261017-stop-brn-int-d-observer-process-0gtao3l6-1-continue",
+              "operation": "synthetic-op",
+              "request_hash": "synthetic-hash",
+              "automatic_apply": false
+            }
+          }
+        ],
+        "finished_cases": [
+          1
+        ]
+      },
+      "stderr": "",
+      "stdout": "Case observed; semantic assessment and exact owner review remain required.\n"
+    },
+    {
+      "case": "failure",
+      "exit": 1,
+      "repeat_exit": 2,
+      "reserved_starts": 1,
+      "fake_ask_processes": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/failure-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/failure-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/failure-brn-int-d-observer-process-0gtao3l6/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792244463.334799,
+            "actual_poll_command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/failure-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/failure-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "2",
+              "candidates",
+              "--limit",
+              "100"
+            ],
+            "poll_python_timeout_seconds": 3,
+            "exit": 7,
+            "elapsed_seconds": 1.0567035420099273,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": false,
+              "terminal": "Failed:fixture",
+              "counters": "unknown"
+            },
+            "candidate_inspection_gap": "no unique exact target candidate; no body substituted or automatic Apply"
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "actual unsuccessful workflow retained; stop window, no retry/fallback\n",
+      "stdout": ""
+    },
+    {
+      "case": "spawn-failure",
+      "exit": 1,
+      "repeat_exit": 2,
+      "reserved_starts": 1,
+      "fake_ask_processes": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/spawn-failure-brn-int-d-observer-process-0gtao3l6/absent-executable",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/spawn-failure-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/spawn-failure-brn-int-d-observer-process-0gtao3l6/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792244464.796213,
+            "elapsed_seconds": 0.003117332933470607,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": false,
+              "qualification": "no complete normal envelope; counters unknown"
+            }
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 244, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 235, in main\n    workflow(\"ask\", case[\"ask_command\"], case[\"stop_observer\"] is not None)\n    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\", line 162, in workflow\n    child = subprocess.Popen(cmd, env=env, stdout=stdout, stderr=stderr)\n  File \"/Users/evokessler/.local/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py\", line 1039, in __init__\n    self._execute_child(args, executable, preexec_fn, close_fds,\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                        pass_fds, cwd, env,\n                        ^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n                        gid, gids, uid, umask,\n                        ^^^^^^^^^^^^^^^^^^^^^^\n                        start_new_session, process_group)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/evokessler/.local/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py\", line 1990, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/brn-int-d-observer-process-0gtao3l6/spawn-failure-brn-int-d-observer-process-0gtao3l6/absent-executable'\n",
+      "stdout": ""
+    },
+    {
+      "case": "cap",
+      "exit": 1,
+      "repeat_exit": 1,
+      "reserved_starts": 12,
+      "fake_ask_processes": 0,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          },
+          {
+            "ordinal": 0
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "12-start ceiling reached\n",
+      "stdout": ""
+    },
+    {
+      "case": "poll-timeout",
+      "exit": 1,
+      "repeat_exit": 2,
+      "reserved_starts": 1,
+      "fake_ask_processes": 1,
+      "ledger": {
+        "starts": [
+          {
+            "ordinal": 1,
+            "phase": "ask",
+            "command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "120",
+              "ask",
+              "--thread",
+              "synthetic-chat",
+              "--prompt-file",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/ask.txt",
+              "--budget",
+              "8",
+              "--trace",
+              "summary"
+            ],
+            "reserved_before_spawn": true,
+            "wall_started": 1792244465.395947,
+            "actual_poll_command": [
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/fake-cli",
+              "--json",
+              "--data-dir",
+              "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/candidate",
+              "--timeout",
+              "2",
+              "candidates",
+              "--limit",
+              "100"
+            ],
+            "poll_python_timeout_seconds": 0.25,
+            "harness_failure": {
+              "stage": "candidate_poll",
+              "kind": "timeout",
+              "command": [
+                "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/fake-cli",
+                "--json",
+                "--data-dir",
+                "/private/tmp/brn-int-d-observer-process-0gtao3l6/poll-timeout-brn-int-d-observer-process-0gtao3l6/candidate",
+                "--timeout",
+                "2",
+                "candidates",
+                "--limit",
+                "100"
+              ],
+              "timeout_seconds": 0.25,
+              "outcome": "harness_failure; stop window, no retry or Continue"
+            },
+            "cleanup_exit": 130,
+            "elapsed_seconds": 0.2637750409776345,
+            "observed_candidate": null,
+            "stop_stage": "not observed; gap if Stop case",
+            "exposed_metrics": {
+              "trace_available": true,
+              "terminal": "Interrupted",
+              "traced_model_turns": 2,
+              "rounds": 1,
+              "max_rounds": null,
+              "stopped": null,
+              "runtime_elapsed_ms": null,
+              "parent_usage": {
+                "input": 100,
+                "output": 10,
+                "cached_input": 50,
+                "cached_share": 0.5
+              },
+              "turn_usage": [],
+              "summary": null,
+              "helpers": [],
+              "recorded_provider_resends": 0,
+              "auth_requests": "not exposed",
+              "account_identity": "not exposed",
+              "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+            }
+          }
+        ],
+        "finished_cases": []
+      },
+      "stderr": "candidate inspection timed out; window stopped\n",
+      "stdout": ""
+    },
+    {
+      "case": "changed-corpus",
+      "exit": 2,
+      "refused_before_configure": true,
+      "fake_ask_processes": 0,
+      "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: fixed corpus changed\n"
+    },
+    {
+      "case": "changed-manifest",
+      "exit": 2,
+      "refused_before_configure": true,
+      "fake_ask_processes": 0,
+      "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: fixture manifest changed\n"
+    },
+    {
+      "case": "changed-database",
+      "exit": 2,
+      "refused_before_configure": true,
+      "fake_ask_processes": 0,
+      "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: initial case database changed; no replacement/reuse\n"
+    },
+    {
+      "case": "changed-continue",
+      "exit": 2,
+      "refused_before_configure": true,
+      "fake_ask_processes": 0,
+      "stderr": "usage: observe-workflow.py [-h] --preflight PREFLIGHT --activation ACTIVATION\n                           --ordinal ORDINAL\nobserve-workflow.py: error: fixed Continue prompt changed\n"
+    }
+  ],
+  "live_workflow_starts": 0,
+  "auth_starts": 0
+}

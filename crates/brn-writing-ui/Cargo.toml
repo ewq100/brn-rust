@@ -1,0 +1,27 @@
+[package]
+name = "brn-writing-ui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+native-ui = ["dep:gpui-kit"]
+native-test-support = ["native-ui", "gpui-kit/test-support"]
+
+[dependencies]
+brn-threads-app = { path = "../brn-threads-app" }
+gpui-kit = { version = "=0.7.3", optional = true }
+
+[[example]]
+name = "writing_host"
+test = true
+required-features = ["native-ui"]
+
+[dev-dependencies]
+brn-ai = { path = "../brn-ai", features = ["scripted-runs"] }
+brn-threads-intake = { path = "../brn-threads-intake" }
+rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+tempfile = "3"
+serde_json = "1"

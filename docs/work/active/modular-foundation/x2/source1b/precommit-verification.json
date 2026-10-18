@@ -1,0 +1,52 @@
+{
+  "base": "cd2da52ce85313ae45c0d590db64cc102a96655f",
+  "material_inputs": 334,
+  "scripts": 3,
+  "material_Git_working_errors": [],
+  "changed_prior_docs_with_exact_allocation": [
+    "formats.md",
+    "allocation.md",
+    "plan.md",
+    "handoff.md",
+    "acceptance.md",
+    "source-audit/resources.md",
+    "opus1/response.md"
+  ],
+  "unallocated_frozen_changes": [],
+  "rootlock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "rootlock_matches_binding": true,
+  "artifact_rechecks": [
+    {
+      "label": "binary:path",
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "expected": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280",
+      "actual": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280",
+      "equal": true
+    },
+    {
+      "label": "binary:dep_info",
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/brn-f4074be051a4fb89.d",
+      "expected": "fde5954cb290b7ef1056125bdd79349b8aa3185e9e8c9892eeea683700ad7310",
+      "actual": "fde5954cb290b7ef1056125bdd79349b8aa3185e9e8c9892eeea683700ad7310",
+      "equal": true
+    },
+    {
+      "label": "generator:path",
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+      "expected": "ce2936b4d758cee2b99650c693dd13d9ef2d6eb7e7d70b66f3097590f7d3ee11",
+      "actual": "ce2936b4d758cee2b99650c693dd13d9ef2d6eb7e7d70b66f3097590f7d3ee11",
+      "equal": true
+    },
+    {
+      "label": "generator:dep_info",
+      "path": "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41.d",
+      "expected": "92ae97d9ad86f456b364f95ad8c3181b302b40b3f386b6cee63205885777d5a9",
+      "actual": "92ae97d9ad86f456b364f95ad8c3181b302b40b3f386b6cee63205885777d5a9",
+      "equal": true
+    }
+  ],
+  "precise_heavy_inventory": [],
+  "own_finished_controller_Cargo_PGID_inventory": [],
+  "prior_ref_changes": [],
+  "no_commands_execute_artifacts": true
+}

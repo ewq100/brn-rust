@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/2-candidates.stdout",
+  "sha256": "6586a250552bab28a5e2876edeb111d07d274ade3724ceca4ff9d64567c04942",
+  "bytes": 980,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\"contract\":3,\"command\":\"candidates\",\"ok\":true,\"status\":\"ok\",\"exit\":0,\"outcome\":null,\"operation\":null,\"key\":null,\"retry\":\"read\",\"changed\":[],\"conflict\":null,\"result\":{\"candidates\":[{\"operation\":\"122d9ab7-c467-454d-af5d-f404e7fefa20\",\"request_hash\":\"17bd30984ac5eceb9e300c96d2c7bdb3deb9e31c25aa08abbd9d53d15e676db5\",\"reason\":\"Owner requested an exact protected Note revision for review only. Exact saved owner Message establishes Monday-only requirement; later assistant Message is an unaccepted Tuesday proposal. Preserve protection and confirmation status; do not apply.\",\"writes\":[{\"id\":\"5483c303-e8ce-46f2-aaa4-9a071aae18ac:0\",\"kind\":\"Note\",\"version\":2,\"archived\":false,\"created\":false}],\"writes_total\":1,\"inputs_total\":5,\"undo_of\":null,\"replacement_of\":null}],\"shown\":1,\"cursor\":null,\"total\":null},\"error\":null,\"page\":{\"limit\":100,\"shown\":1,\"cursor\":null,\"total\":null},\"stop\":null,\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n"
+}

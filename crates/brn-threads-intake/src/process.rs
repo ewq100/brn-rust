@@ -25,57 +25,6 @@ pub(crate) fn run(
     temp: &TransientDir,
     budget: ProcessBudget,
     cancel: &AtomicBool,
-    restrict: bool,
-) -> Result<Vec<u8>, ConversionError> {
-    run_inner(
-        executable,
-        args,
-        input,
-        temp,
-        budget,
-        cancel,
-        if restrict {
-            RuntimeProfile::Restricted
-        } else {
-            RuntimeProfile::Helper
-        },
-    )
-}
-
-/// Rendering needs a reproducible font configuration. Never inherit HOME/font paths:
-/// enumerate installed system fonts without writing disposable disk font caches.
-pub(crate) fn run_renderer(
-    executable: &Path,
-    args: &[OsString],
-    temp: &TransientDir,
-    budget: ProcessBudget,
-    cancel: &AtomicBool,
-) -> Result<Vec<u8>, ConversionError> {
-    run_inner(
-        executable,
-        args,
-        None,
-        temp,
-        budget,
-        cancel,
-        RuntimeProfile::Renderer,
-    )
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum RuntimeProfile {
-    Helper,
-    Restricted,
-    Renderer,
-}
-fn run_inner(
-    executable: &Path,
-    args: &[OsString],
-    input: Option<Vec<u8>>,
-    temp: &TransientDir,
-    budget: ProcessBudget,
-    cancel: &AtomicBool,
-    profile: RuntimeProfile,
 ) -> Result<Vec<u8>, ConversionError> {
     let ProcessBudget {
         output_bytes: output_limit,
@@ -88,8 +37,8 @@ fn run_inner(
     if Instant::now() >= deadline {
         return Err(ConversionError::Timeout);
     }
-    // Explicit paths avoid PATH selection and shell interpolation. Homebrew symlinks
-    // are resolved before sandboxing; the caller owns converter configuration.
+    // Explicit paths avoid PATH selection and shell interpolation; the host owns
+    // executable selection. The document helper installs its own restriction.
     if !executable.is_absolute() {
         return Err(ConversionError::Unavailable);
     }
@@ -108,25 +57,10 @@ fn run_inner(
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
-    if profile == RuntimeProfile::Renderer {
-        // No includes, user font paths or ambient cache-directory fallback. /dev/null
-        // cannot hold cache children; Fontconfig still builds its in-memory font set.
-        // Fresh conversion scratch never reuses disk caches, whose atomic lock entries
-        // can conflict with the file-only scratch monitor on some Fontconfig builds.
-        let fonts = temp.path.join("fonts.conf");
-        std::fs::write(&fonts, b"<?xml version=\"1.0\"?><fontconfig><dir>/System/Library/Fonts</dir><dir>/Library/Fonts</dir><cachedir>/dev/null</cachedir></fontconfig>")
-            .map_err(|_| ConversionError::Io)?;
-        command
-            .env("FONTCONFIG_FILE", fonts)
-            .env("FONTCONFIG_PATH", &temp.path);
-    }
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
         command.process_group(0);
-    }
-    if profile != RuntimeProfile::Helper {
-        restrict_command(&mut command, &executable, &temp.path, storage_limit)?;
     }
     let mut child = command.spawn().map_err(|_| ConversionError::Unavailable)?;
     let mut stdin = child.stdin.take().ok_or(ConversionError::Io)?;
@@ -224,242 +158,11 @@ fn kill_group(child: &mut std::process::Child) {
     let _ = child.kill();
 }
 
-#[cfg(target_os = "macos")]
-fn homebrew_prefix(executable: &Path) -> Option<&Path> {
-    executable
-        .ancestors()
-        .find(|path| path.file_name().is_some_and(|name| name == "Cellar"))
-        .and_then(Path::parent)
-}
-
-#[cfg(target_os = "macos")]
-fn restrict_command(
-    command: &mut Command,
-    executable: &Path,
-    temp: &Path,
-    output_limit: usize,
-) -> Result<(), ConversionError> {
-    use std::os::unix::process::CommandExt;
-    fn escaped(path: &Path) -> Result<String, ConversionError> {
-        let path = path.to_str().ok_or(ConversionError::Invalid)?;
-        if path.chars().any(char::is_control) {
-            return Err(ConversionError::Invalid);
-        }
-        Ok(path.replace('\\', "\\\\").replace('"', "\\\""))
-    }
-    // Canonical Homebrew executables live at PREFIX/Cellar/FORMULA/VERSION/bin.
-    // Permit only their installation runtime, even when PREFIX is beneath HOME;
-    // never grant content reads to the surrounding home directory or BRN data.
-    let homebrew = if let Some(prefix) = homebrew_prefix(executable) {
-        format!(
-            "(allow file-read-metadata (subpath \"{}\"))\n(allow file-read* file-map-executable (subpath \"{}\") (subpath \"{}\") (subpath \"{}\"))",
-            escaped(prefix)?,
-            escaped(&prefix.join("Cellar"))?,
-            escaped(&prefix.join("lib"))?,
-            escaped(&prefix.join("share"))?,
-        )
-    } else {
-        String::new()
-    };
-    let profile = std::ffi::CString::new(format!(r#"(version 1)
-(deny default)
-(allow process-exec (literal "{}"))
-(allow sysctl-read)
-(allow file-read* (literal "/"))
-{}
-(allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Volumes/Preboot") (subpath "/private/preboot") (subpath "/usr/lib") (subpath "/private/var/db/dyld") (subpath "/usr/share") (subpath "/Library/Fonts") (literal "{}"))
-(allow file-read* file-write* (subpath "{}") (literal "/dev/null"))
-"#, escaped(executable)?, homebrew, escaped(executable)?, escaped(temp)?)).map_err(|_| ConversionError::Invalid)?;
-    #[link(name = "sandbox")]
-    unsafe extern "C" {
-        fn sandbox_init(
-            profile: *const std::ffi::c_char,
-            flags: u64,
-            error: *mut *mut std::ffi::c_char,
-        ) -> i32;
-    }
-    // macOS ignition reads root directory/xattrs during exec; Homebrew dylib
-    // symlinks need metadata beneath its prefix. Neither grants content reads
-    // beneath the filesystem root, user directories or the BRN store.
-    // Only native calls in the forked child; no document parsing here.
-    unsafe {
-        command.pre_exec(move || {
-            if sandbox_init(profile.as_ptr(), 0, std::ptr::null_mut()) != 0 {
-                return Err(std::io::Error::from_raw_os_error(libc::EPERM));
-            }
-            for (resource, limit) in [
-                (libc::RLIMIT_CPU, 30u64),
-                (libc::RLIMIT_NOFILE, 64),
-                (libc::RLIMIT_FSIZE, output_limit as u64),
-            ] {
-                let limits = libc::rlimit {
-                    rlim_cur: limit,
-                    rlim_max: limit,
-                };
-                if libc::setrlimit(resource, &limits) != 0 {
-                    return Err(std::io::Error::last_os_error());
-                }
-            }
-            Ok(())
-        });
-    }
-    Ok(())
-}
-#[cfg(not(target_os = "macos"))]
-fn restrict_command(_: &mut Command, _: &Path, _: &Path, _: usize) -> Result<(), ConversionError> {
-    Err(ConversionError::Unavailable)
-}
-
 #[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
     use std::sync::Arc;
 
-    #[test]
-    fn homebrew_runtime_prefix_follows_canonical_installation_only() {
-        for prefix in ["/opt/homebrew", "/usr/local", "/Users/synthetic/.local"] {
-            let executable = Path::new(prefix).join("Cellar/poppler/26.10.0/bin/pdftotext");
-            assert_eq!(homebrew_prefix(&executable), Some(Path::new(prefix)));
-        }
-        assert_eq!(
-            homebrew_prefix(Path::new("/Users/synthetic/private/tool")),
-            None
-        );
-    }
-
-    #[test]
-    fn sandbox_denies_external_source_and_network_before_parsing() {
-        sandbox_witness(false);
-    }
-
-    #[test]
-    fn custom_homebrew_runtime_keeps_external_source_and_network_denied() {
-        sandbox_witness(true);
-    }
-
-    #[test]
-    fn renderer_uses_only_owned_font_config_and_keeps_source_and_network_denied() {
-        let root = tempfile::tempdir().unwrap();
-        let forbidden = root.path().join("excluded");
-        std::fs::write(&forbidden, b"synthetic-excluded-canary").unwrap();
-        let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
-        let temp = TransientDir::create(root.path()).unwrap();
-        std::fs::write(
-            temp.path.join("probe"),
-            format!(
-                "{}\n{}",
-                forbidden.display(),
-                listener.local_addr().unwrap().port()
-            ),
-        )
-        .unwrap();
-        let args = [
-            "--ignored",
-            "--exact",
-            "process::tests::renderer_probe_child",
-            "--nocapture",
-        ]
-        .map(OsString::from);
-        run_renderer(
-            &std::env::current_exe().unwrap(),
-            &args,
-            &temp,
-            ProcessBudget {
-                output_bytes: 4096,
-                storage_bytes: 8192,
-                deadline: Instant::now() + Duration::from_secs(5),
-            },
-            &AtomicBool::new(false),
-        )
-        .unwrap();
-    }
-
-    #[test]
-    #[ignore = "subprocess witness only"]
-    fn renderer_probe_child() {
-        let probe = std::fs::read_to_string("probe").unwrap();
-        let mut lines = probe.lines();
-        assert!(std::fs::read(lines.next().unwrap()).is_err());
-        let port: u16 = lines.next().unwrap().parse().unwrap();
-        assert!(std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port)).is_err());
-        assert_eq!(std::env::vars_os().count(), 2);
-        let scratch = std::env::current_dir().unwrap();
-        assert_eq!(
-            std::env::var_os("FONTCONFIG_PATH").unwrap(),
-            scratch.as_os_str()
-        );
-        assert_eq!(
-            std::env::var_os("FONTCONFIG_FILE").unwrap(),
-            scratch.join("fonts.conf").as_os_str()
-        );
-        let config = std::fs::read_to_string("fonts.conf").unwrap();
-        assert!(config.contains("<cachedir>/dev/null</cachedir>"));
-        assert!(!config.contains("<include") && !config.contains("HOME"));
-        std::fs::write("synthetic-renderer-output", b"owned scratch output").unwrap();
-    }
-
-    fn sandbox_witness(custom_homebrew: bool) {
-        let root = tempfile::tempdir().unwrap();
-        let temp = TransientDir::create(root.path()).unwrap();
-        let forbidden = root.path().join("external-source");
-        std::fs::write(&forbidden, b"synthetic-excluded-canary").unwrap();
-        let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
-        let port = listener.local_addr().unwrap().port();
-        let (executable, runtime) = if custom_homebrew {
-            let prefix = root.path().join("home/.local");
-            let executable = prefix.join("Cellar/synthetic/1/bin/witness");
-            std::fs::create_dir_all(executable.parent().unwrap()).unwrap();
-            std::fs::copy(std::env::current_exe().unwrap(), &executable).unwrap();
-            let runtime = prefix.join("lib/runtime-canary");
-            std::fs::create_dir_all(runtime.parent().unwrap()).unwrap();
-            std::fs::write(&runtime, b"synthetic runtime").unwrap();
-            (
-                executable,
-                runtime.canonicalize().unwrap().display().to_string(),
-            )
-        } else {
-            (std::env::current_exe().unwrap(), String::new())
-        };
-        std::fs::write(
-            temp.path.join("probe"),
-            format!("{}\n{port}\n{runtime}", forbidden.display()),
-        )
-        .unwrap();
-        let args = [
-            "--ignored",
-            "--exact",
-            "process::tests::sandbox_probe_child",
-            "--nocapture",
-        ]
-        .map(OsString::from);
-        run(
-            &executable,
-            &args,
-            None,
-            &temp,
-            ProcessBudget {
-                output_bytes: 4096,
-                storage_bytes: 8192,
-                deadline: Instant::now() + Duration::from_secs(5),
-            },
-            &AtomicBool::new(false),
-            true,
-        )
-        .unwrap();
-    }
-    #[test]
-    #[ignore = "subprocess witness only"]
-    fn sandbox_probe_child() {
-        let probe = std::fs::read_to_string("probe").unwrap();
-        let mut lines = probe.lines();
-        assert!(std::fs::read(lines.next().unwrap()).is_err());
-        let port: u16 = lines.next().unwrap().parse().unwrap();
-        assert!(std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port)).is_err());
-        if let Some(runtime) = lines.next().filter(|line| !line.is_empty()) {
-            assert_eq!(std::fs::read(runtime).unwrap(), b"synthetic runtime");
-        }
-        assert_eq!(std::env::vars_os().count(), 0);
-    }
     #[test]
     fn cancellation_kills_owned_descendant_and_joins_pipes() {
         let root = tempfile::tempdir().unwrap();
@@ -493,7 +196,6 @@ mod tests {
                 deadline: Instant::now() + Duration::from_secs(5),
             },
             &cancel,
-            false,
         );
         signal.join().unwrap();
         assert_eq!(result, Err(ConversionError::Cancelled));

@@ -126,6 +126,7 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState) -> Strin
                     expected_version: None,
                     archived: false,
                     data: RecordData::Run(Run {
+                        loaded_skill_details: vec![],
                         instruction: None,
                         queue_claim: None,
                         thread: thread.into(),
@@ -712,7 +713,8 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     let note = note.unwrap();
     update(cx, &f, |view, window, cx| {
         view.open_note(&note.id, None, window, cx);
-        view.note_editor
+        view.writing
+            .note_editor
             .update(cx, |editor, cx| editor.set_selected_range(5..9, cx));
         view.track_selection(cx);
     });
@@ -723,20 +725,24 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     click(cx, &f, "selection-comment");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.comment_anchor.as_ref().unwrap().3, "tere");
-        assert_eq!(view.comment_anchor.as_ref().unwrap().1, note.version);
+        assert_eq!(view.writing.comment_anchor.as_ref().unwrap().3, "tere");
+        assert_eq!(
+            view.writing.comment_anchor.as_ref().unwrap().1,
+            note.version
+        );
     });
     update(cx, &f, |view, window, cx| {
-        view.comment_anchor = None;
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.comment_anchor = None;
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("tere tere õun and an unsaved tail", window, cx)
         });
         view.preserve_visible_note_input(cx);
         view.focus_visible_editor(window, cx);
     });
     update(cx, &f, |view, _, cx| {
-        assert!(view.note.as_ref().unwrap().session.is_some());
-        view.note_editor
+        assert!(view.writing.note.as_ref().unwrap().session.is_some());
+        view.writing
+            .note_editor
             .update(cx, |editor, cx| editor.set_selected_range(0..4, cx));
         view.track_selection(cx);
     });
@@ -748,7 +754,10 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     press(cx, &f, "cmd-/");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.comment_anchor.is_none(), "no anchor on unsaved text");
+        assert!(
+            view.writing.comment_anchor.is_none(),
+            "no anchor on unsaved text"
+        );
         assert!(view.notice.contains("anchor to the saved version"));
         assert!(
             view.workspace
@@ -761,7 +770,7 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     choose(cx, &f, "Comment on selection · save first");
     cx.read(|cx| {
         assert!(
-            f.view.read(cx).comment_anchor.is_none(),
+            f.view.read(cx).writing.comment_anchor.is_none(),
             "disabled menu row"
         )
     });
@@ -770,10 +779,11 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.note.as_ref().unwrap().session.is_none(),
+            view.writing.note.as_ref().unwrap().session.is_none(),
             "Save and comment saves before opening the composer"
         );
         let anchor = view
+            .writing
             .comment_anchor
             .as_ref()
             .expect("saved passage composer");
@@ -808,8 +818,9 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     let (note, thread) = fixture_ids.unwrap();
     let candidate = update(cx, &f, |view, window, cx| {
         view.open_note(&note.id, None, window, cx);
-        view.comment_anchor = Some((note.id.clone(), note.version, 13..18, "quick".into()));
-        view.comment_input
+        view.writing.comment_anchor = Some((note.id.clone(), note.version, 13..18, "quick".into()));
+        view.writing
+            .comment_input
             .update(cx, |e, cx| e.set_value("Sharper verb", window, cx));
         view.post_comment(window, cx);
         let ids: Vec<String> = view
@@ -853,13 +864,19 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     click(cx, &f, format!("writing-review-{op}"));
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let shown = view.diff_editor.read(cx).value().to_string();
+        let shown = view.writing.diff_editor.read(cx).value().to_string();
         assert!(
             shown.contains("quick") && shown.contains("swift"),
             "{shown}"
         );
         assert_eq!(
-            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            view.writing
+                .review
+                .as_ref()
+                .unwrap()
+                .candidate
+                .operation
+                .as_str(),
             op
         );
     });
@@ -874,26 +891,39 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     });
     click(cx, &f, "review-read-result");
     update(cx, &f, |view, window, cx| {
-        assert!(view.review_reading);
+        assert!(view.writing.review_reading);
         assert!(
-            view.candidate_view
+            view.writing
+                .candidate_view
                 .read(cx)
                 .focus_handle()
                 .is_focused(window)
         );
-        assert!(!view.diff_editor.focus_handle(cx).is_focused(window));
+        assert!(!view.writing.diff_editor.focus_handle(cx).is_focused(window));
         assert_eq!(
-            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            view.writing
+                .review
+                .as_ref()
+                .unwrap()
+                .candidate
+                .operation
+                .as_str(),
             op
         );
     });
     // Changes | Result: the Changes segment returns to the tracked changes.
     click(cx, &f, "review-show-changes");
     update(cx, &f, |view, window, cx| {
-        assert!(!view.review_reading);
-        assert!(view.diff_editor.focus_handle(cx).is_focused(window));
+        assert!(!view.writing.review_reading);
+        assert!(view.writing.diff_editor.focus_handle(cx).is_focused(window));
         assert_eq!(
-            view.review.as_ref().unwrap().candidate.operation.as_str(),
+            view.writing
+                .review
+                .as_ref()
+                .unwrap()
+                .candidate
+                .operation
+                .as_str(),
             op
         );
     });
@@ -906,15 +936,20 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     click(cx, &f, "note-menu");
     choose(cx, &f, "Edit final text");
     update(cx, &f, |view, window, cx| {
-        assert!(view.review_editor.focus_handle(cx).is_focused(window));
-        view.review_editor.update(cx, |editor, cx| {
+        assert!(
+            view.writing
+                .review_editor
+                .focus_handle(cx)
+                .is_focused(window)
+        );
+        view.writing.review_editor.update(cx, |editor, cx| {
             editor.set_value(
                 "# Essay\n\nThe swift brown fox runs.\n\nKeep this.",
                 window,
                 cx,
             )
         });
-        if let Some(review) = &mut view.review {
+        if let Some(review) = &mut view.writing.review {
             review.edited = true;
         }
     });
@@ -926,11 +961,11 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.review.is_some(),
+            view.writing.review.is_some(),
             "edited text must be prepared before Apply"
         );
         assert!(
-            view.review.as_ref().unwrap().edited,
+            view.writing.review.as_ref().unwrap().edited,
             "card actions keep edited text"
         );
         assert!(view.notice.contains("editing this proposal"));
@@ -944,10 +979,10 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     click(cx, &f, "prepare-final");
     let replaced = cx.read(|cx| {
         let view = f.view.read(cx);
-        let review = view.review.as_ref().unwrap();
+        let review = view.writing.review.as_ref().unwrap();
         assert_ne!(review.candidate.operation.as_str(), op);
-        assert!(!view.review_editing && !review.edited);
-        assert!(view.diff_editor.read(cx).value().contains("runs."));
+        assert!(!view.writing.review_editing && !review.edited);
+        assert!(view.writing.diff_editor.read(cx).value().contains("runs."));
         review.candidate.operation.as_str().to_owned()
     });
     on_window(cx, &f, |window, _| {
@@ -957,7 +992,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     click(cx, &f, "apply-final");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.review.is_none());
+        assert!(view.writing.review.is_none());
         let RecordData::Note(saved) = view.workspace.store.note(&note.id).unwrap().unwrap().data
         else {
             panic!("note")
@@ -966,7 +1001,10 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             saved.markdown,
             "# Essay\n\nThe swift brown fox runs.\n\nKeep this."
         );
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), saved.markdown);
+        assert_eq!(
+            view.writing.note_editor.read(cx).value().as_ref(),
+            saved.markdown
+        );
         assert!(
             view.workspace
                 .writing_comments(&note.id)
@@ -1012,7 +1050,10 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             saved.markdown,
             "# Essay\n\nThe quick brown fox.\n\nKeep this."
         );
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), saved.markdown);
+        assert_eq!(
+            view.writing.note_editor.read(cx).value().as_ref(),
+            saved.markdown
+        );
         assert!(
             view.workspace
                 .writing_comments(&note.id)
@@ -1020,7 +1061,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
                 .iter()
                 .all(|c| !c.addressed)
         );
-        assert!(!view.applied_rewrite.contains_key(&note.id));
+        assert!(!view.writing.applied_rewrite.contains_key(&note.id));
     });
     // Undo saved a new version with the passage back. The comment stays
     // tied to the version it was written on and nothing re-anchors it, so
@@ -1031,7 +1072,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         let RecordData::Comment(data) = &entry.record.data else {
             panic!("comment")
         };
-        let version = view.note.as_ref().unwrap().record.version;
+        let version = view.writing.note.as_ref().unwrap().record.version;
         (
             entry.record.id.clone(),
             state::unlocated_reason(data, version),
@@ -1127,8 +1168,8 @@ fn a_note_draft_follows_the_first_thread_created_for_that_note(cx: &mut TestAppC
         });
         view.open_thread(&other, window, cx);
         assert_eq!(view.composer.read(cx).value().as_ref(), "");
-        view.comment_anchor = Some((note.id.clone(), note.version, 0..4, "tere".into()));
-        view.comment_input.update(cx, |editor, cx| {
+        view.writing.comment_anchor = Some((note.id.clone(), note.version, 0..4, "tere".into()));
+        view.writing.comment_input.update(cx, |editor, cx| {
             editor.set_value("First feedback", window, cx)
         });
         view.post_comment(window, cx);
@@ -1268,7 +1309,7 @@ fn chat_and_note_figure_resolvers_exclude_foreign_private_assets(cx: &mut TestAp
         assert!(ui.assets_in_chat(Some(&owner_chat)).contains_key(&key));
         ui.open_note(&note_id, None, window, cx);
         assert_eq!(ui.chat, ChatTarget::Thread(other_chat.clone()));
-        assert!(ui.note_assets().contains_key(&key));
+        assert!(ui.writing_view().note_assets().contains_key(&key));
     });
 }
 
@@ -1327,7 +1368,7 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
     });
     update(cx, &f, |view, window, cx| {
         view.open_note(&note, None, window, cx);
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Unsaved work", window, cx)
         });
     });
@@ -1346,6 +1387,7 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
         assert!(
             !f.view
                 .read(cx)
+                .writing
                 .note_editor
                 .focus_handle(cx)
                 .is_focused(window)
@@ -1359,7 +1401,10 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(!view.layout.settings_open());
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), "Unsaved work");
+        assert_eq!(
+            view.writing.note_editor.read(cx).value().as_ref(),
+            "Unsaved work"
+        );
         assert_eq!(
             view.workspace.store.recovery_buffers().unwrap()[0].markdown,
             "Unsaved work"
@@ -1435,7 +1480,7 @@ fn new_chat_from_solo_note_menu_focuses_the_visible_composer(cx: &mut TestAppCon
         let view = f.view.read(cx);
         assert_eq!(view.layout.maximized(), Some(TileKind::Chat));
         assert!(view.composer.focus_handle(cx).is_focused(window));
-        assert!(!view.note_editor.focus_handle(cx).is_focused(window));
+        assert!(!view.writing.note_editor.focus_handle(cx).is_focused(window));
         assert!(view.chat_thread().is_some());
         assert!(view.worker.is_none());
     });
@@ -1564,13 +1609,22 @@ fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut Tes
     });
     update(cx, &f, |view, window, cx| {
         view.open_note(&note, None, window, cx);
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Saved from the keyboard", window, cx)
         });
         // Typing records the edit; set_value alone does not.
         view.preserve_visible_note_input(cx);
     });
-    assert!(cx.read(|cx| f.view.read(cx).note.as_ref().unwrap().session.is_some()));
+    assert!(cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .note
+            .as_ref()
+            .unwrap()
+            .session
+            .is_some()
+    }));
     // Start from the workspace root, as after clicking empty space.
     update(cx, &f, |view, window, cx| view.focus_root(window, cx));
     let reached = (0..80).any(|_| {
@@ -1592,7 +1646,7 @@ fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut Tes
     press(cx, &f, "enter");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let open = view.note.as_ref().unwrap();
+        let open = view.writing.note.as_ref().unwrap();
         assert!(open.session.is_none(), "the chosen item ran: {}", view.notice);
         assert!(matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Saved from the keyboard"));
     });
@@ -1757,7 +1811,7 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
         assert_eq!(window.find("status-save").label(), Some("Saved"));
     });
     update(cx, &f, |view, window, cx| {
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Unsaved status text", window, cx)
         });
         view.preserve_visible_note_input(cx);
@@ -1773,7 +1827,7 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
     click(cx, &f, "status-save");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let open = view.note.as_ref().unwrap();
+        let open = view.writing.note.as_ref().unwrap();
         assert!(open.session.is_none(), "clicking saves: {}", view.notice);
         assert!(
             matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Unsaved status text")

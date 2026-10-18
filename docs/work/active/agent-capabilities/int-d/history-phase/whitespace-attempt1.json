@@ -1,0 +1,14 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "exit": 2,
+  "findings": [
+    "checks/cli-intd/raw.log:228 new blank line at EOF",
+    "checks/metadata-final/raw.log:9 new blank line at EOF"
+  ],
+  "disposition": "exact raw scratch retained; repo raw-log.json stores reversible text+original SHA; no bypass"
+}

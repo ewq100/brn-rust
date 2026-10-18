@@ -1,0 +1,334 @@
+{
+  "source_pin": "a499712d96c48e36b47df43e7a281f3cfcd90636",
+  "copy_root": "/private/tmp/brn-d3a-20261017-review1-mutation-source",
+  "target": "/private/tmp/brn-d3a-20261017-review1-mutation-target",
+  "material_files_hash_verified": 306,
+  "copy_restored": true,
+  "candidate_material_unchanged": true,
+  "baseline": {
+    "scenario": "Baseline",
+    "summary": "Success",
+    "log_path": "log/baseline.log",
+    "diff_path": null,
+    "phase_results": [
+      {
+        "phase": "Build",
+        "duration": 49.493443542,
+        "process_status": "Success",
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+          "test",
+          "--no-run",
+          "--verbose",
+          "--package=brn-ai@0.1.0",
+          "--locked",
+          "--offline"
+        ]
+      },
+      {
+        "phase": "Test",
+        "duration": 1.8791004999999998,
+        "process_status": "Success",
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+          "test",
+          "--verbose",
+          "--package=brn-ai@0.1.0",
+          "--locked",
+          "--offline",
+          "--lib",
+          "skill_packages",
+          "--",
+          "--nocapture"
+        ]
+      }
+    ]
+  },
+  "baseline_log_sha256": "54de4ad5ab6ad10a1f63cf84facd105ac9e07817f0e477a74fde6f33bfa9eb22",
+  "generated_rechecks": [
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/skill_packages.rs:313:13: replace || with && in Catalog::read",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/skill_packages.rs",
+          "function": {
+            "function_name": "Catalog::read",
+            "return_type": "-> io::Result<Option<Package>>",
+            "span": {
+              "start": {
+                "line": 299,
+                "column": 5
+              },
+              "end": {
+                "line": 318,
+                "column": 6
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 313,
+              "column": 13
+            },
+            "end": {
+              "line": 313,
+              "column": 15
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__skill_packages.rs_line_313_col_13.log",
+      "diff_path": "diff/crates__brn-ai__src__skill_packages.rs_line_313_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.449163,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.293241917,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "original_15c_list_index": 129,
+      "original_15c_verdict": "MISSED unchanged",
+      "qualified_new_pin_catch": true,
+      "expected_failed_test": "well_formed_body_digest_and_file_name_binding_refuse_without_deletion",
+      "raw_log": "/private/tmp/brn-d3a-20261017-review1-artifacts/supplement-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_313_col_13.log",
+      "log_sha256": "1057f4a89152018b9635205fc78531c70f3902f91fd503f5a6998732103f423c",
+      "raw_diff": "/private/tmp/brn-d3a-20261017-review1-artifacts/supplement-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_313_col_13.diff",
+      "diff_sha256": "72d5aa1f33b424ac91f3a559b30de4c10bba9274bf18f97c06d2893e2b6a049d"
+    },
+    {
+      "scenario": {
+        "Mutant": {
+          "name": "crates/brn-ai/src/skill_packages.rs:477:13: replace || with && in remove",
+          "package": "brn-ai",
+          "file": "crates/brn-ai/src/skill_packages.rs",
+          "function": {
+            "function_name": "remove",
+            "return_type": "-> io::Result<bool>",
+            "span": {
+              "start": {
+                "line": 435,
+                "column": 1
+              },
+              "end": {
+                "line": 490,
+                "column": 2
+              }
+            }
+          },
+          "span": {
+            "start": {
+              "line": 477,
+              "column": 13
+            },
+            "end": {
+              "line": 477,
+              "column": 15
+            }
+          },
+          "replacement": "&&",
+          "genre": "BinaryOperator"
+        }
+      },
+      "summary": "CaughtMutant",
+      "log_path": "log/crates__brn-ai__src__skill_packages.rs_line_477_col_13.log",
+      "diff_path": "diff/crates__brn-ai__src__skill_packages.rs_line_477_col_13.diff",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 14.499683541,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 2.305486958,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "original_15c_list_index": 176,
+      "original_15c_verdict": "MISSED unchanged",
+      "qualified_new_pin_catch": true,
+      "expected_failed_test": "remove_rechecks_real_replacement_and_rolls_back_without_deleting_it",
+      "raw_log": "/private/tmp/brn-d3a-20261017-review1-artifacts/supplement-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_477_col_13.log",
+      "log_sha256": "3d6e41fa6030685919213d8c1e07194e299d3e2a43e2d288bc6c51517c84c4ed",
+      "raw_diff": "/private/tmp/brn-d3a-20261017-review1-artifacts/supplement-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_477_col_13.diff",
+      "diff_sha256": "0d45cede81307164527bb3d77727ecdedc3dca78c75e06a0a25e367807820baa"
+    }
+  ],
+  "manual_seed": {
+    "id": "ER01_raw_errno_preservation",
+    "kind": "explicit single guard seed; not generated count",
+    "pin": "a499712d96c48e36b47df43e7a281f3cfcd90636",
+    "source": "/private/tmp/brn-d3a-20261017-review1-mutation-source",
+    "target": "/private/tmp/brn-d3a-20261017-review1-mutation-target",
+    "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-errno-seed-nki1ir36",
+    "command": [
+      "cargo",
+      "+1.98.1",
+      "test",
+      "-p",
+      "brn-threads-app",
+      "--lib",
+      "skills::tests",
+      "--locked",
+      "--offline",
+      "--",
+      "--nocapture"
+    ],
+    "started_unix": 1792216824.0935948,
+    "processes": [
+      {
+        "label": "errno-unmutated-baseline",
+        "started_unix": 1792216824.093598,
+        "pid": 96068,
+        "pgid": 96068,
+        "exit": 0,
+        "ended_unix": 1792216831.118148,
+        "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/errno-unmutated-baseline.log",
+        "log_sha256": "6862fd429c37c95dd9822b4e7dca170b23fc259107555a1c8eae154cee5d0f60",
+        "summaries": [
+          [
+            "ok",
+            "1",
+            "0",
+            "0"
+          ]
+        ]
+      },
+      {
+        "label": "errno-mutant",
+        "started_unix": 1792216831.120737,
+        "pid": 96092,
+        "pgid": 96092,
+        "exit": 101,
+        "ended_unix": 1792216833.201885,
+        "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/errno-mutant.log",
+        "log_sha256": "fe06f4a44bd862490ffb92be736df2b5ec6be04cbb589cc93918956f867bd05a",
+        "summaries": [
+          [
+            "FAILED",
+            "0",
+            "1",
+            "0"
+          ]
+        ]
+      }
+    ],
+    "baseline": {
+      "label": "errno-unmutated-baseline",
+      "started_unix": 1792216824.093598,
+      "pid": 96068,
+      "pgid": 96068,
+      "exit": 0,
+      "ended_unix": 1792216831.118148,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/errno-unmutated-baseline.log",
+      "log_sha256": "6862fd429c37c95dd9822b4e7dca170b23fc259107555a1c8eae154cee5d0f60",
+      "summaries": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    "diff_sha256": "435e8191ccc6de236b9871ad4d0fdf991b276aba94b14ab2d7ebe7e08e006967",
+    "mutated_file_sha256": "39920d2fe2f97dacdd1ee838ffb1b2bea03f10a962baf6248816b9faeb1ea72d",
+    "mutant": {
+      "label": "errno-mutant",
+      "started_unix": 1792216831.120737,
+      "pid": 96092,
+      "pgid": 96092,
+      "exit": 101,
+      "ended_unix": 1792216833.201885,
+      "log": "/private/tmp/brn-d3a-20261017-review1-artifacts/errno-mutant.log",
+      "log_sha256": "fe06f4a44bd862490ffb92be736df2b5ec6be04cbb589cc93918956f867bd05a",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    "compiled_and_executed": true,
+    "intended_assertion_failed": true,
+    "outcome": "CAUGHT",
+    "artifact": {
+      "path": "/private/tmp/brn-d3a-20261017-review1-mutation-target/debug/deps/brn_threads_app-c988a8f11e37f029",
+      "sha256": "3327c39aa8425a8075835fed30742ae4a5a09e95033790f6ada0956031e5966c",
+      "dep_info": "/private/tmp/brn-d3a-20261017-review1-mutation-target/debug/deps/brn_threads_app-c988a8f11e37f029.d",
+      "dep_info_sha256": "7f2e9405036cfd3b03bc6ce36e392e3666c6041ed4f617adb99ce8c9b32d58d8",
+      "source_cwd": "/private/tmp/brn-d3a-20261017-review1-mutation-source"
+    },
+    "copy_restored": true,
+    "ended_unix": 1792216833.220608
+  },
+  "automatic_counts": {
+    "caught": 2,
+    "missed": 0,
+    "unviable": 0,
+    "timeout": 0
+  },
+  "listed_in_two_functions": 26,
+  "unselected_current_list": 24,
+  "selected_unexecuted": [],
+  "original_15c_counts": "12 caught/2 MISSED plus3 manual catches unchanged, not retroactively relabelled",
+  "old_250_unselected": "unchanged/unexecuted; no broad restart",
+  "timing": "Final cumulative charge measured through evidence cleanup/release, including conservative post-pin overhead boundary; original1800 total only."
+}

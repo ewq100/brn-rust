@@ -1,0 +1,78 @@
+[
+  {
+    "ordinal": 1,
+    "command": [
+      "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "--json",
+      "--data-dir",
+      "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/control",
+      "--timeout",
+      "2",
+      "records"
+    ],
+    "pid": 90347,
+    "pgid": 90347,
+    "exit": 0,
+    "elapsed": 0.039247989654541016,
+    "purpose": "postwindow read-only canonical authority assessment; no workflow/Auth",
+    "stdout_sha256": "2d7a5d7c005c94c54888d92556afa8e113e8dfb957f7c9744ca9af327c59a257",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "ordinal": 2,
+    "command": [
+      "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "--json",
+      "--data-dir",
+      "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1/candidate",
+      "--timeout",
+      "2",
+      "records"
+    ],
+    "pid": 90348,
+    "pgid": 90348,
+    "exit": 0,
+    "elapsed": 0.016941070556640625,
+    "purpose": "postwindow read-only canonical authority assessment; no workflow/Auth",
+    "stdout_sha256": "22ed0f1157adc5838ad3c8ea133c54a89991ca1ba53051664e9652f61ec26608",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "ordinal": 3,
+    "command": [
+      "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "--json",
+      "--data-dir",
+      "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/candidate",
+      "--timeout",
+      "2",
+      "records"
+    ],
+    "pid": 90349,
+    "pgid": 90349,
+    "exit": 0,
+    "elapsed": 0.017811059951782227,
+    "purpose": "postwindow read-only canonical authority assessment; no workflow/Auth",
+    "stdout_sha256": "ea1541852cc9d51e85eb211882ae7e3021d90957b22478d7a097a89c7a7c0b71",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "ordinal": 4,
+    "command": [
+      "/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn",
+      "--json",
+      "--data-dir",
+      "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/control",
+      "--timeout",
+      "2",
+      "records"
+    ],
+    "pid": 90350,
+    "pgid": 90350,
+    "exit": 0,
+    "elapsed": 0.018100976943969727,
+    "purpose": "postwindow read-only canonical authority assessment; no workflow/Auth",
+    "stdout_sha256": "8296e3b0cabc5fbd27da2bc80173384d5500e47848519e2b7be1e9193ba631b8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

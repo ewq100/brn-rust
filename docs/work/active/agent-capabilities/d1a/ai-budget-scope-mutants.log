@@ -1,0 +1,9 @@
+Found 41 mutants to test
+ok       Unmutated baseline
+MISSED   crates/brn-ai/src/threads_context_budget.rs:81:9: delete field origin from struct crate::AiFailureDetail expression in failure
+MISSED   crates/brn-ai/src/threads_context_budget.rs:264:42: replace > with >= in <impl AgentHook for BudgetHook>::on_outcome
+MISSED   crates/brn-ai/src/threads_search.rs:50:9: replace || with && in read_message
+MISSED   crates/brn-ai/src/threads_search.rs:49:9: replace || with && in read_message
+ERROR interrupted
+ERROR scenario execution internal error err=interrupted phase=Test
+Error: interrupted

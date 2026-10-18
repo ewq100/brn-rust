@@ -1,0 +1,18 @@
+## Review
+
+**Verdict: APPROVED**
+
+**Blocking findings:** None. Both round1 findings are resolved:
+
+- `documents.rs:74` refuses non-macOS execution after pure validation and before input cloning, scratch creation or helper dispatch. The replacement test uses a bounded fixture for both backends and checks no scratch or dispatch; Mac assertions remain unchanged.
+- `document_refine_tests.rs:443` now matches the transport helper’s `#[cfg(unix)]`, resolving the identified Windows compilation defect.
+
+**Advisory:** None.
+
+**Coverage / remaining unverified**
+
+Reviewed the exact `70f2440f..b8cf75bf` correction, complete affected modules/tests, relevant shared runtime/process paths, prior report and full response, and complete distribution records. No additional concrete regression found. Only three Rust paths changed; manifests, locks, authority, schema, provenance, UI and packaging code remain unchanged.
+
+Code-reviewed pin: `b8cf75bf56470b390b383baca37afdbc8fc4ff86`, tree `f39dfd74cb9fe3bec5854c67d2da593b726e3d34`. Clean evidence HEAD: `f9f23e825ce7f29556843f5aa9197c69cbd639ef`.
+
+No builds, tests, formatters, application/provider calls, network access, writes or delegation were performed. Corrected-package verification is recorded as complete at `b8cf75bf`; I did not execute it. Ubuntu/Windows qualification, required PR/main CI, integration, native-human observation and owner acceptance remain pending. Historical failures retain their qualifications. This is code-review approval, not source acceptance, CI-green or PR-readiness certification.

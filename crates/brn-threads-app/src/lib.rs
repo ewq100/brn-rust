@@ -1,4 +1,5 @@
 //! Shared product use cases. Every canonical write delegates to the checked core.
+pub use brn_ai::threads::{OwnerRequest, TraceLevel};
 pub use brn_threads_core::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -15,26 +16,44 @@ mod export;
 mod intake;
 mod keyed;
 mod knowledge;
+mod mcp;
+pub use mcp::{MCP_LIMITATIONS, McpStatus};
 mod projects;
 mod refresh;
 pub mod relations;
+mod run;
+pub use run::{
+    PreparedWorkspaceRun, RunPreparationError, RunSelectionError, ThreadRunStart,
+    resolve_run_selection,
+};
 mod review;
+pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceReview};
 mod review_groups;
 pub mod search;
 mod settings;
+mod skills;
 pub use settings::HELPER_TESTED_NOTE;
+pub use skills::LoadedSkillDetails;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+pub use skills::{
+    Package as SkillPackage, PackageInfo as SkillPackageInfo,
+    RETENTION_NOTICE as SKILL_RETENTION_NOTICE, SkillStatus,
+};
 mod steering;
 mod topics;
 mod writing;
 pub use brn_retrieval::Error as RetrievalError;
 pub use export::ExportManifest;
-pub use intake::{SOURCE_INTAKE_INSTRUCTION, import_report};
+pub use intake::{SOURCE_INTAKE_INSTRUCTION, import_report, import_report_with_conversion};
 pub use knowledge::{
     FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck, REVIEW_MESSAGE_BYTES,
 };
 pub use review_groups::{ReviewGroup, ReviewGroups};
 pub use topics::{TopicEntry, Topics};
-pub use writing::{WritingComment, WritingCommentInput};
+pub use writing::{
+    ActiveWritingContext, WritingComment, WritingCommentInput, WritingReferenceState,
+    WritingSetupView,
+};
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     #[error(transparent)]
@@ -283,28 +302,21 @@ impl Workspace {
             .collect())
     }
     pub fn messages(&self, thread: &str) -> AppResult<Vec<Record>> {
-        let mut rows: Vec<_> = self
-            .records()?
-            .into_iter()
-            .filter(|r| !r.archived && matches!(&r.data,RecordData::Message(m) if m.thread==thread))
-            .collect();
-        // Receipt insertion order is durable and total even when wall-clock
-        // timestamps tie or the clock moves backwards. Message edits retain creation order.
-        let mut order = BTreeMap::new();
-        for (receipt_order, receipt) in self.history()?.into_iter().enumerate() {
-            for (write_order, write) in receipt.writes.into_iter().enumerate() {
-                order
-                    .entry(write.after.id)
-                    .or_insert((receipt_order, write_order));
+        // The shared inspection service owns durable message order and scoped
+        // request visibility, including pages that skip another scope's data.
+        let mut messages = Vec::new();
+        let mut after = 0;
+        loop {
+            let (page, more) = self.store.message_page(thread, after, 100)?;
+            if let Some((position, _)) = page.last() {
+                after = *position;
+            }
+            messages.extend(page.into_iter().map(|(_, record)| record));
+            if !more {
+                break;
             }
         }
-        rows.sort_by_key(|row| {
-            order
-                .get(&row.id)
-                .copied()
-                .unwrap_or((usize::MAX, usize::MAX))
-        });
-        Ok(rows)
+        Ok(messages)
     }
     pub fn history(&self) -> AppResult<Vec<Receipt>> {
         Ok(self.store.receipts()?)

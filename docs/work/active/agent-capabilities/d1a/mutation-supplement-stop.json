@@ -1,0 +1,179 @@
+{
+  "requested_epoch": 1792183450.349621,
+  "reason": "principal Opus3 CHANGES_REQUIRED safe stop; preserve efc material source",
+  "active": {
+    "label": "new-guards-qualified",
+    "command": [
+      "cargo",
+      "mutants",
+      "-p",
+      "brn-ai",
+      "--in-place",
+      "--in-diff",
+      "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/supplement-new-guards.diff",
+      "--file",
+      "crates/brn-ai/src/threads_context_budget.rs",
+      "--file",
+      "crates/brn-ai/src/threads.rs",
+      "--re",
+      "fit_prefix|record_note_prefix",
+      "--test-package",
+      "brn-ai",
+      "--features",
+      "scripted-runs",
+      "--cargo-arg=--lib",
+      "--cargo-arg=--locked",
+      "--cargo-arg=--offline",
+      "--timeout",
+      "15",
+      "--build-timeout",
+      "90",
+      "--colors",
+      "never",
+      "--no-times",
+      "--output",
+      "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/supplement-new-guards"
+    ],
+    "source": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/source",
+    "target": "/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts",
+    "started_elapsed": 332.9403693675995,
+    "pid": 88170
+  },
+  "observed_own_processes": [
+    "88106 14628 88106       05:31 /Users/evokessler/.local/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python docs/work/active/agent-capabilities/d1a/mutate_supplement_tail.py",
+    "88170 88106 88170       05:30 /Users/evokessler/.cargo/bin/cargo-mutants mutants -p brn-ai --in-place --in-diff /private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/supplement-new-guards.diff --file crates/brn-ai/src/threads_context_budget.rs --file crates/brn-ai/src/threads.rs --re fit_prefix|record_note_prefix --test-package brn-ai --features scripted-runs --cargo-arg=--lib --cargo-arg=--locked --cargo-arg=--offline --timeout 15 --build-timeout 90 --colors never --no-times --output /private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/supplement-new-guards",
+    "93521 88170 93521       00:06 /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo test --no-run --verbose --package=brn-ai@0.1.0 --features=scripted-runs --lib --locked --offline",
+    "93522 93521 93521       00:06 /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/rustc --crate-name brn_ai --edition=2024 crates/brn-ai/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C opt-level=1 -C embed-bitcode=no -C debug-assertions=on --test --cfg feature=\"scripted-runs\" --check-cfg cfg(docsrs,test) --check-cfg cfg(feature, values(\"capability-spike\", \"scripted-runs\")) -C metadata=e2f3d8fd33f44f8b -C extra-filename=-28a197b27edef53b --out-dir /private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps -C strip=debuginfo -L dependency=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps --extern base64=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libbase64-4084c0ad52017e25.rlib --extern brn_intake=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libbrn_intake-a79c03b6324858c4.rlib --extern brn_threads_core=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib --extern brn_threads_intake=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libbrn_threads_intake-27487b716b34a58c.rlib --extern bytes=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libbytes-784c232a280c19e4.rlib --extern futures=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libfutures-7c72f84570f86b5c.rlib --extern libc=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/liblibc-40c2521dc71be0d7.rlib --extern rig=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/librig-4b3e5feeb8298606.rlib --extern rig_core=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/librig_core-bcb82bed34ee6b76.rlib --extern rig_reqwest=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/librig_reqwest-3e2c28cc5fcaed48.rlib --extern schemars=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libschemars-cae1568c5e7ae855.rlib --extern serde=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libserde-61877fe70bea1b88.rlib --extern serde_json=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libserde_json-11d4ef894f9c42be.rlib --extern sha2=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libsha2-ba2d6173fdd4e5fe.rlib --extern tempfile=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libtempfile-9ffa488f2f66b116.rlib --extern tokio=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libtokio-ad2f2130e6643f7c.rlib --extern tokio_util=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/deps/libtokio_util-9e065f4e3101a850.rlib -L native=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/build/libsqlite3-sys-9071fbfbdf834ee4/out -L native=/private/tmp/brn-d1a-20261016-target/mutation-202bf2d7/artifacts/debug/build/aws-lc-sys-aea980364a92737c/out"
+  ],
+  "signal": "SIGINT to own active cargo-mutants process group",
+  "finalized_epoch": 1792183553.185754,
+  "controller_exit_code": 0,
+  "active_cargo_mutants_exit_code": 1,
+  "own_processes_after": [],
+  "changed_copy_source_files": [],
+  "candidate_material_diff_empty": true,
+  "candidate_head": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "manual_seed_outcomes": [
+    {
+      "id": "seed:partial-ledger-complete",
+      "file": "crates/brn-ai/src/threads.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "9b296909c53930b74d2926b703f0d60fde3fbfb864e10b7e8ff87509627c4251",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::cw2_tests::oversized_prefix_read_is_recorded_as_partial_and_ranges_can_finish_it ... FAILED",
+        "test threads::reads_tests::a_truncated_read_does_not_but_reading_through_to_the_end_does ... FAILED",
+        "test threads::research_tests::helpers_read_long_notes_in_capped_slices ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:omitted-ledger-grant",
+      "file": "crates/brn-ai/src/threads.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "237ab6d7752d758c55ef2d03c64599781e8d42be3ff4ad6ef648284f6c6c5b69",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:provider-local-origin-guard",
+      "file": "crates/brn-ai/src/error.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "f447965a6eb3edaf00aea389bc0e3f426b1292dcb7ad0c83f0b74e52fc21b50c",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::sanitized_provider_cannot_spoof_a_local_brn_estimate_notice ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:encoded-fit-bypass",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "d28d70e7145bc0da2d9770ffd7946197244212386508070d937521f3787cc8d8",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::bounded_reference_delivery_cannot_validate_an_undelivered_writing_quotation ... FAILED",
+        "test threads::budget_tests::escaped_maximum_note_read_pages_in_actual_model_history_and_tracks_only_delivered_ranges ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-local-origin-deletion",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "1c6734d63283342dd8a3c46499f4fa9839df4f5f91316f4bc5795f1da7e8255d",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_request_estimate_boundary_counts_real_tools_and_response_reserve ... FAILED",
+        "test threads::budget_tests::full_v2_writing_context_is_mandatory_even_under_a_tiny_test_budget ... FAILED",
+        "test threads::budget_tests::next_request_checks_actual_growing_tools_and_results_without_rewriting_the_prefix ... FAILED",
+        "test threads::budget_tests::provider_context_exceeded_and_local_limit_share_display_attention_and_terminal_path ... FAILED",
+        "test threads::budget_tests::sanitized_provider_cannot_spoof_a_local_brn_estimate_notice ... FAILED",
+        "test threads::budget_tests::small_budget_keeps_mandatory_input_and_stops_zero_model_calls ... FAILED",
+        "test threads::budget_tests::copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refuses_without_trimming ... FAILED",
+        "test threads::research_tests::helper_admitted_read_exhausts_tiny_next_dispatch_budget_without_trimming ... FAILED",
+        "test threads::research_tests::helper_request_budget_refuses_before_any_scripted_dispatch ... FAILED",
+        "test threads::budget_tests::mandatory_oversize_unknown_route_stops_production_before_any_provider_request ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-result-equality",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "08339d3fa0e1829c1d623d0df8f58280485ef3ffb9bdec810f639ef56a3719fd",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_tool_result_admission_boundary_reaches_the_next_real_dispatch ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-helper-discussion-guard",
+      "file": "crates/brn-ai/src/threads_search.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "a169e4f865f004d7c0f3174e053d340ba1609838abb3f1ccfac021f8ce2c3bad",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-writing-discussion-guard",
+      "file": "crates/brn-ai/src/threads_search.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "2f3805dfb9a2add335c748ca1a9331754eb359b0aa1c3e51b060e8779867058a",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message ... FAILED",
+        "test threads::budget_tests::exact_discussion_refuses_writing_scope_even_for_an_otherwise_visible_owner_message ... FAILED"
+      ],
+      "source_restored": true
+    }
+  ],
+  "auto_counts": {
+    "CaughtMutant": 9,
+    "Timeout": 6,
+    "MissedMutant": 2
+  },
+  "auto_selected": 20,
+  "auto_no_verdict": 3,
+  "prior_original_charged_seconds": 426.87080216407776,
+  "supplement_charged_seconds": 765.6934282779694,
+  "total_original_charged_seconds": 1192.5642304420471,
+  "remaining_original_seconds": 607.4357695579529,
+  "deadline_epoch": 1792184160.6215236,
+  "heavy_released": true,
+  "scope_retained": "D1A AI/core source only; no new heavy command until explicit grant"
+}

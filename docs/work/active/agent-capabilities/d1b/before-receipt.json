@@ -1,0 +1,31 @@
+{
+  "base": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "production_tracked_crate_files_verified": 285,
+  "production_identity_sha256": "115aa245c7d815aa4e1e5e84e040e7a6d0504c72d64547321f57230442697b8b",
+  "only_baseline_production_adaptation": "threads.rs cfg(test) module registration; no production logic changed",
+  "before_fixture_messages": 72,
+  "candidate_fixture_messages": 68,
+  "fixture_correction": "Initial candidate crossed a genuine coarse cut (3->4); use68 for cold reuse between boundaries. Before absence remains behavioral 0/2.",
+  "before_command": [
+    "cargo",
+    "+1.98.1",
+    "test",
+    "-p",
+    "brn-ai",
+    "--features",
+    "scripted-runs",
+    "--locked",
+    "--offline",
+    "--lib",
+    "threads::summary_tests",
+    "--",
+    "--nocapture"
+  ],
+  "before_exit": 101,
+  "behavioral_failed": 2,
+  "passed": 0,
+  "log": "/private/tmp/brn-d1b-20261017-artifacts/before-summary.log",
+  "log_sha256": "956e43cf7c3e9034cacc345e3e4bd4ad4f78c417171e3cb013da9ed7494be034",
+  "target": "/private/tmp/brn-d1b-20261017-before-target",
+  "source": "/private/tmp/brn-d1b-20261017-before-source"
+}

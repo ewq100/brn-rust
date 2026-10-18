@@ -44,7 +44,7 @@ Both tests click the shared `consequence_dialog` confirmation, then expect an im
 
 ### 2. The writing component needs owned state, beyond separate files
 
-[threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs) and [threads_document.rs](../../crates/brn-desktop/src/threads_document.rs) extend the same `ThreadsUi`; they are not independent components. The parent owns editor/review state, search, project selection, drafts, workers and notices together. `open_note` also reconstructs writing context from receipt history and falls back to the first linked thread; `ensure_writing_thread` partly owns the selection policy in the UI.
+[threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs) and [threads_document.rs](https://github.com/ewq100/brn-rust/blob/57c710ccec2b007c4d8a25c9f1d1b5c1c539907c/crates/brn-desktop/src/threads_document.rs) extend the same `ThreadsUi`; they are not independent components. The parent owns editor/review state, search, project selection, drafts, workers and notices together. `open_note` also reconstructs writing context from receipt history and falls back to the first linked thread; `ensure_writing_thread` partly owns the selection policy in the UI.
 
 **Next change:** use CW1/CW2 for explicit scoped writing-context resolution and B1a/B1b for a panel with owned state and small typed host requests. Preserve the planned serial ownership of shared interfaces. Extracting the file into a new crate while retaining full-desktop dependencies would not achieve the intended boundary.
 

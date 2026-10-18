@@ -1,0 +1,142 @@
+{
+  "task": "int-d-history-phase-offline-20261017",
+  "branch": "work/int-d-20261017",
+  "head": "b28f4c0c0c05527167454a9eada180eaff290b40",
+  "origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "crates": "876bc9dceb4c251d59f9f5c7b2c8a78964ca1ec0",
+  "initial_status": "clean",
+  "precise_heavy_inventory": [],
+  "offline_only": true,
+  "preserved_artifacts": [
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/brn",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn",
+      "sha256": "1f66cf323051ef75b7a225cf8dcf88f911add03657675d25fddd6dbacf49e280"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_contract-db3eeabc390c2b41",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/agent_contract-db3eeabc390c2b41",
+      "sha256": "b621519bc2f1657922f6d73bcda704272602c8c2cbd29f20b457d678a82620f2"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_contract-db3eeabc390c2b41.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/agent_contract-db3eeabc390c2b41.d",
+      "sha256": "e451ce6e7a08fb6427017231ef6e62bdb7e3b708c0cd81890e4fae0cbc220b28"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_runs-4e0b6e32104dc48a.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/agent_runs-4e0b6e32104dc48a.d",
+      "sha256": "a5fd2ef1296faf54c66540d62ace72c4ec642721301b4ecda64e533c29fbf655"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/agent_runs-4e0b6e32104dc48a",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/agent_runs-4e0b6e32104dc48a",
+      "sha256": "b42cfb8954327ff01c3637232b2f69108fab629fad336503f641cd2005ea6a95"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-artifacts/brn-f4074be051a4fb89.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn-f4074be051a4fb89.d",
+      "sha256": "ccced5e84b613c19941bad4acf9376f2f1545912d3ac833cd73803ef86ba347e"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/full-ai/artifact-copies/brn_ai-0a77908ed974f7b9",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "sha256": "39b21b4fb02e084c8dea2f35b096a799a7e39edd0b2e4cf15c6d16b7a0721aa7"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/full-ai/artifact-copies/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "6dba41aa2397945f76019b70e24b5e25a6351198334f80507dca0edc8361de7f"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/int_d-8d0cf15fe49e4a41-01c129beecc1",
+      "sha256": "01c129beecc1d3dc165ffee9e0783cfa6fc828d36e72a58802bbbe89ac935c40"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/int_d-8d0cf15fe49e4a41-01c129beecc1.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/int_d-8d0cf15fe49e4a41-01c129beecc1.d",
+      "sha256": "6c0073fbc84e17071ea7a91fe4713cddf81b03964da4710f5794d12c4ae51ae2"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn-62a066c55424",
+      "sha256": "62a066c55424fd140dfcd588c2630db0ed663da50815035a1f372a757137be74"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-opus1-20261017-evidence/original-live-artifacts/brn-62a066c55424.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn-62a066c55424.d",
+      "sha256": "01483c7430f5f4f5b414a3eb5e5c445effe70676685903920545601c753d9e54"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "sha256": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "sha256": "e70442d30859e4e7ecb8fcf404d7d2ce66ff1e6497a756954b86e7d129faed8b"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "7daf2847a94feb9ab43473e9e867e7971e35c33d38be29c824d97e135ec0711f"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/qualified-artifacts/brn_ai-0a77908ed974f7b9",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9",
+      "sha256": "cbd234c7cce9e63d6bfbcec3dc9bcd6ef7b3186e6640fb0f3181aef51aa761f7"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/qualified-artifacts/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "7daf2847a94feb9ab43473e9e867e7971e35c33d38be29c824d97e135ec0711f"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-bc43702978e3cc1b.rlib",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/libbrn_ai-bc43702978e3cc1b.rlib",
+      "sha256": "3a83311ec69d58d8f98dab00324b1395488d61501e18f074d82199d4d53f3d2c"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-bc43702978e3cc1b.rmeta",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/libbrn_ai-bc43702978e3cc1b.rmeta",
+      "sha256": "40c2da3e56b8cb44fb3a8091b8c4bdd2489550195570163972a48fa782501728"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-e5216f003022d67b.rmeta",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/libbrn_ai-e5216f003022d67b.rmeta",
+      "sha256": "e1d2f44d163d96668fbd732902ecd639e73cf29aee5ef9cbb462264e22b7b69d"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-32674d95845e75ab.rmeta",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/libbrn_ai-32674d95845e75ab.rmeta",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-bc43702978e3cc1b.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-bc43702978e3cc1b.d",
+      "sha256": "f4b2227ed02805ca2ec8c6595a621d48830e8ee9f4d4a1028c52fd2a5d8835ac"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "6dba41aa2397945f76019b70e24b5e25a6351198334f80507dca0edc8361de7f"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-e5216f003022d67b.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-e5216f003022d67b.d",
+      "sha256": "c79cbeef62b985f698e6e5dbcc7c14a719e083fb20a16e3121e200ec060868f9"
+    },
+    {
+      "source": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-32674d95845e75ab.d",
+      "copy": "/private/tmp/brn-int-d-history-phase-20261017/preserved/brn_ai-32674d95845e75ab.d",
+      "sha256": "337808816b27299abe9176ee9e04d385f962f53c27d8b0f884bb08f1629d13a5"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "qualification": "sha256 actual bytes; index excludes itself and final release receipt; no future pin/self-hash assertion",
+  "files": {
+    "opus-review-round2.md": "f9614e6b813a9590841c89a930be590200061a7680d0b4243d4695249e13e4c4",
+    "opus2/readiness.md": "c312830e29cfc964b5ecc7513af5d96e9dbc7f05bb8bc7a4fb19f4325c4a3c5a",
+    "opus2/response.md": "d5368161c484067cfa005b51780895b41fc671b06e1bde316b774b36f0039314",
+    "source1b/Cargo.lock": "dcaf563ce90289161bb4596976ae958439230a81bd1ce3e099442aa1c0292d78",
+    "source1b/Cargo.toml": "9c85e21bedb8cd9dd9627d4d29427865e8df1bb1884777eb998b12ebb91a1e14",
+    "source1b/api.md": "70a2a3474305559089060fce8a4ae2b544f5f3c6a08709fcb99c8475f53c7570",
+    "source1b/available-fixtures.json": "d6b9ea28c2e4a388bed452d0f9e74e8dd0f6a265fa30e9d968685c6088b10c02",
+    "source1b/binding.json": "f1d49afcee5101436c778ada97fe9e3a8269a612a8284e78e77623eb4cfb5305",
+    "source1b/build-scripts.json": "5c59197a7e432f37f2013ce83fa089339b41ce9d03387068810d025f30f1b791",
+    "source1b/dependencies.md": "680933b7f98cdbfb1d091e75c68595a1579b7597659e9d589147e08f3da152ee",
+    "source1b/feature-edge-qualification.json": "61b7ec1143ad74bb012b1cb5e2355da88263b4090dda1292c91dd248706a16a7",
+    "source1b/handoff.md": "43d572d73f0cab1fcf6fb23dfbdd90edca45127c0abd42457f0bd004e54e6e6f",
+    "source1b/manifest-rust-requirements.json": "5a78ffc27e6c7d1597511c7d57179f179de95ab6e1d3747d1a7d793489733e22",
+    "source1b/metadata-result.json": "0e8b50a252167f85839fbfda91f6611d2ccbe3807a24bf22db7793cccc5aa68f",
+    "source1b/metadata-start.json": "ba6a8fae5c363a64ff3ac34f77a16293805ff9015a00c9781aaf619b72753695",
+    "source1b/metadata.stderr": "d0660460c63a6858ca4d1e378f6aae3d93f68c12186265c4c9e8090601c8dd97",
+    "source1b/metadata.stdout.json.gz": "4a548be144f9bc87ead013166bd2c01aad92c55b7d689f6fd3a9b7d4396a57da",
+    "source1b/new-source-files.json": "bc043dd8998c552f72264d6e5ca5bab5eca7387f6c68f76ab01fd9f3aa20cab5",
+    "source1b/next-allocation.md": "ac3cc3e3c4e5049cc19c8f7f77e901e8583887a671d08e22e76fd8de4048be2e",
+    "source1b/package-ledger.json": "d3fa92ae8864600a09a5d3cbba3e541fa5b91d86fd8f8540453c847be9b520d8",
+    "source1b/precommit-verification.json": "4ac115ac8bef959c382a6b1720aa469693e0c7914e9254b5109cdc43cfc36805",
+    "source1b/resources.md": "dd490f6a5160948644dae542ea039fccba1b64603bcc10b48221b3a97f1094e8",
+    "source1b/review-report-identity.json": "555afabf721b2b947d57420f2a63bf396d418fd722d5d6979c6938cfba309247",
+    "source1b/runtime.md": "ac257b37c165deff800ea237c57d84f8f0c94cde6d15f50057ee240bd7ff32b3",
+    "source1b/seed-Cargo.lock": "b5d6f8483304c913a264ac4b188d1429995322b513e8d8c2ea4de91f919b547f",
+    "source1b/source-anchors.json": "4b17d51e1600c217e8b5a391a2fd598e7db176e56376f76fa04917535e5feb4d",
+    "source1b/thread-callsite-survey.json": "152fc633a2ecd30cfd025ba8cc270223b4ca5929705b5f6e931b5ac35688b970",
+    "source1b/tooling-qualifications.json": "e933bf717e48e89a28139efcc122b72a5edf8d6a1bc9c7ff1168253ddb07444c"
+  }
+}

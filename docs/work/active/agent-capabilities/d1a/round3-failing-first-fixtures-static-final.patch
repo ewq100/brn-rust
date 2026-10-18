@@ -1,0 +1,191 @@
+--- a/crates/brn-ai/src/threads_budget_tests.rs
++++ b/crates/brn-ai/src/threads_budget_tests.rs
+@@ -1685,3 +1685,188 @@
+         before
+     );
+ }
++
++// Round 3 witnesses are captured as a test-only patch against unchanged efc.
++fn round3_change(id: &str, version: u64, text: &str) -> ChangeRequest {
++    ChangeRequest {
++        reason: "Round 3 bounded model output witness".into(),
++        writes: vec![Put {
++            id: id.into(),
++            expected_version: Some(version),
++            archived: false,
++            data: RecordData::Note(Note::working("Decision", text)),
++        }],
++        inputs: vec![],
++    }
++}
++
++#[tokio::test]
++async fn large_committed_apply_delivers_compact_receipt_and_continues_model_loop() {
++    let (_root, request, id) = tests::fixture();
++    let text = "a".repeat(70 * 1024);
++    owner_write(&mut Store::open(&request.data_dir).unwrap(), round3_change(&id, 1, &text).writes);
++    let (scope, input) = begin(&request).unwrap();
++    tests::read_all(&scope);
++    let replacement = "b".repeat(text.len());
++    let prepared = prepare(&scope, PrepareArgs {
++        writing: None,
++        request_key: "round3-large-apply".into(),
++        request: round3_change(&id, 2, &replacement),
++    }).unwrap();
++    let op = scope.store.lock().unwrap().operation(prepared["operation"].as_str().unwrap()).unwrap();
++    let model = read_model("apply_changes", json!({"operation":op}));
++    let answer = capped(model.clone(), scope.clone(), &input, 4 * 1024 * 1024).await;
++    // Even the failing-before path has committed: keep that fact explicit.
++    let receipt = scope.store.lock().unwrap().receipt(&op).unwrap().unwrap();
++    assert!(matches!(&receipt.writes[0].before.as_ref().unwrap().data, RecordData::Note(n) if n.markdown == text));
++    assert!(matches!(&receipt.writes[0].after.data, RecordData::Note(n) if n.markdown == replacement));
++    assert_eq!(receipt.request_hash, prepared["request_hash"]);
++    assert!(matches!(answer.terminal, AiTerminal::Completed), "{:?}", answer.terminal);
++    assert_eq!(model.request_count(), 2);
++    let out = delivered_result(&model);
++    assert_eq!(out["outcome"], "Applied");
++    assert_eq!(out["compacted"], true);
++    assert_eq!(out["receipt"]["operation"], prepared["operation"]);
++    assert_eq!(out["receipt"]["request_hash"], prepared["request_hash"]);
++    assert_eq!(out["receipt"]["writes"][0]["id"], id);
++    assert_eq!(out["receipt"]["writes"][0]["version"], 3);
++    assert_eq!(out["receipt"]["writes"][0]["kind"], "Note");
++    assert!(!out.to_string().contains(&"b".repeat(100)));
++    assert_eq!(apply(&scope, ApplyArgs { operation: op.as_str().to_owned() }).unwrap(), out);
++    let requests = model.requests();
++    assert_eq!(&requests[1].chat_history[..requests[0].chat_history.len()], &requests[0].chat_history);
++}
++
++#[tokio::test]
++async fn selected_real_figure_prepares_full_owner_candidate_with_compact_model_output() {
++    let (_root, mut request, id) = tests::fixture();
++    // A valid existing PNG with a valid 40KiB ancillary tEXt chunk before IEND.
++    // The CRC is over tEXt + Comment\\0 + 40960 ASCII x bytes.
++    let png = include_bytes!("../../brn-intake/tests/fixtures/quay-map.png");
++    let mut bytes = png[..png.len()-12].to_vec();
++    bytes.extend_from_slice(&(40968u32).to_be_bytes());
++    bytes.extend_from_slice(b"tEXtComment\0");
++    bytes.extend(std::iter::repeat_n(b'x', 40 * 1024));
++    bytes.extend_from_slice(&0x34c3f297u32.to_be_bytes());
++    bytes.extend_from_slice(&png[png.len()-12..]);
++    let asset = Asset { note: id.clone(), source: None, media_type: "image/png".into(), bytes: bytes.clone() };
++    let hash = asset.content_hash();
++    request.sources.push(TransientSource {
++        reference: "synthetic://round3-figure".into(),
++        text: "Supported map. ![Map](map.png)".into(),
++        fingerprint: Some("round3-figure-v1".into()),
++        report: None,
++        assets: vec![TransientAsset {
++            name: "map.png".into(), media_type: "image/png".into(), width: 480, height: 240,
++            sha256: std::array::from_fn(|n| u8::from_str_radix(&hash[n*2..n*2+2],16).unwrap()), bytes: bytes.clone(),
++        }],
++    });
++    let (scope, input) = begin(&request).unwrap();
++    tests::read_all(&scope);
++    let change = round3_change(&id, 1, "Supported map. ![Map](brn-transient-asset://0/0)");
++    let op = scope.store.lock().unwrap().allocate_operation(&format!("{}:proposal:round3-figure", scope.run)).unwrap();
++    let model = read_model("prepare_changes", json!({"request_key":"round3-figure","request":change}));
++    let answer = capped(model.clone(), scope.clone(), &input, 4 * 1024 * 1024).await;
++    let stored = scope.store.lock().unwrap().prepared(&op).unwrap();
++    let selected = stored.request.writes.iter().find(|w| matches!(w.data, RecordData::Asset(_))).unwrap();
++    assert!(matches!(&selected.data, RecordData::Asset(a) if a.bytes == bytes && a.content_hash() == hash));
++    assert!(matches!(&stored.request.writes[0].data, RecordData::Note(n) if n.markdown.contains(&format!("brn-asset://{}", selected.id))));
++    assert!(scope.store.lock().unwrap().receipt(&op).unwrap().is_none());
++    assert!(matches!(answer.terminal, AiTerminal::Completed), "{:?}", answer.terminal);
++    assert_eq!(model.request_count(), 2);
++    let out = delivered_result(&model);
++    assert_eq!(out["compacted"], true);
++    assert_eq!(out["operation"], op.as_str());
++    assert_eq!(out["request_hash"], stored.request_hash);
++    let info = out["writes"].as_array().unwrap().iter().find(|w| w["id"] == selected.id).unwrap();
++    assert_eq!(info["kind"], "Asset");
++    assert_eq!(info["asset"]["byte_length"], bytes.len());
++    assert_eq!(info["asset"]["sha256"], hash);
++    assert_eq!(info["asset"]["media_type"], "image/png");
++    assert!(info["asset"].get("bytes").is_none());
++}
++
++#[tokio::test]
++async fn escaped_source_pages_exactly_in_actual_model_loop_without_claiming_whole_read() {
++    let (_root, mut request, _) = tests::fixture();
++    let text = "\n\"\\õ".repeat(40000);
++    request.sources.push(TransientSource { reference: "synthetic://round3-large".into(), text: text.clone(), fingerprint: Some("round3-source-v1".into()), report: None, assets: vec![] });
++    let (scope, input) = begin(&request).unwrap();
++    let mut start = 0;
++    let mut reconstructed = String::new();
++    let mut metadata = None;
++    loop {
++        let args = if start == 0 { json!({"reference":"synthetic://round3-large"}) } else { json!({"reference":"synthetic://round3-large","start":start}) };
++        let model = read_model("read_source", args);
++        read_in_model(model.clone(), scope.clone(), &input).await;
++        let mut page = delivered_result(&model);
++        assert_eq!(page["start"], start);
++        assert_eq!(page["total_bytes"], text.len());
++        let end = page["end"].as_u64().unwrap() as usize;
++        assert!(end > start && text.is_char_boundary(end));
++        assert_eq!(page["text"], &text[start..end]);
++        assert_eq!(page["complete"], start == 0 && end == text.len());
++        if start == 0 { assert!(end < text.len()); }
++        reconstructed.push_str(page["text"].as_str().unwrap());
++        assert_eq!(page["next_start"], json!((end < text.len()).then_some(end)));
++        for key in ["text", "start", "end", "total_bytes", "next_start", "complete"] { page.as_object_mut().unwrap().remove(key); }
++        if let Some(previous) = &metadata { assert_eq!(&page, previous); } else { metadata = Some(page); }
++        if end == text.len() { break; }
++        start = end;
++    }
++    assert_eq!(reconstructed, text);
++}
++
++#[tokio::test]
++async fn escaped_historical_revision_pages_without_current_evidence_grants() {
++    let (_root, request, id) = tests::fixture();
++    let text = "\n\"\\õ".repeat(30000);
++    let mut store = Store::open(&request.data_dir).unwrap();
++    owner_write(&mut store, round3_change(&id, 1, &text).writes);
++    owner_write(&mut store, round3_change(&id, 2, "Current text differs").writes);
++    let (scope, input) = begin(&request).unwrap();
++    let mut start = 0;
++    let mut reconstructed = String::new();
++    loop {
++        let model = read_model("read_history", json!({"id":id,"version":2,"start":start,"max_bytes":131072}));
++        read_in_model(model.clone(), scope.clone(), &input).await;
++        let out = delivered_result(&model);
++        assert_eq!(out["outcome"], "HistoricalRevision");
++        assert_eq!(out["revision_input"]["expectation"], "Historical");
++        let note = &out["note"];
++        let end = note["end"].as_u64().unwrap() as usize;
++        assert!(end > start && text.is_char_boundary(end));
++        assert_eq!(note["start"], start);
++        assert_eq!(note["total_bytes"], text.len());
++        assert_eq!(note["markdown"], &text[start..end]);
++        assert_eq!(note["complete"], start == 0 && end == text.len());
++        assert_eq!(note["next_start"], json!((end < text.len()).then_some(end)));
++        reconstructed.push_str(note["markdown"].as_str().unwrap());
++        assert!(!scope.reads.lock().unwrap().covers(&id, 2, start, end));
++        assert!(!scope.reads.lock().unwrap().knows(&id, 3));
++        if end == text.len() { break; }
++        start = end;
++    }
++    assert_eq!(reconstructed, text);
++}
++
++#[tokio::test]
++async fn nonlast_section_next_start_honors_core_end_for_whole_and_encoded_cropped_reads() {
++    for dense in [false, true] {
++        let (_root, request, id) = tests::fixture();
++        let section = if dense { format!("# First\n{}", "\n\"\\õ".repeat(24000)) } else { "# First\nShort body\n".into() };
++        let text = format!("{section}# Next\nOther section\n");
++        owner_write(&mut Store::open(&request.data_dir).unwrap(), round3_change(&id, 1, &text).writes);
++        let (scope, input) = begin(&request).unwrap();
++        let model = read_model("read_note", json!({"id":id,"version":2,"start":0,"max_bytes":131072,"section":true}));
++        read_in_model(model.clone(), scope.clone(), &input).await;
++        let out = delivered_result(&model);
++        let page = &out["note"];
++        let end = page["end"].as_u64().unwrap() as usize;
++        assert_eq!(page["section_end"], section.len());
++        assert_eq!(page["markdown"], &text[..end]);
++        assert_eq!(page["next_start"], json!((end < section.len()).then_some(end)));
++        assert_eq!(page["complete"], false);
++        assert_eq!(end < section.len(), dense);
++    }
++}

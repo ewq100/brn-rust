@@ -1,0 +1,32 @@
+{
+  "time_utc": "2026-10-17T23:05:53.732577+00:00",
+  "source_pin": "695f750af5103550239830a541b3673e107c624c",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ad771af6",
+  "branch": "work/x2-html-20261017",
+  "heavy_process_inventory": [],
+  "inventory_command": [
+    "ps",
+    "-axo",
+    "pid,ppid,pgid,etime,state,comm"
+  ],
+  "inventory_scope": "Cargo/rustc/Clippy/linkers, intake helper and test executables, all executables under task scratch; exact comm paths avoid unrelated command-text matches",
+  "completed_exec_sessions": {
+    "30837": 101,
+    "76799": 0,
+    "11525": 0,
+    "18334": 0,
+    "46022": 0,
+    "83875": 0,
+    "54685": 1,
+    "45646": 101
+  },
+  "status": "RELEASED on terminal handoff",
+  "release_effective": "after final evidence-only commit; no continuing worker source/test/build work",
+  "released": [
+    "sole heavy slot",
+    "all allocated source/test/documentation paths"
+  ],
+  "artifact_retention": "No targets/evidence deleted; external artifacts/.d retained under /private/tmp/brn-x2-html-r1/artifacts",
+  "before_diff_verified": "Saved cfg(test)-only normal diff applied to bbf107e3 reconstructs retained before source bytes exactly",
+  "next": "Parent-owned fresh independent Codex review; no worker delegation or self-acceptance"
+}

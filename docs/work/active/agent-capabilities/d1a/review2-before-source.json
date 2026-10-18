@@ -1,0 +1,15 @@
+{
+  "pin": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "source": "/private/tmp/brn-d1a-20261016-target/review2-before-source",
+  "target": "/private/tmp/brn-d1a-20261016-target/review2-before-artifacts",
+  "source_hashes": {
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "crates/brn-ai/src/threads.rs": "213723239543a26a4dff2d7bd46b9387cbee489fae95a789a6938bd1836c4068",
+    "crates/brn-ai/src/threads_context_budget.rs": "5df40f40ef85d6c8d203d13e2cb45ced3ce2ad61dfb04f640f115ac843cbca35",
+    "crates/brn-ai/src/error.rs": "9ab6c07977bc64141f26ec35d90638189c06170bcc98719c90395512af6797e8",
+    "crates/brn-threads-core/src/projects.rs": "fd531dfabfcadb94f265b86ac6dfc89d5c891170b224fbe9b29ee2d4d50a6584"
+  },
+  "tmpdir": "/private/tmp/brn-d1a-review2-mnwt2onp",
+  "method": "exact archive, genuine Git init/local synthetic commit, no remotes or parent history; test-only patch applied before production changes"
+}

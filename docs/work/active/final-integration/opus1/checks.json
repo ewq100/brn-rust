@@ -1,0 +1,86 @@
+{
+  "schema": "brn-final-integration-checks/1",
+  "recorded": "2026-10-18",
+  "scope": "source-only; text, Git, hash, link and whitespace checks plus read-only stdlib Python parses; no Cargo/build/test/lint/formatter/Store/CLI/Auth/provider/network/fetch/GUI/mutants/heavy",
+  "start_identity": {
+    "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ca8b0a32",
+    "branch": "work/final-integration-20261017",
+    "head": "d4574398516000f63d45e38f168b2a8294ca8951",
+    "tree": "d08b12cc77dc440d3a2d012953f42bc7386a9a1f",
+    "status_lines": 0
+  },
+  "checks": [
+    {
+      "id": "identity",
+      "command": "git branch --show-current; git rev-parse HEAD HEAD^{tree}; git status --short | wc -l",
+      "result": "work/final-integration-20261017; HEAD d4574398\u2026; tree d08b12cc\u2026; 0 changes before editing"
+    },
+    {
+      "id": "report-copy",
+      "command": "shasum -a 256 and cmp of ~/.codex/.../final-integration-kiro-opus-review-round1.md vs opus1/opus-review-round1.md",
+      "result": "identical; sha256 65422c3e80159d9fc70b857fa54bedd58c64c22758c3516606ef8a04728d2211"
+    },
+    {
+      "id": "terminal-json",
+      "command": "python3 json.load of final-integration-kiro-opus-review-round1-terminal.json; compare structuredContent.latestTerminalSummary with the report",
+      "result": "status completed, model claude-opus-5.5; summary equals report except one trailing newline (10674 vs 10675 bytes)"
+    },
+    {
+      "id": "wip-lock-hash",
+      "command": "shasum -a 256 of the X2 HTML WIP Cargo.lock, graph-gate.json, metadata.stdout.json.gz; gzip sha of decompressed metadata",
+      "result": "Cargo.lock 8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc; graph-gate 7358546a2ed85ea204e12796ac67a39e686fd81f6d627082270742a32de166cf; gz 11831ac5d1d9bfa39ba2c7512db80f0bf368b5ec53432872673738d6d86fff3a; uncompressed aa1a8b35405ccf7c21dc86ca7bde41ac68e697b3d7a29a0263f411eaa4528367; match the disposition and gate receipt"
+    },
+    {
+      "id": "lock-parse",
+      "command": "python3 stdlib re over Git lock blobs (CW2, INT-W, X2 base) and the WIP Cargo.lock",
+      "result": "counts 952/953/965/1011; WIP vs X2 base: +52 -6, 11 changed blocks; six removed identities = serde_json 1.0.151, serde_spanned 1.1.1, toml 1.1.6+spec-1.1.0, toml_datetime 1.1.1+spec-1.1.0, toml_parser 1.1.3+spec-1.1.0, toml_writer 1.1.2+spec-1.1.0; INT-W vs CW2: +brn-writing-ui, brn-desktop changed; no block touched by both INT-W and an X2/WIP delta; coexisting toml 0.8.23, serde_spanned 0.6.9, toml_datetime 0.6.11"
+    },
+    {
+      "id": "preserve-order",
+      "command": "python3 gzip/json over WIP metadata; text read of rig-core-0.44.0/Cargo.toml; grep of base lock serde_json block; git grep brn-intake in crate manifests",
+      "result": "serde_json resolved features [alloc, default, float_roundtrip, indexmap, preserve_order, raw_value, std]; preserve_order requested by rig-core 0.44.0 (normal) and rig 0.44.0 (dev); base lock serde_json 1.0.151 lists indexmap; brn-ai, brn-desktop, brn-threads-intake, brn depend on brn-intake with no features"
+    },
+    {
+      "id": "call-path-sources",
+      "command": "git show / sed of X2 and INT-W threads_ui.rs, threads_mcp_tests.rs, threads_writing_tests.rs, threads_steering_tests.rs",
+      "result": "order, retry_rewrite and offline-fixture patterns confirmed as cited in NF1-test-spec.md; nothing executed"
+    },
+    {
+      "id": "test-names",
+      "command": "git grep for cited test function names in INT-W and X2 trees",
+      "result": "found: reserved_roles_and_private_other_chat_never_leak_through_history_query_or_exact_passages, int_w_f21_private_context_never_enters_p2_or_general_delivery, source_links_without_import_coverage_are_exported, qualification intake cases, product/export cases; desktop lifecycle cases not located by name (reported as first-run gap)"
+    },
+    {
+      "id": "json-valid",
+      "command": "python3 json.load of inventory.json, binding.json, checks.json",
+      "result": "valid"
+    },
+    {
+      "id": "links",
+      "command": "python3 scripts/check-markdown-links.py",
+      "result": "364 files, 1725 local links, 82 failures, 0 in final-integration/ (an interim run showed 1 for the then-missing opus1/checks.json link, resolved by creating it)",
+      "note": "the checker also reports 82 pre-existing failures in x2/source-audit/{api.md,resources.md}; none in final-integration/. These are historical counts, not edited here"
+    },
+    {
+      "id": "whitespace",
+      "command": "git diff --cached --check",
+      "result": "ok"
+    }
+  ],
+  "links_final": {
+    "summary": "Markdown links: 364 files, 1725 local links, 82 failures",
+    "failures_in_final_integration": 0,
+    "all_82_in": [
+      "docs/work/active/modular-foundation/x2/source-audit/api.md",
+      "docs/work/active/modular-foundation/x2/source-audit/resources.md"
+    ],
+    "interpretation": "identical to the immutable old-base count; owned by the X2 worker; not a whole-root green claim"
+  },
+  "not_run": [
+    "cargo (all)",
+    "build/test/lint/format",
+    "Store/CLI/Auth/provider/network/fetch/GUI/mutants",
+    "git merge-tree (not rerun)",
+    "status/commands that mutate any other checkout"
+  ]
+}

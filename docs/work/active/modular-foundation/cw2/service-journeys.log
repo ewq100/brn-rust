@@ -1,0 +1,80 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+warning: variable does not need to be mutable
+  --> crates/brn-threads-app/src/writing.rs:95:13
+   |
+95 |         let mut context = self.active_writing_context(note, opened_from)?;
+   |             ----^^^^^^^
+   |             |
+   |             help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `brn-threads-app` (lib) generated 1 warning (run `cargo fix --lib -p brn-threads-app` to apply 1 suggestion)
+    Finished `test` profile [optimized] target(s) in 6.74s
+     Running tests/cw2_review.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd)
+
+running 1 test
+test scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/shared_run.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/shared_run-2b401c7c9199274d)
+
+running 2 tests
+test selection_errors_precede_any_run_write_and_catalogue_never_substitutes ... ok
+test shared_preparation_runs_scripted_with_the_same_durable_run_identity ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing-e5f9303e752fdcc1)
+
+running 10 tests
+test empty_general_feedback_preserves_existing_replay_binding ... ok
+test new_requests_capture_v2_setup_without_changing_the_note ... ok
+test oversized_general_feedback_refuses_without_partial_request_or_note_write ... ok
+test utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok
+test exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok
+test oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok
+test general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... ok
+test feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok
+test multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok
+test manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/writing_context.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_context-a85501614bd3572d)
+
+running 1 test
+test explicit_conversations_are_scoped_durable_and_inspection_does_not_create ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 22 tests
+test overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok
+test malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden ... ok
+test archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata ... ok
+test capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version ... ok
+test revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok
+test ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... ok
+test knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... ok
+test live_canonical_setup_undo_does_not_need_its_archived_conversation ... ok
+test setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... ok
+test setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok
+test setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration ... ok
+test ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok
+test unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup ... ok
+test checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok
+test project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal ... ok
+test v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok
+test inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... ok
+test scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead ... ok
+test stored_v2_context_rejects_forged_binding_and_reference_metadata ... ok
+test scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok
+test delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay ... ok
+test first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.78s
+

@@ -1,0 +1,392 @@
+[
+  {
+    "suite": "agent_bounds",
+    "test": "begin_edit_under_a_held_lock_is_busy",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "begin_edit_under_a_held_lock_is_busy",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 12.2197,
+    "output": "\nrunning 1 test\ntest begin_edit_under_a_held_lock_is_busy ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 12.21s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "busy_then_keyed_retry_applies_once",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "busy_then_keyed_retry_applies_once",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 5.3641,
+    "output": "\nrunning 1 test\ntest busy_then_keyed_retry_applies_once ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 5.35s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "default_mode_sigterm_keeps_default_disposition",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "default_mode_sigterm_keeps_default_disposition",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0313,
+    "output": "\nrunning 1 test\ntest default_mode_sigterm_keeps_default_disposition ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.02s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "held_lock_past_deadline_hard_stops_with_one_line",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "held_lock_past_deadline_hard_stops_with_one_line",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 4.1584,
+    "output": "\nrunning 1 test\ntest held_lock_past_deadline_hard_stops_with_one_line ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 4.15s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "held_write_lock_reports_busy_and_creates_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "held_write_lock_reports_busy_and_creates_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 10.5652,
+    "output": "\nrunning 1 test\ntest held_write_lock_reports_busy_and_creates_nothing ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 10.55s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigint_envelopes_report_stop_sigint",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigint_envelopes_report_stop_sigint",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0572,
+    "output": "\nrunning 1 test\ntest sigint_envelopes_report_stop_sigint ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.04s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigint_then_deadline_still_hard_stops",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigint_then_deadline_still_hard_stops",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 4.1597,
+    "output": "\nrunning 1 test\nattempt 1 reached the busy wait\ntest sigint_then_deadline_still_hard_stops ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 4.15s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigint_then_sigterm_still_hard_stops",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigint_then_sigterm_still_hard_stops",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 3.6732,
+    "output": "\nrunning 1 test\nattempt 1 reached the busy wait\ntest sigint_then_sigterm_still_hard_stops ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 3.66s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigterm_during_stdin_wait_is_terminated_and_creates_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigterm_during_stdin_wait_is_terminated_and_creates_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0582,
+    "output": "\nrunning 1 test\ntest sigterm_during_stdin_wait_is_terminated_and_creates_nothing ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.04s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "timeout_during_fifo_wait_is_a_soft_deadline",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "timeout_during_fifo_wait_is_a_soft_deadline",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 2.1085,
+    "output": "\nrunning 1 test\ntest timeout_during_fifo_wait_is_a_soft_deadline ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 2.10s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "timeout_values_are_refused_before_opening",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "timeout_values_are_refused_before_opening",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.1415,
+    "output": "\nrunning 1 test\ntest timeout_values_are_refused_before_opening ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.13s\n\n"
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "timeout_with_time_to_spare_changes_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "timeout_with_time_to_spare_changes_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.037,
+    "output": "\nrunning 1 test\ntest timeout_with_time_to_spare_changes_nothing ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.03s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.022,
+    "output": "\nrunning 1 test\ntest a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "a_test_backup_with_a_caller_session_restores_as_an_owner_workspace",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "a_test_backup_with_a_caller_session_restores_as_an_owner_workspace",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.058,
+    "output": "\nrunning 1 test\ntest a_test_backup_with_a_caller_session_restores_as_an_owner_workspace ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.05s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "actors_commit_with_receipts_and_never_change_identity",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "actors_commit_with_receipts_and_never_change_identity",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0135,
+    "output": "\nrunning 1 test\ntest actors_commit_with_receipts_and_never_change_identity ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "bound_writes_need_their_own_token_and_refusals_write_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "bound_writes_need_their_own_token_and_refusals_write_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0142,
+    "output": "\nrunning 1 test\ntest bound_writes_need_their_own_token_and_refusals_write_nothing ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "older_backups_restore_as_schema_6_owner_workspaces",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "older_backups_restore_as_schema_6_owner_workspaces",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.1006,
+    "output": "\nrunning 1 test\ntest older_backups_restore_as_schema_6_owner_workspaces ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.09s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "owner_discard_and_save_close_caller_sessions_without_a_token",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "owner_discard_and_save_close_caller_sessions_without_a_token",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0145,
+    "output": "\nrunning 1 test\ntest owner_discard_and_save_close_caller_sessions_without_a_token ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "owner_typing_adopts_a_caller_session_and_the_caller_token_stops",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "owner_typing_adopts_a_caller_session_and_the_caller_token_stops",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0141,
+    "output": "\nrunning 1 test\ntest owner_typing_adopts_a_caller_session_and_the_caller_token_stops ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "purpose_is_set_at_creation_only_and_owner_by_default",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "purpose_is_set_at_creation_only_and_owner_by_default",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0195,
+    "output": "\nrunning 1 test\ntest purpose_is_set_at_creation_only_and_owner_by_default ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0213,
+    "output": "\nrunning 1 test\ntest reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "schema_5_upgrade_backs_up_first_and_ends_at_6_as_an_owner_workspace",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "schema_5_upgrade_backs_up_first_and_ends_at_6_as_an_owner_workspace",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 5.29,
+    "output": "\nrunning 1 test\ntest schema_5_upgrade_backs_up_first_and_ends_at_6_as_an_owner_workspace ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 5.28s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "schema_5_upgrade_is_refused_with_a_working_run",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "schema_5_upgrade_is_refused_with_a_working_run",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0246,
+    "output": "\nrunning 1 test\ntest schema_5_upgrade_is_refused_with_a_working_run ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0313,
+    "output": "\nrunning 1 test\ntest schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.02s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "the_no_upgrade_open_refuses_schema_5_and_changes_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "the_no_upgrade_open_refuses_schema_5_and_changes_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.0218,
+    "output": "\nrunning 1 test\ntest the_no_upgrade_open_refuses_schema_5_and_changes_nothing ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "tokens_match_the_pattern_differ_and_only_their_hash_is_stored",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "tokens_match_the_pattern_differ_and_only_their_hash_is_stored",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.016,
+    "output": "\nrunning 1 test\ntest tokens_match_the_pattern_differ_and_only_their_hash_is_stored ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s\n\n"
+  },
+  {
+    "suite": "agent_journeys",
+    "test": "a_stale_candidate_is_refreshed_from_current_search_results",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+      "--exact",
+      "a_stale_candidate_is_refreshed_from_current_search_results",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 1.4418,
+    "output": "\nrunning 1 test\ntest a_stale_candidate_is_refreshed_from_current_search_results ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 1.42s\n\n"
+  },
+  {
+    "suite": "agent_journeys",
+    "test": "another_chats_private_note_stays_invisible_to_search_and_connections",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+      "--exact",
+      "another_chats_private_note_stays_invisible_to_search_and_connections",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.7845,
+    "output": "\nrunning 1 test\ntest another_chats_private_note_stays_invisible_to_search_and_connections ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.77s\n\n"
+  },
+  {
+    "suite": "agent_journeys",
+    "test": "maintenance_applies_within_eight_rounds_and_finds_its_own_change",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+      "--exact",
+      "maintenance_applies_within_eight_rounds_and_finds_its_own_change",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.9924,
+    "output": "\nrunning 1 test\ntest maintenance_applies_within_eight_rounds_and_finds_its_own_change ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.98s\n\n"
+  },
+  {
+    "suite": "agent_journeys",
+    "test": "retrieval_finds_and_reads_the_target_section_within_three_rounds",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_journeys-131a0899af90f4d6",
+      "--exact",
+      "retrieval_finds_and_reads_the_target_section_within_three_rounds",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 0.7903,
+    "output": "\nrunning 1 test\ntest retrieval_finds_and_reads_the_target_section_within_three_rounds ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.77s\n\n"
+  }
+]

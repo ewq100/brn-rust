@@ -27,10 +27,20 @@ if [[ "$CARGO_TARGET_DIR" != /* ]]; then
 fi
 if [[ "${1:-}" != "--fixtures-only" ]]; then
   cargo fmt --all -- --check
-  cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
+  if [[ "$(uname -s)" == Darwin ]]; then
+    bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$CARGO_TARGET_DIR/document-helpers"
+    export BRN_XBERG_HELPER="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper"
+    export BRN_XBERG_HELPER_BRN="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper-brn"
+    mkdir -p "$CARGO_TARGET_DIR/debug"
+    cp "$BRN_XBERG_HELPER" "$BRN_XBERG_HELPER_BRN" "$CARGO_TARGET_DIR/debug/"
+  fi
   cargo build --workspace --locked --offline
   cargo clippy --workspace --all-targets --locked --offline -- -D warnings
-  cargo test --workspace --locked --offline
+  cargo test --workspace --no-fail-fast --locked --offline
+  if [[ "$(uname -s)" == Darwin ]]; then
+    cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1
+    cargo clippy -p brn --features scripted-document-tests --all-targets --locked --offline --jobs 1 -- -D warnings
+  fi
 fi
 python3 scripts/verify-end-to-end-fixtures.py "$CARGO_TARGET_DIR/debug"
 python3 scripts/cli_journey.py "$CARGO_TARGET_DIR/debug/brn"

@@ -1,0 +1,352 @@
+{
+  "branch": "work/d3b-20261017",
+  "base": "000ed92026ccb180f2257b28b07e0525b1493f23",
+  "provider": "Codex through T3",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "owned_material_paths": [
+    "crates/brn-ai/src/error.rs",
+    "crates/brn-ai/src/lib.rs",
+    "crates/brn-ai/src/skill_packages.rs",
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_budget_tests.rs",
+    "crates/brn-ai/src/threads_guides.rs",
+    "crates/brn-ai/src/threads_research.rs",
+    "crates/brn-ai/src/threads_search_tests.rs",
+    "crates/brn-ai/src/threads_skills.rs",
+    "crates/brn-ai/src/threads_skills_tests.rs",
+    "crates/brn-ai/src/threads_summary.rs",
+    "crates/brn-ai/src/threads_summary_tests.rs",
+    "crates/brn-desktop/src/threads_chat.rs",
+    "crates/brn-desktop/src/threads_chat_tests.rs",
+    "crates/brn-desktop/src/threads_dialogs_tests.rs",
+    "crates/brn-desktop/src/threads_omakase_tests.rs",
+    "crates/brn-desktop/src/threads_polish_tests.rs",
+    "crates/brn-desktop/src/threads_projects_tests.rs",
+    "crates/brn-desktop/src/threads_review_tests.rs",
+    "crates/brn-desktop/src/threads_skills.rs",
+    "crates/brn-desktop/src/threads_skills_tests.rs",
+    "crates/brn-desktop/src/threads_state.rs",
+    "crates/brn-desktop/src/threads_steering_tests.rs",
+    "crates/brn-desktop/src/threads_tiles.rs",
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_workbench_tests.rs",
+    "crates/brn-desktop/src/threads_writing.rs",
+    "crates/brn-threads-app/src/lib.rs",
+    "crates/brn-threads-app/src/settings.rs",
+    "crates/brn-threads-app/src/skills.rs",
+    "crates/brn-threads-app/tests/chat.rs",
+    "crates/brn-threads-app/tests/product.rs",
+    "crates/brn-threads-app/tests/skills.rs",
+    "crates/brn-threads-app/tests/source_intake_chat.rs",
+    "crates/brn-threads-app/tests/steering.rs",
+    "crates/brn-threads-app/tests/thread_lifecycle.rs",
+    "crates/brn-threads-core/src/backup.rs",
+    "crates/brn-threads-core/src/restore.rs",
+    "crates/brn-threads-core/src/run_attention.rs",
+    "crates/brn-threads-core/src/store.rs",
+    "crates/brn-threads-core/src/types.rs",
+    "crates/brn-threads-core/src/upgrade.rs",
+    "crates/brn-threads-core/tests/backup_directory.rs",
+    "crates/brn-threads-core/tests/candidate_refresh.rs",
+    "crates/brn-threads-core/tests/converge.rs",
+    "crates/brn-threads-core/tests/core.rs",
+    "crates/brn-threads-core/tests/current_inputs.rs",
+    "crates/brn-threads-core/tests/delegation.rs",
+    "crates/brn-threads-core/tests/edit_tokens.rs",
+    "crates/brn-threads-core/tests/inspect.rs",
+    "crates/brn-threads-core/tests/message_search_scope.rs",
+    "crates/brn-threads-core/tests/skill_policy.rs",
+    "crates/brn-threads-core/tests/steering.rs",
+    "crates/brn-threads-core/tests/writing.rs",
+    "crates/brn-threads-core/tests/writing_setup.rs",
+    "crates/brn/src/contract.rs",
+    "crates/brn/src/help.rs",
+    "crates/brn/src/inspect.rs",
+    "crates/brn/src/main.rs",
+    "crates/brn/src/spec.rs",
+    "crates/brn/tests/agent_runs.rs",
+    "crates/brn/tests/agent_upgrade.rs"
+  ],
+  "compiler_required_default_sites": [
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/cli-full-command-corrected.log.initializer-fixes.json",
+      "path": "crates/brn/src/main.rs",
+      "original_line": 1699,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/writing.rs",
+      "original_line": 63,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/writing.rs",
+      "original_line": 42,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2711,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2674,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2554,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2495,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2459,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 2190,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 1988,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 1852,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 1721,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 1477,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 993,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/core.rs",
+      "original_line": 16,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/inspect.rs",
+      "original_line": 74,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/candidate_refresh.rs",
+      "original_line": 53,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/current_inputs.rs",
+      "original_line": 96,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/converge.rs",
+      "original_line": 258,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/writing_setup.rs",
+      "original_line": 537,
+      "field": "skills"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initial.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/src/run_attention.rs",
+      "original_line": 291,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/delegation.rs",
+      "original_line": 489,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/delegation.rs",
+      "original_line": 293,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/edit_tokens.rs",
+      "original_line": 633,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/message_search_scope.rs",
+      "original_line": 168,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/backup_directory.rs",
+      "original_line": 87,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/core-all-initializers-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-core/tests/steering.rs",
+      "original_line": 49,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_state.rs",
+      "original_line": 1533,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_state.rs",
+      "original_line": 1300,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_state.rs",
+      "original_line": 676,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_projects_tests.rs",
+      "original_line": 196,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_steering_tests.rs",
+      "original_line": 1020,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_steering_tests.rs",
+      "original_line": 44,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_workbench_tests.rs",
+      "original_line": 895,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_workbench_tests.rs",
+      "original_line": 435,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_chat_tests.rs",
+      "original_line": 349,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_chat_tests.rs",
+      "original_line": 119,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_dialogs_tests.rs",
+      "original_line": 566,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_omakase_tests.rs",
+      "original_line": 128,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_polish_tests.rs",
+      "original_line": 663,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/native-skills-correct-target.log.initializer-fixes.json",
+      "path": "crates/brn-desktop/src/threads_review_tests.rs",
+      "original_line": 1471,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/workspace-tests-current.log.initializer-fixes.json",
+      "path": "crates/brn-threads-app/tests/product.rs",
+      "original_line": 803,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/workspace-tests-initializer-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-app/tests/steering.rs",
+      "original_line": 24,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/workspace-tests-second-initializer-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-app/tests/thread_lifecycle.rs",
+      "original_line": 27,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/workspace-tests-second-initializer-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-app/tests/chat.rs",
+      "original_line": 27,
+      "field": "loaded_skill_details"
+    },
+    {
+      "receipt": "/private/tmp/brn-d3b-20261017-artifacts/workspace-tests-second-initializer-fixed.log.initializer-fixes.json",
+      "path": "crates/brn-threads-app/tests/source_intake_chat.rs",
+      "original_line": 320,
+      "field": "loaded_skill_details"
+    }
+  ],
+  "ownership_note": "Core policy/types/semantic schema8 allowlists and native seams explicitly allocated by principal; mechanical paths only compiler-required fields. CLI help.rs registration is within assigned help surfaces. No auth/manifests/lock/CI change; owner-live principal doc addition explicitly authorized.",
+  "d3a_retention": "canonical SQLite policy/details retained; local installed artifact bytes excluded, exact explicit reinstall only",
+  "native_platforms": "Mac exercised, macOS/Linux backend, unsupported thin unavailable views statically qualified only"
+}

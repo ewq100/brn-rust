@@ -1,0 +1,101 @@
+{
+  "source_pin": "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+  "command": [
+    "python3",
+    "docs/work/active/agent-capabilities/int-d/diagnosis/capture/runner/prepare-preflight.py",
+    "--pin",
+    "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+    "--cli",
+    "/private/tmp/brn-int-d-20261017-target/debug/brn",
+    "--generator",
+    "/private/tmp/brn-int-d-20261017-target/debug/deps/int_d-8d0cf15fe49e4a41",
+    "--runner",
+    "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "--runner-receipt",
+    "/private/tmp/brn-int-d-capture-runner-20261017-evidence/runner-focused-shaped.json",
+    "--runner-artifacts",
+    "/private/tmp/brn-int-d-capture-runner-20261017-evidence/runner-focused-shaped-artifacts.json",
+    "--cli-receipt",
+    "/private/tmp/brn-int-d-capture-runner-20261017-evidence/runner-cli-generator.json",
+    "--cli-artifacts",
+    "/private/tmp/brn-int-d-capture-runner-20261017-evidence/runner-cli-generator-artifacts.json"
+  ],
+  "exit": 0,
+  "stdout_sha256": "d61f7088db8ed3f967d4baa2f49a427ab60fab59e19baa860bd34fd2bceb4be6",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "preflight_sha256": "befbd639c2c699fd27502a9cb70a618ce00154987dbdbcd49574a85ea2d5b85f",
+  "artifact_files": [
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/generation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/generation.stdout",
+      "bytes": 204,
+      "sha256": "0a50173277f51205117ad1d8eba302994ea120fa98dac53a4b6a2a6d0d048f7d"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/manifest.json",
+      "bytes": 8475,
+      "sha256": "64d2b25067dd24319ce33b2d32fd377d3de91d44e0923a7b961887ecedd4ee60"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/settings.json",
+      "bytes": 357,
+      "sha256": "7e3052c4152c357cf6dab980762360b2cf284ed6d42f5113c96ae070d8425806"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/initial-state/threads.sqlite3",
+      "bytes": 376832,
+      "sha256": "01c1e944de8c2d9a1e528c698005d22a20b6fe88884a72c444f23d1948905d98"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/postconfiguration-overlay.json",
+      "bytes": 1552,
+      "sha256": "c621ecfb814209b5e14e60e4896dfaf570912a1b7e281af3145f05b56c19f453"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/preflight.json",
+      "bytes": 47271,
+      "sha256": "befbd639c2c699fd27502a9cb70a618ce00154987dbdbcd49574a85ea2d5b85f"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/prompt.txt",
+      "bytes": 507,
+      "sha256": "523b69c7ae41795cf00e6960e7ff837172ced73b915786645383a2648e778400"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/readiness.json",
+      "bytes": 3028,
+      "sha256": "d61f7088db8ed3f967d4baa2f49a427ab60fab59e19baa860bd34fd2bceb4be6"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/reference-configure.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/reference-configure.stdout",
+      "bytes": 1387,
+      "sha256": "12be0968fe87828f9f3781a30a4a008aecf03f0d199f0451b339aa56272ed2eb"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-capture-preflight-20261017-9d3741e6/rubric.json",
+      "bytes": 1616,
+      "sha256": "8c322a4dccf1469fca4df94c61f1a9505ee51843d21b7a6ce5f20d80a6cf84bf"
+    }
+  ],
+  "initial_phase": "Original generated manifest/None settings and DB/sidecars preserved in initial-state; no overwrite.",
+  "post_phase": "ONE exact checked local configure stores auth reference only, actual Settings3->4. Only Settings record changes;0Runs checked before/after via records.",
+  "main_after_close": {
+    "main": "e26d55cd59c1f5ecd528ee27cfbfca61db31c084338c0fdc79e868802bd923ee",
+    "wal": null,
+    "shm": null
+  },
+  "prospective_gate": "Full real ignored runner/preflight+activation combination UNEXECUTED; actual offline gate used independent fresh synthetic Git/Store and fake Auth only. New fixture binding from checked CLI/source and byte hashes; parent audit/review pending.",
+  "paid_or_auth_invocations": 0,
+  "real_workflow_reservations": 0,
+  "source_unchanged": true,
+  "earlier_O3": "Old unexecuted preparer not relabelled by this new prospective execution."
+}

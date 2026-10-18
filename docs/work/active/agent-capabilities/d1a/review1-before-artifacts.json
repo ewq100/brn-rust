@@ -1,0 +1,30 @@
+{
+  "receipt": "review1-before-valid-max.json",
+  "source": "/private/tmp/brn-d1a-20261016-target/review1-before-source",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/review1-before-artifacts/debug/deps/brn_ai-28a197b27edef53b",
+      "sha256": "b554c38213ef32f4302376e95add091639553d2df9b6c7ee2dceecca3ae66796"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/review1-before-artifacts/debug/deps/brn_ai-28a197b27edef53b.d",
+      "sha256": "ded76931c15abe760047d0696542d82ee6d1682863a3bbdb0774eac2c4de8543",
+      "source_roots": [
+        "crates/brn-ai/src/threads_budget_tests.rs",
+        "crates/brn-ai/src/threads_budget_tests.rs:"
+      ]
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/review1-before-artifacts/debug/deps/libbrn_threads_core-441e246c1aee373f.rlib",
+      "sha256": "ffbfef0279fd95df8876a494edc9094e784a6cd856d2bc9ad1956709794c9539"
+    },
+    {
+      "path": "/private/tmp/brn-d1a-20261016-target/review1-before-artifacts/debug/deps/brn_threads_core-441e246c1aee373f.d",
+      "sha256": "72a3eb0c0985fe5ec488856a39d3a59bf258be0796362030534203c1be7c81b9",
+      "source_roots": [
+        "crates/brn-threads-core/src/projects.rs",
+        "crates/brn-threads-core/src/projects.rs:"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "task": "int-d-runner-opus1-b1-20261017",
+  "material_pin": "a65a6a61610f37f184d2b200e1d27441ee8d9cc3",
+  "tree": "2f381e5ece0234c0907b90a766b469d71cfed9da",
+  "crates": "ece765396103274c35493a26b570e5e8f32ae276",
+  "verified_input_count": 334,
+  "diffs": [
+    {
+      "base": "b60cd8c1c5a2bbb09ab9a9e2f5be81b3dc9617ed",
+      "path": "/private/tmp/brn-int-d-runner-opus1-b1-20261017-evidence/b60cd8c1-to-material.patch",
+      "sha256": "560df05a3d3894b7aeb5277534fea6b3f273b89f868725e0c5f8f070dfc13e70"
+    },
+    {
+      "base": "9d3741e6df54d2ff8f48dbf4d534210450d6f611",
+      "path": "/private/tmp/brn-int-d-runner-opus1-b1-20261017-evidence/9d3741e6-to-material.patch",
+      "sha256": "1d608202703cb167a0c3dc64c59250777177d98f14b96d0fe7b769f09866267c"
+    }
+  ],
+  "source_association": "Actual b60+WIP334check hashes verified at Git pin; not contemporaneous a65 build. Before/after interop shares same new test source, only Python script digest changed.",
+  "artifact": {
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "c4d5d97283a8ff83dc4dea2226a7f34c0902ddf47f1f8b3e2de65a01ca4c6f1e",
+    "mtime": 1792251957.9194694,
+    "receipt_mtime": 1792251999.0562894,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "9cd8059b642415fd27b25e3808c6f56d49abd1e3f4cfc0e67aa9ead4460eaac0"
+  },
+  "paid_Auth_runner_calls": 0,
+  "timestamp": 1792252395.977509
+}

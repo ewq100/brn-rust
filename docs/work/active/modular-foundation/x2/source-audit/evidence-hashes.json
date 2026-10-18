@@ -1,0 +1,21 @@
+{
+  "api.md": "706c4af6b4ebd3317156864565023dedd0269c33884bb3b133d383f561e3dfc4",
+  "binding.json": "d9d317bbf20db77bd3142fa537e782a7a755c9a05542e2fa5b0c991b3b4dccac",
+  "build-script-inventory.json": "eec67127b3da482799d4532c21f50e43a65200acbd8a5dd6d796321c30123941",
+  "dependencies.md": "58238cb361003764347a0c74f255ed5124be4407167edc308625f0377d911456",
+  "features.json": "9874699a55c914ef9b9dd6ba3388cb28ed6ce303af6373492d084727f8fbf95a",
+  "fetch-result.json": "9c4ba22ba080b30c5a4972dfff77c07db2b644f2991051266b0adb1ce276c8d8",
+  "fetch-start.json": "9815ed96ad0214a19fa7d36a9ed3e58a882df9b934c6e9dc30b2fbb2552b2253",
+  "fetch.stderr": "3749de9a653dbad49525b66459968b0030326902aac52ae7ca07d7a871f38efa",
+  "fetch.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "handoff.md": "8c5888c2a1581e773a70f6eb98c533063f312b3aec63420b8ccbca0a9caef3d3",
+  "lopdf-source-hashes.json": "9096a3c5b6588cbc5df971433ecc28b1b788a20c3788afcfc521684781421012",
+  "provenance.json": "24510c2e978ae0b6671d865f69a4463d807521c15dfbbf164ce421db70975846",
+  "release.json": "44b67e698a57150b19589d213ab6ee5ad4ab811e3f7a5617bc053bdfbb86eea5",
+  "resources.md": "cf9403b3ccc2d2409f0d7100bc274c2720c76a19bef21e2b2d0b70306b330f32",
+  "tooling-qualifications.json": "126cf04b7f5f0a1c3feb52bfca247740112b23116b4f2a9752e81f6d823b85a1",
+  "x1-build-script-hash-comparison.json": "735d7aecda012a45faaec9ae346db23eeda22627b41782901bc7a4726d44c163",
+  "x1-macos-source-ledger.json": "e9916fbcaafa83bcf81423b81b7c4479c2b5f5d3606adfd9308c28218586f52b",
+  "xberg-native-pdf-source-hashes.json": "ec202c6b7c7aa0f566c2d114cce6e8d3a436b35ce8f7430a6616cd8e4c52ecf5",
+  "xberg-source-hashes.json": "5c87dc2576e3d9f1505d7a07c8ec1204dea05e7cdfb7b39a8dd44e1957c1591c"
+}

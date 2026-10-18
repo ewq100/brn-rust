@@ -1,0 +1,10 @@
+--- a/crates/brn-ai/src/threads.rs
++++ b/crates/brn-ai/src/threads.rs
+@@ -911,6 +911,7 @@
+     // Evidence is recorded only after final encoded selection. Omitted rows,
+     // undelivered suffixes and heading metadata never grant a full-note read.
+     let mut reads = scope.reads.lock().map_err(storage)?;
++    for row in out["omitted_records"].as_array().unwrap() { reads.complete(row["id"].as_str().unwrap(), row["version"].as_u64().unwrap()); }
+     for row in out["records"].as_array().ok_or_else(rejected)? {
+         if let (Some(id), Some(version), Some(markdown), Some(total)) = (
+             row["id"].as_str(),

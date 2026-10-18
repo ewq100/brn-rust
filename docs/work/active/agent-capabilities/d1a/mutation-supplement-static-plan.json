@@ -1,0 +1,76 @@
+{
+  "status": "STATIC priorities only; no setup/list/baseline/mutant command authorized or started after heavy release",
+  "corrected_source_pin": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "prior_used_seconds": 426.87080216407776,
+  "remaining_seconds": 1373.1291978359222,
+  "single_original_total_seconds": 1800,
+  "identity_rule": "retain fixed mutation source/target identity separate from candidate and before-copy; do not update it before a fresh explicit grant; genuine local Git required; verify exact corrected source hashes and actual passing full AI baseline before verdicts",
+  "old_missed_actual_ids": [
+    "crates/brn-ai/src/threads_context_budget.rs:81:9: delete field origin from struct crate::AiFailureDetail expression in failure",
+    "crates/brn-ai/src/threads_context_budget.rs:264:42: replace > with >= in <impl AgentHook for BudgetHook>::on_outcome",
+    "crates/brn-ai/src/threads_search.rs:50:9: replace || with && in read_message",
+    "crates/brn-ai/src/threads_search.rs:49:9: replace || with && in read_message"
+  ],
+  "old_verdicts_unchanged": {
+    "core_selected": 8,
+    "core_caught": 2,
+    "core_unviable": 6,
+    "ai_selected": 41,
+    "ai_with_verdict": 27,
+    "ai_caught": 16,
+    "ai_unviable": 7,
+    "ai_missed": 4,
+    "ai_without_verdict": 14
+  },
+  "planned_priorities_not_actual_selected_ids": [
+    {
+      "label": "parent-wire-output-cap-reintroduction",
+      "kind": "bounded manual seed if automated mutation cannot express a deleted builder call",
+      "file": "crates/brn-ai/src/threads.rs",
+      "witness": "copilot_parent_chat_and_responses_keep_route_effort_and_send_no_output_cap"
+    },
+    {
+      "label": "helper-wire-output-cap-reintroduction",
+      "kind": "bounded manual seed",
+      "file": "crates/brn-ai/src/threads_research.rs",
+      "witness": "copilot_helpers_route_through_the_copilot_client"
+    },
+    {
+      "label": "unknown-host-cap-too-small",
+      "kind": "bounded constant seed if constants are not automatically mutated",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "witness": "copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refuses_without_trimming"
+    },
+    {
+      "label": "Copilot-safe-overflow-classification",
+      "kind": "new exact classifier variants, selection after grant only",
+      "file": "crates/brn-ai/src/error.rs",
+      "witnesses": [
+        "copilot_parent_provider_overflow_is_context_failure_without_route_fallback",
+        "copilot_helper_provider_overflow_is_budget_without_unavailability_or_fallback"
+      ]
+    },
+    {
+      "label": "prior-missed-helper-writing-exclusion",
+      "kind": "actual recheck same meaningful OR-to-AND variants, locations reidentified from corrected pin",
+      "file": "crates/brn-ai/src/threads_search.rs",
+      "witnesses": [
+        "exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message",
+        "exact_discussion_refuses_writing_scope_even_for_an_otherwise_visible_owner_message"
+      ]
+    },
+    {
+      "label": "prior-missed-result-equality",
+      "kind": "actual recheck > to >= variant",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "witness": "exact_tool_result_admission_boundary_reaches_the_next_real_dispatch"
+    },
+    {
+      "label": "prior-missed-local-origin",
+      "kind": "actual recheck origin field deletion",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "witness": "small_budget_keeps_mandatory_input_and_stops_zero_model_calls"
+    }
+  ],
+  "budget_rules": "all supplement source/copy preparation, selection, baseline, run, correction and cleanup time charge cumulatively to the actual1373.1291978359222 remainder. No reset/full41restart. Exact generated/manual IDs+diffs and all survivors/unviable/timeout/unexecuted kept. Freeze material source during copied campaign; notify principal before any defect correction."
+}

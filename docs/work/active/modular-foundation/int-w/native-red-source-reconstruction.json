@@ -1,0 +1,7 @@
+{
+  "method": "base exact bytes + retained original appendix, direct pinned rustfmt; no execution/relabel",
+  "path": "/private/tmp/brn-int-w-20261017-verification/notes-canary-reconstructed.rs",
+  "actual_sha256": "fa21c4c41182f6ecb992a594a4f8424c1e66e69019507957961fe349ac12db23",
+  "expected_red_sha256": "fa21c4c41182f6ecb992a594a4f8424c1e66e69019507957961fe349ac12db23",
+  "exact_match": true
+}

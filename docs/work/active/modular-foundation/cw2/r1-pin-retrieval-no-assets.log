@@ -1,0 +1,115 @@
+   Compiling ring v0.17.14
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling futures-sink v0.3.34
+   Compiling tokio v1.53.1
+   Compiling futures-task v0.3.34
+   Compiling slab v0.4.12
+   Compiling onig_sys v69.9.3
+   Compiling serde_json v1.0.151
+   Compiling rustls v0.23.45
+   Compiling tracing v0.1.44
+   Compiling rusqlite v0.40.2
+   Compiling uuid v1.26.1
+   Compiling futures-channel v0.3.34
+   Compiling futures-util v0.3.34
+   Compiling synstructure v0.14.0
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.3
+   Compiling zerovec-derive v0.11.6
+   Compiling displaydoc v0.2.7
+   Compiling serde_derive v1.0.229
+   Compiling thiserror-impl v2.0.21
+   Compiling darling_core v0.20.11
+   Compiling zerofrom v0.1.8
+   Compiling monostate-impl v0.1.18
+   Compiling thiserror v2.0.21
+   Compiling hyper v1.11.1
+   Compiling tower v0.5.3
+   Compiling yoke v0.8.3
+   Compiling monostate v0.1.18
+   Compiling zerovec v0.11.8
+   Compiling serde v1.0.229
+   Compiling zerotrie v0.2.5
+   Compiling hyper-util v0.1.21
+   Compiling darling_macro v0.20.11
+   Compiling darling v0.20.11
+   Compiling ahash v0.8.12
+   Compiling spm_precompiled v0.1.4
+   Compiling compact_str v0.9.1
+   Compiling dary_heap v0.3.9
+   Compiling safetensors v0.8.0
+   Compiling serde_urlencoded v0.7.1
+   Compiling tinystr v0.8.4
+   Compiling potential_utf v0.1.6
+   Compiling icu_collections v2.3.0
+   Compiling icu_locale_core v2.3.0
+   Compiling derive_builder_core v0.20.2
+   Compiling rustls-webpki v0.103.15
+   Compiling derive_builder_macro v0.20.2
+   Compiling icu_provider v2.3.1
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling derive_builder v0.20.2
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling url v2.5.8
+   Compiling tower-http v0.6.11
+   Compiling onig v6.5.3
+   Compiling tokenizers v0.23.2
+   Compiling ureq v3.4.2
+   Compiling tokio-rustls v0.26.5
+   Compiling ort-sys v2.0.0-rc.13
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling ort v2.0.0-rc.13
+   Compiling fastembed v7.1.0
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-retrieval)
+    Finished `test` profile [optimized] target(s) in 11.03s
+     Running unittests src/lib.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/brn_retrieval-97c6606fc8ad2cec)
+
+running 33 tests
+test markdown_chunk::tests::empty_input ... ok
+test markdown_chunk::tests::hash_tag_is_not_a_heading ... ok
+test markdown_chunk::tests::oversize_paragraph_without_whitespace_is_split ... ok
+test markdown_chunk::tests::fence_closing_rules ... ok
+test markdown_chunk::tests::preamble_has_empty_path ... ok
+test markdown_chunk::tests::heading_inside_fence_is_ignored ... ok
+test markdown_chunk::tests::crlf_pair_is_not_split ... ok
+test markdown_chunk::tests::oversize_fence_is_split_within_cap ... ok
+test markdown_chunk::tests::heading_path_stack ... ok
+test markdown_chunk::tests::closing_hashes_are_stripped ... ok
+test markdown_chunk::tests::small_paragraphs_pack_together ... ok
+test markdown_chunk::tests::splits_at_paragraph_boundaries_above_target ... ok
+test markdown_chunk::tests::small_chunk_absorbs_next_paragraph_up_to_hard_cap ... ok
+test markdown_chunk::tests::oversize_prefers_lines_then_whitespace ... ok
+test markdown_chunk::tests::version_is_stable ... ok
+test markdown_chunk::tests::whole_fence_and_table_kept_together ... ok
+test native::download_tests::previous_minilm_manifest_stays_recognised_exactly ... ok
+test native::download_tests::loaded_asset_bytes_require_exact_size_and_content_for_both_pin_types ... ok
+test native::download_tests::loaded_git_blob_pin_requires_the_git_header_not_a_raw_content_digest ... ok
+test native::download_tests::production_manifest_pins_multilingual_e5_small ... ok
+test native::tests::legacy_explicit_model_identity_keeps_the_original_byte_contract ... ok
+test native::tests::pinned_e5_onnx_selects_its_profile_prefixes_and_identity ... ok
+test native::tests::pinned_multilingual_onnx_selects_its_own_profile ... ok
+test snippet::tests::bounded_for_any_input ... ok
+test snippet::tests::centres_on_the_first_match_and_highlights_stems ... ok
+test snippet::tests::title_only_matches_show_the_beginning_and_never_split_characters ... ok
+test native::download_tests::cancellation_between_chunks_cleans_a_partial_file_without_installing ... ok
+test native::download_tests::http_failure_has_safe_typed_error_and_cleans_the_exclusive_stage ... ok
+test native::download_tests::concurrent_destination_creation_cannot_be_overwritten_by_install ... ok
+test native::download_tests::synthetic_five_assets_install_exclusively_and_verified_reuse_has_no_fetch ... ok
+test native::download_tests::private_http_seam_uses_synthetic_manifest_and_local_server_only ... ok
+test native::download_tests::synthetic_corruption_truncation_oversize_http_error_and_cancel_clean_only_owned_stage ... ok
+test markdown_chunk::tests::randomized_properties ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/model_download.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/model_download-31c40ad5f5c9d815)
+
+running 2 tests
+test cancelled_pinned_install_does_not_fetch_or_create_assets ... ok
+test occupied_target_is_refused_without_network_or_overwrite ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

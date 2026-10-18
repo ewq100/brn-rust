@@ -9,6 +9,7 @@ pub const SOURCE_INTAKE_INSTRUCTION: &str = "Capture useful supported informatio
 /// Preserve the converter's distinction between a detected loss and unchecked coverage.
 pub fn import_report(converted: &ConversionResult) -> ImportReport {
     ImportReport {
+        conversion: None,
         status: match converted.coverage.status {
             CoverageStatus::Complete => ImportStatus::Complete,
             CoverageStatus::Partial => ImportStatus::Partial,
@@ -29,6 +30,41 @@ pub fn import_report(converted: &ConversionResult) -> ImportReport {
             })
             .collect(),
     }
+}
+/// Validate the host's captured preference against the checked helper identity.
+pub fn import_report_with_conversion(
+    converted: &ConversionResult,
+    settings: &DocumentConversionSettings,
+) -> AppResult<ImportReport> {
+    let provenance = document_provenance(settings)?;
+    let backend = match settings.converter {
+        DocumentConverter::Xberg => "xberg",
+        DocumentConverter::XbergBrn => "xberg_brn",
+    };
+    if converted.converter
+        != brn_threads_intake::document_conversion_label(backend, settings.ai)
+            .map_err(|_| AppError::Invalid("Unknown document converter".into()))?
+    {
+        return Err(AppError::Invalid(
+            "Conversion does not match captured document settings".into(),
+        ));
+    }
+    let mut report = import_report(converted);
+    report.conversion = Some(provenance);
+    Ok(report)
+}
+pub(crate) fn document_provenance(
+    settings: &DocumentConversionSettings,
+) -> AppResult<DocumentConversionProvenance> {
+    let backend = match settings.converter {
+        DocumentConverter::Xberg => "xberg",
+        DocumentConverter::XbergBrn => "xberg_brn",
+    };
+    Ok(DocumentConversionProvenance {
+        settings: settings.clone(),
+        engine_identity: brn_threads_intake::expected_engine_identity(backend)
+            .map_err(|_| AppError::Invalid("Unknown document converter".into()))?,
+    })
 }
 impl Workspace {
     /// The chat for useful intake of `locator`: the most recent open chat in
@@ -140,6 +176,93 @@ impl Workspace {
         }
         self.post_message(chat, SOURCE_INTAKE_INSTRUCTION).map(Some)
     }
+    /// Resolve a successful full import to its current canonical Note without
+    /// trusting a receipt payload or inferring requested bytes from a Source's
+    /// latest external_version. Observation-only re-import receipts omit the Note.
+    /// This is a scoped read, never attachment or write authority.
+    pub fn full_import_note_in_scope(
+        &self,
+        receipt: &Receipt,
+        source_sha256: &[u8; 32],
+        scope: Option<&str>,
+    ) -> AppResult<Record> {
+        let unavailable = || {
+            AppError::Invalid(
+                "Imported reference is no longer available in this writing scope".into(),
+            )
+        };
+        let token = self.store.change_token().map_err(|_| unavailable())?;
+        let saved = self
+            .store
+            .receipt(&receipt.operation)
+            .map_err(|_| unavailable())?
+            .filter(|saved| saved == receipt)
+            .ok_or_else(unavailable)?;
+        let sources = saved
+            .writes
+            .iter()
+            .filter_map(|write| {
+                matches!(write.after.data, RecordData::Source(_)).then_some(&write.after)
+            })
+            .collect::<Vec<_>>();
+        let [source] = sources.as_slice() else {
+            return Err(unavailable());
+        };
+        if source.archived
+            || !matches!(&source.data, RecordData::Source(saved) if saved.chat.as_deref() == scope)
+        {
+            return Err(unavailable());
+        }
+        // The same bytes can retain a different Note for each converter/AI
+        // variant. Bind the resolver to this checked receipt's whole stored
+        // provenance, including its engine bundle; current preferences and the
+        // Source's later observations cannot relabel the imported Note.
+        let conversion = match &source.data {
+            RecordData::Source(source) => source
+                .report
+                .as_ref()
+                .and_then(|report| report.conversion.as_ref()),
+            _ => return Err(unavailable()),
+        };
+        let rows = self.records().map_err(|_| unavailable())?;
+        if writing_setup_scope(&rows, scope)
+            .map_err(|_| unavailable())?
+            .as_deref()
+            != scope
+        {
+            return Err(unavailable());
+        }
+        let current_source = rows.iter().find(|record| record.id == source.id && !record.archived
+            && matches!(&record.data, RecordData::Source(current) if current.chat.as_deref() == scope))
+            .ok_or_else(unavailable)?;
+        if !record_in_chat(current_source, &rows, scope) || !record_in_chat(source, &rows, scope) {
+            return Err(unavailable());
+        }
+        // Re-importing X after Y may intentionally leave Source.external_version=Y.
+        // The host-observed converted SHA, not that mutable field, selects the immutable import relation.
+        let relation = format!(
+            "{}{}",
+            crate::relations::FULL_IMPORT_PREFIX,
+            source_sha256
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
+        let mut eligible = rows.iter().filter(|record| !record.archived
+            && matches!(&record.data, RecordData::Note(note) if note.chat.as_deref() == scope && note.superseded_by.is_none()
+                && note.import.as_ref().is_some_and(|import| import.full_note && import.source == source.id
+                    && import.report.as_ref().and_then(|report| report.conversion.as_ref()) == conversion))
+            && record_in_chat(record, &rows, scope)
+            && rows.iter().any(|link| !link.archived
+                && matches!(&link.data, RecordData::Link(edge) if edge.from == record.id && edge.to == source.id && edge.relation == relation)
+                && record_in_chat(link, &rows, scope)))
+            .collect::<Vec<_>>();
+        if eligible.len() != 1 || self.store.change_token().map_err(|_| unavailable())? != token {
+            return Err(unavailable());
+        }
+        eligible.pop().cloned().ok_or_else(unavailable)
+    }
+
     pub fn import_full(
         &mut self,
         key: &str,
@@ -164,6 +287,35 @@ impl Workspace {
         converted: &ConversionResult,
         chat: Option<&str>,
     ) -> AppResult<ApplyOutcome> {
+        self.import_full_checked(key, title, converted, chat, None)
+    }
+    pub fn import_full_scoped_with_conversion(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        scope: Option<&str>,
+        settings: &DocumentConversionSettings,
+    ) -> AppResult<ApplyOutcome> {
+        let report = import_report_with_conversion(converted, settings)?;
+        self.check_document_import(
+            key,
+            title,
+            &converted.source_reference,
+            &converted.source_sha256,
+            scope,
+            settings,
+        )?;
+        self.import_full_checked(key, title, converted, scope, Some(report))
+    }
+    fn import_full_checked(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        chat: Option<&str>,
+        checked_report: Option<ImportReport>,
+    ) -> AppResult<ApplyOutcome> {
         if converted.intent != ImportIntent::FullNote {
             return Err(AppError::Invalid(
                 "Useful-information intake needs semantic selection, not a full-copy note".into(),
@@ -184,7 +336,15 @@ impl Workspace {
         }
         let binding = format!(
             "{:x}",
-            Sha256::digest(if let Some(chat) = chat {
+            Sha256::digest(if let Some(report) = &checked_report {
+                serde_json::to_vec(&(
+                    "document-conversion",
+                    title,
+                    converted,
+                    chat,
+                    &report.conversion,
+                ))?
+            } else if let Some(chat) = chat {
                 serde_json::to_vec(&("chat-attachment", title, converted, chat))?
             } else {
                 serde_json::to_vec(&(title, converted))?
@@ -235,14 +395,16 @@ impl Workspace {
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
         let relation = format!("{}{source_version}", crate::relations::FULL_IMPORT_PREFIX);
-        let previously_imported=records.iter().any(|record|!record.archived && matches!(&record.data,RecordData::Link(link) if link.to==source_id && link.relation==relation && records.iter().any(|note|!note.archived && note.id==link.from && matches!(&note.data,RecordData::Note(n) if n.superseded_by.is_none() && n.import.as_ref().is_some_and(|i|i.full_note && i.source==source_id)))));
+        let previously_imported=records.iter().any(|record|!record.archived && matches!(&record.data,RecordData::Link(link) if link.to==source_id && link.relation==relation && records.iter().any(|note|!note.archived && note.id==link.from && matches!(&note.data,RecordData::Note(n) if n.superseded_by.is_none() && n.import.as_ref().is_some_and(|i|i.full_note && i.source==source_id && checked_report.as_ref().is_none_or(|report| i.report.as_ref().and_then(|report|report.conversion.as_ref()) == report.conversion.as_ref()))))));
         let gaps = converted
             .coverage
             .gaps
             .iter()
             .map(|gap| format!("{}: {}", gap.locator, gap.detail))
             .collect::<Vec<_>>();
-        let report = import_report(converted);
+        let report = checked_report
+            .clone()
+            .unwrap_or_else(|| import_report(converted));
         let observed_at = format!(
             "Unix seconds {}",
             std::time::SystemTime::now()
@@ -270,7 +432,10 @@ impl Workspace {
         };
         source.locator = locator;
         source.observed_at = observed_at;
-        if !previously_imported {
+        if checked_report.is_some() {
+            source.label = title.into();
+        }
+        if !previously_imported || checked_report.is_some() {
             source.external_version = Some(source_version);
             source.outcome = format!("{:?}", converted.coverage.status);
             source.gaps = gaps.clone();

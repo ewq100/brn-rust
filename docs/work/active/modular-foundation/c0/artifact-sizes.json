@@ -1,0 +1,20 @@
+{
+  "note": "Unstripped final debug artifacts: CLI native-retrieval, desktop native-ui/native-retrieval, helper/helper. Not release/distribution sizes or default-build deltas.",
+  "artifacts": {
+    "brn": {
+      "path": "/private/tmp/brn-c0-20261016-target/debug/brn",
+      "bytes": 105194048,
+      "sha256": "881c98b553e3ee81e4eef649430e1fe4fe25301dc12f41adba1d97b4d3af8b50"
+    },
+    "brn-desktop": {
+      "path": "/private/tmp/brn-c0-20261016-target/debug/brn-desktop",
+      "bytes": 187449584,
+      "sha256": "0f612848199400a8a8d8358acd5e0dcbaf946a139050f24c90254024dde49ba3"
+    },
+    "brn-intake-helper": {
+      "path": "/private/tmp/brn-c0-20261016-target/debug/brn-intake-helper",
+      "bytes": 13132864,
+      "sha256": "95d5c18bb82b5f9f31762b71737e314da1da468ff1048bd85317256e129b825f"
+    }
+  }
+}

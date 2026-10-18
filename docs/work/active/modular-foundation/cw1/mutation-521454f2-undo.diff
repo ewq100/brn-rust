@@ -1,0 +1,85 @@
+diff --git a/crates/brn-threads-core/src/store.rs b/crates/brn-threads-core/src/store.rs
+index 36480f8e..1956306a 100644
+--- a/crates/brn-threads-core/src/store.rs
++++ b/crates/brn-threads-core/src/store.rs
+@@ -665,22 +665,66 @@ impl Store {
+             .iter()
+             .any(|w| matches!(w.data, RecordData::WritingSetup(_)))
+         {
+-            // Setup identity is project-wide, while a working Note may be
+-            // visible only through its explicitly selected conversation link.
+-            // Retain that host context for compensation without changing scope.
+-            for input in prepared_on(&tx, original)?.request.inputs {
+-                if matches!(
+-                    input.expectation,
+-                    InputExpectation::Current | InputExpectation::ChatContext
+-                ) && let Some(thread) = record_on(&tx, &input.record)?
+-                    && matches!(thread.data, RecordData::Thread(_))
+-                {
+-                    request.inputs.push(RevisionInput {
+-                        record: input.record,
+-                        version: input.version,
+-                        expectation: InputExpectation::ChatContext,
++            let saved: Option<String> = tx.query_row(
++                "SELECT request FROM operations WHERE id=?1",
++                [&compensation.0],
++                |r| r.get(0),
++            )?;
++            if let Some(saved) = saved {
++                // A deferred compensation keeps its first checked context choice
++                // and hash. Current policy may reject it, never switch its grant.
++                request.inputs = serde_json::from_str::<ChangeRequest>(&saved)?.inputs;
++            } else if request.writes.iter().any(|w| {
++                !w.archived && matches!(&w.data, RecordData::WritingSetup(s) if s.chat.is_some())
++            }) {
++                let mut query = tx.prepare("SELECT body FROM records ORDER BY rowid")?;
++                let mut rows = query
++                    .query_map([], |r| r.get::<_, String>(0))?
++                    .map(|r| Ok(serde_json::from_str::<Record>(&r?)?))
++                    .collect::<Result<Vec<_>>>()?;
++                for w in &request.writes {
++                    rows.retain(|r| r.id != w.id);
++                    rows.push(Record {
++                        id: w.id.clone(),
++                        version: w.expected_version.unwrap_or(0).saturating_add(1),
++                        archived: w.archived,
++                        data: w.data.clone(),
+                     });
+                 }
++                let needs_conversation = request.writes.iter().any(|w| {
++                    let RecordData::WritingSetup(setup) = &w.data else {
++                        return false;
++                    };
++                    !w.archived
++                        && rows.iter().any(|r| {
++                            Some(&r.id) == setup.chat.as_ref()
++                                && matches!(r.data, RecordData::Project(_))
++                        }) && !rows.iter().any(|r| {
++                        r.id == setup.note
++                            && !r.archived
++                            && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
++                            && crate::context::visible(r, &rows, setup.chat.as_deref())
++                    })
++                });
++                if needs_conversation {
++                    // Only a live Project setup can need the working Note's
++                    // selected-conversation link exception. Archive-only Undo and
++                    // canonical/general/private access need no extra dependency.
++                    for input in prepared_on(&tx, original)?.request.inputs {
++                        if matches!(
++                            input.expectation,
++                            InputExpectation::Current | InputExpectation::ChatContext
++                        ) && let Some(thread) = record_on(&tx, &input.record)?
++                            && matches!(thread.data, RecordData::Thread(_))
++                        {
++                            request.inputs.push(RevisionInput {
++                                record: input.record,
++                                version: input.version,
++                                expectation: InputExpectation::ChatContext,
++                            });
++                        }
++                    }
++                }
+             }
+         }
+         for w in &mut request.writes {

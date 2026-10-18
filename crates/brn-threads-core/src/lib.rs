@@ -14,6 +14,11 @@ pub use projects::{
     TrashedRecord, project_context_fences, project_document_ids, project_for_chat,
 };
 mod edit;
+mod external_data;
+pub use external_data::{
+    ExternalDataGrant, canonical_mcp_endpoint, canonical_mcp_input, mcp_input_schema,
+    mcp_input_schema_digest,
+};
 pub mod locator;
 pub use locator::{canonical_locator, find_source, matching_sources, same_locator};
 mod read;
@@ -29,10 +34,15 @@ mod upgrade;
 mod writing;
 pub use read::{MAX_NOTE_READ_BYTES, NoteHeading, NoteReadOutcome, NoteSlice, note_headings};
 pub use revision_read::{RevisionPage, RevisionSummary};
-pub use store::{DATA_MARKER, DATABASE_FILENAME, DERIVED_DIRECTORY, Store};
+pub use store::{DATA_MARKER, DATABASE_FILENAME, DERIVED_DIRECTORY, Store, ViewChangeToken};
 pub use types::*;
 pub use writing::{
-    MAX_WRITING_REQUEST_BYTES, WRITING_REQUEST_ROLE, WritingSnapshot, exact_writing_range,
+    MAX_WRITING_REQUEST_BYTES, WRITING_CONTEXT_ROLE, WRITING_EVIDENCE_ROLE, WRITING_PUBLIC_REASON,
+    WRITING_REQUEST_ROLE, WritingCandidateEvidence, WritingContextUse, WritingPurpose,
+    WritingQuotation, WritingRead, WritingReadRequirements, WritingReference,
+    WritingReferenceVersion, WritingRequirementsClaim, WritingSetup, WritingSnapshot,
+    WritingSnapshotSetup, exact_writing_range, scoped_writing_request, writing_request_scope,
+    writing_setup_scope,
 };
 
 #[derive(Debug, thiserror::Error)]

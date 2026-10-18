@@ -1,0 +1,454 @@
+{
+  "status": "Granted normal self-checks complete; immutable pin not yet created",
+  "actual_precommit_HEAD": "e2e2b5a12353366648377eb8651eb3a651b4574b",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "target": "/private/tmp/brn-d1b-20261017-target",
+  "source_sha256": {
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "crates/brn-ai/Cargo.toml": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+    "crates/brn-ai/src/auth.rs": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+    "crates/brn-ai/src/threads.rs": "6fa9b458e0ba37c6e655eb59efbd39ef3d08166c0d1033a1e8b63cfb6df8be7d",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_summary.rs": "a3e0cafe36537bf9ffa7c3c1661d40dabdaf4586d505d02232f96d7ad394aa6e",
+    "crates/brn-ai/src/threads_summary_tests.rs": "ea5231eb0fcedfc1920e87ade44f0328019299fed1e9e78f68213a2cb1e33563"
+  },
+  "material_a673_to_WIP_diff": "/private/tmp/brn-d1b-20261017-review1-artifacts/verified-material-a673-to-wip.diff",
+  "material_diff_sha256": "b680b68b1dc800d3333e0645536138ab4376f7975ce1e6f8faf01b9c28f3592f",
+  "checks": [
+    {
+      "label": "before-summary",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 38.4773108959198,
+      "counts": null,
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-summary.json",
+      "receipt_sha256": "255e82621fedb3db39e8c83ac5388fc442dd9b78f0180339b8e50ddaf7a72e3c",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-summary.log",
+      "log_sha256": "c7cad0afdf4a480c1369aaf9a14105290cd1c920a6c8fd420b179ce99fad361e",
+      "source": "/private/tmp/brn-d1b-20261017-review1-before-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-before-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "before-summary-typed",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 12.082614183425903,
+      "counts": {
+        "passed": 15,
+        "failed": 7,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-summary-typed.json",
+      "receipt_sha256": "76ae8f6ceab02b661f00c140ffe3bddeb361b7be3f35b8e44bd22f1c2cd8e688",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-summary-typed.log",
+      "log_sha256": "0d56ce9b7d8c8ed45b27321b86369a7cb8aa9fe0170ecf26210b95e6d865b3ba",
+      "source": "/private/tmp/brn-d1b-20261017-review1-before-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-before-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-summary",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 13.741849184036255,
+      "counts": {
+        "passed": 24,
+        "failed": 1,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-summary.json",
+      "receipt_sha256": "18123d187731b3befb84910c47da708a3c4f19ae5842882043eccf592ae6acab",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-summary.log",
+      "log_sha256": "943ab1ce52d2e9eb71888206fcbb42faa76491b65144d654b2508c3115e54b52",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-refusal-diagnosis",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::review1::compactor_context_overflow_or_partial_refusal_never_retries_responses",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 11.803475856781006,
+      "counts": {
+        "passed": 0,
+        "failed": 1,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-refusal-diagnosis.json",
+      "receipt_sha256": "0a94c33f64363328ebf4f1567bde91c963859ea058c4f35f387b30a430cf5dfa",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-refusal-diagnosis.log",
+      "log_sha256": "3cfafd6fd7afd7ddb45430c909a19c50615e21698965673c3d41feec3807ca2d",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-summary-stream-corrected",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 12.204359769821167,
+      "counts": {
+        "passed": 25,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-summary-stream-corrected.json",
+      "receipt_sha256": "186e5d879b7e64e2cc7d390edec7ef942c969a2c190c26dec939bf922356e939",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-summary-stream-corrected.log",
+      "log_sha256": "7b2e40ba1eb256e2fead706f5ebd681551326b521ba5347fa02cda3b079eed89",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-filesystem",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary::filesystem_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 0.4725010395050049,
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-filesystem.json",
+      "receipt_sha256": "8da8e7dfda920e5b7b0d0d48bbf2ed23380d1347507366c4da7d49874b5679b4",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-filesystem.log",
+      "log_sha256": "70f1d754aad2053c1ee437ad3841d649b59f35b320f2238b56eb83bb52ea6fb1",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-ai-full",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 3.926764965057373,
+      "counts": {
+        "passed": 419,
+        "failed": 0,
+        "ignored": 1
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-ai-full.json",
+      "receipt_sha256": "1af54cb6eeb52beed2d550fa914617937b47f52f753f0724f59d589749bdf92a",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-ai-full.log",
+      "log_sha256": "56485713395b349848b174ac06cdf8b423a6a675a63112d116cfa0ff9ef5b0a2",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-core",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "note_read",
+        "--test",
+        "message_search_scope",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 0.3561720848083496,
+      "counts": {
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-core.json",
+      "receipt_sha256": "1060d28b34f96e0c64cf8c747645ee809b64fae2404f4ac0c51feda47300eb6f",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-core.log",
+      "log_sha256": "f8a02cfd717157d230e630cd13fdaecafd08570c98ec72d13250eda91c13279c",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-cli",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 34.47485613822937,
+      "counts": {
+        "passed": 161,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-cli.json",
+      "receipt_sha256": "1c9c304086b538b13cdd3e0ff1696d9bc2d9e4959ffc72709d2ee66453461d48",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-cli.log",
+      "log_sha256": "ea3729b2910223a02a24cf42534410fc80f2aaa6ccfcc56cebd7ba2933e058c2",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-export",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "export_metadata",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "seconds": 6.684471130371094,
+      "counts": {
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-export.json",
+      "receipt_sha256": "79b7c292f61c19e1b38251ff21199f2477211e0686e6793ee62a9a63155ef8f5",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-export.log",
+      "log_sha256": "6c8a2f1c9301d1e819197594ec6432590061160eb0cbd07d36e4844ccb39f764",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/scripted-runs",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 4.214751958847046,
+      "counts": null,
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-clippy.json",
+      "receipt_sha256": "0542df686ea393a9a05245f99ab155149ee4a7a202bac756df910cd04fee7873",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-clippy.log",
+      "log_sha256": "00e4c56c081a9bcb430ce4042e67069de6e202b4b21a3f8f7a7db02d410306d4",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    },
+    {
+      "label": "candidate-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.206286907196045,
+      "counts": null,
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-fmt.json",
+      "receipt_sha256": "67329de95a66be2e571ac6e11777333139fb34d2c53d34da135d2e9c3954924c",
+      "log": "/private/tmp/brn-d1b-20261017-review1-artifacts/candidate-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d1b-20261017-target",
+      "source_unchanged": true
+    }
+  ],
+  "before_final_source": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-final-source.json",
+  "before_final_source_sha256": "45575dba484d23f8087769f53d053139417032ac3520759c8558f133bd1b1a9f",
+  "candidate_actual_artifacts": {
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+      "sha256": "67cfb43deae7f9adde44cc5d895871f7603f091cba3c6838ae4d06d055e9222d",
+      "mtime_ns": 1792189947814513132,
+      "bytes": 32057088
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+      "sha256": "e12693bc0ab15c7b74c741e0eda03f60651b71e25759601224d120778db2fccc",
+      "mtime_ns": 1792189937831821506,
+      "bytes": 6892
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-0dc7f03ab5988887.rlib": {
+      "sha256": "f8bcc5947308728def85c8c3d63796fecc3713952b0ab95b397d40153c9f512e",
+      "mtime_ns": 1792187355338291343,
+      "bytes": 17803568
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-67e710063aae6f26.rlib": {
+      "sha256": "5434b165f311c3175ff72d1d51eabffc24de2e267f8c86432a4c23d8883ab884",
+      "mtime_ns": 1792187341602194426,
+      "bytes": 20539232
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-7bcb3e17ffaaba72.rlib": {
+      "sha256": "fd50d8dd2f41546a08a0556f1d90e35eba72c1f1f72adfb43b1228de2a099b76",
+      "mtime_ns": 1792190028820260679,
+      "bytes": 13114424
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/libbrn_ai-bff0b032038c666e.rlib": {
+      "sha256": "541772c905b51e3e69ba222f6c9ad1cd9e1adb2fc3086a17891b111afe777180",
+      "mtime_ns": 1792189991684752845,
+      "bytes": 13057432
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-0dc7f03ab5988887.d": {
+      "sha256": "d40f01c0cb30ec771aafd7af2ed7204790757bb87ce9146c79e913015c1cdf15",
+      "mtime_ns": 1792187349710551319,
+      "bytes": 5487
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-67e710063aae6f26.d": {
+      "sha256": "692ef62dd08493223bfe6bea0cedc437c5574ba7f7364e0f4ef0abbe6efeed5d",
+      "mtime_ns": 1792187340064172455,
+      "bytes": 4335
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-7780f66779edfed8.d": {
+      "sha256": "3872dfa83686065539b3212f37cda985829f66b53f08c00e9fdf081d910ec97a",
+      "mtime_ns": 1792190034061689928,
+      "bytes": 3366
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-7bcb3e17ffaaba72.d": {
+      "sha256": "044186f367880dd6bd089fc6c09f7a4d87f7fb3c31f0ac172a066d4370055d45",
+      "mtime_ns": 1792190024795668805,
+      "bytes": 4335
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-bff0b032038c666e.d": {
+      "sha256": "0bd0cf11be172fc665a220b1e454f9af7ab179e04a3480a907b1d5105796c2f3",
+      "mtime_ns": 1792189987591198401,
+      "bytes": 4335
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-c66dd4c3dfb902bc.d": {
+      "sha256": "2d790ae0747b9a816909b5e06bc8fb74d8d136ed8943e9d60141c0eebb78f46a",
+      "mtime_ns": 1792187350016755033,
+      "bytes": 6892
+    },
+    "/private/tmp/brn-d1b-20261017-target/debug/deps/brn_ai-e4d00adab06771e7.d": {
+      "sha256": "78c08e1e4863a8c8396a7ec77071b7dcb350f98f73b8f7f835615e2b723cdfe7",
+      "mtime_ns": 1792190034312399380,
+      "bytes": 7030
+    }
+  },
+  "before_actual_artifacts": "/private/tmp/brn-d1b-20261017-review1-artifacts/before-artifact-association.json",
+  "new_material_defect_found_and_fixed": "Strict collect_stream suppresses AiEvent previews; initial partial-refusal observation was ineffective. Reported before edit, fixed by actual StreamEvent::Text inspection before strict16KiB collector, no text retained/emitted. Initial24/1 and diagnostic0/1 retained. Focused25/0 + full419/0/1 after correction.",
+  "Cargo.lock_unchanged": true,
+  "no_correction_mutation_yet": true,
+  "original_D1B_mutation": {
+    "charged": 534.402553319931,
+    "remaining": 1265.597446680069,
+    "original_verdicts": "a6736caught/2MISSED unchanged"
+  },
+  "prior_workspace_limits": "a673 workspace1129/1PDF-Unavailable/6; no repeat/new full qualification claim",
+  "live": "BLOCKED by L; scripted only"
+}

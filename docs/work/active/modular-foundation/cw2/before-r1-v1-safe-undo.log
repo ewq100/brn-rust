@@ -1,0 +1,25 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 3.92s
+     Running tests/cw2_visibility.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_visibility-c44ed706cec611e4)
+
+running 4 tests
+test archived_historical_input_is_not_apply_authority ... ok
+test revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content ... FAILED
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... ok
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+
+failures:
+
+---- revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content stdout ----
+
+thread 'revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content' (27513497) panicked at crates/brn-threads-core/tests/cw2_visibility.rs:233:9:
+restoring the pre-AI draft must not depend on the AI evidence still being visible
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-threads-core --test cw2_visibility`

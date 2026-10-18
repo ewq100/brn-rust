@@ -1,0 +1,462 @@
+{
+ "association": "Historical bbf107e3 qualification, corrected 18 October 2026 after review B4a: listed source hashes apply to helper-build-final, documents-tests-after-escape-pin and every later Cargo command, not helper-build-1 or the pre-escape attempt (their earlier compiled source hashes were not recorded). Original target paths were /tmp/brn-x2-html-20261017/target and target-before; both have since been deleted. Historical binaries and .d survive as recorded hashes only. No historical artifact was rebuilt to recreate it. Rust 1.98.1, --locked --offline -j1; native lanes used sandbox-exec denying non-loopback network.",
+ "source_sha256": {
+  "Cargo.lock": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+  "crates/brn-intake/Cargo.toml": "2235209c8acd8de345669b4c60775cb7063d17f277975db97728ace28124837e",
+  "crates/brn-intake/src/lib.rs": "63dfb36443351d10205c26fbbe512d8de05ab15daaa801ec4525bfe2811ee656",
+  "crates/brn-intake/src/helper.rs": "3de9a292ffe9cc24ece3c038d605d75a89fb8aba51cccca8002821789a9b6468",
+  "crates/brn-intake/src/helper/documents.rs": "904b058d40d0f50c1a020be53a080c7c0d0f61fab908b5d3d2e6087c4de1b5ec",
+  "crates/brn-intake/src/helper/documents/html_admission.rs": "70ed3e62a37f0b8941d07d70d577bedd2cb983d09000f3f08359222529d8d077",
+  "crates/brn-intake/tests/restricted_helper.rs": "aacba63dd58c2480244c2ccb4187c6608d42eab1210e35e05a9d1655d394f605",
+  "crates/brn-intake/tests/protocol.rs": "4c12a241eccb88eb107e3a7fd435b4188ed11af748977e6f67d4b32198edef08",
+  "crates/brn-intake/tests/fixtures/textual.html": "04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5"
+ },
+ "before": {
+  "helper_sha256": "c6e75395986042dd74fd7b3be09d785f6fb91edb30ee7e4f93edd8a2a8dd1fc4",
+  "dep_info_sha256": "575e176b3b3a9793aa4383e7bf320525342102f0d3784da3828311fe2e9bda8b",
+  "lock_sha256": "65d2aeee2a8ec2000e7825266a5f70a10725fd32c617d72ddbdf9361a1eb2a1c",
+  "result": "exit 1 {\"error\":\"unsupported intake kind\"}"
+ },
+ "after_binaries_sha256": {
+  "brn-intake-helper": "c9336db65b65bad9f3499d77e2aab8a6bc983512014104352927934dea69a715",
+  "brn-intake-helper.d": "2b606923bf8b1f41194e2e355f60127416374f4b30e21f45cd3f6e327e49d43c",
+  "brn": "64858a308dff79a6faaf0de9dbb6609ce60271485b0aa6cdd2c863fc78f3a5bd",
+  "brn-desktop": "cea92477c0ffed5c7b59e63f43b45573c16939909e43914d5b82fdc53700d9e4"
+ },
+ "commands": [
+  {
+   "label": "helper-tree",
+   "command": "cargo tree -p brn-intake --features helper -e normal,build -f \"{p} [{f}]\" --locked --offline",
+   "exit": 0,
+   "log": "helper-tree.txt.gz",
+   "raw_log_sha256": "3bb7a1dbe7d1e41f133563f676d154ba10b999381240a4fa5b15a49af665db4f",
+   "totals": null,
+   "note": "actual helper feature graph: xberg [html], serde_json preserve_order, image bmp/gif/jpeg/png/webp, toml 1.1.8, no tokio"
+  },
+  {
+   "label": "helper-build-1",
+   "command": "cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline -j1",
+   "exit": 0,
+   "log": "helper-build.log.gz",
+   "raw_log_sha256": "809f920288b30f36efdec50ec22d4c5798f825dfb4b2161dea05077e8dc28b70",
+   "totals": null,
+   "note": "first compile on new graph; 1 warning lt_count never read (fixed: used in a consistency check)"
+  },
+  {
+   "label": "helper-build-final",
+   "command": "cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline -j1",
+   "exit": 0,
+   "log": "helper-build3.log.gz",
+   "raw_log_sha256": "64b42fa0f8ac5b5a094b8584a80251cc57b553efadf57ebef8655c6fa739205b",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "documents-tests-after-escape-pin",
+   "command": "cargo test -p brn-intake --features helper --lib --locked --offline -j1 --no-fail-fast documents",
+   "exit": 0,
+   "log": "documents-tests2.log.gz",
+   "raw_log_sha256": "348dd393da250c5acc68953ec72b7bb5ba9c07a570bb0801deddd6ee5ce932e7",
+   "totals": {
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0,
+    "results": 1
+   },
+   "note": "escape_asterisks/underscores/misc pinned after the actual helper rendered literal *star* as emphasis"
+  },
+  {
+   "label": "fmt-check",
+   "command": "cargo fmt --all -- --check",
+   "exit": 0,
+   "log": "fmt.log.gz",
+   "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "intake-clippy",
+   "command": "cargo clippy -p brn-intake --features helper --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "log": "intake-clippy.log.gz",
+   "raw_log_sha256": "d6351383d3ddd48a53792ea36f6bfd48c00bd6d9220999d2bf79816f8e1393fa",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "intake-helper-all-targets",
+   "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline -j1 --no-fail-fast",
+   "exit": 0,
+   "log": "intake-helper-tests.log.gz",
+   "raw_log_sha256": "1b7e97611efef5813a0ab445d989de2511ffb5d303f84c2a695b6a6447e37792",
+   "totals": {
+    "passed": 83,
+    "failed": 0,
+    "ignored": 0,
+    "results": 6
+   },
+   "note": ""
+  },
+  {
+   "label": "threads-intake-all-targets",
+   "command": "cargo test -p brn-threads-intake --all-targets --locked --offline -j1 --no-fail-fast",
+   "exit": 101,
+   "log": "threads-intake-tests.log.gz",
+   "raw_log_sha256": "04c412107fe419269ef3dfa541ecff723e5dbf44f0ad99721050e77c0a3b7baf",
+   "totals": {
+    "passed": 35,
+    "failed": 1,
+    "ignored": 3,
+    "results": 2
+   },
+   "note": "only failure: carried PDF Unavailable (pdftoppm/pdfinfo absent locally; CI installs poppler)"
+  },
+  {
+   "label": "workspace-build",
+   "command": "cargo build --workspace --locked --offline -j1",
+   "exit": 0,
+   "log": "ws-build.log.gz",
+   "raw_log_sha256": "a149abac269ce0a2beea08821a44997aa4cec907516d883680e97f7214bcfa0f",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "workspace-clippy",
+   "command": "cargo clippy --workspace --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "log": "ws-clippy.log.gz",
+   "raw_log_sha256": "03bc160c8d7fd5791ff8f9858b09136a57f22c187dc027bd2cf50dee56f28559",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "workspace-test-run1",
+   "command": "cargo test --workspace --locked --offline -j1 --no-fail-fast (TMPDIR under /tmp, a symlink)",
+   "exit": 101,
+   "log": "ws-test-run1-symlink-tmpdir.log.gz",
+   "raw_log_sha256": "9d2ed618055489a2e7ad6f9ba44998802d6e0d8d85f46d0ef45d32b7663934ad",
+   "totals": {
+    "passed": 1252,
+    "failed": 7,
+    "ignored": 7,
+    "results": 103
+   },
+   "note": "7 failures: 6 DataFolder SymlinkRefused caused by my TMPDIR choice plus carried PDF Unavailable; retained as failed"
+  },
+  {
+   "label": "workspace-test-run2",
+   "command": "cargo test --workspace --locked --offline -j1 --no-fail-fast (TMPDIR under /private/tmp)",
+   "exit": 101,
+   "log": "ws-test2.log.gz",
+   "raw_log_sha256": "59eaf101cd24557b53e70deab1b1656706394aad2eb30b5cfb1e7e7ff27a3139",
+   "totals": {
+    "passed": 1258,
+    "failed": 1,
+    "ignored": 7,
+    "results": 103
+   },
+   "note": "only failure: carried PDF Unavailable"
+  },
+  {
+   "label": "intake-retirement",
+   "command": "python3 scripts/check-intake-retirement.py",
+   "exit": 0,
+   "log": "intake-retirement.log.gz",
+   "raw_log_sha256": "58cb2f765610e8ff93bc2691b5f89ae21f06b75d5e6b3f4fe7975af2e560d066",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "provider-retirement",
+   "command": "python3 scripts/check-provider-retirement.py",
+   "exit": 0,
+   "log": "provider-retirement.log.gz",
+   "raw_log_sha256": "fb2c6498194d43d855c5d9b93d519ab0d944238b8c1779ba993cbd6d440b3373",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "script-tests",
+   "command": "python3 -m unittest discover -s scripts/tests",
+   "exit": 0,
+   "log": "script-tests.log.gz",
+   "raw_log_sha256": "f1d4dafe560d190d148c0da7fb139de1c6b3ae37ac98f702db161e99d97bc746",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/capability-test",
+   "command": "cargo test -p brn-ai --features capability-spike --all-targets --locked --offline -j1",
+   "exit": 0,
+   "seconds": "124s",
+   "log": "lanes-run1-keep/capability-test.log.gz",
+   "raw_log_sha256": "482338cc25c683e23aa8a7f39d9b6fb31417c7011ce9469f6640fa0bfbc3cf76",
+   "totals": {
+    "passed": 469,
+    "failed": 0,
+    "ignored": 1,
+    "results": 3
+   },
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/capability-clippy",
+   "command": "cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "seconds": "7s",
+   "log": "lanes-run1-keep/capability-clippy.log.gz",
+   "raw_log_sha256": "17c72eb0afc66374af552f6d3e887728ee4fd8d4c14328c6eefe0ce4d1a1e8f2",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/cli-help",
+   "command": "/tmp/brn-x2-html-20261017/target/debug/brn --help",
+   "exit": 0,
+   "seconds": "0s",
+   "log": "lanes-run1-keep/cli-help.log.gz",
+   "raw_log_sha256": "08d24bf846f14daf21a0b3cfd40dd69516b154201879bf2dfebd0cb2f6dcba9e",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/e2e-fixtures",
+   "command": "env TMPDIR=/private/tmp/brn-x2-html-20261017/tmp3/brn-ci-fixtures.NQ1W39 bash scripts/verify-end-to-end.sh --fixtures-only",
+   "exit": 0,
+   "seconds": "2s",
+   "log": "lanes-run1-keep/e2e-fixtures.log.gz",
+   "raw_log_sha256": "7f4ce9237d0e6610e42b0db02e112e0abc9bdda33da8dcdb5c6a37141da871e2",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/native-ui-build",
+   "command": "cargo build -p brn-desktop --features native-ui --locked --offline -j1",
+   "exit": 0,
+   "seconds": "192s",
+   "log": "lanes-run1-keep/native-ui-build.log.gz",
+   "raw_log_sha256": "bc8c3012177ee2addde640fa77420ff2f4090462fbc8170a16897d6e1963190b",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/native-ui-clippy",
+   "command": "cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "seconds": "77s",
+   "log": "lanes-run1-keep/native-ui-clippy.log.gz",
+   "raw_log_sha256": "3ec04034069cdbe44bafb91fffb9b9f6eaf259d32f38457cf1000067d49a012b",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/native-ui-test",
+   "command": "cargo test -p brn-desktop --features native-ui --locked --offline -j1 --no-fail-fast",
+   "exit": 0,
+   "seconds": "419s",
+   "log": "lanes-run1-keep/native-ui-test.log.gz",
+   "raw_log_sha256": "0d68db1d8a79f9361ed08459bd9c2e1818d382676e926d2906672f10729fdd36",
+   "totals": {
+    "passed": 95,
+    "failed": 0,
+    "ignored": 0,
+    "results": 1
+   },
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/native-widgets-clippy",
+   "command": "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "seconds": "21s",
+   "log": "lanes-run1-keep/native-widgets-clippy.log.gz",
+   "raw_log_sha256": "b12666b55b974b580b293bdd9b7502ca28e026fa12fc09199e632514bff96f2d",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/native-widgets-test",
+   "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline -j1",
+   "exit": 0,
+   "seconds": "177s",
+   "log": "lanes-run1-keep/native-widgets-test.log.gz",
+   "raw_log_sha256": "d83df2104bcf42a5b08d99ba603319fed293b8f113f652d9f64efd6e615b026e",
+   "totals": {
+    "passed": 312,
+    "failed": 0,
+    "ignored": 1,
+    "results": 1
+   },
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/desktop-headless",
+   "command": "bash -c for a in 1 2; do '/tmp/brn-x2-html-20261017/target/debug/brn-desktop' --data-dir '/private/tmp/brn-x2-html-20261017/tmp3/brn-ci-desktop.S8ciP4/data' --headless-check startup || exit 1; done; test -f '/private/tmp/brn-x2-html-20261017/tmp3/brn-ci-desktop.S8ciP4/data/threads.sqlite3' && test ! -e '/private/tmp/brn-x2-html-20261017/tmp3/brn-ci-desktop.S8ciP4/data/brn.sqlite'",
+   "exit": 0,
+   "seconds": "2s",
+   "log": "lanes-run1-keep/desktop-headless.log.gz",
+   "raw_log_sha256": "71ad4ce508b44a4e04287dd5b6e41edf50ef6d6e317a1410194accb3820437cc",
+   "totals": null,
+   "note": ""
+  },
+  {
+   "label": "lanes-run1-keep/retrieval-native-test",
+   "command": "cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline -j1 --no-fail-fast",
+   "exit": 101,
+   "seconds": "96s",
+   "log": "lanes-run1-keep/retrieval-native-test.log.gz",
+   "raw_log_sha256": "e1ed91dc2f5ac387e38bca3e97f7afb3b19b7a1f575b526fb4460ce56bd3e512",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-run1-keep/threads-app-native-retrieval",
+   "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline -j1 --no-fail-fast",
+   "exit": 101,
+   "seconds": "189s",
+   "log": "lanes-run1-keep/threads-app-native-retrieval.log.gz",
+   "raw_log_sha256": "07c05620b58106ce92bf14143863cfe2a35f9f1b0548f620f2669270082efe41",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-run1-keep/cli-native-retrieval-build",
+   "command": "cargo build -p brn --features native-retrieval --locked --offline -j1",
+   "exit": 101,
+   "seconds": "48s",
+   "log": "lanes-run1-keep/cli-native-retrieval-build.log.gz",
+   "raw_log_sha256": "be9a3e619eca796b1d41ac4907b06c29aaa57b4dca93b795c35d67fa92418622",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-run1-keep/combined-build",
+   "command": "cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline -j1",
+   "exit": 101,
+   "seconds": "69s",
+   "log": "lanes-run1-keep/combined-build.log.gz",
+   "raw_log_sha256": "77e98908ed6858120c092b2c3607a1c22d377bf3f55a8508b925c7a916897ef8",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-run1-keep/combined-clippy",
+   "command": "cargo clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "seconds": "32s",
+   "log": "lanes-run1-keep/combined-clippy.log.gz",
+   "raw_log_sha256": "8035c779e49d279c6bd96aafd31d133f5b8b7f74a0db64395d86f26a25214fe1",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-run1-keep/combined-test",
+   "command": "cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline -j1 --no-fail-fast",
+   "exit": 101,
+   "seconds": "284s",
+   "log": "lanes-run1-keep/combined-test.log.gz",
+   "raw_log_sha256": "230c5b71fc33b9fe559e84967d7a25340689db2a2096e373a732cbf8000a5ec4",
+   "totals": null,
+   "note": "run 1 (no-network sandbox): native-retrieval link failed, CARGO_NET_OFFLINE without explicit ORT_LIB_PATH gives link_error_generic"
+  },
+  {
+   "label": "lanes-ort/retrieval-native-test",
+   "command": "cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline -j1 --no-fail-fast",
+   "exit": 0,
+   "seconds": "11s",
+   "log": "lanes-ort/retrieval-native-test.log.gz",
+   "raw_log_sha256": "a4af4ef879f919185e5330ce6176359ed2cddad1e011c08d1f675953fd28b67d",
+   "totals": {
+    "passed": 35,
+    "failed": 0,
+    "ignored": 0,
+    "results": 2
+   },
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  },
+  {
+   "label": "lanes-ort/threads-app-native-retrieval",
+   "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline -j1 --no-fail-fast",
+   "exit": 0,
+   "seconds": "95s",
+   "log": "lanes-ort/threads-app-native-retrieval.log.gz",
+   "raw_log_sha256": "7f21cd40fbc40c4ac0d2a87a4bd5feceeee1c37339291c0467f9c063f86549bb",
+   "totals": {
+    "passed": 248,
+    "failed": 0,
+    "ignored": 1,
+    "results": 38
+   },
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  },
+  {
+   "label": "lanes-ort/cli-native-retrieval-build",
+   "command": "cargo build -p brn --features native-retrieval --locked --offline -j1",
+   "exit": 0,
+   "seconds": "5s",
+   "log": "lanes-ort/cli-native-retrieval-build.log.gz",
+   "raw_log_sha256": "8ccee82d3b6eaaaa3d208dcfc66e86610cce3f4511b7192702e5178fd6821585",
+   "totals": null,
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  },
+  {
+   "label": "lanes-ort/combined-build",
+   "command": "cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline -j1",
+   "exit": 0,
+   "seconds": "7s",
+   "log": "lanes-ort/combined-build.log.gz",
+   "raw_log_sha256": "608d57376c96b45f312ee5c8ca78e31a5994dfa1fd52884b4e27bd4efd824cc6",
+   "totals": null,
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  },
+  {
+   "label": "lanes-ort/combined-clippy",
+   "command": "cargo clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -j1 -- -D warnings",
+   "exit": 0,
+   "seconds": "3s",
+   "log": "lanes-ort/combined-clippy.log.gz",
+   "raw_log_sha256": "ea6bbc4af9b7dba65a35cbfd1a2a608096bced23f7915991d536dc2a96c3062a",
+   "totals": null,
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  },
+  {
+   "label": "lanes-ort/combined-test",
+   "command": "cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline -j1 --no-fail-fast",
+   "exit": 0,
+   "seconds": "11s",
+   "log": "lanes-ort/combined-test.log.gz",
+   "raw_log_sha256": "5979fdbc92ce66328d05265994b88a046cecc55064e238d7ed3bb20068d76341",
+   "totals": {
+    "passed": 95,
+    "failed": 0,
+    "ignored": 0,
+    "results": 1
+   },
+   "note": "rerun with previously qualified cached ORT libonnxruntime.a d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3 via ORT_LIB_PATH/ORT_SKIP_DOWNLOAD/ORT_OFFLINE"
+  }
+ ],
+ "runtime": {
+  "fixture": "env-cleared restricted helper on textual.html: exit 0, 0.01 s, max RSS 12894208 B; exact Markdown in logs/fixture.stdout.gz",
+  "large": "6291163-byte admitted HTML (joined-thread path): exit 0, 0.37 s, max RSS 217890816 B, peak footprint 191382032 B, max sampled threads 3 (ps -M, 7 samples; sampling, not a cap); 241040 repeated groups and final marker retained",
+  "node_bound_refusal": "7 MiB of short paragraphs (>99999 tags) refused with the static node-bound label before backend",
+  "cancel": "SIGTERM to the helper process group 0.12 s into the 6 MiB conversion: return -15, no stdout, group gone after wait (historical prose only: raw receipt not retained)",
+  "sandbox_log_canary": "unified-log query found 0 deny lines for the HTML runs and also 0 for the positive-control self-test (which itself reports file_denied/network_denied true), so the log method gives no evidence; HTML-branch no-file/network/child rests on source/config plus the unchanged restriction applied before input is read"
+ },
+ "serialization": {
+  "serde_json": "1.0.151->1.0.154 source diff: Map hasher type (insertion order unchanged under preserve_order), as_f32 non-finite filter, -0 parse change only under arbitrary_precision (off), error positions for raw_value/UTF-8 errors. No serializer output change found. BRN has no as_f32/arbitrary_precision use. Workspace run 2 passes 241 backup/replay/restore/hash/settings/candidate/export/snapshot-named tests and the historical Extraction byte/hash round-trip. This is static diff plus existing tests, not a byte-diff of every saved record type.",
+  "toml": "macOS default graph: toml 1.1.8, serde_spanned, toml_writer absent (xberg helper graph and Windows embed-resource only); toml_parser/toml_datetime only via toml_edit 0.25 -> proc-macro-crate -> rig-derive at build time. No BRN TOML call sites."
+ },
+ "retention_corrections_20261018": {
+  "pre_escape_failure": "Literal *star* rendered as emphasis; raw failure log was not retained. Prose only; not reconstructed.",
+  "cancel": "Historical SIGTERM/cancel assertion has no retained raw receipt; prose only.",
+  "targets": "Original target/target-before and helper/brn/desktop binaries/.d deleted; hashes only. Newly built round-1 correction artifacts are separately retained in opus1 evidence.",
+  "sandbox": "Existing scratch sandbox-denies.log copied byte-for-byte to logs/sandbox-denies.log; positive control was also silent, so inconclusive.",
+  "diff-.txt.gz": "Stray gzip expands to zero bytes, a historical tooling artifact with an empty name; retained, not source-comparison evidence."
+ },
+ "log_representation_qualification_20261018": {
+  "applies_to": "37 historical command raw_log_sha256 fields in this index; not opus1/opus2 byte-preserving gzip evidence",
+  "raw_log_sha256": "Identifies original scratch-log bytes, with full /Users/evokessler/ paths.",
+  "repository_gzip": "Historical repository copies shortened /Users/evokessler/ to ~/ before compression. Decompressed repository bytes need that path expansion before comparison with original raw_log_sha256.",
+  "verification": "All 37 repository command copies match their original raw digest after ~/ -> /Users/evokessler/ expansion. Original gzip bytes and raw hashes preserved."
+ }
+}

@@ -1,0 +1,11 @@
+--- crates/brn-ai/src/threads.rs
++++ section-end
+@@ -964,7 +964,7 @@
+         value["max_bytes"] = json!(research::HELPER_READ_BYTES);
+     }
+     if let NoteReadOutcome::Read { note } = &outcome {
+-        let limit = note.section_end.unwrap_or(note.total_bytes);
++        let limit = note.total_bytes;
+         value["note"]["complete"] = json!(note.start == 0 && note.end == note.total_bytes);
+         let prefix = context_budget::fit_prefix(&note.markdown, |prefix| {
+             value["note"]["markdown"] = json!(prefix);

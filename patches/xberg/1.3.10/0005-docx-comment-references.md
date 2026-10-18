@@ -1,0 +1,13 @@
+# Xberg 1.3.10: source-backed DOCX comment references
+
+Corrected candidate, 18 October 2026; new independent actual review2 pending. Apply [0005](0005-docx-comment-references.patch) after accepted 0001 → 0003 → 0004 against archive SHA-256 `f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d`. Reserved PDF 0002 remains uncomposed.
+
+The URI-aware XML comment-reference path retains main-body paragraph IDs in a private map. The exporter consumes those typed IDs instead of rendered `[cmt:…]` text. Literal markers remain exact text. The P2 correction adds only three lines to the body paragraph-start lifecycle: when replacing an active paragraph, discard its abandoned pending map entry. Committed references and the replacement's own ordered/repeated IDs remain intact. Existing malformed-paragraph text recovery is unchanged.
+
+Incremental correction: one parser file, **3 additions / 0 deletions**; complete 0005: two files, **17 additions / 9 deletions**. Exporter, flat validation, typed notes, definitions, namespaces, budgets and public DTOs are unchanged from the historical candidate. No dependency, API, generalized recovery or rejection policy is added.
+
+Identical 14-test driver: **before 12/2 → final 14/0**. Original 651-line/12-test prefix is byte-identical. Namespace/S3 **25/0**, order4 **21/0**; all **30** accepted values, **24** DOCX inputs, **86** order4 values and **15** earlier comment values remain wholly equal. Strict all-target harness Clippy passes. This is not dependency-wide lint, whole upstream cfg(test), resource or runtime qualification.
+
+[Manifest](0005-source-manifest.json) binds actual compiled sources, old/current patch hashes, immutable historical roots and new test/artifact evidence. Fresh archive application reproduces all **765** package files; nine accepted archive-external adjuncts remain unchanged. The original patch `1ad26162…` and historical 5/7 → 12/0 evidence remain preserved. New fixed roots: `/private/tmp/brn-x2-docx-comment5-r1-20261018`.
+
+Upstream declares MIT and attributes Na'aman Hirschfeld and Tobias Perlstein; no LICENSE file is packaged and README links outside the archive. Patch-only distribution; broader license custody remains qualified. Author/date/range/thread/non-body associations, general malformed Word fidelity, XML/resource/runtime, BRN adoption and all-eight readiness remain open. See the [P2 response](../../../docs/work/active/modular-foundation/x2/office1/comment5/opus1/response.md) and unchanged [historical response](../../../docs/work/active/modular-foundation/x2/office1/comment5/response.md).

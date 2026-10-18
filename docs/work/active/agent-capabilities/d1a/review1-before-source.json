@@ -1,0 +1,48 @@
+{
+  "pin": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "source": "/private/tmp/brn-d1a-20261016-target/review1-before-source",
+  "target": "/private/tmp/brn-d1a-20261016-target/review1-before-artifacts",
+  "method": "exact archive, genuine local git with no remotes; corrected test-only fixture patch; separate target from candidate and mutation artifacts",
+  "setup_commands": [
+    [
+      "git",
+      "init",
+      "--quiet"
+    ],
+    [
+      "git",
+      "add",
+      "."
+    ],
+    [
+      "git",
+      "-c",
+      "user.name=BRN D1A before fixture",
+      "-c",
+      "user.email=fixture@example.invalid",
+      "commit",
+      "--quiet",
+      "-m",
+      "Prior candidate 202bf2d747bca6fab16a9fffdfa55c45d24bd7eb"
+    ],
+    [
+      "git",
+      "apply",
+      "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/d1a/round1-failing-first-corrected.patch"
+    ]
+  ],
+  "source_sha256": {
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "crates/brn-ai/src/threads.rs": "c09d9b8635a73884ade330701fe42c1a0aa9473c1b856b30c43c4836ba31c0ee",
+    "crates/brn-ai/src/threads_context_budget.rs": "0a0f67b58c4189d018b5046f32fedd791f565352b02ffebacd5bc56d49b4e5f1",
+    "crates/brn-ai/src/threads_research.rs": "bed31a9e9a34a3f9f0da262b3314615bedb39c1a19589a40181e2f0fa4603ec8",
+    "crates/brn-ai/src/error.rs": "e28f3ccbfcaaef68ac47ebaef330465ae8b9f17e84f8200e0be4e7207d599f80",
+    "crates/brn-threads-core/src/projects.rs": "fd531dfabfcadb94f265b86ac6dfc89d5c891170b224fbe9b29ee2d4d50a6584",
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "crates/brn-ai/src/threads_budget_tests.rs": "1585d4d86a27c98e61aa1479d92495077c337927a0d9ccd731a38ea7432b2bd9",
+    "crates/brn-ai/src/threads_research_tests.rs": "81565c8bb4987a454d319e0787a7729346f4e49a052bdbf6c9c1867699ecd014"
+  },
+  "fixture_patch_sha256": "df9e917e49481503233bab0e2ce8ae7351d16dc32669c47c684ff60547a5df20",
+  "test_executed": false
+}

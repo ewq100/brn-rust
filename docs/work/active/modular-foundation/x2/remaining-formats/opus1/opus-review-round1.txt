@@ -1,0 +1,42 @@
+**CHANGES_REQUIRED — one bounded P2 oracle correction.** The recorded measurements and failure counts are otherwise supported. The 17 failures do not need to become green for measurement acceptance.
+
+**Required correction**
+
+At [driver.rs:778](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/remaining-formats/driver.rs:778), `eml_nested_source_identity_retained` expects the child’s complete rendered `result.content` to equal `"Nested body Ω"`.
+
+That expectation conflates the authored body with the complete email projection. The fixture includes From, To, Subject and Message-ID. Xberg’s [email document builder](/private/tmp/brn-x2-remaining-formats-20261018/xberg/src/extractors/email.rs:64) retains those headers, and its [nested-message extraction path](/private/tmp/brn-x2-remaining-formats-20261018/xberg/src/extractors/email.rs:628) returns a complete extracted email. A correctly retained child can therefore fail this assertion because it preserves headers and renderer formatting.
+
+Replace this expectation with separate assertions for the complete body paragraph sequence and source-authored child metadata/identity, using fields actually exposed by the public API. Keep unavailable raw payload/provenance fields explicit. Otherwise a later implementation could be driven toward discarding headers to satisfy an invalid oracle.
+
+This assertion **never executed**: the preceding child-count assertion failed with zero children. Consequently, the observed missing-child result and published **11 passed / 17 failed** remain valid. Preserve those historical receipts.
+
+**Standards and custody**
+
+The bound checkout is clean at `d3a0b4989a6c0f8824c039aef4768b53d2e30d03`, tree `8c2ffe92f38e49a73497bf4ba32afd15c2fba0ad`. The base-to-candidate diff contains exactly the eight allocated files. Production, manifests, root lock and accepted patches are unchanged.
+
+Independent read-only audits found:
+
+- No mismatches in 119 delivery/evidence/artifact hashes or 4,800 recorded source snapshots.
+- All 17 input files unchanged across attempts 02–06.
+- All 73 capture JSON values per attempt unchanged: 292 complete comparisons, zero differences.
+- All 277 registry archive checksums matched; 1,063 selected registry source files matched their archives.
+- Compiler receipts consistently show 276 emitted registry identities; borsh is metadata-only. Xberg and both comparator libraries compile as ordinary dependencies with `cfg(test)=false`.
+- Recorded strict lint applies to the harness. Runtime configuration and recorded reaping are distinguished from resource enforcement.
+
+I ran no Cargo, tests, metadata commands, formatters, network/provider/Auth/GUI operations or delegation, and wrote no report files.
+
+**Spec and measurement assessment**
+
+- **Text/Markdown:** All nine valid vectors differ under bare Xberg rendering, while current conversion retains complete bytes. Invalid UTF8→Invalid, NUL→Budget and prepared Text/Markdown→Invalid are supported. These are BRN integration gaps; no upstream verbatim promise is established.
+- **XLSX:** Raw XML and captures substantiate decimal precision loss, relative grid `(0,0)` for source C3, formula metadata A1/B1 for source G3/H3, changed error spelling and the missing uncached H3 display origin. Grid positions describe table geometry; they do not promise absolute worksheet addresses. Forecast values/binding and hidden/empty controls pass within their stated limits.
+- **EML:** Header/name/order assertions and complete selected HTML paragraph vectors are supported. Current originals and attachment bytes match, including distinct duplicate attachments. Candidate output omits the genuine plain alternative and flattens nested wording into the parent at depth zero without a child. Current prepared output independently omits `Nested body Ω` despite exact retained child bytes.
+- **Expectation corrections:** The current helper’s `body_root` behavior supports the nested-source correction. Source supports the image placeholder and flattened wording projection, while the separate identity failure remains red. Mail-parser’s unpadded prepared Date supports `6`; raw `06` remains separately preserved. These corrections do not conceal the substantive failures.
+- **Scope:** Capture passes are explicitly non-parity evidence. Historical Office results retain their original feature qualification. Additional formats remain unassigned. Encrypted PDFs are deferred; clear refusal remains unimplemented/unverified here, and ordinary PDF gates remain required.
+
+**Later implementation allocations, separate from this correction**
+
+1. Implement the accepted facade VerbatimUtf8 seam with unchanged admission and exact byte retention.
+2. Correct Excel formula references using Range start and preserve standard error lexemes. Separately expose maintained raw/sparse cell evidence before f64 conversion, including coordinates, raw values and formula/cache status. The facade cannot recover lost precision or absent origins from display strings.
+3. Carry structured MIME bodies, payloads and scoped identities through a maintained result/projection seam. Separately repair the demonstrated current prepared nested-body omission. Recursive collector resource behavior remains source-only and unqualified.
+
+Full semantic, resource, restricted-helper, runtime, license, all-eight integration, CI, owner and merge gates remain open.

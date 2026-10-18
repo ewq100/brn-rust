@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-window-20261017-39a67e4f-evidence/2-start.json",
+  "sha256": "86ea78ceb5188da78eaf8afe33b5c43d645a86f8a5968aec97a3f6e26fdb4257",
+  "bytes": 948,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"task\": \"int-d-history-window-20261017-39a67e4f\",\n  \"ordinal\": 2,\n  \"time\": 1792264905.718843,\n  \"controller_pid\": 89753,\n  \"controller_pgid\": 89753,\n  \"command\": [\n    \"python3\",\n    \"/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/docs/work/active/agent-capabilities/int-d/observe-workflow.py\",\n    \"--preflight\",\n    \"/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/preflight.json\",\n    \"--activation\",\n    \"/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/activation.json\",\n    \"--ordinal\",\n    \"2\"\n  ],\n  \"TMPDIR\": \"/private/tmp/brn-int-d-history-window-20261017-39a67e4f-evidence/tmp-2\",\n  \"env_label\": \"inherited + PYTHONDONTWRITEBYTECODE=1 + fresh explicit TMPDIR; no environment dump\",\n  \"verification\": \"334 Git/working,3scripts,artifact+.d,method/rubric/corpus/context/manifest/prompts and unstarted triples match; audit errors empty\",\n  \"inventory\": [],\n  \"observer_pid\": 89768,\n  \"observer_pgid\": 89768\n}\n"
+}

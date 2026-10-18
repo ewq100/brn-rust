@@ -1,0 +1,41 @@
+{
+  "note": "Actual executed test binaries identified in raw Running lines, retained separately. Build source identity is in their command receipt; final pin association by input-byte equality, not future SHA.",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/brn_ai-0a77908ed974f7b9",
+      "sha256": "e70442d30859e4e7ecb8fcf404d7d2ce66ff1e6497a756954b86e7d129faed8b",
+      "bytes": 43140224
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "7daf2847a94feb9ab43473e9e867e7971e35c33d38be29c824d97e135ec0711f",
+      "bytes": 9514
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/agent_runs-4e0b6e32104dc48a",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/agent_runs-4e0b6e32104dc48a",
+      "sha256": "669d762d8466311c7255328467eb0721ceefe589eceb29c14f5f6e3c81da3da5",
+      "bytes": 1589776
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/agent_runs-4e0b6e32104dc48a.d",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/agent_runs-4e0b6e32104dc48a.d",
+      "sha256": "b3dccf71c36d72c62182f07f2324ad991f0b2cea96b18f7e26cedd5c580db79f",
+      "bytes": 1321
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/shared_run-3db109123129da09",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/shared_run-3db109123129da09",
+      "sha256": "1fcf2b51dfeb9afbfbeb75cc2e9faca49fef041ab4e1f39c87044c5125fd1d5e",
+      "bytes": 27445152
+    },
+    {
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target/debug/deps/shared_run-3db109123129da09.d",
+      "copy": "/private/tmp/brn-int-d-ordinary-prepare-20261017/final-artifact-copies/shared_run-3db109123129da09.d",
+      "sha256": "bc0480df2ac34de9fc706eeb2d4dc1e04ccdd62a12087317e4f57b923e89599e",
+      "bytes": 326
+    }
+  ]
+}

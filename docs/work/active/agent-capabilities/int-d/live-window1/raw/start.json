@@ -1,0 +1,26 @@
+{
+  "task": "int-d-live-window1",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "implementation_effort": "high",
+  "branch": "work/int-d-20261017",
+  "head": "069bf81476256b6c71e90e5c098dd3a9ff3a4081",
+  "source_pin": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "source_inputs_verified": 333,
+  "qualification_scripts_verified": 3,
+  "activation_sha256": "98f640f8897c0e1abf8920ad305d699d5286531d8a70bd6937136022e473cb3e",
+  "preflight_sha256": "0148ad45fa1ed0cb38d7bd52274546bf13b5f06ddb64633ca713f95a5617547d",
+  "initial_databases_verified": 8,
+  "heavy_inventory": [],
+  "live_starts_before": 0,
+  "actual_route": {
+    "provider": "Codex/ChatGPT",
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "auth_reference": "/Users/evokessler/.codex/auth.json",
+    "credential_contents": "do not inspect or copy",
+    "fallback": false
+  },
+  "owner_credentials_inspected": false,
+  "timestamp": 1792243574.376384
+}

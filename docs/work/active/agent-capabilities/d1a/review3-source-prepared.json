@@ -1,0 +1,29 @@
+{
+  "stage": "SOURCE PREPARED / BUILD NEED; no execution after heavy release",
+  "precommit_head": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "branch": "work/d1a-20261016",
+  "prepared_epoch": 1792184261.617381,
+  "material_diff_sha256": "5230c637ea746c75505ee2174b01d532580a40b121d874c2c1996305cded0791",
+  "material_source_sha256": {
+    "crates/brn-ai/src/threads.rs": "ce553a2294877fe2e67029dd5477617b1faa1fad2f79b3a321550ccf2ddd7191",
+    "crates/brn-ai/src/threads_budget_tests.rs": "9ce8a748c19d7a79e1d978c0f731b11b971987eb8c84f0864de7d8bdc58d9a57",
+    "crates/brn-ai/src/threads_chat_tests.rs": "953ae329c2f98694d54715f1ec9700dc701fa2ad8ac745dacf3550fce8ab68bf",
+    "crates/brn-ai/src/threads_history.rs": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+    "crates/brn-ai/src/threads_sources.rs": "fc7be8a299da5d4817c62203c8c21b77b6caef8939b548e4f82d7b3e477ced31",
+    "crates/brn-ai/src/threads_sources_tests.rs": "9adc6c6f4bcc642d38b67da78b5cadd8ea5ea40325c46623a209a3c678d6933b",
+    "crates/brn-ai/src/threads_writing_tests.rs": "d08373e8561631323ec2ddfff0a658dd6ca046a0651b60d589ad7e89c86e52fb"
+  },
+  "report_sha256": "b9d0af547e10a74b9be32aec542a32047b3540024d657422ccf5d48a5ed2842b",
+  "checks": [
+    "direct pinned Rust1.98.1 rustfmt",
+    "git diff --check",
+    "exact before production SHA verification",
+    "unchanged core/manifests/lock/budget/error/helper/source-fixture comparison against efc"
+  ],
+  "executed_behavioral_checks": [],
+  "before_receipt": "review3-before-preparation.json",
+  "new_pin": null,
+  "heavy_authority": "released; B1b owns slot; await next explicit grant",
+  "original_mutation_charged_seconds": 1192.5642304420471,
+  "original_mutation_remaining_seconds": 607.4357695579529
+}

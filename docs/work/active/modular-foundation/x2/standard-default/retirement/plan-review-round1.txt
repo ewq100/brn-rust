@@ -1,0 +1,26 @@
+## Review
+
+**Verdict:** CHANGES_REQUIRED
+
+**Blocking findings:**
+
+1. **CI generator invocations omit a required argument.** [Plan C](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/standard-default/retirement/implementation-plan.md:50) specifies stock fetch → generation → adapted fetch, but the current [CI invocation](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/.github/workflows/ci.yml:81), its native-lane equivalents and [preview invocation](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/.github/workflows/preview-release.yml:64) omit `--archive`. The [generator requires it](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/scripts/prepare-xberg-adapted.py:142), so these commands stop during argument parsing.
+   
+   **Correction:** Explicitly assign passing the fetched, SHA-verified archive path to every maintained generator invocation, preserving locked/offline subsequent builds.
+
+2. **Preview tooling tests run before their archive prerequisite is fetched.** The [preview workflow](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/.github/workflows/preview-release.yml:56) runs all script tests before its stock-helper fetch. The [generator tests read the cached Xberg archive directly](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/scripts/tests/test_prepare_xberg_adapted.py:30). After root Xberg retirement, root setup no longer supplies that archive; a cold preview runner therefore fails before helper preparation. Plan C explicitly addresses the documentation lane but misses this earlier preview consumer.
+   
+   **Correction:** Put the committed stock-lock fetch before preview script-test discovery as well. Preserve the generator tests and archive verification.
+
+**Advisory suggestions:** None.
+
+**Coverage summary:**
+
+- Removal boundaries coherently cover legacy readers, prepared-page APIs, helper binary/features, callers, example, obsolete tests and dependency edges.
+- Shared transport/errors, the current process branch, helper sandbox/runtime, transient cleanup, bounded file reads, PNG/hash/codec safety and reused fixtures have explicit retention or migration.
+- Root/standalone lock pruning, generated-source custody, accepted patches, wiki current/historical helper arguments, notices and retirement negative controls are addressed.
+- Useful-information `ImportReport.conversion` handoff and anti-forgery guards, schema9→10 compatibility, protected Save, exact review, replay and Undo remain protected.
+- Active skill failure and historical qualifications remain open; later isolated passes do not establish cause or closure.
+- Actual implementation, dependency closure, checks, packaging and whole-feature deletion review remain pending.
+
+Reviewed read-only at HEAD `9e1a2589c9fda45fe16abcc7ce232ac64c425f4c`; no files changed or checks executed.

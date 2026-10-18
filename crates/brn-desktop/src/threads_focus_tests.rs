@@ -78,7 +78,8 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
                         assets: vec![],
                         source_sha256: [1; 32],
                         source_reference: "synthetic/queued.pdf".into(),
-                        converter: "synthetic".into(),
+                        converter: brn_threads_intake::document_conversion_label("xberg", false)
+                            .unwrap(),
                         sources: vec![],
                         coverage: brn_threads_intake::Coverage {
                             status: brn_threads_intake::CoverageStatus::Partial,
@@ -88,6 +89,8 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
                     })),
                     title: "Stopped import".into(),
                     chat: None,
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
                 })
                 .unwrap();
             view.cancel(cx);
@@ -505,6 +508,7 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
             .unwrap();
         let source_id = operation.creation_id(0);
         let report = ImportReport {
+            conversion: None,
             status: ImportStatus::Partial,
             issues: (0..6)
                 .map(|index| ImportIssue {
@@ -656,7 +660,7 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
         .unwrap();
         cx.run_until_parked();
         cx.read(|cx| {
-            let editor = view.read(cx).note_editor.read(cx);
+            let editor = view.read(cx).writing.note_editor.read(cx);
             let range = editor.selected_range();
             assert_eq!(editor.value().get(range), Some("Purpose"));
         });
@@ -790,7 +794,7 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
             view.update(cx, |view, cx| {
                 view.apply_review(window, cx);
                 assert!(
-                    view.review.is_some(),
+                    view.writing.review.is_some(),
                     "a changed selection is not yet approvable"
                 );
                 assert_eq!(
@@ -808,7 +812,7 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
         cx.run_until_parked();
         cx.read(|cx| {
             let view = view.read(cx);
-            let review = view.review.as_ref().unwrap();
+            let review = view.writing.review.as_ref().unwrap();
             assert_ne!(review.candidate.operation, original.operation);
             assert_ne!(review.candidate.request_hash, original.request_hash);
             assert_eq!(review.candidate.request.writes.len(), 1);
@@ -831,11 +835,11 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
             );
             if select_note {
                 assert_eq!(
-                    view.review_editor.read(cx).value().as_ref(),
+                    view.writing.review_editor.read(cx).value().as_ref(),
                     proposed_note.markdown
                 );
                 assert_eq!(
-                    view.current_view.read(cx).rendered_text().source(),
+                    view.writing.current_view.read(cx).rendered_text().source(),
                     "Original complete wording"
                 );
             } else {
@@ -847,7 +851,7 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
         cx.run_until_parked();
         cx.read(|cx| {
             let view = view.read(cx);
-            assert!(view.review.is_none());
+            assert!(view.writing.review.is_none());
             let saved_note = view.workspace.store.record(&note.id).unwrap().unwrap();
             let saved_action = view.workspace.store.record(&action.id).unwrap().unwrap();
             if select_note {
@@ -959,9 +963,9 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.read(|cx| {
         let view = view.read(cx);
         assert_eq!(view.open_note_id(), Some(derived_id.as_str()));
-        assert_eq!(view.note.as_ref().unwrap().record.id, derived_id);
+        assert_eq!(view.writing.note.as_ref().unwrap().record.id, derived_id);
         assert_eq!(
-            view.note_editor.read(cx).value().as_ref(),
+            view.writing.note_editor.read(cx).value().as_ref(),
             "Derived wording stays preserved"
         );
     });
@@ -1083,12 +1087,12 @@ fn stale_save_compares_latest_saved_text_and_preserves_owner_buffer(cx: &mut Tes
                 )
                 .unwrap();
             assert!(matches!(outcome, ApplyOutcome::Applied(_)));
-            view.note_editor.update(cx, |editor, cx| {
+            view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Owner typed from old base", window, cx)
             });
             view.save(window, cx);
             assert_eq!(
-                view.note_editor.read(cx).value().as_ref(),
+                view.writing.note_editor.read(cx).value().as_ref(),
                 "Owner typed from old base"
             );
             assert_eq!(
@@ -1101,7 +1105,12 @@ fn stale_save_compares_latest_saved_text_and_preserves_owner_buffer(cx: &mut Tes
     cx.run_until_parked();
     cx.read(|cx| {
         assert_eq!(
-            view.read(cx).current_view.read(cx).rendered_text().source(),
+            view.read(cx)
+                .writing
+                .current_view
+                .read(cx)
+                .rendered_text()
+                .source(),
             "Latest saved concurrent witness"
         );
     });
@@ -1228,6 +1237,7 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx.update_window(window, |_, window, cx| {
         assert!(
             view.read(cx)
+                .writing
                 .note_editor
                 .read(cx)
                 .focus_handle(cx)
@@ -1237,14 +1247,21 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     })
     .unwrap();
     cx.run_until_parked();
-    let typed = cx.read(|cx| view.read(cx).note_editor.read(cx).value().to_string());
+    let typed = cx.read(|cx| {
+        view.read(cx)
+            .writing
+            .note_editor
+            .read(cx)
+            .value()
+            .to_string()
+    });
     assert!(typed.contains("Typed. "));
     cx.update_window(window, |_, window, cx| window.click("save-note", cx))
         .unwrap();
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), typed);
+        assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
         assert!(view.workspace.store.recovery_buffers().unwrap().is_empty());
         let RecordData::Note(saved) = view.workspace.store.note(&note.id).unwrap().unwrap().data
         else {
@@ -1275,7 +1292,7 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
         let view = view.read(cx);
         assert_eq!(view.layout.visible().len(), 1);
         assert_eq!(
-            view.note_editor.read(cx).value().as_ref(),
+            view.writing.note_editor.read(cx).value().as_ref(),
             recovery.markdown
         );
         let buffer = &view.workspace.store.recovery_buffers().unwrap()[0];

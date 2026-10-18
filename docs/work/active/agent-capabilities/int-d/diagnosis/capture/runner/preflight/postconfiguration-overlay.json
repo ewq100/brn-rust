@@ -1,0 +1,61 @@
+{
+  "command": [
+    "/private/tmp/brn-int-d-20261017-target/debug/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-int-d-qualification-20261017-runner-9d3741e6/control",
+    "--timeout",
+    "120",
+    "configure",
+    "--provider",
+    "Codex",
+    "--model",
+    "gpt-6.1-sol",
+    "--effort",
+    "medium",
+    "--auth-file",
+    "/Users/evokessler/.codex/auth.json"
+  ],
+  "initial_database": {
+    "main": "01c1e944de8c2d9a1e528c698005d22a20b6fe88884a72c444f23d1948905d98",
+    "-wal": null,
+    "-shm": null
+  },
+  "original_manifest_sha256": "64d2b25067dd24319ce33b2d32fd377d3de91d44e0923a7b961887ecedd4ee60",
+  "initial_settings": {
+    "id": "98d9d303-f4e5-41a7-a0ff-342e98efa253:0",
+    "version": 3,
+    "archived": false,
+    "data": {
+      "Settings": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "auth_file": null,
+        "credentials_dir": null,
+        "maintenance": true,
+        "review_first": true,
+        "delegation_chosen": true
+      }
+    }
+  },
+  "post_settings": {
+    "id": "98d9d303-f4e5-41a7-a0ff-342e98efa253:0",
+    "version": 4,
+    "archived": false,
+    "data": {
+      "Settings": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "auth_file": "/Users/evokessler/.codex/auth.json",
+        "credentials_dir": null,
+        "maintenance": true,
+        "review_first": true,
+        "delegation_chosen": true
+      }
+    }
+  },
+  "credential_file_read_by_preparer": false,
+  "provider_starts": 0
+}

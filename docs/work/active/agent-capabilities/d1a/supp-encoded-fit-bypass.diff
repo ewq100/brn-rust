@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_context_budget.rs
++++ b/crates/brn-ai/src/threads_context_budget.rs
+@@ -126,7 +126,7 @@
+ /// once as its content list. This is a bounded encoded-result estimate,
+ /// including the same 1KiB surcharge as the admission hook, not token proof.
+ pub(super) fn result_fits(value: &Value) -> bool {
+-    estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT
++    true
+ }
+ /// Existing bounded read text only; never changes an admitted transcript.
+ pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {

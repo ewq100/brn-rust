@@ -1,0 +1,163 @@
+{
+  "baseline": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "platform": "macOS-26.5-arm64-arm-64bit-Mach-O",
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target",
+    "CARGO_INCREMENTAL": "0",
+    "BRN_NATIVE_MODEL_DIR": "",
+    "BRN_EMBEDDING_MODEL_DIR": "",
+    "BRN_INTAKE_HELPER": "/private/tmp/brn-c0-20261016-target/debug/brn-intake-helper",
+    "BRN_PDFTOTEXT": "/Users/evokessler/.local/Cellar/brn-poppler-tools/26.10.0/bin/pdftotext",
+    "BRN_PDFIMAGES": "/Users/evokessler/.local/Cellar/brn-poppler-tools/26.10.0/bin/pdfimages",
+    "TMPDIR": "/private/tmp/brn-c0-20261016-fixtures"
+  },
+  "results": [
+    {
+      "lane": "helper",
+      "command": "cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline",
+      "exit": 0,
+      "seconds": 22.888,
+      "log": "00-helper.log"
+    },
+    {
+      "lane": "helper",
+      "command": "cargo clippy -p brn-intake --features helper --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 10.413,
+      "log": "01-helper.log"
+    },
+    {
+      "lane": "helper",
+      "command": "cargo test -p brn-intake --features helper --all-targets --locked --offline",
+      "exit": 0,
+      "seconds": 44.78,
+      "log": "02-helper.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "seconds": 1.653,
+      "log": "03-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo build --workspace --locked --offline",
+      "exit": 0,
+      "seconds": 24.163,
+      "log": "04-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 13.445,
+      "log": "05-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo test --workspace --locked --offline",
+      "exit": 101,
+      "seconds": 117.824,
+      "log": "06-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo test -p brn-ai --features capability-spike --all-targets --locked --offline",
+      "exit": 0,
+      "seconds": 14.653,
+      "log": "07-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 3.541,
+      "log": "08-core.log"
+    },
+    {
+      "lane": "core",
+      "command": "bash scripts/verify-end-to-end.sh --fixtures-only",
+      "exit": 0,
+      "seconds": 2.287,
+      "log": "09-core.log"
+    },
+    {
+      "lane": "native-ui",
+      "command": "cargo build -p brn-desktop --features native-ui --locked --offline",
+      "exit": 0,
+      "seconds": 37.325,
+      "log": "10-native-ui.log"
+    },
+    {
+      "lane": "native-ui",
+      "command": "cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 22.375,
+      "log": "11-native-ui.log"
+    },
+    {
+      "lane": "native-ui",
+      "command": "cargo test -p brn-desktop --features native-ui --locked --offline",
+      "exit": 0,
+      "seconds": 58.099,
+      "log": "12-native-ui.log"
+    },
+    {
+      "lane": "native-ui",
+      "command": "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 13.853,
+      "log": "13-native-ui.log"
+    },
+    {
+      "lane": "native-ui",
+      "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline",
+      "exit": 0,
+      "seconds": 48.299,
+      "log": "14-native-ui.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline",
+      "exit": 0,
+      "seconds": 18.08,
+      "log": "15-native-retrieval.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo test -p brn-threads-app --features native-retrieval --locked --offline",
+      "exit": 0,
+      "seconds": 55.021,
+      "log": "16-native-retrieval.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo build -p brn --features native-retrieval --locked --offline",
+      "exit": 0,
+      "seconds": 14.457,
+      "log": "17-native-retrieval.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo build -p brn-desktop --features native-ui,native-retrieval --locked --offline",
+      "exit": 0,
+      "seconds": 21.586,
+      "log": "18-native-retrieval.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo clippy -p brn-desktop --features native-ui,native-retrieval --all-targets --locked --offline -- -D warnings",
+      "exit": 0,
+      "seconds": 14.336,
+      "log": "19-native-retrieval.log"
+    },
+    {
+      "lane": "native-retrieval",
+      "command": "cargo test -p brn-desktop --features native-ui,native-retrieval --locked --offline",
+      "exit": 0,
+      "seconds": 44.654,
+      "log": "20-native-retrieval.log"
+    }
+  ]
+}

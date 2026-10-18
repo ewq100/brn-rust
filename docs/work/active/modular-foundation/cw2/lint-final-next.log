@@ -1,0 +1,45 @@
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+    Checking gpui-kit v0.7.3
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-desktop)
+    Checking brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn)
+error[E0063]: missing field `explanation` in initializer of `brn_threads_app::WritingCandidateEvidence`
+   --> crates/brn-desktop/src/threads_writing_tests.rs:469:29
+    |
+469 |                 let proof = WritingCandidateEvidence {
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ missing `explanation`
+
+error[E0277]: the trait bound `gpui_kit::ElementId: std::convert::From<&std::string::String>` is not satisfied
+   --> crates/brn-desktop/src/threads_writing_tests.rs:586:27
+    |
+586 |                   .try_find(&format!(
+    |  __________________--------_^
+    | |                  |
+    | |                  required by a bound introduced by this call
+587 | |                     "writing-proposal-{}",
+588 | |                     candidate.operation.as_str()
+589 | |                 ))
+    | |_________________^ the trait `std::convert::From<&std::string::String>` is not implemented for `gpui_kit::ElementId`
+    |
+    = help: consider casting the `&std::string::String` value to `&str`
+    = help: `gpui_kit::ElementId` implements trait `std::convert::From<T>`:
+              std::convert::From<&gpui_kit::FocusHandle>
+              std::convert::From<&std::panic::Location<'_>>
+              std::convert::From<&str>
+              std::convert::From<(&str, gpui_kit::EntityId)>
+              std::convert::From<(&str, u32)>
+              std::convert::From<(&str, u64)>
+              std::convert::From<(&str, usize)>
+              std::convert::From<(gpui_kit::ElementId, T)>
+            and 13 others
+    = note: required for `&std::string::String` to implement `std::convert::Into<gpui_kit::ElementId>`
+note: required by a bound in `gpui_kit::test::TestWindowExt::try_find`
+   --> /Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/gpui-kit-0.7.3/src/test.rs:29:33
+    |
+ 29 |     fn try_find(&self, id: impl Into<ElementId>) -> Option<ElementSnapshot>;
+    |                                 ^^^^^^^^^^^^^^^ required by this bound in `TestWindowExt::try_find`
+
+Some errors have detailed explanations: E0063, E0277.
+For more information about an error, try `rustc --explain E0063`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 2 previous errors

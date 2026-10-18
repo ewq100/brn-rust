@@ -6,7 +6,6 @@ publish = false
 
 [features]
 default = []
-helper = ["dep:betteroffice-docx-edit", "dep:betteroffice-docx-parse", "dep:betteroffice-pptx-parse", "dep:betteroffice-opc", "dep:mail-parser", "dep:zip", "dep:image", "dep:libc", "dep:html5ever", "dep:markup5ever_rcdom", "dep:calamine", "dep:quick-xml"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -15,22 +14,3 @@ sha2 = "0.10"
 base64 = "0.22"
 png = "=0.18.1"
 markdown = "=1.0.0"
-unicode-normalization = "=0.1.25"
-schemars = { version = "=1.2.2", default-features = false, features = ["derive", "std"] }
-markup5ever_rcdom = { version = "=0.3.0", optional = true }
-calamine = { version = "=0.36.1", features = ["picture"], optional = true }
-quick-xml = { version = "=0.41.0", optional = true }
-betteroffice-docx-edit = { version = "=0.3.0", optional = true }
-betteroffice-docx-parse = { version = "=0.3.0", optional = true }
-betteroffice-pptx-parse = { version = "=0.3.0", optional = true }
-betteroffice-opc = { version = "=0.3.0", optional = true }
-mail-parser = { version = "=0.11.8", features = ["serde"], optional = true }
-zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"], optional = true }
-image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg"], optional = true }
-libc = { version = "0.2", optional = true }
-html5ever = { version = "=0.27.0", optional = true }
-
-[[bin]]
-name = "brn-intake-helper"
-path = "src/bin/brn-intake-helper.rs"
-required-features = ["helper"]

@@ -1,0 +1,16 @@
+{
+  "base": "59d1152b1f7576851365cc65d065ba43bb655228",
+  "unchanged": {
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "Cargo.lock": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+    "crates/brn-ai/Cargo.toml": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+    "crates/brn-ai/src/threads.rs": "2bb6da98e9cd092a0c8d00d75b20eaa247b8e4f422717cceac63490eabdfd8f5",
+    "crates/brn-ai/src/auth.rs": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+    "crates/brn-ai/src/threads_summary.rs": "a3e0cafe36537bf9ffa7c3c1661d40dabdaf4586d505d02232f96d7ad394aa6e",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "threads_guides_runtime_prefix_sha256": "8c738662e4d8f1159b53b74a7c5930e418b78839fde6f10fb4e1803b4a2182cb"
+  },
+  "core_hunk": "Only literal skills allowlist and matching real-directory type condition; test appended. No backup/restore/schema changes.",
+  "canonical_test_prefix": true
+}

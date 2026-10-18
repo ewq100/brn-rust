@@ -1,0 +1,126 @@
+{
+  "task": "int-d-offline-prepare-diagnostic-20261017",
+  "checks": [
+    {
+      "name": "focused-initial",
+      "exit": 101,
+      "counts": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "source_unchanged": true,
+      "source_count": 333,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests::offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "files": {
+        "raw/focused-initial.json": "009f168314bca74842f887e85808a3b6b5ed552408c5d9e2643219d86d235df0",
+        "raw/focused-initial-artifacts.json": "9dfedc3e11cb170567640494282725990c7491ad265d835abd3ad9dbaab617d8",
+        "raw/focused-initial.log.json": "6b985f4a61758900ea88a1fe41ec388b388821bf8cf28762158e6bd8e85adbdf"
+      }
+    },
+    {
+      "name": "focused-corrected",
+      "exit": 0,
+      "counts": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "source_unchanged": true,
+      "source_count": 333,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "threads::int_d_tests::offline_prepare_signature_and_existing_activity_do_not_identify_historical_cause",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "files": {
+        "raw/focused-corrected.json": "b7212b31716c7320b1ea5d7b963f60940685336e0a28b249db530281ce9e6c15",
+        "raw/focused-corrected-artifacts.json": "8842204a1271d19275d6a1bb08b7bc346fcd2fe7a7508e0a00ebf381c12111b1",
+        "raw/focused-corrected.log.json": "06caff46c8db675d0cece84cd05755eac96556a3454181aa2f19eedb527264b5"
+      }
+    },
+    {
+      "name": "scripted-clippy",
+      "exit": 0,
+      "counts": [],
+      "source_unchanged": true,
+      "source_count": 333,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "files": {
+        "raw/scripted-clippy.json": "39db063d573053ff4a9efd0590425da0f31e1315ccf63e2f1459829ac6ab35a0",
+        "raw/scripted-clippy-artifacts.json": "f730ed397b0055a12fdb2512023a98f3ae152f9dfca456f0967cdb19f1aaad74",
+        "raw/scripted-clippy.log.json": "2351582b3442a6ae59060cd53111a348e9c5b8a23931734b3d5c3ab1fff84268"
+      }
+    },
+    {
+      "name": "format-final",
+      "exit": 0,
+      "counts": [],
+      "source_unchanged": true,
+      "source_count": 333,
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "files": {
+        "raw/format-final.json": "038dc33e22b9ffe0d5db7829f1bb63955ffe5a9e29e34724dffe7b3c1a3b4dc6",
+        "raw/format-final-artifacts.json": "fb41682f2ce94a67ca07c16e4e40e0e62ac2312ddc6121c151a906b61fad499f",
+        "raw/format-final.log.json": "050fa1a3df6f0cff133f6e773c8014eb37061a3aa6506feaeb8b7755e2422d53"
+      }
+    }
+  ],
+  "qualification": "Actual7dc+WIP source associations, later exact hashes matched to immutable pin; no fabricated future-SHA builds. Raw logs reversibly JSON escaped, decoded raw_sha256 equals command log_sha256. Initial0/1 is a new fixture visibility assumption failure, never a production failing-before. Non-Running executable associations in artifact receipts are historical bytes, not new unrelated command results.",
+  "format_initial": "raw/format-initial.json",
+  "fixture_correction": "raw/fixture-correction.json",
+  "network_provider_auth_starts": 0
+}

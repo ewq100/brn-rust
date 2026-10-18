@@ -1,0 +1,165 @@
+{
+  "schema": "pptx-order4-authored-source-inventory/1",
+  "oracle": "Authored known inputs and bounded raw namespace-aware OPC inspection; no current/new extractor output used to establish expected source facts. Parent review pending.",
+  "quay_author_script": {
+    "path": "crates/brn-intake/tests/fixtures/make-quay.py",
+    "sha256": "842f6af32e03d7e753a9dc29ec84398e0d5f0bae8c26d8068a0b4a6497bae714",
+    "executed": false
+  },
+  "fixtures": [
+    {
+      "file": "harbor.pptx",
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+      "slides": [
+        {
+          "id": "256",
+          "rid": "rId7",
+          "part": "ppt/slides/slide1.xml",
+          "show": null,
+          "hidden": false,
+          "ordered_a_t": [
+            "Harbor decision and dependencies",
+            "CRITICAL: installation may start only after valve inspection."
+          ],
+          "pictures": [
+            {
+              "shape_id": "3",
+              "embed": "rId2",
+              "target": "../media/image1.png",
+              "title": "Primary water chart",
+              "description": "Water savings evidence"
+            },
+            {
+              "shape_id": "4",
+              "embed": "rId2",
+              "target": "../media/image1.png",
+              "title": "Repeated water chart",
+              "description": "Water savings evidence"
+            }
+          ],
+          "notes_part": "ppt/notesSlides/notesSlide1.xml",
+          "notes_text": "Presenter note: ask Mira to book the inspection by 12 October.",
+          "table_cells": []
+        },
+        {
+          "id": "257",
+          "rid": "rId9",
+          "part": "ppt/slides/slide2.xml",
+          "show": null,
+          "hidden": false,
+          "ordered_a_t": [
+            "Visual-only scheduling evidence: inspection capacity"
+          ],
+          "pictures": [],
+          "notes_part": null,
+          "notes_text": null,
+          "table_cells": []
+        }
+      ],
+      "source_part_sha256": {
+        "ppt/presentation.xml": "98d5c1ec77ad3e37720a6549ae9d09d65792a198dccbe8710e70eaaf5fa2400f",
+        "ppt/_rels/presentation.xml.rels": "8cb6ead6c2cb77f2fbdeeb81388a801cfbdaf1fe0ad5aef4c1bba9d75377fd38",
+        "ppt/notesSlides/notesSlide1.xml": "696692be1f9dc4b7d3d65bebdb16fc4fd903a58756bebdadafbf7eda9d564645",
+        "ppt/slides/slide1.xml": "c60f26a529be7d35dc15c96859364732975e7b34064f971fc3aeaccfcc377b76",
+        "ppt/slides/_rels/slide1.xml.rels": "26d4332616d56cea5c9020d09f4b1b2938b7e033dd546617098241b32eedb66e",
+        "ppt/slides/slide2.xml": "5496782a6e86b92e1b539480eac7b55c5e64b1745d621807c92273c2ebb35bd8",
+        "ppt/slides/_rels/slide2.xml.rels": "8e12bed89638a7d439c0d8e72d5ce8bb55f0d43e34cb27642f24766345418880"
+      },
+      "comments_present": false
+    },
+    {
+      "file": "quay.pptx",
+      "sha256": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+      "slides": [
+        {
+          "id": "256",
+          "rid": "rId7",
+          "part": "ppt/slides/slide9.xml",
+          "show": "0",
+          "hidden": true,
+          "ordered_a_t": [
+            "Dock review is pending.",
+            "Inspect pier A",
+            "before cargo arrival.",
+            "Display date: ",
+            "14 October",
+            "Pier",
+            "Owner",
+            "State",
+            "A",
+            "Leena",
+            "Pending"
+          ],
+          "pictures": [
+            {
+              "shape_id": "6",
+              "embed": "rId2",
+              "target": "../media/image1.png",
+              "title": "Quay berth diagram",
+              "description": "Authored pier capacity illustration"
+            }
+          ],
+          "notes_part": "ppt/notesSlides/notesSlide1.xml",
+          "notes_text": "Notes only: Leena must confirm the crane by 14 October.",
+          "table_cells": [
+            [
+              "Pier",
+              "Owner",
+              "State"
+            ],
+            [
+              "A",
+              "Leena",
+              "Pending"
+            ]
+          ]
+        },
+        {
+          "id": "257",
+          "rid": "rId8",
+          "part": "ppt/slides/slide2.xml",
+          "show": null,
+          "hidden": false,
+          "ordered_a_t": [
+            "Dock review is pending."
+          ],
+          "pictures": [
+            {
+              "shape_id": "3",
+              "embed": "rId2",
+              "target": "../media/image1.png",
+              "title": "Quay berth diagram",
+              "description": "Authored pier capacity illustration"
+            },
+            {
+              "shape_id": "4",
+              "embed": "rId3",
+              "target": "../media/image2.jpg",
+              "title": null,
+              "description": "image.jpg"
+            }
+          ],
+          "notes_part": "ppt/notesSlides/notesSlide2.xml",
+          "notes_text": "Do not treat a berth count as arrival authorization.",
+          "table_cells": []
+        }
+      ],
+      "source_part_sha256": {
+        "ppt/presentation.xml": "ba5828d431dacf42f2d87f4f075906888fcf0855bcdbf8e2d482e8e648135e9b",
+        "ppt/_rels/presentation.xml.rels": "5bfe3dad5424e2caa612eba68bdd2ba1eabce2c291f5c1d53ece016bb5e080d9",
+        "ppt/notesSlides/notesSlide1.xml": "0bd0a68070940c80eb30d480ad4d6ae45b9ce0e75cd9a97b93dbc10916b907db",
+        "ppt/slides/slide9.xml": "578e7d2f86c73f1090110d2f3c33339137f31c2de9ff256bbee1ef9643c9fa91",
+        "ppt/slides/_rels/slide9.xml.rels": "26d4332616d56cea5c9020d09f4b1b2938b7e033dd546617098241b32eedb66e",
+        "ppt/notesSlides/notesSlide2.xml": "58979bbae22732af3bd8b66f6b8dd44979981a3ee940feb6247e903e2568f5ef",
+        "ppt/slides/slide2.xml": "005a41358b5572b189fb112d5176bbb81715a23efbef04bcb9a65663bddcd2cc",
+        "ppt/slides/_rels/slide2.xml.rels": "a692ef1adaf1cd3a6d05a6ed5cbdae7caa95ec482bcf5cc258fa0ebb64c64a00"
+      },
+      "comments_present": false
+    }
+  ],
+  "projection_limits": [
+    "Images disabled: public picture placeholders are semantic Paragraph content, not decoded image/pixel or BRN occurrence/locator proof.",
+    "Harbor chart/inherited-layout/hidden-shape fidelity and comments absent from real fixtures require separate qualification.",
+    "Speaker notes are public PageContent.speaker_notes; this does not establish complete note identity/location semantics."
+  ]
+}

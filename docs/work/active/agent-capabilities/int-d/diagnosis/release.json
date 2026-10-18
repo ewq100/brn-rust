@@ -1,0 +1,29 @@
+{
+  "task": "int-d-prepare-diagnosis-20261017",
+  "accepted_base": "2e68efe9eb487bc93ca99ff5f13394be70a12ad8",
+  "branch": "work/int-d-20261017",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "material_pin": "b93904076026536750d392b617e80f065744afa8",
+  "crates_tree": "5993744077569483e0b88f2edd71f1b1ac8b096b",
+  "compiled_inputs_unchanged": 333,
+  "qualification_scripts_unchanged": 3,
+  "tracked_changes_before_docs_stage": [],
+  "owned_docs": {
+    "prepare-failures.md": "1a81409acb56fa3c24ec821c6802950344af54375d5ad06808b6ebc24dd5e600",
+    "source-and-evidence.json": "278da3e0b8d46400f2e28711ed2c23e00824b1abb383780b1600349a7d3e237e"
+  },
+  "execution": {
+    "cargo_metadata_build_test_lint_mutant_calls": 0,
+    "provider_workflow_auth_or_network_calls": 0,
+    "fresh_fixture_generation": 0,
+    "credential_inspections": 0,
+    "gui_or_owner_data_access": 0,
+    "delegation": 0,
+    "process_slot_inventory_polling": 0,
+    "owned_async_processes_or_children": [],
+    "qualification": "Source reads/Git/hash and owned diagnosis docs writes only; no claim the machine-global process table is empty."
+  },
+  "diagnosis": "UNKNOWN original cause; narrowed before successful Run-operation registration, not necessarily before allocation. Full CLI trace does not save prepare args/operator errors. Minimal deterministic test-only next allocation proposed, unexecuted.",
+  "release": "EXPLICITLY RELEASE all diagnosis paths to principal. No heavy slot acquired/held, no live or test execution authorized; no further source/test/script changes or workflow starts. Docs-only local commit follows.",
+  "timestamp": 1792246031.4234529
+}

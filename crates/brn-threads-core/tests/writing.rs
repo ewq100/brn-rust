@@ -40,6 +40,7 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Run(Run {
+                    loaded_skill_details: vec![],
                     instruction: None,
                     queue_claim: None,
                     thread: thread.clone(),
@@ -61,6 +62,9 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Settings(WorkspaceSettings {
+                    document_conversion: Default::default(),
+                    mcp: None,
+                    skills: vec![],
                     provider: "Codex".into(),
                     model: "fixture".into(),
                     effort: "medium".into(),
@@ -89,6 +93,7 @@ fn fixture() -> (
     );
     let op = store.allocate_operation("snapshot").unwrap();
     let snapshot = WritingSnapshot {
+        setup: None,
         request_message: op.creation_id(0),
         thread: thread.clone(),
         note: store.record(&note).unwrap().unwrap(),

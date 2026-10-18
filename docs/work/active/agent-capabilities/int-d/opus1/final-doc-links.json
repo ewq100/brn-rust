@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "scripts/check-markdown-links.py"
+  ],
+  "exit": 0,
+  "stdout_stderr": "Markdown links: 266 files, 1321 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+  "log_sha256": "2453c0a7bcf876fdcae7930e26ab21d362077cb3642809288a96c948f39001f4",
+  "qualification": "evidence-only docs check after source pin; no rebuild or source change"
+}

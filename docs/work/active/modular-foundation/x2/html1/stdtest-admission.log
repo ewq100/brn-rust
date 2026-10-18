@@ -1,0 +1,10 @@
+
+running 5 tests
+test tests::refuses_comments_raw_text_resources_and_tables ... ok
+test tests::admits_the_textual_profile_with_exact_facts ... ok
+test tests::refuses_parser_disagreement_forms_before_backend ... ok
+test tests::strict_bytes_entities_and_quotas ... ok
+test tests::depth_and_node_bounds_are_checked_conservatively ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

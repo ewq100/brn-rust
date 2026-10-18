@@ -1,0 +1,29 @@
+{
+  "source_pin": "a94b9c995f35715d41a285073617f3a253746bb1",
+  "tree": "0e7f6710736502ee918c902232aeec86d9a3eb81",
+  "crates": "100732a4514569fc98571d480995b39126d26305",
+  "material_baseline": "a6736855ea5bc6af7406cf433bf60a08217a6d36",
+  "accepted_base": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d1b-20261017",
+  "actual_status_at_pin": "",
+  "time": 1792190163.530546,
+  "precommit_receipt": "/private/tmp/brn-d1b-20261017-review1-artifacts/sourcepin-precommit.json",
+  "precommit_receipt_sha256": "250454830d01ad592573a2697fdfba08c3ffb11527caaa4824c043080d82d63b",
+  "checks_receipt": "review1-checks.json",
+  "checks_receipt_sha256": "94cf597a50ee0889a7a9a6abbd470b00640643e209539ba9fa4d9d0243fcf602",
+  "review_brief": "review1-verified-response.md",
+  "review": "Fresh principal-owned Opus2 pending",
+  "normal": "focused25/0 + FS1/0; AI419/0/1; core15/0/0; CLI161/0/0; export5/0/0; strict affected all-target Clippy/fmt PASS",
+  "mutation": "No supplement started; original534.402553319931 charged /1265.597446680069 remaining; old6/2 unchanged",
+  "diffs": {
+    "a673-to-corrected": {
+      "path": "/private/tmp/brn-d1b-20261017-review1-artifacts/a673-to-corrected.diff",
+      "sha256": "f9ed6b963b10b313c1412881cf6c104b10eb01704ba86b51d26fbd8c6c91e786"
+    },
+    "964-to-corrected": {
+      "path": "/private/tmp/brn-d1b-20261017-review1-artifacts/964-to-corrected.diff",
+      "sha256": "7ac44ab30fbed3c0bec4968ca12b991f2e99d38ae1b700fd47f6439a23c6b0a9"
+    }
+  }
+}

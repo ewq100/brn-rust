@@ -1,0 +1,12 @@
+diff --git a/crates/brn-ai/src/threads.rs b/crates/brn-ai/src/threads.rs
+--- a/crates/brn-ai/src/threads.rs
++++ b/crates/brn-ai/src/threads.rs
+@@ -2554,7 +2554,7 @@
+                         }
+                     } else if let Some(bootstrap) = bootstrap {
+                         let account =
+-                            summary::copilot_identity(&client.config().base_url, &bootstrap);
++                            summary::copilot_identity(&client.config().base_url, &summary::digest(client.config().api_key.expose().as_bytes()));
+                         summary::prepare(
+                             summary::ModelCompactor::copilot(
+                                 &client,

@@ -1,0 +1,6 @@
+{
+  "path": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7/libonnxruntime.a",
+  "bytes": 80425592,
+  "sha256": "d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3",
+  "purpose": "existing cached arm64 ORT1.28 native offline link; no download/model assets"
+}

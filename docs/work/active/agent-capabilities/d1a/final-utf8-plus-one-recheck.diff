@@ -1,0 +1,11 @@
+--- crates/brn-ai/src/threads_context_budget.rs
++++ utf8-plus-one-recheck
+@@ -141,7 +141,7 @@
+         .map(|(start, _)| start)
+         .chain(std::iter::once(text.len()))
+         .collect::<Vec<_>>();
+-    let (mut low, mut high) = (0, boundaries.len() - 1);
++    let (mut low, mut high) = (0, boundaries.len() + 1);
+     while low < high {
+         let mid = low + (high - low).div_ceil(2);
+         if fits(&text[..boundaries[mid]]) {

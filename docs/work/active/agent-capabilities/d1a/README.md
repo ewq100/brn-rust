@@ -1,0 +1,97 @@
+# D1A implementation receipt
+
+Assigned lane C; base `b617d7842c1e668292b4f23c7b321ec195a76a1d`, initially clean bound checkout `/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407`, new branch `work/d1a-20261016`. Cached main `8f768943964a77711b26d5235df146f8efe1dc6c`. The existing [capabilities plan](../plan.md) and [build sequence](../../build-sequence/README.md) govern; this is their D1A execution record, not a replacement roadmap.
+
+- [x] Inspect CW2 accepted source/disposition, canonical contracts, Rig 0.44 source and R0 actual proofs.
+- [x] Reuse canonical Messages, current core scope, read_records search, exact record identities, existing hook-aware Rig runner and existing failure/attention paths.
+- [x] Replace fixed history and unbounded progress/results with whole raw entries selected once through explicit TokenWindowMemory. Keep full v2 mandatory context and owner request/configuration intact. Completed <=8 KiB raw chunks drive a coarse cut; reserve one unfinished chunk. A UTF-8/JSON byte estimate is explicitly not a tokenizer or proof of token fit.
+- [x] Add complete CompletionRequest dispatch guard, response allowance (8192), safety margin (4096), result admission bound, and exact bounded Message passages with fresh visibility/version checks. Neither raw provider transcripts nor derived summaries are persisted.
+- [x] Execute failing-before canonical-history/core witnesses, full AI scripted suite and strict AI/core all-target Clippy; record failures and source identity. Broader normal lanes are recorded below.
+- [x] Pin source locally at `202bf2d747bca6fab16a9fffdfa55c45d24bd7eb` for the principal's new independent Opus review. Review verdict remains separate; no self-approval.
+- [ ] Targeted guard mutation campaign, cumulative maximum 1800s including setup/baseline/corrections; preserve per-ID outcomes and unexecuted scope.
+
+The principal initially reserved all heavy work to B1a, then explicitly granted D1A the sole slot. Before starting, precise process inspection found no Cargo/rustc/test processes. Dedicated target `/private/tmp/brn-d1a-20261016-target`, Rust 1.98.1, `CARGO_INCREMENTAL=0`, fresh synthetic TMPDIR, `--locked --offline`. `run.py` writes actual command/source/time/result receipts. No C0 artifact cache, live provider request, model download, owner data, GUI, publication or merge is authorized here.
+
+The principal specifically allocated the existing rig dependency's `memory` feature hunk and, after B1a released its frozen lock work, offline lock reconciliation. [Actual lock delta](lock-delta.json): one rig-memory 0.44.0 package plus rig's dependency edge; no version/checksum churn or package removal. The principal inspected and approved this exact delta separately from source/review acceptance.
+
+The fallback [source fixture](../../../../../crates/brn-ai/src/threads_model_limits.json) retains exact public pinned official Codex catalog URL, retrieval date and full-source SHA256. It records **configured default context**, not maximum capacity or authenticated account/endpoint metadata. Entries apply only to exact listed ChatGPT Codex Responses model IDs. They are not reused for Copilot/API/unknown aliases. The growing request guard sees actual Rig request messages, tools, results, configuration and options. Unknown model context remains unknown; the separate host resource cap is labelled. Provider `context_length_exceeded` remains the truthful backstop. The existing Other enum is preserved; safe context diagnostics receive specific Display, attention and trace outcomes.
+
+Acceptance scope: C01/C03/C04/C05/C07 D1A portions only. C02/C06 semantic compaction/restart qualification belongs to D1B and remains deferred. Full normal/native/hosted qualification, owner acceptance and integration remain with the principal. No semantic-superiority or live cached-input claim is made.
+
+
+## Additional allocated seams and observed failures
+
+The principal explicitly extended ownership to `threads_research.rs` only for the shared BudgetHook, explicit chosen-helper-route budget, response allowance and existing `budget` outcome classification. Parent and helper use one runner implementation each; no helper selection/authority/concurrency/cancellation/persistence change. Four new helper witnesses cover zero dispatch under a tiny cap, chosen Copilot helper vs larger ChatGPT parent limit, append-only helper request history, and provider context failure as budget without unavailability/fallback.
+
+The new exact-Message C04 journey exposed an existing core prerequisite: Project Delete archived a prior terminal Run without advancing its control fence. The principal allocated exactly the nine-line `projects.rs` Delete transition hunk plus direct tests in `message_search_scope.rs`. Already-archived terminal Runs do not advance; current Working Runs advance exactly once through the existing affected-live loop. Store guards and Restore are unchanged. The unchanged-core mixed terminal/live and overflow witnesses fail in [before-core-overflow-bound.log](before-core-overflow-bound.log); after correction all 13 direct scope tests pass in [core-delete-after.log](core-delete-after.log), including four terminal states, replay, Restore, archived MAX and atomic overflow refusal. Initial fixture compile/operation-binding errors are preserved separately and do not count as behavioral proof.
+
+Baseline history witnesses use an exact `b617d784` disposable archive plus test-only witnesses: corrected [before-history-corrected.log](before-history-corrected.log) fails both early >60-message retention and matching passage exposure beyond the old prefix. Its earlier creation-ID fixture error is explicitly not proof. Initial candidate compile/lint failures and a stale fixed catalogue count are retained; assertions were corrected to include the new real tool, not skipped.
+
+The initial copied-baseline Cargo invocation reused this slice's target with the candidate. A stale dependency graph still pointed at `failing-before-source`, so the 370/1/1 helper run does **not** qualify corrected core. [Artifact correction](artifact-correction.json) preserves exact stale dep-info paths/library hash. Cargo's clean refused the target without CACHEDIR.TAG; no tag was fabricated. [Narrow cleanup](narrow-artifact-cleanup.json) removed exactly seven identified task-owned stale core files. [Rebuilt AI receipt](ai-rebuilt-current-core.json) explicitly recompiles the bound current core and passes 371/0/1 before two additional boundary/progress witnesses. Future copied-source/mutation graphs receive separate target identities. No C0 or other worktree cache was reused.
+
+Existing captured usage reports per turn: 0/1000 = 0%, 128/2000 = 6.4%, 0/10 = 0%. These are actual **synthetic provider fixture usage** in the cache test, never fabricated live cache metrics. Live cache share and semantic superiority remain unmeasured.
+
+
+## Source handoff checks
+
+Final pre-review AI command [ai-final-before-review](ai-final-before-review.json): **373 passed / 0 failed / 1 existing ignored**, with scripted-runs. All 15 D1A focused tests, four new helper tests, existing cache/CW2/AI/runtime tests execute. Strict `cargo clippy --locked --offline -p brn-ai -p brn-threads-core --all-targets --features brn-ai/scripted-runs -- -D warnings` passes in [clippy-core-ai-before-review](clippy-core-ai-before-review.json). Whole-workspace format check, diff whitespace check and Markdown links pass (174 files, 869 local links at this checkpoint). [Current artifact identity](current-artifacts.json) includes actual binary/library/dep-info paths and hashes; rebuilt core dep-info contains no failing-before-source paths.
+
+The final estimate-boundary witness initially calibrated from the scripted transport's request after Rig had bound its model. Rig's `Operation::prepare` binds that override after the admission hook, so the test now removes that sole post-dispatch binding before calculating the exact pending-request boundary. The corrected witness and the complete final AI suite pass; the failed attempt remains in `ai-source-pin` rather than being relabelled.
+
+
+## Frozen-source normal checks
+
+Prior-candidate production source was frozen at `202bf2d747bca6fab16a9fffdfa55c45d24bd7eb`; crates tree `fa47850612d0f6f0addc2e57c6191a81881a7a67`. The separate prerequisite core commit is `830b5e3f`. Evidence-producing logs/scripts are subsequently untracked or committed separately; the current checkout must not be described as wholly clean merely because the material source is unchanged. The principal dispatched a new independent Copilot Opus 5.5 actual-diff review of this pin. Its verdict is **CHANGES_REQUIRED**; [full report copied verbatim](opus-review-round1.md), SHA256 `d6af742f767feed2cd85e368bf9072dd5e82a4353ba9d5a54131f83e642e9b45`. The following results remain evidence for that prior candidate, not its correction.
+
+The once-run pinned normal lanes, all `--locked --offline`, are:
+
+- [Helper build](helper-build.json): `cargo build -p brn-intake --features helper --bin brn-intake-helper`, passed.
+- [Workspace build](workspace-build.json): `cargo build --workspace`, passed.
+- [Strict workspace all-target Clippy](workspace-clippy.json): `cargo clippy --workspace --all-targets --features brn-ai/scripted-runs -- -D warnings`, passed.
+- [Full workspace scripted tests](workspace-tests.json), with the built synthetic helper: `cargo test --workspace --features brn-ai/scripted-runs --no-fail-fast`, exit **101**, **1094 passed / 1 failed / 6 ignored** across 94 raw result summaries. Zero-test targets are not additional behavioral proof. [Parsed summary](workspace-summary.json) and raw log agree; the principal independently checked the count and log SHA256 `e54964ca7060aef7b365bd104def18e9c1293d90b76304f3285e4c207d18384a`. An earlier provisional 1181 shorthand was a reporting error, not a test/source change.
+
+The sole failed test is `brn-threads-intake::qualification::prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch`, reporting `Pdf preparation failed: Unavailable`. `pdftoppm` is unavailable in this environment; no PDF test was skipped or assertion suppressed and the no-fail-fast command completed the remaining targets. This remains a qualification gap for the principal, separate from the passing focused AI/core checks. There was no rerun merely to correct the count or await review.
+
+## Mutation campaign setup
+
+The single campaign's [ledger](mutation-ledger.json) fixes its original 1800-second wall-clock ceiling, including setup, listing, copied baselines, and any correction time. [Runner](mutate.py) rejects an existing ledger rather than restarting the budget. Cargo-mutants 27.1.0 operates `--in-place` only on a disposable archive of exact `202bf2d7`, never the bound candidate checkout, with one fixed separate target and synthetic TMPDIR. A genuine local `git init` and synthetic local commit give the copied source legitimate Git ancestry for the existing auth safety test; no remotes, credentials or parent history are copied. Every material source hash is checked against the pin before execution and checked for restoration after each phase. No auth test is modified or skipped. Actual copied core and full AI scripted-library baselines pass (13/0/0 and 373/0/1 respectively).
+
+
+## Review round 1 stop and source-only corrections
+
+The principal accepted actionable findings 1–3, then stopped the prior-candidate mutation run. [Stop receipt](mutation-stop.json): SIGINT to the own cargo-mutants group, controller fully reaped, disposable source restored against every pinned material hash, empty Cargo/rustc/test/controller process receipt. **426.87080216407776 seconds used / 1373.1291978359222 seconds remaining** of the original 1800-second total. Heavy slot explicitly released and accepted; B1a owns the next compile window. No subsequent Cargo/test/lint/mutant command is authorized until a new explicit grant. The controller ledger's `interrupted=false` means its timeout did not fire; it does **not** deny the recorded external SIGINT.
+
+Actual prior-pin verdicts: core8 selected/tested =2 caught,6 unviable; AI41 selected,27 with verdict =16 caught,7 unviable,4 missed;14 have no verdict, including interrupted in-flight `threads_search.rs:59:24 replace == with !=` during Test. [Per-ID records](mutation-per-id.json), raw [core](core-fences-outcomes.json)/[AI](ai-budget-scope-outcomes.json) outcomes and copied passing [core](core-fences-baseline.log)/[AI](ai-budget-scope-baseline.log) baseline logs retain source/commands. Compile failures, survivors and interrupted/unexecuted IDs are never counted as caught. The four survivors remove local diagnostic origin, change result `>` to `>=`, and weaken the helper/writing initial OR guards in `read_message`. These are real coverage gaps, not equivalence claims. Additional focused tests are prepared; only actual later rechecks can change a later candidate's verdict.
+
+Source-only draft corrections at that checkpoint (subsequently checked in the round1 response below):
+
+- Remove both wire `.max_tokens(RESPONSE)` calls. Keep the response estimate reserve only. Captured Copilot parent and helper Chat/Responses assertions require absence of all three output-cap fields while retaining chosen model, effort and route behavior.
+- Use a separate 4MiB unknown-route host resource envelope, never a claimed model context. The arithmetic envelope includes worst-case six-byte JSON escaping of the accepted128KiB prompt, eight bytes per128KiB project instruction byte for another encoding layer, two admitted-result/history encoding layers,512KiB fixed/configuration overhead and the existing response/safety reserve. The full actual request remains checked. Valid maximum prompt plus128KiB bilingual read gets an actual-wire witness; later growth must refuse the next dispatch without trimming. Mandatory oversized current metadata still refuses intact before any provider/auth HTTP request. Truthful safe local codes distinguish known-route estimated admission from unknown model context and from actual provider exhaustion in Display, attention and traces.
+- Recognize safe Copilot `model_max_prompt_tokens_exceeded` alongside `context_length_exceeded`, preserving Other enum and provider-code contract. Actual400 parent/helper witnesses require the same context/budget outcome without unavailable/fallback or payload leak.
+- Document the six-entry fixture selection policy and intentional omitted models. Replace the nested operation-target scan with an invocation-local visible-ID map computed using the same canonical scope predicate. No persisted index or visibility change.
+
+[Initial failing-first fixture patch](round1-failing-first-fixtures.patch) was captured before production corrections. Static inspection found its Copilot test Settings.model needed to match the selected model; the [corrected test-only patch](round1-failing-first-corrected.patch) preserves that valid route binding. [Separate prepared before-source identity](review1-before-source.json) records exact prior-pin production plus this patch and its own target, ready once the heavy slot returns. No failing-before result is claimed yet for these review fixes. New corrected pin and fresh principal-owned independent review round2 await actual self-checks.
+
+
+## Corrected-source self-checks and review handoff
+
+The [round1 response](review1-response.md) maps findings1–5 to exact changes, meaningful before/after evidence and preserved fixture failures. The exact prior-source command compiles and produces10/5 across15Copilot cases; the fixture-corrected maximum-input witness remains0/1 on unchanged prior production. Corrected full AI scripted is **381/0/1**, direct unchanged core **13/0/0**, CLI **161/0/0**, strict affected all-target Clippy and workspace formatting pass. [Pin-ready source association](review1-pin-ready.json) and [material diff](review1-material-source.diff) retain precommitHEAD+actualWIPsource hashes without claiming a future SHA existed when tests ran. The corrected immutable pin is sent to the principal immediately after local commit for a fresh independent round2; acceptance remains pending.
+
+The principal refined scheduling: after this coherent self-check/pin handoff, D1A releases the heavy slot before any mutation supplement setup/list/baseline. B1a receives a bounded qualification window while round2 reviews read-only. Original mutation remainder1373.1291978359222s is unchanged; no supplement has started and no prior verdict is promoted to this correction. Full corrected workspace/native/hosted qualification remains an integration gate with the principal.
+
+
+## Independent round2: bounded reads and trusted diagnostic origin
+
+Opus2 confirmed all five original corrections and returned CHANGES_REQUIRED for encoded read-result overflow and provider spoofing of a local code. The [full report and response](review2-response.md) retain exact before witnesses, initial fixture errors and the bounded correction. Result132KiB and unknown-request4MiB remain unchanged. Actual Rig structured encoding governs UTF-8 paging/aggregate record omission, with read evidence committed only for final delivered Markdown. Whole request admission and prior transcript remain intact. Full correction checks and fresh source pin precede principal-owned Opus3; no self-acceptance.
+
+
+## Independent round3: source-only correction preparation
+
+Opus3 confirmed round2 fixes and returned CHANGES_REQUIRED for oversized prepare/apply outputs, source/historical read outputs and section cursors. The [verbatim report, stopped mutation receipt and source-only response](review3-response.md) record actual prior-pin mutation verdicts, safe reaping/restoration and explicit heavy release. Original budget1192.5642304420471s charged/607.4357695579529s remaining. New allocated output adaptation, final bounded metadata acknowledgements, reader paging and focused witnesses are prepared but uncompiled. Before production edits, exact-efc test-only witnesses were saved in a separate source/target. No new behavioral pass, source pin, independent acceptance or integration is claimed; build need awaits the next explicit heavy grant.
+
+
+## Round3 actual verification
+
+[Round3 response and source association](review3-response.md) record exact-efc26/5 behavioral before results, preserved first candidate30/2 fixture failures, corrected focused32/0 and final AI393/0/1, core15/0/0, CLI161/0/0, strict affected all-target Clippy and fmt passes. Actual checks use precommitHEAD efc+fingerprinted WIP; a future pin is not invented. Source/test pin is ready for fresh principal-owned Opus4; approval/integration remain separate. The new UTF-8 boundary assertion addresses the real +1 survivor; the exact /1 redundancy qualification does not relabel its raw efc MISSED. Final targeted supplement remains within the unchanged607.4357695579529s original remainder and has not started at this verification receipt.
+
+[Final handoff](final-handoff.md): immutable source/test4db5b357; copied baseline393/0/1, final five fixed targeted mutations actually caught. Original mutation budget1387.7971494197845s charged/412.20285058021545s remaining; source restored and own processes empty; heavy explicitly released. Earlier raw missed/timeouts/no-verdict outcomes remain unchanged. Post-pin changes are evidence only; fresh Opus4/principal disposition and integration remain separate.

@@ -1,0 +1,5 @@
+{
+  "original_raw": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r2-control-closed-copy-interop.stdout",
+  "sha256": "3577fa69c0f7564156859d8e62ba3fe6daf3b94d262042d4736fd8a98f905733",
+  "text": "\nrunning 1 test\ntest closed_copy_metadata_interoperates_for_both_history_arms ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.02s\n\n"
+}

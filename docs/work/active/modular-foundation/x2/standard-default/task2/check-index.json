@@ -1,0 +1,963 @@
+{
+  "status": "TASK2_IMPLEMENTED_LOCAL_CHECKS_QUALIFIED_NOT_FEATURE_ACCEPTANCE",
+  "material_commit": "fef94e1adbeec3dc5e48e6b5b1feb593d4792a4d",
+  "material_tree": "85bb62df8b6c0ef441dd5c867fb0c25f89ba82ad",
+  "new_meaningful_tests_passing": 17,
+  "external_root": "/private/tmp/brn-x2-standard-task2-20261018",
+  "checks": [
+    {
+      "phase": "01-core-app-compile",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "document_conversion",
+        "--test",
+        "document_conversion_settings",
+        "--no-run"
+      ],
+      "exit": 101,
+      "counts": [],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/01-core-app-compile",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b6d7e07f2a7930e86d3bf4e20b4e08ea574174aeaec0be4625913b72d36edea8",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/01-core-app-compile/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/01-core-app-compile/result.json"
+    },
+    {
+      "phase": "02-focused",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-intake",
+        "--test",
+        "document_conversion",
+        "--test",
+        "document_conversion_settings",
+        "--test",
+        "document_modes",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "counts": [],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/02-focused",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "292a1fa4ded986c0903cdbcd9eb053a6de5183858b8953a22b71a5461125bdcd",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/02-focused/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/02-focused/result.json"
+    },
+    {
+      "phase": "03-focused",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-intake",
+        "--test",
+        "document_conversion",
+        "--test",
+        "document_conversion_settings",
+        "--test",
+        "document_modes",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "counts": [
+        {
+          "passed": 4,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/03-focused",
+      "stdout_sha256": "54c059fcb1f677ed7de9afa8167d8faa5f6dd9c83a8c3263cd14e86d57461b08",
+      "stderr_sha256": "72319da8560c10cb4b570445c547655eab67d8e287a53ff6a25213fa4f54301a",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/03-focused/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/03-focused/result.json"
+    },
+    {
+      "phase": "04-ai-new",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "document_refine::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 468
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/04-ai-new",
+      "stdout_sha256": "e71cd8b019c1831993717e55d8dc953b10dc02c96398b6d6e1c7e586d3343cde",
+      "stderr_sha256": "49bf825a7c006aebc61790104d95891e67799929bdad09b6ba9a598831d26c6c",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/04-ai-new/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/04-ai-new/result.json"
+    },
+    {
+      "phase": "05-focused",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-intake",
+        "--test",
+        "document_conversion",
+        "--test",
+        "document_conversion_settings",
+        "--test",
+        "document_modes",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/05-focused",
+      "stdout_sha256": "df6371770692084488ab6881f061912909786a1b8231a6809cc930e2a8936928",
+      "stderr_sha256": "54ce633eefe22e538d0f96e5a27d2c4ffcaf119dd77376d119c6c68f51cd46b2",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/05-focused/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/05-focused/result.json"
+    },
+    {
+      "phase": "06-ai-final",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "document_refine::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 468
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/06-ai-final",
+      "stdout_sha256": "16ff4b4e69365fe4ec82d10256585e8d40e1c44b5c0b6c33b63cd4d03399c578",
+      "stderr_sha256": "390712506adb4ecb434502af2c8f7a091537eead3f4e7377b487418cd69b67b3",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/06-ai-final/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/06-ai-final/result.json"
+    },
+    {
+      "phase": "07-ai-legacy",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "conversion::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 464
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/07-ai-legacy",
+      "stdout_sha256": "c71c745037bf2a85f218814290be05204100d5070a2f4891436b5396c870217b",
+      "stderr_sha256": "6f372429ab90fcfdf39727f82619fe19385c566fb9e1aabccdca0ab0a9510ac6",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/07-ai-legacy/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/07-ai-legacy/result.json"
+    },
+    {
+      "phase": "08-source-guard",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "threads::source_tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 463
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/08-source-guard",
+      "stdout_sha256": "05624a704b5abdcc26c1e9b470b1b500e25998eb6a13f599b1c337093a82eec5",
+      "stderr_sha256": "2952307bee361269534bf482263cc791b9cd53832eaa691eed35e05c1371cd42",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/08-source-guard/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/08-source-guard/result.json"
+    },
+    {
+      "phase": "09-core-all",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "counts": [
+        {
+          "passed": 43,
+          "failed": 0,
+          "ignored": 1,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 45,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 13,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/09-core-all",
+      "stdout_sha256": "d15ce723e6391901e74433dd2760ff88ebb095618aea4e1702ece2ecdf6f9f53",
+      "stderr_sha256": "1daf8236848a7344e879c88414403b2a39ffa9f6af83db6427dc62581512718e",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/09-core-all/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/09-core-all/result.json"
+    },
+    {
+      "phase": "10-app-regressions",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "document_conversion_settings",
+        "--test",
+        "import_coverage",
+        "--test",
+        "host_intake",
+        "--test",
+        "cw2_review",
+        "--test",
+        "source_intake_chat",
+        "--test",
+        "delegation",
+        "--test",
+        "backup_directory",
+        "--test",
+        "writing",
+        "--test",
+        "writing_context",
+        "--test",
+        "writing_setup",
+        "--test",
+        "projects",
+        "--test",
+        "chat",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 15,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/10-app-regressions",
+      "stdout_sha256": "5a0b46ae30471fe32ecf74fa4b4855801f148c63cfbeb35ee1ae37486db4ea8c",
+      "stderr_sha256": "0f9db6e0fb48cfad66454e0d360593f42000e9ff0b6fcc4068ccd0a937d9a798",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/10-app-regressions/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/10-app-regressions/result.json"
+    },
+    {
+      "phase": "11-intake-runtime",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-intake",
+        "--all-targets",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "counts": [
+        {
+          "passed": 25,
+          "failed": 0,
+          "ignored": 3,
+          "filtered": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        },
+        {
+          "passed": 10,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/11-intake-runtime",
+      "stdout_sha256": "74d819baa39121246b4cb0ee56943dce28877911ba8cf831c4cff8f689e99c92",
+      "stderr_sha256": "42602ec36baf50e898ab340c2932596774d7e3756b0a78ad0b6371887bab09de",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/11-intake-runtime/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/11-intake-runtime/result.json"
+    },
+    {
+      "phase": "12-light-links",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-intake",
+        "--lib",
+        "document::refinement_links_tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 10
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/12-light-links",
+      "stdout_sha256": "2685cdfed0aed859d20213882b56c1162b5a494a656929f44f33f5ecca807765",
+      "stderr_sha256": "08a63fc496dec20479b9a202f1052d9dea7994fb2f2af69d12d01ee235c3d954",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/12-light-links/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/12-light-links/result.json"
+    },
+    {
+      "phase": "13-core-schema-expectation",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "--test",
+        "edit_tokens",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/13-core-schema-expectation",
+      "stdout_sha256": "7bb2ba05d6c6df4ec08def54bfcf9bf00e4dbfa6efddd90c8e8e5eecc7f35dbd",
+      "stderr_sha256": "ddbb92932c52b43f0076c7c90679cdcf606c3e93af169029fe8438d03c0d49ae",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/13-core-schema-expectation/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/13-core-schema-expectation/result.json"
+    },
+    {
+      "phase": "14-source-report-provenance",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "threads::source_tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 463
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/14-source-report-provenance",
+      "stdout_sha256": "2dc6a1733aca892cfe35ae12ef39f7b0fc5e3740a65a59df1dbde1cfce04dd14",
+      "stderr_sha256": "7a93e5086c309839c0fa6e306da4b370487447eaf5dae0f2500373a5625793d2",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/14-source-report-provenance/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/14-source-report-provenance/result.json"
+    },
+    {
+      "phase": "15-app-provenance-final",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "document_conversion_settings",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 0
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/15-app-provenance-final",
+      "stdout_sha256": "e805fa31c5ebba41836626c89baa90ea6404ca3a914e33db01253268680487a9",
+      "stderr_sha256": "09d1437874feec32a1559a2f9c5e6a0a9742f2baf1b32f9b104cdc49ae1b322e",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/15-app-provenance-final/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/15-app-provenance-final/result.json"
+    },
+    {
+      "phase": "16-strict-affected",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-threads-core",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-threads-intake",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-intake",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "counts": [],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/16-strict-affected",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b6ab1dc11f6d13a350e3c56b4a4c5b2014086d8693dbd04e548316bb4d1c04bc",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/16-strict-affected/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/16-strict-affected/result.json"
+    },
+    {
+      "phase": "17-cli-mechanical-availability",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "check",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn",
+        "--bin",
+        "brn"
+      ],
+      "exit": 0,
+      "counts": [],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/17-cli-mechanical-availability",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b7758dfcafd10a0b4065e36e42ab89f27e5f0c29d89515aab045c41acf5f8543",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/17-cli-mechanical-availability/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/17-cli-mechanical-availability/result.json"
+    },
+    {
+      "phase": "18-cli-constructor-check",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "check",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn",
+        "--tests"
+      ],
+      "exit": 0,
+      "counts": [],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/18-cli-constructor-check",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b7a1fea0444410d13c3d5ba5508b8eae2b3e38e3e24776e7da388cfbd3a9a0e0",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/18-cli-constructor-check/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/18-cli-constructor-check/result.json"
+    },
+    {
+      "phase": "19-ai-final-source",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "document_refine::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 469
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/19-ai-final-source",
+      "stdout_sha256": "79c4a70189164df1a81c8578f4c9519de25c3130e6e9035acd3df71dea176791",
+      "stderr_sha256": "2712f9023d6e7a52a2e80ab1b49c8ff45c68d837bfb1ff1ef32b51660136c681",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/19-ai-final-source/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/19-ai-final-source/result.json"
+    },
+    {
+      "phase": "20-legacy-final-source",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--offline",
+        "--locked",
+        "--jobs",
+        "1",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "conversion::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "counts": [
+        {
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 465
+        }
+      ],
+      "raw": "/private/tmp/brn-x2-standard-task2-20261018/evidence/20-legacy-final-source",
+      "stdout_sha256": "69cfa241498e957ef89a589c47c280e7f8cc40beac36bc26d2b8bca815c885fd",
+      "stderr_sha256": "2c1a38a9c0c69a081aad3e62efbd7edb1a49b083439a26dfe0b62490e2969bb5",
+      "compiled_precommit_head": "e03a163c5ece16fb7e689bbfa85002cc58460816",
+      "inputs": "/private/tmp/brn-x2-standard-task2-20261018/evidence/20-legacy-final-source/inputs.json",
+      "artifacts": "/private/tmp/brn-x2-standard-task2-20261018/evidence/20-legacy-final-source/result.json"
+    }
+  ],
+  "schema9_build": "/private/tmp/brn-x2-standard-task2-20261018/evidence/schema9-build.jsonl",
+  "actual_schema9_creation": "/private/tmp/brn-x2-standard-task2-20261018/evidence/actual-schema9-note.json",
+  "old9_refusal": "/private/tmp/brn-x2-standard-task2-20261018/evidence/05-focused/captures/old9-refuses10.json",
+  "static": [
+    {
+      "check": "fmt",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "check": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "remaining_failure": "Legacy qualification::prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch: Pdf preparation failed: Unavailable (11-intake-runtime). Not changed or rerun to green."
+}

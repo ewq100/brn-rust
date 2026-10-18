@@ -1,0 +1,15 @@
+{
+  "origin_fixture": "/private/tmp/brn-int-d-qualification-20261017-runner-9d3741e6/control",
+  "origin_main_before_and_after": "e26d55cd59c1f5ecd528ee27cfbfca61db31c084338c0fdc79e868802bd923ee",
+  "origin_wal_shm_absent_before_and_after": true,
+  "before_copy": "/private/tmp/brn-int-d-runner-interop-20261017-before-b1",
+  "after_copy": "/private/tmp/brn-int-d-runner-interop-20261017-after-b1",
+  "before_expected_policy": "eeb16838f3b1b1e9f5a5fb0cb4ffcb58e8a386a8a63c09ebf94d1249450a1269",
+  "actual_corrected_policy": "34e43ec3435fba0236a34f53e1616361a0acfb2aebe2d1a3e9b78a62abe13993",
+  "difference_outside_policy": false,
+  "whole_value_after_equal": true,
+  "expected_sha256": "1e4e2eb2abccd05f74767786baeab887182ef989dc6d3db74b39be576e6e6e6b",
+  "actual_sha256": "1bdd32580916bc9e71f554b1d57f7665b34c9246833611bff1d96f659234e13e",
+  "proof_source": "Actual unchanged Rustfixture_facts normal checked Test Store on closed byte copies, not Python self-validation.",
+  "auth_or_runner_calls": 0
+}

@@ -1,24 +1,21 @@
 //! Final-use native Threads workspace. All durable changes use the shared service.
 use brn_threads_app::*;
-use brn_threads_intake::{ConversionResult, Converter, DocumentKind, ImportIntent, PdfTools};
-use gpui_kit::base::input::{
-    RangeDecoration, RangeDecorationCollection, RangeDecorationStyle, TextDecoration,
-    TextDecorationCollection,
+use brn_threads_intake::{
+    ConversionResult, Converter, DocumentHelpers, DocumentKind, ImportIntent,
 };
+use brn_writing_ui::native::*;
 use gpui_kit::base::{Disableable, Selectable};
 use gpui_kit::component::WindowExt;
+use gpui_kit::component::menu::PopupMenu;
 use gpui_kit::{
     App, AppContext, Bounds, Context, Entity, FocusHandle, HighlightStyle, Image, ImageFormat,
     KeyBinding, PathPromptOptions, Subscription, Task, TestSupportExt, Window, WindowBounds,
     WindowOptions,
-    base::{
-        MarkdownExtensions, MarkdownNode, MarkdownParseContext, MarkdownPlugin, TextView,
-        TextViewState, markdown_ast::Node,
-    },
+    base::TextView,
     component::{
         Root, TitleBar,
-        button::{Button, ButtonRounded, ButtonVariants as _},
-        input::{Editor, EditorState, Input, InputEvent, InputState, Textarea, TextareaState},
+        button::{Button, ButtonVariants as _},
+        input::{EditorState, Input, InputEvent, InputState},
     },
     div, point,
     prelude::*,
@@ -45,30 +42,38 @@ mod components;
 mod connections_view;
 #[path = "threads_context_actions.rs"]
 mod context_actions;
-#[path = "threads_diff.rs"]
-mod diff;
-#[path = "threads_document.rs"]
-mod document;
-#[path = "threads_format.rs"]
-mod formatting;
+#[path = "threads_documents.rs"]
+mod documents;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_documents_tests.rs"]
+mod documents_tests;
+use brn_writing_ui::diff;
+use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
 mod layout;
 #[path = "threads_lists.rs"]
 mod lists;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_mcp_tests.rs"]
+mod mcp_tests;
+#[path = "threads_mcp.rs"]
+mod mcp_view;
 #[path = "threads_projects.rs"]
 mod projects_view;
 #[path = "threads_search.rs"]
 mod search_view;
 #[path = "threads_shell.rs"]
 mod shell;
+#[path = "threads_skills.rs"]
+mod skills_view;
 #[path = "threads_state.rs"]
 mod state;
 #[path = "threads_theme.rs"]
 mod theme;
 #[path = "threads_tiles.rs"]
 mod tiles;
-#[path = "threads_workbench.rs"]
-mod workbench;
+#[cfg(all(test, feature = "native-test-support"))]
+use brn_writing_ui::workbench;
 #[path = "threads_writing.rs"]
 mod writing;
 use components::{IconName, Tone};
@@ -78,7 +83,7 @@ use state::{
     ComposerDestination, ComposerDrafts, ContinuePath, Severity, WorkerKind, can_continue_thread,
     comment_location, continue_path, delegation_status, latest_run, linked, outcome_message,
     owner_message_after_latest_run, recovery, refresh_hint, review_label, review_summary,
-    save_message, sections, unlocated_reason,
+    save_message,
 };
 use theme::{ThemeId, pal};
 
@@ -88,6 +93,13 @@ mod context_actions_tests;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_projects_tests.rs"]
 mod projects_tests;
+#[cfg(all(
+    test,
+    feature = "native-test-support",
+    any(target_os = "macos", target_os = "linux")
+))]
+#[path = "threads_skills_tests.rs"]
+mod skills_tests;
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_focus_tests.rs"]
@@ -143,7 +155,6 @@ mod intake_tests;
 gpui_kit::actions!(
     brn_threads,
     [
-        Save,
         Ask,
         Home,
         NewNote,
@@ -155,9 +166,6 @@ gpui_kit::actions!(
         CloseLauncher,
         LauncherNext,
         LauncherPrevious,
-        CommentSelection,
-        AskAboutSelection,
-        Rewrite,
         ToggleThreads,
         FocusPreviousTile,
         FocusNextTile,
@@ -185,16 +193,30 @@ enum SettingsSection {
     General,
     Models,
     Delegation,
+    Documents,
     Data,
+    Skills,
+    Mcp,
 }
 impl SettingsSection {
-    const ALL: [Self; 4] = [Self::General, Self::Models, Self::Delegation, Self::Data];
+    const ALL: [Self; 7] = [
+        Self::General,
+        Self::Models,
+        Self::Delegation,
+        Self::Documents,
+        Self::Data,
+        Self::Skills,
+        Self::Mcp,
+    ];
     fn key(self) -> &'static str {
         match self {
             Self::General => "general",
             Self::Models => "models",
             Self::Delegation => "delegation",
+            Self::Documents => "documents",
             Self::Data => "data",
+            Self::Skills => "skills",
+            Self::Mcp => "mcp",
         }
     }
     fn label(self) -> &'static str {
@@ -202,30 +224,14 @@ impl SettingsSection {
             Self::General => "General",
             Self::Models => "Models",
             Self::Delegation => "Delegation",
+            Self::Documents => "Documents",
             Self::Data => "Data",
+            Self::Skills => "Skills",
+            Self::Mcp => "MCP",
         }
     }
 }
 
-#[derive(Clone)]
-struct CommentDraft {
-    anchor: Option<(String, u64, Range<usize>, String)>,
-    body: String,
-    operation: Option<String>,
-}
-
-struct OpenNote {
-    record: Record,
-    session: Option<EditSession>,
-}
-struct Review {
-    candidate: Prepared,
-    note: Option<String>,
-    original: String,
-    edited: bool,
-    groups: ReviewGroups,
-    selected: BTreeSet<String>,
-}
 enum WorkerEvent {
     AnswerFinalized(String),
     Progress(String),
@@ -246,6 +252,8 @@ enum WorkerEvent {
         result: Box<Result<ConversionResult, String>>,
         title: String,
         chat: Option<String>,
+        settings: DocumentConversionSettings,
+        useful_project: Option<String>,
     },
 }
 struct Worker {
@@ -265,83 +273,10 @@ struct PendingSend {
     prompt: String,
 }
 
-// Inline HTML is shown literally. Managed figures use only stored image bytes;
-// source URLs never authorize network or filesystem reads during rendering.
-#[derive(Clone)]
-struct LiteralHtml {
-    block: bool,
-}
-impl MarkdownPlugin for LiteralHtml {
-    fn name(&self) -> &str {
-        "brn-literal-html"
-    }
-    fn is_block(&self) -> bool {
-        self.block
-    }
-    fn parse(&self, node: &Node, _: &MarkdownParseContext<'_>) -> Option<MarkdownNode> {
-        if let Node::Html(html) = node {
-            Some(MarkdownNode::new(self.name(), ()).text(html.value.clone()))
-        } else {
-            None
-        }
-    }
-    fn render(&self, node: &MarkdownNode, _: &mut Window, _: &mut App) -> impl IntoElement {
-        div().child(node.as_text().to_owned())
-    }
-}
-/// Only absolute lowercase http(s) URLs may open externally; every other
-/// scheme stays inert. Unusual casing such as `HTTPS://` fails closed rather
-/// than opening an unexpected URL.
-fn external_link(url: &str) -> bool {
-    url.starts_with("https://") || url.starts_with("http://")
-}
-/// Images resolve only from the caller-visible stored asset map; any other
-/// reference renders an empty placeholder instead of authorizing a read.
-fn stored_image(assets: &BTreeMap<String, Arc<Image>>, uri: &str) -> Arc<Image> {
-    assets
-        .get(uri)
-        .cloned()
-        .unwrap_or_else(|| Arc::new(Image::from_bytes(ImageFormat::Png, Vec::new())))
-}
-/// The one Markdown policy shared by every rendered note and message: HTML is
-/// shown literally, images resolve only through `stored_image` for the
-/// caller's own asset map, and `external_link` gates which links may open.
-/// Callers keep their own fonts, scrolling and caller-scoped asset map.
-fn safe_markdown(view: TextView, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
-    view.markdown_extensions(
-        MarkdownExtensions::default()
-            .plugin(LiteralHtml { block: true })
-            .plugin(LiteralHtml { block: false })
-            .parser_revision(1),
-    )
-    .image_source(move |uri| stored_image(&assets, uri.as_ref()).into())
-    .on_link_click(|url, _, _, cx| {
-        if external_link(url) {
-            cx.open_url(url);
-        }
-        cx.stop_propagation();
-    })
-}
-fn markdown(view: &Entity<TextViewState>, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
-    safe_markdown(
-        TextView::new(view)
-            .font_family(UI_FONT)
-            .text_size(PROSE_TEXT)
-            .w_full()
-            .h_full()
-            .scrollable(true),
-        assets,
-    )
-}
+use brn_writing_ui::markdown::safe_markdown;
 
 // Presentation is shared by every tile. Toolkit controls keep their focus,
 // selected and disabled behavior; prose retains the normal system font.
-const MONO: &str = "Menlo";
-const UI_FONT: &str = ".SystemUIFont";
-const SMALL_TEXT: gpui_kit::Pixels = px(12.);
-const UI_TEXT: gpui_kit::Pixels = px(14.);
-const PROSE_TEXT: gpui_kit::Pixels = px(16.);
-const TITLE_TEXT: gpui_kit::Pixels = px(18.);
 fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
     use std::os::unix::fs::DirBuilderExt as _;
     let home = std::env::var_os("HOME")
@@ -364,37 +299,6 @@ fn top_bar_window_options() -> WindowOptions {
     }
     options
 }
-/// Controls use the 6 px control radius (`theme.radius`).
-fn button(id: impl Into<gpui_kit::ElementId>) -> Button {
-    Button::new(id)
-        .rounded(ButtonRounded::Medium)
-        .font_family(UI_FONT)
-        .text_size(UI_TEXT)
-}
-fn prose_editor(state: &Entity<EditorState>) -> Editor {
-    Editor::new(state)
-        .font_family(UI_FONT)
-        .text_size(PROSE_TEXT)
-}
-/// A title inside a page or panel.
-fn subheading(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    div()
-        .font_family(UI_FONT)
-        .text_size(UI_TEXT)
-        .text_color(rgb(pal().ink))
-        .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-        .child(text.into())
-}
-/// A sentence-case group label.
-fn section(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    components::section_header(text, None, None)
-}
-fn metadata(text: impl Into<gpui_kit::SharedString>) -> gpui_kit::Div {
-    div()
-        .text_size(SMALL_TEXT)
-        .text_color(rgb(pal().muted))
-        .child(text.into())
-}
 /// Tone of an applied change's notice: refresh follow-ups need attention.
 fn apply_tone(outcome: &ApplyOutcome) -> Tone {
     match outcome {
@@ -412,25 +316,6 @@ fn save_tone(outcome: &SaveOutcome) -> Tone {
         _ => Tone::Warning,
     }
 }
-/// A run that ended Failed or Interrupted, as the chat's recorded notice for
-/// it (the Blocker attention whose record is this run, the text Needs you
-/// shows) in that state's tone. `None` for other states, or when the chat
-/// holds no such notice; the caller then keeps its own error text. The
-/// run's progress is the agent's own summary, never the failure.
-fn terminal_notice(run: &Run, run_id: &str, attention: &[Attention]) -> Option<(Tone, String)> {
-    let tone = match run.state {
-        RunState::Failed => Tone::Error,
-        RunState::Interrupted => Tone::Warning,
-        _ => return None,
-    };
-    attention
-        .iter()
-        .rev()
-        .find(|item| item.kind == AttentionKind::Blocker && item.record.as_deref() == Some(run_id))
-        .map(|item| item.reason.trim())
-        .filter(|reason| !reason.is_empty())
-        .map(|reason| (tone, reason.to_owned()))
-}
 /// A finished worker's tone. The owner's own Stop is a warning; otherwise a
 /// run's recorded state decides, and work without a run succeeded.
 fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>) -> Tone {
@@ -444,33 +329,39 @@ fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>)
         (true, None) => Tone::Success,
     }
 }
-fn title(record: &Record) -> String {
-    match &record.data {
-        RecordData::Note(n) => n.title.clone(),
-        RecordData::Thread(t) => t.title.clone(),
-        RecordData::Action(a) => a.description.clone(),
-        RecordData::Source(s) => s.label.clone(),
-        RecordData::Comment(c) => c.body.clone(),
-        RecordData::Message(m) => m.text.clone(),
-        RecordData::Run(r) => r.progress.clone(),
-        RecordData::Link(l) => l.relation.clone(),
-        RecordData::Asset(_) => "Figure".into(),
-        RecordData::Settings(_) => "Workspace settings".into(),
-        RecordData::ChatControl(_) => "Chat controls".into(),
-        RecordData::Project(p) => p.title.clone(),
-    }
+#[cfg(all(test, feature = "native-test-support"))]
+thread_local! {
+    static WRITING_DISPLAY_LOADS: std::cell::Cell<(usize, usize)> = const { std::cell::Cell::new((0, 0)) };
 }
-fn short(text: &str) -> String {
-    let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
-    let prefix: String = text.chars().take(70).collect();
-    if text.chars().count() > 70 {
-        format!("{prefix}…")
-    } else {
-        prefix
-    }
+#[cfg(all(test, feature = "native-test-support"))]
+fn observed_writing_latest_run<'a>(
+    records: &'a [Record],
+    history: &[Receipt],
+    thread: &str,
+) -> Option<&'a Record> {
+    WRITING_DISPLAY_LOADS.with(|loads| {
+        let (assets, runs) = loads.get();
+        loads.set((assets, runs + 1));
+    });
+    latest_run(records, history, thread)
+}
+
+type WritingReviewCacheKey = (
+    ViewChangeToken,
+    String,
+    Option<String>,
+    Option<String>,
+    Vec<Prepared>,
+);
+#[derive(Clone)]
+struct ReferenceImportIntent {
+    target: setup::SetupTarget,
+    purpose: WritingPurpose,
+    key: String,
 }
 
 struct ThreadsUi {
+    writing: WritingPanel,
     workspace: Workspace,
     data_dir: PathBuf,
     root_focus: FocusHandle,
@@ -490,6 +381,8 @@ struct ThreadsUi {
     theme: ThemeId,
     theme_pending: bool,
     settings_section: SettingsSection,
+    skill_view: skills_view::SkillView,
+    mcp_view: mcp_view::McpView,
     records: Vec<Record>,
     history: Vec<Receipt>,
     candidates: Vec<Prepared>,
@@ -502,26 +395,21 @@ struct ThreadsUi {
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
     attaching_chat: Option<String>,
+    reference_import: Option<ReferenceImportIntent>,
+    reference_search_generation: u64,
+    reference_search_cancel: Option<brn_threads_app::search::CancelOnDrop>,
     selected_project: Option<String>,
     note_project: Option<String>,
+    note_writing_scope: Option<String>,
+    writing_review_key: Option<WritingReviewCacheKey>,
+    writing_reviews: BTreeMap<String, WritingCandidateReview>,
+    writing_requests: BTreeMap<String, WritingSnapshot>,
+    #[cfg(all(test, feature = "native-test-support"))]
+    writing_review_loads: usize,
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
     editing_queue: Option<String>,
-    note_editor: Entity<EditorState>,
-    note_read_view: Entity<TextViewState>,
-    note_reading: bool,
-    read_marks_key: String,
-    read_source: String,
-    review_reading: bool,
-    comment_marks: Option<RangeDecorationCollection>,
-    diff_editor: Entity<EditorState>,
-    diff_marks: Option<TextDecorationCollection>,
-    current_view: Entity<TextViewState>,
-    candidate_view: Entity<TextViewState>,
-    review_editor: Entity<EditorState>,
-    review_editing: bool,
-    review_inputs: bool,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
@@ -545,24 +433,6 @@ struct ThreadsUi {
     credentials_path: Entity<InputState>,
     helper_model: Entity<InputState>,
     settings: WorkspaceSettings,
-    note: Option<OpenNote>,
-    /// Starting this view's edit found another open edit of the note: its
-    /// note and base version, from the typed `EditSessionOpen` (U4).
-    edit_open: Option<(String, u64)>,
-    review: Option<Review>,
-    /// The comments margin beside the text (Wide, Narrow): `None` follows the
-    /// note (shown with comments or a draft); the toggle sets it.
-    margin: Option<bool>,
-    /// The in-tile comments section (Stacked), collapsed until opened.
-    comments_expanded: bool,
-    /// Keeps the comments list's scroll position while it is collapsed.
-    comments_scroll: gpui_kit::ScrollHandle,
-    /// Where comments sit for the current window and layout.
-    margin_mode: layout::MarginMode,
-    /// The Note toolbar's arrangement for the Note panel's current width.
-    note_fit: layout::NoteFit,
-    /// The review bar's arrangement for the Note panel's current width.
-    review_fit: layout::ReviewFit,
     /// The Chat panel is below 420 pt: the model control also names the
     /// effort, and the effort control folds into its menu.
     chat_narrow: bool,
@@ -570,18 +440,7 @@ struct ThreadsUi {
     short_window: bool,
     /// The collapsed queue's items are shown (session-only).
     queue_expanded: bool,
-    show_coverage: bool,
-    selection: Option<(Range<usize>, String)>,
-    general_feedback: Entity<TextareaState>,
-    general_drafts: BTreeMap<String, String>,
-    comment_input: Entity<EditorState>,
-    comment_anchor: Option<(String, u64, Range<usize>, String)>,
-    comment_operation: Option<String>,
-    comment_drafts: BTreeMap<String, CommentDraft>,
     writing_threads: BTreeMap<String, String>,
-    excluded_comments: BTreeSet<String>,
-    expanded_requests: BTreeSet<String>,
-    applied_rewrite: BTreeMap<String, (String, String)>,
     /// Rewrite request → its note's title, for Changes' "May need refresh"
     /// pills (R3), resolved when history refreshes rather than per render.
     refresh_names: BTreeMap<String, String>,
@@ -635,38 +494,12 @@ impl ThreadsUi {
                 .line_number(false)
                 .placeholder("Ask or delegate…")
         });
-        let note_editor = cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
-        let note_read_view = cx.new(|cx| {
-            TextViewState::markdown("", cx)
-                .selectable(true)
-                .scrollable(true)
-        });
-        let diff_editor = cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
-        diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
-        let review_editor =
-            cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
-        let comment_input = cx.new(|cx| {
-            EditorState::new(window, cx)
-                .line_number(false)
-                .auto_close(false)
-                .placeholder("What should change here?")
-        });
-        // One line when empty, growing to four as the owner writes.
-        let general_feedback = cx.new(|cx| {
-            TextareaState::new(window, cx)
-                .auto_grow(1, 4)
-                .placeholder("Overall feedback: tone, structure, anything for the whole note…")
-        });
-        let current_view = cx.new(|cx| {
-            TextViewState::markdown("", cx)
-                .selectable(true)
-                .scrollable(true)
-        });
-        let candidate_view = cx.new(|cx| {
-            TextViewState::markdown("", cx)
-                .selectable(true)
-                .scrollable(true)
-        });
+        let writing = WritingPanel::new(window, cx);
+        let note_editor = writing.note_editor.clone();
+        let note_read_view = writing.note_read_view.clone();
+        let review_editor = writing.review_editor.clone();
+        let comment_input = writing.comment_input.clone();
+        let general_feedback = writing.general_feedback.clone();
         let search = cx.new(|cx| {
             InputState::new(window, cx).placeholder("Filter titles and search note text")
         });
@@ -706,7 +539,8 @@ impl ThreadsUi {
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) {
                         if let Some(note) = this.open_note_id().map(str::to_owned) {
-                            this.general_drafts
+                            this.writing
+                                .general_drafts
                                 .insert(note, editor.read(cx).value().to_string());
                         }
                         cx.notify();
@@ -714,7 +548,7 @@ impl ThreadsUi {
                 },
             ),
             cx.observe_in(&note_read_view, window, |this, _, _, cx| {
-                if this.note_reading && this.review.is_none() {
+                if this.writing.note_reading && this.writing.review.is_none() {
                     this.track_selection(cx);
                     cx.notify();
                 }
@@ -745,7 +579,7 @@ impl ThreadsUi {
                 window,
                 |this, _, event: &InputEvent, _, _| {
                     if matches!(event, InputEvent::Change) {
-                        this.comment_operation = None;
+                        this.writing.comment_operation = None;
                     }
                 },
             ),
@@ -754,7 +588,7 @@ impl ThreadsUi {
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change)
-                        && let Some(review) = &mut this.review
+                        && let Some(review) = &mut this.writing.review
                     {
                         review.edited = editor.read(cx).value().as_ref() != review.original;
                         cx.notify();
@@ -817,6 +651,7 @@ impl ThreadsUi {
             }
         });
         let mut this = Self {
+            writing,
             workspace,
             data_dir,
             root_focus: cx.focus_handle(),
@@ -833,6 +668,8 @@ impl ThreadsUi {
             theme,
             theme_pending: false,
             settings_section: SettingsSection::General,
+            skill_view: skills_view::SkillView::default(),
+            mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],
             history: vec![],
             candidates: vec![],
@@ -845,25 +682,20 @@ impl ThreadsUi {
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
             attaching_chat: None,
+            reference_import: None,
+            reference_search_generation: 0,
+            reference_search_cancel: None,
             selected_project: None,
             note_project: None,
+            note_writing_scope: None,
+            writing_review_key: None,
+            writing_reviews: BTreeMap::new(),
+            writing_requests: BTreeMap::new(),
+            #[cfg(all(test, feature = "native-test-support"))]
+            writing_review_loads: 0,
             projects_trash: false,
             open_sections: BTreeSet::new(),
             editing_queue: None,
-            note_editor,
-            note_read_view,
-            note_reading: false,
-            read_marks_key: String::new(),
-            read_source: String::new(),
-            review_reading: false,
-            comment_marks: None,
-            diff_editor,
-            diff_marks: None,
-            current_view,
-            candidate_view,
-            review_editor,
-            review_editing: false,
-            review_inputs: false,
             search,
             hits: vec![],
             results: search_view::SearchView::default(),
@@ -884,30 +716,10 @@ impl ThreadsUi {
             credentials_path,
             helper_model,
             settings,
-            note: None,
-            edit_open: None,
-            review: None,
-            margin: None,
-            comments_expanded: false,
-            comments_scroll: gpui_kit::ScrollHandle::new(),
-            margin_mode: layout::MarginMode::Wide,
-            note_fit: layout::NoteFit::default(),
-            review_fit: layout::ReviewFit::default(),
             chat_narrow: false,
             short_window: false,
             queue_expanded: false,
-            show_coverage: false,
-            selection: None,
-            general_feedback,
-            general_drafts: BTreeMap::new(),
-            comment_input,
-            comment_anchor: None,
-            comment_operation: None,
-            comment_drafts: BTreeMap::new(),
             writing_threads: BTreeMap::new(),
-            excluded_comments: BTreeSet::new(),
-            expanded_requests: BTreeSet::new(),
-            applied_rewrite: BTreeMap::new(),
             refresh_names: BTreeMap::new(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
@@ -943,6 +755,70 @@ impl ThreadsUi {
         this.root_focus.focus(window, cx);
         this
     }
+    /// One checked display batch per canonical change; never an Apply/read grant.
+    fn refresh_writing_review_cache(&mut self) {
+        let loaded = (|| -> AppResult<()> {
+            let note = self
+                .open_note_id()
+                .ok_or_else(|| AppError::Invalid("No displayed writing Note".into()))?
+                .to_owned();
+            let token = self.workspace.store.change_token()?;
+            let mut shown = self.candidates.iter().filter(|c| c.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))).collect::<Vec<_>>();
+            if let Some(review) = &self.writing.review
+                && review.candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+            {
+                if let Some(slot) = shown.iter_mut().find(|c| c.operation == review.candidate.operation) {
+                    *slot = &review.candidate;
+                } else {
+                    shown.push(&review.candidate);
+                }
+            }
+            let conversation = self.writing_threads.get(&note).cloned();
+            if self.writing_review_key.as_ref().is_some_and(|key| {
+                key.0 == token
+                    && key.1 == note
+                    && key.2 == self.note_writing_scope
+                    && key.3 == conversation
+                    && key.4.iter().eq(shown.iter().copied())
+            }) {
+                return Ok(());
+            }
+            let shown = shown.into_iter().cloned().collect::<Vec<_>>();
+            // Clear before a fallible reload. Errors cannot retain private data.
+            self.writing_review_key = None;
+            self.writing_reviews.clear();
+            self.writing_requests.clear();
+            #[cfg(all(test, feature = "native-test-support"))]
+            {
+                self.writing_review_loads += 1;
+            }
+            let (observed, checked) = self.workspace.writing_context_review(
+                &note,
+                self.note_writing_scope.as_deref(),
+                &shown,
+            )?;
+            if observed != token {
+                return Err(AppError::Unavailable(
+                    "Writing context changed during inspection".into(),
+                ));
+            }
+            self.writing_reviews = checked.candidates;
+            self.writing_requests = checked.requests;
+            self.writing_review_key = Some((
+                observed,
+                note,
+                self.note_writing_scope.clone(),
+                conversation,
+                shown,
+            ));
+            Ok(())
+        })();
+        if loaded.is_err() {
+            self.writing_review_key = None;
+            self.writing_reviews.clear();
+            self.writing_requests.clear();
+        }
+    }
     fn refresh(&mut self) {
         let result = (|| -> AppResult<()> {
             self.records = self.workspace.records()?;
@@ -971,7 +847,7 @@ impl ThreadsUi {
                 })
                 .collect();
             // Only an actual target-note Apply receipt proves addressed feedback or Undo.
-            self.applied_rewrite.clear();
+            self.writing.applied_rewrite.clear();
             let requests=self.records.iter().filter(|record| !record.archived && matches!(&record.data,RecordData::Message(message) if message.role=="writing-request")).map(|record|record.id.as_str()).collect::<BTreeSet<_>>();
             let undone = self
                 .history
@@ -1003,7 +879,8 @@ impl ThreadsUi {
                         && write.after.id == snapshot.note.id
                         && matches!(write.after.data, RecordData::Note(_))
                 }) {
-                    self.applied_rewrite
+                    self.writing
+                        .applied_rewrite
                         .entry(snapshot.note.id)
                         .or_insert((snapshot.request_message, receipt.operation.as_str().into()));
                 }
@@ -1035,13 +912,13 @@ impl ThreadsUi {
         self.activity = Activity::new(&self.history);
         self.thread_rows = lists::thread_rows(&self.records, &self.activity);
         self.note_rows = lists::note_rows(&self.records, &self.activity);
+        self.refresh_skills();
+        self.refresh_mcp();
     }
     /// A recoverable edit exists that this view has not opened; typing would
     /// start a competing edit, so the text stays read-only until recovered.
     fn recovery_blocked(&self) -> bool {
-        self.note.as_ref().is_some_and(|open| {
-            open.session.is_none() && self.buffers.iter().any(|s| s.note == open.record.id)
-        })
+        self.writing.recovery_blocked(&self.buffers)
     }
     fn note_tile_visible(&self) -> bool {
         !self.layout.settings_open()
@@ -1052,15 +929,12 @@ impl ThreadsUi {
                 .any(|tile| tile.kind == TileKind::Note)
     }
     fn note_editor_visible(&self) -> bool {
-        self.review.is_none()
-            && !self.note_reading
-            && self.note.is_some()
-            && self.note_tile_visible()
-            && !self.recovery_blocked()
+        self.writing
+            .note_editor_visible(&self.buffers, self.note_tile_visible())
     }
     fn preserve_visible_note_input(&mut self, cx: &Context<Self>) {
         if self.note_editor_visible() {
-            self.note_changed(self.note_editor.read(cx).value().to_string());
+            self.note_changed(self.writing.note_editor.read(cx).value().to_string());
         }
     }
     fn focus_root(&self, window: &mut Window, cx: &mut Context<Self>) {
@@ -1069,23 +943,30 @@ impl ThreadsUi {
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.tile_reveal = None;
         self.focus_root(window, cx);
-        if self.review_editing
+        if self.writing.review_editing
             && self.note_tile_visible()
             && self
+                .writing
                 .review
                 .as_ref()
                 .is_some_and(|review| review.note.is_some())
         {
-            self.review_editor
+            self.writing
+                .review_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
-        } else if self.note_reading && self.review.is_none() && self.note_tile_visible() {
-            self.note_read_view
+        } else if self.writing.note_reading
+            && self.writing.review.is_none()
+            && self.note_tile_visible()
+        {
+            self.writing
+                .note_read_view
                 .read(cx)
                 .focus_handle()
                 .clone()
                 .focus(window, cx);
         } else if self.note_editor_visible() {
-            self.note_editor
+            self.writing
+                .note_editor
                 .update(cx, |editor, cx| editor.focus(window, cx));
         }
     }
@@ -1185,7 +1066,7 @@ impl ThreadsUi {
         }
     }
     fn open_note_id(&self) -> Option<&str> {
-        self.note.as_ref().map(|open| open.record.id.as_str())
+        self.writing.open_note_id()
     }
     fn thread_note(&self, thread: &str) -> Option<String> {
         self.thread_rows
@@ -1214,19 +1095,14 @@ impl ThreadsUi {
         let old = self.destination();
         self.save_composer(old, self.composer.read(cx).value().to_string());
         self.chat = target;
-        // Choosing a thread linked to the open note makes it that note's thread.
-        if let ChatTarget::Thread(thread) = &self.chat
-            && let Some(note) = self.open_note_id().map(str::to_owned)
-            && linked(&self.records, thread).contains(&note)
-        {
-            self.writing_threads.insert(note, thread.clone());
-        }
+        self.refresh_skills();
+        self.refresh_mcp();
         let text = self.composer_drafts.text(&self.destination()).to_owned();
         self.composer
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
         cx.notify();
     }
-    /// The first linked thread inherits this note's unsent draft, never another's.
+    /// The resolved writing conversation inherits this note's unsent draft, never another's.
     fn adopt_writing_thread(&mut self, note: &str) {
         let Some(thread) = self.writing_threads.get(note).cloned() else {
             return;
@@ -1247,26 +1123,26 @@ impl ThreadsUi {
         }
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
-        if let Some(open) = &self.note {
-            self.general_drafts.insert(
+        if let Some(open) = &self.writing.note {
+            self.writing.general_drafts.insert(
                 open.record.id.clone(),
-                self.general_feedback.read(cx).value().to_string(),
+                self.writing.general_feedback.read(cx).value().to_string(),
             );
-            self.comment_drafts.insert(
+            self.writing.comment_drafts.insert(
                 open.record.id.clone(),
                 CommentDraft {
-                    anchor: self.comment_anchor.clone(),
-                    body: self.comment_input.read(cx).value().to_string(),
-                    operation: self.comment_operation.clone(),
+                    anchor: self.writing.comment_anchor.clone(),
+                    body: self.writing.comment_input.read(cx).value().to_string(),
+                    operation: self.writing.comment_operation.clone(),
                 },
             );
         }
     }
     fn restore_comment_draft(&mut self, note: &str, window: &mut Window, cx: &mut Context<Self>) {
-        let draft = self.comment_drafts.get(note).cloned();
-        self.comment_anchor = draft.as_ref().and_then(|draft| draft.anchor.clone());
-        self.comment_operation = draft.as_ref().and_then(|draft| draft.operation.clone());
-        self.comment_input.update(cx, |editor, cx| {
+        let draft = self.writing.comment_drafts.get(note).cloned();
+        self.writing.comment_anchor = draft.as_ref().and_then(|draft| draft.anchor.clone());
+        self.writing.comment_operation = draft.as_ref().and_then(|draft| draft.operation.clone());
+        self.writing.comment_input.update(cx, |editor, cx| {
             editor.set_value(
                 draft.map(|draft| draft.body).unwrap_or_default(),
                 window,
@@ -1281,20 +1157,38 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.note_project = None;
+        self.open_note_in_context(id, recovery, None, window, cx);
+    }
+    fn open_note_in_context(
+        &mut self,
+        id: &str,
+        recovery: Option<EditSession>,
+        opened_from: Option<&str>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let context = match self.workspace.active_writing_context(id, opened_from) {
+            Ok(context) => context,
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
         if self
+            .writing
             .review
             .as_ref()
             .is_some_and(|review| review.note.as_deref() != Some(id))
         {
             self.keep_review(window, cx);
-            if self.review.is_some() {
+            if self.writing.review.is_some() {
                 return;
             }
         }
         self.preserve_visible_note_input(cx);
         self.preserve_comment_draft(cx);
-        self.edit_open = None;
+        self.writing.edit_open = None;
         self.focus_root(window, cx);
         let recovery = recovery.or_else(|| {
             self.workspace
@@ -1304,25 +1198,6 @@ impl ThreadsUi {
                 .into_iter()
                 .find(|session| session.note == id)
         });
-        if !self.writing_threads.contains_key(id)
-            && let Ok(threads) = self.workspace.writing_threads(id)
-            && let Some(thread) = self
-                .history
-                .iter()
-                .rev()
-                .flat_map(|receipt| receipt.writes.iter().rev())
-                .filter(|write| write.before.is_none())
-                .find_map(|write| {
-                    self.workspace
-                        .writing_request(&write.after.id)
-                        .ok()
-                        .filter(|snapshot| snapshot.note.id == id)
-                        .map(|snapshot| snapshot.thread)
-                })
-                .or_else(|| threads.first().map(|record| record.id.clone()))
-        {
-            self.writing_threads.insert(id.into(), thread);
-        }
         match self.workspace.store.note(id) {
             Ok(Some(record)) => {
                 let RecordData::Note(note) = &record.data else {
@@ -1332,31 +1207,42 @@ impl ThreadsUi {
                     .as_ref()
                     .map(|s| s.markdown.clone())
                     .unwrap_or_else(|| note.markdown.clone());
-                self.note = Some(OpenNote {
+                self.writing.note = Some(OpenNote {
                     record: record.clone(),
                     session: recovery,
                 });
-                self.selection = None;
-                self.note_editor
+                self.note_writing_scope = context.scope.clone();
+                self.note_project = context.scope.clone().filter(|id| {
+                    self.records
+                        .iter()
+                        .any(|r| r.id == *id && matches!(r.data, RecordData::Project(_)))
+                });
+                if let Some(thread) = context.conversation {
+                    self.writing_threads.insert(id.into(), thread);
+                } else {
+                    self.writing_threads.remove(id);
+                }
+
+                self.writing.selection = None;
+                self.writing
+                    .note_editor
                     .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
                 self.sync_read_text(cx);
-                self.current_view
+                self.writing
+                    .current_view
                     .update(cx, |view, cx| view.set_text(&note.markdown, cx));
                 self.restore_comment_draft(id, window, cx);
-                let feedback = self.general_drafts.get(id).cloned().unwrap_or_default();
-                self.general_feedback
+                let feedback = self
+                    .writing
+                    .general_drafts
+                    .get(id)
+                    .cloned()
+                    .unwrap_or_default();
+                self.writing
+                    .general_feedback
                     .update(cx, |editor, cx| editor.set_value(feedback, window, cx));
                 self.layout.open(TileKind::Note);
                 self.refresh();
-                // Remember this note's chat without replacing the owner's selected conversation.
-                if let Some(chat) = &note.chat
-                    && self
-                        .records
-                        .iter()
-                        .any(|r| r.id == *chat && matches!(r.data, RecordData::Thread(_)))
-                {
-                    self.writing_threads.insert(id.into(), chat.clone());
-                }
                 let target = self
                     .writing_threads
                     .get(id)
@@ -1383,8 +1269,7 @@ impl ThreadsUi {
             && self.layout.contains(TileKind::Note)
             && self.open_note_id() != Some(note.as_str())
         {
-            self.writing_threads.insert(note.clone(), id.into());
-            self.open_note(&note, None, window, cx);
+            self.open_note_in_context(&note, None, Some(id), window, cx);
         }
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
         self.layout.open(TileKind::Chat);
@@ -1399,135 +1284,21 @@ impl ThreadsUi {
     /// Persistent comment highlights on the exact saved text. With a recovered
     /// edit the text differs, so nothing is guessed.
     fn sync_note_marks(&mut self, cx: &mut Context<Self>) {
-        let p = pal();
-        let mut ranges = Vec::new();
-        if let Some(open) = &self.note
-            && open.session.is_none()
-            && let RecordData::Note(note) = &open.record.data
-        {
-            for entry in self
-                .workspace
-                .writing_comments(&open.record.id)
-                .unwrap_or_default()
-                .into_iter()
-                .filter(|entry| !entry.addressed)
-            {
-                if let RecordData::Comment(comment) = &entry.record.data
-                    && let Some(range) =
-                        comment_location(comment, open.record.version, &note.markdown)
-                {
-                    ranges.push(
-                        RangeDecoration::new(range)
-                            .with_style(RangeDecorationStyle::Fill)
-                            .with_color(rgb(p.comment).into()),
-                    );
-                }
-            }
-            if let Some((anchor, version, range, _)) = &self.comment_anchor
-                && anchor == &open.record.id
-                && *version == open.record.version
-            {
-                ranges.push(
-                    RangeDecoration::new(range.clone())
-                        .with_style(RangeDecorationStyle::Fill)
-                        .with_color(rgb(p.comment_strong).into()),
-                );
-            }
-        }
-        match &self.comment_marks {
-            Some(marks) => marks.set(ranges, cx),
-            None => {
-                self.comment_marks = Some(self.note_editor.update(cx, |editor, cx| {
-                    editor.create_range_decorations_collection(ranges, cx)
-                }))
-            }
-        }
+        self.writing.sync_note_marks(&self.workspace, cx);
     }
     /// The read-only tracked-change view of the exact candidate under review.
     fn sync_diff(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let p = pal();
-        let (text, decorations) = match &self.review {
-            Some(review) if review.note.is_some() => {
-                let current = review
-                    .note
-                    .as_ref()
-                    .and_then(|id| self.workspace.store.note(id).ok().flatten())
-                    .and_then(|record| match record.data {
-                        RecordData::Note(note) => Some(note.markdown),
-                        _ => None,
-                    })
-                    .unwrap_or_default();
-                let tracked = diff::tracked(&current, &review.original);
-                let decorations = tracked
-                    .marks
-                    .iter()
-                    .map(|(range, mark)| {
-                        let style = match mark {
-                            diff::Mark::Deleted => HighlightStyle {
-                                background_color: Some(rgb(p.delete).into()),
-                                strikethrough: Some(gpui_kit::StrikethroughStyle {
-                                    thickness: px(1.),
-                                    color: Some(rgb(p.ink).into()),
-                                }),
-                                ..Default::default()
-                            },
-                            diff::Mark::Inserted => HighlightStyle {
-                                background_color: Some(rgb(p.add).into()),
-                                underline: Some(gpui_kit::UnderlineStyle {
-                                    thickness: px(1.),
-                                    color: Some(rgb(p.ink).into()),
-                                    wavy: false,
-                                }),
-                                ..Default::default()
-                            },
-                        };
-                        TextDecoration::new(range.clone(), style)
-                    })
-                    .collect::<Vec<_>>();
-                (tracked.text, decorations)
-            }
-            _ => (String::new(), vec![]),
-        };
-        self.diff_editor
-            .update(cx, |editor, cx| editor.set_value(text, window, cx));
-        match &self.diff_marks {
-            Some(marks) => marks.set(decorations, cx),
-            None => {
-                self.diff_marks = Some(self.diff_editor.update(cx, |editor, cx| {
-                    editor.create_decorations_collection(decorations, cx)
-                }))
-            }
-        }
+        self.writing.sync_diff(&self.workspace, window, cx);
     }
     /// Track the current text selection for the selection strip.
     fn track_selection(&mut self, cx: &mut Context<Self>) {
-        let editor = self.note_editor.read(cx);
-        let range = if self.note_reading {
-            let view = self.note_read_view.read(cx);
-            if view.rendered_text().source() != editor.value().as_ref() {
-                None
-            } else {
-                view.selected_source_range()
-            }
-        } else {
-            Some(editor.selected_range())
-        };
-        let selection = range
-            .filter(|range| range.start < range.end)
-            .and_then(|range| {
-                editor
-                    .value()
-                    .get(range.clone())
-                    .map(|quote| (range, quote.to_owned()))
-            });
-        if selection != self.selection {
-            self.selection = selection;
-            cx.notify();
-        }
+        self.writing.track_selection(cx);
     }
     /// Comments anchor to the saved version, so an unsaved edit disables them.
     fn comment_on_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(open) = &self.note else { return };
+        let Some(open) = &self.writing.note else {
+            return;
+        };
         if open.session.is_some() {
             self.warn("Save your edit first: comments anchor to the saved version of the note.");
             cx.notify();
@@ -1536,15 +1307,16 @@ impl ThreadsUi {
         let RecordData::Note(note) = &open.record.data else {
             return;
         };
-        let range = if self.note_reading {
-            self.selection
+        let range = if self.writing.note_reading {
+            self.writing
+                .selection
                 .as_ref()
                 .map(|(range, _)| range.clone())
                 .unwrap_or(0..0)
         } else {
-            self.note_editor.read(cx).selected_range()
+            self.writing.note_editor.read(cx).selected_range()
         };
-        if self.note_editor.read(cx).value().as_ref() == note.markdown
+        if self.writing.note_editor.read(cx).value().as_ref() == note.markdown
             && range.start < range.end
             && let Some(quote) = note.markdown.get(range.clone())
         {
@@ -1554,17 +1326,19 @@ impl ThreadsUi {
                 range,
                 quote.into(),
             );
-            if self.comment_anchor.as_ref() != Some(&anchor) {
-                self.comment_operation = None;
-                self.comment_anchor = Some(anchor);
+            if self.writing.comment_anchor.as_ref() != Some(&anchor) {
+                self.writing.comment_operation = None;
+                self.writing.comment_anchor = Some(anchor);
             }
             // The new draft opens the comments wherever they sit, scrolled
             // to the draft at the top of the list.
-            self.margin = Some(true);
-            self.comments_expanded = true;
-            self.comments_scroll.scroll_to_item(0);
+            self.writing.margin = Some(true);
+            self.writing.comments_expanded = true;
+            self.writing.comments_scroll.scroll_to_item(0);
             self.sync_note_marks(cx);
-            self.comment_input.update(cx, |e, cx| e.focus(window, cx));
+            self.writing
+                .comment_input
+                .update(cx, |e, cx| e.focus(window, cx));
         } else {
             self.warn("Select a passage to comment on. The selection must map to the saved note.");
         }
@@ -1572,7 +1346,7 @@ impl ThreadsUi {
     }
     /// Quote the selection into the thread composer without sending anything.
     fn ask_about_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some((_, quote)) = self.selection.clone() else {
+        let Some((_, quote)) = self.writing.selection.clone() else {
             return;
         };
         let quoted = quote
@@ -1591,15 +1365,16 @@ impl ThreadsUi {
         self.focus_composer(window, cx);
     }
     fn reveal(&mut self, range: Range<usize>, window: &mut Window, cx: &mut Context<Self>) {
-        if self.note.is_some() {
+        if self.writing.note.is_some() {
             self.layout.open(TileKind::Note);
-            if self.note_reading {
-                let rendered = self.note_read_view.read(cx).rendered_text();
+            if self.writing.note_reading {
+                let rendered = self.writing.note_read_view.read(cx).rendered_text();
                 if let Some(target) = rendered.range_for_source(range.clone()) {
-                    self.note_read_view.update(cx, |view, cx| {
+                    self.writing.note_read_view.update(cx, |view, cx| {
                         let _ = view.reveal_range(target, cx);
                     });
-                    self.note_read_view
+                    self.writing
+                        .note_read_view
                         .read(cx)
                         .focus_handle()
                         .clone()
@@ -1609,7 +1384,7 @@ impl ThreadsUi {
                 }
                 self.set_note_reading(false, window, cx);
             }
-            self.note_editor.update(cx, |editor, cx| {
+            self.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_selected_range(range, cx);
                 editor.focus(window, cx);
             });
@@ -1617,45 +1392,7 @@ impl ThreadsUi {
         cx.notify();
     }
     fn note_changed(&mut self, text: String) {
-        let Some(open) = &mut self.note else { return };
-        let RecordData::Note(note) = &open.record.data else {
-            return;
-        };
-        if open.session.is_none() && text == note.markdown {
-            return;
-        }
-        let result = (|| -> brn_threads_app::AppResult<Option<(Tone, &'static str)>> {
-            if open.session.is_none() {
-                open.session = Some(
-                    self.workspace
-                        .store
-                        .begin_edit(&open.record.id, open.record.version)?,
-                );
-            }
-            let session = open.session.as_ref().unwrap();
-            if session.markdown == text {
-                return Ok(None);
-            }
-            Ok(Some(
-                match self.workspace.store.update_buffer(
-                    &session.id,
-                    session.generation + 1,
-                    &text,
-                )? {
-                    BufferOutcome::Updated(updated) => {
-                        open.session = Some(updated);
-                        (
-                            Tone::Info,
-                            "Your edit is recoverable. Save to update the note.",
-                        )
-                    }
-                    BufferOutcome::Ignored(_) => (
-                        Tone::Warning,
-                        "This recovery buffer changed elsewhere. Your visible text is retained; compare before saving.",
-                    ),
-                },
-            ))
-        })();
+        let result = self.writing.note_changed(&mut self.workspace, text);
         match result {
             Ok(Some((tone, text))) => self.set_notice(tone, text),
             Ok(None) => {}
@@ -1668,7 +1405,7 @@ impl ThreadsUi {
                 base_version,
                 ..
             })) => {
-                self.edit_open = Some((note, base_version));
+                self.writing.edit_open = Some((note, base_version));
                 self.refresh();
                 self.warn(format!(
                     "An edit of this note is already open from v{base_version}. What you typed here isn't saved."
@@ -1680,9 +1417,9 @@ impl ThreadsUi {
         }
     }
     fn save(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let text = self.note_editor.read(cx).value().to_string();
+        let text = self.writing.note_editor.read(cx).value().to_string();
         self.note_changed(text);
-        let Some(session) = self.note.as_ref().and_then(|n| n.session.clone()) else {
+        let Some(session) = self.writing.note.as_ref().and_then(|n| n.session.clone()) else {
             self.inform("No unsaved edit.");
             cx.notify();
             return;
@@ -1704,7 +1441,8 @@ impl ThreadsUi {
                 {
                     // A refused Save compares against the current saved record,
                     // while the editor and recovery buffer retain the owner's text.
-                    self.current_view
+                    self.writing
+                        .current_view
                         .update(cx, |view, cx| view.set_text(&current.markdown, cx));
                 }
             }
@@ -1723,6 +1461,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let own = self
+            .writing
             .note
             .as_ref()
             .and_then(|open| open.session.as_ref())
@@ -1737,11 +1476,12 @@ impl ThreadsUi {
                 self.inform("Discarded the unsaved edit.");
             }
             Ok(BufferOutcome::Updated(closed)) if closed.closed => {
-                self.edit_open = None;
+                self.writing.edit_open = None;
                 self.refresh();
-                let typed = self.note_editor.read(cx).value().to_string();
+                let typed = self.writing.note_editor.read(cx).value().to_string();
                 self.note_changed(typed);
                 if self
+                    .writing
                     .note
                     .as_ref()
                     .is_some_and(|open| open.session.is_some())
@@ -1859,7 +1599,9 @@ impl ThreadsUi {
         cx.notify();
     }
     fn prepare_review_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
+        let Some(review) = &self.writing.review else {
+            return;
+        };
         if review.edited {
             self.warn("Prepare your edited text before choosing proposal groups.");
             cx.notify();
@@ -1872,7 +1614,7 @@ impl ThreadsUi {
         {
             Ok(candidate) => {
                 // The prepared selection replaces the reviewed candidate.
-                self.review = None;
+                self.writing.review = None;
                 self.open_review(candidate, window, cx);
                 self.inform("The selected notes and tasks are prepared as a new proposal. Review it, then apply it.");
             }
@@ -1882,16 +1624,18 @@ impl ThreadsUi {
         cx.notify();
     }
     fn prepare_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
+        let Some(review) = &self.writing.review else {
+            return;
+        };
         let Some(note) = &review.note else { return };
-        let text = self.review_editor.read(cx).value().to_string();
+        let text = self.writing.review_editor.read(cx).value().to_string();
         match self
             .workspace
             .review_replace(review.candidate.operation.as_str(), note, &text)
         {
             Ok(candidate) => {
                 // The prepared final text replaces the reviewed candidate.
-                self.review = None;
+                self.writing.review = None;
                 self.open_review(candidate, window, cx);
                 self.inform("Your final text is prepared. Review this version, then apply it.");
             }
@@ -1907,40 +1651,50 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.note_project = self
-            .workspace
-            .store
-            .project_context_record(&thread)
-            .ok()
-            .flatten()
-            .filter(|r| !r.archived)
-            .map(|r| r.id);
-        self.writing_threads.insert(note, thread.clone());
+        if let Err(error) = self.workspace.select_writing_conversation(
+            &format!("writing-choice:{}", uuid::Uuid::new_v4()),
+            &note,
+            &thread,
+        ) {
+            self.warn(error.to_string());
+            cx.notify();
+            return;
+        }
+        match self.workspace.active_writing_context(&note, Some(&thread)) {
+            Ok(context) => {
+                self.note_writing_scope = context.scope.clone();
+                self.note_project = context.scope.filter(|id| {
+                    self.records
+                        .iter()
+                        .any(|r| r.id == *id && matches!(r.data, RecordData::Project(_)))
+                });
+                self.writing_threads.insert(note, thread.clone());
+            }
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        }
         self.set_chat(ChatTarget::Thread(thread), window, cx);
         self.show_tile(TileKind::Chat, window, cx);
     }
     fn new_writing_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(open) = &self.note else {
+        let Some(open) = &self.writing.note else {
             return;
         };
         let note = open.record.id.clone();
-        let version = open.record.version;
         let result = self
             .workspace
-            .new_document_chat(
-                &format!("Writing: {}", title(&open.record)),
+            .new_writing_conversation(
+                &format!("writing-new:{}", uuid::Uuid::new_v4()),
                 &note,
-                self.note_project.as_deref(),
+                self.note_writing_scope.as_deref(),
             )
-            .and_then(|thread| {
-                self.workspace
-                    .link_writing_thread(
-                        &format!("writing-link:{}", uuid::Uuid::new_v4()),
-                        &note,
-                        version,
-                        &thread.id,
-                    )
-                    .map(|_| thread.id)
+            .and_then(|context| {
+                context
+                    .conversation
+                    .ok_or_else(|| AppError::Invalid("Writing conversation was not created".into()))
             });
         match result {
             Ok(thread) => self.select_writing_thread(note, thread, window, cx),
@@ -1951,57 +1705,24 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn ensure_writing_thread(&mut self, note: &str, version: u64) -> AppResult<String> {
-        if let Some(project) = &self.note_project
-            && self.writing_threads.get(note).is_some_and(|chat| {
-                self.workspace
-                    .store
-                    .project_context_record(chat)
-                    .ok()
-                    .flatten()
-                    .is_none_or(|p| p.id != *project)
-            })
-        {
-            self.writing_threads.remove(note);
-        }
-
-        if let Some(thread) = self.writing_threads.get(note).cloned() {
-            if !self
-                .workspace
-                .store
-                .record(&thread)?
-                .is_some_and(|record| matches!(record.data, RecordData::Thread(_)))
-            {
-                return Err(AppError::Invalid("The selected chat is unavailable. Choose New chat for this note; your drafts are preserved.".into()));
-            }
-            // Continuing a resolved thread reopens it with a recorded reason.
-            self.reopen_if_resolved(&thread, "Owner continued a resolved chat with new feedback")?;
-            return Ok(thread);
-        }
-        let thread_title = format!(
-            "Writing: {}",
-            self.note
-                .as_ref()
-                .map(|open| title(&open.record))
-                .unwrap_or_else(|| note.into())
-        );
-        let thread =
-            self.workspace
-                .new_document_chat(&thread_title, note, self.note_project.as_deref())?;
-        self.workspace.link_writing_thread(
-            &format!("writing-link:{}", uuid::Uuid::new_v4()),
+    fn ensure_writing_thread(&mut self, note: &str) -> AppResult<String> {
+        let context = self.workspace.ensure_writing_context(
+            &format!("writing-context:{}", uuid::Uuid::new_v4()),
             note,
-            version,
-            &thread.id,
+            self.note_writing_scope.as_deref(),
         )?;
-        self.writing_threads.insert(note.into(), thread.id.clone());
-        Ok(thread.id)
+        let thread = context
+            .conversation
+            .ok_or_else(|| AppError::Invalid("Writing conversation is unavailable".into()))?;
+        self.writing_threads.insert(note.into(), thread.clone());
+        Ok(thread)
     }
     fn post_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some((note, version, range, quote)) = self.comment_anchor.clone() else {
+        let Some((note, version, range, quote)) = self.writing.comment_anchor.clone() else {
             return;
         };
         if self
+            .writing
             .note
             .as_ref()
             .is_none_or(|open| open.record.id != note || open.session.is_some())
@@ -2010,34 +1731,34 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        let body = self.comment_input.read(cx).value().to_string();
+        let body = self.writing.comment_input.read(cx).value().to_string();
         if body.trim().is_empty() {
             return;
         }
-        let result = self
-            .ensure_writing_thread(&note, version)
-            .and_then(|thread| {
-                let key = self
-                    .comment_operation
-                    .get_or_insert_with(|| format!("writing-comment:{}", uuid::Uuid::new_v4()))
-                    .clone();
-                self.workspace.add_writing_comment(
-                    &key,
-                    &WritingCommentInput {
-                        note: note.clone(),
-                        version,
-                        thread,
-                        range: (range.start, range.end),
-                        quote,
-                        body,
-                    },
-                )
-            });
+        let result = self.ensure_writing_thread(&note).and_then(|thread| {
+            let key = self
+                .writing
+                .comment_operation
+                .get_or_insert_with(|| format!("writing-comment:{}", uuid::Uuid::new_v4()))
+                .clone();
+            self.workspace.add_writing_comment(
+                &key,
+                &WritingCommentInput {
+                    note: note.clone(),
+                    version,
+                    thread,
+                    range: (range.start, range.end),
+                    quote,
+                    body,
+                },
+            )
+        });
         match result {
             Ok(_) => {
-                self.comment_anchor = None;
-                self.comment_operation = None;
-                self.comment_input
+                self.writing.comment_anchor = None;
+                self.writing.comment_operation = None;
+                self.writing
+                    .comment_input
                     .update(cx, |e, cx| e.set_value("", window, cx));
                 self.focus_visible_editor(window, cx);
                 self.inform("Comment added to pending feedback. Rewrite with AI when ready.");
@@ -2053,12 +1774,19 @@ impl ThreadsUi {
         cx.notify();
     }
     fn rewrite_note(&mut self, cx: &mut Context<Self>) {
+        self.rewrite_note_with_requirements(WritingReadRequirements::default(), cx);
+    }
+    fn rewrite_note_with_requirements(
+        &mut self,
+        requirements: WritingReadRequirements,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
-        let Some(open) = &self.note else {
+        let Some(open) = &self.writing.note else {
             return;
         };
         if open.session.is_some() {
@@ -2079,24 +1807,25 @@ impl ThreadsUi {
         let ids = comments
             .into_iter()
             .filter(|comment| {
-                !comment.addressed && !self.excluded_comments.contains(&comment.record.id)
+                !comment.addressed && !self.writing.excluded_comments.contains(&comment.record.id)
             })
             .map(|comment| comment.record.id)
             .collect::<Vec<_>>();
-        let feedback = self.general_feedback.read(cx).value().to_string();
-        self.general_drafts.insert(note.clone(), feedback.clone());
-        let result = self
-            .ensure_writing_thread(&note, version)
-            .and_then(|thread| {
-                self.workspace.snapshot_writing_request_with_feedback(
-                    &format!("writing-request:{}", uuid::Uuid::new_v4()),
-                    &note,
-                    version,
-                    &thread,
-                    &ids,
-                    &feedback,
-                )
-            });
+        let feedback = self.writing.general_feedback.read(cx).value().to_string();
+        self.writing
+            .general_drafts
+            .insert(note.clone(), feedback.clone());
+        let result = self.ensure_writing_thread(&note).and_then(|thread| {
+            self.workspace.snapshot_writing_request_with_requirements(
+                &format!("writing-request:{}", uuid::Uuid::new_v4()),
+                &note,
+                version,
+                &thread,
+                &ids,
+                &feedback,
+                &requirements,
+            )
+        });
         self.adopt_writing_thread(&note);
         match result {
             Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
@@ -2132,24 +1861,33 @@ impl ThreadsUi {
         cx.notify();
     }
     fn retry_rewrite(&mut self, message: String, cx: &mut Context<Self>) {
-        match self.workspace.writing_request(&message) {
-            Ok(snapshot) => {
-                let changed = snapshot.current_inputs().iter().any(|input| {
-                    self.workspace
-                        .store
-                        .record(&input.record)
-                        .ok()
-                        .flatten()
-                        .is_none_or(|record| record.archived || record.version != input.version)
-                });
-                if changed {
-                    self.warn("Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.");
-                    cx.notify();
-                    return;
+        let request = self.writing.rewrite_run_start(
+            &self.workspace,
+            &message,
+            self.note_writing_scope.as_deref(),
+            self.copilot_models.clone(),
+        );
+        match request {
+            Ok(request) => {
+                if self.begin_run_start(cx) {
+                    // Resume can leave a matching pending item without a dispatch
+                    // claim. Preserve the same exact-prompt queue refusal as chat.
+                    let queued = self.queue_state().pending.is_some_and(|item| {
+                        item.thread == request.thread
+                            && item.text == request.prompt
+                            && item.run.is_none()
+                    });
+                    self.start_request(
+                        request,
+                        queued,
+                        None,
+                        "Retry from the note",
+                        "Finished. The result is in the note.",
+                        cx,
+                    );
                 }
-                self.start_run("Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.".into(), snapshot.thread, vec![], Some(brn_ai::threads::OwnerRequest::RewriteNote { request_message: message }), cx);
                 if self.worker.is_none() {
-                    // The reason start_run gave keeps its tone.
+                    // The reason start_request gave keeps its tone.
                     let tone = self.notice_tone();
                     let text = format!(
                         "Rewrite request saved; AI has not started. {} Retry rewrite uses these same saved inputs.",
@@ -2158,10 +1896,26 @@ impl ThreadsUi {
                     self.set_notice(tone, text);
                 }
             }
-            Err(error) => self.fail(error.to_string()),
+            Err(RewriteStartError::StaleInputs) => {
+                self.warn("Saved rewrite context changed. Feedback is preserved; Reload saved note, then request a new Rewrite with AI.");
+                cx.notify();
+                return;
+            }
+            Err(RewriteStartError::Context(error)) => self.fail(error.to_string()),
         }
         self.refresh();
         cx.notify();
+    }
+    /// Refuse a competing worker before preparation; refresh before matching
+    /// a chat queue claim or dispatching the panel's exact saved request.
+    fn begin_run_start(&mut self, cx: &mut Context<Self>) -> bool {
+        if let Some(worker) = &self.worker {
+            self.warn(worker.kind.busy_notice());
+            cx.notify();
+            return false;
+        }
+        self.refresh();
+        true
     }
     fn start_run(
         &mut self,
@@ -2171,59 +1925,9 @@ impl ThreadsUi {
         owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
-        if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
-            cx.notify();
+        if !self.begin_run_start(cx) {
             return;
         }
-        self.refresh();
-        let writing = matches!(
-            &owner_request,
-            Some(brn_ai::threads::OwnerRequest::RewriteNote { .. })
-        );
-        let continuation = if writing {
-            "Retry from the note"
-        } else {
-            "Continue from the chat"
-        };
-        let selection = match self.settings.provider.to_ascii_lowercase().as_str() {
-            "codex" | "chatgpt" => brn_ai::Selection {
-                provider: brn_ai::Provider::Chatgpt,
-                model: self.settings.model.clone(),
-            },
-            "copilot" => {
-                if !self.copilot_models.is_empty()
-                    && !self.copilot_models.contains(&self.settings.model)
-                {
-                    self.warn(format!(
-                        "{} is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu: {}.",
-                        self.settings.model,
-                        self.copilot_models.join(", ")
-                    ));
-                    cx.notify();
-                    return;
-                }
-                brn_ai::Selection {
-                    provider: brn_ai::Provider::Copilot,
-                    model: self.settings.model.clone(),
-                }
-            }
-            _ => {
-                self.warn("Choose a provider and model in Settings before asking BRN.");
-                cx.notify();
-                return;
-            }
-        };
-        let effort = match self.settings.effort.as_str() {
-            "low" => brn_ai::ReasoningEffort::Low,
-            "medium" => brn_ai::ReasoningEffort::Medium,
-            "high" => brn_ai::ReasoningEffort::High,
-            _ => {
-                self.warn("Choose a supported reasoning effort in Settings.");
-                cx.notify();
-                return;
-            }
-        };
         let queued = self
             .queue_state()
             .pending
@@ -2234,32 +1938,62 @@ impl ThreadsUi {
             }
             _ => None,
         };
-        // Without a handle the search tools are not offered; say why.
-        let search = match self.workspace.search_handle() {
-            Ok(handle) => Some(Arc::new(handle) as Arc<dyn brn_ai::threads::RunNoteSearch>),
-            Err(error) => {
-                self.warn(format!("Note search is unavailable for this run: {error}"));
-                None
-            }
-        };
-        let request = brn_ai::threads::ThreadRunRequest {
+        let queue_match = queued.is_some();
+        let request = brn_threads_app::ThreadRunStart {
             request_message: queued.as_ref().and_then(|q| q.message.clone()),
             queue_claim: queued.and_then(|q| q.dispatch),
             owner_request,
-            data_dir: self.data_dir.clone(),
             thread: thread.clone(),
             prompt,
-            selection,
-            effort,
-            max_tool_rounds: brn_ai::threads::default_tool_rounds(!sources.is_empty()),
-            auth_file: self.settings.auth_file.as_ref().map(PathBuf::from),
-            credentials_dir: self.settings.credentials_dir.as_ref().map(PathBuf::from),
+            max_tool_rounds: None,
             sources,
-            search,
             trace: brn_ai::threads::TraceLevel::Off,
+            offered_copilot_models: Some(self.copilot_models.clone()),
         };
-        let prepared = match brn_ai::threads::prepare_run(request) {
-            Ok(prepared) => prepared,
+        self.start_request(
+            request,
+            queue_match,
+            context_edit_note,
+            "Continue from the chat",
+            "Finished. The answer and saved changes are in this chat.",
+            cx,
+        );
+    }
+    /// One host path for a typed app start: selection/search/preparation and
+    /// the existing prepared worker. Presentation text comes from the caller.
+    fn start_request(
+        &mut self,
+        request: ThreadRunStart,
+        queued: bool,
+        context_edit_note: Option<(String, u64)>,
+        continuation: &'static str,
+        completed: &'static str,
+        cx: &mut Context<Self>,
+    ) {
+        let thread = request.thread.clone();
+        let reviewed = match self.take_mcp_review(&thread, &request.prompt, queued) {
+            Ok(reviewed) => reviewed,
+            Err(error) => {
+                self.warn(error);
+                cx.notify();
+                return;
+            }
+        };
+        let prepared = match self.workspace.prepare_thread_run(request) {
+            Ok(prepared) => {
+                if prepared.search_status != "available" {
+                    self.warn(format!(
+                        "Note search is {} for this run",
+                        prepared.search_status
+                    ));
+                }
+                prepared.prepared
+            }
+            Err(brn_threads_app::RunPreparationError::Selection(error)) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
             Err(error) => {
                 self.fail(format!(
                     "Could not start. Your saved message remains available; {continuation}. {error}"
@@ -2269,40 +2003,87 @@ impl ThreadsUi {
                 return;
             }
         };
+        let prepared = if let Some(reviewed) = reviewed {
+            match reviewed.attach(prepared) {
+                Ok(prepared) => prepared,
+                Err(error) => {
+                    self.fail(format!("MCP input authorization refused. Your posted instruction remains available; {error}"));
+                    self.refresh();
+                    cx.notify();
+                    return;
+                }
+            }
+        } else {
+            prepared
+        };
         let run_id = prepared.run_id().to_owned();
         let (sender, receiver) = mpsc::sync_channel(128);
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
         let progress_sender = sender.clone();
-        let spawned = std::thread::Builder::new().name("brn-thread-run".into()).spawn(move || {
-            let outcome = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string()).and_then(|runtime| {
-                runtime.block_on(brn_ai::threads::run_prepared(prepared, worker_cancel, Arc::new(move |event| {
-                    let item = match event {
-                        brn_ai::AiEvent::Text(text) => WorkerEvent::Text(text),
-                        brn_ai::AiEvent::AnswerFinalized(text) => WorkerEvent::AnswerFinalized(text),
-                        brn_ai::AiEvent::ToolStarted { name } => WorkerEvent::Progress(brn_ai::threads::tool_activity(&name).unwrap_or("Working…").into()),
-                        brn_ai::AiEvent::Activity(text) => WorkerEvent::Activity(text),
-                        brn_ai::AiEvent::ReasoningSummary(text) => WorkerEvent::Activity(format!("reasoning summary> {text}")),
-                        brn_ai::AiEvent::BudgetProgress { model_turns: _, tool_rounds, max_tool_rounds } => WorkerEvent::Progress(format!("Working · {tool_rounds} of {max_tool_rounds} steps used")),
-                    };
-                    if matches!(item, WorkerEvent::Text(_) | WorkerEvent::AnswerFinalized(_) | WorkerEvent::Activity(_)) { let _ = progress_sender.send(item); }
-                    else { let _ = progress_sender.try_send(item); }
-                }))).map_err(|e| e.to_string())
-            });
-            let (result, terminal) = match outcome {
-                Ok(r) => {
-                    // Host notices (such as an unavailable helper) follow the outcome.
-                    let notices = r.notices.iter().map(|n| format!(" {n}")).collect::<String>();
-                    (match r.answer.terminal {
-                        brn_ai::AiTerminal::Completed => Ok(format!("{}{notices}", if writing { "Finished. The result is in the note." } else { "Finished. The answer and saved changes are in this chat." })),
-                        brn_ai::AiTerminal::Interrupted => Err(format!("Interrupted. The queue is paused; Resume when ready.{notices}")),
-                        brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
-                    }, r.terminal_run)
+        let spawned = brn_ai::threads::spawn_prepared(
+            prepared,
+            worker_cancel,
+            Arc::new(move |event| {
+                let item = match event {
+                    brn_ai::AiEvent::Text(text) => WorkerEvent::Text(text),
+                    brn_ai::AiEvent::AnswerFinalized(text) => WorkerEvent::AnswerFinalized(text),
+                    brn_ai::AiEvent::ToolStarted { name } => WorkerEvent::Progress(
+                        brn_ai::threads::tool_activity(&name)
+                            .unwrap_or("Working…")
+                            .into(),
+                    ),
+                    brn_ai::AiEvent::Activity(text) => WorkerEvent::Activity(text),
+                    brn_ai::AiEvent::ReasoningSummary(text) => {
+                        WorkerEvent::Activity(format!("reasoning summary> {text}"))
+                    }
+                    brn_ai::AiEvent::BudgetProgress {
+                        model_turns: _,
+                        tool_rounds,
+                        max_tool_rounds,
+                    } => WorkerEvent::Progress(format!(
+                        "Working · {tool_rounds} of {max_tool_rounds} steps used"
+                    )),
+                };
+                if matches!(
+                    item,
+                    WorkerEvent::Text(_)
+                        | WorkerEvent::AnswerFinalized(_)
+                        | WorkerEvent::Activity(_)
+                ) {
+                    let _ = progress_sender.send(item);
+                } else {
+                    let _ = progress_sender.try_send(item);
                 }
-                Err(e) => (Err(e), None),
-            };
-            let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
-        });
+            }),
+            Box::new(move |outcome| {
+                let outcome = outcome.map_err(|e| e.to_string());
+                let (result, terminal) = match outcome {
+                    Ok(r) => {
+                        // Host notices (such as an unavailable helper) follow the outcome.
+                        let notices = r
+                            .notices
+                            .iter()
+                            .map(|n| format!(" {n}"))
+                            .collect::<String>();
+                        (
+                            match r.answer.terminal {
+                                brn_ai::AiTerminal::Completed => {
+                                    Ok(format!("{completed}{notices}"))
+                                }
+                                brn_ai::AiTerminal::Interrupted => Err(format!(
+                                    "Interrupted. The queue is paused; Resume when ready.{notices}"
+                                )),
+                                brn_ai::AiTerminal::Failed(e) => Err(format!("{e}{notices}")),
+                            },
+                            r.terminal_run,
+                        )
+                    }
+                    Err(e) => (Err(e), None),
+                };
+                let _ = sender.send(WorkerEvent::RunFinished { result, terminal });
+            }),
+        );
         if let Err(error) = spawned {
             self.fail(format!(
                 "Could not start. Your saved instruction remains available; {continuation}. {error}"
@@ -2406,14 +2187,7 @@ impl ThreadsUi {
             ChatTarget::Thread(id) => self
                 .reopen_if_resolved(&id, "Owner replied to a resolved chat")
                 .map(|_| id),
-            ChatTarget::NewForNote(note) => {
-                let version = self
-                    .records
-                    .iter()
-                    .find(|record| record.id == note)
-                    .map_or(0, |record| record.version);
-                self.ensure_writing_thread(&note, version)
-            }
+            ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
         match thread.and_then(|thread| {
@@ -2490,7 +2264,7 @@ impl ThreadsUi {
         self.theme_pending = self.settings.theme.as_deref() != Some(theme.key());
         self.persist_theme();
         self.sync_note_marks(cx);
-        if self.review.is_some() {
+        if self.writing.review.is_some() {
             self.sync_diff(window, cx);
         }
         window.refresh();
@@ -2568,17 +2342,17 @@ impl ThreadsUi {
     }
     fn open_review(&mut self, candidate: Prepared, window: &mut Window, cx: &mut Context<Self>) {
         // Showing the candidate already under review keeps any edited final text.
-        if self.review.as_ref().is_some_and(|review| {
+        if self.writing.review.as_ref().is_some_and(|review| {
             review.candidate.operation.as_str() == candidate.operation.as_str()
         }) {
             self.show_tile(TileKind::Note, window, cx);
             return;
         }
-        if self.review.as_ref().is_some_and(|review| {
+        if self.writing.review.as_ref().is_some_and(|review| {
             review.candidate.operation.as_str() != candidate.operation.as_str()
         }) {
             self.keep_review(window, cx);
-            if self.review.is_some() {
+            if self.writing.review.is_some() {
                 return;
             }
         }
@@ -2593,7 +2367,11 @@ impl ThreadsUi {
             .writes
             .iter()
             .find(|w| matches!(w.data, RecordData::Note(_)));
-        if let Some(snapshot) = &snapshot {
+        let has_evidence =
+            candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            );
+        if !has_evidence && let Some(snapshot) = &snapshot {
             self.writing_threads
                 .insert(snapshot.note.id.clone(), snapshot.thread.clone());
         }
@@ -2604,10 +2382,11 @@ impl ThreadsUi {
         if let Some(note) = &target
             && self.open_note_id() != Some(note.as_str())
         {
-            self.review = None;
+            self.writing.review = None;
             self.open_note(note, None, window, cx);
         }
-        if let Some(snapshot) = snapshot
+        if !has_evidence
+            && let Some(snapshot) = snapshot
             && self.open_note_id() == Some(snapshot.note.id.as_str())
         {
             self.set_chat(ChatTarget::Thread(snapshot.thread), window, cx);
@@ -2642,7 +2421,7 @@ impl ThreadsUi {
                 ungrouped_writes: vec![],
             });
         let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
-        self.review = Some(Review {
+        self.writing.review = Some(Review {
             candidate,
             note: id,
             original: text.clone(),
@@ -2650,14 +2429,17 @@ impl ThreadsUi {
             groups,
             selected,
         });
-        self.review_editing = false;
-        self.review_inputs = false;
-        self.review_reading = false;
-        self.review_editor
+        self.writing.review_editing = false;
+        self.writing.review_inputs = false;
+        self.writing.review_reading = false;
+        self.writing
+            .review_editor
             .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
-        self.current_view
+        self.writing
+            .current_view
             .update(cx, |v, cx| v.set_text(&current, cx));
-        self.candidate_view
+        self.writing
+            .candidate_view
             .update(cx, |v, cx| v.set_text(&text, cx));
         self.layout.open(TileKind::Note);
         self.sync_diff(window, cx);
@@ -2666,31 +2448,35 @@ impl ThreadsUi {
     }
     fn start_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self
+            .writing
             .review
             .as_ref()
             .is_some_and(|review| review.note.is_some())
         {
-            self.review_editing = true;
+            self.writing.review_editing = true;
             self.focus_visible_editor(window, cx);
             cx.notify();
         }
     }
     fn cancel_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(review) = &mut self.review {
+        if let Some(review) = &mut self.writing.review {
             let original = review.original.clone();
             review.edited = false;
-            self.review_editor
+            self.writing
+                .review_editor
                 .update(cx, |e, cx| e.set_value(original, window, cx));
-            if let Some(review) = &mut self.review {
+            if let Some(review) = &mut self.writing.review {
                 review.edited = false;
             }
         }
-        self.review_editing = false;
+        self.writing.review_editing = false;
         self.focus_root(window, cx);
         cx.notify();
     }
     fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
+        let Some(review) = &self.writing.review else {
+            return;
+        };
         if review.edited || review.selected.len() != review.groups.groups.len() {
             self.warn("Prepare your edited text or selected groups before applying it.");
             cx.notify();
@@ -2701,7 +2487,7 @@ impl ThreadsUi {
     }
     /// Card actions must not silently discard final text being edited in review.
     fn refuse_if_editing(&mut self, candidate: &Prepared, cx: &mut Context<Self>) -> bool {
-        let editing = self.review.as_ref().is_some_and(|review| {
+        let editing = self.writing.review.as_ref().is_some_and(|review| {
             review.edited && review.candidate.operation.as_str() == candidate.operation.as_str()
         });
         if editing {
@@ -2727,7 +2513,25 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        match self.workspace.review_apply(candidate.operation.as_str()) {
+        let has_evidence =
+            candidate.request.writes.iter().any(
+                |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
+            );
+        if has_evidence
+            && !candidate.request.writes.iter().any(|w| {
+                Some(w.id.as_str()) == self.open_note_id() && matches!(w.data, RecordData::Note(_))
+            })
+        {
+            self.warn(
+                "Open and review this proposal in its matching writing context before applying it.",
+            );
+            cx.notify();
+            return;
+        }
+        match self.workspace.review_apply_in_context(
+            candidate.operation.as_str(),
+            self.note_writing_scope.as_deref(),
+        ) {
             Ok(outcome) => {
                 self.report_outcome(&outcome);
                 if let ApplyOutcome::Applied(receipt) = &outcome {
@@ -2738,16 +2542,16 @@ impl ThreadsUi {
                         .find(|input| self.workspace.writing_request(&input.record).is_ok())
                         && let Ok(snapshot) = self.workspace.writing_request(&input.record)
                     {
-                        self.applied_rewrite.insert(
+                        self.writing.applied_rewrite.insert(
                             snapshot.note.id,
                             (input.record.clone(), receipt.operation.as_str().into()),
                         );
                     }
-                    if self.review.as_ref().is_some_and(|review| {
+                    if self.writing.review.as_ref().is_some_and(|review| {
                         review.candidate.operation.as_str() == candidate.operation.as_str()
                     }) {
-                        self.review = None;
-                        self.review_editing = false;
+                        self.writing.review = None;
+                        self.writing.review_editing = false;
                     }
                     self.reload_open_note(window, cx);
                 }
@@ -2760,18 +2564,19 @@ impl ThreadsUi {
     /// After a checked change, show the newly saved note unless the owner has
     /// an unsaved edit, which stays untouched.
     fn reload_open_note(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(open) = &mut self.note
+        if let Some(open) = &mut self.writing.note
             && open.session.is_none()
             && let Ok(Some(record)) = self.workspace.store.note(&open.record.id)
             && let RecordData::Note(note) = &record.data
         {
-            self.note_editor.update(cx, |editor, cx| {
+            self.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_value(note.markdown.clone(), window, cx)
             });
-            self.current_view
+            self.writing
+                .current_view
                 .update(cx, |view, cx| view.set_text(&note.markdown, cx));
             open.record = record;
-            self.selection = None;
+            self.writing.selection = None;
         }
         self.sync_read_text(cx);
         self.refresh();
@@ -2779,7 +2584,9 @@ impl ThreadsUi {
         self.focus_visible_editor(window, cx);
     }
     fn dismiss_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.review else { return };
+        let Some(review) = &self.writing.review else {
+            return;
+        };
         let candidate = review.candidate.clone();
         self.dismiss_candidate(candidate, window, cx);
     }
@@ -2791,11 +2598,11 @@ impl ThreadsUi {
     ) {
         match self.workspace.review_dismiss(candidate.operation.as_str()) {
             Ok(()) => {
-                if self.review.as_ref().is_some_and(|review| {
+                if self.writing.review.as_ref().is_some_and(|review| {
                     review.candidate.operation.as_str() == candidate.operation.as_str()
                 }) {
-                    self.review = None;
-                    self.review_editing = false;
+                    self.writing.review = None;
+                    self.writing.review_editing = false;
                 }
                 self.focus_visible_editor(window, cx);
                 self.inform("Dismissed the proposal. The note is unchanged.");
@@ -2815,7 +2622,9 @@ impl ThreadsUi {
         cx.notify();
     }
     fn toggle_protection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(open) = &self.note else { return };
+        let Some(open) = &self.writing.note else {
+            return;
+        };
         if open.session.is_some() {
             return;
         }
@@ -3189,6 +2998,8 @@ impl ThreadsUi {
                     result,
                     title,
                     chat,
+                    settings,
+                    useful_project,
                 } => {
                     let cancelled = self.worker.as_ref().is_some_and(|worker| {
                         worker.cancel.is_cancelled()
@@ -3206,21 +3017,27 @@ impl ThreadsUi {
                     };
                     match result {
                         Ok(converted) => {
-                            if converted.intent == ImportIntent::FullNote {
-                                match if let Some(chat) = &chat {
-                                    self.workspace.attach_full(
-                                        &format!("attach:{}", uuid::Uuid::new_v4()),
-                                        chat,
-                                        &title,
-                                        &converted,
-                                    )
-                                } else {
-                                    self.workspace.import_full(
-                                        &format!("full-import:{}", uuid::Uuid::new_v4()),
-                                        &title,
-                                        &converted,
-                                    )
-                                } {
+                            if let Some(reference) = self.reference_import.take() {
+                                allow_dispatch = self.complete_writing_reference_import(
+                                    &reference, &title, &converted, &settings, window, cx,
+                                );
+                            } else if converted.intent == ImportIntent::FullNote {
+                                let key = format!(
+                                    "{}:{}",
+                                    if chat.is_some() {
+                                        "attach"
+                                    } else {
+                                        "full-import"
+                                    },
+                                    uuid::Uuid::new_v4()
+                                );
+                                match self.workspace.import_full_scoped_with_conversion(
+                                    &key,
+                                    &title,
+                                    &converted,
+                                    chat.as_deref(),
+                                    &settings,
+                                ) {
                                     Ok(outcome) => {
                                         allow_dispatch =
                                             matches!(outcome, ApplyOutcome::Applied(_));
@@ -3245,13 +3062,28 @@ impl ThreadsUi {
                                     Err(e) => self.fail(e.to_string()),
                                 }
                             } else {
-                                self.useful_intake(converted, title, window, cx);
+                                self.useful_intake(
+                                    converted,
+                                    title,
+                                    settings,
+                                    useful_project,
+                                    window,
+                                    cx,
+                                );
                             }
                         }
                         // The owner's own Stop is a warning; any other failure is an error.
                         Err(e) if cancelled => self.warn(format!("Import stopped: {e}")),
+                        Err(_)
+                            if self.reference_import.as_ref().is_some_and(|reference| {
+                                !self.reference_import_context_displayed(reference)
+                            }) =>
+                        {
+                            self.warn("Reference conversion stopped; no Note was attached. Return to the original writing context to inspect its import state.");
+                        }
                         Err(e) => self.fail(format!("Import stopped: {e}")),
                     }
+                    self.reference_import = None;
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
                             .workspace
@@ -3270,6 +3102,7 @@ impl ThreadsUi {
                 self.dispatch_next(cx);
             }
         } else if disconnected && self.worker.is_some() {
+            self.reference_import = None;
             self.pause_failed_worker();
             if self
                 .worker
@@ -3295,17 +3128,21 @@ impl ThreadsUi {
         &mut self,
         converted: ConversionResult,
         title: String,
+        settings: DocumentConversionSettings,
+        project: Option<String>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let report = brn_threads_app::import_report(&converted);
+        let report = match brn_threads_app::import_report_with_conversion(&converted, &settings) {
+            Ok(report) => report,
+            Err(error) => {
+                self.fail(error.to_string());
+                return;
+            }
+        };
         let fingerprint = brn_intake::hex(&converted.source_sha256);
-        // Re-supply lands in the chat that already received this source, in
-        // the open chat's project (general otherwise), unless work there is live.
-        let project = self
-            .chat_thread()
-            .and_then(|chat| brn_threads_app::project_for_chat(&self.records, chat))
-            .map(|project| project.id.clone());
+        // Re-supply uses the request's captured Project, never completion-time navigation.
+        // The checked service refuses an unavailable Project without choosing another scope.
         match self
             .workspace
             .source_intake_chat(
@@ -3356,12 +3193,25 @@ impl ThreadsUi {
         }
     }
     fn choose_import(&mut self, intent: ImportIntent, window: &mut Window, cx: &mut Context<Self>) {
+        self.choose_import_for_reference(intent, None, window, cx);
+    }
+    fn choose_import_for_reference(
+        &mut self,
+        intent: ImportIntent,
+        reference: Option<ReferenceImportIntent>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(worker.kind.busy_notice());
             cx.notify();
             return;
         }
-        let attachment_chat = self.attaching_chat.take();
+        let attachment_chat = if reference.is_some() {
+            None
+        } else {
+            self.attaching_chat.take()
+        };
         let receiver = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
@@ -3374,7 +3224,36 @@ impl ThreadsUi {
             let _ = this.update_in(cx, |this, _, cx| match paths {
                 Ok(Ok(Some(paths))) => {
                     if let Some(path) = paths.into_iter().next() {
+                        if let Some(worker) = &this.worker {
+                            this.warn(format!(
+                                "{} Then choose this file again.",
+                                worker.kind.busy_notice()
+                            ));
+                            cx.notify();
+                            return;
+                        }
+                        if let Some(reference) = &reference
+                            && let Err(error) = reference.target.validate(
+                                &this.workspace,
+                                this.open_note_id(),
+                                this.note_writing_scope.as_deref(),
+                            )
+                        {
+                            this.warn(error.to_string());
+                            cx.notify();
+                            return;
+                        }
+                        if this.worker.is_none() {
+                            this.reference_import = None;
+                        }
                         this.convert_file(data, path, intent, attachment_chat, cx);
+                        if this
+                            .worker
+                            .as_ref()
+                            .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                        {
+                            this.reference_import = reference;
+                        }
                     }
                 }
                 Ok(Ok(None)) => {}
@@ -3434,8 +3313,32 @@ impl ThreadsUi {
         let conversion_cancel = cancel_flag.clone();
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
-        let auth_file = self.settings.auth_file.as_ref().map(PathBuf::from);
-        let credentials_dir = self.settings.credentials_dir.as_ref().map(PathBuf::from);
+        let canonical = match self.workspace.settings() {
+            Ok(settings) => settings,
+            Err(error) => {
+                self.fail(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
+        let useful_project = if intent == ImportIntent::UsefulInformation {
+            let rows = match self.workspace.records() {
+                Ok(rows) => rows,
+                Err(error) => {
+                    self.fail(error.to_string());
+                    cx.notify();
+                    return;
+                }
+            };
+            self.chat_thread()
+                .and_then(|chat| project_for_chat(&rows, chat))
+                .map(|project| project.id.clone())
+        } else {
+            None
+        };
+        let captured = canonical.document_conversion.clone();
+        let auth_file = canonical.auth_file.map(PathBuf::from);
+        let credentials_dir = canonical.credentials_dir.map(PathBuf::from);
         let (sender, receiver) = mpsc::sync_channel(8);
         let progress_sender = sender.clone();
         std::thread::spawn(move || {
@@ -3447,12 +3350,8 @@ impl ThreadsUi {
                     &conversion_cancel,
                 )
                 .map_err(|e| e.to_string())?;
-                let helper = std::env::current_exe()
-                    .map_err(|e| e.to_string())?
-                    .with_file_name("brn-intake-helper");
+                let helpers = DocumentHelpers::discover().map_err(|e| e.to_string())?;
                 let converter = Converter {
-                    helper_path: helper,
-                    pdf_tools: PdfTools::discover(),
                     temp_root: std::env::temp_dir().join("brn-threads-intake"),
                     limits,
                 };
@@ -3461,14 +3360,15 @@ impl ThreadsUi {
                     .build()
                     .map_err(|e| e.to_string())?;
                 runtime
-                    .block_on(brn_ai::conversion::convert(
-                        brn_ai::conversion::ConversionJob {
+                    .block_on(brn_ai::document_refine::convert_document_job(
+                        brn_ai::document_refine::DocumentConversionJob {
                             converter,
+                            helpers,
+                            settings: captured.clone(),
                             kind,
                             intent,
                             bytes,
                             source_reference: reference,
-                            inventory: None,
                             auth_file,
                             credentials_dir,
                         },
@@ -3485,6 +3385,8 @@ impl ThreadsUi {
                 result: Box::new(result),
                 title,
                 chat: attachment_chat,
+                settings: captured,
+                useful_project,
             });
         });
         self.worker = Some(Worker {
@@ -3837,25 +3739,1017 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
+    /// Discarding closes the edit with no Undo, so it always confirms; ↵ is
+    /// inert and only the danger button discards.
+    pub(super) fn confirm_discard(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(session) = self
+            .writing
+            .note
+            .as_ref()
+            .and_then(|open| open.session.clone())
+        else {
+            return;
+        };
+        let body = format!(
+            "Your changes since v{} will be lost. This can't be undone.",
+            session.base_version
+        );
+        self.confirm_discard_of(session, "Discard your unsaved edit?", body, window, cx);
+    }
+
+    /// The same confirmation for the other open edit (U4), worded for that
+    /// edit: what the owner typed here is kept.
+    pub(super) fn confirm_discard_open_edit(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some((session, base)) = self.open_edit_elsewhere() {
+            let body = format!(
+                "Its changes since v{base} will be lost. What you typed here is kept. This can't be undone."
+            );
+            self.confirm_discard_of(
+                session,
+                "Discard the edit open elsewhere?",
+                body,
+                window,
+                cx,
+            );
+        }
+    }
+
+    fn confirm_discard_of(
+        &mut self,
+        session: EditSession,
+        title: &'static str,
+        body: String,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let target = cx.entity().downgrade();
+        self.open_dialog(window, cx, move |dialog, _, _| {
+            let target = target.clone();
+            components::consequence_dialog(
+                dialog,
+                "discard-note",
+                title,
+                body.clone(),
+                "Discard",
+                std::rc::Rc::new({
+                    let session = session.clone();
+                    move |window, cx| {
+                        let session = session.clone();
+                        let _ =
+                            target.update(cx, |view, cx| view.discard_session(session, window, cx));
+                    }
+                }),
+            )
+        });
+    }
+
+    /// Compare (U4): the other open edit beside the saved note, read-only.
+    pub(super) fn compare_open_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some((buffer, base)) = self.open_edit_elsewhere() else {
+            return;
+        };
+        let saved = self
+            .records
+            .iter()
+            .find(|record| record.id == buffer.note)
+            .and_then(|record| match &record.data {
+                RecordData::Note(note) => Some((record.version, note.markdown.clone())),
+                _ => None,
+            });
+        let Some((version, saved)) = saved else {
+            return;
+        };
+        let edit = buffer.markdown.clone();
+        self.open_dialog(window, cx, move |dialog, window, _| {
+            brn_writing_ui::writing::compare_open_edit_dialog(
+                dialog, window, base, version, &edit, &saved,
+            )
+        });
+    }
+
+    /// `toggle-margin`'s one handler, in the toolbar and in the review bar.
+    pub(super) fn toggle_comments(&mut self, cx: &mut Context<Self>) {
+        self.writing.toggle_comments(!self.comments_open());
+        cx.notify();
+    }
+    /// Escape inside the stacked section collapses it, keeps any draft and
+    /// returns focus to the text above.
+    fn collapse_comments(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.writing.comments_expanded = false;
+        if !self.writing.review_editing
+            && self
+                .writing
+                .review
+                .as_ref()
+                .is_some_and(|review| review.note.is_some())
+        {
+            self.tile_reveal = None;
+            self.focus_root(window, cx);
+            if self.writing.review_reading {
+                self.writing
+                    .candidate_view
+                    .read(cx)
+                    .focus_handle()
+                    .clone()
+                    .focus(window, cx);
+            } else {
+                self.writing
+                    .diff_editor
+                    .update(cx, |editor, cx| editor.focus(window, cx));
+            }
+        } else {
+            self.focus_visible_editor(window, cx);
+        }
+        cx.notify();
+    }
+
+    pub(super) fn set_review_reading(
+        &mut self,
+        reading: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.writing.review_editing
+            || !self
+                .writing
+                .review
+                .as_ref()
+                .is_some_and(|review| review.note.is_some())
+        {
+            return;
+        }
+        self.writing.review_reading = reading;
+        self.focus_root(window, cx);
+        if reading {
+            self.writing
+                .candidate_view
+                .read(cx)
+                .focus_handle()
+                .clone()
+                .focus(window, cx);
+        } else {
+            self.writing
+                .diff_editor
+                .update(cx, |editor, cx| editor.focus(window, cx));
+        }
+        cx.notify();
+    }
+
+    pub(super) fn sync_read_text(&mut self, cx: &mut Context<Self>) {
+        self.writing.sync_read_text(cx);
+    }
+    pub(super) fn set_note_reading(
+        &mut self,
+        reading: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.writing.review.is_some() || self.writing.note.is_none() {
+            return;
+        }
+        self.preserve_visible_note_input(cx);
+        self.sync_read_text(cx);
+        self.writing.note_reading = reading;
+        self.writing.selection = None;
+        self.focus_visible_editor(window, cx);
+        cx.notify();
+    }
+
+    pub(super) fn sync_read_marks(&mut self, cx: &mut Context<Self>) {
+        self.writing.sync_read_marks(&self.workspace, cx);
+    }
+    pub(super) fn format_note(
+        &mut self,
+        kind: formatting::Format,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        // Toolkit programmatic replacement intentionally bypasses readonly.
+        if !self.note_editor_visible() || self.writing.note_reading || self.writing.review.is_some()
+        {
+            return;
+        }
+        if !self.writing.format_selection(kind, window, cx) {
+            self.warn("Select plain text or a supported paragraph to format. Code and complex Markdown stay unchanged.");
+            cx.notify();
+            return;
+        }
+        self.note_changed(self.writing.note_editor.read(cx).value().to_string());
+        self.sync_read_text(cx);
+        self.track_selection(cx);
+        cx.notify();
+    }
+
+    pub(super) fn save_and_comment(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.writing.review.is_some() || self.recovery_blocked() {
+            return;
+        }
+        let Some((range, quote)) = self.writing.selection.clone() else {
+            return;
+        };
+        let Some(open) = &self.writing.note else {
+            return;
+        };
+        let id = open.record.id.clone();
+        let source = self.writing.note_editor.read(cx).value().to_string();
+        if source.get(range.clone()) != Some(quote.as_str()) {
+            return;
+        }
+        self.save(window, cx);
+        let committed = self.writing.note.as_ref().is_some_and(|open| {
+            open.record.id == id
+                && open.session.is_none()
+                && matches!(&open.record.data, RecordData::Note(note) if note.markdown == source)
+        });
+        if committed && self.writing.note_editor.read(cx).value().as_ref() == source {
+            self.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_selected_range(range.clone(), cx)
+            });
+            self.writing.selection = Some((range, quote));
+            self.comment_on_selection(window, cx);
+        }
+        cx.notify();
+    }
+
+    fn writing_setup_form_current(&self) -> bool {
+        self.writing.setup.as_ref().is_some_and(|draft| {
+            draft.displayed(
+                &self.workspace,
+                self.open_note_id(),
+                self.note_writing_scope.as_deref(),
+            )
+        })
+    }
+    fn writing_setup_dirty(&self, cx: &Context<Self>) -> bool {
+        self.writing.setup.as_ref().is_some_and(|draft| {
+            draft.value(self.writing.setup_brief.read(cx).value().as_ref()) != draft.saved
+        })
+    }
+    fn load_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.writing.setup_open = true;
+        if self.writing_setup_dirty(cx) {
+            self.recheck_writing_setup(window, cx);
+            return;
+        }
+        self.replace_writing_setup(window, cx);
+    }
+    fn recheck_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        let note = self.open_note_id().map(str::to_owned);
+        let scope = self.note_writing_scope.clone();
+        if self.writing.setup.as_ref().is_none_or(|draft| {
+            note.as_deref() != Some(draft.target.note.as_str()) || scope != draft.target.scope
+        }) {
+            if self.writing_setup_dirty(cx) {
+                self.warn("Unsaved edits remain in their original context. Return there to save, or explicitly Reload saved (discard edits) to replace this form.");
+                cx.notify();
+            } else {
+                self.replace_writing_setup(window, cx);
+            }
+            return;
+        }
+        let checked = (|| -> AppResult<bool> {
+            let fresh = setup::SetupDraft::load(
+                &self.workspace,
+                note.as_deref()
+                    .ok_or_else(|| AppError::Invalid("Open the original working Note".into()))?,
+                scope.as_deref(),
+            )?;
+            if self
+                .writing
+                .note
+                .as_ref()
+                .is_none_or(|open| open.record.version != fresh.target.note_version)
+            {
+                return Err(AppError::Invalid(
+                    "Open the current saved Note before rechecking this retained form".into(),
+                ));
+            }
+            self.writing
+                .setup
+                .as_mut()
+                .ok_or_else(|| AppError::Invalid("Open brief & references".into()))?
+                .keep_edits_after_recheck(fresh)
+        })();
+        match checked {
+            Ok(true) => self.warn("Saved setup changed. Unsaved edits retained with their original expected version; Save cannot overwrite the newer setup. Reload saved (discard edits) explicitly to use it."),
+            Ok(false) => self.inform("Unsaved brief and reference edits retained. Availability rechecked; Save explicitly to commit them. Pending additions are checked on Save."),
+            Err(_) => self.warn("Context cannot be rechecked here. Unsaved edits are retained but hidden; restore access and open the current original Note, or explicitly Reload saved (discard edits)."),
+        }
+        cx.notify();
+    }
+    fn replace_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        self.writing.setup_open = true;
+        // Clear before the fallible load: no old brief/names can survive a refused context.
+        self.writing.setup = None;
+        self.writing
+            .setup_brief
+            .update(cx, |input, cx| input.set_value("", window, cx));
+        let loaded = self
+            .open_note_id()
+            .ok_or_else(|| AppError::Invalid("Open a working Note first".into()))
+            .and_then(|note| {
+                setup::SetupDraft::load(&self.workspace, note, self.note_writing_scope.as_deref())
+            });
+        match loaded {
+            Ok(draft) => {
+                if self
+                    .writing
+                    .note
+                    .as_ref()
+                    .is_none_or(|open| open.record.version != draft.target.note_version)
+                {
+                    self.warn("Open the current saved Note before changing brief & references.");
+                } else {
+                    self.writing.setup_brief.update(cx, |input, cx| {
+                        input.set_value(draft.saved.brief.as_deref().unwrap_or(""), window, cx)
+                    });
+                    self.writing
+                        .reference_query
+                        .update(cx, |input, cx| input.set_value("", window, cx));
+                    self.writing.setup = Some(draft);
+                }
+            }
+            Err(error) => self.warn(error.to_string()),
+        }
+        cx.notify();
+    }
+    fn save_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(draft) = &self.writing.setup else {
+            return;
+        };
+        let brief = self.writing.setup_brief.read(cx).value().to_string();
+        let note = self.open_note_id().map(str::to_owned);
+        let scope = self.note_writing_scope.clone();
+        match draft.save(
+            &mut self.workspace,
+            &format!("writing-setup-ui:{}", uuid::Uuid::new_v4()),
+            note.as_deref(),
+            scope.as_deref(),
+            &brief,
+        ) {
+            Ok(_) => {
+                self.replace_writing_setup(window, cx);
+                self.inform("Brief & references saved for this Note and writing scope. Existing proposals keep their original inputs; request a fresh rewrite to use changes.");
+            }
+            Err(error) => self.warn(format!(
+                "{} Your form is retained; Reload explicitly to use the saved setup.",
+                error
+            )),
+        }
+        self.refresh();
+        cx.notify();
+    }
+    fn search_writing_references(
+        &mut self,
+        cursor: Option<String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.writing_setup_form_current() {
+            self.warn(
+                "Writing context changed; Recheck and keep edits before searching references.",
+            );
+            cx.notify();
+            return;
+        }
+        let input_query = self.writing.reference_query.read(cx).value().to_string();
+        let query = if cursor.is_some() {
+            let Some(query) = self
+                .writing
+                .setup
+                .as_ref()
+                .and_then(|draft| draft.search_query.clone())
+            else {
+                self.warn("Start a reference search before requesting its next page.");
+                cx.notify();
+                return;
+            };
+            query
+        } else {
+            input_query
+        };
+        if query.trim().is_empty() {
+            self.warn("Enter a reference Note title or saved text.");
+            cx.notify();
+            return;
+        }
+        let Some(draft) = &mut self.writing.setup else {
+            return;
+        };
+        let target = draft.target.clone();
+        let observed = draft.observed.clone();
+        draft.matches.clear();
+        draft.next = None;
+        draft.match_total = 0;
+        draft.search_pending = true;
+        draft.search_query = Some(query.clone());
+        self.reference_search_cancel = None;
+        self.reference_search_generation += 1;
+        let generation = self.reference_search_generation;
+        let ticket = match self.workspace.search_handle() {
+            Ok(handle) => {
+                handle.request_page(&query, target.scope.as_deref(), 12, cursor.as_deref())
+            }
+            Err(error) => {
+                if let Some(draft) = &mut self.writing.setup {
+                    draft.search_pending = false;
+                }
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
+        self.reference_search_cancel = Some(ticket.cancel_on_drop());
+        cx.spawn_in(window, async move |this, cx| {
+            let answer = cx
+                .background_executor()
+                .spawn(async move { ticket.wait() })
+                .await;
+            let _ = this.update_in(cx, |this, _, cx| {
+                this.finish_reference_search(generation, target, observed, answer, cx)
+            });
+        })
+        .detach();
+        cx.notify();
+    }
+    fn finish_reference_search(
+        &mut self,
+        generation: u64,
+        target: setup::SetupTarget,
+        observed: ViewChangeToken,
+        answer: AppResult<brn_threads_app::search::SearchResults>,
+        cx: &mut Context<Self>,
+    ) {
+        if self.reference_search_generation != generation {
+            return;
+        }
+        self.reference_search_cancel = None;
+        // One concrete reply path: no global-Chat rebinding, stale names or stale counts.
+        if !self.writing_setup_form_current()
+            || self
+                .writing
+                .setup
+                .as_ref()
+                .is_none_or(|draft| draft.target != target || draft.observed != observed)
+        {
+            cx.notify();
+            return;
+        }
+        if let Some(draft) = &mut self.writing.setup {
+            draft.search_pending = false;
+            match answer {
+                Ok(page) => {
+                    draft.matches = page.matches;
+                    draft.next = page.next;
+                    draft.match_total = page.total;
+                }
+                Err(error) => self.warn(format!("Reference search unavailable: {error}")),
+            }
+        }
+        cx.notify();
+    }
+    fn saved_setup_for_action(&self, cx: &Context<Self>) -> AppResult<setup::SetupTarget> {
+        let draft = self
+            .writing
+            .setup
+            .as_ref()
+            .ok_or_else(|| AppError::Invalid("Open brief & references first".into()))?;
+        draft.target.validate(
+            &self.workspace,
+            self.open_note_id(),
+            self.note_writing_scope.as_deref(),
+        )?;
+        let brief = self.writing.setup_brief.read(cx).value();
+        if draft.value(brief.as_ref()) != draft.saved {
+            return Err(AppError::Invalid(
+                "Save brief & references before rewriting or importing".into(),
+            ));
+        }
+        Ok(draft.target.clone())
+    }
+    fn rewrite_with_setup(&mut self, exhaustive: bool, cx: &mut Context<Self>) {
+        if let Err(error) = self.saved_setup_for_action(cx) {
+            self.warn(error.to_string());
+            cx.notify();
+            return;
+        }
+        let Some(draft) = &self.writing.setup else {
+            return;
+        };
+        if exhaustive
+            && !draft
+                .saved
+                .references
+                .iter()
+                .any(|r| r.purpose == WritingPurpose::Requirements)
+        {
+            self.warn("Attach a Requirements reference before checking all requirements.");
+            cx.notify();
+            return;
+        }
+        if exhaustive {
+            match self
+                .workspace
+                .writing_setup(&draft.target.note, draft.target.scope.as_deref())
+            {
+                Ok(view)
+                    if view.references.iter().any(|r| {
+                        r.reference.purpose == WritingPurpose::Requirements && r.version.is_none()
+                    }) =>
+                {
+                    self.warn("A Requirements reference is no longer available here. Restore access or remove it and save before checking all requirements.");
+                    cx.notify();
+                    return;
+                }
+                Err(error) => {
+                    self.warn(error.to_string());
+                    cx.notify();
+                    return;
+                }
+                _ => {}
+            }
+        }
+        let requirements = WritingReadRequirements {
+            exhaustive,
+            must_be_current: draft.must_be_current.iter().cloned().collect(),
+        };
+        self.rewrite_note_with_requirements(requirements, cx);
+    }
+    fn import_writing_reference(
+        &mut self,
+        purpose: WritingPurpose,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match self.saved_setup_for_action(cx) {
+            Ok(target) => self.choose_import_for_reference(
+                ImportIntent::FullNote,
+                Some(ReferenceImportIntent {
+                    target,
+                    purpose,
+                    key: format!("writing-reference:{}", uuid::Uuid::new_v4()),
+                }),
+                window,
+                cx,
+            ),
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+            }
+        }
+    }
+    fn reference_import_context_displayed(&self, intent: &ReferenceImportIntent) -> bool {
+        self.open_note_id() == Some(intent.target.note.as_str())
+            && self.note_writing_scope == intent.target.scope
+            && self
+                .workspace
+                .writing_setup(&intent.target.note, intent.target.scope.as_deref())
+                .is_ok()
+    }
+    /// Only the existing full-note import creates canonical content. Attachment is a separate checked setup action.
+    fn complete_writing_reference_import(
+        &mut self,
+        intent: &ReferenceImportIntent,
+        title: &str,
+        converted: &ConversionResult,
+        settings: &DocumentConversionSettings,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        let outcome = match self.workspace.import_full_scoped_with_conversion(
+            &intent.key,
+            title,
+            converted,
+            intent.target.scope.as_deref(),
+            settings,
+        ) {
+            Ok(outcome) => outcome,
+            Err(error) => {
+                if self.reference_import_context_displayed(intent) {
+                    self.warn(format!(
+                        "Reference import was not saved or attached: {error}"
+                    ));
+                } else {
+                    self.warn("Reference import could not be saved in its original scope; no reference was attached.");
+                }
+                return false;
+            }
+        };
+        let ApplyOutcome::Applied(receipt) = outcome else {
+            self.warn("Reference import needs resolution; no reference was attached. Existing import review/recovery remains available.");
+            return false;
+        };
+        let imported = match self.workspace.full_import_note_in_scope(
+            &receipt,
+            &converted.source_sha256,
+            intent.target.scope.as_deref(),
+        ) {
+            Ok(note) => note.id,
+            Err(_) => {
+                self.warn("File import recorded in its original scope. No eligible canonical full Note was resolved; no reference was attached. Existing import records were left intact.");
+                return true;
+            }
+        };
+        // A hidden form in another context still owns its unsaved edits.
+        if self.writing_setup_dirty(cx) {
+            self.warn("Canonical Note retained in its original scope; no reference was attached. Unsaved brief and reference edits were kept. Recheck and keep edits, Save them explicitly, then Find the imported Note to attach it.");
+            return true;
+        }
+        if self.open_note_id() == Some(intent.target.note.as_str())
+            && self.note_writing_scope == intent.target.scope
+        {
+            // A repeated completion never changes an already-attached link or a newer owner purpose.
+            let already_attached = setup::SetupTarget::resolve(
+                &self.workspace,
+                &intent.target.note,
+                intent.target.scope.as_deref(),
+            )
+            .is_ok_and(|(_, view)| {
+                view.references
+                    .iter()
+                    .any(|r| r.reference.note == imported && r.version.is_some())
+            });
+            if already_attached {
+                self.inform("Full Note is already attached in this writing scope. Existing reference purpose and saved setup are unchanged.");
+                return true;
+            }
+        }
+        let attachment = (|| -> AppResult<()> {
+            // Fresh target and visibility checks AFTER import, not the global Chat or a presentation token.
+            let view = intent.target.validate(
+                &self.workspace,
+                self.open_note_id(),
+                self.note_writing_scope.as_deref(),
+            )?;
+            let mut value = view
+                .record
+                .and_then(|r| match r.data {
+                    RecordData::WritingSetup(s) => Some(s),
+                    _ => None,
+                })
+                .unwrap_or(WritingSetup {
+                    note: intent.target.note.clone(),
+                    chat: intent.target.scope.clone(),
+                    brief: None,
+                    references: vec![],
+                });
+            if !value.references.iter().any(|r| r.note == imported) {
+                value.references.push(WritingReference {
+                    note: imported.clone(),
+                    purpose: intent.purpose,
+                });
+            }
+            self.workspace.set_writing_setup(
+                &format!("{}:attach", intent.key),
+                intent.target.setup_version,
+                &value,
+            )?;
+            Ok(())
+        })();
+        match attachment {
+            Ok(()) => { self.replace_writing_setup(window, cx); self.inform("Canonical full Note attached as a read-only reference in this writing scope, whether newly imported or already retained. Import coverage and actual reading remain separate."); }
+            Err(_) if imported == intent.target.note && self.reference_import_context_displayed(intent) => self.warn("File import recorded; no reference was attached. The working Note cannot be its own reference. Unsaved form edits were retained."),
+            Err(_) => self.warn("Canonical Note retained in its original scope; no reference was attached. Attachment could not be completed. Recheck the original context before explicitly attaching the available Note; unsaved form edits were retained."),
+        }
+        true
+    }
+
+    fn writing_view(&self) -> WritingView<'_, Self> {
+        WritingView {
+            host: self,
+            displayed_scope: self.note_writing_scope.as_deref(),
+            reference_importing: self
+                .worker
+                .as_ref()
+                .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                && self.reference_import.as_ref().is_some_and(|intent| {
+                    self.open_note_id() == Some(intent.target.note.as_str())
+                        && self.note_writing_scope == intent.target.scope
+                }),
+            panel: &self.writing,
+            workspace: &self.workspace,
+            records: &self.records,
+            history: &self.history,
+            candidates: &self.candidates,
+            buffers: &self.buffers,
+            writing_threads: &self.writing_threads,
+            writing_reviews: &self.writing_reviews,
+            writing_requests: &self.writing_requests,
+            worker: self.worker.as_ref().map(|worker| WritingWorker {
+                run_id: worker.run_id.as_deref(),
+            }),
+            progress: &self.progress,
+            centered: self.layout.maximized() == Some(TileKind::Note),
+            edit_note_blocked: Self::edit_note_blocked,
+            chat_card_stop: Self::chat_card_stop,
+            assets_in_chat: Self::assets_in_chat,
+            #[cfg(all(test, feature = "native-test-support"))]
+            latest_run: observed_writing_latest_run,
+            #[cfg(not(all(test, feature = "native-test-support")))]
+            latest_run,
+            dispatch: Self::writing_request,
+        }
+    }
+    fn writing_request(
+        &mut self,
+        request: WritingRequest,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        match request {
+            WritingRequest::OpenSetup => self.load_writing_setup(window, cx),
+            WritingRequest::RecheckSetup => self.recheck_writing_setup(window, cx),
+            WritingRequest::ReloadSetup => {
+                self.replace_writing_setup(window, cx);
+                self.inform("Reloaded saved brief & references; unsaved form edits were explicitly discarded.");
+            }
+            WritingRequest::CloseSetup => {
+                self.writing.setup_open = false;
+                self.reference_search_generation += 1;
+                self.reference_search_cancel = None;
+                cx.notify();
+            }
+            WritingRequest::SaveSetup => self.save_writing_setup(window, cx),
+            WritingRequest::SearchReferences(cursor) => {
+                self.search_writing_references(cursor, window, cx)
+            }
+            WritingRequest::AttachReference { note, purpose } => {
+                let displayed = self.writing.setup.as_ref().is_some_and(|d| {
+                    d.displayed(
+                        &self.workspace,
+                        self.open_note_id(),
+                        self.note_writing_scope.as_deref(),
+                    )
+                });
+                if displayed {
+                    if let Some(draft) = &mut self.writing.setup
+                        && let Err(error) = draft.attach_match(&self.workspace, &note, purpose)
+                    {
+                        self.warn(error.to_string());
+                    }
+                } else {
+                    self.warn("Writing context changed; Recheck and keep edits before choosing references.");
+                }
+                cx.notify();
+            }
+            WritingRequest::ReferencePurpose { note, purpose } => {
+                if self.writing_setup_form_current()
+                    && let Some(reference) = self
+                        .writing
+                        .setup
+                        .as_mut()
+                        .and_then(|d| d.references.iter_mut().find(|r| r.note == note))
+                {
+                    reference.purpose = purpose;
+                }
+                cx.notify();
+            }
+            WritingRequest::ReferenceCurrent(note) => {
+                if self.writing_setup_form_current()
+                    && let Some(draft) = &mut self.writing.setup
+                    && draft.references.iter().any(|r| r.note == note)
+                    && !draft.must_be_current.remove(&note)
+                {
+                    draft.must_be_current.insert(note);
+                }
+                cx.notify();
+            }
+            WritingRequest::RemoveReference(note) => {
+                if self.writing_setup_form_current()
+                    && let Some(draft) = &mut self.writing.setup
+                {
+                    draft.references.retain(|r| r.note != note);
+                    draft.must_be_current.remove(&note);
+                }
+                cx.notify();
+            }
+            WritingRequest::OpenReference(note) => {
+                let scope = self.note_writing_scope.clone();
+                let allowed = self
+                    .writing
+                    .setup
+                    .as_ref()
+                    .and_then(|draft| {
+                        draft
+                            .target
+                            .validate(&self.workspace, self.open_note_id(), scope.as_deref())
+                            .ok()
+                    })
+                    .is_some_and(|view| {
+                        view.references.iter().any(|reference| {
+                            reference.reference.note == note && reference.version.is_some()
+                        })
+                    });
+                if allowed {
+                    self.open_note_in_context(&note, None, scope.as_deref(), window, cx);
+                } else {
+                    self.warn("Reference is no longer available here.");
+                    cx.notify();
+                }
+            }
+            WritingRequest::ImportReference(purpose) => {
+                self.import_writing_reference(purpose, window, cx)
+            }
+            WritingRequest::RewriteConfigured(exhaustive) => {
+                self.rewrite_with_setup(exhaustive, cx)
+            }
+            WritingRequest::Noop => {}
+            WritingRequest::Save => self.save(window, cx),
+            WritingRequest::Reload => {
+                if let Some(id) = self.open_note_id().map(str::to_owned) {
+                    self.open_note(&id, None, window, cx);
+                }
+            }
+            WritingRequest::SaveCopy => self.save_copy(window, cx),
+            WritingRequest::CommentSelection => self.comment_on_selection(window, cx),
+            WritingRequest::CommentOrSave => {
+                if self
+                    .writing
+                    .note
+                    .as_ref()
+                    .is_some_and(|note| note.session.is_some())
+                {
+                    self.save_and_comment(window, cx)
+                } else {
+                    self.comment_on_selection(window, cx)
+                }
+            }
+            WritingRequest::Rewrite => self.rewrite_note(cx),
+            WritingRequest::EditNote => self.edit_note_dialog(window, cx),
+            WritingRequest::Connections => self.show_tile(TileKind::Connections, window, cx),
+            WritingRequest::Compare => self.show_tile(TileKind::Compare, window, cx),
+            WritingRequest::ToggleProtection => self.toggle_protection(window, cx),
+            WritingRequest::Export => self.choose_output(false, window, cx),
+            WritingRequest::ToggleCoverage => {
+                self.writing.show_coverage = !self.writing.show_coverage;
+                cx.notify();
+            }
+            WritingRequest::NewNote => self.new_note(window, cx),
+            WritingRequest::NewWritingThread => self.new_writing_thread(window, cx),
+            WritingRequest::ConfirmDiscard => self.confirm_discard(window, cx),
+            WritingRequest::CompareOpenEdit => self.compare_open_edit(window, cx),
+            WritingRequest::ConfirmDiscardOpenEdit => self.confirm_discard_open_edit(window, cx),
+            WritingRequest::AskSelection => self.ask_about_selection(window, cx),
+            WritingRequest::TrackSelection => self.track_selection(cx),
+            WritingRequest::ToggleComments => self.toggle_comments(cx),
+            WritingRequest::CollapseComments => self.collapse_comments(window, cx),
+            WritingRequest::CancelComment => {
+                self.writing.comment_anchor = None;
+                self.writing.comment_operation = None;
+                self.writing
+                    .comment_input
+                    .update(cx, |e, cx| e.set_value("", window, cx));
+                self.sync_note_marks(cx);
+                self.focus_visible_editor(window, cx);
+                cx.notify();
+            }
+            WritingRequest::PostComment => self.post_comment(window, cx),
+            WritingRequest::ToggleReviewInputs => {
+                self.writing.review_inputs = !self.writing.review_inputs;
+                cx.notify();
+            }
+            WritingRequest::StartReviewEdit => self.start_review_edit(window, cx),
+            WritingRequest::KeepReview => self.keep_review(window, cx),
+            WritingRequest::DismissReview => self.dismiss_review(window, cx),
+            WritingRequest::CancelReviewEdit => self.cancel_review_edit(window, cx),
+            WritingRequest::ApplyReview => self.apply_review(window, cx),
+            WritingRequest::PrepareReviewSelection => self.prepare_review_selection(window, cx),
+            WritingRequest::PrepareReviewEdit => self.prepare_review_edit(window, cx),
+            WritingRequest::Cancel => self.cancel(cx),
+            WritingRequest::OpenNote { id, recovery } => self.open_note(&id, recovery, window, cx),
+            WritingRequest::ConfirmAddressed {
+                request,
+                operation,
+                comments,
+            } => self.confirm_addressed(&request, &operation, &comments, cx),
+            WritingRequest::ToggleExcluded(id) => {
+                if !self.writing.excluded_comments.remove(&id) {
+                    self.writing.excluded_comments.insert(id);
+                }
+                cx.notify();
+            }
+            WritingRequest::ToggleRequest(id) => {
+                if !self.writing.expanded_requests.remove(&id) {
+                    self.writing.expanded_requests.insert(id);
+                }
+                cx.notify();
+            }
+            WritingRequest::HideApplied(id) => {
+                self.writing.applied_rewrite.remove(&id);
+                cx.notify();
+            }
+            WritingRequest::ToggleGroup(id) => {
+                if let Some(review) = &mut self.writing.review
+                    && !review.selected.remove(&id)
+                {
+                    review.selected.insert(id);
+                }
+                cx.notify();
+            }
+            WritingRequest::Undo(id) => self.undo_receipt(&id, window, cx),
+            WritingRequest::Retry(id) => self.retry_rewrite(id, cx),
+            WritingRequest::SelectReviewNote(id) => self.select_review_note(id, window, cx),
+            WritingRequest::Reveal(range) => self.reveal(range, window, cx),
+            WritingRequest::OpenReview(candidate) => self.open_review(candidate, window, cx),
+            WritingRequest::CardDismiss(candidate) => self.card_dismiss(candidate, window, cx),
+            WritingRequest::ReviewReading(reading) => self.set_review_reading(reading, window, cx),
+            WritingRequest::NoteReading(reading) => self.set_note_reading(reading, window, cx),
+            WritingRequest::Format(kind) => self.format_note(kind, window, cx),
+            WritingRequest::StopSaved(run) => self.confirm_stop_saved_run(run, window, cx),
+        }
+    }
+    pub(super) fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {
+        self.writing_view().note_toolbar_needs(window)
+    }
+    pub(super) fn note_controls(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
+        self.writing_view().note_controls(cx)
+    }
+    pub(super) fn note_menu_section(
+        &self,
+        cx: &mut Context<Self>,
+    ) -> Option<Box<dyn Fn(PopupMenu) -> PopupMenu + 'static>> {
+        self.writing_view().note_menu_section(cx)
+    }
+    pub(super) fn comments_open(&self) -> bool {
+        self.writing_view().comments_open()
+    }
+    pub(super) fn comments_beside(&self) -> bool {
+        self.writing_view().comments_beside()
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn comments_stacked(&self) -> bool {
+        self.writing_view().comments_stacked()
+    }
+    pub(super) fn open_edit_elsewhere(&self) -> Option<(EditSession, u64)> {
+        self.writing_view().open_edit_elsewhere()
+    }
+    pub(super) fn writing_candidate_note(&self, candidate: &Prepared) -> Option<String> {
+        self.writing_view().writing_candidate_note(candidate)
+    }
+    pub(super) fn latest_writing_instruction(&self, thread: &str) -> Option<String> {
+        self.writing_view().latest_writing_instruction(thread)
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn writing_worker_for(&self, note: &str) -> bool {
+        self.writing_view().writing_worker_for(note)
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn latest_note_writing_request(&self, note: &str) -> Option<Record> {
+        self.writing_view().latest_note_writing_request(note)
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn writing_run_outcome(&self) -> Option<RunOutcome> {
+        self.writing_view().writing_run_outcome()
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn writing_bar_row(&self) -> Option<WritingRow> {
+        self.writing_view().writing_bar_row()
+    }
+    #[cfg(all(test, feature = "native-test-support"))]
+    pub(super) fn writing_result_note(&self) -> Option<Record> {
+        self.writing_view().writing_result_note()
+    }
+    pub(super) fn note_tile(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        if self.writing.review.is_none() {
+            self.sync_read_text(cx);
+            self.sync_read_marks(cx);
+        }
+        self.writing_view().note_tile(window, cx)
+    }
+    pub(super) fn compare_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        self.writing_view().compare_tile(cx)
+    }
     fn keep_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.review.as_ref().is_some_and(|r| r.edited) {
+        if self.writing.review.as_ref().is_some_and(|r| r.edited) {
             self.prepare_review_edit(window, cx);
         }
-        if self.review.as_ref().is_some_and(|r| !r.edited) {
-            self.review = None;
-            self.review_editing = false;
+        if self.writing.review.as_ref().is_some_and(|r| !r.edited) {
+            self.writing.review = None;
+            self.writing.review_editing = false;
             self.focus_visible_editor(window, cx);
         }
         cx.notify();
     }
     fn select_review_note(&mut self, id: String, window: &mut Window, cx: &mut Context<Self>) {
-        if self.review.as_ref().is_some_and(|r| r.edited) {
+        if self.writing.review.as_ref().is_some_and(|r| r.edited) {
             self.prepare_review_edit(window, cx);
-            if self.review.as_ref().is_some_and(|r| r.edited) {
+            if self.writing.review.as_ref().is_some_and(|r| r.edited) {
                 return;
             }
         }
-        let Some(review) = &mut self.review else {
+        let Some(review) = &mut self.writing.review else {
             return;
         };
         let Some(write) = review.candidate.request.writes.iter().find(|w| w.id == id) else {
@@ -3882,19 +4776,24 @@ impl ThreadsUi {
                 }
             })
             .unwrap_or_default();
-        self.review_editor
+        self.writing
+            .review_editor
             .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
-        self.candidate_view
+        self.writing
+            .candidate_view
             .update(cx, |v, cx| v.set_text(&text, cx));
-        self.current_view
+        self.writing
+            .current_view
             .update(cx, |v, cx| v.set_text(&current, cx));
-        self.review_editing = false;
+        self.writing.review_editing = false;
         self.sync_diff(window, cx);
         cx.notify();
     }
     fn save_copy(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(open) = &self.note else { return };
-        let text = self.note_editor.read(cx).value().to_string();
+        let Some(open) = &self.writing.note else {
+            return;
+        };
+        let text = self.writing.note_editor.read(cx).value().to_string();
         let name = format!("Recovered {}", title(&open.record));
         match self.workspace.new_note(&name, &text) {
             Ok(record) => {
@@ -4179,48 +5078,5 @@ mod presentation_tests {
             apply_tone(&ApplyOutcome::Deferred { guarded: vec![] }),
             Tone::Warning
         );
-    }
-}
-
-#[cfg(all(test, feature = "native-test-support"))]
-mod policy_tests {
-    use super::*;
-
-    #[test]
-    fn external_links_allow_only_absolute_lowercase_http_s() {
-        assert!(external_link("https://example.com/a"));
-        assert!(external_link("http://example.com"));
-        for inert in [
-            "javascript:alert(1)",
-            "data:text/html,<b>",
-            "file:///etc/passwd",
-            "brn-asset://record",
-            "HTTPS://example.com",
-            "https:example.com",
-            "//example.com",
-            "example.com",
-            " https://example.com",
-            "",
-        ] {
-            assert!(!external_link(inert), "{inert:?} must stay inert");
-        }
-    }
-
-    #[test]
-    fn images_resolve_only_from_the_caller_s_own_stored_assets() {
-        let key = "brn-asset://stored";
-        let image = Arc::new(Image::from_bytes(ImageFormat::Png, vec![1, 2, 3]));
-        let assets = BTreeMap::from([(key.to_owned(), image.clone())]);
-        assert!(Arc::ptr_eq(&stored_image(&assets, key), &image));
-        for uri in [
-            "brn-asset://missing",
-            "https://example.com/figure.png",
-            "file:///tmp/figure.png",
-            "",
-        ] {
-            let fallback = stored_image(&assets, uri);
-            assert_eq!(fallback.format, ImageFormat::Png);
-            assert!(fallback.bytes.is_empty(), "{uri:?} must not resolve");
-        }
     }
 }

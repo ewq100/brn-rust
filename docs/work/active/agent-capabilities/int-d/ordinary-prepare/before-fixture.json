@@ -1,0 +1,6 @@
+{
+  "baseline_synthetic_git": "4133d1d42f16d61a430fa609480b2104acabecc5",
+  "original_base": "5352b4484a67588e7614130f3e3d6f3a6701a0e5",
+  "test_patch_sha256": "3cdd878430d38ba6650d131970b815b4d22c43e86fa5cd42ae2f2bc20e798fe0",
+  "production_unchanged": true
+}

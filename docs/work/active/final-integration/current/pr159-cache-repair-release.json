@@ -1,0 +1,50 @@
+{
+  "phase": "PR159 cached generated workspace repair",
+  "material": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+  "recorded_utc": "2026-10-18T16:35:11.843718+00:00",
+  "all_cache_phase_commands_completed_reaped": true,
+  "cache_phase_live_pgids": [],
+  "controllers": [
+    {
+      "phase": "01-cleanup-shell-parse",
+      "controller_pid": 2096,
+      "controller_pgid": 2096,
+      "child_pid": 2108,
+      "child_pgid": 2108,
+      "exit": 0
+    },
+    {
+      "phase": "02-focused-python",
+      "controller_pid": 2204,
+      "controller_pgid": 2204,
+      "child_pid": 2216,
+      "child_pgid": 2216,
+      "exit": 0
+    },
+    {
+      "phase": "03-preserved-synthetic-witness",
+      "controller_pid": 2958,
+      "controller_pgid": 2958,
+      "child_pid": 2972,
+      "child_pgid": 2972,
+      "exit": 0
+    },
+    {
+      "phase": "04-docs-whitespace",
+      "controller_pid": 4148,
+      "controller_pgid": 4148,
+      "child_pid": 4164,
+      "child_pgid": 4164,
+      "exit": 0
+    }
+  ],
+  "inventory_sha256": "0a524d12f0bfba394c3a9199490bd69fb077819e34f20c2e253c5855a84b77fb",
+  "phase_status": "COMPLETE",
+  "sole_heavy": "RETAINED only for parent-authorized sequential Linux TEST-ONLY extension; final combined release follows it. No cache phase command remains.",
+  "authority": "Parent followup received after cache checks; no other writer.",
+  "scope": "Cache phase had zero Cargo/real-target generator/provider/Auth/download/GUI/package/mutant commands.",
+  "paths": {
+    "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "phase_raw": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248"
+  }
+}

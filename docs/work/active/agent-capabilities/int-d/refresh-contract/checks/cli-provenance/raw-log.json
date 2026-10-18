@@ -1,0 +1,4 @@
+{
+  "encoding": "utf-8",
+  "raw": "   Compiling brn v0.0.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn)\n    Finished `test` profile [optimized] target(s) in 2.58s\n     Running tests/agent_runs.rs (/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/agent_runs-4e0b6e32104dc48a)\n\nrunning 1 test\ntest scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_after_move ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.90s\n\n"
+}

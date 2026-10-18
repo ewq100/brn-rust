@@ -1,0 +1,23 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 1.90s
+     Running tests/cw2_review.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd)
+
+running 1 test
+test scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access ... FAILED
+
+failures:
+
+---- scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access stdout ----
+
+thread 'scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access' (27511059) panicked at crates/brn-threads-app/tests/cw2_review.rs:312:5:
+archiving evidence must not bypass immutable binding and the public reason gate
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-threads-app --test cw2_review`

@@ -1,0 +1,2072 @@
+{
+  "pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "manual": [
+    {
+      "id": "seed:partial-ledger-complete",
+      "file": "crates/brn-ai/src/threads.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "9b296909c53930b74d2926b703f0d60fde3fbfb864e10b7e8ff87509627c4251",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::cw2_tests::oversized_prefix_read_is_recorded_as_partial_and_ranges_can_finish_it ... FAILED",
+        "test threads::reads_tests::a_truncated_read_does_not_but_reading_through_to_the_end_does ... FAILED",
+        "test threads::research_tests::helpers_read_long_notes_in_capped_slices ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:omitted-ledger-grant",
+      "file": "crates/brn-ai/src/threads.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "237ab6d7752d758c55ef2d03c64599781e8d42be3ff4ad6ef648284f6c6c5b69",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:provider-local-origin-guard",
+      "file": "crates/brn-ai/src/error.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "f447965a6eb3edaf00aea389bc0e3f426b1292dcb7ad0c83f0b74e52fc21b50c",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::sanitized_provider_cannot_spoof_a_local_brn_estimate_notice ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:encoded-fit-bypass",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "d28d70e7145bc0da2d9770ffd7946197244212386508070d937521f3787cc8d8",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::bounded_reference_delivery_cannot_validate_an_undelivered_writing_quotation ... FAILED",
+        "test threads::budget_tests::escaped_maximum_note_read_pages_in_actual_model_history_and_tracks_only_delivered_ranges ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-local-origin-deletion",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "1c6734d63283342dd8a3c46499f4fa9839df4f5f91316f4bc5795f1da7e8255d",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_request_estimate_boundary_counts_real_tools_and_response_reserve ... FAILED",
+        "test threads::budget_tests::full_v2_writing_context_is_mandatory_even_under_a_tiny_test_budget ... FAILED",
+        "test threads::budget_tests::next_request_checks_actual_growing_tools_and_results_without_rewriting_the_prefix ... FAILED",
+        "test threads::budget_tests::provider_context_exceeded_and_local_limit_share_display_attention_and_terminal_path ... FAILED",
+        "test threads::budget_tests::sanitized_provider_cannot_spoof_a_local_brn_estimate_notice ... FAILED",
+        "test threads::budget_tests::small_budget_keeps_mandatory_input_and_stops_zero_model_calls ... FAILED",
+        "test threads::budget_tests::copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refuses_without_trimming ... FAILED",
+        "test threads::research_tests::helper_admitted_read_exhausts_tiny_next_dispatch_budget_without_trimming ... FAILED",
+        "test threads::research_tests::helper_request_budget_refuses_before_any_scripted_dispatch ... FAILED",
+        "test threads::budget_tests::mandatory_oversize_unknown_route_stops_production_before_any_provider_request ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-result-equality",
+      "file": "crates/brn-ai/src/threads_context_budget.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "08339d3fa0e1829c1d623d0df8f58280485ef3ffb9bdec810f639ef56a3719fd",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_tool_result_admission_boundary_reaches_the_next_real_dispatch ... FAILED",
+        "test threads::budget_tests::medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_read ... FAILED",
+        "test threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-helper-discussion-guard",
+      "file": "crates/brn-ai/src/threads_search.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "a169e4f865f004d7c0f3174e053d340ba1609838abb3f1ccfac021f8ce2c3bad",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message ... FAILED"
+      ],
+      "source_restored": true
+    },
+    {
+      "id": "seed:prior-writing-discussion-guard",
+      "file": "crates/brn-ai/src/threads_search.rs",
+      "source_pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+      "diff_sha256": "2f3805dfb9a2add335c748ca1a9331754eb359b0aa1c3e51b060e8779867058a",
+      "outcome": "Caught",
+      "failing_test_lines": [
+        "test threads::budget_tests::exact_discussion_refuses_helper_scope_even_for_an_otherwise_visible_owner_message ... FAILED",
+        "test threads::budget_tests::exact_discussion_refuses_writing_scope_even_for_an_otherwise_visible_owner_message ... FAILED"
+      ],
+      "source_restored": true
+    }
+  ],
+  "auto": [
+    {
+      "id": "crates/brn-ai/src/threads.rs:679:5: replace record_note_prefix with ()",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads.rs\n+++ replace record_note_prefix with ()\n@@ -671,22 +671,17 @@\n             .map(|(_, activity)| *activity)\n     })\n }\n /// Tools registered only when the run has host search.\n pub fn search_tool_names() -> Vec<&'static str> {\n     SEARCH_TOOLS.iter().map(|(name, _)| *name).collect()\n }\n fn record_note_prefix(row: &mut Value, prefix: &str) {\n-    let total = row[\"note_read\"][\"total_bytes\"].as_u64().unwrap_or_default() as usize;\n-    row[\"data\"][\"Note\"][\"markdown\"] = json!(prefix);\n-    row[\"truncated\"] = json!(prefix.len() < total);\n-    row[\"note_read\"][\"end\"] = json!(prefix.len());\n-    row[\"note_read\"][\"next_start\"] = json!((prefix.len() < total).then_some(prefix.len()));\n-    row[\"note_read\"][\"complete\"] = json!(prefix.len() == total);\n+    () /* ~ changed by cargo-mutants ~ */\n }\n fn bounded_record_output(rows: Vec<Value>) -> AiResult<Value> {\n     // Only already-visible eligible rows reach this function. IDs/versions of\n     // omitted rows are bounded by the existing 100-row limit and permit retry.\n     let omitted = rows\n         .iter()\n         .map(|r| json!({\"id\":r[\"id\"],\"version\":r[\"version\"]}))\n         .collect::<Vec<_>>();\n",
+        "file": "crates/brn-ai/src/threads.rs",
+        "function": {
+          "function_name": "record_note_prefix",
+          "return_type": "",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 685
+            },
+            "start": {
+              "column": 1,
+              "line": 678
+            }
+          }
+        },
+        "genre": "FnValue",
+        "name": "crates/brn-ai/src/threads.rs:679:5: replace record_note_prefix with ()",
+        "package": "brn-ai",
+        "replacement": "()",
+        "span": {
+          "end": {
+            "column": 65,
+            "line": 684
+          },
+          "start": {
+            "column": 5,
+            "line": 679
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads.rs:679:5: replace record_note_prefix with ()",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads.rs",
+            "function": {
+              "function_name": "record_note_prefix",
+              "return_type": "",
+              "span": {
+                "start": {
+                  "line": 678,
+                  "column": 1
+                },
+                "end": {
+                  "line": 685,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 679,
+                "column": 5
+              },
+              "end": {
+                "line": 684,
+                "column": 65
+              }
+            },
+            "replacement": "()",
+            "genre": "FnValue"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads.rs_line_679_col_5.log",
+        "diff_path": "diff/crates__brn-ai__src__threads.rs_line_679_col_5.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.737473667,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.662250917,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:113:9: delete field origin from struct crate::AiFailureDetail expression in result_failure",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field origin from struct crate::AiFailureDetail expression in result_failure\n@@ -105,17 +105,17 @@\n             }\n             .into(),\n         ),\n         ..Default::default()\n     })\n }\n pub(super) fn result_failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n-        origin: \"context_budget\".into(),\n+         /* ~ changed by cargo-mutants ~ */\n         code: Some(\"brn_tool_result_admission_exceeded\".into()),\n         ..Default::default()\n     })\n }\n pub(super) fn exhausted_failure(budget: Budget, cause: u16) -> AiError {\n     if cause == 2 {\n         result_failure()\n     } else {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "result_failure",
+          "return_type": "-> AiError",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 117
+            },
+            "start": {
+              "column": 1,
+              "line": 111
+            }
+          }
+        },
+        "genre": "StructField",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:113:9: delete field origin from struct crate::AiFailureDetail expression in result_failure",
+        "package": "brn-ai",
+        "replacement": "",
+        "span": {
+          "end": {
+            "column": 41,
+            "line": 113
+          },
+          "start": {
+            "column": 9,
+            "line": 113
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:113:9: delete field origin from struct crate::AiFailureDetail expression in result_failure",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "result_failure",
+              "return_type": "-> AiError",
+              "span": {
+                "start": {
+                  "line": 111,
+                  "column": 1
+                },
+                "end": {
+                  "line": 117,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 113,
+                "column": 9
+              },
+              "end": {
+                "line": 113,
+                "column": 41
+              }
+            },
+            "replacement": "",
+            "genre": "StructField"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_113_col_9.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_113_col_9.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.291034625,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.5666196249999995,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:114:9: delete field code from struct crate::AiFailureDetail expression in result_failure",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field code from struct crate::AiFailureDetail expression in result_failure\n@@ -106,17 +106,17 @@\n             .into(),\n         ),\n         ..Default::default()\n     })\n }\n pub(super) fn result_failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n         origin: \"context_budget\".into(),\n-        code: Some(\"brn_tool_result_admission_exceeded\".into()),\n+         /* ~ changed by cargo-mutants ~ */\n         ..Default::default()\n     })\n }\n pub(super) fn exhausted_failure(budget: Budget, cause: u16) -> AiError {\n     if cause == 2 {\n         result_failure()\n     } else {\n         failure(budget)\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "result_failure",
+          "return_type": "-> AiError",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 117
+            },
+            "start": {
+              "column": 1,
+              "line": 111
+            }
+          }
+        },
+        "genre": "StructField",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:114:9: delete field code from struct crate::AiFailureDetail expression in result_failure",
+        "package": "brn-ai",
+        "replacement": "",
+        "span": {
+          "end": {
+            "column": 65,
+            "line": 114
+          },
+          "start": {
+            "column": 9,
+            "line": 114
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:114:9: delete field code from struct crate::AiFailureDetail expression in result_failure",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "result_failure",
+              "return_type": "-> AiError",
+              "span": {
+                "start": {
+                  "line": 111,
+                  "column": 1
+                },
+                "end": {
+                  "line": 117,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 114,
+                "column": 9
+              },
+              "end": {
+                "line": 114,
+                "column": 65
+              }
+            },
+            "replacement": "",
+            "genre": "StructField"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_114_col_9.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_114_col_9.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.709281042,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.274721416,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with None",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with None\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    None /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "FnValue",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with None",
+        "package": "brn-ai",
+        "replacement": "None",
+        "span": {
+          "end": {
+            "column": 71,
+            "line": 154
+          },
+          "start": {
+            "column": 5,
+            "line": 133
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with None",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 133,
+                "column": 5
+              },
+              "end": {
+                "line": 154,
+                "column": 71
+              }
+            },
+            "replacement": "None",
+            "genre": "FnValue"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.560332416,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.3451585,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with Some(String::new())\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    Some(String::new()) /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "FnValue",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())",
+        "package": "brn-ai",
+        "replacement": "Some(String::new())",
+        "span": {
+          "end": {
+            "column": 71,
+            "line": 154
+          },
+          "start": {
+            "column": 5,
+            "line": 133
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 133,
+                "column": 5
+              },
+              "end": {
+                "line": 154,
+                "column": 71
+              }
+            },
+            "replacement": "Some(String::new())",
+            "genre": "FnValue"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_001.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_001.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.810947791,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.015260291,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    Some(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "FnValue",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())",
+        "package": "brn-ai",
+        "replacement": "Some(\"xyzzy\".into())",
+        "span": {
+          "end": {
+            "column": 71,
+            "line": 154
+          },
+          "start": {
+            "column": 5,
+            "line": 133
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 133,
+                "column": 5
+              },
+              "end": {
+                "line": 154,
+                "column": 71
+              }
+            },
+            "replacement": "Some(\"xyzzy\".into())",
+            "genre": "FnValue"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_002.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_133_col_5_002.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.624118750000001,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.00369725,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:136:8: delete ! in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in fit_prefix\n@@ -128,17 +128,17 @@\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n     if fits(text) {\n         return Some(text.to_owned());\n     }\n-    if !fits(\"\") {\n+    if  /* ~ changed by cargo-mutants ~ */fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "UnaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:136:8: delete ! in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "",
+        "span": {
+          "end": {
+            "column": 9,
+            "line": 136
+          },
+          "start": {
+            "column": 8,
+            "line": 136
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:136:8: delete ! in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 136,
+                "column": 8
+              },
+              "end": {
+                "line": 136,
+                "column": 9
+              }
+            },
+            "replacement": "",
+            "genre": "UnaryOperator"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_136_col_8.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_136_col_8.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.577820792,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.306876875,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -136,17 +136,17 @@\n     if !fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n+    let (mut low, mut high) = (0, boundaries.len() + /* ~ changed by cargo-mutants ~ */ 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "+",
+        "span": {
+          "end": {
+            "column": 53,
+            "line": 144
+          },
+          "start": {
+            "column": 52,
+            "line": 144
+          }
+        }
+      },
+      "outcome": "MissedMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 144,
+                "column": 52
+              },
+              "end": {
+                "line": 144,
+                "column": 53
+              }
+            },
+            "replacement": "+",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "MissedMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.610369292,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.295288375,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -136,17 +136,17 @@\n     if !fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n+    let (mut low, mut high) = (0, boundaries.len() / /* ~ changed by cargo-mutants ~ */ 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "/",
+        "span": {
+          "end": {
+            "column": 53,
+            "line": 144
+          },
+          "start": {
+            "column": 52,
+            "line": 144
+          }
+        }
+      },
+      "outcome": "MissedMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 144,
+                "column": 52
+              },
+              "end": {
+                "line": 144,
+                "column": 53
+              }
+            },
+            "replacement": "/",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "MissedMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52_001.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_144_col_52_001.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.919227709,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.285866417,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with == in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with == in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low == /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with == in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "==",
+        "span": {
+          "end": {
+            "column": 16,
+            "line": 145
+          },
+          "start": {
+            "column": 15,
+            "line": 145
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with == in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 15
+              },
+              "end": {
+                "line": 145,
+                "column": 16
+              }
+            },
+            "replacement": "==",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.838332708,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.297584625,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with > in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with > in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low > /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with > in fit_prefix",
+        "package": "brn-ai",
+        "replacement": ">",
+        "span": {
+          "end": {
+            "column": 16,
+            "line": 145
+          },
+          "start": {
+            "column": 15,
+            "line": 145
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with > in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 15
+              },
+              "end": {
+                "line": 145,
+                "column": 16
+              }
+            },
+            "replacement": ">",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_001.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_001.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.766749042,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.571096834,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with <= in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low <= /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "<=",
+        "span": {
+          "end": {
+            "column": 16,
+            "line": 145
+          },
+          "start": {
+            "column": 15,
+            "line": 145
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 145,
+                "column": 15
+              },
+              "end": {
+                "line": 145,
+                "column": 16
+              }
+            },
+            "replacement": "<=",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_002.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_145_col_15_002.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.165012375,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.014213208,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with - in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace + with - in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low - /* ~ changed by cargo-mutants ~ */ (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with - in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "-",
+        "span": {
+          "end": {
+            "column": 24,
+            "line": 146
+          },
+          "start": {
+            "column": 23,
+            "line": 146
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with - in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 146,
+                "column": 23
+              },
+              "end": {
+                "line": 146,
+                "column": 24
+              }
+            },
+            "replacement": "-",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.066561166,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.538226875,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace + with * in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low * /* ~ changed by cargo-mutants ~ */ (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "*",
+        "span": {
+          "end": {
+            "column": 24,
+            "line": 146
+          },
+          "start": {
+            "column": 23,
+            "line": 146
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 146,
+                "column": 23
+              },
+              "end": {
+                "line": 146,
+                "column": 24
+              }
+            },
+            "replacement": "*",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23_001.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_23_001.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.775596917,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.02474775,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low + (high + /* ~ changed by cargo-mutants ~ */ low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "+",
+        "span": {
+          "end": {
+            "column": 32,
+            "line": 146
+          },
+          "start": {
+            "column": 31,
+            "line": 146
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 146,
+                "column": 31
+              },
+              "end": {
+                "line": 146,
+                "column": 32
+              }
+            },
+            "replacement": "+",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.700798,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.005979458,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with / in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low + (high / /* ~ changed by cargo-mutants ~ */ low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with / in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "/",
+        "span": {
+          "end": {
+            "column": 32,
+            "line": 146
+          },
+          "start": {
+            "column": 31,
+            "line": 146
+          }
+        }
+      },
+      "outcome": "CaughtMutant",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with / in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 146,
+                "column": 31
+              },
+              "end": {
+                "line": 146,
+                "column": 32
+              }
+            },
+            "replacement": "/",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "CaughtMutant",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31_001.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_146_col_31_001.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 10.753699375,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 4.474831,
+            "process_status": {
+              "Failure": 101
+            },
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -142,17 +142,17 @@\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n-            high = mid - 1;\n+            high = mid + /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "+",
+        "span": {
+          "end": {
+            "column": 25,
+            "line": 150
+          },
+          "start": {
+            "column": 24,
+            "line": 150
+          }
+        }
+      },
+      "outcome": "Timeout",
+      "actual": {
+        "scenario": {
+          "Mutant": {
+            "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix",
+            "package": "brn-ai",
+            "file": "crates/brn-ai/src/threads_context_budget.rs",
+            "function": {
+              "function_name": "fit_prefix",
+              "return_type": "-> Option<String>",
+              "span": {
+                "start": {
+                  "line": 131,
+                  "column": 1
+                },
+                "end": {
+                  "line": 155,
+                  "column": 2
+                }
+              }
+            },
+            "span": {
+              "start": {
+                "line": 150,
+                "column": 24
+              },
+              "end": {
+                "line": 150,
+                "column": 25
+              }
+            },
+            "replacement": "+",
+            "genre": "BinaryOperator"
+          }
+        },
+        "summary": "Timeout",
+        "log_path": "log/crates__brn-ai__src__threads_context_budget.rs_line_150_col_24.log",
+        "diff_path": "diff/crates__brn-ai__src__threads_context_budget.rs_line_150_col_24.diff",
+        "phase_results": [
+          {
+            "phase": "Build",
+            "duration": 9.638130875,
+            "process_status": "Success",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--no-run",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          },
+          {
+            "phase": "Test",
+            "duration": 15.027087333,
+            "process_status": "Timeout",
+            "argv": [
+              "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+              "test",
+              "--verbose",
+              "--package=brn-ai@0.1.0",
+              "--features=scripted-runs",
+              "--lib",
+              "--locked",
+              "--offline"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with / in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -142,17 +142,17 @@\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n-            high = mid - 1;\n+            high = mid / /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with / in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "/",
+        "span": {
+          "end": {
+            "column": 25,
+            "line": 150
+          },
+          "start": {
+            "column": 24,
+            "line": 150
+          }
+        }
+      },
+      "outcome": "NoVerdict",
+      "actual": null
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:154:25: replace || with && in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace || with && in fit_prefix\n@@ -146,17 +146,17 @@\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    (!prefix.is_empty() && /* ~ changed by cargo-mutants ~ */ text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "BinaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:154:25: replace || with && in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "&&",
+        "span": {
+          "end": {
+            "column": 27,
+            "line": 154
+          },
+          "start": {
+            "column": 25,
+            "line": 154
+          }
+        }
+      },
+      "outcome": "NoVerdict",
+      "actual": null
+    },
+    {
+      "id": "crates/brn-ai/src/threads_context_budget.rs:154:6: delete ! in fit_prefix",
+      "selected": {
+        "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in fit_prefix\n@@ -146,17 +146,17 @@\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    ( /* ~ changed by cargo-mutants ~ */prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+        "file": "crates/brn-ai/src/threads_context_budget.rs",
+        "function": {
+          "function_name": "fit_prefix",
+          "return_type": "-> Option<String>",
+          "span": {
+            "end": {
+              "column": 2,
+              "line": 155
+            },
+            "start": {
+              "column": 1,
+              "line": 131
+            }
+          }
+        },
+        "genre": "UnaryOperator",
+        "name": "crates/brn-ai/src/threads_context_budget.rs:154:6: delete ! in fit_prefix",
+        "package": "brn-ai",
+        "replacement": "",
+        "span": {
+          "end": {
+            "column": 7,
+            "line": 154
+          },
+          "start": {
+            "column": 6,
+            "line": 154
+          }
+        }
+      },
+      "outcome": "NoVerdict",
+      "actual": null
+    }
+  ],
+  "counts": {
+    "CaughtMutant": 9,
+    "Timeout": 6,
+    "MissedMutant": 2,
+    "NoVerdict": 3
+  },
+  "inflight_no_verdict": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with / in fit_prefix",
+  "stop_receipt": "mutation-supplement-stop.json",
+  "initial_list_failure": "INFO No mutants to filter: missing explicit -p package selection, not warning-prefix parsing",
+  "no_equivalence_or_retroactive_kill_claim": true
+}

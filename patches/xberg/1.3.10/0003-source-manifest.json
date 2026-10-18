@@ -1,0 +1,375 @@
+{
+  "schema": "xberg-namespaces3-source-prepared/1",
+  "status": "VERIFIED_CANDIDATE_INDEPENDENT_REVIEW_PENDING",
+  "package": {
+    "name": "xberg",
+    "version": "1.3.10",
+    "registry_source": "registry+https://github.com/rust-lang/crates.io-index",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "archive_bytes": 3736980,
+    "source_files": 764
+  },
+  "license": {
+    "spdx": "MIT",
+    "declaration": "Cargo.toml:114",
+    "declaration_file_sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+    "authors": [
+      "Na'aman Hirschfeld",
+      "Tobias Perlstein"
+    ],
+    "packaged_license_files": [],
+    "boundary": "Published README:298 points to ../../LICENSE outside the crate; no LICENSE* file is included in this exact archive. This distribution contains a patch, not the upstream tree."
+  },
+  "apply_order": [
+    "0001-docx-table-grid-spans.patch",
+    "0003-docx-namespaces.patch"
+  ],
+  "accepted_0001_sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7",
+  "reserved_0002": "PDF patch not read, changed, composed or qualified here",
+  "patch_sha256": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f",
+  "patch_bytes": 157209,
+  "raw_patch_sha256": "89df5495caf04ca248f57b530bdf90f1f73ac9f580a017328d089c690fb79733",
+  "blank_context_lines_normalized": 67,
+  "selected_source_files": [
+    {
+      "path": "src/extraction/docx/drawing.rs",
+      "pristine_sha256": "af07d50fe8daf1312d30ad79077f3dde116746e9346989d8560a1a4134146c52",
+      "spans_baseline_sha256": "af07d50fe8daf1312d30ad79077f3dde116746e9346989d8560a1a4134146c52",
+      "prepared_candidate_sha256": "8447c3cad58b1956f3191d74f040a036a65fcdb5fbf53a90fb3b462cb883db12",
+      "independent_apply_sha256": "8447c3cad58b1956f3191d74f040a036a65fcdb5fbf53a90fb3b462cb883db12",
+      "source_prepared_sha256": "8447c3cad58b1956f3191d74f040a036a65fcdb5fbf53a90fb3b462cb883db12",
+      "compiled_final_sha256": "8447c3cad58b1956f3191d74f040a036a65fcdb5fbf53a90fb3b462cb883db12"
+    },
+    {
+      "path": "src/extraction/docx/math/collect.rs",
+      "pristine_sha256": "e1585697c8df437218f4c9cc44f01cfaf67ec58419417cc7bbd7f4ff6931dec7",
+      "spans_baseline_sha256": "e1585697c8df437218f4c9cc44f01cfaf67ec58419417cc7bbd7f4ff6931dec7",
+      "prepared_candidate_sha256": "db65da39687a591564f3b98d6e0e58e78ca33a026ff9b8a826a24062e56714ba",
+      "independent_apply_sha256": "db65da39687a591564f3b98d6e0e58e78ca33a026ff9b8a826a24062e56714ba",
+      "source_prepared_sha256": "db65da39687a591564f3b98d6e0e58e78ca33a026ff9b8a826a24062e56714ba",
+      "compiled_final_sha256": "db65da39687a591564f3b98d6e0e58e78ca33a026ff9b8a826a24062e56714ba"
+    },
+    {
+      "path": "src/extraction/docx/math/elements.rs",
+      "pristine_sha256": "769f3db443e44f07023b532d6e3f436df2357148f5e7407da504632c179239a9",
+      "spans_baseline_sha256": "769f3db443e44f07023b532d6e3f436df2357148f5e7407da504632c179239a9",
+      "prepared_candidate_sha256": "9055a98f6b19ce7d2923fdfac24fc4ddfad9e7b8e6e9a086e68d8219e075b917",
+      "independent_apply_sha256": "9055a98f6b19ce7d2923fdfac24fc4ddfad9e7b8e6e9a086e68d8219e075b917",
+      "source_prepared_sha256": "9055a98f6b19ce7d2923fdfac24fc4ddfad9e7b8e6e9a086e68d8219e075b917",
+      "compiled_final_sha256": "9055a98f6b19ce7d2923fdfac24fc4ddfad9e7b8e6e9a086e68d8219e075b917"
+    },
+    {
+      "path": "src/extraction/docx/math/mod.rs",
+      "pristine_sha256": "7d4a153fb6772951708dd639879cdc6a601dc482e9228aef5092a1f1c8ba940f",
+      "spans_baseline_sha256": "7d4a153fb6772951708dd639879cdc6a601dc482e9228aef5092a1f1c8ba940f",
+      "prepared_candidate_sha256": "8d77a9500436ddeeb426de7833f0fb295c4412e6381c8c31caf71db995c583bf",
+      "independent_apply_sha256": "8d77a9500436ddeeb426de7833f0fb295c4412e6381c8c31caf71db995c583bf",
+      "source_prepared_sha256": "8d77a9500436ddeeb426de7833f0fb295c4412e6381c8c31caf71db995c583bf",
+      "compiled_final_sha256": "8d77a9500436ddeeb426de7833f0fb295c4412e6381c8c31caf71db995c583bf"
+    },
+    {
+      "path": "src/extraction/docx/mod.rs",
+      "pristine_sha256": "e0e6f32478524459c137bd8900f0eaacdba0b051c77c7a8699f154dc3395e381",
+      "spans_baseline_sha256": "e0e6f32478524459c137bd8900f0eaacdba0b051c77c7a8699f154dc3395e381",
+      "prepared_candidate_sha256": "3f19335ffd3bd4c7ab13c9c4ebdc3f9f6ef88ba819fb7d57b3f00d379f97e3b7",
+      "independent_apply_sha256": "3f19335ffd3bd4c7ab13c9c4ebdc3f9f6ef88ba819fb7d57b3f00d379f97e3b7",
+      "source_prepared_sha256": "3f19335ffd3bd4c7ab13c9c4ebdc3f9f6ef88ba819fb7d57b3f00d379f97e3b7",
+      "compiled_final_sha256": "3f19335ffd3bd4c7ab13c9c4ebdc3f9f6ef88ba819fb7d57b3f00d379f97e3b7"
+    },
+    {
+      "path": "src/extraction/docx/parser.rs",
+      "pristine_sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "spans_baseline_sha256": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+      "prepared_candidate_sha256": "aa1adb58026d169b4cfbec32662dfaa037d076736e084c77037fa64d9f7e9d60",
+      "independent_apply_sha256": "e05ebf5c47e042bf9bfbdab591576cb21a3effbdc4cd84d9a1df7163d63d7d5c",
+      "source_prepared_sha256": "aa1adb58026d169b4cfbec32662dfaa037d076736e084c77037fa64d9f7e9d60",
+      "compiled_final_sha256": "e05ebf5c47e042bf9bfbdab591576cb21a3effbdc4cd84d9a1df7163d63d7d5c"
+    },
+    {
+      "path": "src/extraction/docx/section.rs",
+      "pristine_sha256": "6c9188de9261c044ff666bf3f89351e66fcd40bf9110f54e7078f369efd3944f",
+      "spans_baseline_sha256": "6c9188de9261c044ff666bf3f89351e66fcd40bf9110f54e7078f369efd3944f",
+      "prepared_candidate_sha256": "547c62daad78927c6197abef4cdf478c84db737a4cfc520ed7de54cfca08bdc2",
+      "independent_apply_sha256": "547c62daad78927c6197abef4cdf478c84db737a4cfc520ed7de54cfca08bdc2",
+      "source_prepared_sha256": "547c62daad78927c6197abef4cdf478c84db737a4cfc520ed7de54cfca08bdc2",
+      "compiled_final_sha256": "547c62daad78927c6197abef4cdf478c84db737a4cfc520ed7de54cfca08bdc2"
+    },
+    {
+      "path": "src/extraction/docx/styles/mod.rs",
+      "pristine_sha256": "0baa53b5b2eba41310aba304480f92bf2f3f03589f200830df08895aa1cd5596",
+      "spans_baseline_sha256": "0baa53b5b2eba41310aba304480f92bf2f3f03589f200830df08895aa1cd5596",
+      "prepared_candidate_sha256": "f40de6517e57b094ebe6cb137965fe6e5c62b2f5aa6f8f369424afadacb70612",
+      "independent_apply_sha256": "f40de6517e57b094ebe6cb137965fe6e5c62b2f5aa6f8f369424afadacb70612",
+      "source_prepared_sha256": "f40de6517e57b094ebe6cb137965fe6e5c62b2f5aa6f8f369424afadacb70612",
+      "compiled_final_sha256": "f40de6517e57b094ebe6cb137965fe6e5c62b2f5aa6f8f369424afadacb70612"
+    },
+    {
+      "path": "src/extraction/docx/table/mod.rs",
+      "pristine_sha256": "3668f25f839186828286dfbb68f0687ab6c2b273519afb5a9cacb068852e1be9",
+      "spans_baseline_sha256": "3668f25f839186828286dfbb68f0687ab6c2b273519afb5a9cacb068852e1be9",
+      "prepared_candidate_sha256": "ec7456cc1a93d691417223ede62d9fa32317c63ba7646b21ff17c6bd9363ebb0",
+      "independent_apply_sha256": "ec7456cc1a93d691417223ede62d9fa32317c63ba7646b21ff17c6bd9363ebb0",
+      "source_prepared_sha256": "ec7456cc1a93d691417223ede62d9fa32317c63ba7646b21ff17c6bd9363ebb0",
+      "compiled_final_sha256": "ec7456cc1a93d691417223ede62d9fa32317c63ba7646b21ff17c6bd9363ebb0"
+    },
+    {
+      "path": "src/extraction/pptx/parser.rs",
+      "pristine_sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802",
+      "spans_baseline_sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802",
+      "prepared_candidate_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4",
+      "independent_apply_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4",
+      "source_prepared_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4",
+      "compiled_final_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4"
+    },
+    {
+      "path": "src/extraction/docx/xml_names.rs",
+      "pristine_sha256": null,
+      "spans_baseline_sha256": null,
+      "prepared_candidate_sha256": "d42e7c9391d1d615e6c34e3b9cc751e06a783f0fb660e92b2ea568def54403b8",
+      "independent_apply_sha256": "d42e7c9391d1d615e6c34e3b9cc751e06a783f0fb660e92b2ea568def54403b8",
+      "source_prepared_sha256": "d42e7c9391d1d615e6c34e3b9cc751e06a783f0fb660e92b2ea568def54403b8",
+      "compiled_final_sha256": "d42e7c9391d1d615e6c34e3b9cc751e06a783f0fb660e92b2ea568def54403b8"
+    }
+  ],
+  "namespace_authorities": [
+    {
+      "families": [
+        "Word",
+        "Relationship",
+        "PackageRelationship",
+        "Drawing",
+        "WordDrawing",
+        "Picture"
+      ],
+      "authority": "xberg src/extraction/ooxml_constants.rs:9-45"
+    },
+    {
+      "families": [
+        "Math",
+        "Compatibility",
+        "VML"
+      ],
+      "authority": "betteroffice-docx-parse 0.3.0 src/xml.rs:22-24"
+    },
+    {
+      "families": [
+        "strict Word"
+      ],
+      "authority": "betteroffice-docx-edit 0.3.0 src/compare/xml.rs:12"
+    },
+    {
+      "families": [
+        "strict Relationship"
+      ],
+      "authority": "strict officeDocument relationship stem in betteroffice-opc src/sanitize.rs:17 and current DOCX relationship acceptance src/relationships.rs:173"
+    }
+  ],
+  "source_anchors": [
+    {
+      "package": "quick-xml-0.42.0",
+      "path": "src/reader/ns_reader.rs",
+      "lines": "125-133, 190-192, 26-29",
+      "sha256": "0dafdfe6fcbcc5a9994102ee1b8b574e6823ef9adf8438c00f734242e805dc9f",
+      "role": "resolver/resolver_mut and scope-aware read_event_into; Empty/End pop deferred until next event"
+    },
+    {
+      "package": "quick-xml-0.42.0",
+      "path": "src/name.rs",
+      "lines": "324-335, 518-555, 654-720, 900-911",
+      "sha256": "7c4c007d6feccc90b7c3081cc43cae338e3e5dd9d5d976151162d8c8fe25a845",
+      "role": "PrefixDeclaration, unchanged default binding limit, checked add, element versus attribute resolution"
+    },
+    {
+      "package": "roxmltree-0.21.1",
+      "path": "src/lib.rs",
+      "lines": "1198-1211, 1315-1317",
+      "sha256": "ef6299f199093167f7479e6203821a3aa71ad3da60712b74e1c1debeaeb131e7",
+      "role": "Node namespaces and element-parent maintained APIs"
+    },
+    {
+      "package": "roxmltree-0.21.1",
+      "path": "src/parse.rs",
+      "lines": "957-984",
+      "sha256": "0abb1ada55cdbd5c5799912474bdbff24d9da2aa12dadf987f65a5766975b20c",
+      "role": "resolve_namespaces carries inherited bindings except locally shadowed prefixes"
+    },
+    {
+      "package": "betteroffice-docx-parse-0.3.0",
+      "path": "src/xml.rs",
+      "lines": "15-24",
+      "sha256": "cc4f0f33951de555e0dc91deb2984828acd21efd7c801025cc1ec0803e831cd6",
+      "role": "source-known Math, compatibility and VML URI declarations"
+    },
+    {
+      "package": "betteroffice-docx-edit-0.3.0",
+      "path": "src/compare/xml.rs",
+      "lines": "12",
+      "sha256": "3f4bd4543a953ff7005073f2c918dc57a13fadb252da28980329280be872dfeb",
+      "role": "source-known strict Word URI"
+    },
+    {
+      "package": "betteroffice-opc-0.3.0",
+      "path": "src/sanitize.rs",
+      "lines": "15-17",
+      "sha256": "1ad8c5309a95b99b8fdf95f3dcbf22c11eaa7042ee4e36a5983d50e514e6bdf3",
+      "role": "source-known strict officeDocument relationship URI stem"
+    },
+    {
+      "package": "betteroffice-docx-parse-0.3.0",
+      "path": "src/relationships.rs",
+      "lines": "170-174",
+      "sha256": "9841d1e7bdc5358944a6902fe1b56c8ae620da4be3e44df3d0adb69cb530241d",
+      "role": "current reader accepts strict officeDocument relationship type"
+    },
+    {
+      "package": "xberg-1.3.10",
+      "path": "src/extraction/ooxml_constants.rs",
+      "lines": "9-45",
+      "sha256": "10afd5f1ffa20f4ec9929337d6a35ff28522b08dcd3ea065b066d06792d2a38e",
+      "role": "existing transitional Word/relationships/package relationships/Drawing/WordDrawing/Picture constants"
+    }
+  ],
+  "PPTX_mechanical_caller": {
+    "path": "src/extraction/pptx/parser.rs::omml_node_to_run",
+    "raw_fragment": "xml_str.get(math_node.range())? unchanged",
+    "context": "Seed level-zero NsReader resolver from math_node.parent_element().namespaces(); fragment start/descendants own local scopes",
+    "resolution": "actual MATH_NAMESPACE plus oMathPara/oMath; existing DOM display-first/inline-second selection unchanged",
+    "cost_boundary": "one pass through existing in-scope parent bindings plus the same fragment parse per equation; no full-slide rescan, no new namespace stack",
+    "errors_and_limits": "NamespaceResolver::add checked through existing None fallback; reserved-prefix checks and default 128-binding cap unchanged; seeding consumes that cap, never raises it",
+    "scope": "shared-converter regression only, no PPTX O2 qualification"
+  },
+  "prepared_source": {
+    "external_root": "/private/tmp/brn-x2-office-namespaces3-20261018",
+    "pristine_git": "c0892b30149bec8e8a086c582597ae4b17dbdfbd",
+    "spans_source_git": "97590498810da6bc761577f6c37ed3b4dc627125",
+    "baseline_with_identical_drivers_git": "37fb3471cd341d2bf5ebb98c0f152b28efd737da",
+    "candidate_git": "37eed9a95acebb4e8bbfed14332ca1ab6350662e",
+    "candidate_tree": "556c3ac91d82bea805005633c78c84422ef7b909",
+    "new_driver": {
+      "path": "tests/docx_namespaces.rs",
+      "sha256": "199d8c6bdfc47a99a711fe9df1311c26ba40fd5a7cb26f71b56373cf9c00035e",
+      "new_test_declarations": 17,
+      "lines": 694
+    },
+    "retained_driver": {
+      "path": "tests/spans.rs",
+      "sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+      "test_declarations": 8,
+      "byte_equal_to_accepted_S3": true
+    },
+    "fixtures": [
+      {
+        "path": "fixtures/features.docx",
+        "sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d"
+      },
+      {
+        "path": "fixtures/footnotes.docx",
+        "sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c"
+      },
+      {
+        "path": "fixtures/harbor-process.docx",
+        "sha256": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87"
+      },
+      {
+        "path": "fixtures/harbor.docx",
+        "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+      },
+      {
+        "path": "fixtures/prefix-variation.docx",
+        "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+      },
+      {
+        "path": "fixtures/prefix-variation.inventory.json",
+        "sha256": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3"
+      },
+      {
+        "path": "fixtures/source-image.png",
+        "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+      }
+    ],
+    "compatibility_script": {
+      "path": "/private/tmp/brn-x2-office-namespaces3-20261018/compare_legacy.py",
+      "sha256": "cb57e6c7f2b750bc6edb15d3a7232e623fc17dce6c378f6bacf71fe8c0a55708",
+      "executed": false
+    }
+  },
+  "static_checks": {
+    "independent_apply_all_selected_hashes_match": true,
+    "owned_direct_rustfmt_check": true,
+    "accepted_S3_geometry_methods_equal": true,
+    "ordered_lexical_budget_call_sequences_equal": true,
+    "unchanged_files": [
+      "src/extraction/derive/mod.rs",
+      "src/extractors/docx.rs",
+      "src/extraction/docx/theme.rs",
+      "src/extraction/docx/math/render.rs"
+    ],
+    "source_only_caveat": "Call-site text equality is not runtime budget/cost/heap proof; rustfmt is not a typecheck, lint or test"
+  },
+  "executed_behavioral_checks": [
+    "before target 01 (10/15)",
+    "before target 06 (10/15)",
+    "before final controls 08 (10/15)",
+    "final initial runtime 03 (23/2 test-expectation errors)",
+    "final intermediate runtime 07 (24/1 test-expectation error)",
+    "final controls 09 (25/0)",
+    "source-authored compatibility 12 (28 equal + 1 corrected; 24 equal DOCX input bytes)"
+  ],
+  "compiled": true,
+  "metadata_calls": 0,
+  "cargo_calls": 10,
+  "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+  "root_adoption": false,
+  "open_gates": [
+    "valid-input envelope beyond fixed namespace controls",
+    "full XML/DTD/readset/preallocation/repeated-work bounds",
+    "layout/nested tables and omitted layout",
+    "notes/annotations/locators/renderer fidelity",
+    "PPTX O2",
+    "restricted runtime and root adoption",
+    "all eight documents and carried PDF/SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications"
+  ],
+  "source_prepared_history": {
+    "repo_commit": "4f6814bc231b1af5da945e7758a413d302cbdbc4",
+    "repo_tree": "ea60eda3fd8b72aa47a81ed6f6ddf3af7393862c",
+    "patch_sha256": "aa26694eb0be3c17d474fbf6ae5a7c8f2d96f0e6cc2b4af27d93e19781ded62c",
+    "external_candidate_git": "37eed9a95acebb4e8bbfed14332ca1ab6350662e",
+    "new_driver_sha256": "199d8c6bdfc47a99a711fe9df1311c26ba40fd5a7cb26f71b56373cf9c00035e",
+    "boundary": "uncompiled/unexecuted at that historical pin; its original exports and static receipts remain immutable",
+    "exports": "/private/tmp/brn-x2-office-ns3-run-20261018/evidence/source-only-4f6814bc"
+  },
+  "verification": {
+    "external_root": "/private/tmp/brn-x2-office-ns3-run-20261018",
+    "before_xberg_git": "13f30e6a06ac7eeb66e647ffd9bf1ee58d90b89c",
+    "final_xberg_git": "00ba3b3183719643121824b48ce288a492c2c111",
+    "final_xberg_tree": "9b3fdd967b63833c83aaf1b91d5331701194938d",
+    "compiled_harness_git": "e8661224f6cd5d83af7e7fc9ebdc25d9867d4725",
+    "compiled_harness_tree": "bff6fc2f294f136eb47b81af9d6ea6695d36622f",
+    "final_harness_git": "a03b92bf857f6230f664f1f8061dc3ae30772a75",
+    "final_harness_tree": "c7603ab9bd84cd618a5343d02d5921be2fa79239",
+    "final_harness_note": "Post-lint Git changes only the separately executed Python compatibility checker; compiled Rust/manifest/lock bytes equal successful test/lint receipts",
+    "new_driver_sha256": "cd9c7d74269ba16d401d85fa4d33c0142fa697f81fba5f222b8b15c566e70cd9",
+    "retained_driver_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+    "before_result": "10 passed / 15 failed / 0 ignored / 0 filtered, identical final Rust controls",
+    "final_result": "25 passed / 0 failed / 0 ignored / 0 filtered",
+    "compatibility": "28 whole-value-identical + 1 exact source-corrected features capture; separate complete prefix inventory assertion",
+    "DOCX_inputs_identical_to_accepted_S3": 24,
+    "strict_original_29_identity": "FAILED and retained; not relabelled",
+    "harness_all_target_Clippy": "PASS -D warnings; not dependency-wide lint",
+    "registry_graph": "239 identical registry identities/features in complete emissions; compiler-failed 02 emits 238, missing only direct harness zip8",
+    "normal_xberg_features": [
+      "html",
+      "notebook",
+      "office"
+    ],
+    "normal_xberg_cfg_test": false,
+    "graph_reconciliation_calls": 0,
+    "cargo_build_test_lint_calls": 9,
+    "cargo_version_calls": 1,
+    "harness_lock_sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+    "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "static_reproduction_receipt_sha256": "64e301200c928e30450e96b48584426a91070bb06a7ff10c307cff7145156472",
+    "graph_attempt_index_sha256": "f30e6fb0490f9f7520e0f638c3b8aa4fae8af77ff18e6ff6f53a6d5a96890e68",
+    "verification_handoff": "../../../docs/work/active/modular-foundation/x2/office1/namespaces3/verification/handoff.md"
+  }
+}

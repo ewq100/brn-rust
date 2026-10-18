@@ -1,0 +1,51 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error[E0308]: mismatched types
+   --> crates/brn-ai/src/threads_intake.rs:246:29
+    |
+246 |         match search.search(chat, &query.text, SEARCH_LIMIT, None, query.hybrid) {
+    |                      ------ ^^^^ expected `Option<&str>`, found `&str`
+    |                      |
+    |                      arguments to this method are incorrect
+    |
+    = note:   expected enum `std::option::Option<&str>`
+            found reference `&str`
+note: method defined here
+   --> crates/brn-ai/src/threads_search.rs:20:8
+    |
+ 20 |     fn search(
+    |        ^^^^^^
+ 21 |         &self,
+ 22 |         chat: Option<&str>,
+    |         ----
+help: try wrapping the expression in `Some`
+    |
+246 |         match search.search(Some(chat), &query.text, SEARCH_LIMIT, None, query.hybrid) {
+    |                             +++++    +
+
+error[E0308]: mismatched types
+   --> crates/brn-ai/src/threads_intake.rs:517:48
+    |
+517 |         if let Ok(around) = search.connections(&scope.chat, &id, 1, true) {
+    |                                    ----------- ^^^^^^^^^^^ expected `Option<&str>`, found `&String`
+    |                                    |
+    |                                    arguments to this method are incorrect
+    |
+    = note:   expected enum `std::option::Option<&str>`
+            found reference `&std::string::String`
+note: method defined here
+   --> crates/brn-ai/src/threads_search.rs:28:8
+    |
+ 28 |     fn connections(
+    |        ^^^^^^^^^^^
+ 29 |         &self,
+ 30 |         chat: Option<&str>,
+    |         ----
+help: try wrapping the expression in `Some`
+    |
+517 |         if let Ok(around) = search.connections(Some(&scope.chat), &id, 1, true) {
+    |                                                +++++           +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `brn-ai` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

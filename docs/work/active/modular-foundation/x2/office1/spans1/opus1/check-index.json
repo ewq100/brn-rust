@@ -1,0 +1,195 @@
+{
+  "scope": "Review1 P2 correction only; independent review2 pending, not acceptance",
+  "commands": [
+    {
+      "label": "01-focused",
+      "receipt": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/01-focused/receipt.json",
+      "receipt_sha256": "0f3227d7555160c4a17a6466c6dca8cd72d633d2c1afaa10da8383e8e6860e47",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--test",
+        "spans",
+        "parallel_merge_chains_end_restart_and_wide_columns",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-r1-20261018/final/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "environment": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target",
+        "TMPDIR": "/private/tmp/brn-x2-office-s3-r1-20261018/tmp-final",
+        "S3_CAPTURE": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/01-focused/captures",
+        "RUST_TEST_THREADS": "1"
+      },
+      "exit": 0,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+        "xberg/src/extraction/docx/parser.rs": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+        "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+        "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+      },
+      "stdout_sha256": "3c9c4c174ff69889e2e097b0f9726167b134bf2b0c097170a8eb7f836a2d9190",
+      "stderr_sha256": "f8c8f01c24fd12b53e1c5a1cec4a26aa70e855e99f2703727815a84785cc667a"
+    },
+    {
+      "label": "02-full-harness",
+      "receipt": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/02-full-harness/receipt.json",
+      "receipt_sha256": "de7efaa526adbf6c9a71c9207299eaab172a850b77b5ae0cee769b9f4626e7b4",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--test",
+        "spans",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-r1-20261018/final/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "environment": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target",
+        "TMPDIR": "/private/tmp/brn-x2-office-s3-r1-20261018/tmp-final",
+        "S3_CAPTURE": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/02-full-harness/captures",
+        "RUST_TEST_THREADS": "1"
+      },
+      "exit": 101,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+        "xberg/src/extraction/docx/parser.rs": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+        "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+        "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+      },
+      "stdout_sha256": "69c407f123ce2e26611c965b24f4a112d0f6a586a195c19e161abe1a53c5c528",
+      "stderr_sha256": "cc9949fb29b5a11ad30a594174b0eb071f39ebc04c66efd17b3f2cb87775c159"
+    },
+    {
+      "label": "03-harness-clippy",
+      "receipt": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/03-harness-clippy/receipt.json",
+      "receipt_sha256": "130bbb0d2f9c03c2f677d0cd447c80a0ac4eb3d8236ccc6489ea5cb652625e7a",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--all-targets",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-r1-20261018/final/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "environment": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-office-s3-r1-20261018/final-target",
+        "TMPDIR": "/private/tmp/brn-x2-office-s3-r1-20261018/tmp-final",
+        "S3_CAPTURE": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/03-harness-clippy/captures",
+        "RUST_TEST_THREADS": "1"
+      },
+      "exit": 0,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+        "xberg/src/extraction/docx/parser.rs": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+        "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+        "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+      },
+      "stdout_sha256": "c0f5511d072f7826e35dbcfdd97aee6a18563ce819e0b7f6b65493d3f7a5c360",
+      "stderr_sha256": "09141f945a5df85db47668a351b41eed3ac09195a10e3990c1c6a55907c25edd"
+    }
+  ],
+  "results": {
+    "focused": "1 passed / 0 failed / 7 filtered",
+    "full_harness_once": "7 passed / 1 failed / 0 ignored / 0 filtered; only known prefix namespace gap",
+    "original_tolerance_comparison": "22 DOCX + 6 consumer outputs pass",
+    "old_candidate_strict_equality": "28/28 complete values equal, including grids; 22 input byte values unchanged",
+    "new_focused_full_equality": "2/2 new capture/input values agree",
+    "harness_clippy": "all-targets -D warnings pass; dependency-wide lint not established",
+    "direct_rustfmt": "changed parser and harness test pass; other two upstream files byte-identical to prior pin",
+    "independent_patch_apply": "selected 3 files equal compiled hashes; only parser differs from prior candidate",
+    "graph": "239 registry identity/feature sets exactly equal prior emitted candidate; Xberg cfg(test)=false, html/notebook/office",
+    "metadata_reconciliations": 0,
+    "new_dependency_source_acquisitions": 0,
+    "performance_evidence": "Structural monotone-cursor bound only. No benchmark, timing/RSS threshold, instrumented test API or claimed performance-red.",
+    "static_checks": "Staged whitespace and JSON parse pass; Markdown 395 files / 1755 local links / zero failures."
+  },
+  "evidence": [
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/original-preservation.json",
+      "sha256": "ab61f513a02f5375cc561ad6268edf8b9e903ba6805ba0783f6fd9b853ef8b98"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/compiled-precommit.json",
+      "sha256": "d9bf16359724e7e90284e074efd68b698b0d33a0c750f154618221e53afe9a37"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/output-comparison.json",
+      "sha256": "e1f10e57089ae4366cfe420f970dd8cdb1b1078b60b957d19ccf7b579580cb09"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/cursor-compatibility.json",
+      "sha256": "d53358bdf808fd644dd551c301a8c87d6a3757237a82be1c3954243e51dbb5af"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/emitted-graph.json",
+      "sha256": "3b8d5cd57d41ecb4a5dc6452c6a08c0188ebace3ca415c751b5fa60c560aa166"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/format-check.json",
+      "sha256": "0d2576b43b2e4234a99575c2a2a59da452225a50a02f2fd820a7296c8e43a8ee"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/patch-apply.json",
+      "sha256": "bcc54a593b1944ff96fe1401226b12eb9cc8751a59a303a32831eee698bdcfd4"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/production-correction.diff",
+      "sha256": "913c8c1822df772d700decc278776350049edc4f4d017d6142024042d0de944f"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/release-inventory.json",
+      "sha256": "4d72cc02f1f8245e356b1984d417faa5f1f725db60c4152ca23a4212db5499b4"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/static-checks.json",
+      "sha256": "0d82081bbc427e2934aca9b0b6da26c03359ce1aa542ab532f8b4f6b1c51d217"
+    }
+  ],
+  "raw_review": {
+    "source": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-spans1-actual-review-round1.txt",
+    "repo_copy": "docs/work/active/modular-foundation/x2/office1/spans1/opus1/opus-review-round1.txt",
+    "sha256": "41a1f663d76773c57a354bd8bd886f52a93f4a23464297ab616b685706663de8"
+  },
+  "unexecuted": [
+    "Native-PDF consumer runtime; global shared consumer remains unchanged.",
+    "Upstream private unit modules and dependency-wide Clippy.",
+    "XML/DTD/read-set/resource/repeated-pass bounds, namespace/nested/notes/annotations/locators/renderer repair.",
+    "PPTX O2, sandbox/restricted Xberg runtime, root adoption/retirement/all-eight production promotion.",
+    "New independent review2, principal acceptance, owner/native/program/main/PR/merge."
+  ],
+  "history": "Original 1/6 -> 6/1 measurements remain attached to their original source; no pristine rerun or retroactive relabeling."
+}

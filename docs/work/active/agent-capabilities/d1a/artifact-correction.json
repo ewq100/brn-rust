@@ -1,0 +1,28 @@
+{
+  "issue": "Cargo reused own D1A failing-before copied-source core dependency for brn-ai feature graph; direct core feature graph compiled correction separately. No C0 artifacts involved.",
+  "stale_dep_info_strings": [
+    "failing-before-source/crates/brn-threads-core/src/reader.rs",
+    "failing-before-source/crates/brn-threads-core/src/inspect.rs",
+    "failing-before-source/crates/brn-threads-core/src/projects.rs",
+    "failing-before-source/crates/brn-threads-core/src/lib.rs",
+    "failing-before-source/crates/brn-threads-core/src/edit.rs",
+    "failing-before-source/crates/brn-threads-core/src/read.rs",
+    "failing-before-source/crates/brn-threads-core/src/writing.rs",
+    "failing-before-source/crates/brn-threads-core/src/backup.rs",
+    "failing-before-source/crates/brn-threads-core/src/locator.rs",
+    "failing-before-source/crates/brn-threads-core/src/revision_read.rs",
+    "failing-before-source/crates/brn-threads-core/src/chat.rs",
+    "failing-before-source/crates/brn-threads-core/src/context.rs",
+    "failing-before-source/crates/brn-threads-core/src/run_attention.rs",
+    "failing-before-source/crates/brn-threads-core/src/store.rs",
+    "failing-before-source/crates/brn-threads-core/src/restore.rs",
+    "failing-before-source/crates/brn-threads-core/src/upgrade.rs",
+    "failing-before-source/crates/brn-threads-core/src/converge.rs",
+    "failing-before-source/crates/brn-threads-core/src/steering.rs",
+    "failing-before-source/crates/brn-threads-core/src/stage.rs",
+    "failing-before-source/crates/brn-threads-core/src/types.rs"
+  ],
+  "dep_info_sha256": "7c0c16c66d8737bf6f3450add002c26d6aa839dad218736072b0672b32c9bdf7",
+  "stale_library_sha256": "15bd403688973fe740a7d4d82a97847899c67d6880a7eed3e2d7da6727ed36c7",
+  "qualification": "ai-complete-with-helpers core behavior is old source; not final corrected-source proof. Clean only own task core artifacts, then rebuild actual candidate; preserve failed receipt."
+}

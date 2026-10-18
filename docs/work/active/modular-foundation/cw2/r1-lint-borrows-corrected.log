@@ -1,0 +1,23 @@
+    Checking brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+error: this expression creates a reference which is immediately dereferenced by the compiler
+  --> crates/brn-threads-app/src/writing.rs:76:41
+   |
+76 |         let scope = writing_setup_scope(&rows, opening)?;
+   |                                         ^^^^^ help: change this to: `rows`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrow
+   = note: `-D clippy::needless-borrow` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_borrow)]`
+
+error: this expression creates a reference which is immediately dereferenced by the compiler
+   --> crates/brn-threads-app/src/writing.rs:627:38
+    |
+627 |             || writing_request_scope(&rows, &snapshot.thread)? != context.scope
+    |                                      ^^^^^ help: change this to: `rows`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_borrow
+
+error: could not compile `brn-threads-app` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `brn-threads-app` (lib) due to 2 previous errors

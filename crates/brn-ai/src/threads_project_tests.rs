@@ -1,7 +1,7 @@
 //! Offline project boundaries exercise the actual runtime handlers and fences.
 use super::*;
 use sha2::{Digest, Sha256};
-fn project_command(store: &mut Store, command: ProjectCommand) -> Receipt {
+pub(super) fn project_command(store: &mut Store, command: ProjectCommand) -> Receipt {
     let key = unique_host_key();
     let hash = format!(
         "{:x}",
@@ -10,7 +10,7 @@ fn project_command(store: &mut Store, command: ProjectCommand) -> Receipt {
     let op = store.allocate_bound_operation(&key, &hash).unwrap();
     store
         .project_command(&op, &command, &HostAuthority::owner("fixture"))
-        .unwrap()
+        .unwrap_or_else(|error| panic!("project fixture {command:?}: {error}"))
 }
 fn saved(store: &mut Store, data: RecordData) -> Record {
     let op = store.allocate_operation(&unique_host_key()).unwrap();
@@ -296,6 +296,7 @@ fn reviewed_project_rewrite_applies_after_attention_but_context_movement_invalid
         let proposal = prepare(
             &scope,
             PrepareArgs {
+                writing: None,
                 request_key: "rewrite".into(),
                 request: snapshot.change_request("Tuesday").unwrap(),
             },

@@ -1,0 +1,75 @@
+**APPROVED — bounded Office spans1 component.** The prior P2 is closed. No new must-fix correctness, complexity, security, regression or scope finding. **Full S3, Office promotion and all-eight-document readiness remain NOT READY.**
+
+Reviewed the clean isolated candidate:
+
+- HEAD: `8d66607ba8448658953971665cc9d2b5b47948bf`
+- Tree: `41afba8ea5f440f489515fd7679ab7a3940d16dd`
+- Branch: `work/x2-office-prep-20261018`
+- Compiled external Git: `683cb52a96b56c344318085d39dbf1725064ddce`
+- Corrected patch SHA-256: `92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7`
+
+Cached `origin/main` remains `57c710cc`; no fetch occurred. BRN production, tests, manifests and root lock are unchanged against base `983a7ec0`.
+
+**P2 closure**
+
+The correction at [parser.rs:1092](/private/tmp/brn-x2-office-s3-r1-20261018/final/xberg/src/extraction/docx/parser.rs:1092) implements the requested monotone cursor correctly.
+
+Positive spans make current source columns strictly increasing. Previous active entries were appended in that same order. The cursor skips only earlier columns, requires both exact column and width, consumes each successful match and never moves backward. Exhaustion or mismatch returns the existing fallback. `previous = active` still restricts continuation to the immediately preceding row.
+
+For P previous active entries and Q current continuations, there are at most P cursor advances and O(Q) additional guard/match operations: **O(P+Q) lookup work per row**. Independently ending or restarting chains preserve this bound and cannot reconnect an older origin across a gap.
+
+No HashMap, sorting, dependency, quota, parser-policy or framework change was introduced. The old 8,390,656-comparison example remains an analytical operation count. Neither the new functional test nor this review establishes measured speedup, performance-red evidence, total parsing bounds or an RSS bound.
+
+**Complete patch assessment**
+
+I inspected the complete final three-file patch against pristine Xberg 1.3.10, plus the correction from the first candidate.
+
+The parser retains checked arithmetic, rectangular qualification, origin-once text, real empty origins and legacy fallback for missing/ragged grids or unmatched continuations. Geometry is not inferred from equal strings.
+
+The extractor still attaches through `merge_attribute` to the exact returned body/header/footer table element. Caption placement cannot redirect attachment. Body style coordinates remain sorted for binary search; existing header/footer style behavior and first-row header semantics remain preserved.
+
+The [shared attribute cleanup](/private/tmp/brn-x2-office-s3-r1-20261018/final/xberg/src/extraction/derive/mod.rs:503) clears the envelope only after actually removing the native-grid key and finding no remaining attributes. Pre-existing empty maps and unrelated attributes survive. JSON handling, native-grid matching, repair and fallback remain unchanged.
+
+The extractor and derive files are byte-identical to the first candidate. Only the parser lookup changes in production during this correction. No new coupling warrants reopening accepted A1.
+
+**Tests and compatibility evidence**
+
+The original **20,749 test bytes are an exact prefix** of the corrected test file; exactly one test was appended. Original orphan, mismatch, interrupted-chain and other assertions remain intact.
+
+The [new test](/private/tmp/brn-x2-office-s3-r1-20261018/final/harness/tests/spans.rs:576) provides proportional coverage:
+
+- Five mixed-width chains across four rows, widths **2/1/2/1/2**, with independent ends/restarts and a heading-styled origin. The authored XML supports exactly **12 origins**, including two distinct three-row chains.
+- **4,096 unit-width chains across three rows**, with exactly **4,096 three-row origins**.
+- Exact public typed geometry, complete coverage, origin fields, complete legacy Table JSON and absent node attributes.
+
+I inspected the captured source XML alongside the literal expectations and public captures. The expectations follow the authored source patterns rather than using extracted output as their oracle.
+
+Retained source-associated logs establish:
+
+- New focused test: **1 passed / 0 failed / 7 filtered**.
+- Full current harness: **7 passed / 1 failed / 0 ignored / 0 filtered**.
+
+The failure remains `complete_reference_output_controls` at `tests/spans.rs:492`, requiring nonempty prefix-variation content. Its complete captured value equals the first candidate. **This is a real retained namespace failure; it is neither green nor S7 closure, and it does not block this bounded correction.** Original pristine **1/6** and first-candidate **6/1** evidence retain their historical identities.
+
+I independently compared the retained data:
+
+- All **28 original complete public values**, including geometry, equal the first patched candidate.
+- All **22 original DOCX inputs** match byte-for-byte.
+- The original-tolerance pristine comparison still holds for **22 DOCX plus six consumer outputs**, with ten semantic-table representations changing.
+- Both new focused/full capture values and inputs agree.
+
+The compatibility comparison preserves non-grid public output, dimensions and retained-origin non-span fields; removed cells must be empty covered slots. It remains compatibility evidence alongside independent geometry expectations, not whole-document fidelity proof.
+
+**Custody and verification limits**
+
+Selective checks matched the corrected patch hash; pristine, compiled, prior-candidate and retained independent-application source hashes; current command receipt/log/source hashes; indexed correction evidence; original report bytes; small retained dep-info hashes; and recorded executable sizes. Large executable bytes and the full dependency closure were not rehashed.
+
+Retained compiler records independently confirm the same **239 registry identities and feature unions**, with normal dependency Xberg using `html/notebook/office` and `cfg(test)=false`. Harness manifest and lock bytes are unchanged.
+
+Strict all-target harness Clippy, direct owned formatting and patch-reproduction receipts pass. Dependency-wide lint and real native-PDF consumer execution remain unexecuted. The shared PDF reach is unchanged by this P2 correction.
+
+No optional code change is required for bounded approval. Complete XML/DTD/read-set/resource qualification, repeated-pass bounds, namespaces, notes/annotations/comments, locators, nested tables, renderer associations, PPTX O2, restricted runtime, root adoption and reader retirement remain open. Prior PDF/SDK/widget/platform/INT-W/native-human/owner/program/live/main qualifications remain carried.
+
+This review used read-only Git, source/evidence inspection, bounded fixture inspection and captured-data comparisons. No files were written; no Cargo, metadata, build, test, lint, formatting, project binary, network/Auth, GUI or delegation ran. No mutable PDF source was inspected.
+
+**Standards/complexity: zero remaining findings; prior P2 closed. Spec/semantics: zero new findings.** Parent retains disposition, acceptance and integration ownership.

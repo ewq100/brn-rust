@@ -1,0 +1,11 @@
+--- crates/brn-ai/src/threads.rs
++++ post-apply-full-output
+@@ -1570,7 +1570,7 @@
+     }
+ }
+ fn applied_output(receipt: &Receipt, full: Value) -> Value {
+-    if context_budget::result_fits(&full) {
++    if true {
+         return full;
+     }
+     let writes = receipt

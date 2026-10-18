@@ -1,0 +1,71 @@
+{
+  "all13_preserved_paths_match_original_qualified_hashes": true,
+  "paths": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "5dab395bdbaac4d39ed29a842913580efc0a656ea95eb18d486b037724b89687",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/Cargo.toml",
+      "sha256": "989fe141f1dc29e4d1b8a4a57e00c51e29be5e094731aa3b771aa06b64caba20",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/auth.rs",
+      "sha256": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_context_budget.rs",
+      "sha256": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_continuation.rs",
+      "sha256": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_sources.rs",
+      "sha256": "fc7be8a299da5d4817c62203c8c21b77b6caef8939b548e4f82d7b3e477ced31",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_history.rs",
+      "sha256": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "agent/BRN.md",
+      "sha256": "82b4765df086ad04d10c4eff7268c38128c47c02b90fdf330632dbd5eaedb225",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "agent/skills/resolve-conflict/SKILL.md",
+      "sha256": "89659b077b0beaf921d0134fcc36830b45e23c9c2f1a5e82c44dc49240494310",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "agent/skills/prepare-reply/SKILL.md",
+      "sha256": "102d2b830bb6402476884993bd9b0ca087cf4cb4283821ebb980ae8e0f2f76b7",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "agent/skills/intake/SKILL.md",
+      "sha256": "bc3ca07b2b80263239a32182a4e958d4c47428202fedf7378c2fb21b5ffa3f73",
+      "unchanged_from_base": true
+    },
+    {
+      "path": "agent/skills/maintain-notes/SKILL.md",
+      "sha256": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff",
+      "unchanged_from_base": true
+    }
+  ],
+  "original_core_replay_and_raw_bounds_test_functions_byte_identical_to6ff": true
+}

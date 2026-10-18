@@ -1,0 +1,1314 @@
+[
+  {
+    "diff": "--- crates/brn-ai/src/error.rs\n+++ replace AiError::is_context_limit -> bool with true\n@@ -3,21 +3,17 @@\n use rig::providers::chatgpt::auth::AuthError;\n \n const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;\n \n impl AiError {\n     /// Context exhaustion keeps the existing serialized error kind. Both the\n     /// local estimator and the provider's safe code use this observable cause.\n     pub(crate) fn is_context_limit(&self) -> bool {\n-        self.kind == AiErrorKind::Other\n-            && self\n-                .detail\n-                .as_ref()\n-                .is_some_and(|d| d.code.as_deref() == Some(\"context_length_exceeded\"))\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n     pub fn new(kind: AiErrorKind) -> Self {\n         Self {\n             kind,\n             retry_after_seconds: None,\n             detail: None,\n         }\n     }\n",
+    "file": "crates/brn-ai/src/error.rs",
+    "function": {
+      "function_name": "AiError::is_context_limit",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 16
+        },
+        "start": {
+          "column": 5,
+          "line": 8
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/error.rs:11:9: replace AiError::is_context_limit -> bool with true",
+    "package": "brn-ai",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 87,
+        "line": 15
+      },
+      "start": {
+        "column": 9,
+        "line": 11
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/error.rs\n+++ replace AiError::is_context_limit -> bool with false\n@@ -3,21 +3,17 @@\n use rig::providers::chatgpt::auth::AuthError;\n \n const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;\n \n impl AiError {\n     /// Context exhaustion keeps the existing serialized error kind. Both the\n     /// local estimator and the provider's safe code use this observable cause.\n     pub(crate) fn is_context_limit(&self) -> bool {\n-        self.kind == AiErrorKind::Other\n-            && self\n-                .detail\n-                .as_ref()\n-                .is_some_and(|d| d.code.as_deref() == Some(\"context_length_exceeded\"))\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n     pub fn new(kind: AiErrorKind) -> Self {\n         Self {\n             kind,\n             retry_after_seconds: None,\n             detail: None,\n         }\n     }\n",
+    "file": "crates/brn-ai/src/error.rs",
+    "function": {
+      "function_name": "AiError::is_context_limit",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 16
+        },
+        "start": {
+          "column": 5,
+          "line": 8
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/error.rs:11:9: replace AiError::is_context_limit -> bool with false",
+    "package": "brn-ai",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 87,
+        "line": 15
+      },
+      "start": {
+        "column": 9,
+        "line": 11
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/error.rs\n+++ replace && with || in AiError::is_context_limit\n@@ -4,17 +4,17 @@\n \n const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;\n \n impl AiError {\n     /// Context exhaustion keeps the existing serialized error kind. Both the\n     /// local estimator and the provider's safe code use this observable cause.\n     pub(crate) fn is_context_limit(&self) -> bool {\n         self.kind == AiErrorKind::Other\n-            && self\n+            || /* ~ changed by cargo-mutants ~ */ self\n                 .detail\n                 .as_ref()\n                 .is_some_and(|d| d.code.as_deref() == Some(\"context_length_exceeded\"))\n     }\n     pub fn new(kind: AiErrorKind) -> Self {\n         Self {\n             kind,\n             retry_after_seconds: None,\n",
+    "file": "crates/brn-ai/src/error.rs",
+    "function": {
+      "function_name": "AiError::is_context_limit",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 16
+        },
+        "start": {
+          "column": 5,
+          "line": 8
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/error.rs:12:13: replace && with || in AiError::is_context_limit",
+    "package": "brn-ai",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 12
+      },
+      "start": {
+        "column": 13,
+        "line": 12
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/error.rs\n+++ replace == with != in AiError::is_context_limit\n@@ -3,17 +3,17 @@\n use rig::providers::chatgpt::auth::AuthError;\n \n const MAX_DELAY_SECONDS: u64 = 365 * 24 * 60 * 60;\n \n impl AiError {\n     /// Context exhaustion keeps the existing serialized error kind. Both the\n     /// local estimator and the provider's safe code use this observable cause.\n     pub(crate) fn is_context_limit(&self) -> bool {\n-        self.kind == AiErrorKind::Other\n+        self.kind != /* ~ changed by cargo-mutants ~ */ AiErrorKind::Other\n             && self\n                 .detail\n                 .as_ref()\n                 .is_some_and(|d| d.code.as_deref() == Some(\"context_length_exceeded\"))\n     }\n     pub fn new(kind: AiErrorKind) -> Self {\n         Self {\n             kind,\n",
+    "file": "crates/brn-ai/src/error.rs",
+    "function": {
+      "function_name": "AiError::is_context_limit",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 16
+        },
+        "start": {
+          "column": 5,
+          "line": 8
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/error.rs:11:19: replace == with != in AiError::is_context_limit",
+    "package": "brn-ai",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 11
+      },
+      "start": {
+        "column": 19,
+        "line": 11
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/error.rs\n+++ replace == with != in AiError::is_context_limit\n@@ -7,17 +7,17 @@\n impl AiError {\n     /// Context exhaustion keeps the existing serialized error kind. Both the\n     /// local estimator and the provider's safe code use this observable cause.\n     pub(crate) fn is_context_limit(&self) -> bool {\n         self.kind == AiErrorKind::Other\n             && self\n                 .detail\n                 .as_ref()\n-                .is_some_and(|d| d.code.as_deref() == Some(\"context_length_exceeded\"))\n+                .is_some_and(|d| d.code.as_deref() != /* ~ changed by cargo-mutants ~ */ Some(\"context_length_exceeded\"))\n     }\n     pub fn new(kind: AiErrorKind) -> Self {\n         Self {\n             kind,\n             retry_after_seconds: None,\n             detail: None,\n         }\n     }\n",
+    "file": "crates/brn-ai/src/error.rs",
+    "function": {
+      "function_name": "AiError::is_context_limit",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 16
+        },
+        "start": {
+          "column": 5,
+          "line": 8
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/error.rs:15:52: replace == with != in AiError::is_context_limit",
+    "package": "brn-ai",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 15
+      },
+      "start": {
+        "column": 52,
+        "line": 15
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace Budget::accepts -> bool with true\n@@ -61,17 +61,17 @@\n     #[cfg(test)]\n     pub(super) fn test_cap(cap: usize) -> Self {\n         Self {\n             context: Some(cap),\n             cap,\n         }\n     }\n     pub(super) fn accepts(self, estimate: usize) -> bool {\n-        estimate.saturating_add(RESPONSE).saturating_add(SAFETY) <= self.cap\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n     fn disclosure(self) -> &'static str {\n         if self.context.is_some() {\n             \"UTF-8/JSON byte estimate (not token proof); sourced Codex catalog default, not account metadata; provider context limit remains the backstop.\"\n         } else {\n             \"Model context limit unknown. UTF-8/JSON byte estimate under a host resource cap only, not token proof; provider context limit remains the backstop.\"\n         }\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "Budget::accepts",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 70
+        },
+        "start": {
+          "column": 5,
+          "line": 68
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:69:9: replace Budget::accepts -> bool with true",
+    "package": "brn-ai",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 69
+      },
+      "start": {
+        "column": 9,
+        "line": 69
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace Budget::accepts -> bool with false\n@@ -61,17 +61,17 @@\n     #[cfg(test)]\n     pub(super) fn test_cap(cap: usize) -> Self {\n         Self {\n             context: Some(cap),\n             cap,\n         }\n     }\n     pub(super) fn accepts(self, estimate: usize) -> bool {\n-        estimate.saturating_add(RESPONSE).saturating_add(SAFETY) <= self.cap\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n     fn disclosure(self) -> &'static str {\n         if self.context.is_some() {\n             \"UTF-8/JSON byte estimate (not token proof); sourced Codex catalog default, not account metadata; provider context limit remains the backstop.\"\n         } else {\n             \"Model context limit unknown. UTF-8/JSON byte estimate under a host resource cap only, not token proof; provider context limit remains the backstop.\"\n         }\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "Budget::accepts",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 70
+        },
+        "start": {
+          "column": 5,
+          "line": 68
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:69:9: replace Budget::accepts -> bool with false",
+    "package": "brn-ai",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 69
+      },
+      "start": {
+        "column": 9,
+        "line": 69
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace <= with > in Budget::accepts\n@@ -61,17 +61,17 @@\n     #[cfg(test)]\n     pub(super) fn test_cap(cap: usize) -> Self {\n         Self {\n             context: Some(cap),\n             cap,\n         }\n     }\n     pub(super) fn accepts(self, estimate: usize) -> bool {\n-        estimate.saturating_add(RESPONSE).saturating_add(SAFETY) <= self.cap\n+        estimate.saturating_add(RESPONSE).saturating_add(SAFETY) > /* ~ changed by cargo-mutants ~ */ self.cap\n     }\n     fn disclosure(self) -> &'static str {\n         if self.context.is_some() {\n             \"UTF-8/JSON byte estimate (not token proof); sourced Codex catalog default, not account metadata; provider context limit remains the backstop.\"\n         } else {\n             \"Model context limit unknown. UTF-8/JSON byte estimate under a host resource cap only, not token proof; provider context limit remains the backstop.\"\n         }\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "Budget::accepts",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 70
+        },
+        "start": {
+          "column": 5,
+          "line": 68
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:69:66: replace <= with > in Budget::accepts",
+    "package": "brn-ai",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 68,
+        "line": 69
+      },
+      "start": {
+        "column": 66,
+        "line": 69
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field origin from struct crate::AiFailureDetail expression in failure\n@@ -73,17 +73,17 @@\n             \"UTF-8/JSON byte estimate (not token proof); sourced Codex catalog default, not account metadata; provider context limit remains the backstop.\"\n         } else {\n             \"Model context limit unknown. UTF-8/JSON byte estimate under a host resource cap only, not token proof; provider context limit remains the backstop.\"\n         }\n     }\n }\n pub(super) fn failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n-        origin: \"context_budget\".into(),\n+         /* ~ changed by cargo-mutants ~ */\n         code: Some(LIMIT_CODE.into()),\n         ..Default::default()\n     })\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "failure",
+      "return_type": "-> AiError",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 85
+        },
+        "start": {
+          "column": 1,
+          "line": 79
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:81:9: delete field origin from struct crate::AiFailureDetail expression in failure",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 81
+      },
+      "start": {
+        "column": 9,
+        "line": 81
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field code from struct crate::AiFailureDetail expression in failure\n@@ -74,17 +74,17 @@\n         } else {\n             \"Model context limit unknown. UTF-8/JSON byte estimate under a host resource cap only, not token proof; provider context limit remains the backstop.\"\n         }\n     }\n }\n pub(super) fn failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n         origin: \"context_budget\".into(),\n-        code: Some(LIMIT_CODE.into()),\n+         /* ~ changed by cargo-mutants ~ */\n         ..Default::default()\n     })\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "failure",
+      "return_type": "-> AiError",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 85
+        },
+        "start": {
+          "column": 1,
+          "line": 79
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:82:9: delete field code from struct crate::AiFailureDetail expression in failure",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 82
+      },
+      "start": {
+        "column": 9,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace <impl AgentHook for BudgetHook>::on_dispatch -> DispatchAction with Default::default()\n@@ -237,32 +237,17 @@\n \n pub(super) struct BudgetHook {\n     pub(super) budget: Budget,\n     pub(super) exhausted: Arc<AtomicBool>,\n     pub(super) scope: Arc<Scope>,\n }\n impl AgentHook for BudgetHook {\n     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {\n-        if let Some(request) = event.completion_request() {\n-            let current = self\n-                .scope\n-                .store\n-                .lock()\n-                .ok()\n-                .is_some_and(|store| live(&self.scope, &store).is_ok());\n-            if !current {\n-                return DispatchAction::stop(\"run no longer current\");\n-            }\n-            if !self.budget.accepts(estimate(request)) {\n-                self.exhausted.store(true, Ordering::SeqCst);\n-                return DispatchAction::stop(\"context request estimate exhausted\");\n-            }\n-        }\n-        DispatchAction::Proceed\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n             && estimate(result.output()) > RESULT\n         {\n             // Refuse the whole result before admission, never rewrite or\n             // silently truncate exact evidence / already executed effects.\n             self.exhausted.store(true, Ordering::SeqCst);\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_dispatch",
+      "return_type": "-> DispatchAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 261
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:245:9: replace <impl AgentHook for BudgetHook>::on_dispatch -> DispatchAction with Default::default()",
+    "package": "brn-ai",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 260
+      },
+      "start": {
+        "column": 9,
+        "line": 245
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in <impl AgentHook for BudgetHook>::on_dispatch\n@@ -244,17 +244,17 @@\n     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {\n         if let Some(request) = event.completion_request() {\n             let current = self\n                 .scope\n                 .store\n                 .lock()\n                 .ok()\n                 .is_some_and(|store| live(&self.scope, &store).is_ok());\n-            if !current {\n+            if  /* ~ changed by cargo-mutants ~ */current {\n                 return DispatchAction::stop(\"run no longer current\");\n             }\n             if !self.budget.accepts(estimate(request)) {\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_dispatch",
+      "return_type": "-> DispatchAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 261
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:252:16: delete ! in <impl AgentHook for BudgetHook>::on_dispatch",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 252
+      },
+      "start": {
+        "column": 16,
+        "line": 252
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in <impl AgentHook for BudgetHook>::on_dispatch\n@@ -247,17 +247,17 @@\n                 .scope\n                 .store\n                 .lock()\n                 .ok()\n                 .is_some_and(|store| live(&self.scope, &store).is_ok());\n             if !current {\n                 return DispatchAction::stop(\"run no longer current\");\n             }\n-            if !self.budget.accepts(estimate(request)) {\n+            if  /* ~ changed by cargo-mutants ~ */self.budget.accepts(estimate(request)) {\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_dispatch",
+      "return_type": "-> DispatchAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 261
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:255:16: delete ! in <impl AgentHook for BudgetHook>::on_dispatch",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 255
+      },
+      "start": {
+        "column": 16,
+        "line": 255
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace <impl AgentHook for BudgetHook>::on_outcome -> OutcomeAction with Default::default()\n@@ -255,19 +255,11 @@\n             if !self.budget.accepts(estimate(request)) {\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n-        if let Some(result) = event.tool_result()\n-            && estimate(result.output()) > RESULT\n-        {\n-            // Refuse the whole result before admission, never rewrite or\n-            // silently truncate exact evidence / already executed effects.\n-            self.exhausted.store(true, Ordering::SeqCst);\n-            return OutcomeAction::stop(\"tool result exceeds context admission estimate\");\n-        }\n-        OutcomeAction::Proceed\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_outcome",
+      "return_type": "-> OutcomeAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 272
+        },
+        "start": {
+          "column": 5,
+          "line": 262
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:263:9: replace <impl AgentHook for BudgetHook>::on_outcome -> OutcomeAction with Default::default()",
+    "package": "brn-ai",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 271
+      },
+      "start": {
+        "column": 9,
+        "line": 263
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace && with || in <impl AgentHook for BudgetHook>::on_outcome\n@@ -256,17 +256,17 @@\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n-            && estimate(result.output()) > RESULT\n+            || /* ~ changed by cargo-mutants ~ */ estimate(result.output()) > RESULT\n         {\n             // Refuse the whole result before admission, never rewrite or\n             // silently truncate exact evidence / already executed effects.\n             self.exhausted.store(true, Ordering::SeqCst);\n             return OutcomeAction::stop(\"tool result exceeds context admission estimate\");\n         }\n         OutcomeAction::Proceed\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_outcome",
+      "return_type": "-> OutcomeAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 272
+        },
+        "start": {
+          "column": 5,
+          "line": 262
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:264:13: replace && with || in <impl AgentHook for BudgetHook>::on_outcome",
+    "package": "brn-ai",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 15,
+        "line": 264
+      },
+      "start": {
+        "column": 13,
+        "line": 264
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace > with == in <impl AgentHook for BudgetHook>::on_outcome\n@@ -256,17 +256,17 @@\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n-            && estimate(result.output()) > RESULT\n+            && estimate(result.output()) == /* ~ changed by cargo-mutants ~ */ RESULT\n         {\n             // Refuse the whole result before admission, never rewrite or\n             // silently truncate exact evidence / already executed effects.\n             self.exhausted.store(true, Ordering::SeqCst);\n             return OutcomeAction::stop(\"tool result exceeds context admission estimate\");\n         }\n         OutcomeAction::Proceed\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_outcome",
+      "return_type": "-> OutcomeAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 272
+        },
+        "start": {
+          "column": 5,
+          "line": 262
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:264:42: replace > with == in <impl AgentHook for BudgetHook>::on_outcome",
+    "package": "brn-ai",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 264
+      },
+      "start": {
+        "column": 42,
+        "line": 264
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace > with < in <impl AgentHook for BudgetHook>::on_outcome\n@@ -256,17 +256,17 @@\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n-            && estimate(result.output()) > RESULT\n+            && estimate(result.output()) < /* ~ changed by cargo-mutants ~ */ RESULT\n         {\n             // Refuse the whole result before admission, never rewrite or\n             // silently truncate exact evidence / already executed effects.\n             self.exhausted.store(true, Ordering::SeqCst);\n             return OutcomeAction::stop(\"tool result exceeds context admission estimate\");\n         }\n         OutcomeAction::Proceed\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_outcome",
+      "return_type": "-> OutcomeAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 272
+        },
+        "start": {
+          "column": 5,
+          "line": 262
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:264:42: replace > with < in <impl AgentHook for BudgetHook>::on_outcome",
+    "package": "brn-ai",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 264
+      },
+      "start": {
+        "column": 42,
+        "line": 264
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace > with >= in <impl AgentHook for BudgetHook>::on_outcome\n@@ -256,17 +256,17 @@\n                 self.exhausted.store(true, Ordering::SeqCst);\n                 return DispatchAction::stop(\"context request estimate exhausted\");\n             }\n         }\n         DispatchAction::Proceed\n     }\n     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {\n         if let Some(result) = event.tool_result()\n-            && estimate(result.output()) > RESULT\n+            && estimate(result.output()) >= /* ~ changed by cargo-mutants ~ */ RESULT\n         {\n             // Refuse the whole result before admission, never rewrite or\n             // silently truncate exact evidence / already executed effects.\n             self.exhausted.store(true, Ordering::SeqCst);\n             return OutcomeAction::stop(\"tool result exceeds context admission estimate\");\n         }\n         OutcomeAction::Proceed\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "<impl AgentHook for BudgetHook>::on_outcome",
+      "return_type": "-> OutcomeAction",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 272
+        },
+        "start": {
+          "column": 5,
+          "line": 262
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:264:42: replace > with >= in <impl AgentHook for BudgetHook>::on_outcome",
+    "package": "brn-ai",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 264
+      },
+      "start": {
+        "column": 42,
+        "line": 264
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace read_message -> AiResult<Value> with AiResult::new()\n@@ -40,45 +40,17 @@\n                 lowered_bytes += length;\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n-    if !(1..=8192).contains(&args.max_bytes)\n-        || scope.scout.is_some()\n-        || scope.writing_snapshot.is_some()\n-    {\n-        return Err(rejected());\n-    }\n-    let store = scope.store.lock().map_err(storage)?;\n-    live(scope, &store)?;\n-    let rows = store.records().map_err(storage)?;\n-    let record = rows\n-        .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n-        .ok_or_else(rejected)?;\n-    let RecordData::Message(message) = &record.data else {\n-        return Err(rejected());\n-    };\n-    if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n-    {\n-        return Err(rejected());\n-    }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n-        return Err(rejected());\n-    }\n-    Ok(\n-        json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n-    )\n+    AiResult::new() /* ~ changed by cargo-mutants ~ */\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n /// run's chat cannot see, which are indistinguishable from missing ones.\n #[derive(Debug, Clone, PartialEq, Eq)]\n pub enum NoteSearchError {\n     Rejected,\n     Unavailable(String),\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_search.rs:48:5: replace read_message -> AiResult<Value> with AiResult::new()",
+    "package": "brn-ai",
+    "replacement": "AiResult::new()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 76
+      },
+      "start": {
+        "column": 5,
+        "line": 48
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace read_message -> AiResult<Value> with AiResult::from_iter([Default::default()])\n@@ -40,45 +40,17 @@\n                 lowered_bytes += length;\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n-    if !(1..=8192).contains(&args.max_bytes)\n-        || scope.scout.is_some()\n-        || scope.writing_snapshot.is_some()\n-    {\n-        return Err(rejected());\n-    }\n-    let store = scope.store.lock().map_err(storage)?;\n-    live(scope, &store)?;\n-    let rows = store.records().map_err(storage)?;\n-    let record = rows\n-        .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n-        .ok_or_else(rejected)?;\n-    let RecordData::Message(message) = &record.data else {\n-        return Err(rejected());\n-    };\n-    if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n-    {\n-        return Err(rejected());\n-    }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n-        return Err(rejected());\n-    }\n-    Ok(\n-        json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n-    )\n+    AiResult::from_iter([Default::default()]) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n /// run's chat cannot see, which are indistinguishable from missing ones.\n #[derive(Debug, Clone, PartialEq, Eq)]\n pub enum NoteSearchError {\n     Rejected,\n     Unavailable(String),\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_search.rs:48:5: replace read_message -> AiResult<Value> with AiResult::from_iter([Default::default()])",
+    "package": "brn-ai",
+    "replacement": "AiResult::from_iter([Default::default()])",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 76
+      },
+      "start": {
+        "column": 5,
+        "line": 48
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace read_message -> AiResult<Value> with AiResult::new(Default::default())\n@@ -40,45 +40,17 @@\n                 lowered_bytes += length;\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n-    if !(1..=8192).contains(&args.max_bytes)\n-        || scope.scout.is_some()\n-        || scope.writing_snapshot.is_some()\n-    {\n-        return Err(rejected());\n-    }\n-    let store = scope.store.lock().map_err(storage)?;\n-    live(scope, &store)?;\n-    let rows = store.records().map_err(storage)?;\n-    let record = rows\n-        .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n-        .ok_or_else(rejected)?;\n-    let RecordData::Message(message) = &record.data else {\n-        return Err(rejected());\n-    };\n-    if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n-    {\n-        return Err(rejected());\n-    }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n-        return Err(rejected());\n-    }\n-    Ok(\n-        json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n-    )\n+    AiResult::new(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n /// run's chat cannot see, which are indistinguishable from missing ones.\n #[derive(Debug, Clone, PartialEq, Eq)]\n pub enum NoteSearchError {\n     Rejected,\n     Unavailable(String),\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_search.rs:48:5: replace read_message -> AiResult<Value> with AiResult::new(Default::default())",
+    "package": "brn-ai",
+    "replacement": "AiResult::new(Default::default())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 76
+      },
+      "start": {
+        "column": 5,
+        "line": 48
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace read_message -> AiResult<Value> with AiResult::from(Default::default())\n@@ -40,45 +40,17 @@\n                 lowered_bytes += length;\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n-    if !(1..=8192).contains(&args.max_bytes)\n-        || scope.scout.is_some()\n-        || scope.writing_snapshot.is_some()\n-    {\n-        return Err(rejected());\n-    }\n-    let store = scope.store.lock().map_err(storage)?;\n-    live(scope, &store)?;\n-    let rows = store.records().map_err(storage)?;\n-    let record = rows\n-        .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n-        .ok_or_else(rejected)?;\n-    let RecordData::Message(message) = &record.data else {\n-        return Err(rejected());\n-    };\n-    if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n-    {\n-        return Err(rejected());\n-    }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n-        return Err(rejected());\n-    }\n-    Ok(\n-        json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n-    )\n+    AiResult::from(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n /// run's chat cannot see, which are indistinguishable from missing ones.\n #[derive(Debug, Clone, PartialEq, Eq)]\n pub enum NoteSearchError {\n     Rejected,\n     Unavailable(String),\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_search.rs:48:5: replace read_message -> AiResult<Value> with AiResult::from(Default::default())",
+    "package": "brn-ai",
+    "replacement": "AiResult::from(Default::default())",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 76
+      },
+      "start": {
+        "column": 5,
+        "line": 48
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace || with && in read_message\n@@ -42,17 +42,17 @@\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n     if !(1..=8192).contains(&args.max_bytes)\n         || scope.scout.is_some()\n-        || scope.writing_snapshot.is_some()\n+        && /* ~ changed by cargo-mutants ~ */ scope.writing_snapshot.is_some()\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:50:9: replace || with && in read_message",
+    "package": "brn-ai",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 50
+      },
+      "start": {
+        "column": 9,
+        "line": 50
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace || with && in read_message\n@@ -41,17 +41,17 @@\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n     if !(1..=8192).contains(&args.max_bytes)\n-        || scope.scout.is_some()\n+        && /* ~ changed by cargo-mutants ~ */ scope.scout.is_some()\n         || scope.writing_snapshot.is_some()\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:49:9: replace || with && in read_message",
+    "package": "brn-ai",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 49
+      },
+      "start": {
+        "column": 9,
+        "line": 49
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ delete ! in read_message\n@@ -40,17 +40,17 @@\n                 lowered_bytes += length;\n                 found\n             })\n         })\n         .unwrap_or(0);\n     (start, start + truncate(&text[start..], cap).len())\n }\n pub(super) fn read_message(scope: &Scope, args: MessageArgs) -> AiResult<Value> {\n-    if !(1..=8192).contains(&args.max_bytes)\n+    if  /* ~ changed by cargo-mutants ~ */(1..=8192).contains(&args.max_bytes)\n         || scope.scout.is_some()\n         || scope.writing_snapshot.is_some()\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:48:8: delete ! in read_message",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 48
+      },
+      "start": {
+        "column": 8,
+        "line": 48
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace && with || in read_message\n@@ -51,17 +51,17 @@\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n+        .find(|r| r.id == args.id && !r.archived || /* ~ changed by cargo-mutants ~ */ record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:59:50: replace && with || in read_message",
+    "package": "brn-ai",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 59
+      },
+      "start": {
+        "column": 50,
+        "line": 59
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace && with || in read_message\n@@ -51,17 +51,17 @@\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n+        .find(|r| r.id == args.id || /* ~ changed by cargo-mutants ~ */ !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:59:35: replace && with || in read_message",
+    "package": "brn-ai",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 59
+      },
+      "start": {
+        "column": 35,
+        "line": 59
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace == with != in read_message\n@@ -51,17 +51,17 @@\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n+        .find(|r| r.id != /* ~ changed by cargo-mutants ~ */ args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:59:24: replace == with != in read_message",
+    "package": "brn-ai",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 59
+      },
+      "start": {
+        "column": 24,
+        "line": 59
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ delete ! in read_message\n@@ -51,17 +51,17 @@\n     {\n         return Err(rejected());\n     }\n     let store = scope.store.lock().map_err(storage)?;\n     live(scope, &store)?;\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n-        .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n+        .find(|r| r.id == args.id &&  /* ~ changed by cargo-mutants ~ */r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:59:38: delete ! in read_message",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 59
+      },
+      "start": {
+        "column": 38,
+        "line": 59
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace || with && in read_message\n@@ -58,17 +58,17 @@\n         .iter()\n         .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n+        && /* ~ changed by cargo-mutants ~ */ !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:66:9: replace || with && in read_message",
+    "package": "brn-ai",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 66
+      },
+      "start": {
+        "column": 9,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace || with && in read_message\n@@ -57,17 +57,17 @@\n     let record = rows\n         .iter()\n         .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n+        && /* ~ changed by cargo-mutants ~ */ record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:65:9: replace || with && in read_message",
+    "package": "brn-ai",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 65
+      },
+      "start": {
+        "column": 9,
+        "line": 65
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ delete ! in read_message\n@@ -56,17 +56,17 @@\n     let rows = store.records().map_err(storage)?;\n     let record = rows\n         .iter()\n         .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n-    if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n+    if  /* ~ changed by cargo-mutants ~ */matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:64:8: delete ! in read_message",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 64
+      },
+      "start": {
+        "column": 8,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace != with == in read_message\n@@ -57,17 +57,17 @@\n     let record = rows\n         .iter()\n         .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n-        || record.version != args.version\n+        || record.version == /* ~ changed by cargo-mutants ~ */ args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:65:27: replace != with == in read_message",
+    "package": "brn-ai",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 65
+      },
+      "start": {
+        "column": 27,
+        "line": 65
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ delete ! in read_message\n@@ -58,17 +58,17 @@\n         .iter()\n         .find(|r| r.id == args.id && !r.archived && record_in_chat(r, &rows, Some(&scope.chat)))\n         .ok_or_else(rejected)?;\n     let RecordData::Message(message) = &record.data else {\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n-        || !message.text.is_char_boundary(args.start)\n+        ||  /* ~ changed by cargo-mutants ~ */message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:66:12: delete ! in read_message",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 66
+      },
+      "start": {
+        "column": 12,
+        "line": 66
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace + with - in read_message\n@@ -62,17 +62,17 @@\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n+    let end = args.start - /* ~ changed by cargo-mutants ~ */ truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:70:26: replace + with - in read_message",
+    "package": "brn-ai",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 70
+      },
+      "start": {
+        "column": 26,
+        "line": 70
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace + with * in read_message\n@@ -62,17 +62,17 @@\n         return Err(rejected());\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n-    let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n+    let end = args.start * /* ~ changed by cargo-mutants ~ */ truncate(&message.text[args.start..], args.max_bytes).len();\n     if end == args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:70:26: replace + with * in read_message",
+    "package": "brn-ai",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 70
+      },
+      "start": {
+        "column": 26,
+        "line": 70
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace && with || in read_message\n@@ -63,17 +63,17 @@\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n+    if end == args.start || /* ~ changed by cargo-mutants ~ */ args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:71:26: replace && with || in read_message",
+    "package": "brn-ai",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 71
+      },
+      "start": {
+        "column": 26,
+        "line": 71
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace == with != in read_message\n@@ -63,17 +63,17 @@\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n+    if end != /* ~ changed by cargo-mutants ~ */ args.start && args.start < message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:71:12: replace == with != in read_message",
+    "package": "brn-ai",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 71
+      },
+      "start": {
+        "column": 12,
+        "line": 71
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace < with == in read_message\n@@ -63,17 +63,17 @@\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n+    if end == args.start && args.start == /* ~ changed by cargo-mutants ~ */ message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:71:40: replace < with == in read_message",
+    "package": "brn-ai",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 71
+      },
+      "start": {
+        "column": 40,
+        "line": 71
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace < with > in read_message\n@@ -63,17 +63,17 @@\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n+    if end == args.start && args.start > /* ~ changed by cargo-mutants ~ */ message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:71:40: replace < with > in read_message",
+    "package": "brn-ai",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 71
+      },
+      "start": {
+        "column": 40,
+        "line": 71
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_search.rs\n+++ replace < with <= in read_message\n@@ -63,17 +63,17 @@\n     };\n     if !matches!(message.role.as_str(), \"owner\" | \"assistant\")\n         || record.version != args.version\n         || !message.text.is_char_boundary(args.start)\n     {\n         return Err(rejected());\n     }\n     let end = args.start + truncate(&message.text[args.start..], args.max_bytes).len();\n-    if end == args.start && args.start < message.text.len() {\n+    if end == args.start && args.start <= /* ~ changed by cargo-mutants ~ */ message.text.len() {\n         return Err(rejected());\n     }\n     Ok(\n         json!({\"id\":record.id,\"version\":record.version,\"thread\":message.thread,\"role\":message.role,\"text\":&message.text[args.start..end],\"start\":args.start,\"end\":end,\"total_bytes\":message.text.len(),\"next_start\":(end < message.text.len()).then_some(end),\"complete\":args.start == 0 && end == message.text.len(),\"context_kind\":\"Earlier discussion, not current instructions or an inherited grant\"}),\n     )\n }\n \n /// Why a host search failed. `Rejected` covers bad input and notes the\n",
+    "file": "crates/brn-ai/src/threads_search.rs",
+    "function": {
+      "function_name": "read_message",
+      "return_type": "-> AiResult<Value>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 77
+        },
+        "start": {
+          "column": 1,
+          "line": 47
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_search.rs:71:40: replace < with <= in read_message",
+    "package": "brn-ai",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 71
+      },
+      "start": {
+        "column": 40,
+        "line": 71
+      }
+    }
+  }
+]

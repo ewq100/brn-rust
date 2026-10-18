@@ -1,0 +1,861 @@
+{
+  "source_pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+  "cap_seconds": 1800,
+  "start_unix": 1792215318.234582,
+  "collected_at_unix": 1792215740.208328,
+  "elapsed_including_all_setup_to_collection": 421.9737460613251,
+  "copied_source": "/private/tmp/brn-d3a-20261017-mutation-source",
+  "target": "/private/tmp/brn-d3a-20261017-mutation-target",
+  "copy_material_files_verified": 306,
+  "candidate_material_unchanged": true,
+  "copy_restored": true,
+  "baseline": {
+    "scenario": "Baseline",
+    "summary": "Success",
+    "log_path": "log/baseline.log",
+    "diff_path": null,
+    "phase_results": [
+      {
+        "phase": "Build",
+        "duration": 46.620456958,
+        "process_status": "Success",
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+          "test",
+          "--no-run",
+          "--verbose",
+          "--package=brn-ai@0.1.0",
+          "--locked",
+          "--offline"
+        ]
+      },
+      {
+        "phase": "Test",
+        "duration": 1.9318443749999998,
+        "process_status": "Success",
+        "argv": [
+          "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+          "test",
+          "--verbose",
+          "--package=brn-ai@0.1.0",
+          "--locked",
+          "--offline",
+          "--lib",
+          "skill_packages",
+          "--",
+          "--nocapture"
+        ]
+      }
+    ]
+  },
+  "baseline_log_sha256": "16b335e8f0bb05608a701dbac018216dca094f324c3f939f6f5bc9d5f4faf809",
+  "auto_selection_total": 14,
+  "all_listed_in_scope": 264,
+  "automatic": [
+    {
+      "list_index": 22,
+      "name": "crates/brn-ai/src/skill_packages.rs:87:5: replace file_path -> bool with true",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.475388208,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.8656256249999998,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::unsupported_references_scripts_collisions_and_encoding_fail_before_install"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_87_col_5.log",
+      "raw_log_sha256": "4c18418ba4efed9f7a31186414ed812b713d712247f5abdae31e62f0f1ca391a",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_87_col_5.diff",
+      "diff_sha256": "9d36b047c9e43efaf4d908b519f62ff4eb1ea4d2f1f870d365982eafc206ccbe",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 38,
+      "name": "crates/brn-ai/src/skill_packages.rs:99:59: replace > with >= in validate",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.800847542,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.9506405,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::encoded_large_payload_file_count_total_depth_and_artifact_tamper_are_bounded"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_99_col_59.log",
+      "raw_log_sha256": "9eccccdf1cd7b47be753b77b6173e15c7ac8b36330f9fc422a5d385e9dbb0557",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_99_col_59.diff",
+      "diff_sha256": "c286ff5afc922ebd16ae1b2d701d890e3ed3cf1704a4fc13be2c60ef490ae6cc",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 51,
+      "name": "crates/brn-ai/src/skill_packages.rs:120:57: delete ! in validate",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.452016459,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.955111333,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime",
+        "skill_packages::tests::unsupported_references_scripts_collisions_and_encoding_fail_before_install"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_120_col_57.log",
+      "raw_log_sha256": "bf87535346302d9b99e5131876f4c0729ef2827d88ac8d7db922889aee3b6561",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_120_col_57.diff",
+      "diff_sha256": "9c6b0133d5ce1a6502a81efdf235a60db39a87ac2eb8558e421a4d786e394572",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 54,
+      "name": "crates/brn-ai/src/skill_packages.rs:132:48: replace == with != in validate",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.089034958,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.180668708,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime",
+        "skill_packages::tests::competing_real_installs_have_one_identity_no_overwrite_and_owner_retry",
+        "skill_packages::tests::installed_catalog_limit_and_nonregular_artifacts_are_fail_closed",
+        "skill_packages::tests::atomic_exclusive_publish_and_management_lock_preserve_existing_bytes",
+        "skill_packages::tests::encoded_large_payload_file_count_total_depth_and_artifact_tamper_are_bounded"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_132_col_48.log",
+      "raw_log_sha256": "34f939842966da05dd451244992c8ec738510616909346189103d8355f816d7e",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_132_col_48.diff",
+      "diff_sha256": "12a5814a56f31ed98c380d98394da6b310885e4336b3b3c307a9b366bdf5884e",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 57,
+      "name": "crates/brn-ai/src/skill_packages.rs:168:36: replace || with && in bounded",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.189722458,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.9896277919999998,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::unsupported_references_scripts_collisions_and_encoding_fail_before_install"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_168_col_36.log",
+      "raw_log_sha256": "9eef94e4b25bff77c20ba6351cefc55b7f54b39bc11c05c9687b2c9911813922",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_168_col_36.diff",
+      "diff_sha256": "24af457bb15d43123018452744a945c1ef7d6dbadc3137fab27305750d60d3f0",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 129,
+      "name": "crates/brn-ai/src/skill_packages.rs:294:13: replace || with && in Catalog::read",
+      "tool_outcome": "MissedMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.0403595,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.983867292,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_294_col_13.log",
+      "raw_log_sha256": "2bff5f65b95c49fbb3f2158505e9daf478a13e9c50d979003b267594fef106d2",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_294_col_13.diff",
+      "diff_sha256": "030eeb11448ff1340bfb1a02519e76c178f03ce2d796372230b9c7628a071d0e"
+    },
+    {
+      "list_index": 153,
+      "name": "crates/brn-ai/src/skill_packages.rs:367:35: replace == with != in install",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.294556,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.952544042,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_367_col_35.log",
+      "raw_log_sha256": "3d59020f24a68f641491ba9962f6d50e7556247921ebd686e7353484b3a58e37",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_367_col_35.diff",
+      "diff_sha256": "8a3a12ad32ee95e7f38f641e0db8d533d15d8d0cdb9b757a3eabf34b2bb80012",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 175,
+      "name": "crates/brn-ai/src/skill_packages.rs:425:24: replace != with == in remove",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.344034041,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.935073292,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::competing_real_installs_have_one_identity_no_overwrite_and_owner_retry",
+        "skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_425_col_24.log",
+      "raw_log_sha256": "d69f0f678907a5b24268dab5a0cc4af111255772db4bcbefd509705bfa0de162",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_425_col_24.diff",
+      "diff_sha256": "56cc57a4b59b03db7eb768eb77243070e0d2d58362e254d1a76041bbeae7dfb8",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 176,
+      "name": "crates/brn-ai/src/skill_packages.rs:443:13: replace || with && in remove",
+      "tool_outcome": "MissedMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.361704625,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.930517416,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages.rs_line_443_col_13.log",
+      "raw_log_sha256": "0bb5db322ab218653946ea23b73af587735c31d484f1d3fbdf53ef64d2b5fa89",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages.rs_line_443_col_13.diff",
+      "diff_sha256": "a87ac98bc9665a4cde3ce9c2fdced77ba0edb3997c98ce7582aed307b2c616d9"
+    },
+    {
+      "list_index": 210,
+      "name": "crates/brn-ai/src/threads_guides.rs:174:41: replace || with && in skill_metadata",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.320736209,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.9587585,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__threads_guides.rs_line_174_col_41.log",
+      "raw_log_sha256": "bbb2d95b66e4f79e479bb5f323f6a16391fb53dd163ffb6a4032dd3ff9598dde",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__threads_guides.rs_line_174_col_41.diff",
+      "diff_sha256": "f14bcd828849c9f358d52e2066d7b6fe8ed6ee1384fddb9c8a33f40397237dd1",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 211,
+      "name": "crates/brn-ai/src/threads_guides.rs:183:23: replace match guard name.is_none() && valid_skill_name(value) with true in skill_metadata",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 12.244338167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.981061166,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__threads_guides.rs_line_183_col_23.log",
+      "raw_log_sha256": "38b559985c5151439c98122f66fb9c609686be8cdaa19eb3cf9346fa690d053a",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__threads_guides.rs_line_183_col_23.diff",
+      "diff_sha256": "8b1a9362cf04dee3db7442e48ea973704f0d7c5f15f678815e1e911ce44edd8b",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 213,
+      "name": "crates/brn-ai/src/threads_guides.rs:184:30: replace match guard description.is_none() && value.len() <= 1024 with true in skill_metadata",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.408509708,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.876860834,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::strict_manifest_subset_byte_bounds_and_builtins"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__threads_guides.rs_line_184_col_30.log",
+      "raw_log_sha256": "91f855b440794f56e729155e7c1d2520af366cc4b84374cbe30c9e9ffeacab61",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__threads_guides.rs_line_184_col_30.diff",
+      "diff_sha256": "70fa2d11a680403b7a4c3b3dd3a395894d4b4d81515f003dbafb2308352bcba0",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 248,
+      "name": "crates/brn-ai/src/skill_packages_fs.rs:100:28: replace || with && in Dir::file",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.785717083,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.8776195420000001,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::symlink_ancestors_leaf_fifo_hardlink_and_foreign_catalog_are_refused"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages_fs.rs_line_100_col_28.log",
+      "raw_log_sha256": "f12fada61288011e9d56d79a19253704391ba43f67d4f7930000af8c8a19e2f1",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages_fs.rs_line_100_col_28.diff",
+      "diff_sha256": "dbcd903f08e8ba3c40061211f38cfa8e6b0be845b2aae8e515d1f33ae9e4745c",
+      "behavioral_catch_qualified": true
+    },
+    {
+      "list_index": 262,
+      "name": "crates/brn-ai/src/skill_packages_fs.rs:171:9: replace Dir::rename_exclusive -> io::Result<()> with Ok(())",
+      "tool_outcome": "CaughtMutant",
+      "phase_results": [
+        {
+          "phase": "Build",
+          "duration": 13.084238167,
+          "process_status": "Success",
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--no-run",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline"
+          ]
+        },
+        {
+          "phase": "Test",
+          "duration": 1.5868009170000001,
+          "process_status": {
+            "Failure": 101
+          },
+          "argv": [
+            "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+            "test",
+            "--verbose",
+            "--package=brn-ai@0.1.0",
+            "--locked",
+            "--offline",
+            "--lib",
+            "skill_packages",
+            "--",
+            "--nocapture"
+          ]
+        }
+      ],
+      "actual_failing_tests": [
+        "skill_packages::tests::atomic_exclusive_publish_and_management_lock_preserve_existing_bytes",
+        "skill_packages::tests::real_copy_reopen_digest_conflict_and_removal_do_not_enable_runtime",
+        "skill_packages::tests::competing_real_installs_have_one_identity_no_overwrite_and_owner_retry",
+        "skill_packages::tests::encoded_large_payload_file_count_total_depth_and_artifact_tamper_are_bounded",
+        "skill_packages::tests::installed_catalog_limit_and_nonregular_artifacts_are_fail_closed"
+      ],
+      "raw_log": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/log/crates__brn-ai__src__skill_packages_fs.rs_line_171_col_9.log",
+      "raw_log_sha256": "eeb09fa42789124fcac6498c776e5dfe50bc659c57e6e9274e3685c0ebc1d8a6",
+      "diff": "/private/tmp/brn-d3a-20261017-artifacts/mutation-auto/mutants.out/diff/crates__brn-ai__src__skill_packages_fs.rs_line_171_col_9.diff",
+      "diff_sha256": "82d8402ce5a36e9399e6f861852abd7bcb0a1f37f333a0b48614769215ee3d88",
+      "behavioral_catch_qualified": true
+    }
+  ],
+  "seeds": [
+    {
+      "id": "FS01_ancestor_nofollow",
+      "kind": "manual fixed filesystem-flag seed, not cargo-mutants generated",
+      "pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+      "source": "/private/tmp/brn-d3a-20261017-mutation-source",
+      "target": "/private/tmp/brn-d3a-20261017-mutation-target",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-fs-seed-euh4nfnz",
+      "CARGO_ENCODED_RUSTFLAGS": "--cap-lints=warn",
+      "diff_sha256": "0c072c431ce10a380e5fc059c02ffe94182e1bb27477464366c015485901c56e",
+      "mutated_file_sha256": "e10bf041b486964f3c836bf278c805c90d49445dea40f6fb98ad88e722ef0403",
+      "started_unix": 1792215652.673214,
+      "expected_behavior_witness": "symlink_ancestors_leaf_fifo_hardlink_and_foreign_catalog_are_refused",
+      "pid": 67981,
+      "pgid": 67981,
+      "exit": 101,
+      "ended_unix": 1792215702.684952,
+      "log_sha256": "45eb873b5abc46418536b80b7e2a121f1bd66e79196e36d125dbc1057926d05c",
+      "compiled_and_executed": true,
+      "behavior_assertion_failed": true,
+      "outcome": "CAUGHT",
+      "artifact": {
+        "path": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5",
+        "sha256": "c2880728358d1185ba360629cd9527c87a778814d70fb44c12b27ebf6db71df4",
+        "dep_info": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5.d",
+        "dep_info_sha256": "12c17ecc5979d678803090e878b1e9f58f35f04cb251ff816a17a11cc4d019f4",
+        "dep_info_source_root_present": true
+      },
+      "copy_restored": true
+    },
+    {
+      "id": "FS02_leaf_nofollow",
+      "kind": "manual fixed filesystem-flag seed, not cargo-mutants generated",
+      "pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+      "source": "/private/tmp/brn-d3a-20261017-mutation-source",
+      "target": "/private/tmp/brn-d3a-20261017-mutation-target",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-fs-seed-fctzjb3l",
+      "CARGO_ENCODED_RUSTFLAGS": "--cap-lints=warn",
+      "diff_sha256": "c7be22baf955c5e2287ef248f4badb2ae67ebf80a64f615b980711362d160503",
+      "mutated_file_sha256": "9e4c58bb2d146a955f09febfc5ad8fd44ea39ba2ff5a850e1e2057028e981d50",
+      "started_unix": 1792215702.763277,
+      "expected_behavior_witness": "symlink_ancestors_leaf_fifo_hardlink_and_foreign_catalog_are_refused",
+      "pid": 74096,
+      "pgid": 74096,
+      "exit": 101,
+      "ended_unix": 1792215715.765457,
+      "log_sha256": "5ce605b66f381ea458a3da88e4c643f420ab44da063e5281fb0faad6ada48e06",
+      "compiled_and_executed": true,
+      "behavior_assertion_failed": true,
+      "outcome": "CAUGHT",
+      "artifact": {
+        "path": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5",
+        "sha256": "31f929c7464596a1c1a9c14bce61057a439d7c6b87634c415be0e3ca00b01245",
+        "dep_info": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5.d",
+        "dep_info_sha256": "12c17ecc5979d678803090e878b1e9f58f35f04cb251ff816a17a11cc4d019f4",
+        "dep_info_source_root_present": true
+      },
+      "copy_restored": true
+    },
+    {
+      "id": "FS03_no_overwrite",
+      "kind": "manual fixed filesystem-flag seed, not cargo-mutants generated",
+      "pin": "15c0574105779eb856c8738eb464126b383ff5eb",
+      "source": "/private/tmp/brn-d3a-20261017-mutation-source",
+      "target": "/private/tmp/brn-d3a-20261017-mutation-target",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "skill_packages",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d3a-fs-seed-ysfwigrw",
+      "CARGO_ENCODED_RUSTFLAGS": "--cap-lints=warn",
+      "diff_sha256": "7bc30a9c7a8ab0e83cde9848d25407808bf571867ae3c0b85f728964a19c8f11",
+      "mutated_file_sha256": "13abb48cfe9a2f1fae23dc448703041488b9e5ed65191f1c6b7a3d1bdc668cab",
+      "started_unix": 1792215715.808026,
+      "expected_behavior_witness": "atomic_exclusive_publish_and_management_lock_preserve_existing_bytes",
+      "pid": 74147,
+      "pgid": 74147,
+      "exit": 101,
+      "ended_unix": 1792215728.603173,
+      "log_sha256": "74a76ff0fca6a94a8b0244369f7aab9efa85556e81a28c8bfd49bbd2741c10c4",
+      "compiled_and_executed": true,
+      "behavior_assertion_failed": true,
+      "outcome": "CAUGHT",
+      "artifact": {
+        "path": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5",
+        "sha256": "d8b45fe5fa1c9265ffa554fcc8acbc2024be753379943bb3febb8934479ee392",
+        "dep_info": "/private/tmp/brn-d3a-20261017-mutation-target/debug/deps/brn_ai-b7a939480d6916d5.d",
+        "dep_info_sha256": "12c17ecc5979d678803090e878b1e9f58f35f04cb251ff816a17a11cc4d019f4",
+        "dep_info_source_root_present": true
+      },
+      "copy_restored": true
+    }
+  ],
+  "unexecuted_selected_names": [],
+  "not_selected_count": 250,
+  "no_full_campaign_claim": true,
+  "setup_failure": "First invocation --in-place + --jobs1 rejected before baseline, actual log preserved and time charged; corrected same controller/deadline. First non-building list used inherited TMPDIR; all builds/tests use fresh synthetic TMPDIR.",
+  "original_missed_unmodified": true
+}

@@ -1,0 +1,146 @@
+{
+  "task": "int-d-prepare-diagnosis-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "accepted_evidence_head": "2e68efe9eb487bc93ca99ff5f13394be70a12ad8",
+  "accepted_material": "b93904076026536750d392b617e80f065744afa8",
+  "crates_tree": "5993744077569483e0b88f2edd71f1b1ac8b096b",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "clean_at_start": true,
+  "source_files_identical_to_live_material_f1a": {
+    "crates/brn-ai/src/threads.rs": "f0bb60812d713be88586b952f9f9f55334e1cb74a5b997a8f6c8be1fed780f47",
+    "crates/brn-ai/src/threads_trace.rs": "8f6b5dc41bf2c4193f838f0889f7fad2a6118275ecd6c2c79dd2e1c314553d73",
+    "crates/brn-ai/src/threads_context_budget.rs": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+    "crates/brn-ai/src/threads_reads.rs": "22a3ab59c66b84d4744d2b800f0d1d7a452c01e3697b001ea196e6871ddc5730",
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "crates/brn-ai/src/chat.rs": "aa2c5507149267339b9afbce5be6839bc68e46cabdae494e9b1188ef40a4afef",
+    "crates/brn-ai/src/error.rs": "96f25279e2268e7e964df9444eadb8a777abcc218ded1c97867c2e97746c90e2",
+    "crates/brn-ai/src/threads_guides.rs": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+    "crates/brn-threads-app/src/run.rs": "7d3583e8a8b8952adab7fdf06dd79274bc0a1d93f3dfd80f0abe575bc6f77716",
+    "crates/brn/src/main.rs": "230054b37b1b033a8bee2a3cab464743123d90e50f6a35bf8c4615c256c88178",
+    "crates/brn-threads-core/src/store.rs": "29a56d4427746ff23fce10a96e4d7a5a683efc92f8c4f2217151a956f5796216",
+    "agent/BRN.md": "82b4765df086ad04d10c4eff7268c38128c47c02b90fdf330632dbd5eaedb225",
+    "agent/skills/maintain-notes/SKILL.md": "a264db1d12cbc5fcab2668b48bd2899d8add0cd420c1f9f854829ef7ab8c20ff",
+    "docs/work/active/agent-capabilities/int-d/corpus.json": "1431d11427738fb66d6494ccb5fd695ab628d4f5d97afeb7a68dda4da7e6faa9"
+  },
+  "sdk_cached_source": {
+    "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-core-0.44.0/src/tool/contextual.rs": "4481d9bec61d1b1369c9439f6bd7dfde9df5a703bcf2cde38074d42d624712e7",
+    "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rig-core-0.44.0/src/tool/result.rs": "fc231268c2e38e69b1b032f3cadfbf11733c786fd4c649e037ab9072c94827c2"
+  },
+  "read_principal_audit": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/int-d-principal-live-window1-audit.json",
+    "sha256": "291775bbe71be545c941e0ba44faa263af18cbf98b86e28d488c6b0a1069c13f"
+  },
+  "full_review_and_disposition": {
+    "docs/work/active/agent-capabilities/int-d/opus-review-round2.md": "a8dbd695f1b2a5765673f5a266d3fb251c02cda11dc206b47bf7d0559dd9be41",
+    "docs/work/active/agent-capabilities/int-d/principal-disposition.md": "719182392df4c283211ada3552bd4127d2ad9af6554a524c308af7812e9979ed"
+  },
+  "observed": [
+    {
+      "ordinal": 1,
+      "terminal": "Completed",
+      "run_operations": [],
+      "prepare_calls": [
+        {
+          "seq": 5,
+          "round": 5,
+          "tool": "prepare_changes",
+          "args": {
+            "writes": {
+              "Note": 1
+            },
+            "inputs": 3
+          },
+          "outcome": "error",
+          "bytes": 15,
+          "ms": 0,
+          "result": null
+        },
+        {
+          "seq": 6,
+          "round": 6,
+          "tool": "prepare_changes",
+          "args": {
+            "writes": {
+              "Note": 1
+            },
+            "inputs": 3
+          },
+          "outcome": "error",
+          "bytes": 15,
+          "ms": 0,
+          "result": null
+        }
+      ],
+      "dropped_calls": 0,
+      "stderr_bytes": 0,
+      "ask_command": [
+        "/private/tmp/brn-int-d-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f-history-r1/control",
+        "--timeout",
+        "120",
+        "ask",
+        "--thread",
+        "757d93d5-3766-4eea-8d13-44ddbea51757:0",
+        "--prompt-file",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-control.txt",
+        "--budget",
+        "8",
+        "--trace",
+        "summary"
+      ]
+    },
+    {
+      "ordinal": 2,
+      "terminal": "Failed:ToolLimitReached",
+      "run_operations": [],
+      "prepare_calls": [
+        {
+          "seq": 8,
+          "round": 8,
+          "tool": "prepare_changes",
+          "args": {
+            "writes": {
+              "Note": 1
+            },
+            "inputs": 3
+          },
+          "outcome": "error",
+          "bytes": 15,
+          "ms": 0,
+          "result": null
+        }
+      ],
+      "dropped_calls": 0,
+      "stderr_bytes": 0,
+      "ask_command": [
+        "/private/tmp/brn-int-d-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f-history-r1/candidate",
+        "--timeout",
+        "120",
+        "ask",
+        "--thread",
+        "f4391b57-8949-4493-802a-7dd804f3c936:0",
+        "--prompt-file",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-candidate.txt",
+        "--budget",
+        "8",
+        "--trace",
+        "summary"
+      ]
+    }
+  ],
+  "read_only_inspection_qualifications": [
+    "Initial bounded searches named nonexistent guessed threads_tools/threads_trace_tests/SDK serve/tool path; corrected to actual files; no executable/test/API failure inferred.",
+    "No retained HTTP request bodies or exact prepare arguments were found in the allocated retained evidence; no original call reconstructed."
+  ],
+  "authority": "source-only docs; no heavy grant, slot not polled, no delegated agents, no build/test/provider/auth/network process started",
+  "timestamp": 1792245896.816808
+}

@@ -2,9 +2,12 @@
 //! keyed `knowledge-check --seed-chat yes`, keyed intake that replays before
 //! conversion, and key reuse on a different original.
 mod support;
-use serde_json::{json, Value};
+use serde_json::json;
+#[cfg(target_os = "macos")]
+use serde_json::Value;
 use support::*;
 
+#[cfg(target_os = "macos")]
 fn created(envelope: &Value, kind: &str) -> String {
     envelope["changed"]
         .as_array()
@@ -84,7 +87,7 @@ fn knowledge_check_key_requires_seed_chat() {
     assert!(!data.exists());
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 #[test]
 fn keyed_intake_retry_replays_before_conversion_through_a_symlinked_folder() {
     let root = Root::new();
@@ -170,15 +173,28 @@ fn keyed_keep_in_brn_with_a_different_note_is_key_conflict() {
     let data = root.workspace("data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
     let attach = |name: &str| {
-        let source = root.file(name, format!("# {name}\n").as_bytes());
-        let envelope = call(
-            &root,
-            &data,
-            &[
-                "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
-            ],
-        );
-        created(&envelope, "Note")
+        #[cfg(target_os = "macos")]
+        {
+            let source = root.file(name, format!("# {name}\n").as_bytes());
+            let envelope = call(
+                &root,
+                &data,
+                &[
+                    "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
+                ],
+            );
+            created(&envelope, "Note")
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            chat_attachment_fixture(
+                &data,
+                &chat,
+                &format!("keep-{name}"),
+                name,
+                &format!("# {name}\n"),
+            )
+        }
     };
     let (first, second) = (attach("one.md"), attach("two.md"));
     let keep = |note: &str| {
@@ -200,7 +216,7 @@ fn keyed_keep_in_brn_with_a_different_note_is_key_conflict() {
 /// same file (a symlinked parent; on macOS also `/tmp` for `/private/tmp`)
 /// replays: the binding compares canonical locators. Same operation, no
 /// conversion, no `key_conflict`, one note.
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 #[test]
 fn keyed_full_intake_retry_with_another_spelling_replays() {
     let root = Root::new();

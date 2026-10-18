@@ -1,0 +1,372 @@
+{
+  "task": "brn-x2-legacy-retirement-implementation-20261018",
+  "source_base": "243b27855f8d1c19b997374201e41869b3fb0893",
+  "material": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+  "normal_verification": "QUALIFIED_NOT_GREEN",
+  "single_full_workspace": [
+    1227,
+    2,
+    5
+  ],
+  "no_full_workspace_rerun": true,
+  "checks": [
+    {
+      "phase": "01-root-metadata",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--filter-platform",
+        "aarch64-apple-darwin"
+      ],
+      "exit": 0,
+      "seconds": 0.6781649589538574,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/01-root-metadata/result.json",
+      "receipt_sha256": "4c50a2666e4e0aaa35ecbefbdcd193e8439df24c0e07e7605670075bae99d37f",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/01-root-metadata/inputs.json",
+      "input_sha256": "3dc51051f10ff84889bc253539c9d3d7e667aca40dd5a7d54ae8ec5733ba8a5e",
+      "stdout_sha256": "7e92436d3c3de6fd44db9c0d3447a9f99089cda52a825759a585d2b8871b7c95",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "02-stock-metadata",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "metadata",
+        "--offline",
+        "--manifest-path",
+        "tools/xberg-intake-helper/Cargo.toml",
+        "--format-version",
+        "1",
+        "--filter-platform",
+        "aarch64-apple-darwin"
+      ],
+      "exit": 0,
+      "seconds": 0.31737494468688965,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/02-stock-metadata/result.json",
+      "receipt_sha256": "06e8cb9f99d28cb137239407ecb5ac65bf7e34c94a81db357ed14b83058b65ed",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/02-stock-metadata/inputs.json",
+      "input_sha256": "edb3df77d2c69f92331cca1d7ab9e207190552d2afffcbd9f0b19014d918b2bb",
+      "stdout_sha256": "3dfa7b09776cdcaca6f5dc827b99cd89d35aea1da021ca7e9835aa7c73f2eb71",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "03-adapted-metadata",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "metadata",
+        "--offline",
+        "--manifest-path",
+        "target/xberg-adapted/workspace/Cargo.toml",
+        "--format-version",
+        "1",
+        "--filter-platform",
+        "aarch64-apple-darwin"
+      ],
+      "exit": 0,
+      "seconds": 0.27489781379699707,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/03-adapted-metadata/result.json",
+      "receipt_sha256": "a127d9b3dbc3219841f7102afea1e02622df9e76ad4387aae3028a6bd027a74c",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/03-adapted-metadata/inputs.json",
+      "input_sha256": "a9b685b6af1d6612e967ae2b3037e59ffb4aa2bdce19a97c56765254925ac048",
+      "stdout_sha256": "0d3c74623aa9180039c0d3494e04c5971bb4db152f62947577260ab6702c71b8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "04-tooling",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-v"
+      ],
+      "exit": 1,
+      "seconds": 16.92567491531372,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/04-tooling/result.json",
+      "receipt_sha256": "4287f4d80a63ff7860f9214f4f327b1637f238c2775030d4ab49148f76c8e463",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/04-tooling/inputs.json",
+      "input_sha256": "45d0821a167c323898faef24fa39a9a4b9f3e030243e1a66a1c9a15301dd08c5",
+      "stdout_sha256": "6d29162d41ca183f2e83c45608c0f88776843cb36e17e025048c92e6058dfcce",
+      "stderr_sha256": "6ec34b6b5a114018f053b4acbda6e6d3e4b7dc145534691daea1b1cbd1d45ec1",
+      "python_tests": 171
+    },
+    {
+      "phase": "05-build-helpers",
+      "command": [
+        "bash",
+        "scripts/build-document-helpers.sh",
+        "--offline",
+        "--jobs",
+        "1",
+        "--target-root",
+        "/private/tmp/brn-x2-standard-task4-20261018/helpers"
+      ],
+      "exit": 0,
+      "seconds": 36.23710322380066,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/05-build-helpers/result.json",
+      "receipt_sha256": "2975f3166cafb698cfaac0de9bb4595879d3ace7de2fea0c9c28d2f0ba63b99e",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/05-build-helpers/inputs.json",
+      "input_sha256": "bca5156dbaa1ec56157e98d63a4d868ebf71da5b05ddf71a5fe401bbd9989abb",
+      "stdout_sha256": "96c69dff41c9db945bb1c677a9daee3be4749a32d856fad0e83bad683970daaa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "06-light-intake",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-intake",
+        "-p",
+        "brn-threads-intake",
+        "--all-targets"
+      ],
+      "exit": 0,
+      "seconds": 15.471168041229248,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/06-light-intake/result.json",
+      "receipt_sha256": "93c85e87c340e25922d055ee13ba2238c5538ece993d580df3d546ce834bda9b",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/06-light-intake/inputs.json",
+      "input_sha256": "faac243650a9507c5c99f533af282345bf5a1a38b26cfea9c0c3f31cd9a1721a",
+      "stdout_sha256": "a42f107a98b9786b2a2faa27336d6a8dd7e7dd4422451650df6543204c28d50e",
+      "stderr_sha256": "b8bf487468eb70bf3399bc6b0100d8eb1552fa63e7411627d6d74f323cc50ae2",
+      "test_result_totals_overlapping_other_phases": [
+        12,
+        0,
+        1
+      ]
+    },
+    {
+      "phase": "07-stock-tests-lint",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; export CARGO_TARGET_DIR=/private/tmp/brn-x2-standard-task4-20261018/helpers/stock; cargo +1.98.1 test --locked --offline -j 1 --manifest-path tools/xberg-intake-helper/Cargo.toml --all-targets; cargo +1.98.1 clippy --locked --offline -j 1 --manifest-path tools/xberg-intake-helper/Cargo.toml --all-targets -- -D warnings"
+      ],
+      "exit": 0,
+      "seconds": 36.68307018280029,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/07-stock-tests-lint/result.json",
+      "receipt_sha256": "72270133d4f2af9e94ebf3987a3d5bd7ee17748a739221d3366fefc084dd9e19",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/07-stock-tests-lint/inputs.json",
+      "input_sha256": "faac243650a9507c5c99f533af282345bf5a1a38b26cfea9c0c3f31cd9a1721a",
+      "stdout_sha256": "8a65bb7ff1f030e31aa9e15aa0a6d752fb5837f074994d24b3242d2d4d4dda38",
+      "stderr_sha256": "4b4deb5e6bb47f68c5a5fabd03e6c6799d1a30cb511d63255b9cf7ac4af0ebdd",
+      "test_result_totals_overlapping_other_phases": [
+        12,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "08-adapted-tests-lint",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; export CARGO_TARGET_DIR=/private/tmp/brn-x2-standard-task4-20261018/helpers/adapted; cargo +1.98.1 test --locked --offline -j 1 --manifest-path target/xberg-adapted/workspace/Cargo.toml --all-targets; cargo +1.98.1 clippy --locked --offline -j 1 --manifest-path target/xberg-adapted/workspace/Cargo.toml --all-targets -- -D warnings"
+      ],
+      "exit": 0,
+      "seconds": 36.96800398826599,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/08-adapted-tests-lint/result.json",
+      "receipt_sha256": "73a213eb9c56e26f47b55f167ca578001a8e1fed3d93c8d87461db27c73434f5",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/08-adapted-tests-lint/inputs.json",
+      "input_sha256": "653087314873c823b853703ce8accd39888f8dd5186a0cf33a444043a0259451",
+      "stdout_sha256": "cdebd500f4f325c4ee78a6d9a410390237613e8494e6e5d6009bdd03f24b9adb",
+      "stderr_sha256": "d6df17de7638901dde59a5ef188d0f7dfe9201890e220f77c761b98d0b374933",
+      "test_result_totals_overlapping_other_phases": [
+        12,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "09-default-build",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 0,
+      "seconds": 8.90357494354248,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/09-default-build/result.json",
+      "receipt_sha256": "cf0af5aa67a3e12c639767e15fc4a6c43b9dd6b9bc1c269a8c036dfe07229976",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/09-default-build/inputs.json",
+      "input_sha256": "653087314873c823b853703ce8accd39888f8dd5186a0cf33a444043a0259451",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "07dde9a01363d7fd412aacc3638c563762ad5fbd9d58d9f1c4ace710ac3ed2ce"
+    },
+    {
+      "phase": "10-current-refiner",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "document_refine::tests::"
+      ],
+      "exit": 0,
+      "seconds": 236.49274802207947,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/10-current-refiner/result.json",
+      "receipt_sha256": "95c3d9e2d28914bc90a06a7bead9c40ce770ca0dd9d9c48977cd6c6a816d20e0",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/10-current-refiner/inputs.json",
+      "input_sha256": "2ece63547f3108acee1fd6fbe21249bf8355d6e08a69d99f0b0d7f89c0736ce4",
+      "stdout_sha256": "14fd7cc3dd956de2c3aa61e3e17eff70fa2754c0a55938bb3a0456069f00e668",
+      "stderr_sha256": "03e8839951a61f7c47c38aa48d37dc9697fafe0565b5c0892392e57f8a615b0a",
+      "test_result_totals_overlapping_other_phases": [
+        6,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "11-current-hosts",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; cargo +1.98.1 test --locked --offline -j 1 -p brn-threads-core --test document_conversion; cargo +1.98.1 test --locked --offline -j 1 -p brn-threads-app --test document_conversion_settings; cargo +1.98.1 test --locked --offline -j 1 -p brn --test document_modes; cargo +1.98.1 test --locked --offline -j 1 -p brn --features scripted-document-tests --bin brn document_route_tests"
+      ],
+      "exit": 0,
+      "seconds": 294.09756994247437,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/11-current-hosts/result.json",
+      "receipt_sha256": "e634b28729b9e8e40d7ad401577e28a8583c1cc37e4eccf1d2a3eda048479588",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/11-current-hosts/inputs.json",
+      "input_sha256": "2ece63547f3108acee1fd6fbe21249bf8355d6e08a69d99f0b0d7f89c0736ce4",
+      "stdout_sha256": "0d1225d7786d3ed525cafb1862cdf7067fca647c6f033bedfb09db325d3fe3ab",
+      "stderr_sha256": "6f20f3af2527c3f6037ca2094fedac36674293874833e5914d8a2466bfe08ab1",
+      "test_result_totals_overlapping_other_phases": [
+        12,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "12-strict-root-scripted",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; cargo +1.98.1 clippy --workspace --all-targets --locked --offline -j 1 -- -D warnings; cargo +1.98.1 clippy -p brn-ai --features scripted-runs --all-targets --locked --offline -j 1 -- -D warnings; cargo +1.98.1 clippy -p brn --features scripted-document-tests --all-targets --locked --offline -j 1 -- -D warnings; cargo +1.98.1 fmt --all -- --check"
+      ],
+      "exit": 0,
+      "seconds": 21.189738035202026,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/12-strict-root-scripted/result.json",
+      "receipt_sha256": "d0216798630dacc0d4f276a2a42f8e5d694fef15c5d8d01dfcc10c7b7625164e",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/12-strict-root-scripted/inputs.json",
+      "input_sha256": "2ece63547f3108acee1fd6fbe21249bf8355d6e08a69d99f0b0d7f89c0736ce4",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "75b7d6eb79352871c5445b3ae690b4015a327ba015017dd9dbce92d70aedb237"
+    },
+    {
+      "phase": "13-final-tooling",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; python3 -m unittest discover -s scripts/tests -v; python3 scripts/check-provider-retirement.py; python3 scripts/check-intake-retirement.py; python3 scripts/check-markdown-links.py; for script in scripts/*.sh; do bash -n \"$script\"; done; git diff --check"
+      ],
+      "exit": 0,
+      "seconds": 17.30350399017334,
+      "compiled_or_executed_at_head": "243b27855f8d1c19b997374201e41869b3fb0893",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/13-final-tooling/result.json",
+      "receipt_sha256": "71f0fd6092ecd46f13f9bfecf6f3cd659276a3eef2120161982552d96066430f",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/13-final-tooling/inputs.json",
+      "input_sha256": "2ece63547f3108acee1fd6fbe21249bf8355d6e08a69d99f0b0d7f89c0736ce4",
+      "stdout_sha256": "f63880a7cb733d8a6a49e6544e51301db545f279d834dcb127560eece22692b1",
+      "stderr_sha256": "f2f4fe2bb937c3bb069498f8132d3e5f2b70029bb50ebdbb9818d2a491052860",
+      "python_tests": 171
+    },
+    {
+      "phase": "14-stable-workspace",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--workspace",
+        "--no-fail-fast",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 101,
+      "seconds": 233.42401504516602,
+      "compiled_or_executed_at_head": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/14-stable-workspace/result.json",
+      "receipt_sha256": "dd12f25235b45e48ce36ba5ad61959d5adc9c8327601fbd285d97fcf0344c617",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/14-stable-workspace/inputs.json",
+      "input_sha256": "f6eed8aacbabb8e783aa43b10123bd0982a15a653adf6b5c24b63b9b3469aa16",
+      "stdout_sha256": "f120f8731a2d5b01bb5cabc264ef387d7c6b551e090437a29ffb2a597454610e",
+      "stderr_sha256": "24a4de19d4bca1b960cfb72788e026316f8086b18c0a9fdb304d18dd71b54db5",
+      "test_result_totals_overlapping_other_phases": [
+        1227,
+        2,
+        5
+      ]
+    },
+    {
+      "phase": "15-offline-journeys",
+      "command": [
+        "bash",
+        "scripts/verify-end-to-end.sh",
+        "--fixtures-only"
+      ],
+      "exit": 0,
+      "seconds": 2.408892869949341,
+      "compiled_or_executed_at_head": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+      "raw_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/15-offline-journeys/result.json",
+      "receipt_sha256": "dc274489d6aaae3e4abb2eae1af034d1718b802eaa5cb4a7d9ecae6df8ba3eb9",
+      "input_receipt": "/private/tmp/brn-x2-legacy-retirement-20261018/evidence/15-offline-journeys/inputs.json",
+      "input_sha256": "f6eed8aacbabb8e783aa43b10123bd0982a15a653adf6b5c24b63b9b3469aa16",
+      "stdout_sha256": "98c4208a9d043f8d4f92ff80455d354e07bd54011b1b577a3710933fb2ac129a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "other_preserved_outcomes": {
+    "initial_tooling": "171 run, one mock constructor error; corrected targeted17/0 and final171/0",
+    "whitespace": "One extra manifest EOF blank line corrected before final static checks",
+    "formatter": "Direct initial edition2024 formatting recursed into edition2021 CLI modules; unrelated churn restored byte-for-byte before material; normal cargo fmt passes"
+  },
+  "active_failure_custody": "/private/tmp/brn-x2-legacy-retirement-20261018/active-failure-custody.json",
+  "active_failure_custody_sha256": "675811f35b2ae82d75573511ada144a4d0a7ec749dcc9be0cf4ca653748b6559",
+  "target_accounting": "/private/tmp/brn-x2-legacy-retirement-20261018/workspace-target-accounting.json",
+  "target_accounting_sha256": "13b3ca6d673d3bbc6df74e2b0ceab508f56efe31c3afb9979c375674045a08dd",
+  "required_unexecuted": [
+    "Active INT-D source-map/fixture reconciliation and skill failure diagnosis need their own exact allocation",
+    "Updated native distribution/notices/signing/relocation/all-format packaged checks",
+    "Remaining native/combined dependency-risk lanes and whole-feature independent actual-diff review; hosted CI/integration/owner/native-human gates"
+  ]
+}

@@ -1,0 +1,19 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 55a5c242..daf78f62 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -998,8 +998,14 @@ dependencies = [
+ name = "brn-writing-ui"
+ version = "0.1.0"
+ dependencies = [
++ "brn-ai",
+  "brn-threads-app",
++ "brn-threads-intake",
+  "gpui-kit",
++ "rig",
++ "serde_json",
++ "tempfile",
++ "tokio",
+ ]
+ 
+ [[package]]

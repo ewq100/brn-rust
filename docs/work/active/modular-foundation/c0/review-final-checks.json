@@ -1,0 +1,157 @@
+{
+  "starting_commit": "dfe2fa8f57820cb576a9651f2718cf4953cafd1e",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "8f768943964a77711b26d5235df146f8efe1dc6c"
+      ],
+      "exit": 0,
+      "seconds": 0.047,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "dfe2fa8f57820cb576a9651f2718cf4953cafd1e"
+      ],
+      "exit": 0,
+      "seconds": 0.038,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit": 0,
+      "seconds": 0.2482,
+      "stdout": "Markdown links: 158 files, 776 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.3436,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "experiments/r0-rig-reuse/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.0811,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/make-macos-app.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0066,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/report-sizes.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0089,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/test-make-macos-app.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0064,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/verify-desktop-shell.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0063,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/verify-end-to-end.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0056,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/verify-storage.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.0056,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--quiet",
+        "8f768943964a77711b26d5235df146f8efe1dc6c",
+        "--",
+        "Cargo.toml",
+        "Cargo.lock",
+        "rust-toolchain.toml",
+        ".github",
+        "crates",
+        "agent",
+        "scripts",
+        "docs/work/active/modular-foundation/proposal",
+        "docs/work/active/agent-capabilities/proposal"
+      ],
+      "exit": 0,
+      "seconds": 0.032,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "owned_path_check": true,
+  "inventory_python_syntax": true,
+  "hosted_exact_baseline": true
+}

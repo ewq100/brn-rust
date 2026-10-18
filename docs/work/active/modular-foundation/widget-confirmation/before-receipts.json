@@ -1,0 +1,703 @@
+{
+  "baseline": "c8b3026f582c8770c24a984111f562becf529cad",
+  "instrumentation_patch_sha256": "a10d9d7076ac34892d43e264f289ac018c65ef1ca9838a6713fbbf52c6b40e37",
+  "instrumented_artifact": {
+    "artifact": {
+      "reason": "compiler-artifact",
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/Cargo.toml",
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "brn-desktop",
+        "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/src/main.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "1",
+        "debuginfo": 1,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [
+        "default",
+        "native-test-support",
+        "native-ui"
+      ],
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761"
+      ],
+      "executable": "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761",
+      "fresh": false
+    },
+    "sha256": "fb09d33f790d04058a648adad38edf2ff9f5cfba6d30dd9442ead04615c9e2a6",
+    "size": 74049840,
+    "markers": {
+      "[DEBUG-widget-sol]": true,
+      "BRN_WIDGET_PAUSE80_TARGET": true,
+      "BRN_WIDGET_REDUCE_MOTION": true
+    }
+  },
+  "actual_rebuild": {
+    "cmd": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--bin",
+      "brn-desktop",
+      "--locked",
+      "--offline",
+      "--no-run",
+      "--message-format=json",
+      "--config",
+      "profile.test.package.brn.debug=1",
+      "--config",
+      "profile.test.package.brn-retrieval.debug=1",
+      "--config",
+      "profile.test.package.brn-desktop.debug=1",
+      "--config",
+      "profile.test.package.brn-ai.debug=1",
+      "--config",
+      "profile.test.package.brn-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-core.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-intake.debug=1",
+      "--config",
+      "profile.test.package.brn-threads-app.debug=1"
+    ],
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6",
+    "env": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target"
+    },
+    "start_unix": 1792167232.639044,
+    "exit": 0,
+    "seconds": 22.01567412505392
+  },
+  "local_artifacts": [
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-retrieval#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-retrieval/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_retrieval-ac9c25e913b968a4.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_retrieval-ac9c25e913b968a4.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-intake#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-intake/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_intake-0349dd2c9f72b0f1.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_intake-0349dd2c9f72b0f1.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-intake#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-intake/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_intake-ae688a9639381bf6.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_intake-ae688a9639381bf6.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-core#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-core/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_core-9dd96547e5a3996d.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_core-9dd96547e5a3996d.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-ai#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-ai/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_ai-66ed4a96023e475a.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_ai-66ed4a96023e475a.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-app#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-threads-app/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_app-81b2c15d37eb8cff.rlib",
+        "/private/tmp/brn-c0-20261016-target/debug/deps/libbrn_threads_app-81b2c15d37eb8cff.rmeta"
+      ],
+      "fresh": false
+    },
+    {
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/Cargo.toml",
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-5e25dae08c408761"
+      ],
+      "fresh": false
+    }
+  ],
+  "serial_comparisons": [
+    {
+      "label": "A-disabled",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-disabled",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": null,
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 0.972,
+      "failure": [],
+      "callbacks": []
+    },
+    {
+      "label": "B-disabled",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/B-disabled",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": null,
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 0.0782,
+      "failure": [],
+      "callbacks": []
+    },
+    {
+      "label": "A-unforced",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-unforced",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 0.1298,
+      "failure": [],
+      "callbacks": [
+        "[DEBUG-widget-sol] confirm id=discard-note phase=entry at=Instant { tv_sec: 617530, tv_nsec: 888706750 }",
+        "[DEBUG-widget-sol] confirm id=discard-note phase=return at=Instant { tv_sec: 617530, tv_nsec: 889185416 } elapsed=478.666\u00b5s"
+      ]
+    },
+    {
+      "label": "B-unforced",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/B-unforced",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": null,
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 0,
+      "seconds": 0.0751,
+      "failure": [],
+      "callbacks": [
+        "[DEBUG-widget-sol] confirm id=stop-saved-run phase=entry at=Instant { tv_sec: 617530, tv_nsec: 997539458 }",
+        "[DEBUG-widget-sol] confirm id=stop-saved-run phase=return at=Instant { tv_sec: 617530, tv_nsec: 998113875 } elapsed=574.417\u00b5s"
+      ]
+    },
+    {
+      "label": "A-pause80",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-pause80",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "discard-note-confirm",
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 101,
+      "seconds": 0.2859,
+      "failure": [
+        "thread 'threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard' (27179023) panicked at crates/brn-desktop/src/threads_writing_tests.rs:879:9:"
+      ],
+      "callbacks": []
+    },
+    {
+      "label": "A-pause80-reduced",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-pause80-reduced",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "discard-note-confirm",
+        "BRN_WIDGET_REDUCE_MOTION": "1"
+      },
+      "exit": 0,
+      "seconds": 0.1818,
+      "failure": [],
+      "callbacks": [
+        "[DEBUG-widget-sol] confirm id=discard-note phase=entry at=Instant { tv_sec: 617531, tv_nsec: 468589000 }",
+        "[DEBUG-widget-sol] confirm id=discard-note phase=return at=Instant { tv_sec: 617531, tv_nsec: 469390708 } elapsed=801.708\u00b5s"
+      ]
+    },
+    {
+      "label": "B-pause80",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/B-pause80",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "stop-saved-run-confirm",
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 101,
+      "seconds": 0.181,
+      "failure": [
+        "thread 'threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note' (27179048) panicked at crates/brn-desktop/src/threads_chat_tests.rs:646:9:"
+      ],
+      "callbacks": []
+    },
+    {
+      "label": "B-pause80-reduced",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/B-pause80-reduced",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "stop-saved-run-confirm",
+        "BRN_WIDGET_REDUCE_MOTION": "1"
+      },
+      "exit": 0,
+      "seconds": 0.1839,
+      "failure": [],
+      "callbacks": [
+        "[DEBUG-widget-sol] confirm id=stop-saved-run phase=entry at=Instant { tv_sec: 617531, tv_nsec: 807567583 }",
+        "[DEBUG-widget-sol] confirm id=stop-saved-run phase=return at=Instant { tv_sec: 617531, tv_nsec: 808317333 } elapsed=749.75\u00b5s"
+      ]
+    },
+    {
+      "label": "A-compare-pause80",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-compare-pause80",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "compare-open-edit-close",
+        "BRN_WIDGET_REDUCE_MOTION": null
+      },
+      "exit": 101,
+      "seconds": 0.1844,
+      "failure": [
+        "thread 'threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard' (27179069) panicked at crates/brn-desktop/src/threads_writing_tests.rs:835:9:"
+      ],
+      "callbacks": []
+    },
+    {
+      "label": "A-compare-pause80-reduced",
+      "cmd": [
+        "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+        "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/A-compare-pause80-reduced",
+        "SEED": "0",
+        "ITERATIONS": "1",
+        "RUST_BACKTRACE": "1",
+        "BRN_WIDGET_DIAGNOSTICS": "1",
+        "BRN_WIDGET_PAUSE80_TARGET": "compare-open-edit-close",
+        "BRN_WIDGET_REDUCE_MOTION": "1"
+      },
+      "exit": 0,
+      "seconds": 0.1811,
+      "failure": [],
+      "callbacks": [
+        "[DEBUG-widget-sol] confirm id=discard-note phase=entry at=Instant { tv_sec: 617532, tv_nsec: 201067083 }",
+        "[DEBUG-widget-sol] confirm id=discard-note phase=return at=Instant { tv_sec: 617532, tv_nsec: 201809208 } elapsed=742.125\u00b5s"
+      ]
+    }
+  ],
+  "unforced_batch": {
+    "batch": 1,
+    "seconds": 9.914973333012313,
+    "results": [
+      {
+        "tag": "A",
+        "worker": 0,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-0",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 9.8759,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-A-0.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      },
+      {
+        "tag": "B",
+        "worker": 1,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-1",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.9475,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-B-1.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      },
+      {
+        "tag": "A",
+        "worker": 2,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-2",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 101,
+        "seconds": 7.7364,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-A-2.log",
+        "iterations_started": 65,
+        "failing_seed": [
+          "failing seed: 64"
+        ],
+        "failure": [
+          "thread 'threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard' (27179882) panicked at crates/brn-desktop/src/threads_writing_tests.rs:879:9:"
+        ]
+      },
+      {
+        "tag": "B",
+        "worker": 3,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-3",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.9346,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-B-3.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      },
+      {
+        "tag": "A",
+        "worker": 4,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-4",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 9.9034,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-A-4.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      },
+      {
+        "tag": "B",
+        "worker": 5,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-5",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.8839,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-B-5.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      },
+      {
+        "tag": "A",
+        "worker": 6,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-6",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 101,
+        "seconds": 7.7701,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-A-6.log",
+        "iterations_started": 65,
+        "failing_seed": [
+          "failing seed: 64"
+        ],
+        "failure": [
+          "thread 'threads_ui::writing_tests::an_edit_already_open_elsewhere_offers_compare_and_discard' (27179889) panicked at crates/brn-desktop/src/threads_writing_tests.rs:835:9:"
+        ]
+      },
+      {
+        "tag": "B",
+        "worker": 7,
+        "cmd": [
+          "/private/tmp/brn-widget-sol-20261016/instrumented-brn-desktop-phase3",
+          "threads_ui::chat_tests::a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note",
+          "--exact",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "env": {
+          "TMPDIR": "/private/tmp/brn-widget-sol-20261016/phase3-fixtures/stress-1-7",
+          "SEED": "0",
+          "ITERATIONS": "100",
+          "RUST_BACKTRACE": "1",
+          "BRN_WIDGET_DIAGNOSTICS": "1",
+          "BRN_WIDGET_PAUSE80_TARGET": null,
+          "BRN_WIDGET_REDUCE_MOTION": null
+        },
+        "exit": 0,
+        "seconds": 7.8909,
+        "log": "/private/tmp/brn-widget-sol-20261016/phase3-stress-1-B-7.log",
+        "iterations_started": 100,
+        "failing_seed": [],
+        "failure": []
+      }
+    ]
+  },
+  "prebuild_rejected_artifact": {
+    "artifact": {
+      "reason": "compiler-artifact",
+      "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop#0.1.0",
+      "manifest_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/Cargo.toml",
+      "target": {
+        "kind": [
+          "bin"
+        ],
+        "crate_types": [
+          "bin"
+        ],
+        "name": "brn-desktop",
+        "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6/crates/brn-desktop/src/main.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": false,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "1",
+        "debuginfo": 0,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [
+        "default",
+        "native-test-support",
+        "native-ui"
+      ],
+      "filenames": [
+        "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-9a2a2eca0aadc8f6"
+      ],
+      "executable": "/private/tmp/brn-c0-20261016-target/debug/deps/brn_desktop-9a2a2eca0aadc8f6",
+      "fresh": true
+    },
+    "sha256": "c9ab28df93a90e09f80d365306dee5e5257c45559a859527d080e43da310a41e",
+    "size": 69725888,
+    "mtime": 1792164606.4734979,
+    "has_diagnostic_marker": false,
+    "has_pause_control": false
+  },
+  "desktop_only_rejected_build": {
+    "cmd": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--bin",
+      "brn-desktop",
+      "--locked",
+      "--offline",
+      "--no-run",
+      "--message-format=json",
+      "--config",
+      "profile.test.package.brn-desktop.debug=1"
+    ],
+    "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-4145f1c6",
+    "env": {
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_TARGET_DIR": "/private/tmp/brn-c0-20261016-target"
+    },
+    "start_unix": 1792167183.738574,
+    "exit": 101,
+    "seconds": 4.322458583978005
+  },
+  "raw_proof_sha256": {
+    "phase3-stress-1-A-2-failing-iteration.txt": "c530a356efad06cb3dd105520170ff9322c50b3d35918007d6bddeb53c040941",
+    "phase3-stress-1-A-6-failing-iteration.txt": "61212a9a249f4959659aea2c5ec76aa38deb5e0958adad2ead98b535a3490f5a",
+    "B-load-5.log": "ef07d8af10e3a0e2279c3ceaf26f8d636b85ab032759aa4b1be64048b6df2565"
+  },
+  "retained_text_normalization": "Only trailing empty lines removed from the three retained proof text copies for git whitespace checks; raw scratch originals unchanged."
+}

@@ -1,0 +1,12 @@
+{
+  "source_pin": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "command_receipt": "workspace-tests.json",
+  "summed_executed_test_summaries": 94,
+  "passed": 1094,
+  "failed": 1,
+  "ignored": 6,
+  "doc_target_note": "zero-test doc targets included in summary count only, never semantic proof",
+  "failed_target": "brn-threads-intake --test qualification",
+  "failed_test": "prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch",
+  "observed_environment": "pdftotext/pdfimages installed; pdftoppm absent; known baseline native PDF renderer limitation"
+}

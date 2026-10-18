@@ -1,0 +1,222 @@
+[
+  {
+    "package": "ahash",
+    "version": "0.8.12",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ahash-0.8.12/build.rs"
+  },
+  {
+    "package": "anyhow",
+    "version": "1.0.104",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anyhow-1.0.104/build.rs"
+  },
+  {
+    "package": "av-scenechange",
+    "version": "0.14.1",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/av-scenechange-0.14.1/build.rs"
+  },
+  {
+    "package": "blake3",
+    "version": "1.8.7",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/blake3-1.8.7/build.rs"
+  },
+  {
+    "package": "borsh",
+    "version": "1.8.1",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/borsh-1.8.1/build.rs"
+  },
+  {
+    "package": "comrak",
+    "version": "0.56.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/comrak-0.56.0/build.rs"
+  },
+  {
+    "package": "crc32fast",
+    "version": "1.5.2",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crc32fast-1.5.2/build.rs"
+  },
+  {
+    "package": "crossbeam-deque",
+    "version": "0.8.8",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-deque-0.8.8/build.rs"
+  },
+  {
+    "package": "crossbeam-epoch",
+    "version": "0.9.21",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-epoch-0.9.21/build.rs"
+  },
+  {
+    "package": "crossbeam-utils",
+    "version": "0.8.23",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crossbeam-utils-0.8.23/build.rs"
+  },
+  {
+    "package": "crunchy",
+    "version": "0.2.4",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/crunchy-0.2.4/build.rs"
+  },
+  {
+    "package": "encoding_rs",
+    "version": "0.8.42",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/encoding_rs-0.8.42/build.rs"
+  },
+  {
+    "package": "getrandom",
+    "version": "0.3.4",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.3.4/build.rs"
+  },
+  {
+    "package": "getrandom",
+    "version": "0.4.3",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.4.3/build.rs"
+  },
+  {
+    "package": "iana-time-zone-haiku",
+    "version": "0.1.2",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/iana-time-zone-haiku-0.1.2/build.rs"
+  },
+  {
+    "package": "icu_normalizer_data",
+    "version": "2.3.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_normalizer_data-2.3.0/build.rs"
+  },
+  {
+    "package": "icu_properties_data",
+    "version": "2.3.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/icu_properties_data-2.3.0/build.rs"
+  },
+  {
+    "package": "libc",
+    "version": "0.2.190",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libc-0.2.190/build.rs"
+  },
+  {
+    "package": "libfuzzer-sys",
+    "version": "0.4.13",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.13/build.rs"
+  },
+  {
+    "package": "libm",
+    "version": "0.2.16",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libm-0.2.16/build.rs"
+  },
+  {
+    "package": "mime_guess",
+    "version": "2.0.5",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/mime_guess-2.0.5/build.rs"
+  },
+  {
+    "package": "num-traits",
+    "version": "0.2.19",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/num-traits-0.2.19/build.rs"
+  },
+  {
+    "package": "parking_lot_core",
+    "version": "0.9.12",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/parking_lot_core-0.9.12/build.rs"
+  },
+  {
+    "package": "paste",
+    "version": "1.0.15",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/paste-1.0.15/build.rs"
+  },
+  {
+    "package": "proc-macro2",
+    "version": "1.0.107",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/proc-macro2-1.0.107/build.rs"
+  },
+  {
+    "package": "pulldown-cmark",
+    "version": "0.13.4",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pulldown-cmark-0.13.4/build.rs"
+  },
+  {
+    "package": "pulp",
+    "version": "0.22.3",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pulp-0.22.3/build.rs"
+  },
+  {
+    "package": "quote",
+    "version": "1.0.47",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/quote-1.0.47/build.rs"
+  },
+  {
+    "package": "radium",
+    "version": "0.7.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/radium-0.7.0/build.rs"
+  },
+  {
+    "package": "rav1e",
+    "version": "0.8.1",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rav1e-0.8.1/build.rs"
+  },
+  {
+    "package": "rayon-core",
+    "version": "1.13.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-core-1.13.0/build.rs"
+  },
+  {
+    "package": "rustversion",
+    "version": "1.0.23",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustversion-1.0.23/build/build.rs"
+  },
+  {
+    "package": "serde",
+    "version": "1.0.229",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/build.rs"
+  },
+  {
+    "package": "serde_core",
+    "version": "1.0.229",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/build.rs"
+  },
+  {
+    "package": "serde_json",
+    "version": "1.0.154",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/build.rs"
+  },
+  {
+    "package": "thiserror",
+    "version": "2.0.21",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/build.rs"
+  },
+  {
+    "package": "tiny-keccak",
+    "version": "2.0.2",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tiny-keccak-2.0.2/build.rs"
+  },
+  {
+    "package": "wasm-bindgen",
+    "version": "0.2.129",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-0.2.129/build.rs"
+  },
+  {
+    "package": "wasm-bindgen-shared",
+    "version": "0.2.129",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasm-bindgen-shared-0.2.129/build.rs"
+  },
+  {
+    "package": "web_atoms",
+    "version": "0.3.0",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/web_atoms-0.3.0/build.rs"
+  },
+  {
+    "package": "wit-bindgen",
+    "version": "0.57.1",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wit-bindgen-0.57.1/build.rs"
+  },
+  {
+    "package": "xberg",
+    "version": "1.3.10",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10/build.rs"
+  },
+  {
+    "package": "zerocopy",
+    "version": "0.8.63",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zerocopy-0.8.63/build.rs"
+  },
+  {
+    "package": "zmij",
+    "version": "1.0.23",
+    "build_script": "/Users/evokessler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zmij-1.0.23/build.rs"
+  }
+]

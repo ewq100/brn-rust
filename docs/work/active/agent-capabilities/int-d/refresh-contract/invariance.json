@@ -1,0 +1,34 @@
+{
+  "only_history_production_change": "    if let Some(properties) = definition[\"properties\"].as_object_mut() {\n        properties.remove(\"writing\");\n    }\n",
+  "typed_validator_handler_other_production_prefix_unchanged": true,
+  "guide_only_exact_version_labels": true,
+  "writing_tests_outside_existing_wire_function_unchanged_including_q1": true,
+  "changed_compiled_inputs": {
+    "crates/brn-ai/src/threads_budget_tests.rs": {
+      "old": "0f2dfb458c25e0746545d36d8f34f1785979b89e7d0b1d24a799e014f99a89ab",
+      "new": "f35d3dfafd48cbdabb611358cec2825528db1696bac1eb9ed888da31b4befa50"
+    },
+    "crates/brn-ai/src/threads_guides.rs": {
+      "old": "3f040addfc03a468b33c3609ff897e9a2d1c4aa5baafd79278aee99c83ea47a9",
+      "new": "525b0f91720c65aeec253a3337b7f69a58216d3e2c464dc0e9db9c56b82b588b"
+    },
+    "crates/brn-ai/src/threads_history.rs": {
+      "old": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+      "new": "a86726908f268af22c743a4922777b2dd2354206e22bb07ccbc46427fa6f1567"
+    },
+    "crates/brn-ai/src/threads_summary_tests.rs": {
+      "old": "05cddc8c37f3826b4047c0f06d397d572e24d0db82a1895cbaa1aac73087cb57",
+      "new": "7efde03c6d45c96e524da6fcdf8bb1e236326b068406423b91d435469fc6b059"
+    },
+    "crates/brn-ai/src/threads_writing_tests.rs": {
+      "old": "bb2e271ba08dfe2c6cf36d34b44714f768acab54d803d44db627c99a83d3673a",
+      "new": "45356bae20a65db9d238fd831b51a870926f574e62829067a542169b29fc6991"
+    },
+    "crates/brn/tests/agent_runs.rs": {
+      "old": "3c2af0131d49f8a15d10744613aa7326cffac112b9c08cac1dab6952ff36a812",
+      "new": "69a12f6460d2e1dbca4e1d1c02038bdc9c594f873432391b752a7806abe8f2e3"
+    }
+  },
+  "other328_inputs_unchanged": true,
+  "no_runtime_framework_or_authority_change": true
+}

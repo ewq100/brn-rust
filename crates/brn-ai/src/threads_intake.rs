@@ -243,7 +243,7 @@ fn retrieve(
         if stop.load(Ordering::SeqCst) {
             return None;
         }
-        match search.search(chat, &query.text, SEARCH_LIMIT, None, query.hybrid) {
+        match search.search(Some(chat), &query.text, SEARCH_LIMIT, None, query.hybrid) {
             Ok(page) => {
                 if query.hybrid && semantic.is_empty() {
                     semantic = page.semantic.clone();
@@ -514,7 +514,7 @@ pub(super) fn build(
             "complete": true,
             "markdown": note.markdown,
         });
-        if let Ok(around) = search.connections(&scope.chat, &id, 1, true) {
+        if let Ok(around) = search.connections(Some(&scope.chat), &id, 1, true) {
             let nodes: Vec<ConnectionNode> = around
                 .hops
                 .into_iter()

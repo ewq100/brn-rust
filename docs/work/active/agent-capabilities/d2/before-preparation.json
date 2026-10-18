@@ -1,0 +1,29 @@
+{
+  "base": "8ae8a72938c071be0af4f2b8c651a3603a8a0025",
+  "source": "/private/tmp/brn-d2-20261017-before-source",
+  "target": "/private/tmp/brn-d2-20261017-before-target",
+  "genuine_git": "local git init only; no remotes/history/auth copied",
+  "production_edit_before_capture": false,
+  "only_baseline_change": "cfg(test) module registration and new five existing-API witnesses",
+  "registration_patch_sha256": "20e002d951c4b65adfa12f305cf449b36a587a4edc76aa287271e3a02002c1fe",
+  "test_file_sha256": "397aace18cbed56dc7ce3ca04070a7564ee3b88efe380ce944499a56da3bfaa2",
+  "executed": false,
+  "behavioral_result": "UNEXECUTED; no red claim",
+  "expected_missing_behaviors": [
+    "structured objective/remaining/questions wire arguments",
+    "Allocated/Prepared/Applied host reconciliation frozen input",
+    "fresh stale candidate state after owner edit"
+  ],
+  "D2_mutation": "not granted/not started; no D1B remainder reuse",
+  "static_fixture_refinement": {
+    "reason": "Assert host continuation in actual scripted provider requests after full initial context assembly, rather than prepare_run.input; preserves five initial witnesses on old APIs. Feature-gated scripted registration; default non-scripted build unaffected. No execution/compiler result.",
+    "registration_patch_sha256": "4db69c84dd9e18a323e85afaed2ffb663b678b505dfa1ad0042748e3be08f885",
+    "test_file_sha256": "2bc9db9db19ff8ed4507f427efe0308386b4bdcb4ae7dd8cbdafda8be951ed48",
+    "other_baseline_material_files_match": 287,
+    "initial_registration_and_test_artifacts_preserved": true,
+    "status": "PREPARED ONLY"
+  },
+  "actual_before_test_sha256": "78784fa2a894180f8ea324f3fc4b438815388bdeeb30656cfb283094f232d1f4",
+  "actual_before_test_file": "/private/tmp/brn-d2-20261017-artifacts/before-tests-v3.rs",
+  "static_checkpoint_refinement": "Drop live scope without finish to exercise actual orphan recovery at Allocated/Prepared/Applied boundary; no execution yet."
+}

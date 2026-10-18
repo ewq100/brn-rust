@@ -60,6 +60,7 @@ pub(super) fn other_items_line(removed: &[Record]) -> Option<String> {
         RecordData::Run(_) => Some(5),
         RecordData::ChatControl(_) => Some(6),
         RecordData::Settings(_) => Some(7),
+        RecordData::WritingSetup(_) => None,
     };
     let found: Vec<usize> = removed.iter().filter_map(|r| kind(&r.data)).collect();
     if found.is_empty() {
@@ -96,20 +97,10 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.open_note(note, None, window, cx);
-        if self.open_note_id() != Some(note) {
+        self.open_note_in_context(note, None, Some(project), window, cx);
+        if self.open_note_id() != Some(note) || self.note_writing_scope.as_deref() != Some(project)
+        {
             return;
-        }
-        self.note_project = Some(project.into());
-        if self.writing_threads.get(note).is_some_and(|chat| {
-            self.workspace
-                .store
-                .project_context_record(chat)
-                .ok()
-                .flatten()
-                .is_none_or(|p| p.id != project)
-        }) {
-            self.writing_threads.remove(note);
         }
         let target = self
             .writing_threads

@@ -1,0 +1,53 @@
+{
+  "note": "Final present library/dependency inventory. Command receipt and actual executable identify build/use; not every metadata variant is asserted produced by the same command. No normal client-only SDK graph claim.",
+  "artifacts": [
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/libbrn_ai-bc43702978e3cc1b.rlib",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-bc43702978e3cc1b.rlib",
+      "sha256": "3a83311ec69d58d8f98dab00324b1395488d61501e18f074d82199d4d53f3d2c",
+      "bytes": 20495000
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/libbrn_ai-bc43702978e3cc1b.rmeta",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-bc43702978e3cc1b.rmeta",
+      "sha256": "40c2da3e56b8cb44fb3a8091b8c4bdd2489550195570163972a48fa782501728",
+      "bytes": 4200827
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/libbrn_ai-e5216f003022d67b.rmeta",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-e5216f003022d67b.rmeta",
+      "sha256": "e1d2f44d163d96668fbd732902ecd639e73cf29aee5ef9cbb462264e22b7b69d",
+      "bytes": 4568600
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/libbrn_ai-32674d95845e75ab.rmeta",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/libbrn_ai-32674d95845e75ab.rmeta",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-bc43702978e3cc1b.d",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-bc43702978e3cc1b.d",
+      "sha256": "f4b2227ed02805ca2ec8c6595a621d48830e8ee9f4d4a1028c52fd2a5d8835ac",
+      "bytes": 5655
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "6dba41aa2397945f76019b70e24b5e25a6351198334f80507dca0edc8361de7f",
+      "bytes": 9514
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-e5216f003022d67b.d",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-e5216f003022d67b.d",
+      "sha256": "c79cbeef62b985f698e6e5dbcc7c14a719e083fb20a16e3121e200ec060868f9",
+      "bytes": 5227
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-32674d95845e75ab.d",
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/final-library-copies/brn_ai-32674d95845e75ab.d",
+      "sha256": "337808816b27299abe9176ee9e04d385f962f53c27d8b0f884bb08f1629d13a5",
+      "bytes": 9652
+    }
+  ]
+}

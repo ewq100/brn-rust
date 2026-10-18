@@ -88,15 +88,16 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.layout.close(TileKind::Chat);
-            view.general_feedback.update(cx, |editor, cx| {
+            view.writing.general_feedback.update(cx, |editor, cx| {
                 editor.set_value(
                     "Keep the greeting and make the sentence clearer.",
                     window,
                     cx,
                 )
             });
-            view.comment_anchor = Some((f.first.id.clone(), f.first.version, 6..10, "this".into()));
-            view.comment_input.update(cx, |editor, cx| {
+            view.writing.comment_anchor =
+                Some((f.first.id.clone(), f.first.version, 6..10, "this".into()));
+            view.writing.comment_input.update(cx, |editor, cx| {
                 editor.set_value("Keep this exact phrase.", window, cx)
             });
             view.post_comment(window, cx);
@@ -132,7 +133,7 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
     cx.run_until_parked();
     cx.read(|cx| {
         f.view.read_with(cx, |view, _| {
-            assert!(view.expanded_requests.contains(&request));
+            assert!(view.writing.expanded_requests.contains(&request));
         })
     });
     cx.update_window(f.window, |_, window, cx| {
@@ -158,7 +159,7 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
     // A fresh request captures the changed draft; Retry above did not.
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.general_feedback.update(cx, |editor, cx| {
+            view.writing.general_feedback.update(cx, |editor, cx| {
                 editor.set_value("New direction for the next rewrite.", window, cx)
             });
         });
@@ -221,7 +222,7 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.try_find("review-panel").is_some());
         f.view.update(cx, |view, _| {
-            assert!(view.review.is_some());
+            assert!(view.writing.review.is_some());
             assert!(!view.layout.contains(TileKind::Chat));
         });
         window.click("apply-final", cx);
@@ -235,7 +236,7 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
         assert_ne!(confirm.disabled(), Some(true), "{confirm:?}");
         f.view.update(cx, |view, _| {
             assert_eq!(
-                view.applied_rewrite.get(&f.first.id).unwrap().0,
+                view.writing.applied_rewrite.get(&f.first.id).unwrap().0,
                 new_request
             );
             assert_eq!(
@@ -281,7 +282,7 @@ fn closed_chat_rewrite_retry_review_apply_address_and_undo_stay_in_note(cx: &mut
                 "Undo restores the captured feedback state"
             );
             assert!(!view.layout.contains(TileKind::Chat));
-            assert!(view.review.is_none());
+            assert!(view.writing.review.is_none());
             assert_eq!(
                 view.workspace.writing_request(&new_request).unwrap(),
                 new_snapshot
@@ -301,7 +302,7 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.layout.close(TileKind::Chat);
-            view.general_feedback.update(cx, |editor, cx| {
+            view.writing.general_feedback.update(cx, |editor, cx| {
                 editor.set_value("First note direction", window, cx)
             });
             view.composer.update(cx, |editor, cx| {
@@ -315,12 +316,12 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_note(&f.second.id, None, window, cx);
-            assert_eq!(view.general_feedback.read(cx).value().as_ref(), "");
+            assert_eq!(view.writing.general_feedback.read(cx).value().as_ref(), "");
             assert_eq!(
                 view.composer.read(cx).value().as_ref(),
                 "Unsent chat draft for the first note"
             );
-            view.general_feedback.update(cx, |editor, cx| {
+            view.writing.general_feedback.update(cx, |editor, cx| {
                 editor.set_value("Second note direction", window, cx)
             });
         });
@@ -332,7 +333,7 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
         f.view.update(cx, |view, cx| {
             view.open_note(&f.first.id, None, window, cx);
             assert_eq!(
-                view.general_feedback.read(cx).value().as_ref(),
+                view.writing.general_feedback.read(cx).value().as_ref(),
                 "First note direction"
             );
             assert_eq!(
@@ -341,7 +342,7 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
             );
             view.open_note(&f.second.id, None, window, cx);
             assert_eq!(
-                view.general_feedback.read(cx).value().as_ref(),
+                view.writing.general_feedback.read(cx).value().as_ref(),
                 "Second note direction"
             );
             assert_eq!(
@@ -433,6 +434,7 @@ fn run_fixture(
                                 expected_version: None,
                                 archived: false,
                                 data: RecordData::Run(Run {
+                                    loaded_skill_details: vec![],
                                     instruction: request
                                         .as_ref()
                                         .map(|snapshot| snapshot.request_message.clone()),
@@ -550,7 +552,7 @@ fn exact_writing_run_shows_note_stop_and_cancel_keeps_saved_request(cx: &mut Tes
             };
             assert_eq!(run.state, RunState::Interrupted);
             assert_eq!(
-                view.review.as_ref().unwrap().candidate.operation,
+                view.writing.review.as_ref().unwrap().candidate.operation,
                 candidate.operation
             );
             assert_eq!(
@@ -568,7 +570,7 @@ fn an_open_edit_keeps_save_beside_stop_while_its_rewrite_runs(cx: &mut TestAppCo
     let (f, _thread, _run, _snapshot, _cancel) = run_fixture(cx, true);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.note_editor.update(cx, |editor, cx| {
+            view.writing.note_editor.update(cx, |editor, cx| {
                 editor.set_value("Edited while BRN rewrites", window, cx)
             });
             view.preserve_visible_note_input(cx);
@@ -702,7 +704,7 @@ fn ordinary_question_attention_survives_rewrite_and_proposal_stays_with_note(
     cx.run_until_parked();
     cx.read(|cx| {
         f.view.read_with(cx, |view, _| {
-            assert!(view.expanded_requests.contains(&request));
+            assert!(view.writing.expanded_requests.contains(&request));
         })
     });
     cx.update_window(f.window, |_, window, _| {
@@ -774,9 +776,7 @@ fn repeated_rewrite_requests_preserve_pending_review_and_reading_space(cx: &mut 
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |view, cx| {
             view.layout.close(TileKind::Chat);
-            let thread = view
-                .ensure_writing_thread(&f.first.id, f.first.version)
-                .unwrap();
+            let thread = view.ensure_writing_thread(&f.first.id).unwrap();
             for index in 0..8 {
                 let snapshot = view
                     .workspace
@@ -831,9 +831,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
         .update_window(f.window, |_, window, cx| {
             f.view.update(cx, |view, cx| {
                 view.layout.close(TileKind::Chat);
-                let thread = view
-                    .ensure_writing_thread(&f.first.id, f.first.version)
-                    .unwrap();
+                let thread = view.ensure_writing_thread(&f.first.id).unwrap();
                 let first = view
                     .workspace
                     .snapshot_writing_request(
@@ -861,9 +859,9 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                     .unwrap();
                 view.open_review(candidate, window, cx);
                 view.apply_review(window, cx);
-                assert!(view.review.is_none());
+                assert!(view.writing.review.is_none());
                 assert_eq!(
-                    view.applied_rewrite.get(&f.first.id).unwrap().0,
+                    view.writing.applied_rewrite.get(&f.first.id).unwrap().0,
                     first.request_message
                 );
                 let applied_note = view.workspace.store.record(&f.first.id).unwrap().unwrap();
@@ -897,6 +895,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                                 expected_version: None,
                                 archived: false,
                                 data: RecordData::Run(Run {
+                                    loaded_skill_details: vec![],
                                     instruction: Some(second.request_message.clone()),
                                     queue_claim: None,
                                     thread: thread.clone(),
@@ -985,7 +984,7 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
                     applied_note
                 );
                 assert_eq!(
-                    view.applied_rewrite.get(&f.first.id).unwrap().0,
+                    view.writing.applied_rewrite.get(&f.first.id).unwrap().0,
                     prior_request
                 );
                 assert!(view.candidates.is_empty());
@@ -1007,8 +1006,9 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
     // siblings say to save first. Discarding brings Undo back.
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            let text = format!("{} Edited here.", view.note_editor.read(cx).value());
-            view.note_editor
+            let text = format!("{} Edited here.", view.writing.note_editor.read(cx).value());
+            view.writing
+                .note_editor
                 .update(cx, |editor, cx| editor.set_value(text, window, cx));
             view.preserve_visible_note_input(cx);
             cx.notify();
@@ -1017,21 +1017,39 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_some());
+        assert!(
+            f.view
+                .read(cx)
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session
+                .is_some()
+        );
         assert!(window.try_find("undo-writing-apply").is_none());
         assert_eq!(
             window.find("retry-rewrite").label(),
             Some("Retry saved rewrite, unavailable: Save your edit first")
         );
         f.view.update(cx, |view, cx| {
-            let session = view.note.as_ref().unwrap().session.clone().unwrap();
+            let session = view.writing.note.as_ref().unwrap().session.clone().unwrap();
             view.discard_session(session, window, cx)
         });
     })
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_none());
+        assert!(
+            f.view
+                .read(cx)
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session
+                .is_none()
+        );
         assert!(window.find("undo-writing-apply").visible());
     })
     .unwrap();
@@ -1151,4 +1169,138 @@ fn bound_terminal_clarification_stays_in_note_and_unrelated_chat_cannot_replace_
         assert!(window.try_find("writing-result").is_none())
     })
     .unwrap();
+}
+
+#[gpui_kit::test]
+fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    open_note(cx, &f, &f.first);
+    let thread = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let thread = view
+                    .workspace
+                    .new_thread("Writing query fixture")
+                    .unwrap()
+                    .id;
+                view.workspace
+                    .link_writing_thread("work-bound-link", &f.first.id, f.first.version, &thread)
+                    .unwrap();
+                for index in 0..3 {
+                    let record = if index == 0 {
+                        f.second.clone()
+                    } else {
+                        view.workspace
+                            .new_note(&format!("Unrelated fixture {index}"), "Other saved text")
+                            .unwrap()
+                    };
+                    let operation = view
+                        .workspace
+                        .store
+                        .allocate_operation(&format!("work-bound-candidate-{index}"))
+                        .unwrap();
+                    let mut note = record.data.clone();
+                    let RecordData::Note(ref mut note_data) = note else {
+                        panic!("fixture Note")
+                    };
+                    note_data.markdown = format!("Unrelated pending text {index}");
+                    view.workspace
+                        .store
+                        .prepare(
+                            &operation,
+                            &ChangeRequest {
+                                reason: format!("Unrelated pending edit {index}"),
+                                inputs: vec![],
+                                writes: vec![Put {
+                                    id: record.id,
+                                    expected_version: Some(record.version),
+                                    archived: false,
+                                    data: note,
+                                }],
+                            },
+                        )
+                        .unwrap();
+                }
+                view.open_note(&f.first.id, None, window, cx);
+                cx.notify();
+                thread
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    let before = cx.read(|cx| {
+        (
+            WRITING_DISPLAY_LOADS.with(|loads| loads.get()),
+            f.view.read(cx).writing_review_loads,
+        )
+    });
+    for _ in 0..4 {
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                let _ = view.comments_open();
+                let _ = view.comments_beside();
+                let _ = view.comments_stacked();
+                let _ = view.note_toolbar_needs(window);
+                assert_eq!(view.latest_writing_instruction(&thread), None);
+                assert_eq!(view.candidates.len(), 3);
+                for candidate in &view.candidates {
+                    assert_eq!(view.writing_candidate_note(candidate), None);
+                }
+                cx.notify();
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        let after = cx.read(|cx| {
+            (
+                WRITING_DISPLAY_LOADS.with(|loads| loads.get()),
+                f.view.read(cx).writing_review_loads,
+            )
+        });
+        assert_eq!(
+            after, before,
+            "without a saved writing request, pure queries, per-candidate filters and unchanged Write redraws must not resolve assets/read latest Run/reload the canonical batch"
+        );
+    }
+    // Positive controls use real consumers, so a disconnected counter cannot
+    // turn the no-work assertion into a vacuous pass.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let context = view
+                .workspace
+                .ensure_writing_context("work-bound-context", &f.first.id, None)
+                .unwrap();
+            let thread = context.conversation.unwrap();
+            view.workspace
+                .snapshot_writing_request(
+                    "work-bound-request",
+                    &f.first.id,
+                    f.first.version,
+                    &thread,
+                    &[],
+                )
+                .unwrap();
+            view.open_note(&f.first.id, None, window, cx);
+            let runs = WRITING_DISPLAY_LOADS.with(|loads| loads.get().1);
+            assert!(matches!(
+                view.writing_run_outcome(),
+                Some(RunOutcome::InputsSaved)
+            ));
+            assert!(
+                WRITING_DISPLAY_LOADS.with(|loads| loads.get().1) > runs,
+                "the actual status query invokes its deferred latest-run reader"
+            );
+            view.set_note_reading(true, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.read(|_| {
+        assert!(
+            WRITING_DISPLAY_LOADS.with(|loads| loads.get().0) > before.0.0,
+            "the actual formatted Read consumer resolves its scoped assets"
+        );
+    });
 }

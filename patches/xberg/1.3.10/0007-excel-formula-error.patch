@@ -1,0 +1,54 @@
+diff --git a/src/extraction/excel.rs b/src/extraction/excel.rs
+index 98c814b..652253d 100644
+--- a/src/extraction/excel.rs
++++ b/src/extraction/excel.rs
+@@ -742,7 +742,7 @@ fn format_cell_to_string(data: &Data) -> String {
+             }
+         }
+         Data::DateTime(dt) => datetime::format_excel_datetime(dt),
+-        Data::Error(e) => format!("#ERR: {:?}", e),
++        Data::Error(e) => e.to_string(),
+         Data::DateTimeIso(s) => s.clone(),
+         Data::DurationIso(s) => format!("DURATION: {}", s),
+     }
+@@ -805,11 +805,7 @@ fn column_letters(mut col: u32) -> String {
+     String::from_utf8(letters).unwrap_or_default()
+ }
+
+-/// Render a zero-based `(row, col)` position as an A1-style cell reference
+-/// relative to the enumerated range (matching the convention already used by
+-/// `extractors::excel::scan_for_dde_warnings`, which reports positions
+-/// relative to the extracted `table_cells` grid rather than absolute sheet
+-/// coordinates).
++/// Render a caller-supplied zero-based `(row, col)` position as an A1-style reference.
+ fn cell_reference(row: u32, col: u32) -> String {
+     format!("{}{}", column_letters(col), row + 1)
+ }
+@@ -824,6 +820,7 @@ where
+     R: Reader<RS>,
+ {
+     let range = workbook.worksheet_formula(sheet_name).ok()?;
++    let (start_row, start_col) = range.start()?;
+     let mut entries = Vec::new();
+
+     'outer: for (row_idx, row) in range.rows().enumerate() {
+@@ -831,11 +828,14 @@ where
+             if formula.is_empty() {
+                 continue;
+             }
+-            entries.push(format!(
+-                "{}={}",
+-                cell_reference(row_idx as u32, col_idx as u32),
+-                formula
+-            ));
++            // These offsets enumerate this same Range, so each sum is bounded by its u32 end.
++            let row = start_row
++                .checked_add(u32::try_from(row_idx).expect("Range row offset fits u32"))
++                .expect("formula row lies within Range bounds");
++            let col = start_col
++                .checked_add(u32::try_from(col_idx).expect("Range column offset fits u32"))
++                .expect("formula column lies within Range bounds");
++            entries.push(format!("{}={}", cell_reference(row, col), formula));
+             if entries.len() >= MAX_METADATA_ENTRIES_PER_SHEET {
+                 break 'outer;
+             }

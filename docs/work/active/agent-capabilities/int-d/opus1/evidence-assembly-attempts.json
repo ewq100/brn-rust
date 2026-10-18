@@ -1,0 +1,25 @@
+{
+  "attempts": [
+    {
+      "stage": "new evidence index assembly",
+      "exit": 1,
+      "error": "FileNotFoundError: precommit_head",
+      "cause": "assembler treated metadata wrapper keys as material paths rather than compiled_input_hashes",
+      "effect": "no compiled source/test/check failure; initial evidence copies/index created, invariant receipt unfinished",
+      "correction": "use actual compiled_input_hashes field; assert exactly four allocated tests differ;333 current input hashes verified",
+      "corrected_exit": 0
+    },
+    {
+      "stage": "git diff --cached --check",
+      "exit": 2,
+      "cause": "exact raw Cargo log bytes contain trailing space on test-start line and final blank lines",
+      "correction": "reversibly JSON-escape log text, assert decoded exact bytes/hash; scratch originals unchanged; no whitespace suppression or original log editing",
+      "raw_diagnostics": [
+        "ai-int-d-selected-positive.log:11 new blank line at EOF",
+        "app-int-d-selected-positive.log:9 new blank line at EOF",
+        "cli-int-d-corrected.log:12 new blank line at EOF",
+        "s2-stale-before.log:221 trailing whitespace"
+      ]
+    }
+  ]
+}

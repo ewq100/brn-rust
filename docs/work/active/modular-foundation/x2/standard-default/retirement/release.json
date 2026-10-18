@@ -1,0 +1,29 @@
+{
+  "task": "brn-x2-legacy-retirement-implementation-20261018",
+  "at": "2026-10-18T12:53:56.817439+00:00",
+  "material": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+  "owned_process_groups": [
+    13261,
+    12808,
+    27759,
+    23782,
+    26213,
+    18278,
+    29148,
+    12980,
+    16584,
+    18763,
+    14668,
+    13541,
+    16002,
+    35408,
+    17454
+  ],
+  "all_owned_commands_reaped": true,
+  "precise_heavy_inventory": [],
+  "sole_heavy_released": true,
+  "paths_handoff": "All allocated source/raw/artifact/generated paths are frozen; only final static evidence commit remains. Actual clean postcommit SHA/tree and ALL-path release are recorded externally in postcommit-release.json after creation. No further build/source task starts.",
+  "active_failures_retained": true,
+  "required_packaging_and_active_gate_work_pending": true,
+  "publication_or_acceptance": false
+}

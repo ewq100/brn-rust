@@ -1,0 +1,119 @@
+{
+  "source_head": "9e1a2589c9fda45fe16abcc7ce232ac64c425f4c",
+  "diagnostic_only": true,
+  "production_changes": false,
+  "original_test_restored_sha256": "23309ae394a7e768afd1ee60a843588b389931ab234768c32d3dabd0ccd5eae7",
+  "attempts": [
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "skill_packages::tests::unrelated_fork_retains_catalog_lock_until_child_exit",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 124,
+      "seconds": 180.0210440158844,
+      "pid_pgid": 84067,
+      "source_sha256": "92f4129838a6efd5d1d9d6332b38a9803322eb189393dc8a039cd190e9fe83a8",
+      "target": "/private/tmp/brn-x2-standard-task4-20261018/root-target",
+      "tmpdir": "/private/tmp/brn-x2-skill-lock-context-20261018/tmp",
+      "external_receipt": "/private/tmp/brn-x2-skill-lock-context-20261018/01-immediate-red/receipt.json",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "32d996562a12a807b6392f8eedd2d03b064314f18ea40c91c07d7194c4a01870",
+      "preserved_artifact_count": 24,
+      "external_receipt_sha256": "9f594f4da873ab0742da4d85ee41d2013623ce93a6e0fdc41d8a06cf4cda34b2"
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "skill_packages::tests::unrelated_fork_retains_catalog_lock_until_child_exit",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 96.45248794555664,
+      "pid_pgid": 88911,
+      "source_sha256": "92f4129838a6efd5d1d9d6332b38a9803322eb189393dc8a039cd190e9fe83a8",
+      "target": "/private/tmp/brn-x2-standard-task4-20261018/root-target",
+      "tmpdir": "/private/tmp/brn-x2-skill-lock-context-20261018/tmp",
+      "external_receipt": "/private/tmp/brn-x2-skill-lock-context-20261018/02-immediate-red/receipt.json",
+      "stdout_sha256": "a30c906f7e1387923871471e2b08f15bc6fea4df93fa7506b7bfa7805b6c8111",
+      "stderr_sha256": "24960977c085a4f4de5be6a2fd5b75a9cd8f84c3fe00d0973f50398d5e8e9886",
+      "preserved_artifact_count": 25,
+      "external_receipt_sha256": "19a2cc6194060c95eaf7240db71c0f2dbd7bc86da7ca78251b53830c91aba732",
+      "executed_test_binary": {
+        "path": "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/deps/brn_ai-abaeb03864b018a7",
+        "copy": "/private/tmp/brn-x2-skill-lock-context-20261018/02-immediate-red/artifacts/brn_ai-abaeb03864b018a7",
+        "sha256": "15d851bdcd7849f25a59cec5ffdc6fcf01ca34fdd86760d34041d9f6a8de135c"
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "skill_packages::tests::",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 58.51238131523132,
+      "pid_pgid": 90351,
+      "source_sha256": "4ad887ce0b71458fdd5068b5b21be9818948edcf85fc7d238dd107b15908824e",
+      "target": "/private/tmp/brn-x2-standard-task4-20261018/root-target",
+      "tmpdir": "/private/tmp/brn-x2-skill-lock-context-20261018/tmp",
+      "external_receipt": "/private/tmp/brn-x2-skill-lock-context-20261018/03-skill-controls/receipt.json",
+      "stdout_sha256": "1cd40d81e1e3997f113271f835ea17d53d8052fcec013e9c33c435352f03535f",
+      "stderr_sha256": "e1e749ffa855fa3de6d142549b9a43516c4a646d38357105c6c76ba3eaca08ba",
+      "preserved_artifact_count": 25,
+      "external_receipt_sha256": "cc74d4d89e3a13560c7618f2b629e4e5a0b745861e27ef5b9de90479d019c54e",
+      "executed_test_binary": {
+        "path": "/private/tmp/brn-x2-standard-task4-20261018/root-target/debug/deps/brn_ai-abaeb03864b018a7",
+        "copy": "/private/tmp/brn-x2-skill-lock-context-20261018/03-skill-controls/artifacts/brn_ai-abaeb03864b018a7",
+        "sha256": "a798b9913ac3efc8889e2fff34871cc0eba40baf235b1338c6f4d14ccbf98637"
+      }
+    }
+  ],
+  "original_full_result": "AI502/1/2; workspace1278/3/7, still unexplained",
+  "unaccepted_candidate": "/private/tmp/brn-x2-skill-lock-context-20261018/unaccepted-parallel-candidate.rs",
+  "unaccepted_candidate_sha256": "4ad887ce0b71458fdd5068b5b21be9818948edcf85fc7d238dd107b15908824e",
+  "strict_lint": "UNEXECUTED: hard ten-minute cap; no test candidate landed",
+  "owned_groups": [
+    84067,
+    88911,
+    90351
+  ]
+}

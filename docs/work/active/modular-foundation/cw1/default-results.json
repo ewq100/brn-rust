@@ -1,0 +1,194 @@
+[
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 1.299,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-00.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "brn-intake",
+      "--features",
+      "helper",
+      "--bin",
+      "brn-intake-helper",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 0.407,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-01.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--workspace",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 4.753,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-02.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 5.557,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-03.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 101,
+    "seconds": 86.765,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-04.log",
+    "counts": [
+      1030,
+      1,
+      6
+    ],
+    "test_targets": 84
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-ai",
+      "--features",
+      "capability-spike",
+      "--all-targets",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 14.257,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-05.log",
+    "counts": [
+      348,
+      0,
+      1
+    ],
+    "test_targets": 3
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-ai",
+      "--features",
+      "capability-spike",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 3.485,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-06.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-provider-retirement.py"
+    ],
+    "exit": 0,
+    "seconds": 0.094,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-07.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-intake-retirement.py"
+    ],
+    "exit": 0,
+    "seconds": 0.046,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-08.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "bash",
+      "scripts/verify-end-to-end.sh",
+      "--fixtures-only"
+    ],
+    "exit": 0,
+    "seconds": 2.129,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/default-09.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  }
+]

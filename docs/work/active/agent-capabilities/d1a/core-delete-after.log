@@ -1,0 +1,21 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 4.16s
+     Running tests/message_search_scope.rs (/private/tmp/brn-d1a-20261016-target/debug/deps/message_search_scope-c7984490840f664d)
+
+running 13 tests
+test project_delete_terminal_fence_overflow_refuses_atomically ... ok
+test partial_progress_and_writing_requests_are_never_searchable ... ok
+test a_chat_with_its_own_attachments_is_searchable_only_from_itself ... ok
+test an_archived_general_chats_notes_stay_private_to_it ... ok
+test a_trashed_chats_notes_stay_out_of_search_until_restore ... ok
+test a_general_chat_is_searchable_wherever_general_notes_appear ... ok
+test a_project_without_brn_knowledge_shows_only_its_own_chats ... ok
+test a_chat_moved_out_of_a_project_stays_searchable_only_from_itself ... ok
+test a_deleted_project_hides_its_chats_and_restore_returns_them ... ok
+test a_project_chat_is_searchable_only_in_its_project ... ok
+test an_archived_project_chats_notes_stay_project_documents ... ok
+test project_delete_advances_only_actual_terminal_and_live_archive_transitions_once ... ok
+test an_archived_or_resolved_chat_keeps_its_message_scope ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

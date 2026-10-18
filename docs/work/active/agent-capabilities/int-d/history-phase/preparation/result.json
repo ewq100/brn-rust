@@ -1,0 +1,15 @@
+{
+  "status": "OFFLINE_PREPARED_NOT_ACTIVATED",
+  "preflight": "/private/tmp/brn-int-d-history-preflight-20261017-db757e32/preflight.json",
+  "preflight_sha256": "67e548483d3493e764fea7f2769aab1a081703343521bc90c8dc28e4eb89690b",
+  "source_pin": "db757e321967b93b800bd80a122a90d37f0ebb77",
+  "counts": {
+    "generators": 2,
+    "reference_configures": 4,
+    "copy_interop": 4,
+    "provider_workflows": 0
+  },
+  "original_final_triples_unchanged": true,
+  "initial_manifests_preserved": true,
+  "activation_reservation_workflow_output_absent": true
+}

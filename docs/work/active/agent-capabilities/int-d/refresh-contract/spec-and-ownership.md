@@ -1,0 +1,13 @@
+# Exact contract and ownership
+
+Source-backed pre-existing defect: refresh advertised full prepare's writing node although RefreshArgs deny_unknown_fields has only operation/request_key/request. Normal Codex offers an unusable optional field; maintained strict Copilot Responses makes it required. This finding is not an executed failure until the real registered before witness runs; it is not the historical three generic errors' cause.
+
+Only production hunk: threads_history.rs::refresh_schema removes properties.writing. Required operation/request_key/request, nested request/additionalProperties, typed validation and refresh/live/current/family/authority/immutable/replay/Undo handler stay byte-identical. Rewrite refusal remains. Guide13→14 constant/two labels is the only other production delta. No incoming-data stripping or null/object allowance.
+
+Same-file private tests: exact actual registered first request (Test purpose), fresh ordinary previous-run-family protected replacement/retirement/identical retry and exact host NeedsReview with no Applied receipt/Note effect; forged writing null/object + actual progress in both orders refuses before dispatch/new effects, retaining the prior candidate unchanged. Existing stronger guards/assertions retained.
+
+Allocated test-only extensions: existing writing normal/strict wire witness refresh shape/request preservation; existing budget equality/frozen lazy-skill/prefix witness; existing guide/cache test current14/prior13 (same logic); existing CLI guide literal13→14 only. No other file/code/test cleanup. Canonical behavior/status belong to principal after review; current INT-D plan gets only a concise checkpoint. No phaseB scripts/fixtures/preflight/auth configuration or activation work.
+
+Meaningful before: exact88 archived production in a separate synthetic Git source/target, with only registered-first-request test changes; actual requests, not Python schema recreation. Full input/archive/patch/artifact/log hashes retained. Exact schema mismatch failure, compiler/fixture errors and zero-filter mistakes have distinct classifications; no fabricated red for guards already correct.
+
+Acceptance: no writing offered on normal/strict wire; valid supported refresh stays usable in ordinary/fresh family, never Rewrite; protected replacement remains NeedsReview; fake fields fail whole batch; offered/budget/prefix stable; guide14 invalidates13 only for fresh runs/cache key and same-stamp reuse remains. Preserve normal prepare/v2 evidence, all caps, helper and capture safety. Normal checks are not remote provider compliance/semantic superiority, I01 live completion or acceptance.

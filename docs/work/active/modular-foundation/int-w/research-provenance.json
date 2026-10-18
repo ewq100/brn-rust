@@ -1,0 +1,8 @@
+{
+  "report": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/int-w-f21-luna-map.md",
+  "sha256": "ab7e95d50551d57260193c485986daf00d3f74f7cc23d04ba87eb6f2bf297559",
+  "reviewed_base": "e8e98304af7c6dd871455f8081887bf6a1af3e16",
+  "source_only": true,
+  "no_test_or_source_defect_claim": true,
+  "broken_absolute_citations_not_copied": true
+}

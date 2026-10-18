@@ -1,0 +1,44 @@
+{
+  "checks": [
+    {
+      "label": "format",
+      "receipt_sha256": "6012da7c000bc171d8f382b52ea8171311167926affc2d64dfbadb61684d1c00",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334
+    },
+    {
+      "label": "q1-exact",
+      "receipt_sha256": "3225d64c950ad6b620f31c9bd7e129c40752b2e4f8490b96b5d311a058f57dbe",
+      "raw_sha256": "88ce4f4e8aaddd966663e96a8ddbfb3a24fa5840e9f87d275fc2ae8380347b9e",
+      "exit_code": -15,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334
+    },
+    {
+      "label": "q1-exact-correct-target",
+      "receipt_sha256": "c0a931ed08163fa1d14c2256154ba8d86a398eed350807d5cd0fbe164b707518",
+      "raw_sha256": "4afb9164c011f43517f206d60df7120da301d79704058338420782970e10841c",
+      "exit_code": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.06s"
+      ],
+      "source_unchanged": true,
+      "input_count": 334
+    },
+    {
+      "label": "strict-ai",
+      "receipt_sha256": "e82c984c6b569024648392e7162ffb07722511c335d6cada6b6817a5a2076f22",
+      "raw_sha256": "38884afed286e1bfbf627e93507e2248c4eab99916108c0f2af5207572ae9ee7",
+      "exit_code": 0,
+      "summaries": [],
+      "source_unchanged": true,
+      "input_count": 334
+    }
+  ],
+  "artifact_note": "Receipt artifact list is present inventory, not a claim every file was built by that command. Actual focused binary/.d separately identified in qualified-artifacts.json.",
+  "no_live_auth_or_mutants": true
+}

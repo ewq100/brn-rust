@@ -1,0 +1,98 @@
+[
+  {
+    "suite": "agent_bounds",
+    "test": "begin_edit_under_a_held_lock_is_busy",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "begin_edit_under_a_held_lock_is_busy",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 12.2197
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "held_write_lock_reports_busy_and_creates_nothing",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "held_write_lock_reports_busy_and_creates_nothing",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 10.5652
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "busy_then_keyed_retry_applies_once",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "busy_then_keyed_retry_applies_once",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 5.3641
+  },
+  {
+    "suite": "edit_tokens",
+    "test": "schema_5_upgrade_backs_up_first_and_ends_at_6_as_an_owner_workspace",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/edit_tokens-0deb4fc689b81de4",
+      "--exact",
+      "schema_5_upgrade_backs_up_first_and_ends_at_6_as_an_owner_workspace",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 5.29
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigint_then_deadline_still_hard_stops",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigint_then_deadline_still_hard_stops",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 4.1597
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "held_lock_past_deadline_hard_stops_with_one_line",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "held_lock_past_deadline_hard_stops_with_one_line",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 4.1584
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "sigint_then_sigterm_still_hard_stops",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "sigint_then_sigterm_still_hard_stops",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 3.6732
+  },
+  {
+    "suite": "agent_bounds",
+    "test": "timeout_during_fifo_wait_is_a_soft_deadline",
+    "command": [
+      "/private/tmp/brn-c0-20261016-target/debug/deps/agent_bounds-1078cd9cc7473770",
+      "--exact",
+      "timeout_during_fifo_wait_is_a_soft_deadline",
+      "--nocapture"
+    ],
+    "exit": 0,
+    "seconds": 2.1085
+  }
+]

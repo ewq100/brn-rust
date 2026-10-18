@@ -1,0 +1,87 @@
+diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
+index 31cb755..226eb26 100644
+--- a/src/extraction/docx/parser.rs
++++ b/src/extraction/docx/parser.rs
+@@ -39,6 +39,7 @@ pub(crate) enum DocumentElement {
+ pub(crate) struct Document {
+     pub paragraphs: Vec<Paragraph>,
+     pub note_refs_by_paragraph: AHashMap<usize, Vec<NoteRef>>,
++    pub comment_refs_by_paragraph: AHashMap<usize, Vec<String>>,
+     pub tables: Vec<Table>,
+     pub headers: Vec<HeaderFooter>,
+     pub footers: Vec<HeaderFooter>,
+@@ -1313,6 +1314,7 @@ impl TableContext {
+ struct BodyParseOutputs {
+     paragraphs: Vec<Paragraph>,
+     note_refs_by_paragraph: AHashMap<usize, Vec<NoteRef>>,
++    comment_refs_by_paragraph: AHashMap<usize, Vec<String>>,
+     tables: Vec<Table>,
+     drawings: Vec<super::drawing::Drawing>,
+     elements: Vec<DocumentElement>,
+@@ -2521,6 +2523,7 @@ impl<R: Read + Seek> DocxParser<R> {
+         );
+         document.paragraphs = out.paragraphs;
+         document.note_refs_by_paragraph = out.note_refs_by_paragraph;
++        document.comment_refs_by_paragraph = out.comment_refs_by_paragraph;
+         document.tables = out.tables;
+         document.drawings = out.drawings;
+         document.elements = out.elements;
+@@ -2607,6 +2610,9 @@ impl<R: Read + Seek> DocxParser<R> {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.paragraph = Some(Paragraph::new());
+                             } else {
++                                if current_paragraph.is_some() {
++                                    out.comment_refs_by_paragraph.remove(&current_paragraph_index);
++                                }
+                                 current_paragraph_index = out.paragraphs.len();
+                                 current_paragraph = Some(Paragraph::new());
+                             }
+@@ -2993,6 +2999,14 @@ impl<R: Read + Seek> DocxParser<R> {
+                                     out.comment_ref_ids.push(id.to_string());
+                                     if let Some(ref mut run) = current_run {
+                                         run.text.push_str(&format!("[cmt:{}]", id));
++                                        // Semantic references come from XML events, never from
++                                        // authored text that happens to resemble this marker.
++                                        if table_stack.is_empty() && current_paragraph.is_some() {
++                                            out.comment_refs_by_paragraph
++                                                .entry(current_paragraph_index)
++                                                .or_default()
++                                                .push(id.to_string());
++                                        }
+                                     }
+                                 }
+                             }
+diff --git a/src/extractors/docx.rs b/src/extractors/docx.rs
+index 8410c82..08b0fec 100644
+--- a/src/extractors/docx.rs
++++ b/src/extractors/docx.rs
+@@ -284,18 +284,12 @@ fn build_internal_document(
+                     // `word/footnotes.xml`, but it is routed through the dedicated
+                     // `CommentRef`/`NodeContent::Comment` machinery so a consumer can
+                     // tell a reviewer comment apart from an authored footnote. ~keep
+-                    let mut search_start = 0;
+-                    while let Some(start) = text[search_start..].find("[cmt:") {
+-                        let abs_start = search_start + start;
+-                        if let Some(end) = text[abs_start..].find(']') {
+-                            let comment_id = &text[abs_start + 5..abs_start + end];
++                    if let Some(comment_refs) = doc.comment_refs_by_paragraph.get(idx) {
++                        for comment_id in comment_refs {
+                             if !comment_id.is_empty() {
+                                 let key = format!("cmt{}", comment_id);
+                                 builder.push_comment_ref(comment_id, &key, Some(current_page));
+                             }
+-                            search_start = abs_start + end + 1;
+-                        } else {
+-                            break;
+                         }
+                     }
+                 }
+@@ -437,7 +431,7 @@ fn build_internal_document(
+         }
+     }
+
+-    // Comment definitions (#82, #300) — see the comment-reference scan above.
++    // Comment definitions (#82, #300) — see the typed comment references above.
+     for comment in &doc.comments {
+         let text: String = comment
+             .paragraphs

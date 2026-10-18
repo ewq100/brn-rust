@@ -1,0 +1,149 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-cf730cbc/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 7.22s
+     Running tests/writing.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing-e5f9303e752fdcc1)
+
+running 10 tests
+test new_requests_capture_v2_setup_without_changing_the_note ... ok
+test general_feedback_is_immutable_replay_bound_and_never_posted_as_chat ... ok
+test oversized_general_feedback_refuses_without_partial_request_or_note_write ... ok
+test empty_general_feedback_preserves_existing_replay_binding ... ok
+test exact_anchor_stale_note_bad_selection_and_bound_key_refused ... ok
+test utf8_cross_paragraph_exact_selection_and_restart_keep_feedback ... ok
+test oversize_context_fails_without_truncation_and_fake_snapshot_refused ... ok
+test feedback_edit_stales_generated_candidate_and_only_matching_apply_can_address ... ok
+test multiple_comments_snapshot_replay_and_explicit_addressed_undo ... ok
+test manual_save_mapping_preserves_addressed_feedback_and_allows_later_confirmation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-809506aac4036a0b)
+
+running 22 tests
+test malformed_legacy_history_remains_visible_but_invalid_v2_metadata_is_hidden ... ok
+test overflow_is_explicit_and_leaves_no_default_setup_or_request ... ok
+test capture_after_undo_reuses_default_setup_identity_at_its_actual_new_version ... ok
+test ordinary_chat_setup_read_set_capture_and_undo_keep_existing_general_identity ... ok
+test archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata ... ok
+test knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references ... ok
+test revoked_archived_and_missing_references_are_unavailable_and_excluded_from_capture ... ok
+test setup_creation_and_undo_cannot_make_ordinary_chat_permanently_private ... ok
+test live_canonical_setup_undo_does_not_need_its_archived_conversation ... ok
+test setup_edits_stale_v2_candidates_and_replay_does_not_recapture ... ok
+test unrelated_note_write_with_request_provenance_does_not_depend_on_writing_setup ... ok
+test project_setup_undo_fails_closed_after_conversation_move_or_working_link_removal ... ok
+test checked_setup_replay_conflicts_restart_undo_and_backup_are_durable ... ok
+test setup_size_boundary_is_exact_and_overflow_does_not_mutate_saved_configuration ... ok
+test ordered_reference_versions_and_purposes_survive_reopen_and_derived_regeneration ... ok
+test v1_prepared_request_replay_keeps_original_bytes_hash_and_inputs ... ok
+test scoped_message_pages_cross_filtered_batches_without_losing_visible_lookahead ... ok
+test inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes ... ok
+test stored_v2_context_rejects_forged_binding_and_reference_metadata ... ok
+test scopes_are_separate_in_lists_search_export_and_requests_without_note_mutation ... ok
+test delayed_real_capture_prepare_rejects_changed_note_or_existing_setup_before_replay ... ok
+test first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+     Running tests/candidate_refresh.rs (/private/tmp/brn-c0-20261016-target/debug/deps/candidate_refresh-2286328efbd5fb45)
+
+running 1 test
+test runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authority ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/core.rs (/private/tmp/brn-c0-20261016-target/debug/deps/core-6be094f2aba70f00)
+
+running 45 tests
+test data_selection_refuses_symlink_ancestor_without_creating_database ... ok
+test discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones ... ok
+test configuration_reads_and_fences_runs_at_the_actual_writer_boundary ... ok
+test configuration_replay_checks_immutable_payload_before_receipt ... ok
+test current_candidate_and_receipt_readers_exclude_retired_and_applied_requests ... ok
+test exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect ... ok
+test a_second_edit_session_names_the_open_one_and_leaves_it_untouched ... ok
+test enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs ... ok
+test another_spelling_of_the_same_file_does_not_refresh_but_another_file_does ... ok
+test explicit_selection_refuses_old_and_foreign_identity ... ok
+test exact_protected_target_and_capability_scope ... ok
+test assets_require_owner_group_and_inherit_protection_and_dirty_guard ... ok
+test comment_utf8_anchors_and_separate_record_versions_are_checked ... ok
+test missing_storage_refuses_recreation_and_preserves_recovery_evidence ... ok
+test host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejected ... ok
+test failed_candidate_replacement_keeps_original_active_and_guarded ... ok
+test full_import_is_protected_and_confirmation_requires_explicit_authority ... ok
+test human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action ... ok
+test only_one_working_run_per_thread_and_new_invocation_can_interrupt_prior_atomically ... ok
+test host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation ... ok
+test lost_prepare_and_apply_responses_replay_across_connections_and_restart ... ok
+test pending_candidate_requires_retirement_and_confirmation_is_revision_bound ... ok
+test ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant ... ok
+test protected_supersede_requires_distinct_capability ... ok
+test existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation ... ok
+test replacement_replay_binds_original_and_request_across_restart_and_application ... ok
+test meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only ... ok
+test direct_owner_metadata_protection_and_lifecycle_changes_make_candidates_stale ... ok
+test run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone ... ok
+test stale_open_type_save_preserves_buffer ... ok
+test runtime_settings_snapshot_covers_account_changes_and_provider_aliases ... ok
+test persisted_guards_defer_whole_group_and_generation_cannot_resurrect ... ok
+test thread_review_attention_can_reference_known_operations_but_links_remain_records_only ... ok
+test source_observation_metadata_does_not_refresh_but_new_external_version_does ... ok
+test two_live_connections_order_dirty_guard_before_grouped_apply ... ok
+test save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set ... ok
+test complete_backup_restores_assets_sources_pending_candidates_history_and_buffers ... ok
+test undo_identity_is_bound_before_receipt_replay ... ok
+test working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay ... ok
+test wrong_reference_rolls_back_group_and_occupied_backup_remains_intact ... ok
+test paused_and_review_first_grants_require_exact_target_and_action ... ok
+test undo_save_restores_supported_anchor_at_new_compensating_revision ... ok
+test undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents ... ok
+test workspace_settings_are_owner_only_and_persist_maintenance_review_policy ... ok
+test undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical ... ok
+
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/current_inputs.rs (/private/tmp/brn-c0-20261016-target/debug/deps/current_inputs-c17370f9580df944)
+
+running 9 tests
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/writing.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing-56b70fa92eb8fc3e)
+
+running 5 tests
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/private/tmp/brn-c0-20261016-target/debug/deps/writing_setup-e9b887f0a22be3b5)
+
+running 12 tests
+test v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes ... ok
+test raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope ... ok
+test setup_is_owner_only_and_stale_groups_are_atomic ... ok
+test immutable_context_duplicate_identity_and_invalid_references_are_refused ... ok
+test v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input ... ok
+test checked_setup_mutation_requires_active_context_even_with_current_thread_input ... ok
+test schema6_upgrade_refuses_active_edits_and_missing_backup_before_mutation ... ok
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... ok
+test owner_host_schema6_open_uses_remembered_external_backup_first ... ok
+test upgrade_failure_after_backup_rolls_back_all_schema_changes_and_can_resume ... ok
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... ok
+test schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidates ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s

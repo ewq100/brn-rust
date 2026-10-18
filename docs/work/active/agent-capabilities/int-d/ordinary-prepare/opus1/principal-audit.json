@@ -1,0 +1,38 @@
+{
+  "approved_production_pin": "6b18324de748b72313c0fa2989c1db3f0bcb20ea",
+  "qualification_test_pin": "3e04c71a35db8dcec59a217db89759b69587fa8d",
+  "evidence_head": "44b9220301b9e9b740bcecfc1528fc5f56e6d907",
+  "crates": "e4606498ce022f619fefcb37c116ecf40f2bc88d",
+  "verified_inputs": 334,
+  "changed_inputs": [
+    "crates/brn-ai/src/threads_writing_tests.rs"
+  ],
+  "checks": [
+    {
+      "label": "format",
+      "exit": 0,
+      "summaries": []
+    },
+    {
+      "label": "q1-exact",
+      "exit": -15,
+      "summaries": []
+    },
+    {
+      "label": "q1-exact-correct-target",
+      "exit": 0,
+      "summaries": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.06s"
+      ]
+    },
+    {
+      "label": "strict-ai",
+      "exit": 0,
+      "summaries": []
+    }
+  ],
+  "errors": [],
+  "precision_inspection": "Only local Activity collection and exact one host apply_changes NeedsReview outcome assertion in existing four-arm test; existing Prepared/write/noApply/Note/count assertions preserved. No new production change or need for recursive independent review.",
+  "limits": "Prior fullAI494/0/2 remains 6b source qualification and did not prove old NeedsReview result. Wrong-target setup -15 no verdict retained. No new Auth/provider/Store open by audit.",
+  "executed_artifact_and_copy_hashes_verified": true
+}

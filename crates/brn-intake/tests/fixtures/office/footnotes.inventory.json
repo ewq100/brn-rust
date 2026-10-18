@@ -1,0 +1,123 @@
+{
+  "inventory_version": 1,
+  "fixture": "footnotes",
+  "status": {"authorship": "MANUALLY_AUTHORED_SOURCE_FACTS", "review": "PENDING_PARENT_REVIEW", "behavior": "UNEXECUTED"},
+  "source": {
+    "path": "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx",
+    "sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+    "basis": "Manual complete content-part/relationship/numbering/chart XML inspection and embedded PNG byte identity; hand-authored expected facts. No current/new extractor output.",
+    "author_inputs": [],
+    "authoring_context": {"path": "crates/brn-threads-intake/tests/fixtures/luna/README.md", "sha256": "e50392792736d5b8c9432bf6e5ede1d66b324233702055a11bcaf72f90574aff"},
+    "authoring_boundary": "README identifies a synthetic authored structured fixture copied from preserved research; original author script was not located in this repository or the bounded historical script survey. Do not attribute raw-inspected facts to a recovered script or call this independently reviewed.",
+    "part_sha256": {
+      "word/document.xml": "98f55cd670884473f3788bf3a5ddbd54cda52bfb642d3e6a21a15d2aa45378ef",
+      "word/_rels/document.xml.rels": "04e6345455db3573699f564bc0d43f4e7040776dd0c052d0cf2ab73a39baaeab",
+      "word/header1.xml": "ef34fb394cfa161dbd36689fe3b35ec41f0f2ed877f55962dd165447394baef5",
+      "word/footer1.xml": "c57e898def21f93f6053e0ee2f5ccb0701905d01e6eb7f23e90f0b5aa6876289",
+      "word/footnotes.xml": "13f2c43d278b267b7d5ab974762e6dcae2626f5c5daf9faad73b93e7eac5136a",
+      "word/endnotes.xml": "8249b4ace0a247750ebb9daf24b35c6a9c47c42ccbb30bc368c1391715109919",
+      "word/numbering.xml": "0e41376d4ccf3a3ae119fb4d553bbda9ec92f076c14e6bf1969437f08e0f5926",
+      "word/styles.xml": "9ed9d8e29a1f792ff428aa787498a461e6ff9762979ee2e624b42636d7c1a637",
+      "word/charts/chart1.xml": "c046cc599e1a5448e5bb98bb073deb16fed6f06101a8a604b066e2862e1932ea",
+      "docProps/core.xml": "1556f98253b1105560d879ee4ab16cfdd43c999f805174df3498d9b7ecff4f18"
+    }
+  },
+  "namespaces": {
+    "wordprocessing": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+    "drawing": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "wordprocessing_drawing": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+    "package_relationships": "http://schemas.openxmlformats.org/package/2006/relationships",
+    "picture": "http://schemas.openxmlformats.org/drawingml/2006/picture",
+    "chart": "http://schemas.openxmlformats.org/drawingml/2006/chart",
+    "relationships": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    "body_prefixes": {"wordprocessing": "w", "picture": "pic", "chart": "c"},
+    "header_footer_wordprocessing_prefix": "w"
+  },
+  "comparison_projection": {
+    "keys": "Hand-authored inventory keys, not BRN IDs. source_child is 1-based direct story paragraphs/tables, excluding sectPr. Inline array order is source order; markers are typed here, not guessed Markdown text.",
+    "story_order": ["body", "header-default", "footer-default", "footnote-1", "footnote-2", "endnote-1"],
+    "story_order_basis": "Comparison serialization only; OPC has no single global story reading order. Header/footer attach to section 1; note definitions follow authored part order, references stay at body inline positions.",
+    "wording": "Complete wording/order and cells. Note text retains its raw leading U+0020 after the note glyph; marker-adjacent layout space may normalize explicitly, never prose. List labels are projected from numbering definitions, not literal w:t.",
+    "runtime_rendering": "UNKNOWN: current/Xberg Markdown, labels, DTO IDs/locators/ranges, note association, gaps and story emission require T1/T3. Cached NOTEREF 1 is a source fact, not proof of a resolved reused-note renderer."
+  },
+  "stories": [
+    {"key": "body", "kind": "body", "part": "word/document.xml", "blocks": [
+      {"key": "body-1", "source_child": 1, "kind": "title", "style": "Title", "text": "Juniper seed transfer procedure"},
+      {"key": "body-2", "source_child": 2, "kind": "paragraph", "text": "Anika Rao prepared this procedure for the autumn archive handover. Accept only dry, labelled packets; quarantine any packet whose seal or moisture record is uncertain."},
+      {"key": "body-3", "source_child": 3, "kind": "heading", "style": "Heading1", "level": 1, "text": "Intake checks"},
+      {"key": "body-4", "source_child": 4, "kind": "paragraph", "inlines": [{"text": "Record the packet mass before sealing"}, {"note": "footnote-1"}, {"text": ". Repeat the measurement if the scale was moved."}]},
+      {"key": "body-5", "source_child": 5, "kind": "paragraph", "inlines": [{"text": "Apply the same mass rule after repacking"}, {"field": "noteref-1"}, {"text": ". The reused note defines one rule for both steps."}]},
+      {"key": "body-6", "source_child": 6, "kind": "paragraph", "inlines": [{"text": "Quarantine packets showing condensation"}, {"note": "footnote-2"}, {"text": ". Anika reviews the quarantine shelf each Friday."}]},
+      {"key": "body-7", "source_child": 7, "kind": "paragraph", "inlines": [{"text": "The retention schedule is documented in the archive handbook"}, {"note": "endnote-1"}, {"text": "."}]},
+      {"key": "body-8", "source_child": 8, "kind": "paragraph", "inlines": [{"text": "Reference: "}, {"link": "handbook-link"}]},
+      {"key": "body-9", "source_child": 9, "kind": "heading", "style": "Heading2", "level": 2, "text": "Packing sequence"},
+      {"key": "body-10", "source_child": 10, "kind": "list_item", "list": "packing", "level": 0, "label": "1.", "text": "Weigh the dry packet."},
+      {"key": "body-11", "source_child": 11, "kind": "list_item", "list": "packing", "level": 1, "label": "a.", "text": "Inspect the inner sleeve."},
+      {"key": "body-12", "source_child": 12, "kind": "list_item", "list": "packing", "level": 1, "label": "b.", "text": "Record any tear before replacing it."},
+      {"key": "body-13", "source_child": 13, "kind": "list_item", "list": "packing", "level": 0, "label": "2.", "text": "Seal the packet and attach its label."},
+      {"key": "body-14", "source_child": 14, "kind": "caption", "style": "Caption", "text": "Table 1. Acceptance limits for the dry packet handover."},
+      {"key": "body-15", "source_child": 15, "kind": "table", "table": "table-1"},
+      {"key": "body-16", "source_child": 16, "kind": "figure", "occurrence": "figure-1"},
+      {"key": "body-17", "source_child": 17, "kind": "caption", "style": "Caption", "text": "Figure 1. Label placement follows sealing; the three boxes show the required order."},
+      {"key": "body-18", "source_child": 18, "kind": "heading", "style": "Heading1", "level": 1, "page_break_before": true, "text": "Transfer verification"},
+      {"key": "body-19", "source_child": 19, "kind": "list_item", "list": "verification", "level": 0, "label": "1.", "text": "Compare the destination code with the manifest."},
+      {"key": "body-20", "source_child": 20, "kind": "list_item", "list": "verification", "level": 1, "label": "a.", "text": "Read the code aloud to the receiving clerk."},
+      {"key": "body-21", "source_child": 21, "kind": "list_item", "list": "verification", "level": 0, "label": "2.", "text": "Sign only after both counts agree."},
+      {"key": "body-22", "source_child": 22, "kind": "paragraph", "text": "The second sequence deliberately restarts at 1. A disagreement blocks transfer until the manifest is corrected."},
+      {"key": "body-23", "source_child": 23, "kind": "heading", "style": "Heading2", "level": 2, "text": "Packet readiness"},
+      {"key": "body-24", "source_child": 24, "kind": "paragraph", "text": "The saved native chart shows 24 ready packets and 6 quarantined packets. These are the source counts, not a forecast."},
+      {"key": "body-25", "source_child": 25, "kind": "native_chart", "chart": "chart-1"},
+      {"key": "body-26", "source_child": 26, "kind": "caption", "style": "Caption", "text": "Figure 2. Cached native chart of packet readiness at the handover."},
+      {"key": "body-27", "source_child": 27, "kind": "paragraph", "text": "Do not return quarantined packets to the ready shelf without a new moisture record."}
+    ]},
+    {"key": "header-default", "kind": "header", "part": "word/header1.xml", "section": 1, "relationship_id": "rId9", "blocks": [
+      {"key": "header-1", "source_child": 1, "kind": "paragraph", "style": "Header", "text": "Juniper seed archive | Handling revision 3 | Owner Anika Rao"}
+    ]},
+    {"key": "footer-default", "kind": "footer", "part": "word/footer1.xml", "section": 1, "relationship_id": "rId10", "blocks": [
+      {"key": "footer-1", "source_child": 1, "kind": "paragraph", "style": "Footer", "text": "Internal training copy | Keep packets dry during every transfer"}
+    ]},
+    {"key": "footnote-1", "kind": "footnote", "part": "word/footnotes.xml", "source_id": "1", "blocks": [
+      {"key": "fn1-1", "source_child": 1, "kind": "paragraph", "text": " Mass rule: use the dry mass in grams, rounded to two decimal places; include the inner sleeve but exclude the outer label."}
+    ]},
+    {"key": "footnote-2", "kind": "footnote", "part": "word/footnotes.xml", "source_id": "2", "blocks": [
+      {"key": "fn2-1", "source_child": 1, "kind": "paragraph", "text": " Quarantine rule: condensation includes visible droplets or a damp inner sleeve, even when the packet mass is acceptable."}
+    ]},
+    {"key": "endnote-1", "kind": "endnote", "part": "word/endnotes.xml", "source_id": "1", "blocks": [
+      {"key": "en1-1", "source_child": 1, "kind": "paragraph", "text": " Retention schedule: keep a signed handover record for 18 months after the transfer date."}
+    ]}
+  ],
+  "notes": [
+    {"key": "footnote-1", "kind": "footnote", "source_id": "1", "definition_story": "footnote-1", "reference": {"block": "body-4", "inline": 2, "element": "footnoteReference"}, "relationship_id": "rIdFreshFootnotes"},
+    {"key": "footnote-2", "kind": "footnote", "source_id": "2", "definition_story": "footnote-2", "reference": {"block": "body-6", "inline": 2, "element": "footnoteReference"}, "relationship_id": "rIdFreshFootnotes"},
+    {"key": "endnote-1", "kind": "endnote", "source_id": "1", "definition_story": "endnote-1", "reference": {"block": "body-7", "inline": 2, "element": "endnoteReference"}, "relationship_id": "rIdFreshEndnotes"}
+  ],
+  "bookmarks": [{"key": "mass-rule-bookmark", "name": "FreshMassRule", "source_id": "91", "block": "body-4", "starts_before_inline": 2, "ends_after_inline": 2, "contains": "footnote-1 reference only; not the preceding mass-rule prose"}],
+  "fields": [{"key": "noteref-1", "block": "body-5", "inline": 2, "kind": "fldSimple", "instruction": " NOTEREF FreshMassRule \\h ", "cached_text": "1", "target_bookmark": "FreshMassRule", "source_target": "mass-rule-bookmark", "current_or_xberg_resolution": "UNKNOWN", "projection": "Preserve cached value and source instruction; disclose unresolved reused-note association rather than fabricate a distinct footnote definition."}],
+  "links": [{"key": "handbook-link", "block": "body-8", "inline": 2, "text": "Archive handbook section 4", "relationship_id": "rIdFreshHandbook", "target": "https://example.org/juniper-archive/handbook#section-4", "target_mode": "External", "fetch": false}],
+  "lists": [
+    {"key": "packing", "num_id": "43", "abstract_num_id": "42", "level_zero_start_override": "1", "levels": [{"level": 0, "format": "decimal", "template": "%1.", "start": "1"}, {"level": 1, "format": "lowerLetter", "template": "%2.", "start": "1"}], "blocks": ["body-10", "body-11", "body-12", "body-13"]},
+    {"key": "verification", "num_id": "44", "abstract_num_id": "42", "level_zero_start_override": "1", "levels": [{"level": 0, "format": "decimal", "template": "%1.", "start": "1"}, {"level": 1, "format": "lowerLetter", "template": "%2.", "start": "1"}], "blocks": ["body-19", "body-20", "body-21"]}
+  ],
+  "tables": [{"key": "table-1", "block": "body-15", "caption_block": "body-14", "rows": 4, "grid_columns": 3, "cells": [
+    {"address": "R1C1", "text": "Acceptance checks", "row_span": 1, "column_span": 3},
+    {"address": "R2C1", "text": "Material", "row_span": 1, "column_span": 1},
+    {"address": "R2C2", "text": "Mass tolerance", "row_span": 1, "column_span": 1},
+    {"address": "R2C3", "text": "Moisture ceiling", "row_span": 1, "column_span": 1},
+    {"address": "R3C1", "text": "Juniper", "row_span": 1, "column_span": 1},
+    {"address": "R3C2", "text": "±0.03 g", "row_span": 1, "column_span": 1},
+    {"address": "R3C3", "text": "8.0%", "row_span": 1, "column_span": 1},
+    {"address": "R4C1", "text": "Rowan", "row_span": 1, "column_span": 1},
+    {"address": "R4C2", "text": "±0.05 g", "row_span": 1, "column_span": 1},
+    {"address": "R4C3", "text": "9.5%", "row_span": 1, "column_span": 1}
+  ], "covered_grid_slots": ["R1C2", "R1C3"], "projection": "One origin cell spans three columns; covered slots are not independent duplicated cells."}],
+  "figures": [{"key": "figure-1", "block": "body-16", "part": "word/document.xml", "paragraph": 15, "drawing": 1, "docpr_id": "1", "name": "Picture 1", "title": null, "description": null, "relationship_id": "rId11", "relationship_target": "media/image1.png", "asset": "asset-1", "caption_block": "body-17", "caption_basis": "Following Caption-style paragraph. No authored title/description on docPr; caption is not an invented alt attribute."}],
+  "assets": [{"key": "asset-1", "part": "word/media/image1.png", "sha256": "86e6c9325de51d5c6b84dfd5aad8f5b4d09cfccc447a1626f8be3380e7700599", "bytes": 13308, "media_type": "image/png", "png_ihdr_pixels": [940, 340], "authored_image_labels": null, "label_basis": "UNKNOWN: original producer script unavailable in bounded survey; PNG pixels not visually/OCR inspected. Exact source bytes and source caption are the retention oracle."}],
+  "charts": [{"key": "chart-1", "block": "body-25", "part": "word/charts/chart1.xml", "source_paragraph": 24, "docpr_id": "77", "name": "Packet readiness chart", "title": null, "description": "Ready 24; Quarantine 6", "relationship_id": "rIdFreshChart", "relationship_target": "charts/chart1.xml", "caption_block": "body-26", "kind": "clustered column", "series": [{"name": "Packet count", "categories": ["Ready", "Quarantine"], "cached_values": ["24", "6"]}], "source_formulas": ["Readiness!$A$2:$A$3", "Readiness!$B$2:$B$3"], "embedded_workbook_present": false, "boundary": "Saved XML cache and body prose corroborate counts; no workbook evaluation or formula execution."}],
+  "core_metadata": {"title": "Juniper seed transfer procedure", "creator": "Anika Rao", "last_modified_by": "Anika Rao", "revision": "1", "created": "2026-09-22T09:00:00Z", "modified": "2026-09-22T09:00:00Z", "description": "generated by python-docx"},
+  "revisions": [], "comments": [],
+  "absent_classes": ["tracked insertions/deletions", "comments/references", "vertical merges", "nested tables", "note references inside tables", "literal [^id]/[cmt:id] collisions", "DOCX embeddings", "content controls", "text boxes", "OMML"],
+  "coverage_requirements": ["Preserve every complete body/story string, seven ordered list items with nested/restarted numbering, ten origin cells and the three-column span.", "Keep footnote 1 and endnote 1 distinct; three direct references plus NOTEREF cached field are different source occurrences.", "Preserve image/caption and native-chart/caption locations independently; no claim that chart XML is a PNG or that body prose proves full chart representation."],
+  "observed_gaps": null,
+  "conditional_gaps": [{"objects": ["noteref-1"], "condition": "Reused-note target association cannot be resolved", "requirement": "Keep cached 1 and a located unresolved-NOTEREF gap, not silently claim a proved link."}, {"objects": ["chart-1"], "condition": "Native chart or its full evidence is not represented", "requirement": "Located native-chart/source-review gap; retain surrounding exact prose/caption."}, {"objects": ["figure-1"], "condition": "Figure/caption binding unavailable", "requirement": "Located honest gap, not guessed source/image join."}],
+  "excluded_package_support": ["Separator/continuationSeparator notes -1 and 0 in each note part are layout-only, not substantive note definitions.", "Styles/fonts/theme/settings, empty customXml bibliography Sources and package thumbnail are not substantive story blocks or source figures."]
+}

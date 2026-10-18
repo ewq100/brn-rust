@@ -1,0 +1,107 @@
+[
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "8f768943964a77711b26d5235df146f8efe1dc6c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-markdown-links.py"
+    ],
+    "exit": 0,
+    "stdout": "Markdown links: 156 files, 751 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "experiments/r0-rig-reuse/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/make-macos-app.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/report-sizes.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/test-make-macos-app.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/verify-desktop-shell.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/verify-end-to-end.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "-n",
+      "scripts/verify-storage.sh"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

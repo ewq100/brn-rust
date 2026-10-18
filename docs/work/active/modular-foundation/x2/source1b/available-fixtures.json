@@ -1,0 +1,140 @@
+{
+  "qualification": "read-only byte inventory; no extraction/render/generation/runtime test",
+  "files": [
+    {
+      "path": "crates/brn-intake/tests/fixtures/README.md",
+      "size": 3703,
+      "sha256": "5e12a62618f1898f7491821a9c180807ff32ef64b74d44a52fc8ff762dc4d685"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/features.docx",
+      "size": 56145,
+      "sha256": "04db9ac31374868d55d0ff579f23ad5bc558fb9fe9a2363305498817e335ea6d"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/forecast.xlsx",
+      "size": 4879,
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/harbor.docx",
+      "size": 55345,
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/harbor.pptx",
+      "size": 57468,
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/hostile-dtd.docx",
+      "size": 198,
+      "sha256": "c5da4fb9c60f4c9455f6216ddef345c059953f3879afbb849239a3d5b8fb967b"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/hostile-inflate.docx",
+      "size": 17473,
+      "sha256": "c79196faaded8e6d6f9eeb2a2b733607ee1e7b49a7affc076a0bb9c1b033d019"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/hostile-members.docx",
+      "size": 49563,
+      "sha256": "befb44dbb220473403906cbbf4485e5561f5714e9dd8a171647cd22b561c32f2"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/hostile-path.docx",
+      "size": 120,
+      "sha256": "c85c4bad47aa98a3b763eade88307968da6ab18a42619d9a2d54007a841ecb74"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/make-quay.py",
+      "size": 3274,
+      "sha256": "842f6af32e03d7e753a9dc29ec84398e0d5f0bae8c26d8068a0b4a6497bae714"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/plural.eml",
+      "size": 111544,
+      "sha256": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/prefix-variation.docx",
+      "size": 55359,
+      "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/quay-map.jpg",
+      "size": 8058,
+      "sha256": "6a780dae8fa6a378b29effbabc6c10d8a0a659da56177f74145ee746484e96ca"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/quay-map.png",
+      "size": 2914,
+      "sha256": "c3f5feba0efb93f37544885e543dad0ae156624b1e4b651985895b7599de3711"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/quay.pptx",
+      "size": 41916,
+      "sha256": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/single.eml",
+      "size": 104626,
+      "sha256": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/water-use.png",
+      "size": 19936,
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-process.docx",
+      "size": 40648,
+      "sha256": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-process.inventory.json",
+      "size": 2631,
+      "sha256": "cf048f03d70c13cec8b0679889fb7aa93ce1fc27d106fc206137ab53f6c19b52"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-study.inventory.json",
+      "size": 2358,
+      "sha256": "3515de028f527aafb7f57209d76ddb152a0df149fea1f6c5c9c38ca1f2335690"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+      "size": 7020,
+      "sha256": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/README.md",
+      "size": 1081,
+      "sha256": "e50392792736d5b8c9432bf6e5ede1d66b324233702055a11bcaf72f90574aff"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/blank-comments.xlsx",
+      "size": 10076,
+      "sha256": "2e6aa4e183e9e958f502d76798cf8b4158649a5e800968b2166d10fe6709a8ba"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx",
+      "size": 52486,
+      "sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/metadata.eml",
+      "size": 33630,
+      "sha256": "cf7cc11598ed0c4e6e28c761d467ad77f91e53c0f9ace8b697ba854369c3eb56"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/nested.html",
+      "size": 60028,
+      "sha256": "1d7075c5616605ad1d35907d06fa385ab2a2d3a6d73756ad60d304e040281dd2"
+    },
+    {
+      "path": "crates/brn-threads-intake/tests/fixtures/luna/process-scan.pdf",
+      "size": 61446,
+      "sha256": "ebc90965a73b6dec328cb7355176c22edb842afa1b74684f2c711ef318e28244"
+    }
+  ]
+}

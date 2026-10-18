@@ -6,6 +6,7 @@ use std::{
     fs,
     io::Write,
     path::{Path, PathBuf},
+    sync::Arc,
     time::Duration,
 };
 
@@ -16,18 +17,24 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 6;
+pub(crate) const SCHEMA_VERSION: i64 = 10;
+/// Read-only canonical watermark, external commit version and exact pending keys.
+pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
     pub(crate) conn: Connection,
+    pub(crate) external_grant_epoch: Arc<()>,
     directory: PathBuf,
 }
 enum SettingsUpdate<'a> {
     Configure(&'a WorkspaceSettings),
+    DocumentConversion(&'a DocumentConversionSettings),
     Choose(DelegationChoice),
     Pause(bool),
     BackupDirectory(&'a str),
     Theme(&'a str),
     TopicsNote(&'a str),
+    SkillPolicy(&'a SkillPolicyChange),
+    McpPolicy(Option<&'a McpPolicy>),
 }
 /// How `open_with` treats the folder: the owner host's open (an existing
 /// older workspace is backed up and upgraded first), an open that never
@@ -107,10 +114,11 @@ impl Store {
                     "threads.sqlite3-wal",
                     "threads.sqlite3-shm",
                     DERIVED_DIRECTORY,
+                    "skills",
                 ]
                 .contains(&name.as_ref())
                     || kind.is_symlink()
-                    || (name == DERIVED_DIRECTORY) != kind.is_dir()
+                    || (name == DERIVED_DIRECTORY || name == "skills") != kind.is_dir()
                 {
                     return Err(Error::UnsafeDirectory(format!(
                         "unexpected directory entry: {name}"
@@ -156,6 +164,7 @@ impl Store {
             tx.execute_batch(crate::upgrade::CHAT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::CALLER_SCHEMA)?;
+            tx.execute_batch(crate::upgrade::WRITING_SCHEMA)?;
             // Written before commit: no committed state shows a test-intended
             // workspace as an owner workspace.
             if let OpenMode::Create(purpose) = mode {
@@ -170,6 +179,7 @@ impl Store {
         }
         Ok(Self {
             conn,
+            external_grant_epoch: Arc::new(()),
             directory: directory.to_owned(),
         })
     }
@@ -217,6 +227,28 @@ impl Store {
                 |r| r.get(0),
             )
             .optional()?)
+    }
+    /// Canonical host-view invalidation, excluding local edit-buffer writes.
+    /// Reuse Snapshot::watermark's revision signal plus the exact candidates()
+    /// eligibility/order, projecting only immutable operation/hash keys. The
+    /// pending-key scan is shallow, not globally constant-time. External commits
+    /// retain data_version fencing; this token never authorizes Apply or reads.
+    pub fn change_token(&self) -> Result<ViewChangeToken> {
+        let watermark =
+            self.conn
+                .query_row("SELECT coalesce(max(rowid), 0) FROM revisions", [], |row| {
+                    crate::read_u64(row, 0)
+                })?;
+        let mut statement = self.conn.prepare_cached("SELECT id,hash FROM operations WHERE hash IS NOT NULL AND retired=0 AND NOT EXISTS(SELECT 1 FROM receipts WHERE operation=operations.id) ORDER BY rowid")?;
+        let pending = statement
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect::<rusqlite::Result<Vec<(String, String)>>>()?;
+        Ok((
+            watermark,
+            self.conn
+                .query_row("PRAGMA data_version", [], |row| crate::read_u64(row, 0))?,
+            pending,
+        ))
     }
     pub fn directory(&self) -> &Path {
         &self.directory
@@ -428,6 +460,32 @@ impl Store {
             ));
         }
         let original_prepared = prepared_on(&tx, original)?;
+        if original_prepared
+            .request
+            .writes
+            .iter()
+            .any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+            && (!original_prepared
+                .request
+                .inputs
+                .iter()
+                .all(|i| request.inputs.contains(i))
+                || original_prepared
+                    .request
+                    .writes
+                    .iter()
+                    .filter(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
+                    .any(|evidence| {
+                        !request
+                            .writes
+                            .iter()
+                            .any(|w| w.data == evidence.data
+                                && w.archived == evidence.archived
+                                && w.expected_version == evidence.expected_version)
+                    }))
+        {
+            return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));
+        }
         for marker in writing_markers_on(&tx, &original_prepared.request)? {
             if !request.inputs.contains(&marker) {
                 return Err(Error::Invalid(
@@ -659,6 +717,73 @@ impl Store {
                 .collect(),
             inputs: vec![],
         };
+        if request
+            .writes
+            .iter()
+            .any(|w| matches!(w.data, RecordData::WritingSetup(_)))
+        {
+            let saved: Option<String> = tx.query_row(
+                "SELECT request FROM operations WHERE id=?1",
+                [&compensation.0],
+                |r| r.get(0),
+            )?;
+            if let Some(saved) = saved {
+                // A deferred compensation keeps its first checked context choice
+                // and hash. Current policy may reject it, never switch its grant.
+                request.inputs = serde_json::from_str::<ChangeRequest>(&saved)?.inputs;
+            } else if request.writes.iter().any(|w| {
+                !w.archived && matches!(&w.data, RecordData::WritingSetup(s) if s.chat.is_some())
+            }) {
+                let mut query = tx.prepare("SELECT body FROM records ORDER BY rowid")?;
+                let mut rows = query
+                    .query_map([], |r| r.get::<_, String>(0))?
+                    .map(|r| Ok(serde_json::from_str::<Record>(&r?)?))
+                    .collect::<Result<Vec<_>>>()?;
+                for w in &request.writes {
+                    rows.retain(|r| r.id != w.id);
+                    rows.push(Record {
+                        id: w.id.clone(),
+                        version: w.expected_version.unwrap_or(0).saturating_add(1),
+                        archived: w.archived,
+                        data: w.data.clone(),
+                    });
+                }
+                let needs_conversation = request.writes.iter().any(|w| {
+                    let RecordData::WritingSetup(setup) = &w.data else {
+                        return false;
+                    };
+                    !w.archived
+                        && rows.iter().any(|r| {
+                            Some(&r.id) == setup.chat.as_ref()
+                                && matches!(r.data, RecordData::Project(_))
+                        }) && !rows.iter().any(|r| {
+                        r.id == setup.note
+                            && !r.archived
+                            && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())
+                            && crate::context::visible(r, &rows, setup.chat.as_deref())
+                    })
+                });
+                if needs_conversation {
+                    // Only a live Project setup can need the working Note's
+                    // selected-conversation link exception. Archive-only Undo and
+                    // canonical/general/private access need no extra dependency.
+                    for input in prepared_on(&tx, original)?.request.inputs {
+                        if matches!(
+                            input.expectation,
+                            InputExpectation::Current | InputExpectation::ChatContext
+                        ) && let Some(thread) = record_on(&tx, &input.record)?
+                            && matches!(thread.data, RecordData::Thread(_))
+                        {
+                            request.inputs.push(RevisionInput {
+                                record: input.record,
+                                version: input.version,
+                                expectation: InputExpectation::ChatContext,
+                            });
+                        }
+                    }
+                }
+            }
+        }
         for w in &mut request.writes {
             if let RecordData::Thread(next) = &mut w.data
                 && let Some(Record {
@@ -809,9 +934,74 @@ impl Store {
         self.update_workspace_settings(operation, SettingsUpdate::TopicsNote(note), authority)
     }
 
+    /// Owner-only scoped skill policy; current settings, run fences and notices
+    /// commit together under the existing immediate writer/replay contract.
+    pub fn change_skill_policy(
+        &mut self,
+        operation: &OperationId,
+        change: &SkillPolicyChange,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        let (id, digest, project) = match change {
+            SkillPolicyChange::Set(b) => (
+                Some(b.id.as_str()),
+                Some(b.digest.as_str()),
+                b.project.as_deref(),
+            ),
+            SkillPolicyChange::Select {
+                id,
+                digest,
+                project,
+            } => (id.as_deref(), digest.as_deref(), project.as_deref()),
+            SkillPolicyChange::Clear { id, project } => {
+                (Some(id.as_str()), None, project.as_deref())
+            }
+            SkillPolicyChange::Revoke { id, digest } => {
+                (Some(id.as_str()), Some(digest.as_str()), None)
+            }
+        };
+        if id.is_some_and(|id| !skill_id_valid(id))
+            || digest.is_some_and(|d| !skill_digest_valid(d))
+            || project.is_some_and(|p| {
+                p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+            })
+        {
+            return Err(Error::Invalid(
+                "invalid scoped skill policy identity".into(),
+            ));
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::SkillPolicy(change), authority)
+    }
+
+    /// Explicit owner configuration. This is never a data-egress grant.
+    pub fn change_mcp_policy(
+        &mut self,
+        operation: &OperationId,
+        policy: Option<&McpPolicy>,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        if let Some(policy) = policy {
+            policy.validate()?;
+        }
+        self.update_workspace_settings(operation, SettingsUpdate::McpPolicy(policy), authority)
+    }
+
     /// Recheck the saved destination against this actual workspace at dispatch.
     pub fn validate_backup_directory(&self, directory: &Path) -> Result<PathBuf> {
         validate_backup_directory(&self.directory, directory)
+    }
+
+    pub fn choose_document_conversion(
+        &mut self,
+        operation: &OperationId,
+        settings: &DocumentConversionSettings,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        self.update_workspace_settings(
+            operation,
+            SettingsUpdate::DocumentConversion(settings),
+            authority,
+        )
     }
 
     fn update_workspace_settings(
@@ -834,6 +1024,9 @@ impl Store {
             |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
         let intent = match update {
+            SettingsUpdate::DocumentConversion(settings) => {
+                Some(serde_json::to_vec(&("document-conversion", settings))?)
+            }
             SettingsUpdate::Choose(choice) => Some(serde_json::to_vec(&choice)?),
             SettingsUpdate::Pause(paused) => Some(serde_json::to_vec(&paused)?),
             SettingsUpdate::BackupDirectory(directory) => {
@@ -841,6 +1034,10 @@ impl Store {
             }
             SettingsUpdate::Theme(theme) => Some(serde_json::to_vec(&("theme", theme))?),
             SettingsUpdate::TopicsNote(note) => Some(serde_json::to_vec(&("topics-note", note))?),
+            SettingsUpdate::SkillPolicy(change) => {
+                Some(serde_json::to_vec(&("skill-policy", change))?)
+            }
+            SettingsUpdate::McpPolicy(policy) => Some(serde_json::to_vec(&("mcp-policy", policy))?),
             SettingsUpdate::Configure(_) => None,
         };
         if let Some(intent) = intent {
@@ -875,6 +1072,11 @@ impl Store {
                 return Err(Error::ImmutableRequest);
             };
             match update {
+                SettingsUpdate::DocumentConversion(settings) => {
+                    if &prior.document_conversion != settings {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
                 SettingsUpdate::Configure(settings) => {
                     let mut requested = settings.clone();
                     requested.delegation_chosen = prior.delegation_chosen;
@@ -883,6 +1085,9 @@ impl Store {
                     requested.backup_directory = prior.backup_directory.clone();
                     requested.theme = prior.theme.clone();
                     requested.topics_note = prior.topics_note.clone();
+                    requested.skills = prior.skills.clone();
+                    requested.mcp = prior.mcp.clone();
+                    requested.document_conversion = prior.document_conversion.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -900,7 +1105,9 @@ impl Store {
                         return Err(Error::ImmutableRequest);
                     }
                 }
-                SettingsUpdate::BackupDirectory(_) => {}
+                SettingsUpdate::BackupDirectory(_)
+                | SettingsUpdate::SkillPolicy(_)
+                | SettingsUpdate::McpPolicy(_) => {}
                 SettingsUpdate::Theme(theme) => {
                     if prior.theme.as_deref() != Some(theme) {
                         return Err(Error::ImmutableRequest);
@@ -929,7 +1136,9 @@ impl Store {
         // instead of stopping them.
         if matches!(
             update,
-            SettingsUpdate::Theme(_) | SettingsUpdate::TopicsNote(_)
+            SettingsUpdate::Theme(_)
+                | SettingsUpdate::TopicsNote(_)
+                | SettingsUpdate::DocumentConversion(_)
         ) {
             let mut guarded = Vec::new();
             let mut stmt = tx.prepare(
@@ -954,11 +1163,17 @@ impl Store {
                 next.backup_directory = current_settings.backup_directory.clone();
                 next.theme = current_settings.theme.clone();
                 next.topics_note = current_settings.topics_note.clone();
+                next.skills = current_settings.skills.clone();
+                next.mcp = current_settings.mcp.clone();
+                next.document_conversion = current_settings.document_conversion.clone();
                 next
             }
             _ => current_settings.clone(),
         };
         match update {
+            SettingsUpdate::DocumentConversion(settings) => {
+                next.document_conversion = settings.clone()
+            }
             SettingsUpdate::Choose(choice) => {
                 next.delegation_chosen = true;
                 next.maintenance = true;
@@ -1001,6 +1216,40 @@ impl Store {
                     ));
                 }
                 next.topics_note = Some(note.to_owned());
+            }
+            SettingsUpdate::SkillPolicy(change) => {
+                let project = match change {
+                    SkillPolicyChange::Set(b) if b.enabled => b.project.as_deref(),
+                    SkillPolicyChange::Select {
+                        id: Some(_),
+                        project,
+                        ..
+                    } => project.as_deref(),
+                    _ => None,
+                };
+                if let Some(project) = project
+                    && !matches!(
+                        record_on(&tx, project)?,
+                        Some(Record {
+                            archived: false,
+                            data: RecordData::Project(_),
+                            ..
+                        })
+                    )
+                {
+                    return Err(Error::Invalid(
+                        "enabled skill requires a current active Project".into(),
+                    ));
+                }
+                change_skills(&mut next, change)?;
+            }
+            SettingsUpdate::McpPolicy(policy) => {
+                crate::external_data::validate_policy_context(
+                    &tx,
+                    policy,
+                    current_settings.mcp.as_ref(),
+                )?;
+                next.mcp = policy.cloned();
             }
             SettingsUpdate::Configure(_) => {}
         }
@@ -1046,7 +1295,9 @@ impl Store {
             |operations| crate::run_attention::active_candidates_on(&tx, operations),
         )?;
         let request = ChangeRequest {
-            reason: if theme_only {
+            reason: if matches!(update, SettingsUpdate::DocumentConversion(_)) {
+                "Owner chose document conversion preferences".into()
+            } else if theme_only {
                 "Owner chose the workspace theme".into()
             } else if matches!(update, SettingsUpdate::TopicsNote(_)) {
                 "Owner chose the root Topics note".into()
@@ -1062,6 +1313,93 @@ impl Store {
         Ok(outcome)
     }
 }
+fn change_skills(settings: &mut WorkspaceSettings, change: &SkillPolicyChange) -> Result<()> {
+    match change {
+        SkillPolicyChange::Set(binding) => {
+            settings
+                .skills
+                .retain(|b| b.id != binding.id || b.project != binding.project);
+            if binding.selected {
+                for b in &mut settings.skills {
+                    if b.project == binding.project {
+                        b.selected = false;
+                    }
+                }
+            }
+            settings.skills.push(binding.clone());
+        }
+        SkillPolicyChange::Select {
+            id,
+            digest,
+            project,
+        } => {
+            if id.is_some() != digest.is_some() {
+                return Err(Error::Invalid("selection needs exact ID and digest".into()));
+            }
+            if let Some(id) = id {
+                if !settings
+                    .skills
+                    .iter()
+                    .any(|b| &b.id == id && &b.project == project)
+                    && !id.starts_with("installed:")
+                {
+                    settings.skills.push(SkillBinding {
+                        id: id.clone(),
+                        digest: digest.clone().expect("checked selection digest"),
+                        project: project.clone(),
+                        enabled: true,
+                        selected: false,
+                    });
+                }
+                let binding = settings
+                    .skills
+                    .iter()
+                    .find(|b| {
+                        &b.id == id
+                            && &b.project == project
+                            && Some(&b.digest) == digest.as_ref()
+                            && b.enabled
+                    })
+                    .ok_or_else(|| {
+                        Error::Invalid("select an enabled exact skill identity".into())
+                    })?;
+                let selected = binding.id.clone();
+                for b in &mut settings.skills {
+                    if &b.project == project {
+                        b.selected = b.id == selected;
+                    }
+                }
+            } else {
+                for b in &mut settings.skills {
+                    if &b.project == project {
+                        b.selected = false;
+                    }
+                }
+            }
+        }
+        SkillPolicyChange::Clear { id, project } => settings
+            .skills
+            .retain(|b| &b.id != id || &b.project != project),
+        SkillPolicyChange::Revoke { id, digest } => {
+            if !skill_id_valid(id) || !skill_digest_valid(digest) {
+                return Err(Error::Invalid(
+                    "revoke requires exact skill identity".into(),
+                ));
+            }
+            for b in &mut settings.skills {
+                if &b.id == id && &b.digest == digest {
+                    b.enabled = false;
+                    b.selected = false;
+                }
+            }
+        }
+    }
+    settings
+        .skills
+        .sort_by(|a, b| (&a.project, &a.id).cmp(&(&b.project, &b.id)));
+    settings.validate_skills()
+}
+
 /// `^[A-Za-z0-9._:-]{1,64}$`.
 pub(crate) fn actor_is_valid(actor: &str) -> bool {
     (1..=64).contains(&actor.len())
@@ -1092,7 +1430,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=5) {
+    if matches!(schema, 3..=9) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1143,6 +1481,17 @@ pub(crate) fn record_on(conn: &Connection, id: &str) -> Result<Option<Record>> {
     body.map(|body| Ok(serde_json::from_str(&body)?))
         .transpose()
 }
+fn revision_on(conn: &Connection, id: &str, version: u64) -> Result<Option<Record>> {
+    let body: Option<String> = conn
+        .query_row(
+            "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+            params![id, crate::integer(version)?],
+            |r| r.get(0),
+        )
+        .optional()?;
+    body.map(|body| Ok(serde_json::from_str(&body)?))
+        .transpose()
+}
 pub(crate) fn receipt_on(conn: &Connection, operation: &OperationId) -> Result<Option<Receipt>> {
     let body: Option<String> = conn
         .query_row(
@@ -1189,6 +1538,37 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
             return Err(Error::Invalid(
                 "creation ID must be preassigned by this operation".into(),
             ));
+        }
+        if let RecordData::Settings(settings) = &write.data {
+            settings.validate_skills()?;
+            if let Some(policy) = &settings.mcp {
+                policy.validate()?;
+            }
+        }
+        if let RecordData::Run(run) = &write.data {
+            let mut files = BTreeSet::new();
+            if run.loaded_skill_details.len() > 1028
+                || run.loaded_skill_details.iter().any(|d| {
+                    !skill_id_valid(&d.id)
+                        || !skill_digest_valid(&d.package_digest)
+                        || !skill_digest_valid(&d.file_digest)
+                        || d.file.is_empty()
+                        || d.file.len() > 256
+                        || d.file.chars().any(char::is_control)
+                        || !matches!(d.origin.as_str(), "builtin" | "owner_installed" | "project")
+                        || d.project.as_ref().is_some_and(|p| {
+                            p.trim().is_empty() || p.len() > 256 || p.chars().any(char::is_control)
+                        })
+                        || !files.insert((&d.id, &d.project, &d.file))
+                })
+            {
+                return Err(Error::Invalid(
+                    "invalid or duplicate loaded skill identities".into(),
+                ));
+            }
+        }
+        if let RecordData::WritingSetup(setup) = &write.data {
+            setup.validate()?;
         }
         if let RecordData::Note(note) = &write.data
             && note.import.as_ref().is_some_and(|import| import.full_note)
@@ -1310,7 +1690,56 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
-    let context_rows = if authority.chat_binding.is_some() {
+    let writing_markers = writing_markers_on(tx, &prepared.request)?;
+    for required in &writing_markers {
+        if !prepared.request.inputs.contains(required) {
+            return Err(Error::Invalid(
+                "Writing setup Current input cannot be removed or downgraded".into(),
+            ));
+        }
+    }
+    // Review authority does not widen the saved writing request's read scope.
+    // Resolve it from canonical evidence inside this same writer transaction.
+    let mut visibility_requests = vec![prepared.request.clone()];
+    let mut ancestor = operation.clone();
+    let mut seen = BTreeSet::new();
+    let mut ancestors = Vec::new();
+    // Odd-depth compensation restores pre-AI content and remains available after
+    // evidence revocation. Even-depth compensation re-applies the AI result and
+    // must recheck its original provenance. Existing request hashes stay intact.
+    while seen.insert(ancestor.as_str().to_owned()) {
+        let parent: Option<String> = tx.query_row(
+            "SELECT undo_of FROM operations WHERE id=?1",
+            [ancestor.as_str()],
+            |r| r.get(0),
+        )?;
+        let Some(parent) = parent else {
+            break;
+        };
+        ancestor = OperationId(parent);
+        ancestors.push(prepared_on(tx, &ancestor)?.request);
+    }
+    if ancestors.len() % 2 == 0 {
+        visibility_requests.extend(ancestors);
+    }
+    let mut writing_contexts = Vec::new();
+    for visibility_request in &visibility_requests {
+        for marker in writing_markers_on(tx, visibility_request)? {
+            if let Some(record) = revision_on(tx, &marker.record, marker.version)?
+                && let Ok(snapshot) = WritingSnapshot::from_message(&record)
+            {
+                writing_contexts.push((snapshot, visibility_request));
+            }
+        }
+    }
+    let needs_context = authority.chat_binding.is_some()
+        || !writing_contexts.is_empty()
+        || prepared
+            .request
+            .writes
+            .iter()
+            .any(|w| matches!(w.data, RecordData::WritingSetup(_)));
+    let context_rows = if needs_context {
         let mut query = tx.prepare("SELECT body FROM records ORDER BY rowid")?;
         query
             .query_map([], |r| r.get::<_, String>(0))?
@@ -1320,15 +1749,67 @@ pub(crate) fn apply_on(
         vec![]
     };
     let mut projected_scope = context_rows.clone();
-    if authority.chat_binding.is_some() {
+    if needs_context {
         for w in &prepared.request.writes {
             projected_scope.retain(|r| r.id != w.id);
             projected_scope.push(Record {
                 id: w.id.clone(),
-                version: w.expected_version.unwrap_or(0),
+                version: w.expected_version.unwrap_or(0).saturating_add(1),
                 archived: w.archived,
                 data: w.data.clone(),
             });
+        }
+    }
+    // Preserve the existing context-move stale outcome. A changed context is
+    // never an alternative grant for the candidate's saved evidence.
+    if !writing_contexts.is_empty() {
+        let mut changed = Vec::new();
+        for input in &prepared.request.inputs {
+            if input.expectation == InputExpectation::ChatContext
+                && !current_input_matches(tx, input)?
+            {
+                changed.push(input.record.clone());
+            }
+        }
+        if !changed.is_empty() {
+            return Ok(ApplyOutcome::Stale { records: changed });
+        }
+    }
+    for (snapshot, visibility_request) in &writing_contexts {
+        let mut denied = Vec::new();
+        for input in &visibility_request.inputs {
+            // Reference access uses canonical setup scope, preserving CW1's
+            // selected-conversation exception only for the working Note.
+            let current = context_rows.iter().find(|r| r.id == input.record);
+            let chat = snapshot
+                .setup
+                .as_ref()
+                .filter(|_| {
+                    input.record != snapshot.note.id
+                        && current.is_some_and(|r| matches!(r.data, RecordData::Note(_)))
+                })
+                .map_or(Some(snapshot.thread.as_str()), |s| s.chat.as_deref());
+            let body: Option<String> = tx
+                .query_row(
+                    "SELECT body FROM revisions WHERE id=?1 AND version=?2",
+                    params![input.record, crate::integer(input.version)?],
+                    |r| r.get(0),
+                )
+                .optional()?;
+            let historical = body
+                .map(|body| serde_json::from_str::<Record>(&body))
+                .transpose()?;
+            if current
+                .is_none_or(|r| r.archived || !crate::context::visible(r, &context_rows, chat))
+                || historical
+                    .as_ref()
+                    .is_none_or(|r| r.archived || !crate::context::visible(r, &context_rows, chat))
+            {
+                denied.push(input.record.clone());
+            }
+        }
+        if !denied.is_empty() {
+            return Ok(ApplyOutcome::NeedsReview { denied });
         }
     }
     if let Some((chat, _)) = &authority.chat_binding {
@@ -1364,9 +1845,7 @@ pub(crate) fn apply_on(
             });
         }
     }
-    if !matches!(authority.scope, crate::types::Scope::Owner)
-        && !writing_markers_on(tx, &prepared.request)?.is_empty()
-    {
+    if !matches!(authority.scope, crate::types::Scope::Owner) && !writing_markers.is_empty() {
         return Ok(ApplyOutcome::NeedsReview {
             denied: prepared
                 .request
@@ -1433,7 +1912,7 @@ pub(crate) fn apply_on(
             rows.retain(|r| r.id != w.id);
             rows.push(Record {
                 id: w.id.clone(),
-                version: w.expected_version.unwrap_or(0),
+                version: w.expected_version.unwrap_or(0).saturating_add(1),
                 archived: w.archived,
                 data: w.data.clone(),
             });
@@ -1457,6 +1936,15 @@ pub(crate) fn apply_on(
             }
         }
     }
+    crate::writing::validate_setup_writes(
+        &prepared.request,
+        &context_rows,
+        &projected_scope,
+        authority
+            .chat_binding
+            .as_ref()
+            .map(|(chat, _)| chat.as_str()),
+    )?;
     let mut stale = vec![];
     let mut guarded = vec![];
     let mut denied = vec![];
@@ -1487,7 +1975,7 @@ pub(crate) fn apply_on(
         let mut required = BTreeSet::new();
         if matches!(
             write.data,
-            RecordData::ChatControl(_) | RecordData::Project(_)
+            RecordData::ChatControl(_) | RecordData::Project(_) | RecordData::WritingSetup(_)
         ) {
             required.insert(Capability::Configure);
         }
@@ -1545,7 +2033,7 @@ pub(crate) fn apply_on(
             if !crate::context::visible(
                 &Record {
                     id: write.id.clone(),
-                    version: write.expected_version.unwrap_or(0),
+                    version: write.expected_version.unwrap_or(0).saturating_add(1),
                     archived: write.archived,
                     data: write.data.clone(),
                 },
@@ -1628,6 +2116,44 @@ pub(crate) fn apply_on(
             }
             if next.private_context != old_private || next.context_epoch != old_epoch {
                 required.insert(Capability::Configure);
+            }
+        }
+        if let RecordData::Settings(settings) = &write.data {
+            settings.validate_skills()?;
+            if let Some(policy) = &settings.mcp {
+                policy.validate()?;
+            }
+            let prior_policy = current.as_ref().and_then(|r| match &r.data {
+                RecordData::Settings(old) => old.mcp.as_ref(),
+                _ => None,
+            });
+            crate::external_data::validate_policy_context(tx, settings.mcp.as_ref(), prior_policy)?;
+            for binding in settings.skills.iter().filter(|b| b.enabled) {
+                if let Some(project) = &binding.project
+                    && !matches!(
+                        record_on(tx, project)?,
+                        Some(Record {
+                            archived: false,
+                            data: RecordData::Project(_),
+                            ..
+                        })
+                    )
+                {
+                    // Retain exact inactive bindings or solely demote their selected flag.
+                    let retained = current.as_ref().is_some_and(|r| {
+                        matches!(&r.data, RecordData::Settings(old) if old.skills.contains(binding)
+                        || (!binding.selected && old.skills.iter().any(|prior| prior.selected
+                            && prior.id == binding.id
+                            && prior.digest == binding.digest
+                            && prior.project == binding.project
+                            && prior.enabled == binding.enabled)))
+                    });
+                    if !retained {
+                        return Err(Error::Invalid(
+                            "enabled skill requires a current active Project".into(),
+                        ));
+                    }
+                }
             }
         }
         if matches!(write.data, RecordData::Settings(_)) {
@@ -2477,6 +3003,9 @@ pub(crate) fn prepare_on(
     owner_direct: bool,
 ) -> Result<Prepared> {
     validate_request(operation, request)?;
+    crate::writing::validate_candidate_evidence(request, |id, version| {
+        revision_on(tx, id, version)
+    })?;
     let body = serde_json::to_string(request)?;
     let hash = format!("{:x}", Sha256::digest(body.as_bytes()));
     let prior: Option<Option<String>> = tx
@@ -2544,7 +3073,7 @@ fn workspace_settings_on(conn: &Connection) -> Result<Option<WorkspaceSettings>>
     })
     .transpose()
 }
-fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
+pub(crate) fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
     (run.provider.eq_ignore_ascii_case(&settings.provider)
         || (subscription_provider(&run.provider) && subscription_provider(&settings.provider)))
         && run.model == settings.model
@@ -2591,9 +3120,18 @@ fn writing_markers_on(conn: &Connection, request: &ChangeRequest) -> Result<Vec<
             .optional()?;
         if let Some(body) = body {
             let record: Record = serde_json::from_str(&body)?;
-            if matches!(record.data, RecordData::Message(message) if message.role == crate::WRITING_REQUEST_ROLE)
+            if matches!(&record.data, RecordData::Message(message) if message.role == crate::WRITING_REQUEST_ROLE)
             {
                 markers.push(input.clone());
+                if let Ok(snapshot) = WritingSnapshot::from_message(&record)
+                    && request
+                        .writes
+                        .iter()
+                        .any(|w| w.id == snapshot.note.id && matches!(w.data, RecordData::Note(_)))
+                    && let Some(setup) = snapshot.setup
+                {
+                    markers.push(setup.input);
+                }
             }
         }
     }

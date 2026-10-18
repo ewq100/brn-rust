@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_context_budget.rs
++++ b/crates/brn-ai/src/threads_context_budget.rs
+@@ -334,7 +334,7 @@
+     }
+     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {
+         if let Some(result) = event.tool_result()
+-            && estimate(result.output()) > RESULT
++            && estimate(result.output()) >= RESULT
+         {
+             // Refuse the whole result before admission, never rewrite or
+             // silently truncate exact evidence / already executed effects.

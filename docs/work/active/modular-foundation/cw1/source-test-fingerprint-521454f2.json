@@ -1,0 +1,123 @@
+{
+  "source_test_pin": "521454f2d6f4a3ef446a4e972663ac8980451499",
+  "tree": "cb8c754fa04186678f6b406cdaf7c39a851dc68f",
+  "crates_tree": "4f94b900c84f57c9c0a2f5c5d32c0fe48a0b6bbf",
+  "base": "c8b3026f582c8770c24a984111f562becf529cad",
+  "files": [
+    {
+      "path": "crates/brn-ai/src/threads.rs",
+      "sha256": "815fc7b2615245eedeaa6130756ae55650c7a032152b8de3b0764c8a4c0c0db3",
+      "git_blob": "3f81ceb04d8494176cdc80933e81ff918464ba79"
+    },
+    {
+      "path": "crates/brn-ai/src/threads_writing_tests.rs",
+      "sha256": "7c13ccfbf3374bf98126039809925ca8f70a3c22c41bbeebe3970afa23a4cf18",
+      "git_blob": "c1e2777a8d40c52e4d1791666138806af87b6544"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_projects.rs",
+      "sha256": "d0a8210f476982839bcddb290c645f4d9bba411886e46f732459af99ab691972",
+      "git_blob": "a847aa092ca73a14a4cef4a1c2273ef4d22b1347"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_ui.rs",
+      "sha256": "f79be1832162000928b21d82723146a780c77ad2e55e988bdbf987170b5aab03",
+      "git_blob": "6cb1c97b10a03cdcb16dd18644538f121f0d972c"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_writing.rs",
+      "sha256": "edca94876ba39a2e0bb31baa051cd4fabc88aa1eaf16f668341a46d316f7a786",
+      "git_blob": "6b3e23a59f49474406813cfe4bea8bd9c83ea49d"
+    },
+    {
+      "path": "crates/brn-threads-app/src/lib.rs",
+      "sha256": "d6683bfe9ff2269de6ed8df531c48d93325fc59f52fcb3f92e5f14a5af08f504",
+      "git_blob": "5989b256259477156cb4d08f1df0f31632d93423"
+    },
+    {
+      "path": "crates/brn-threads-app/src/writing.rs",
+      "sha256": "2b6413c05c5ccddd23474fc546790097cddcea10e1b07197b102aa2233d9e03e",
+      "git_blob": "cf279a00684a8494dae9269c80a66900ac58f373"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/writing.rs",
+      "sha256": "179c793d6d58bab9fbcac5d26d0009cf7c1382de5fdf5c199e883b0311b79cff",
+      "git_blob": "a7e1df6914a2fc39006e73bd2f2429e8ebdeffaf"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/writing_setup.rs",
+      "sha256": "241ef3a5e87d8e0e1d02487aba5e43759664428196a0f2546a91937ee036f2b8",
+      "git_blob": "9431370d50584429c305e3b1279709c8178f4210"
+    },
+    {
+      "path": "crates/brn-threads-core/src/backup.rs",
+      "sha256": "7753364a044ab47d68d608e0587b628b20df7c226b4c3c66c05d59f65f337157",
+      "git_blob": "1ba6ccdb5ababc2ea0df41fd917a0286be4c9f17"
+    },
+    {
+      "path": "crates/brn-threads-core/src/context.rs",
+      "sha256": "f047c501224ed12ae97bdeb7f093e310502609dd12f6ebce7fb15d9a2ce31e3a",
+      "git_blob": "fbf0f72d29b55d510b9a12e773ec3a086f32eb74"
+    },
+    {
+      "path": "crates/brn-threads-core/src/inspect.rs",
+      "sha256": "0c6fab4f48663916d558be462f76660a877775e49463ca251024b2c5e36762be",
+      "git_blob": "7f72e2c3c0c9bb34d251faa7939bbc2e5eb10749"
+    },
+    {
+      "path": "crates/brn-threads-core/src/lib.rs",
+      "sha256": "d245229b3e6b26593e5e18c208ddbb6e4f0c302072435f70ed57a8ba1f742081",
+      "git_blob": "7419473cc765cb3d2422958959fdd67a6c008f86"
+    },
+    {
+      "path": "crates/brn-threads-core/src/restore.rs",
+      "sha256": "fac2fa49449a36dde949a445ceea41b8613b02744b982b174c81b3126ff08b66",
+      "git_blob": "239b48d4a005e857cc3c0b71ef8bdee4ba333220"
+    },
+    {
+      "path": "crates/brn-threads-core/src/store.rs",
+      "sha256": "2f5abbb97763e6bdebbbde7641788aa4377c7dd4feb7577872fcccfc33fbbc26",
+      "git_blob": "1956306a9225795abef805be7e83ab1552a4235f"
+    },
+    {
+      "path": "crates/brn-threads-core/src/types.rs",
+      "sha256": "dabc9fa0bdab920cf01439524edba99465f3bc08c395e1ebe65475183608f923",
+      "git_blob": "b521b412080f7924670d5c6dcdadee2059be66cb"
+    },
+    {
+      "path": "crates/brn-threads-core/src/upgrade.rs",
+      "sha256": "1cd5946ae9cf62eb0b963919abcfed78438ca2e8528bef9ad91c19145659132e",
+      "git_blob": "bd0f67e49248d71729d743cda1f631628ac4a283"
+    },
+    {
+      "path": "crates/brn-threads-core/src/writing.rs",
+      "sha256": "01edd7f49c0bb49bdaeee401755610c4718ddce656aae9a94b9c94d442ab0dca",
+      "git_blob": "19b46ea255e07f16d082c7f394da55f22113fc12"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/edit_tokens.rs",
+      "sha256": "f535c856f54871df806693b84f840257d4fdb5abacca48e4eeaacbc7b1e88192",
+      "git_blob": "0f89254717fe54492dcde93774fb1f8a1a93629e"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/writing.rs",
+      "sha256": "4c368bea49f3c4ec55bd92ade5608509f714e8651bf7adbb9c5f10a371398409",
+      "git_blob": "2250ba65e9a963143c0d8b6d2e4966881e871970"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/writing_setup.rs",
+      "sha256": "f84ede34eb1bdae17f6363e62438134b31c1f584dbe81cd944e208c2c27d86de",
+      "git_blob": "a3344eeaa08fc45217ccea080095cce811ed844e"
+    },
+    {
+      "path": "crates/brn/tests/agent_upgrade.rs",
+      "sha256": "e47521113eb45ab649eb3ac1264ebf03ccc7b015f210c23a57138890983d70af",
+      "git_blob": "d4480b267ed98ef56ff1d53acfdb719b37689ac7"
+    }
+  ],
+  "assertion": "Working source/test bytes equal immutable pin; later commit is evidence/docs only.",
+  "production_change_since_690fb705": [
+    "crates/brn-threads-core/src/store.rs::Store::undo"
+  ],
+  "focused_test_limit": "104 tests ran final production and the same assertions before a Clippy-only collapse of a nested test if; strict lint passed the final pinned test syntax. No production or assertion change followed the test run."
+}

@@ -1,0 +1,53 @@
+     Locking 52 packages to latest compatible versions
+      Adding astral-tl v0.8.0
+      Adding bitvec v1.1.1
+      Adding blake3 v1.8.7
+      Adding borsh v1.8.1
+      Adding caseless v0.2.2
+      Adding cfb v0.14.0
+      Adding comrak v0.56.0
+      Adding constant_time_eq v0.4.2
+      Adding dirs v7.0.0
+      Adding entities v1.0.1
+      Adding fearless_simd v1.1.0
+      Adding fearless_simd_macros v0.1.0
+      Adding finl_unicode v1.5.0
+      Adding funty v2.0.0
+      Adding getopts v0.2.24
+      Adding html-escape v0.3.0
+      Adding html-to-markdown-rs v3.18.1
+      Adding html5ever v0.40.1
+      Adding infer v0.22.0
+      Adding jotdown v0.10.0
+      Adding libyaml-rs v0.3.0
+      Adding markup5ever v0.40.0
+      Adding memchr-n v0.1.9
+      Adding phf v0.14.0
+      Adding phf_codegen v0.14.0
+      Adding phf_generator v0.14.0
+      Adding phf_macros v0.14.0
+      Adding phf_shared v0.14.0
+      Adding pulldown-cmark v0.13.4
+      Adding pulldown-cmark-escape v0.11.0
+      Adding radium v0.7.0
+      Adding rmp v0.8.15
+      Adding rmp-serde v1.3.1
+    Updating serde_json v1.0.151 -> v1.0.154
+    Updating serde_spanned v1.1.1 -> v1.1.2
+      Adding serde_toon_format v0.2.0
+      Adding string_cache v0.11.0
+      Adding string_cache_codegen v0.11.2
+      Adding tap v1.0.1
+      Adding tendril v0.5.1
+    Updating toml v1.1.6+spec-1.1.0 -> v1.1.8+spec-1.1.0
+    Updating toml_datetime v1.1.1+spec-1.1.0 -> v1.1.2+spec-1.1.0
+    Updating toml_parser v1.1.3+spec-1.1.0 -> v1.1.5+spec-1.1.0
+    Updating toml_writer v1.1.2+spec-1.1.0 -> v1.1.3+spec-1.1.0
+      Adding typed-arena v2.0.2
+      Adding urlencoding v2.1.3
+      Adding v_escape-base v0.1.0
+      Adding v_htmlescape v0.17.0
+      Adding web_atoms v0.3.0
+      Adding wyz v0.5.1
+      Adding xberg v1.3.10
+      Adding yaml_serde v0.10.7

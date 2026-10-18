@@ -1,0 +1,13 @@
+# Principal local disposition — 18 October 2026
+
+Accepted for dependent local development: the bounded order/hidden/slide-owned association component at `eefdf8241b2a563bf045f2ddbff975131c608625`, tree `8d3675a7546b4f7ea295e42c212cce6c7de5118f`. The [independent actual review](opus-review-round1.txt) approves the complete 0004 patch with zero blocking findings. No code correction is required for this component.
+
+The [source pin](source-pin.json), [check index](check-index.json) and [response](response.md) retain identical final-driver results of before **2 passed / 19 failed** and final **21 passed / 0 failed**. The original namespace/S3 tests remain **25/25**, all 30 accepted legacy capture values and 24 DOCX byte vectors are unchanged, and strict harness Clippy, formatting and patch reproduction pass. Parent checked 25 source/artifact bindings, including 12 unique retained artifacts; the audit is at `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-pptx-order4-parent-actual-audit-20261018.json`. The reviewer independently checked relevant source, fixed-source results, graph/features, patch reproduction and custody.
+
+The accepted 0004 patch SHA-256 is `aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d`, after accepted 0001 and 0003. Presentation order, hidden-state retention, and the two demonstrated note/comment associations are qualified through actual public extraction. Old O1/O2 predictions and unsuccessful attempts remain historical. Root BRN source, manifests/lock, old patches, oracles and registries remain unchanged.
+
+The reviewer identifies one accurately disclosed nonblocking gap: invalid `show` lexical values have a source-inspected unknown-plus-warning branch without a dedicated runtime assertion. That assertion is deferred; it does not reopen this approved component or imply broad PPTX readiness.
+
+The next bounded DOCX work should preserve actual XML comment-reference identity instead of reconstructing semantic references from rendered marker text, with a separate allocation and real before/final checks. Broader author/range/note identity, layout/nested tables, hidden shapes/rendering/OCR/chart facts, full XML/resource bounds, restricted Office runtime, license custody, root adoption/retirement and all-eight integration remain open. The interrupted PDF corrections are preserved and unaccepted; carried SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications remain.
+
+All worker paths and the heavy slot are released with an empty process inventory. This local acceptance is not a PR, merge, release, runtime cutover, owner observation or authorization for provider calls.

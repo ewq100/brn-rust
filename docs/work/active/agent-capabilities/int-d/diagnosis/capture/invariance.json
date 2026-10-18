@@ -1,0 +1,15 @@
+{
+  "base": "33d9e10d1676b0c54db78a54d27110326d9ceea9",
+  "compiled_inputs": 333,
+  "changed_inputs": [
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_int_d_tests.rs"
+  ],
+  "other_inputs_unchanged": 331,
+  "old_test_prefix_unchanged": true,
+  "production_source_stripped_matches_base": "raw/actual-cfg-blocks.json",
+  "qualification_scripts_unchanged": 3,
+  "initial_test_source_sha256": "b90c21cc57e083fff6e4fd74df9c00cd5fb028e0789b97ad27ddf8f4150ae792",
+  "initial_test_source_patch_sha256": "14c5ab44694bf2bc94f4b5795c972502f2e3df1ed4f53c7b0dcb6ec281b2904a",
+  "qualification": "Only exact two cfg(test+scripted-runs+macOS/Linux) call blocks in parent source; no normal/prod instructions/actions/schema/roles/fields change, no non-test binary equality/hosted build claim."
+}

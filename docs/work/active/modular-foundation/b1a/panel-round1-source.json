@@ -1,0 +1,92 @@
+{
+  "branch": "work/b1a-cw2-20261016",
+  "current_HEAD": "ca44bd7987e817b0d1ad75d1ff3855ea4d03c64a",
+  "heavy_slot": "D1A exclusive; not acquired",
+  "kind": "source-only LOW followups; BUILDNEED",
+  "no_commands": [
+    "Cargo",
+    "lint",
+    "tests",
+    "lock update",
+    "slot polling",
+    "delegation"
+  ],
+  "review_byte_sha256": "2410ec3f2df1a54dce47fef0a4692adafff10fe4473492e84a932de562f75e68",
+  "review_bytes": 3438,
+  "review_original_path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/b1a-panel-opus-review-round1.md",
+  "review_repo_path": "docs/work/active/modular-foundation/b1a/panel-opus-review-round1.md",
+  "reviewed_base": "ca44bd7987e817b0d1ad75d1ff3855ea4d03c64a",
+  "reviewed_tree": "a487a68546b2e5f5b52db354219c5df60be3c8d9",
+  "source_correction_fingerprint_sha256": "ec40184d6b756b7e460f455ed0e86f006bf54902908c0e13f0b1d7e58062d55a",
+  "source_patch_sha256": "b8261991d4e7eeeb281508ea27cf41c8220821da3f60d063e34c26e4348f8ca0",
+  "source_paths": {
+    "crates/brn-desktop/src/threads_components.rs": {
+      "after_sha256": "0c3f72899581b7aadc8fd46f87053eb78921ca1cb8b354a9b0686b8421f436be",
+      "before_sha256": "8a4fd21076d2fe8bbf18bba598e2c0e6881b75d113f172bbae9e87b2c318441e"
+    },
+    "crates/brn-desktop/src/threads_ui.rs": {
+      "after_sha256": "3d6fc494c9281129a8827572d4fd4ba8114e8efb69ec0efe28b86075cdac7a5e",
+      "before_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+    },
+    "crates/brn-desktop/src/threads_workbench_tests.rs": {
+      "after_sha256": "4de440ab805881bc887226eb38183e8cd72202be307937e09651d10f590d22c1",
+      "before_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+    },
+    "crates/brn-writing-ui/src/components.rs": {
+      "after_sha256": "debf33086144032f6ce81631905a873d040cbbca287363b7e8525f9fdb89e5a1",
+      "before_sha256": "9f1bb46126fc60e6b79b69c373ce4a0f7a73fd0930dddbc384a805a30d0a298e"
+    },
+    "crates/brn-writing-ui/src/document.rs": {
+      "after_sha256": "a7999572ad3d95079f7a55fb77f6addc49d30152ef3bb0f3557ad5070927018e",
+      "before_sha256": "219971fd0a4b3fa86050b741001f60d314cbe549cb5f62b4b583604ce11fad71"
+    },
+    "crates/brn-writing-ui/src/native.rs": {
+      "after_sha256": "7750bd724017f38462f8e99af09a03a3d71ed9cb8cc751db078c43328a6f92ab",
+      "before_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+    },
+    "crates/brn-writing-ui/src/writing.rs": {
+      "after_sha256": "7e9335483c525b25dfbfd10c56bb27515d4eb133502585b2345544e843cf167a",
+      "before_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04"
+    }
+  },
+  "state": "uncompiled, unstaged, uncommitted; awaiting explicit second heavy window",
+  "static_checks": [
+    {
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "rustfmt",
+        "--edition",
+        "2024",
+        "--check",
+        "crates/brn-writing-ui/src/lib.rs",
+        "crates/brn-desktop/src/threads_ui.rs"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1a-panel-round1-20261016/pinned-rustfmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1a-panel-round1-20261016/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "static_scope_verification": {
+    "crates/brn-desktop/src/threads_components.rs": "section_header removed once; all remaining non-documentation tokens identical",
+    "crates/brn-desktop/src/threads_ui.rs": "documentation only; non-documentation tokens identical",
+    "crates/brn-desktop/src/threads_workbench_tests.rs": "only one assertion message narrowed; expected values, fixture, assertions and event paths unchanged",
+    "crates/brn-writing-ui/src/components.rs": "exact function moved; only public visibility differs; existing non-documentation tokens identical",
+    "crates/brn-writing-ui/src/document.rs": "documentation only; non-documentation tokens identical",
+    "crates/brn-writing-ui/src/native.rs": "only section body changes to the original shared primitive call; other non-documentation tokens identical",
+    "crates/brn-writing-ui/src/writing.rs": "documentation only; non-documentation tokens identical"
+  },
+  "unchanged_original_qualification_receipt_sha256": "80dc293cf72d8acbaeb56026911749a695dee4af69d7314ea3e7d69239731747",
+  "utc": "2026-10-16T20:06:46.055313+00:00"
+}

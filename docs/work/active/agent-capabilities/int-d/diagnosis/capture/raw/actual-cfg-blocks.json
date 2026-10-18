@@ -1,0 +1,10 @@
+{
+  "blocks": [
+    "            #[cfg(all(\n                test,\n                feature = \"scripted-runs\",\n                any(target_os = \"macos\", target_os = \"linux\")\n            ))]\n            if name == \"prepare_changes\" {\n                int_d_tests::capture_dispatch(\n                    &self.emit,\n                    &event,\n                    self.rounds.load(Ordering::SeqCst),\n                );\n            }\n",
+    "            #[cfg(all(\n                test,\n                feature = \"scripted-runs\",\n                any(target_os = \"macos\", target_os = \"linux\")\n            ))]\n            if name == \"prepare_changes\" {\n                int_d_tests::capture_outcome(\n                    &self.emit,\n                    &event,\n                    self.rounds.load(Ordering::SeqCst),\n                );\n            }\n"
+  ],
+  "strip_matches_base_byte_for_byte": true,
+  "base_threads_sha256": "f0bb60812d713be88586b952f9f9f55334e1cb74a5b997a8f6c8be1fed780f47",
+  "current_threads_sha256": "a913b23e6eb65891e3babcbc52c14b2f1ee502d7b887183d9f0abb0f74e46a42",
+  "qualification": "Source equivalence after excluding exact test-only blocks, not a binary equality or cross-target build claim."
+}

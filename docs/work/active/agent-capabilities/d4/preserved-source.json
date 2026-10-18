@@ -1,0 +1,80 @@
+{
+  "base": "9a88a0a91195b3f5de810f2620ec6f7ed65cb890",
+  "qualification": "Current pre-pin check; one later exact manifest allocation is explicitly distinguished from preserved implementation files.",
+  "paths": [
+    {
+      "path": "crates/brn-ai/src/auth.rs",
+      "base_sha256": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+      "sha256": "20d75e88230b86970e678218e74a281cc33e082d14c128a199cc753430defa55",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_sources.rs",
+      "base_sha256": "fc7be8a299da5d4817c62203c8c21b77b6caef8939b548e4f82d7b3e477ced31",
+      "sha256": "fc7be8a299da5d4817c62203c8c21b77b6caef8939b548e4f82d7b3e477ced31",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_reads.rs",
+      "base_sha256": "22a3ab59c66b84d4744d2b800f0d1d7a452c01e3697b001ea196e6871ddc5730",
+      "sha256": "22a3ab59c66b84d4744d2b800f0d1d7a452c01e3697b001ea196e6871ddc5730",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_guides.rs",
+      "base_sha256": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+      "sha256": "b575d448173a1678c30549780f844cd6c6708098a3c1a28a77cffffa1cccbbbf",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_skills.rs",
+      "base_sha256": "bb2246bba529982dc10c51159ad9226125dc703e73f13b90ac3e1effb172c1c8",
+      "sha256": "bb2246bba529982dc10c51159ad9226125dc703e73f13b90ac3e1effb172c1c8",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_history.rs",
+      "base_sha256": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+      "sha256": "792b6518f0f48d7b9a75f91015674135ebab29bea0357512364ae5b5243b9863",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_context_budget.rs",
+      "base_sha256": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+      "sha256": "390f40230101d7877d6e72acd3eeb13538b33d17001df7b67aee239dd7c2d357",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-ai/src/threads_continuation.rs",
+      "base_sha256": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+      "sha256": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-threads-app/Cargo.toml",
+      "base_sha256": "dd8cc20026768a1ffc703c5cd7dfe93933f4bdea2c67b4c6c9dfe848e7766880",
+      "sha256": "dd8cc20026768a1ffc703c5cd7dfe93933f4bdea2c67b4c6c9dfe848e7766880",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-threads-core/Cargo.toml",
+      "base_sha256": "75afba32ce5ecdd9d9f17f9e86f1f8ebf7522330e8c28dd5485b90d7672f3bd1",
+      "sha256": "75afba32ce5ecdd9d9f17f9e86f1f8ebf7522330e8c28dd5485b90d7672f3bd1",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn-desktop/Cargo.toml",
+      "base_sha256": "c45c73f5e6c8b17f7839f70835ab0fe498b101c081f87c174c87dbf7ec83f829",
+      "sha256": "c45c73f5e6c8b17f7839f70835ab0fe498b101c081f87c174c87dbf7ec83f829",
+      "byte_unchanged_from_base": true
+    },
+    {
+      "path": "crates/brn/Cargo.toml",
+      "base_sha256": "b06112cea5a1f9dfb0c353f4279b4182e77a04c24ee5d5e37611abf93d590338",
+      "sha256": "4b94aca39a73049ab0da9a439e0e797566275f0489beb7cfe80f72ff096e0911",
+      "byte_unchanged_from_base": false,
+      "allocation": "Exact principal CLI dev-only SDK HTTP process fixture dependencies; production tokio unchanged"
+    }
+  ],
+  "helper_production_diff": "diff --git a/crates/brn-ai/src/threads_research.rs b/crates/brn-ai/src/threads_research.rs\nindex ac29fb68..9a77ce92 100644\n--- a/crates/brn-ai/src/threads_research.rs\n+++ b/crates/brn-ai/src/threads_research.rs\n@@ -427,6 +427,7 @@ pub(super) async fn run_helper_model(\n             scope: scope.clone(),\n         })\n         .add_hook(BatchHook {\n+            external: None,\n             skills: None,\n             invalid: invalid.clone(),\n             limited: limited.clone(),\n@@ -574,6 +575,7 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<\n         .and_then(|trace| trace::TraceCollector::new(trace.level()))\n         .map(Arc::new);\n     Arc::new(Scope {\n+        external: Mutex::new(None),\n         skills: parent.skills.clone(),\n         chat: parent.chat.clone(),\n         private_context: parent.private_context,\n"
+}

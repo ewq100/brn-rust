@@ -1,0 +1,65 @@
+{
+  "command": [
+    "cargo",
+    "metadata",
+    "--offline",
+    "--format-version",
+    "1",
+    "--filter-platform",
+    "aarch64-apple-darwin"
+  ],
+  "HEAD": "c5b257fb643794e0802dd1cb4d3fee5ff3ee0edf",
+  "env": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_TARGET_DIR": "/private/tmp/brn-b4-20261017-target",
+    "CARGO_NET_OFFLINE": "true",
+    "TMPDIR": "/private/tmp/brn-b4-20261017-verification/resolution-2eynmp5t"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 0.5702168330317363,
+  "lock_before_sha256": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+  "lock_after_sha256": "0798be049da224edbfb4ce951a80fcd20b066fba6f9632c164b111d5e30de290",
+  "log_sha256": "fe8ef47ff4ecc8d9bb88f5aab2288fb8d1b7cd2bd6e7c40c4f69ce8d65cd0f37",
+  "package_count_before": 953,
+  "package_count_after": 953,
+  "all_package_source_version_checksum_inventory_identical": true,
+  "dependency_deltas": {
+    "brn-writing-ui@0.1.0": {
+      "before": [
+        "brn-threads-app",
+        "gpui-kit"
+      ],
+      "after": [
+        "brn-ai",
+        "brn-threads-app",
+        "brn-threads-intake",
+        "gpui-kit",
+        "rig",
+        "serde_json",
+        "tempfile",
+        "tokio"
+      ]
+    }
+  },
+  "added": [
+    "brn-ai",
+    "brn-threads-intake",
+    "rig",
+    "serde_json",
+    "tempfile",
+    "tokio"
+  ],
+  "removed": [],
+  "expected_only_six_edges": true,
+  "first_metadata_no_deps_note": "Command succeeded but did not resolve or change lock; initial expectation assertion was an evidence-tool assumption, not an unexpected package delta. Separate original log/audit retained.",
+  "raw_inventory_files": {
+    "/private/tmp/brn-b4-20261017-verification/Cargo.lock.before": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "/private/tmp/brn-b4-20261017-verification/Cargo.lock.after": "0798be049da224edbfb4ce951a80fcd20b066fba6f9632c164b111d5e30de290",
+    "/private/tmp/brn-b4-20261017-verification/packages.before.json": "464730855ce3ac003fd94b88bcc614efcdb45ad68d6980eed5d8989ed3eac68e",
+    "/private/tmp/brn-b4-20261017-verification/packages.after.json": "cfb3327b329e656545bf1db8135f7e6bc1422c79b9e37be50ecf069417d8bb50",
+    "/private/tmp/brn-b4-20261017-verification/metadata-no-deps-audit.json": "31cfc0a90336503a0923f67af916a7e455316988956e354a8ef50be25b631488",
+    "/private/tmp/brn-b4-20261017-verification/metadata-no-deps.log": "8e50355c4129caff99d5432b2b75da17e6324010dae4b91a59617cf9a6b10995",
+    "/private/tmp/brn-b4-20261017-verification/metadata-resolved.log": "fe8ef47ff4ecc8d9bb88f5aab2288fb8d1b7cd2bd6e7c40c4f69ce8d65cd0f37"
+  },
+  "exact_lock_diff": "diff --git a/Cargo.lock b/Cargo.lock\nindex 55a5c242..daf78f62 100644\n--- a/Cargo.lock\n+++ b/Cargo.lock\n@@ -998,8 +998,14 @@ dependencies = [\n name = \"brn-writing-ui\"\n version = \"0.1.0\"\n dependencies = [\n+ \"brn-ai\",\n  \"brn-threads-app\",\n+ \"brn-threads-intake\",\n  \"gpui-kit\",\n+ \"rig\",\n+ \"serde_json\",\n+ \"tempfile\",\n+ \"tokio\",\n ]\n \n [[package]]\n"
+}

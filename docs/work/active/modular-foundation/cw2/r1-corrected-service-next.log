@@ -1,0 +1,26 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error: 1 positional argument in format string, but no arguments were given
+   --> crates/brn-ai/src/threads_search_tests.rs:138:29
+    |
+138 |             format!("search {} harbor plan 5 None true"),
+    |                             ^^
+
+error: 1 positional argument in format string, but no arguments were given
+   --> crates/brn-ai/src/threads_search_tests.rs:139:34
+    |
+139 |             format!("connections {} n1 2 true"),
+    |                                  ^^
+
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+warning: unused variable: `chat`
+   --> crates/brn-ai/src/threads_search_tests.rs:134:9
+    |
+134 |     let chat = &request.thread;
+    |         ^^^^ help: if this is intentional, prefix it with an underscore: `_chat`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `brn-ai` (lib test) generated 1 warning
+error: could not compile `brn-ai` (lib test) due to 2 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...

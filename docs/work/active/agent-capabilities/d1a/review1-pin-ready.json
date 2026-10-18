@@ -1,0 +1,17 @@
+{
+  "precommit_head": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "precommit_crates_diff_sha256": "5985001a50e12e98753754ed372015001f1faaccff027ca1acf321281fa2ac1c",
+  "material_diff_from_accepted_base_sha256": "3fa5d681bef437769410cc9ae1385f0b3fec843ab73597f92ea58ec5be5ece37",
+  "actual_full_ai_receipt": "review1-ai-full-traced.json",
+  "actual_source_fingerprints_match_tested_wip": true,
+  "cli_summary": {
+    "command_receipt": "review1-cli.json",
+    "result_summaries": 20,
+    "passed": 161,
+    "failed": 0,
+    "ignored": 0
+  },
+  "core_provenance_unchanged_since_202bf2d7": true,
+  "mutation_remaining_seconds": 1373.1291978359222,
+  "source_acceptance": "pending fresh principal-owned independent round2"
+}

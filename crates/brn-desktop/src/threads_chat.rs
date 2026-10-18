@@ -134,7 +134,12 @@ impl ThreadsUi {
                 this.confirm_stop_saved_run(run.clone(), window, cx)
             }))
     }
-    fn confirm_stop_saved_run(&mut self, run: String, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn confirm_stop_saved_run(
+        &mut self,
+        run: String,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         let target = cx.entity().downgrade();
         self.open_dialog(window, cx, move |dialog, _, _| {
             let (target, run) = (target.clone(), run.clone());
@@ -180,6 +185,11 @@ impl ThreadsUi {
             })
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
+        #[cfg(all(test, feature = "native-test-support"))]
+        WRITING_DISPLAY_LOADS.with(|loads| {
+            let (assets, runs) = loads.get();
+            loads.set((assets + 1, runs));
+        });
         Arc::new(
             self.records
                 .iter()
@@ -192,13 +202,6 @@ impl ThreadsUi {
                 })
                 .collect(),
         )
-    }
-    pub(super) fn note_assets(&self) -> Arc<BTreeMap<String, Arc<Image>>> {
-        let chat = self.note.as_ref().and_then(|n| match &n.record.data {
-            RecordData::Note(n) => n.chat.as_deref(),
-            _ => None,
-        });
-        self.assets_in_chat(chat)
     }
     pub(super) fn pause_failed_worker(&mut self) {
         let key = format!("worker-failure:{}", uuid::Uuid::new_v4());
@@ -255,14 +258,7 @@ impl ThreadsUi {
                 }
                 Ok(id)
             }
-            ChatTarget::NewForNote(note) => {
-                let version = self
-                    .records
-                    .iter()
-                    .find(|r| r.id == note)
-                    .map_or(0, |r| r.version);
-                self.ensure_writing_thread(&note, version)
-            }
+            ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(prompt)).map(|r| r.id),
         }
     }
@@ -427,7 +423,11 @@ impl ThreadsUi {
     }
     pub(super) fn composer_controls(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let c = self.queue_state();
-        let mut panel = div().flex().flex_col().gap_1();
+        let mut panel = div()
+            .flex()
+            .flex_col()
+            .gap_1()
+            .child(self.skill_selector(cx));
         if c.pending.is_some() || !c.queue.is_empty() {
             let here = self.chat_thread().map(str::to_owned);
             let waiting = format!("{} waiting", c.queue.len());
@@ -677,9 +677,9 @@ impl ThreadsUi {
                         .import
                         .as_ref()
                         .and_then(|i| i.report.as_ref())
-                        .map(ImportReport::summary)
-                        .unwrap_or("Coverage unchecked"),
-                    _ => "",
+                        .map(documents::report_summary)
+                        .unwrap_or_else(|| "Coverage unchecked".into()),
+                    _ => String::new(),
                 };
                 panel = panel.child(
                     div()
@@ -698,7 +698,7 @@ impl ThreadsUi {
                                 .items_center()
                                 .gap_2()
                                 .child(
-                                    metadata(coverage)
+                                    metadata(coverage.clone())
                                         .flex_shrink_0()
                                         .id(format!("attachment-coverage-{}", r.id))
                                         .aria_label(coverage)

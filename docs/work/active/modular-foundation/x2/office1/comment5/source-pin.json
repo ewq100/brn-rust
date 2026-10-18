@@ -1,0 +1,359 @@
+{
+  "schema": "comment5-source-pin/1",
+  "repo_precommit_HEAD": "c4b4b12abe2794a43a8071a337b9e2af99385d81",
+  "repo_precommit_tree": "274e375fdf974caaac822e60723042a9b6bb1841",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "before_and_compiled_roots": {
+    "before": {
+      "root": "/private/tmp/brn-x2-docx-comment5-20261018/before",
+      "target": "/private/tmp/brn-x2-docx-comment5-20261018/before-target",
+      "xberg_git": "2aefc5301155bfddb19f48266e08acbb2407efd6",
+      "xberg_tree": "49445f5aee77a179ddfca7e8731d623324f655ab",
+      "harness_git": "d3ee9223587343b4e52701fc75d5def04b029520",
+      "harness_tree": "cc3dca481b695035481ae52d870e2de5da9ec6fb"
+    },
+    "final": {
+      "root": "/private/tmp/brn-x2-docx-comment5-20261018/final",
+      "target": "/private/tmp/brn-x2-docx-comment5-20261018/final-target",
+      "xberg_git": "cf7ae27165613a7e1e2dd3580bb110202a09792c",
+      "xberg_tree": "5451c1a9cf3c7c5edf596d30a972873c0dfbfff5",
+      "harness_git": "dd85a64ece26fead50810836c0cb039f56527626",
+      "harness_tree": "cc3dca481b695035481ae52d870e2de5da9ec6fb"
+    }
+  },
+  "selected_source_files": [
+    {
+      "path": "src/extraction/docx/parser.rs",
+      "pristine_sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "accepted_order4_baseline_sha256": "e05ebf5c47e042bf9bfbdab591576cb21a3effbdc4cd84d9a1df7163d63d7d5c",
+      "compiled_candidate_sha256": "2ffd18ef6940f00ce1cd976455db021cd38f72e820a8f9269fce5fff830585b8",
+      "independently_applied_sha256": "2ffd18ef6940f00ce1cd976455db021cd38f72e820a8f9269fce5fff830585b8"
+    },
+    {
+      "path": "src/extractors/docx.rs",
+      "pristine_sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+      "accepted_order4_baseline_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "compiled_candidate_sha256": "daefd809ecf0e4814deb1205e3b0fb83a5f47df16b6d96c00fd9c27a5c567184",
+      "independently_applied_sha256": "daefd809ecf0e4814deb1205e3b0fb83a5f47df16b6d96c00fd9c27a5c567184"
+    }
+  ],
+  "all_other_baseline_upstream_files_equal": true,
+  "ordered_budget_call_sequence_unchanged": 26,
+  "unchanged_validation_and_note_snippets": [
+    {
+      "name": "flat_comment_validation",
+      "sha256": "1b788c87a451d40348c492d4e582cba5ce3c35597da1b7b1c170190f9f4b698f"
+    },
+    {
+      "name": "typed_note_events",
+      "sha256": "fd4a3239eb9aa6d09c94bc5a63cae6eb36d62e05306fbfc2fedd305573c39b85"
+    }
+  ],
+  "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+  "harness_sources": [
+    {
+      "path": "tests/spans.rs",
+      "sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c"
+    },
+    {
+      "path": "tests/docx_namespaces.rs",
+      "sha256": "cd9c7d74269ba16d401d85fa4d33c0142fa697f81fba5f222b8b15c566e70cd9"
+    },
+    {
+      "path": "tests/pptx_order.rs",
+      "sha256": "1a65ddc4140a36ea64e5b978b877bd3f716f5695558b80c8ec4ed845c2497ca2"
+    },
+    {
+      "path": "tests/docx_comment_references.rs",
+      "sha256": "30ca9881f34f7bb116ab2bdda364706ea9625509c0dff4e289ed082bf060fdac"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "0460d132a67a4a21dcf0cc83022a2b576a6eef29c4fa1906638a0c87de12c4b3"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2"
+    }
+  ],
+  "actual_registry_identity_feature_union": 239,
+  "graph_equal_to_accepted_order4": true,
+  "xberg_actual_features": [
+    "html",
+    "notebook",
+    "office"
+  ],
+  "normal_dependency_cfg_test": false,
+  "actual_build_script_ids": [
+    {
+      "label": "05-before-exact-final-driver",
+      "records": [
+        {
+          "reason": "build-script-executed",
+          "package_id": "path+file:///private/tmp/brn-x2-docx-comment5-20261018/before/xberg#1.3.10",
+          "linked_libs": [],
+          "linked_paths": [],
+          "cfgs": [],
+          "env": [
+            [
+              "XBERG_BUILD_ID",
+              "2aefc5301155bfddb19f48266e08acbb2407efd6"
+            ]
+          ],
+          "out_dir": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/build/xberg-bf808c93f3e5043c/out"
+        }
+      ]
+    },
+    {
+      "label": "06-final-exact-driver",
+      "records": [
+        {
+          "reason": "build-script-executed",
+          "package_id": "path+file:///private/tmp/brn-x2-docx-comment5-20261018/final/xberg#1.3.10",
+          "linked_libs": [],
+          "linked_paths": [],
+          "cfgs": [],
+          "env": [
+            [
+              "XBERG_BUILD_ID",
+              "cf7ae27165613a7e1e2dd3580bb110202a09792c"
+            ]
+          ],
+          "out_dir": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/build/xberg-5053f553ccdcc349/out"
+        }
+      ]
+    },
+    {
+      "label": "07-namespace-s3-regression",
+      "records": [
+        {
+          "reason": "build-script-executed",
+          "package_id": "path+file:///private/tmp/brn-x2-docx-comment5-20261018/final/xberg#1.3.10",
+          "linked_libs": [],
+          "linked_paths": [],
+          "cfgs": [],
+          "env": [
+            [
+              "XBERG_BUILD_ID",
+              "cf7ae27165613a7e1e2dd3580bb110202a09792c"
+            ]
+          ],
+          "out_dir": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/build/xberg-5053f553ccdcc349/out"
+        }
+      ]
+    },
+    {
+      "label": "08-order4-regression",
+      "records": [
+        {
+          "reason": "build-script-executed",
+          "package_id": "path+file:///private/tmp/brn-x2-docx-comment5-20261018/final/xberg#1.3.10",
+          "linked_libs": [],
+          "linked_paths": [],
+          "cfgs": [],
+          "env": [
+            [
+              "XBERG_BUILD_ID",
+              "cf7ae27165613a7e1e2dd3580bb110202a09792c"
+            ]
+          ],
+          "out_dir": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/build/xberg-5053f553ccdcc349/out"
+        }
+      ]
+    },
+    {
+      "label": "09-clippy",
+      "records": [
+        {
+          "reason": "build-script-executed",
+          "package_id": "path+file:///private/tmp/brn-x2-docx-comment5-20261018/final/xberg#1.3.10",
+          "linked_libs": [],
+          "linked_paths": [],
+          "cfgs": [],
+          "env": [
+            [
+              "XBERG_BUILD_ID",
+              "cf7ae27165613a7e1e2dd3580bb110202a09792c"
+            ]
+          ],
+          "out_dir": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/build/xberg-5053f553ccdcc349/out"
+        }
+      ]
+    }
+  ],
+  "toolchain": {
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/brn-x2-docx-comment5-20261018/final-target",
+    "TMPDIR": "/private/tmp/brn-x2-docx-comment5-20261018/private-final-tmp",
+    "S3_CAPTURE": "/private/tmp/brn-x2-docx-comment5-20261018/evidence/06-final-exact-driver/captures",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_BACKTRACE": "0",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "tmp_modes": {
+    "before": "0o700",
+    "final": "0o700"
+  },
+  "compiled_artifacts": [
+    {
+      "label": "05-before-exact-final-driver",
+      "receipt_sha256": "d3a84edb037ac30389585a00a9e54314bc0ab5970276a25c48668edb4e3a5f28",
+      "raw_log_sha256": "bb1a9bc2eb7d7f4d86587b8c00ecffdbce9a9db1bd26f445f045db147e08e590",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/deps/comment_references-0de2b7e5a14ac75f",
+          "bytes": 86126000,
+          "sha256": "022fafcaeae185db0b4579a52d60f9bb886ad02899db410ab48a25c8ae0fa1c2",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/022fafcaeae185db0b4579a52d60f9bb886ad02899db410ab48a25c8ae0fa1c2"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/deps/comment_references-0de2b7e5a14ac75f.d",
+          "bytes": 314,
+          "sha256": "ead2ccf7695e8d866170916b4198b27b04f1dc8bdaebb021da1abd7e846bff04",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/ead2ccf7695e8d866170916b4198b27b04f1dc8bdaebb021da1abd7e846bff04"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/deps/libxberg-de3d15c5306810b1.rlib",
+          "bytes": 219125984,
+          "sha256": "819eb9acfcf9e9654cf90abb67a273b3a9a52e4d55394d2f362702db33d58975",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/819eb9acfcf9e9654cf90abb67a273b3a9a52e4d55394d2f362702db33d58975"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/deps/libxberg-de3d15c5306810b1.rmeta",
+          "bytes": 22513746,
+          "sha256": "e8c234dcffe796f7653338470f5176bcbdfceeb66efe81906e4214d05c6c069c",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/e8c234dcffe796f7653338470f5176bcbdfceeb66efe81906e4214d05c6c069c"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/before-target/debug/deps/xberg-de3d15c5306810b1.d",
+          "bytes": 93752,
+          "sha256": "50fff6eb0ee768879cd5c9268aae379691ea949ad77b91b0190ba6a5e859cd59",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/50fff6eb0ee768879cd5c9268aae379691ea949ad77b91b0190ba6a5e859cd59"
+        }
+      ]
+    },
+    {
+      "label": "06-final-exact-driver",
+      "receipt_sha256": "abd4dbd3c972939a900352da5536462728b0bc7e200259f378ded9111f894687",
+      "raw_log_sha256": "d7acbabc35b4c7e635879990db54d42a052e28e162fb6f48126198726b362466",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/comment_references-7fd4b45acca6462c",
+          "bytes": 86139824,
+          "sha256": "df74917311d1b955405c7c5af3b9752d34e075ccb27c6cb48f11a90ad6694261",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/df74917311d1b955405c7c5af3b9752d34e075ccb27c6cb48f11a90ad6694261"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/comment_references-7fd4b45acca6462c.d",
+          "bytes": 312,
+          "sha256": "1be1873a32d508d040d35c6806836cbe9e121cdc64a57465c7f7df39c2e00782",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/1be1873a32d508d040d35c6806836cbe9e121cdc64a57465c7f7df39c2e00782"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rlib",
+          "bytes": 219644784,
+          "sha256": "4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rmeta",
+          "bytes": 22514757,
+          "sha256": "1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/xberg-fe689c8997881a7d.d",
+          "bytes": 92645,
+          "sha256": "b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841"
+        }
+      ]
+    },
+    {
+      "label": "07-namespace-s3-regression",
+      "receipt_sha256": "dbced98e9d8e238cca09ad6dfd4264217812c4cceac3a4c39ef50236effbb061",
+      "raw_log_sha256": "4508f8c89f4beac850e779bcb4ec642d7c0827cec1018a794fe4d1acdfaa5be9",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rlib",
+          "bytes": 219644784,
+          "sha256": "4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rmeta",
+          "bytes": 22514757,
+          "sha256": "1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/namespaces-f15154ec62ebf842",
+          "bytes": 86705416,
+          "sha256": "0dc3dac5e88676a531dc2c224891396878078a1f02c62f1c297c88c4fad02546",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/0dc3dac5e88676a531dc2c224891396878078a1f02c62f1c297c88c4fad02546"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/namespaces-f15154ec62ebf842.d",
+          "bytes": 1099,
+          "sha256": "8ae781de67c2b38febf76d0d133fc35d2472655c29a305608250cda5e8dc602d",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/8ae781de67c2b38febf76d0d133fc35d2472655c29a305608250cda5e8dc602d"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/xberg-fe689c8997881a7d.d",
+          "bytes": 92645,
+          "sha256": "b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841"
+        }
+      ]
+    },
+    {
+      "label": "08-order4-regression",
+      "receipt_sha256": "911268d2ca73e5e035fdc1bbea8b353ab06ed08b378734c2c4e35dece267746b",
+      "raw_log_sha256": "44c149505bcf982224f43b597e7cb4f5def1da0348a79b005ac42541f4d285f6",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rlib",
+          "bytes": 219644784,
+          "sha256": "4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/4ea4da97d040de86cf41f32c73c164099b5a6318aa1d71b693fc038c390296ba"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/libxberg-fe689c8997881a7d.rmeta",
+          "bytes": 22514757,
+          "sha256": "1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/1449c78f759d64dba271fbfe8873ebdf2ead7e362ec4c8937c1d6b520cbf72e7"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/pptx_order-55f27c855de69405",
+          "bytes": 86676184,
+          "sha256": "ff32d21e761b7798896850a988e0010451d7bf76f7d1711469b26accfa74723b",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/ff32d21e761b7798896850a988e0010451d7bf76f7d1711469b26accfa74723b"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/pptx_order-55f27c855de69405.d",
+          "bytes": 433,
+          "sha256": "dc24858b1a5b642c709cca44a63629d858b8273b358d3f67145e084b71ac9e68",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/dc24858b1a5b642c709cca44a63629d858b8273b358d3f67145e084b71ac9e68"
+        },
+        {
+          "path": "/private/tmp/brn-x2-docx-comment5-20261018/final-target/debug/deps/xberg-fe689c8997881a7d.d",
+          "bytes": 92645,
+          "sha256": "b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841",
+          "object": "/private/tmp/brn-x2-docx-comment5-20261018/objects/b2c1ebaa51084bd4948b50cc8cfd16e6f016a54c2750ebcc4398b152ddd30841"
+        }
+      ]
+    }
+  ],
+  "source_authority": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-docx-comment5-actual-correction-allocation-20261018.md",
+    "sha256": "1656afdd95e119a49bfde19d28ff3015a250b8054284dc34a7ee18e218186b2b"
+  },
+  "repo_final_identity": "Written only after actual commit to external evidence/final-repo-pin.json. No future self-SHA embedded."
+}

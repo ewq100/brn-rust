@@ -1,0 +1,10 @@
+{
+  "start_monotonic": 648699.239755875,
+  "start_utc": "2026-10-17T00:54:30.549061+00:00",
+  "limit_seconds": 600,
+  "selection": [
+    "M01 export eligibility canonical predicate only",
+    "M02 note_rows general-ID-set canonical filter only",
+    "M03 note_rows displayed-row canonical predicate only"
+  ]
+}

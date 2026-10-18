@@ -1,0 +1,234 @@
+{
+  "schema": "remaining-format-source-facts/1",
+  "oracle": "Authored exact source semantics, frozen before any extractor execution. Existing raw OPC/MIME inspected independently. Runtime output never supplies expected values.",
+  "source_driver_sha256": "20815d44730bd68ad589dc24a0de25eca98da0a674917bda32026d5f37a8b175",
+  "existing_fixtures": [
+    {
+      "path": "crates/brn-intake/tests/fixtures/forecast.xlsx",
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/single.eml",
+      "sha256": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/plural.eml",
+      "sha256": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/harbor.docx",
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+    },
+    {
+      "path": "crates/brn-intake/tests/fixtures/water-use.png",
+      "sha256": "f76dd37920a0fc5889b1d53a0c448f7ec6c619ed8200eef5d31621e36ca4d61d"
+    }
+  ],
+  "forecast": {
+    "sheets": [
+      {
+        "name": "Sheet",
+        "state": "visible",
+        "part": "xl/worksheets/sheet1.xml",
+        "relationship": "rId1",
+        "cells": [
+          {
+            "address": "A1",
+            "type": "inlineStr",
+            "raw": "Out of scope forecast"
+          },
+          {
+            "address": "B1",
+            "type": "inlineStr",
+            "raw": "EUR"
+          },
+          {
+            "address": "A2",
+            "type": "inlineStr",
+            "raw": "Harbor budget"
+          },
+          {
+            "address": "B2",
+            "type": "n",
+            "raw": "4000"
+          }
+        ],
+        "formula_count": 0,
+        "explicit_empty_cells": [],
+        "other_sheets": []
+      }
+    ]
+  },
+  "authored_workbook": {
+    "generation": "Rust maintained zip8.6 Stored OPC; exact source XML in driver.rs::workbook",
+    "sheets": [
+      {
+        "name": "Facts",
+        "state": "visible",
+        "part": "xl/worksheets/sheet1.xml",
+        "dimension": "C3:H5",
+        "cells": [
+          {
+            "address": "C3",
+            "type": "inlineStr",
+            "raw": "Café Ω"
+          },
+          {
+            "address": "D3",
+            "type": "n (implicit)",
+            "raw": "45000",
+            "style": 1,
+            "number_format_builtin": 14,
+            "date_serial_system": "1900 (default); no formula evaluation; current display formatting gap expected"
+          },
+          {
+            "address": "E3",
+            "type": "b",
+            "raw": "1",
+            "projected_boolean": "true"
+          },
+          {
+            "address": "F3",
+            "type": "e",
+            "raw": "#DIV/0!"
+          },
+          {
+            "address": "G3",
+            "type": "n (implicit)",
+            "formula": "SUM(A1:A2)",
+            "cached": "99",
+            "cached_status": "cached; not recalculated"
+          },
+          {
+            "address": "H3",
+            "type": "n (implicit)",
+            "formula": "1+2",
+            "cached": null,
+            "cached_status": "unknown; never invent 3"
+          },
+          {
+            "address": "C5",
+            "type": "inlineStr",
+            "raw": "",
+            "explicit_empty": true
+          },
+          {
+            "address": "E5",
+            "type": "n (implicit)",
+            "raw": "9007199254740993",
+            "precision": "exact decimal source; beyond f64 consecutive integer range"
+          }
+        ],
+        "sparse_absences": "all other cells in dimension absent; no fabricated source cells"
+      },
+      {
+        "name": "Hidden Ω",
+        "state": "hidden",
+        "part": "xl/worksheets/sheet2.xml",
+        "cells": [
+          {
+            "address": "A1",
+            "type": "inlineStr",
+            "raw": "Hidden retained"
+          }
+        ]
+      },
+      {
+        "name": "Empty",
+        "state": "visible (default)",
+        "part": "xl/worksheets/sheet3.xml",
+        "cells": []
+      }
+    ]
+  },
+  "existing_email": {
+    "headers": {
+      "from": "Mira <mira@example.test>",
+      "to": "Operations <ops@example.test>",
+      "subject": "Harbor pilot – review",
+      "date": "Tue, 06 Oct 2026 16:20:00 +0300",
+      "message_ids": [
+        "<harbor-single@example.test>",
+        "<harbor-plural@example.test>"
+      ]
+    },
+    "plain_bytes_utf8": "Please review the attached Harbor pilot. Extend to Pier B after inspection.\r\n",
+    "html_bytes_utf8": "<html><body><p>Water use fell 40%.</p><img src=\"cid:water-evidence\"><p>See attached decision.</p></body></html>\r\n",
+    "mime_order": [
+      "mixed",
+      "alternative",
+      "text/plain",
+      "related",
+      "text/html",
+      "image/png inline-water.png CID water-evidence",
+      "DOCX harbor.docx",
+      "XLSX forecast.xlsx (plural only)"
+    ],
+    "payload_binding": "Embedded PNG/DOCX/XLSX payload bytes equal the separately hashed fixtures. XLSX attachment is currently unprocessed, not silently discarded.",
+    "candidate_header_projection": "Mailbox address and Message-ID inner token may omit RFC wrapper syntax; raw header/date inventory is separate."
+  },
+  "authored_email": {
+    "generation": "Exact 8bit UTF8 + base64 MIME in driver.rs::email/NESTED",
+    "decoded_headers": {
+      "from_name": "Mira Ω",
+      "from_address": "mira@example.test",
+      "to_name": "Team",
+      "to_address": "team@example.test",
+      "subject": "Résumé Ω",
+      "date": "Sat, 17 Oct 2026 12:00:00 +0300",
+      "message_id": "synthetic@example.test",
+      "X-Trace": [
+        "first",
+        "second"
+      ]
+    },
+    "body_plain": "Plain Ω\r\n\r\nSecond line\r\n",
+    "body_html": "<p>HTML Ω</p><p>Second line</p>\r\n",
+    "attachments_order": [
+      {
+        "name": "dup.bin",
+        "type": "application/octet-stream",
+        "bytes_utf8": "alpha",
+        "current_status": "unprocessed"
+      },
+      {
+        "name": "dup.bin",
+        "type": "application/octet-stream",
+        "bytes_utf8": "beta",
+        "current_status": "unprocessed"
+      },
+      {
+        "name": "child.eml",
+        "type": "message/rfc822",
+        "payload_source": "NESTED exact constant",
+        "child_message_id": "child@example.test",
+        "child_plain": "Nested body Ω\r\n"
+      }
+    ],
+    "scope": "Duplicate names are distinct occurrences under outer message; nested body belongs to child, not a guessed outer source. No remote resources."
+  },
+  "text_markdown": {
+    "vectors": "Nine exact valid UTF8 vectors in driver.rs::fixtures, plus invalid UTF8 ff and NUL a00b controls. Driver literals are the full byte oracle.",
+    "required_current": "UTF8 verbatim; preserve CRLF, BOM, combining Unicode, blank lines, trailing newline, markup, fences and destinations exactly.",
+    "current_rejections": {
+      "invalid_utf8": "Invalid",
+      "NUL": "Budget"
+    },
+    "prepared_route": "Unsupported; current public Converter::prepare reports Invalid for Text and Markdown.",
+    "no_normalization_or_markdown_reparse": true
+  },
+  "html_control": {
+    "source_utf8": "<p>Alpha text.</p><p>Beta text.</p>",
+    "semantic_paragraphs": [
+      "Alpha text.",
+      "Beta text."
+    ],
+    "qualification": "Only textual component/profile and this source-bound union control; rich prepared HTML adoption remains open."
+  },
+  "missing_public_fields_to_measure": [
+    "Xberg unified EmailMetadata omits raw attachment payloads/per-part IDs/parent/CID and exact repeated raw headers; private EmailExtractionResult is not callable authority.",
+    "Xberg GridCell has no typed formula/cache/type/address field; metadata strings remain EvidenceOnly, never parsed back into provenance.",
+    "Current prepared XLSX has sparse cells/format metadata but no page raster previews; record actual API absence, not invented parity."
+  ],
+  "observed_behavior": "UNEXECUTED at this authored freeze"
+}

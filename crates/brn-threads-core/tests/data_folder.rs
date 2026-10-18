@@ -94,3 +94,58 @@ fn a_symlinked_path_is_refused_by_name() {
         assert!(!folder.exists());
     }
 }
+
+#[cfg(unix)]
+#[test]
+fn skills_sidecar_directory_is_narrowly_admitted_and_non_directories_refused() {
+    let root = temp();
+    let folder = root.path().join("data");
+    drop(Store::open(&folder).unwrap());
+    let sidecar = folder.join("skills");
+    std::fs::create_dir(&sidecar).unwrap();
+    std::fs::write(
+        sidecar.join("owner-config"),
+        "untouched local configuration",
+    )
+    .unwrap();
+    drop(Store::open(&folder).expect("literal real skills directory must survive reopen"));
+    drop(Store::open_existing_without_upgrade(&folder).unwrap());
+    assert_eq!(
+        std::fs::read_to_string(sidecar.join("owner-config")).unwrap(),
+        "untouched local configuration"
+    );
+    assert!(!sidecar.join(".brn-skill-packages").exists());
+    std::fs::remove_dir_all(&sidecar).unwrap();
+    let database = folder.join(brn_threads_core::DATABASE_FILENAME);
+    for kind in ["file", "symlink", "unrelated"] {
+        let before = std::fs::read(&database).unwrap();
+        let external = root.path().join(format!("external-{kind}"));
+        std::fs::create_dir(&external).unwrap();
+        std::fs::write(external.join("canary"), "outside owner bytes").unwrap();
+        let path = if kind == "unrelated" {
+            folder.join("foreign-folder")
+        } else {
+            sidecar.clone()
+        };
+        match kind {
+            "file" => std::fs::write(&path, "owner file").unwrap(),
+            "symlink" => std::os::unix::fs::symlink(&external, &path).unwrap(),
+            _ => std::fs::create_dir(&path).unwrap(),
+        }
+        assert!(Store::open(&folder).is_err(), "{kind}");
+        assert!(
+            Store::open_existing_without_upgrade(&folder).is_err(),
+            "{kind}"
+        );
+        assert_eq!(std::fs::read(&database).unwrap(), before);
+        assert_eq!(
+            std::fs::read_to_string(external.join("canary")).unwrap(),
+            "outside owner bytes"
+        );
+        if kind == "unrelated" {
+            std::fs::remove_dir(&path).unwrap();
+        } else {
+            std::fs::remove_file(&path).unwrap();
+        }
+    }
+}

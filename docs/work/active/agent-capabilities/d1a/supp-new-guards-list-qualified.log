@@ -1,0 +1,642 @@
+[
+  {
+    "diff": "--- crates/brn-ai/src/threads.rs\n+++ replace record_note_prefix with ()\n@@ -671,22 +671,17 @@\n             .map(|(_, activity)| *activity)\n     })\n }\n /// Tools registered only when the run has host search.\n pub fn search_tool_names() -> Vec<&'static str> {\n     SEARCH_TOOLS.iter().map(|(name, _)| *name).collect()\n }\n fn record_note_prefix(row: &mut Value, prefix: &str) {\n-    let total = row[\"note_read\"][\"total_bytes\"].as_u64().unwrap_or_default() as usize;\n-    row[\"data\"][\"Note\"][\"markdown\"] = json!(prefix);\n-    row[\"truncated\"] = json!(prefix.len() < total);\n-    row[\"note_read\"][\"end\"] = json!(prefix.len());\n-    row[\"note_read\"][\"next_start\"] = json!((prefix.len() < total).then_some(prefix.len()));\n-    row[\"note_read\"][\"complete\"] = json!(prefix.len() == total);\n+    () /* ~ changed by cargo-mutants ~ */\n }\n fn bounded_record_output(rows: Vec<Value>) -> AiResult<Value> {\n     // Only already-visible eligible rows reach this function. IDs/versions of\n     // omitted rows are bounded by the existing 100-row limit and permit retry.\n     let omitted = rows\n         .iter()\n         .map(|r| json!({\"id\":r[\"id\"],\"version\":r[\"version\"]}))\n         .collect::<Vec<_>>();\n",
+    "file": "crates/brn-ai/src/threads.rs",
+    "function": {
+      "function_name": "record_note_prefix",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 685
+        },
+        "start": {
+          "column": 1,
+          "line": 678
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads.rs:679:5: replace record_note_prefix with ()",
+    "package": "brn-ai",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 684
+      },
+      "start": {
+        "column": 5,
+        "line": 679
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field origin from struct crate::AiFailureDetail expression in result_failure\n@@ -105,17 +105,17 @@\n             }\n             .into(),\n         ),\n         ..Default::default()\n     })\n }\n pub(super) fn result_failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n-        origin: \"context_budget\".into(),\n+         /* ~ changed by cargo-mutants ~ */\n         code: Some(\"brn_tool_result_admission_exceeded\".into()),\n         ..Default::default()\n     })\n }\n pub(super) fn exhausted_failure(budget: Budget, cause: u16) -> AiError {\n     if cause == 2 {\n         result_failure()\n     } else {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "result_failure",
+      "return_type": "-> AiError",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 117
+        },
+        "start": {
+          "column": 1,
+          "line": 111
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:113:9: delete field origin from struct crate::AiFailureDetail expression in result_failure",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 113
+      },
+      "start": {
+        "column": 9,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete field code from struct crate::AiFailureDetail expression in result_failure\n@@ -106,17 +106,17 @@\n             .into(),\n         ),\n         ..Default::default()\n     })\n }\n pub(super) fn result_failure() -> AiError {\n     AiError::new(AiErrorKind::Other).with_detail(crate::AiFailureDetail {\n         origin: \"context_budget\".into(),\n-        code: Some(\"brn_tool_result_admission_exceeded\".into()),\n+         /* ~ changed by cargo-mutants ~ */\n         ..Default::default()\n     })\n }\n pub(super) fn exhausted_failure(budget: Budget, cause: u16) -> AiError {\n     if cause == 2 {\n         result_failure()\n     } else {\n         failure(budget)\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "result_failure",
+      "return_type": "-> AiError",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 117
+        },
+        "start": {
+          "column": 1,
+          "line": 111
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:114:9: delete field code from struct crate::AiFailureDetail expression in result_failure",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 114
+      },
+      "start": {
+        "column": 9,
+        "line": 114
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with None\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    None /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with None",
+    "package": "brn-ai",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 133
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with Some(String::new())\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    Some(String::new()) /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(String::new())",
+    "package": "brn-ai",
+    "replacement": "Some(String::new())",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 133
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())\n@@ -125,38 +125,17 @@\n /// Rig 0.44 structured JSON is one JSON content block, serialized exactly\n /// once as its content list. This is a bounded encoded-result estimate,\n /// including the same 1KiB surcharge as the admission hook, not token proof.\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n-    if fits(text) {\n-        return Some(text.to_owned());\n-    }\n-    if !fits(\"\") {\n-        return None;\n-    }\n-    let boundaries = text\n-        .char_indices()\n-        .map(|(start, _)| start)\n-        .chain(std::iter::once(text.len()))\n-        .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n-        if fits(&text[..boundaries[mid]]) {\n-            low = mid;\n-        } else {\n-            high = mid - 1;\n-        }\n-    }\n-    let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    Some(\"xyzzy\".into()) /* ~ changed by cargo-mutants ~ */\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:133:5: replace fit_prefix -> Option<String> with Some(\"xyzzy\".into())",
+    "package": "brn-ai",
+    "replacement": "Some(\"xyzzy\".into())",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 133
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in fit_prefix\n@@ -128,17 +128,17 @@\n pub(super) fn result_fits(value: &Value) -> bool {\n     estimate(&rig::tool::ToolOutput::json(value.clone())) <= RESULT\n }\n /// Existing bounded read text only; never changes an admitted transcript.\n pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Option<String> {\n     if fits(text) {\n         return Some(text.to_owned());\n     }\n-    if !fits(\"\") {\n+    if  /* ~ changed by cargo-mutants ~ */fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:136:8: delete ! in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 136
+      },
+      "start": {
+        "column": 8,
+        "line": 136
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -136,17 +136,17 @@\n     if !fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n+    let (mut low, mut high) = (0, boundaries.len() + /* ~ changed by cargo-mutants ~ */ 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with + in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 144
+      },
+      "start": {
+        "column": 52,
+        "line": 144
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -136,17 +136,17 @@\n     if !fits(\"\") {\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n-    let (mut low, mut high) = (0, boundaries.len() - 1);\n+    let (mut low, mut high) = (0, boundaries.len() / /* ~ changed by cargo-mutants ~ */ 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:144:52: replace - with / in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 144
+      },
+      "start": {
+        "column": 52,
+        "line": 144
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with == in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low == /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with == in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 145
+      },
+      "start": {
+        "column": 15,
+        "line": 145
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with > in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low > /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with > in fit_prefix",
+    "package": "brn-ai",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 145
+      },
+      "start": {
+        "column": 15,
+        "line": 145
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace < with <= in fit_prefix\n@@ -137,17 +137,17 @@\n         return None;\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n-    while low < high {\n+    while low <= /* ~ changed by cargo-mutants ~ */ high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:145:15: replace < with <= in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 145
+      },
+      "start": {
+        "column": 15,
+        "line": 145
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace + with - in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low - /* ~ changed by cargo-mutants ~ */ (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with - in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 146
+      },
+      "start": {
+        "column": 23,
+        "line": 146
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace + with * in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low * /* ~ changed by cargo-mutants ~ */ (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:146:23: replace + with * in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 146
+      },
+      "start": {
+        "column": 23,
+        "line": 146
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low + (high + /* ~ changed by cargo-mutants ~ */ low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with + in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 146
+      },
+      "start": {
+        "column": 31,
+        "line": 146
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -138,17 +138,17 @@\n     }\n     let boundaries = text\n         .char_indices()\n         .map(|(start, _)| start)\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n-        let mid = low + (high - low).div_ceil(2);\n+        let mid = low + (high / /* ~ changed by cargo-mutants ~ */ low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:146:31: replace - with / in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 146
+      },
+      "start": {
+        "column": 31,
+        "line": 146
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with + in fit_prefix\n@@ -142,17 +142,17 @@\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n-            high = mid - 1;\n+            high = mid + /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with + in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 150
+      },
+      "start": {
+        "column": 24,
+        "line": 150
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace - with / in fit_prefix\n@@ -142,17 +142,17 @@\n         .chain(std::iter::once(text.len()))\n         .collect::<Vec<_>>();\n     let (mut low, mut high) = (0, boundaries.len() - 1);\n     while low < high {\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n-            high = mid - 1;\n+            high = mid / /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n     (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:150:24: replace - with / in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 150
+      },
+      "start": {
+        "column": 24,
+        "line": 150
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ replace || with && in fit_prefix\n@@ -146,17 +146,17 @@\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    (!prefix.is_empty() && /* ~ changed by cargo-mutants ~ */ text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:154:25: replace || with && in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 154
+      },
+      "start": {
+        "column": 25,
+        "line": 154
+      }
+    }
+  },
+  {
+    "diff": "--- crates/brn-ai/src/threads_context_budget.rs\n+++ delete ! in fit_prefix\n@@ -146,17 +146,17 @@\n         let mid = low + (high - low).div_ceil(2);\n         if fits(&text[..boundaries[mid]]) {\n             low = mid;\n         } else {\n             high = mid - 1;\n         }\n     }\n     let prefix = &text[..boundaries[low]];\n-    (!prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n+    ( /* ~ changed by cargo-mutants ~ */prefix.is_empty() || text.is_empty()).then(|| prefix.to_owned())\n }\n pub(super) fn is_limit(error: &AiError) -> bool {\n     error.is_context_limit()\n }\n fn estimate(value: &impl serde::Serialize) -> usize {\n     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))\n }\n fn initial_estimate(scope: &Scope, input: &str) -> usize {\n",
+    "file": "crates/brn-ai/src/threads_context_budget.rs",
+    "function": {
+      "function_name": "fit_prefix",
+      "return_type": "-> Option<String>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 131
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "crates/brn-ai/src/threads_context_budget.rs:154:6: delete ! in fit_prefix",
+    "package": "brn-ai",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 154
+      },
+      "start": {
+        "column": 6,
+        "line": 154
+      }
+    }
+  }
+]

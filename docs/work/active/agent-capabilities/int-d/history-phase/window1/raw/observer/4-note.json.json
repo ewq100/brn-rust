@@ -1,0 +1,7 @@
+{
+  "source_path": "/private/tmp/brn-int-d-history-preflight-20261017-39a67e4f/observations/4-note.json",
+  "sha256": "c0f4aa668ef686118e3f70a5e47dc971d5f8fcd8d2ffbad1d24e8449381f75b8",
+  "bytes": 345,
+  "encoding": "utf-8, reversible original bytes",
+  "text": "{\n  \"command\": [\n    \"/private/tmp/brn-int-d-history-opus1-20261017-target/debug/brn\",\n    \"--json\",\n    \"--data-dir\",\n    \"/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r2/control\",\n    \"--timeout\",\n    \"2\",\n    \"read\",\n    \"--id\",\n    \"6c41a85e-c75c-4839-a2b6-ed14d1fb4e6f:0\"\n  ],\n  \"exit\": 0,\n  \"python_timeout_seconds\": 3\n}\n"
+}

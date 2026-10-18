@@ -1,0 +1,43 @@
+{
+  "id": "M01",
+  "controller_verdict_retained": "NO_VERDICT",
+  "controller_matcher_was_too_specific": "general export leaked INTW_P1_TITLE",
+  "audited_verdict": "CAUGHT",
+  "reason": "Successful mutated compile and failure at the exact frozen general-export private-marker assertion; generated private ID reported before the title in this run. No additional execution or variant.",
+  "actual_failure_location": "crates/brn-threads-app/tests/cw2_review.rs:1213:21",
+  "actual_failure_message": "general export leaked 68f0eb78-a954-48f8-bb75-8077cfe659ff:0",
+  "checked_source_sha256": "6c6d0daa68655aa84d5ca2b0d04c580f61bc0ad666744baaeaed56c2e136b003",
+  "allowed_marker_sources": [
+    "INTW_P1_BRIEF",
+    "INTW_P1_TITLE",
+    "INTW_P1_BODY",
+    "INTW_P1_SOURCE_LABEL",
+    "private_source_id",
+    "reference_id",
+    "setup_id"
+  ],
+  "specific_generated_id_kind_not_identified": true,
+  "no_claim_later_title_body_assertions_reached": true,
+  "raw_log_sha256": "019d99ab2a1971f6ce15fc91fe511ca5a703662a01d2cc2ee3cc08eb40d1236c",
+  "baseline_app_counts": [
+    [
+      1,
+      0,
+      0,
+      2
+    ]
+  ],
+  "baseline_native_counts": [
+    [
+      1,
+      0,
+      0,
+      288
+    ]
+  ],
+  "final_verdicts": {
+    "M01": "CAUGHT",
+    "M02": "CAUGHT",
+    "M03": "CAUGHT"
+  }
+}

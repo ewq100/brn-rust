@@ -1,0 +1,248 @@
+{
+  "actual_precommit_HEAD": "28fd322d3a1712647a196a34c03297839c1786cf",
+  "approved_material": "d252a505db0b2d96d3584746f92cc7401ece472a",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d2-20261017",
+  "checks": [
+    {
+      "label": "opus1-low-authority",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::continuation_tests::retained_claims_and_operation_reference_never_inherit_a_protected_edit_grant",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-q5udf_e1",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 101,
+      "seconds": 14.054523944854736,
+      "counts": {
+        "passed": 0,
+        "failed": 1,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-authority.json",
+      "receipt_sha256": "c57c591e4b57753300a6d2b02aa8ecf8e6ecfc5c457c94b7b68dcd51d90f30f4",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-authority.log",
+      "log_sha256": "836456144dc99e7cb56cacc50089d5770545ae2a1105521e1a225700c7c44207",
+      "source_unchanged": true
+    },
+    {
+      "label": "opus1-low-authority-json",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::continuation_tests::retained_claims_and_operation_reference_never_inherit_a_protected_edit_grant",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-lqlzhw76",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 0,
+      "seconds": 11.788164854049683,
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-authority-json.json",
+      "receipt_sha256": "1d6554d18bd1c1a8a97da339e738e3b7b45632128a23ebb4d790b10fb2bca862",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-authority-json.log",
+      "log_sha256": "6ae991f326e7bbfad793b06b20b006ba507a93efc2936e0e7faafff43a255691",
+      "source_unchanged": true
+    },
+    {
+      "label": "opus1-low-d2",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::continuation_tests",
+        "--",
+        "--nocapture"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-qv7h9cn9",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 0,
+      "seconds": 0.5646729469299316,
+      "counts": {
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0
+      },
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-d2.json",
+      "receipt_sha256": "973e8a90ecf9099e286f042d5077e9e90f7e2b1745237e13ebd54fe13487a890",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-d2.log",
+      "log_sha256": "b188d5e058d76042d6f35b6dbfc22e896f9395cb69a7335275e7006aad1c9f94",
+      "source_unchanged": true
+    },
+    {
+      "label": "opus1-low-ai-full",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-vsrz1s9t",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 0,
+      "seconds": 3.9907820224761963,
+      "counts": {
+        "passed": 430,
+        "failed": 0,
+        "ignored": 1
+      },
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-ai-full.json",
+      "receipt_sha256": "c82fa424393db4ffaab146edeab44f6a3e54abecccfd520382d919269194a2b3",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-ai-full.log",
+      "log_sha256": "6c9c806b18eae627870a97262d5310c0312c1350506e4a8669c63b85dd515eee",
+      "source_unchanged": true
+    },
+    {
+      "label": "opus1-low-clippy",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--all-targets",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-k5c7q0ym",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 0,
+      "seconds": 4.353582143783569,
+      "counts": null,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-clippy.json",
+      "receipt_sha256": "1a54adb7f29b153cfaacc663733441d0967b8afd66db0ebc77a9d318bd3784e7",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-clippy.log",
+      "log_sha256": "83da13c96fcf89dd445865228d6c34a54994199f7dd3f572165b589265c796e0",
+      "source_unchanged": true
+    },
+    {
+      "label": "opus1-low-fmt",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+      "target": "/private/tmp/brn-d2-20261017-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d2-synthetic-j739p4el",
+      "CARGO_INCREMENTAL": "0",
+      "exit": 0,
+      "seconds": 1.2163150310516357,
+      "counts": null,
+      "receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-fmt.json",
+      "receipt_sha256": "3207043de79930d6d6c32d7fc1f3da32d9f3dfbd8f5eeb8999457dd63d8f744b",
+      "log": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_unchanged": true
+    }
+  ],
+  "final_changed_sha256": {
+    "crates/brn-ai/src/threads_continuation.rs": "3fdbe277db8961318cd5106da87fa1e284ea4682c645c152c4ef3bcea26ae94b",
+    "crates/brn-ai/src/threads_continuation_tests.rs": "cc02dc9e62328913c1aa98eaf39ce12cd109666c597ca394d1c015c3aba62697",
+    "docs/architecture/threads-behavior.md": "e7f8481b47d0aad6600291ca06b99de7517484f530ce01f3d10d18e6ee654d90"
+  },
+  "approved_logic_proof": {
+    "module_after_stripping_only_schema_description_fields": "byte-identical to d252",
+    "outside_one_existing_authority_test": "byte-identical to d252",
+    "other_material_files_exact_approved_hashes": 288,
+    "threads_rs_and_all_other_production": "unchanged"
+  },
+  "actual_artifacts": {
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-28a197b27edef53b": {
+      "sha256": "ec2aa8a631425be0daf47bfea5d677ae26cb2010906845370464cd7575e967a0",
+      "bytes": 32363824,
+      "mtime_ns": 1792193211512158377
+    },
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-7780f66779edfed8.d": {
+      "sha256": "696040d89b95ea15b8858aaf339c66473637489f64dee826c0fc0499cb1424cb",
+      "bytes": 3491,
+      "mtime_ns": 1792193228873860440
+    },
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-7bcb3e17ffaaba72.d": {
+      "sha256": "0507bf8b64fe07f2afe534c2cb8e6b9a0e3bfff931febd560f937c596051e16a",
+      "bytes": 4501,
+      "mtime_ns": 1792192171838637141
+    },
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-bff0b032038c666e.d": {
+      "sha256": "b8ff0c768abfe676313cd8296d3aed3e0c7649798cb10df8832f6f7ca81e4ebc",
+      "bytes": 4501,
+      "mtime_ns": 1792192225753733707
+    },
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-e4d00adab06771e7.d": {
+      "sha256": "cd8ca1f7b0882bf4306927d16c22f837c8ec8b7ae5dd85e65e0c25f2276c3e35",
+      "bytes": 7300,
+      "mtime_ns": 1792193229237720481
+    },
+    "/private/tmp/brn-d2-20261017-target/debug/deps/brn_ai-28a197b27edef53b.d": {
+      "sha256": "182c5d65283596f46df7cdc29f99d8b8a337a9b8edcffd634ff0331cbeb3419d",
+      "bytes": 7162,
+      "mtime_ns": 1792193201379488727
+    }
+  },
+  "artifact_compile_receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-authority-json.json",
+  "artifact_final_suite_receipt": "/private/tmp/brn-d2-20261017-artifacts/opus1-low-ai-full.json",
+  "preserved_initial_failure": "compiled0/1; new fixture assumed text, actual Rig ToolResultContent is structured Json{value}; only assertion corrected, original guards/assertions intact",
+  "full_report_sha256": "cbefe53e6be3f950bd03bfef95793d0d8c73709bc239ece875096a43ebcb18c0",
+  "qualification": "single1/0;D2focused11/0;fullAI430/0/1;affectedAIalltargetClippy/fmtPASS; unchangedcore/app/CLI priorpin counts not relabelled",
+  "D2_mutation": "explicit conditional grant AFTER new immutable pin; not started yet; one300secondcap/fourfixedguards",
+  "prior_D1A_D1B_budgets": "CLOSED/no transfer",
+  "no_new_source_review_claim": "originalOpus1approvedd252source;principal reviews final description/assertion/doc precision delta"
+}

@@ -1,0 +1,22 @@
+{
+  "task": "int-d-offline-prepare-diagnostic-20261017",
+  "material_pin": "c558aadc1de495f98e04894c9ebd24a93b508fa5",
+  "crates_tree": "60c3b06b11a7dc94a33fa2386f84ab7c0ed4adec",
+  "compiled_inputs_verified": 333,
+  "current_scripts_unchanged": 3,
+  "original_live_artifact_copies_verified": true,
+  "passing_test_artifact_and_depinfo_preserved": true,
+  "failed_test_artifact_and_depinfo_preserved": true,
+  "all_owned_sessions_reaped": [
+    56264,
+    49432,
+    86996,
+    52107,
+    90707
+  ],
+  "precise_heavy_target_controller_inventory": [],
+  "provider_auth_network_starts": 0,
+  "new_mutations": 0,
+  "release": "EXPLICITLY RELEASE sole heavy slot and ALL allocated diagnostic test/doc paths to principal. No production change, no additional provider start, fixture-generator/live preflight or source edit. Source frozen; docs-only handoff commit follows.",
+  "timestamp": 1792246848.098654
+}

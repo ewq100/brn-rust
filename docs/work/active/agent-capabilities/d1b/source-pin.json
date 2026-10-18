@@ -1,0 +1,14 @@
+{
+  "source_pin": "a6736855ea5bc6af7406cf433bf60a08217a6d36",
+  "tree": "0caa013591e2274963ba491d4f57d54f5dea596b",
+  "crates": "65791a04de361ca0cbe6635cd81fb3fb26d3f346",
+  "base": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+  "branch": "work/d1b-20261017",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "precommit_receipt": "/private/tmp/brn-d1b-20261017-artifacts/pin-precommit.json",
+  "precommit_receipt_sha256": "aa05fa409d4a5c1a9964fe322aa097eb17f3dcec676be04be3988d856e9c7785",
+  "actual_status_after_pin": "",
+  "self_checks": "AI407/0/1; core15/0/0; CLI161/0/0; app5/0/0; helper/default build, strict workspace all-target Clippy and fmt PASS; capability410/0/1; workspace1129/1PDFUnavailable/6 across94summaries",
+  "review": "PENDING principal-owned fresh Opus",
+  "D1B_mutation": "NOT STARTED"
+}

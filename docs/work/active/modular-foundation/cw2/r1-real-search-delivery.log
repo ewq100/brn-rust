@@ -1,0 +1,11 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 6.60s
+     Running tests/cw2_review.rs (/private/tmp/brn-cw2-20261016-target/debug/deps/cw2_review-d4d0c2da036154fd)
+
+running 2 tests
+test general_writing_uses_real_search_counts_and_never_delivers_new_private_retained_material ... ok
+test scripted_private_sources_have_separate_import_read_claims_and_owner_apply_rechecks_access ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+

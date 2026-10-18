@@ -1,0 +1,8 @@
+{
+  "actual_target": "/private/tmp/brn-int-dordinary-prepare-20261017-target",
+  "required_target": "/private/tmp/brn-int-d-ordinary-prepare-20261017-target",
+  "attempt_stopped_exit": -15,
+  "test_executed": false,
+  "evidence": "No Running or test-result line; dependency compilation interrupted; owned group empty",
+  "receipt": "q1-exact/receipt.json"
+}

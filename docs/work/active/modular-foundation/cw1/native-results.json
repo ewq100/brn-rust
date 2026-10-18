@@ -1,0 +1,118 @@
+[
+  {
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 9.73,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/native-00.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 4.497,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/native-01.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 15.216,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/native-02.log",
+    "counts": [
+      95,
+      0,
+      0
+    ],
+    "test_targets": 1
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 3.663,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/native-03.log",
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "test_targets": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui,native-test-support",
+      "--bin",
+      "brn-desktop",
+      "threads_ui::",
+      "--locked",
+      "--offline"
+    ],
+    "exit": 0,
+    "seconds": 19.017,
+    "log": "/private/tmp/brn-cw1-20261016-evidence/native-04.log",
+    "counts": [
+      306,
+      0,
+      1
+    ],
+    "test_targets": 1
+  }
+]

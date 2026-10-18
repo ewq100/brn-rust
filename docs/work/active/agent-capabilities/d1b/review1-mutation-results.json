@@ -1,0 +1,330 @@
+{
+  "source_pin": "a94b9c995f35715d41a285073617f3a253746bb1",
+  "selection": "Six fixed priority guards only; no broad restart",
+  "baseline": "419passed/0failed/1ignoredPASS",
+  "outcome_counts": {
+    "caught": 6
+  },
+  "results": [
+    {
+      "id": "baseline",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--tests",
+        "--locked",
+        "--offline"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-msvnyof9",
+      "start": 1792190260.424984,
+      "process_group": 13473,
+      "exit": 0,
+      "seconds": 49.429126024246216,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/baseline.log",
+      "log_sha256": "2e64043fed3e7f237753a6d3baa85ba2aee887865c12a0eee26ffd46eaab9089",
+      "summaries": [
+        [
+          "ok",
+          "419",
+          "0",
+          "1"
+        ]
+      ],
+      "outcome": "PASS",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/baseline.json",
+      "receipt_sha256": "d1eb7965a3985c6f860d8c016f3b47ba2f49a83679ef773daa1f41132bed150d"
+    },
+    {
+      "id": "R1-M02-digest-only",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::review1::well_formed_cache_digest_corruption_recomputes_with_other_stamps_unchanged",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-xe50aced",
+      "start": 1792190309.8559418,
+      "process_group": 17235,
+      "exit": 101,
+      "seconds": 12.13023829460144,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M02-digest-only.log",
+      "log_sha256": "894fe259e98f11895099374cb5acba71d5677ecbc8c1b82d6ce4be8dc06cbcec",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M02-digest-only.diff",
+      "diff_sha256": "bfb1c2dbdc731596bc8be2c571f4913d9094aed1afffae52a55507fa917544c9",
+      "changed_file_sha256": "af96da5c2e65edf2af32f08690b9856f0a060372e8a2e0e142b68b47ffda4dbe",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M02-digest-only.json",
+      "receipt_sha256": "d221896959c82ce847f830207b114385204fbf0ebc7c855036b7a97497fad8ee",
+      "durable_diff": "R1-M02-digest-only.diff"
+    },
+    {
+      "id": "R1-M07-unique-prior",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-9aun4xg9",
+      "start": 1792190321.988432,
+      "process_group": 17401,
+      "exit": 101,
+      "seconds": 13.636934995651245,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M07-unique-prior.log",
+      "log_sha256": "aafc6a80dc39841e0147b18e80042d87091581ae8feeb62d8b7466bf613d72c6",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M07-unique-prior.diff",
+      "diff_sha256": "212d158f5459d4d8043b515e118d27fcc5d9a8fd0bbc2852bf3d6d400ba3f85c",
+      "changed_file_sha256": "f022ef835b5363a9e3b10e4b20d291b3d56181120ac9f499d9b5797838dc2aff",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M07-unique-prior.json",
+      "receipt_sha256": "fcd22eb1e6c57cbf64216e5d4115020906133abab7e843fbe7793b8baa628886",
+      "durable_diff": "R1-M07-unique-prior.diff"
+    },
+    {
+      "id": "R1-M09-optional-admission",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::optional_summary_degrades_to_fitting_plain_input_then_dispatches",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-bs2hwi0x",
+      "start": 1792190335.626681,
+      "process_group": 17709,
+      "exit": 101,
+      "seconds": 13.311788082122803,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M09-optional-admission.log",
+      "log_sha256": "b7a19561c09d9586d39e25aa8f0f58dda984d0f6f6177d3edc5da64bc45f636a",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M09-optional-admission.diff",
+      "diff_sha256": "908e1767b8af9009f6a6e7aa3bbbb225d4a290fbc47ff429bddaa86093b37c9f",
+      "changed_file_sha256": "0cabc51309088aae5faf1adbe98aa6c0eeb628e64c1dcecda4fca02bd153ec9b",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M09-optional-admission.json",
+      "receipt_sha256": "dd0894846ca207b215f5538fb45a31c3d16f995fb8197f9042d9f53dad887e83",
+      "durable_diff": "R1-M09-optional-admission.diff"
+    },
+    {
+      "id": "R1-M10-chatgpt-rotation",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::review1::access_token_rotation_keeps_same_chatgpt_account_coverage",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-rzqetw40",
+      "start": 1792190348.940769,
+      "process_group": 18136,
+      "exit": 101,
+      "seconds": 12.438982963562012,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M10-chatgpt-rotation.log",
+      "log_sha256": "71e756d99f552ecd82cecbc8336f50aac69c0523ba06a3153f059a660c7bfdda",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M10-chatgpt-rotation.diff",
+      "diff_sha256": "f2e707e7eb39f599f5352c6f5404ddabf196b9fe04fd4d0161ac352762f4667d",
+      "changed_file_sha256": "50d79c5c94e2d5aa71ed17b3f137b0405e92bd09a36302379b726a9cfc238909",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M10-chatgpt-rotation.json",
+      "receipt_sha256": "3ee23e1bbf2a6515001a8644d526cf82752556ef98cfc4a51b61026762e74733",
+      "durable_diff": "R1-M10-chatgpt-rotation.diff"
+    },
+    {
+      "id": "R1-M11-copilot-rotation",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::review1::exchanged_copilot_rotation_reuses_bootstrap_but_account_switch_invalidates",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-zfjgt1m5",
+      "start": 1792190361.3828962,
+      "process_group": 18211,
+      "exit": 101,
+      "seconds": 12.220541954040527,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M11-copilot-rotation.log",
+      "log_sha256": "e0cf08e6053d9566195593906e80444a5d9f6bd937e9155f8ff117cd1d443806",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M11-copilot-rotation.diff",
+      "diff_sha256": "494a469623d737d22608e07d9d1f4f8dce9018420b3dbe25f0b0325fcb45da50",
+      "changed_file_sha256": "5f53d8e7ddc0444d698682b2d9a1834bb1cacb916a7a44b67e1a8196193781e2",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M11-copilot-rotation.json",
+      "receipt_sha256": "fb0c84f3588adc54ceab6f0acdae853d200348ef09fc224a6b8a5e07b1bd189d",
+      "durable_diff": "R1-M11-copilot-rotation.diff"
+    },
+    {
+      "id": "R1-M12-partial-refusal",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--lib",
+        "threads::summary_tests::review1::compactor_context_overflow_or_partial_refusal_never_retries_responses",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+      "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+      "TMPDIR": "/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-d1b-mutant-5fan6_uf",
+      "start": 1792190373.608047,
+      "process_group": 18265,
+      "exit": 101,
+      "seconds": 12.094619035720825,
+      "log": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M12-partial-refusal.log",
+      "log_sha256": "11ebe418b83167137b0c079f5a871b80d2da2671ed68c9e72f3a4a1fb9f05025",
+      "summaries": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "outcome": "caught",
+      "diff": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M12-partial-refusal.diff",
+      "diff_sha256": "ef1f17123417787abef4c9fa6cefeaed29d3431868075818d9ddd1bab509a36c",
+      "changed_file_sha256": "a381fb0cedecb607f4bd5c54926cfbf2270bf82b6631eac27cb043a4c02000c6",
+      "receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/R1-M12-partial-refusal.json",
+      "receipt_sha256": "d0f59fa9cf4778b6baa1fd67f30cdb8cb53eae22b9a3e1d2348f929d00d990cb",
+      "durable_diff": "R1-M12-partial-refusal.diff"
+    }
+  ],
+  "without_verdict": [],
+  "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+  "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+  "synthetic_git": "genuine local git init on exact pinned archive, no copied remotes/credentials/history",
+  "copied_material_restored": 288,
+  "candidate_material_frozen": 288,
+  "own_controller_and_child_inventory": [],
+  "heavy_executable_inventory": [],
+  "controller_receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/controller-final.json",
+  "controller_receipt_sha256": "aa8cd30d56c67da7597b87b2bdb77f154a5988f08e924dd304f1422bf1a43454",
+  "campaign_clock": {
+    "source_pin": "a94b9c995f35715d41a285073617f3a253746bb1",
+    "prior_charged": 534.402553319931,
+    "original_remaining": 1265.597446680069,
+    "original_total": 1800,
+    "start_epoch_conservative": 1792190163.530546,
+    "original_deadline_epoch": 1792191429.1279926,
+    "useful_supplement_timebox_deadline": 1792190523.530546,
+    "source": "/private/tmp/brn-d1b-20261017-review1-mutant-source",
+    "target": "/private/tmp/brn-d1b-20261017-review1-mutant-target",
+    "scope": "M02/M07 + optional admission/ChatGPT account/Copilot account/partial retry; six fixed variants maximum; no broad restart",
+    "all_setup_planning_baseline_controller_restore_cleanup_charged": true
+  },
+  "final_charged_at_release": "See final-release.json after remaining evidence/cleanup; controller-final time is intermediate only",
+  "original_verdicts": "a6736caught/2MISSED remain unchanged; M02/M07 newly caught only at a94 with strengthened fixtures",
+  "qualification": "Not a full campaign/source acceptance or live/semantic superiority claim; no mutation defect/source edits"
+}

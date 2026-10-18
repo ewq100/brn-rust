@@ -1,0 +1,20 @@
+{
+  "pin": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "tree": "7f5adc7e42e60a0e26175cc52246c759f6c6b397",
+  "crates_tree": "a4ec992fc808b1f92245f4b418cfbcfca0a985d8",
+  "source_fingerprints_match_actual_tested_wip": true,
+  "tested_precommit_head": "202bf2d747bca6fab16a9fffdfa55c45d24bd7eb",
+  "test_command_actual_diff_sha256": "4d57e76fbed38015a33011a1f761ddd32074cb5a6088c671f45b9741daaf2122",
+  "empty_own_process_receipt": [],
+  "released_epoch": 1792181135.4651468,
+  "heavy_slot": "EXPLICITLY RELEASED to principal before mutation supplement",
+  "mutation_used_seconds": 426.87080216407776,
+  "mutation_remaining_seconds": 1373.1291978359222,
+  "mutation_supplement_started": false,
+  "material_source_and_authored_markdown_whitespace_check_exit": 0,
+  "full_diff_whitespace_check_exit": 2,
+  "full_diff_whitespace_note": "raw captured test logs end in blank lines; exact archived material-source.diff contains literal diff context blank lines. Preserved raw evidence bytes/hashes, not normalized. Full raw check warnings retained separately.",
+  "status_at_pin": [
+    "?? docs/work/active/agent-capabilities/d1a/review1-raw-evidence-whitespace.log"
+  ]
+}

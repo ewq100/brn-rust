@@ -1,0 +1,14 @@
+{
+  "base": "7dc8536040b8ea6ab38c708af87140f9a62857f5",
+  "only_changed_compiled_input": "crates/brn-ai/src/threads_int_d_tests.rs",
+  "existing_file_prefix_sha256": "42e867cdfabac13e002885252c51345d63288ac5548f4da7e56d43409ef10b8e",
+  "existing_file_prefix_unchanged": true,
+  "other_compiled_inputs_unchanged": 332,
+  "qualification_scripts_unchanged": 3,
+  "production_auth_core_native_manifests_lock_unchanged": true,
+  "failed_source": {
+    "full_source_sha256": "0ccf691b27d4479403ec88cd289bb90dc41f5a3bd7d6fad3d0d2e7047c857f4a",
+    "reconstruct_from_base_and_patch": "raw/initial-source.patch",
+    "patch_sha256": "7ab35651166183b5d32d7f116bdfaf9decef6070ff6cf0a455e2db8781d0c99e"
+  }
+}

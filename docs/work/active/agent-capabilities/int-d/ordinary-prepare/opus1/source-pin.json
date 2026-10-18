@@ -1,0 +1,59 @@
+{
+  "task": "int-d-ordinary-prepare-opus1-q1-20261017",
+  "pin": "3e04c71a35db8dcec59a217db89759b69587fa8d",
+  "tree": "eecd1e54286455d06cb525a10b6c93f3e2dad40b",
+  "crates_tree": "e4606498ce022f619fefcb37c116ecf40f2bc88d",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/int-d-20261017",
+  "all334_working_and_git_match": true,
+  "other333_equal_6b": true,
+  "only_rust_delta": "crates/brn-ai/src/threads_writing_tests.rs",
+  "production_unchanged": true,
+  "diffs": {
+    "material6b": {
+      "base": "6b18324de748b72313c0fa2989c1db3f0bcb20ea",
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/material6b..3e04c71a.diff",
+      "sha256": "91866839807d95beb8b099cb723ca14689f7f546fcc6b8995444bd6a1765c905",
+      "bytes": 303506
+    },
+    "handoffac565": {
+      "base": "ac565a34b4ed174bde29763fd683d5b62fa46d6b",
+      "path": "/private/tmp/brn-int-d-ordinary-prepare-opus1-q1-20261017/handoffac565..3e04c71a.diff",
+      "sha256": "14f30fb5abc1260d8b6bec2275461ec8472323f4765e959eca86c3bd823df196",
+      "bytes": 275781
+    }
+  },
+  "report_verbatim": true,
+  "preserved_artifact_copies_verified": true,
+  "own_process_groups": [
+    {
+      "label": "q1-exact",
+      "pid": 94841,
+      "pgid": 94841,
+      "remaining": []
+    },
+    {
+      "label": "format",
+      "pid": 95700,
+      "pgid": 95700,
+      "remaining": []
+    },
+    {
+      "label": "q1-exact-correct-target",
+      "pid": 95152,
+      "pgid": 95152,
+      "remaining": []
+    },
+    {
+      "label": "strict-ai",
+      "pid": 95580,
+      "pgid": 95580,
+      "remaining": []
+    }
+  ],
+  "heavy_inventory": [],
+  "unix": 1792256953.356432,
+  "source_frozen": true,
+  "no_live_auth_or_mutants": true,
+  "source_association": "Actual build at ac565+recorded WIP; association to pin via334 input equality, not relabelled buildHEAD."
+}

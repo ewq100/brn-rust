@@ -1,0 +1,13 @@
+{
+  "pin": "efc0e380fe3fb3ab872c8bfaa31fdfd1d41eaf65",
+  "tree": "9739fafc6515e760526cb020592b60c33be60358",
+  "crates_tree": "96a0fb445ab15cadbcc593672d4751bd92736d5c",
+  "status_at_pin": [],
+  "actual_tested_wip_precommit_head": "d3f67954ebf99086d1d295a50c270ce67fbd87f3",
+  "actual_tested_wip_diff_sha256": "104030b5d62415f904e49dab86ef7c37c93d3c3e815b9fb79e229e5a960442ef",
+  "source_fingerprints_match": true,
+  "mutation_prior_used": 426.87080216407776,
+  "mutation_remainder": 1373.1291978359222,
+  "review": "fresh principal-owned Opus3 pending",
+  "qualification": "AI386/0/1 core13/0/0 CLI161/0/0 strictaffectedClippy/fmt pass; fullworkspace/native/hosted not claimed"
+}

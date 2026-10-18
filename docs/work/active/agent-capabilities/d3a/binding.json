@@ -1,0 +1,31 @@
+{
+  "task": "D3a parse/validate/install/list/inspect/remove only",
+  "provider": "codex through T3",
+  "model": "gpt-6.1-sol",
+  "reasoning": "high",
+  "source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d3a-20261017",
+  "base": "59d1152b1f7576851365cc65d065ba43bb655228",
+  "base_crates": "cbe50a4242f410ad770c1c14d56216866e861962",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "initial_status": "clean",
+  "initial_heavy_processes": [],
+  "heavy": "explicit sole serial grant",
+  "mutation": "newD3a<=1800sec only afterpin; notstarted",
+  "prior_budgets": "closed/no transfer",
+  "owned_paths": [
+    "new brn-ai/src/skill_packages*.rs + tests",
+    "threads_guides.rs strict metadata seam; no runtime change",
+    "minimal brn-ai/lib.rs export",
+    "new app/skills.rs + minimal lib registration",
+    "CLI main/spec/help + focusedtests",
+    "agent/skill-examples/document-review",
+    "d3a docs + active summaries",
+    "new app/tests/skills.rs retention exclusion fixture",
+    "CLI README/main/spec/help + tests/skill_packages.rs",
+    "core/store.rs::open_with literal skills allowlist/type only; tests/data_folder.rs appended witness (principal exact additional allocation)",
+    "behavior/setup/verification/status + active agent plan/evidence summaries"
+  ],
+  "no_manifest_lock_schema_runtime_auth_changes": true,
+  "CLI_before_fixture_sha256": "c0ef0aadaa909c52c15897a73994bb8c76baa36d5d9790c06374f7f45412a671"
+}

@@ -1,0 +1,12 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.t3/worktrees/brn-rust/t3-3205580d/crates/brn-ai)
+error[E0451]: fields `query`, `limit`, `cursor` and `mode` of struct `SearchNotesArgs` are private
+   --> crates/brn-ai/src/threads_cw2_tests.rs:383:69
+    |
+383 | ...e_search::SearchNotesArgs { query: "Requirement".into(), limit: 5, cursor: None, mode: "keyword".into() }).await.unwrap();
+    |                                ^^^^^                        ^^^^^     ^^^^^^        ^^^^ private field
+    |                                |                            |         |
+    |                                |                            |         private field
+    |                                private field                private field
+
+For more information about this error, try `rustc --explain E0451`.
+error: could not compile `brn-ai` (lib test) due to 1 previous error

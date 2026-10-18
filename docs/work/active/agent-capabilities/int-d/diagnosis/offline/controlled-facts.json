@@ -1,0 +1,144 @@
+{
+  "cases": [
+    {
+      "mode": "absent",
+      "new_fixture_not_original_args": true,
+      "mock_model_requests": 3,
+      "prepare_calls": 1,
+      "prepare_outcomes": [
+        "success"
+      ],
+      "error_bytes": [],
+      "short_activity_writing": "absent",
+      "short_activity_inputs": [
+        {
+          "record": "e0e108ae-960c-4613-a594-f220ae3d1203:1",
+          "version": 2
+        },
+        {
+          "record": "8c4d7d0e-ba57-4918-a63d-6986049a02df:0",
+          "version": 1
+        },
+        {
+          "record": "8c4d7d0e-ba57-4918-a63d-6986049a02df:1",
+          "version": 1
+        }
+      ],
+      "long_activity_writing": "not exercised",
+      "long_activity_input_id_visible": null,
+      "typed_direct_error": null,
+      "registered_operations": 1,
+      "candidates": 1,
+      "note_and_its_receipts_unchanged": true,
+      "checked_stop": false
+    },
+    {
+      "mode": "null",
+      "new_fixture_not_original_args": true,
+      "mock_model_requests": 3,
+      "prepare_calls": 1,
+      "prepare_outcomes": [
+        "success"
+      ],
+      "error_bytes": [],
+      "short_activity_writing": "null",
+      "short_activity_inputs": [
+        {
+          "record": "25598a29-53e3-4337-9d4a-e562242974c0:1",
+          "version": 2
+        },
+        {
+          "record": "81beef07-2e9b-4a97-961a-3176cc45fff3:0",
+          "version": 1
+        },
+        {
+          "record": "81beef07-2e9b-4a97-961a-3176cc45fff3:1",
+          "version": 1
+        }
+      ],
+      "long_activity_writing": "not exercised",
+      "long_activity_input_id_visible": null,
+      "typed_direct_error": null,
+      "registered_operations": 1,
+      "candidates": 1,
+      "note_and_its_receipts_unchanged": true,
+      "checked_stop": false
+    },
+    {
+      "mode": "object",
+      "new_fixture_not_original_args": true,
+      "mock_model_requests": 4,
+      "prepare_calls": 2,
+      "prepare_outcomes": [
+        "error",
+        "error"
+      ],
+      "error_bytes": [
+        15,
+        15
+      ],
+      "short_activity_writing": "object",
+      "short_activity_inputs": [
+        {
+          "record": "ea12e8b9-8069-4ddd-bb66-99a22ec00382:1",
+          "version": 2
+        },
+        {
+          "record": "9c8dafef-d919-4045-ae3b-f1bbc178ed1e:0",
+          "version": 1
+        },
+        {
+          "record": "9c8dafef-d919-4045-ae3b-f1bbc178ed1e:1",
+          "version": 1
+        }
+      ],
+      "long_activity_writing": "not observable: truncated",
+      "long_activity_input_id_visible": [
+        false,
+        false,
+        false
+      ],
+      "typed_direct_error": "ToolRejected",
+      "registered_operations": 0,
+      "candidates": 0,
+      "note_and_its_receipts_unchanged": true,
+      "checked_stop": false
+    },
+    {
+      "mode": "stopped",
+      "new_fixture_not_original_args": true,
+      "mock_model_requests": 2,
+      "prepare_calls": 1,
+      "prepare_outcomes": [
+        "error"
+      ],
+      "error_bytes": [
+        15
+      ],
+      "short_activity_writing": "absent",
+      "short_activity_inputs": [
+        {
+          "record": "90b2daca-a081-49d4-903b-7a1e48b2e97e:1",
+          "version": 2
+        },
+        {
+          "record": "b8c6beb6-4913-429d-b7f6-d582b1bcb4ff:0",
+          "version": 1
+        },
+        {
+          "record": "b8c6beb6-4913-429d-b7f6-d582b1bcb4ff:1",
+          "version": 1
+        }
+      ],
+      "long_activity_writing": "not exercised",
+      "long_activity_input_id_visible": null,
+      "typed_direct_error": "ToolRejected",
+      "registered_operations": 0,
+      "candidates": 0,
+      "note_and_its_receipts_unchanged": true,
+      "checked_stop": true
+    }
+  ],
+  "historical_cause": "UNKNOWN",
+  "live_starts": 0
+}

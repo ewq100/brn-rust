@@ -1,0 +1,15 @@
+{
+  "task": "D4 outbound read-only MCP client",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "branch": "work/d4-20261017",
+  "base": "9a88a0a91195b3f5de810f2620ec6f7ed65cb890",
+  "cached_origin_main": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "initial_status": "clean",
+  "initial_heavy_inventory": "empty",
+  "target": "/private/tmp/brn-d4-20261017-target",
+  "authority": "D-M approved; initial qualification synthetic localhost HTTP and scripted providers only",
+  "mutation": "not granted; prior budgets closed"
+}

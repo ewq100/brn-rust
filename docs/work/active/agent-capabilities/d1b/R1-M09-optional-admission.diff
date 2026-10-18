@@ -1,0 +1,12 @@
+diff --git a/crates/brn-ai/src/threads_summary.rs b/crates/brn-ai/src/threads_summary.rs
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -705,7 +705,7 @@
+     }
+     prefix.push_str(&format!("Summary coverage: {covered}/{} coarse chunks. {}\n",evicted.len(),if gap {GAP} else {"Exact Message/receipt identities are host-validated; uncertain meaning must be checked at source."}));
+     prefix.push_str(&input);
+-    let omitted = context_budget::preflight(scope, &prefix).is_err();
++    let omitted = false;
+     let gap = result.is_err() || covered < evicted.len() || omitted;
+     let notice = if omitted {
+         Some(format!(

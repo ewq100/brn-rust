@@ -1,0 +1,703 @@
+{
+  "schema": "brn-final-integration-inventory/2",
+  "recorded": "2026-10-17",
+  "kind": "source-only static inventory; nothing compiled, tested, merged or published; Xberg all-document NOT done",
+  "refs": {
+    "base_bound": {
+      "sha": "73ea9ca777e00d348966e37e8402f3eb68ecb20b",
+      "tree": "74d6dfb216585787e3d913ee45117868a2d2ceb9",
+      "crates_tree": "bdc0a22a29e1aec741a78916ae5d0a7748531864",
+      "subject": "docs(x2): reconcile source audit and stage first HTML adapter",
+      "role": "work/final-integration-20261017 base; X2 docs commit; ancestor of everything on the capability line"
+    },
+    "x2_ref_now": {
+      "sha": "781c34dc466d6a6a210cdae4cf75e1096521c70d",
+      "tree": "665eb39a668f2787fc25e20bf50bb6ef81d9fab2",
+      "crates_tree": "bdc0a22a29e1aec741a78916ae5d0a7748531864",
+      "subject": "docs(x2): address parser admission and shared-lock review findings",
+      "role": "observed tip of work/x2-intake-20261017; docs-only after 73ea9ca7 (Opus3 review + first-html-slice corrections); crates tree unchanged"
+    },
+    "int_w_head": {
+      "sha": "d2d84e665e64de14a15f4704eb0868c553c2885a",
+      "tree": "0812db149b5e64bc075d879a6a06f8a3819a109a",
+      "crates_tree": "9097bafba6c0261ae14a1dee9da129d1f94fa0d1",
+      "subject": "docs: retain final INT-W guard budget confirmation",
+      "role": "work/int-w-20261017 HEAD; checkout t3-239c29dc, clean",
+      "source_pin": "0efd73f1c9269cce87f72ad1881d0a31df65f470",
+      "source_pin_tree": "958e9852f0cf336e3c0a62c01dae4a13cd05cc4f",
+      "source_pin_crates": "9097bafba6c0261ae14a1dee9da129d1f94fa0d1"
+    },
+    "origin_main_cached": {
+      "sha": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+      "tree": "dee42ffbd007e411ce6c38d04e971ada076f1d66",
+      "crates_tree": "b3d5a45b9cec552b4bd7aaba9a238c5e75966797",
+      "subject": "Merge pull request #158 from ewq100/docs/strategic-programming-2026-10-17",
+      "role": "local ref origin/main; observed, not fetched",
+      "previous_cached": "8f768943964a77711b26d5235df146f8efe1dc6c",
+      "delta": "2 docs-only commits over 8f768943 (merge #158, strategic programming)"
+    },
+    "main_local": {
+      "sha": "9b47b285d23bb5f89db02ba398244827032fab6b",
+      "tree": "5556c9143388816cb3e8b2e88b48ec125a290ac0",
+      "crates_tree": "2756a91b9381a8b8e751527a37475b661d7072dd",
+      "subject": "Merge pull request #155 from ewq100/work/integration-ui-reliability",
+      "role": "parent root repos/brn-rust main; 45 commits behind origin/main; ancestor of all lines; untracked .vscode/ and experiments/ left alone"
+    },
+    "common_base_cw2": {
+      "sha": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "tree": "e5c9f0ad0249ae2f58cda2d902630dd6cba3e2d0",
+      "crates_tree": "53bcfa293e56c04c629b5eb80fee306d955d3eae",
+      "subject": "docs: accept reviewed CW2 contracts for local dependent work",
+      "role": "merge base of the writing and capability lines",
+      "source": "12b0d3296ce116e99d4dee5800f2f02edebec5ac"
+    },
+    "c0": {
+      "sha": "c8b3026f582c8770c24a984111f562becf529cad",
+      "tree": "25520cd9b015a6f064a29f013af95e4655b93966",
+      "crates_tree": "b3d5a45b9cec552b4bd7aaba9a238c5e75966797",
+      "subject": "docs: accept reviewed C0 exit and record CL no-op",
+      "candidate": "adfab8793c98ff4e3ce9d143dd8894662f190cb8"
+    },
+    "cw1": {
+      "sha": "3e09b979dbe5204098d871469d0ed280186db20d",
+      "tree": "1047319b2d6a85ee0c79ebcad9b62b683c71f0cd",
+      "crates_tree": "4f94b900c84f57c9c0a2f5c5d32c0fe48a0b6bbf",
+      "subject": "docs: record CW1 local integration and open qualification gates",
+      "source": "521454f2d6f4a3ef446a4e972663ac8980451499"
+    }
+  },
+  "topology": {
+    "baseline": "8f768943964a77711b26d5235df146f8efe1dc6c (main at PR #157; crates tree equal to origin/main 57c710cc)",
+    "common_base": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+    "writing_line": {
+      "commits_beyond_base": 31,
+      "tip": "d2d84e665e64de14a15f4704eb0868c553c2885a"
+    },
+    "capability_line": {
+      "commits_beyond_base": 77,
+      "tip_bound": "73ea9ca777e00d348966e37e8402f3eb68ecb20b",
+      "tip_now": "781c34dc466d6a6a210cdae4cf75e1096521c70d",
+      "commits_beyond_base_now": 78
+    },
+    "xberg_candidate": "pending; not integrated; no code in tree"
+  },
+  "divergence_vs_common_base": {
+    "writing": {
+      "source_files": 51,
+      "insertions": 12964,
+      "deletions": 5424,
+      "crates": {
+        "brn-desktop": 24,
+        "brn-writing-ui": 18,
+        "brn-threads-app": 5
+      },
+      "root": [
+        "Cargo.toml",
+        "Cargo.lock",
+        ".github/workflows/ci.yml",
+        "scripts/verify-desktop-shell.sh"
+      ],
+      "doc_and_experiment_files": 150
+    },
+    "capability": {
+      "source_files": 113,
+      "insertions": 25891,
+      "deletions": 310,
+      "crates": {
+        "brn-ai": 40,
+        "brn-threads-core": 25,
+        "brn-desktop": 18,
+        "brn": 14,
+        "brn-threads-app": 13
+      },
+      "root": [
+        "Cargo.lock",
+        "crates/brn/Cargo.toml",
+        "crates/brn-ai/Cargo.toml",
+        "agent/skill-examples/document-review/**"
+      ],
+      "doc_and_experiment_files": 1355
+    },
+    "unchanged_by_writing_line": [
+      "brn-ai",
+      "brn-threads-core",
+      "brn",
+      "brn-intake",
+      "brn-threads-intake",
+      "brn-retrieval"
+    ],
+    "changed_by_both": [
+      "brn-desktop",
+      "brn-threads-app",
+      "Cargo.lock"
+    ]
+  },
+  "overlapping_source_paths": [
+    "Cargo.lock",
+    "crates/brn-threads-app/src/lib.rs",
+    "crates/brn-desktop/src/threads_chat.rs",
+    "crates/brn-desktop/src/threads_state.rs",
+    "crates/brn-desktop/src/threads_tiles.rs",
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_writing.rs",
+    "crates/brn-desktop/src/threads_dialogs_tests.rs",
+    "crates/brn-desktop/src/threads_omakase_tests.rs",
+    "crates/brn-desktop/src/threads_polish_tests.rs",
+    "crates/brn-desktop/src/threads_review_tests.rs",
+    "crates/brn-desktop/src/threads_steering_tests.rs",
+    "crates/brn-desktop/src/threads_workbench_tests.rs"
+  ],
+  "overlapping_docs": [
+    "docs/status.md",
+    "docs/work/active/modular-foundation/plan.md",
+    "docs/architecture/threads-behavior.md (auto-merged)"
+  ],
+  "merge_simulation": {
+    "method": "git merge-tree --write-tree (unreferenced objects only)",
+    "intw_x_x2": {
+      "tree": "deb060ee0e809b0b906bc9aaf97626a4181ef7be",
+      "crates_tree": "54285bd2bd5bd4d977063b90ab39558c495f55f2",
+      "source_conflicts": 0,
+      "doc_conflicts": [
+        "docs/status.md",
+        "docs/work/active/modular-foundation/plan.md"
+      ]
+    },
+    "x2_x_origin_main": {
+      "tree": "ddf23ff933bbd714e5843688919d74c534e69ef6",
+      "doc_conflicts": [
+        "docs/status.md"
+      ]
+    },
+    "intw_x_origin_main": {
+      "tree": "b83b2374648d678bad5996fede265d00f2697423",
+      "doc_conflicts": [
+        "docs/status.md",
+        "docs/architecture/dependencies.md"
+      ]
+    },
+    "lock": {
+      "parents": {
+        "cw2": 952,
+        "int_w": 953,
+        "x2": 965
+      },
+      "merged": 966,
+      "equals_union": true,
+      "checksum_drift_vs_8f768943": 0,
+      "merged_lock_sha256": "72f9ced96cf938aec013932f31d60f213d811f2e4b1d876c8828b4d5201e6b58",
+      "not_cargo_verified": true
+    },
+    "compile_verified": false
+  },
+  "needed_integration_fixes": [
+    {
+      "id": "NF-1",
+      "summary": "start_request uses reviewed.attach(prepared) but reviewed is a local of start_run after INT-W's start split. Preserve X2 order: begin_run_start busy check (busy does not consume a review) -> refresh -> take_mcp_review before prepare_thread_run -> attach after prepare. Move the take into start_request with queued: bool equal to the queue-text match (queued.is_some()), not queue_claim; retry_rewrite passes false. Real call-path tests: retry_rewrite with a pending review (no Run, request/feedback preserved, wrapped notice, second retry progresses), ordinary mismatched and queued starts, matching positive if the offline fixture allows, busy does not consume. Existing MCP controls remain. Static compile finding, not an executed red; no production fix made. Round 2: retry_rewrite's prompt is the fixed rewrite string X2 also used, so an exactly matching review may attach as in X2; case C is judged on the synchronous start_run outcome only (worker Some, no refusal notice, pending None, one new Run with the worker's id, no terminal-state assertion); attach writes no persisted field.",
+      "file": "crates/brn-desktop/src/threads_ui.rs",
+      "detail": "docs/work/active/final-integration/NF1-test-spec.md",
+      "status": "identified statically; not compiled; not implemented"
+    },
+    {
+      "id": "NF-2",
+      "summary": "resolve docs conflicts (status.md, modular-foundation/plan.md, dependencies.md)",
+      "status": "expected"
+    },
+    {
+      "id": "NF-3",
+      "summary": "replace stale 'proposed, not started' and dated status claims with a current snapshot",
+      "status": "expected"
+    },
+    {
+      "id": "NF-4",
+      "summary": "Lock reconciliation from the EXACT Xberg handoff lock + common base + both parents; no blind union, wholesale update or dedup. Provisional facts from the X2 HTML WIP (no pin): six existing moves (serde_json 1.0.151->1.0.154; toml 1.1.6+spec-1.1.0->1.1.8+spec-1.1.0; serde_spanned 1.1.1->1.1.2; toml_datetime 1.1.1+spec-1.1.0->1.1.2+spec-1.1.0; toml_parser 1.1.3+spec-1.1.0->1.1.5+spec-1.1.0; toml_writer 1.1.2+spec-1.1.0->1.1.3+spec-1.1.0), 52 added, 6 removed, 0 same-version drift; coexisting toml 0.8.23, serde_spanned 0.6.9, toml_datetime 0.6.11 kept. A move not declared by the audited handoff and approved is a STOP; the six HTML-slice moves do not forbid later exactly approved changes the all-document candidate needs (e.g. tokio 1.53.2, mail-parser 0.11.9, side-by-side zip/quick-xml), still at old versions in the WIP. A single metadata edge-only rewrite may not mask new packages or version drift.",
+      "status": "after Xberg handoff; expected set computed then"
+    },
+    {
+      "id": "NF-5",
+      "summary": "documentation/CI changes only where a merged change requires them",
+      "status": "conditional"
+    },
+    {
+      "id": "NF-6",
+      "summary": "docs link checker measured 82 failures on the old X2 base (immutable history, not a target). X2 worker's UNCOMMITTED HTML candidate reports 82 -> 0 with the same unchanged checker (357 files, 1611 links, 0 failures): WIP receipt only, not a pin, not whole-root. X2 worker owns those docs; integration re-runs the checker when a pin arrives and sends failures back; no duplicate editing; cd2-bound ledger hashes not rewritten",
+      "measured": "python3 scripts/check-markdown-links.py: 359 files, 1703 local links, 82 failures; INT-D tree had 258 files, 0 failures",
+      "owner": "X2 worker (docs); integration lead re-runs",
+      "status": "conditional recheck"
+    },
+    {
+      "id": "NF-7",
+      "summary": "G1/G9 tooling and ordering corrections from round 1 advisories: default-feature F22 wording, maintained preflight/evidence/ci-summary tools, last origin/main merge before freeze, pushed tree equals reviewed tree, explicit network grant for first fetch, combined F21 channels named",
+      "status": "applied in plan revision 2"
+    }
+  ],
+  "accepted_items": [
+    {
+      "id": "CW1",
+      "source": "521454f2d6f4a3ef446a4e972663ac8980451499",
+      "integration": "3e09b979dbe5204098d871469d0ed280186db20d",
+      "line": "common"
+    },
+    {
+      "id": "CW2",
+      "source": "12b0d3296ce116e99d4dee5800f2f02edebec5ac",
+      "accepted": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "disposition": "docs/work/active/modular-foundation/cw2/principal-disposition.md",
+      "line": "common"
+    },
+    {
+      "id": "B1a",
+      "source": "60f604f5d24437507d837dfda14778f83f01bd08",
+      "line": "writing",
+      "disposition": "INT-W tree: docs/work/active/modular-foundation/b1a/principal-disposition.md"
+    },
+    {
+      "id": "B1b",
+      "source": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+      "accepted": "f2b060bb17080d0241143afb6fadd6ec22350f34",
+      "line": "writing",
+      "disposition": "INT-W tree: docs/work/active/modular-foundation/b1b/principal-disposition.md"
+    },
+    {
+      "id": "B3",
+      "source": "93b92d7bc519d598c23e16562512b167a59d5c49",
+      "accepted": "c5b257fb643794e0802dd1cb4d3fee5ff3ee0edf",
+      "line": "writing",
+      "disposition": "INT-W tree: docs/work/active/modular-foundation/b3/principal-disposition.md"
+    },
+    {
+      "id": "B4",
+      "source": "3515f96a99ad99d7c39fe17a023078c4be22a964",
+      "accepted": "e8e98304af7c6dd871455f8081887bf6a1af3e16",
+      "line": "writing",
+      "disposition": "INT-W tree: docs/work/active/modular-foundation/b4/principal-disposition.md"
+    },
+    {
+      "id": "INT-W",
+      "source": "0efd73f1c9269cce87f72ad1881d0a31df65f470",
+      "readiness": "afbd3a9ab15eecde93697c25589de89a96a07efe",
+      "head": "d2d84e665e64de14a15f4704eb0868c553c2885a",
+      "line": "writing",
+      "disposition": "INT-W tree: docs/work/active/modular-foundation/int-w/principal-disposition.md",
+      "qualification": "F01 PDF, F20 native, hosted lanes, owner acceptance open"
+    },
+    {
+      "id": "D1A",
+      "source": "4db5b357e23cb0c4466e7fd91c71cf926cad44f8",
+      "accepted": "964567aa5ea41a9333bccb6790be464e0018dfa3",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d1a/principal-disposition.md"
+    },
+    {
+      "id": "D1B",
+      "source": "a94b9c995f35715d41a285073617f3a253746bb1",
+      "accepted": "8ae8a72938c071be0af4f2b8c651a3603a8a0025",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d1b/principal-disposition.md"
+    },
+    {
+      "id": "D2",
+      "source": "d252a505db0b2d96d3584746f92cc7401ece472a",
+      "qualified": "ca2bd94b4d38e5570bb13333c970d4f1d901c179",
+      "accepted": "fd4e6a366171ddf306829aceb50658000b86bca4",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d2/principal-disposition.md"
+    },
+    {
+      "id": "D3a",
+      "source": "9b8acf661c3a79674514ce5a9bed62e230ae107e",
+      "accepted": "000ed92026ccb180f2257b28b07e0525b1493f23",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d3a/principal-disposition.md"
+    },
+    {
+      "id": "D3b",
+      "source": "90f50da09e5ddc4803124f69777c122491917f97",
+      "accepted": "9a88a0a91195b3f5de810f2620ec6f7ed65cb890",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d3b/principal-disposition.md"
+    },
+    {
+      "id": "D4",
+      "source": "cc8338beb885d1f59a547fb47ca4043d40ffbe9f",
+      "accepted": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/d4/principal-disposition.md",
+      "schema": 9
+    },
+    {
+      "id": "INT-D source",
+      "source": "b93904076026536750d392b617e80f065744afa8",
+      "accepted": "2e68efe9eb487bc93ca99ff5f13394be70a12ad8",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/int-d/principal-disposition.md",
+      "qualification": "real-provider I01 incomplete"
+    },
+    {
+      "id": "ordinary prepare contract",
+      "source": "6b18324de748b72313c0fa2989c1db3f0bcb20ea",
+      "accepted": "942c7cf7f37090aaa2980ea8a0e5e46d1d0ed72e",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/int-d/ordinary-prepare/principal-disposition.md"
+    },
+    {
+      "id": "refresh contract",
+      "source": "f590632e3cfee763898d8d165208f7aaafd4875e",
+      "accepted": "b28f4c0c0c05527167454a9eada180eaff290b40",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/int-d/refresh-contract/principal-disposition.md"
+    },
+    {
+      "id": "history harness",
+      "source": "39a67e4f010e39e7675c220b0df6b3a842e47c5f",
+      "accepted": "8e92f97e2f8579eba0212e24f9dfe1922f345d3b",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/int-d/history-phase/principal-disposition.md"
+    },
+    {
+      "id": "history window1 (closed 4/4)",
+      "result": "32b20721e390b5c5e18d612d1570a5d1413c41dd",
+      "accepted": "65684dcb6bc7a3c79f5c92741776fd08f066d701",
+      "line": "capability",
+      "disposition": "docs/work/active/agent-capabilities/int-d/history-phase/window1/principal-disposition.md"
+    },
+    {
+      "id": "widget confirmation fixture (reduced motion)",
+      "commit": "aea4830f789a6cb9b3b9318c70fc6e576fb6bb97",
+      "line": "common (in CW2 base)",
+      "disposition": "docs/work/active/modular-foundation/widget-confirmation/README.md",
+      "qualification": "A and B tests only; hosted unverified; B original cause unconfirmed"
+    }
+  ],
+  "evidence_compatibility": {
+    "same_source_closure_as_capability_line": [
+      "brn-threads-core",
+      "brn-ai",
+      "brn",
+      "brn-intake",
+      "brn-threads-intake",
+      "brn-retrieval"
+    ],
+    "needs_fresh_execution_on_combined_graph": [
+      "brn-desktop (all native lanes)",
+      "brn-threads-app tests",
+      "brn-writing-ui",
+      "combined CLI and desktop journeys",
+      "Cargo.lock and feature graph (F22)",
+      ".github/workflows/ci.yml",
+      "docs links"
+    ],
+    "counts_are_anchors_not_targets": {
+      "int_w_default": "1116/1/6",
+      "int_d_workspace": "1234/1/6",
+      "d4_workspace": "1224/5/6",
+      "int_d_scripted_ai": "479/0/1",
+      "int_d_capability": "455/0/1 + 3/0/0",
+      "int_w_desktop": "288/0/1",
+      "x2_widgets_d4": "315/0/1",
+      "int_w_writing_ui": "44 + host 5",
+      "int_w_app_native": "247/0/1",
+      "int_w_combined": "55",
+      "offline_journey": "108 steps / 1266 checks"
+    },
+    "live_evidence": "CLI path, source 39a67e4f, closed windows; historical; no transfer to newer binaries"
+  },
+  "gates": [
+    "G0 static (link check 0 failures; see NF-6 conditional)",
+    "G1 graph: lock identity audit, metadata --locked, F22 default-feature workspace graphs only, per-CI-graph serde_json feature liveness",
+    "G2 default+helper+capability",
+    "G3 scripted AI (scripted-runs)",
+    "G4 native UI + writing-ui + verify-desktop-shell",
+    "G5 retrieval/combined",
+    "G6 offline journeys",
+    "G7 existing witnesses incl. named combined F21 channels",
+    "G8 schema/backup/restore/upgrade",
+    "G9 combined-only: NF-1 real call-path cases; intake journeys through app+desktop; serialization/hash/replay across serde_json move (host version) and helper feature delta (separately)",
+    "G10 live-bound evidence (re-read only)"
+  ],
+  "required_ci_contexts_per_workflow": [
+    "Core and CLI (ubuntu-24.04)",
+    "Core and CLI (macos-15)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "required_ci_contexts_verification": "GitHub rules not read (no network); verify with gh api at publication",
+  "carried_failures": [
+    {
+      "id": "PDFUnavailable",
+      "test": "brn-threads-intake qualification::prepared_rust_fixtures_keep_source_and_preview_bindings_in_owned_scratch (tests/qualification.rs:470)",
+      "message": "Pdf preparation failed: Unavailable",
+      "recorded_cause": "native pdftoppm absent locally (Poppler 26.10 has pdftotext/pdfimages only)",
+      "counts_seen": [
+        "1116/1/6",
+        "1234/1/6",
+        "1224/5/6"
+      ],
+      "hosted": "Core and CLI (macos-15) passed in main run 38908335265; installs Poppler via Homebrew; unverified for candidate",
+      "resolution_paths": [
+        "principal-provisioned genuine pdftoppm + one affected run",
+        "hosted pass on candidate",
+        "proved Xberg PDF route later (new evidence)"
+      ],
+      "status": "open; not flaky; not baseline-closed"
+    },
+    {
+      "id": "SDK474/4/1",
+      "tests": "threads_mcp_http_tests loopback setup (Transport) at :367 :444 :513 :641",
+      "command": "cargo +1.98.1 test --locked --offline -p brn-ai --features scripted-runs --lib --tests -- --test-threads=1",
+      "later_passes": [
+        "477/0/1",
+        "478/0/1 (diagnostic)",
+        "479/0/1 (INT-D)"
+      ],
+      "cause": "unknown; no class captured; stderr diagnostic now prints stage, reqwest flags and OS error on recurrence",
+      "status": "open qualification; not flaky; not baseline; not closed"
+    },
+    {
+      "id": "widget314/1/1",
+      "test": "the_owners_stop_of_a_killed_reply_adds_its_review_but_no_notice (crates/brn-desktop/src/threads_intake_tests.rs)",
+      "later_passes": [
+        "isolated 1/0",
+        "diagnostic 1/0",
+        "full 315/0/1"
+      ],
+      "cause": "unknown; state not printed",
+      "status": "open qualification; distinct from hosted failure below"
+    },
+    {
+      "id": "hosted-main-native-A",
+      "test": "an_edit_already_open_elsewhere_offers_compare_and_discard",
+      "run": "38908335265 job 116997504049 at 8f768943 (305/1/1)",
+      "correction": "aea4830f reduced-motion test fixture; 800/800 local iterations; in both lines",
+      "status": "hosted verification pending; B original cause unconfirmed"
+    }
+  ],
+  "decisions": {
+    "O1": "CW-first (done)",
+    "D-S": "approved 17 Oct",
+    "D-M": "approved 17 Oct",
+    "L": "approved 17 Oct (synthetic/public fixtures; not real data)",
+    "X": "START then ALL documents (17 Oct); Poppler retained until proof; PDF resource STOP stands",
+    "T/PC": "deferred; draft PR 149 do not merge",
+    "publication": "check at that stage; gate policy in carried_failures_gate_policy; no blanket grant inferred"
+  },
+  "stale_claims": [
+    {
+      "path": "docs/work/active/agent-capabilities/README.md",
+      "claim": "Status: proposed, not started"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/README.md",
+      "claim": "Status: proposed, not started"
+    },
+    {
+      "path": "docs/work/active/build-sequence/README.md",
+      "claim": "Programs table: Proposed, not started"
+    },
+    {
+      "path": "docs/status.md",
+      "claim": "dated pending/blocked paragraphs; H1 mid-file; newest origin/main snapshot differs"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/plan.md",
+      "claim": "Current slice: CW2 eligible"
+    }
+  ],
+  "native_task_N1": {
+    "owner": "owner on target Mac",
+    "when": "after final candidate passes G0-G6",
+    "scope": "INT-W 16-step outline steps 1,3,4,5,13,14,15,16 offline + Settings Skills/MCP visibility; provider-dependent steps pending",
+    "data": "fresh synthetic directory outside Git; no provider; no real data",
+    "merge_relation": "merge may precede N1 only under an existing owner PR/merge request; F20 stated not run; no native-verified claim"
+  },
+  "next_allocation": {
+    "owner": "Sonnet 5.5 integration worker",
+    "branch": "work/final-integration-20261017",
+    "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-ca8b0a32",
+    "preconditions": [
+      "FP-1..FP-7 recorded by the principal",
+      "heavy slot released",
+      "exact grant explicitly including network for the first git fetch origin",
+      "owner decisions cited for any outcome narrowing current kind behavior (authority_rule)"
+    ],
+    "heavy_slots": 1,
+    "forbidden": [
+      "live",
+      "GUI",
+      "download",
+      "mutation campaign",
+      "PR",
+      "push",
+      "main merge"
+    ],
+    "name": "FI (final integration); optional TCI-1 is separate and not final",
+    "merge_order": [
+      "Xberg candidate",
+      "INT-W d2d84e66",
+      "NF-1 + audits + gates",
+      "origin/main LAST, then freeze (or review the delta)"
+    ],
+    "pushed_tree_rule": "pushed head tree equals the frozen reviewed tree"
+  },
+  "revision": {
+    "number": 3,
+    "recorded": "2026-10-18",
+    "corrects": "round 2 CHANGES_REQUIRED M1/M2 + advisories (opus2/opus-review-round2.md)",
+    "revision2_commit": "ae63fb7d5110327c8aecad5684e65e0573267fe4",
+    "revision2_tree": "5f877d636499f613af3cdd74c5cf23a2e75016c1",
+    "revision1_commit": "d4574398516000f63d45e38f168b2a8294ca8951",
+    "review_state": "not approved; parent inspects"
+  },
+  "names": {
+    "TCI-1": "optional technical component integration: INT-W + capability line + NF-1; no Xberg code; needs exact heavy grant; not final; not offered for publication by default",
+    "TCI-2": "TCI-1 + first schema-1 HTML helper protocol capability when it has a reviewed pin; still not all-document",
+    "FI": "final integration: reviewed pinned all-document Xberg candidate + both lines + origin/main; starts only when FP-1..FP-7 hold",
+    "publication_note": "no TCI is published to main ahead of the owner-set Xberg sequence unless a cited owner authority changes it; no TCI grant/build/publication now"
+  },
+  "final_precondition": [
+    {
+      "id": "FP-1",
+      "text": "reviewed pinned all-document candidate (or ordered reviewed set) covering all eight current DocumentKinds: PDF, DOCX, Markdown, Text, EML, HTML/HTM, XLSX, PPTX; Markdown/Text via declared Verbatim identity (byte-equal, zero provider, no helper requirement)",
+      "source": "x2/owner-scope-all-documents.md, formats.md, plan.md"
+    },
+    {
+      "id": "FP-2",
+      "text": "every x2/acceptance.md row has evidence on the pin: baseline/before, exact source/graph, feature-unified runtime (helper-local Tokio, all kinds requalified under CPU10/NOFILE64), exact helper restriction, PDF inventory and receipts/images, DOCX, PPTX, XLSX, EML/MIME, HTML, Markdown/Text, schema1/2 binding, adverse resources, lifecycle, Luna, checked host, graph/package/platform",
+      "source": "x2/acceptance.md"
+    },
+    {
+      "id": "FP-3",
+      "text": "PDF resource STOP resolved by a cited principal disposition (enforceable profile or source-proven pre-operation input profile); the disposition states whether it narrows current PDF acceptance (inputs the current route accepts that the profile would refuse)",
+      "source": "x2/plan.md"
+    },
+    {
+      "id": "FP-4",
+      "text": "no old backend: all three Poppler routes retired with canary evidence; each replaced non-PDF reader retired only after its family passes; keeping Poppler or any old backend/fallback is an OWNER-ONLY cited decision (it changes the all-document objective); not a plan default; a principal disposition cannot make it",
+      "source": "x2/acceptance.md 'No old backend'"
+    },
+    {
+      "id": "FP-5",
+      "text": "every extra family in x2/formats.md has a cited owner/principal disposition (admitted with gates passed, or deferred/refused with reason); silence is not a disposition",
+      "source": "x2/formats.md"
+    },
+    {
+      "id": "FP-6",
+      "text": "reviewed pinned family completion: independent Opus review of the actual diff per family and whole candidate, root-graph checksum ledger audited before compile, immutable pin, heavy slot released",
+      "source": "x2/plan.md"
+    },
+    {
+      "id": "FP-7",
+      "text": "status keeps the all-document objective open until FP-1..FP-6 hold",
+      "source": "x2/plan.md 'No component-level success declares all-document adoption'"
+    }
+  ],
+  "lock_facts": {
+    "wip_lock_sha256": "8b7a8ac078e5334119c4a497df362d111b644c164a01fc6f15a9645ce73db8dc",
+    "graph_gate_receipt_sha256": "7358546a2ed85ea204e12796ac67a39e686fd81f6d627082270742a32de166cf",
+    "metadata_output_sha256": "aa1a8b35405ccf7c21dc86ca7bde41ac68e697b3d7a29a0263f411eaa4528367",
+    "metadata_gz_sha256": "11831ac5d1d9bfa39ba2c7512db80f0bf368b5ec53432872673738d6d86fff3a",
+    "disposition_file": "~/.codex/brn-build-orchestration/2026-10-16/x2-html-toml-family-disposition-20261018.json",
+    "counts": {
+      "cw2": 952,
+      "intw": 953,
+      "x2_base": 965,
+      "wip": 1011,
+      "added": 52,
+      "removed": 6,
+      "same_version_drift": 0,
+      "merged_static_intw_x2_base": 966,
+      "provisional_merged": 1012
+    },
+    "block_deltas": {
+      "intw_vs_cw2": {
+        "added": [
+          "brn-writing-ui 0.1.0"
+        ],
+        "changed": [
+          "brn-desktop 0.1.0 (+brn-writing-ui, +rig)"
+        ]
+      },
+      "x2_vs_cw2": {
+        "added": 13,
+        "changed": 8
+      },
+      "wip_vs_x2": {
+        "added": 52,
+        "removed": 6,
+        "changed": 11
+      },
+      "blocks_touched_by_both_intw_and_x2_or_wip": []
+    },
+    "preserve_order": {
+      "status": "already live in the default workspace graph; 'likely helper-only' withdrawn",
+      "evidence": [
+        "rig-core-0.44.0 registry manifest requests serde_json features raw_value, preserve_order, float_roundtrip (normal dep of brn-ai; rig dev dep)",
+        "WIP default-workspace metadata resolves serde_json features [alloc, default, float_roundtrip, indexmap, preserve_order, raw_value, std]",
+        "base lock serde_json 1.0.151 block lists indexmap"
+      ],
+      "no_workspace_member_enables_brn_intake_helper": true,
+      "helper_graph_delta": "isolated -p brn-intake --features helper newly unified by xberg (derived statically; metadata run used default features); gif/bmp/webp decoders",
+      "verification_pending": "cargo tree -e features -i serde_json per CI graph under a future heavy grant"
+    }
+  },
+  "carried_failures_gate_policy": {
+    "recorded": "principal disposition 2026-10-18",
+    "historical_SDK_and_widget": "stay disclosed; not an automatic pass; not a blanket merge block absent recurrence",
+    "new_failure_at_combined_source": "raw diagnosis + explicit principal disposition before PR-ready",
+    "required_ci_recurrence_including_pass_on_rerun": "ci-summary.py compare-logs + disposition; exact-head required contexts must pass",
+    "pr": "may be prepared/opened ready with historical qualifications disclosed, once publication authority is checked at that stage",
+    "merge": "requires the four required contexts passing and explicit disposition for any recurrence",
+    "pdf_local_carry": "requires actual hosted target-head pass; no silent test skip",
+    "n1": "native observation separate; owner PR/merge intent is not a native-verified claim",
+    "not_a_grant": "gate policy only; not a push/PR/merge grant",
+    "policy_record": "~/.codex/brn-build-orchestration/2026-10-16/final-integration-kiro-opus1-corrections-20261018.md",
+    "pdf_local_carry_scope": "applies to TCI as written; at FI, FP-4 retires Poppler so the PDF test, Homebrew Poppler CI step and check-intake-retirement.py change in the Xberg lane and are re-derived from the handoff; no automatic local PDF-test exception"
+  },
+  "g9_intake_journeys": {
+    "full": [
+      "app product::full_import_retains_assets_source_identity_and_rejects_changed_retry_input",
+      "app import_coverage",
+      "intake qualification::ordinary_pdf_and_docx_preserve_checked_content_and_assets_without_original_payload",
+      "desktop conversion completion + INT-W B3 attach/reimport",
+      "AI conversion::tests"
+    ],
+    "partial": [
+      "intake qualification::deliberately_omitted_figure_and_unchecked_full_note_are_partial",
+      "app import_coverage",
+      "desktop coverage display"
+    ],
+    "crash_cancel": [
+      "intake qualification::malformed_budget_cancel_and_timeout_leave_no_transient_copy",
+      "intake qualification::cancellation_after_pdf_copy_removes_raw_input_before_return",
+      "intake qualification::source_file_read_is_bounded_and_cancelled_before_conversion",
+      "app run_recovery, killed_run_candidate",
+      "desktop cancel before parse/in extraction/after result/before save"
+    ],
+    "no_hidden_archive": [
+      "intake ..._without_original_payload",
+      "app product::export_refuses_occupied_or_incomplete_outputs_without_partial_publication",
+      "app export_metadata",
+      "restored backup offline read",
+      "Xberg schema-1 root echo transient"
+    ],
+    "note": "locate each test by name at the first run; report a missing desktop case as a gap"
+  },
+  "tooling": [
+    "python3 scripts/development-preflight.py --native before first heavy run",
+    "BRN_VERIFY_OUTPUT_DIR for verify-script record.json",
+    "scripts/ci-summary.py run / compare-logs for hosted attempts"
+  ],
+  "authority_rule": {
+    "applies_to": "FP-2 and FP-3 outcomes",
+    "rule": "any outcome narrowing what a current kind supports today (refusing inputs the current route accepts, lower fidelity, changed profile acceptance, dropped kind) needs a cited OWNER decision",
+    "principal_may": [
+      "choose behavior-preserving technical solutions",
+      "make FP-5 extra-family admit/defer/refuse decisions with reasons"
+    ],
+    "principal_may_not": [
+      "change the owner's all-document objective"
+    ],
+    "owner_question_now": "none; no narrowed proposal has been prepared",
+    "source": "x2/owner-scope-all-documents.md; AGENTS.md; opus2/opus-review-round2.md M1"
+  }
+}

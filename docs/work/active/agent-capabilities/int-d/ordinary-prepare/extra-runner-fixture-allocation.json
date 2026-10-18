@@ -1,0 +1,8 @@
+{
+  "extra_allocation": "Principal exact fixture-only approval during task, 17 October 2026",
+  "change": "prepare-failure writing object -> valid nonexistent canonical input op.creation_id(99), parse_valid asserted",
+  "observer_gate_effect_assertions_ignored_runner_and_projection_unchanged": true,
+  "registration_difference": "Handler now allocates/registers operation before check_scope rejects; no operations0 or equal-fence claim",
+  "original_failed_receipt": "candidate-intd 6 passed/1 failed/1 ignored retained",
+  "remaining_tail_restored_sha256": "2ba4a229970e881d64e69e4abf9a41afa450cc3edda0a377bda5c7fd148ef89f"
+}

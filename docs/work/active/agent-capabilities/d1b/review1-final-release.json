@@ -1,0 +1,22 @@
+{
+  "source_pin": "a94b9c995f35715d41a285073617f3a253746bb1",
+  "crates": "100732a4514569fc98571d480995b39126d26305",
+  "release_epoch": 1792190456.38961,
+  "original_cap_seconds": 1800,
+  "prior_charged_seconds": 534.402553319931,
+  "supplement_total_charged_seconds": 292.85906410217285,
+  "original_total_charged_seconds": 827.2616174221039,
+  "original_remaining_seconds": 972.7383825778961,
+  "charged_from": "a94 source-pin receipt timestamp, conservative inclusion of post-pin planning, all setup/baseline/controller/restore/hash/process and final campaign receipt cleanup",
+  "source_restored_count": 288,
+  "candidate_material_frozen_count": 288,
+  "own_controller_and_child_process_groups": [],
+  "heavy_executable_inventory": [],
+  "controller_receipt": "/private/tmp/brn-d1b-20261017-review1-mutant-artifacts/controller-final.json",
+  "controller_receipt_sha256": "aa8cd30d56c67da7597b87b2bdb77f154a5988f08e924dd304f1422bf1a43454",
+  "actual_supplement_verdicts": "6caught at a94; baseline419/0/1PASS; no others in fixed6selection",
+  "old_a673_verdicts": "6caught/2MISSED unchanged",
+  "explicit_heavy_release": true,
+  "source_ownership": "retained frozen for fresh Opus2; no source approval claimed",
+  "subsequent_work": "evidence-only Git/docs handoff, no further Cargo/build/test/lint/mutants without new explicit grant"
+}

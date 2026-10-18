@@ -391,9 +391,11 @@ pub(super) async fn run_helper_model(
     cancel: CancellationToken,
     emit: Emit,
     slot: Arc<ScoutSlot>,
+    budget: context_budget::Budget,
 ) -> AiAnswer {
     let limited = Arc::new(AtomicBool::new(false));
     let invalid = Arc::new(AtomicBool::new(false));
+    let exhausted = Arc::new(AtomicU16::new(0));
     let preamble = crate::threads_guides::scout_preamble();
     let mut builder = rig::AgentBuilder::new(model)
         .preamble(&preamble)
@@ -419,7 +421,15 @@ pub(super) async fn run_helper_model(
             json!({"reasoning_effort":effort.as_str()})
         })
         .accept_unknown_finish_reasons(false)
+        .add_hook(context_budget::BudgetHook {
+            budget,
+            exhausted: exhausted.clone(),
+            scope: scope.clone(),
+        })
         .add_hook(BatchHook {
+            prepare: PrepareChanges::without_evidence(),
+            external: None,
+            skills: None,
             invalid: invalid.clone(),
             limited: limited.clone(),
             rounds: AtomicU16::new(0),
@@ -442,7 +452,16 @@ pub(super) async fn run_helper_model(
         .without_memory()
         .tool_concurrency(1)
         .stream();
-    let mut answer = crate::chat::collect_stream(stream, cancel, emit, limited, None).await;
+    let mut answer = crate::chat::collect_stream(stream, cancel.clone(), emit, limited, None).await;
+    if exhausted.load(Ordering::SeqCst) != 0 && !cancel.is_cancelled() {
+        answer.terminal = AiTerminal::Failed(context_budget::exhausted_failure(
+            budget,
+            exhausted.load(Ordering::SeqCst),
+        ));
+        if let Some(trace) = &scope.trace {
+            trace.stop("budget");
+        }
+    }
     if invalid.load(Ordering::SeqCst) {
         answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse));
     }
@@ -557,6 +576,8 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         .and_then(|trace| trace::TraceCollector::new(trace.level()))
         .map(Arc::new);
     Arc::new(Scope {
+        external: Mutex::new(None),
+        skills: parent.skills.clone(),
         chat: parent.chat.clone(),
         private_context: parent.private_context,
         project_context: parent.project_context.clone(),
@@ -687,6 +708,8 @@ fn run_helper<'a>(
             }
         };
         let model = choice.selection.model.clone();
+        let budget =
+            context_budget::Budget::selected(choice.selection.provider, &choice.selection.model);
         match source {
             Ok(transport) => {
                 if let Ok(mut requested) = runtime.requested.lock() {
@@ -711,7 +734,7 @@ fn run_helper<'a>(
                 match client {
                     Ok(client) => match client.inner {
                         OwnedClient::Chatgpt(client) => {
-                            run_model(
+                            run_model_budgeted(
                                 client.completion(model),
                                 child,
                                 input,
@@ -720,11 +743,12 @@ fn run_helper<'a>(
                                 true,
                                 cancel,
                                 emit,
+                                budget,
                             )
                             .await
                         }
                         OwnedClient::Copilot(client) => {
-                            run_copilot(
+                            run_copilot_budgeted(
                                 &client,
                                 model,
                                 child,
@@ -733,6 +757,7 @@ fn run_helper<'a>(
                                 HELPER_ROUNDS,
                                 cancel,
                                 emit,
+                                budget,
                             )
                             .await
                         }
@@ -745,7 +770,7 @@ fn run_helper<'a>(
             }
             #[cfg(any(test, feature = "scripted-runs"))]
             Err(Some(Ok(scripted))) => {
-                run_model(
+                run_model_budgeted(
                     scripted,
                     child,
                     input,
@@ -754,6 +779,7 @@ fn run_helper<'a>(
                     true,
                     cancel,
                     emit,
+                    budget,
                 )
                 .await
             }
@@ -935,7 +961,9 @@ async fn question(
         (None, None) => "stopped",
         (None, Some(_)) if cancel.is_cancelled() => "cancelled",
         (None, Some(answer)) => {
-            if let Some(error) = unavailable_error(answer) {
+            if matches!(&answer.terminal, AiTerminal::Failed(error) if error.is_context_limit()) {
+                "budget"
+            } else if let Some(error) = unavailable_error(answer) {
                 runtime.unavailable_notice(error);
                 "unavailable"
             } else if matches!(&answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ToolLimitReached)
@@ -1112,6 +1140,34 @@ fn verify(store: &Store, chat: &str, citation: &Citation) -> Verdict {
         found_in_current: current.1.contains(&citation.quote),
         relocated,
     }
+}
+
+/// Writing uses the research host verifier too, then requires the exact cited
+/// bytes (research additionally supports explicitly labelled relocation).
+pub(super) fn verify_writing_quotation(
+    store: &Store,
+    chat: &str,
+    quote: &WritingQuotation,
+) -> bool {
+    if quote.quote.is_empty() || quote.quote.len() > MAX_CITED_RANGE {
+        return false;
+    }
+    let citation = Citation {
+        reference: String::new(),
+        id: quote.id.clone(),
+        version: quote.version,
+        start: quote.start,
+        end: quote.end,
+        quote: quote.quote.clone(),
+    };
+    matches!(
+        verify(store, chat, &citation),
+        Verdict::Exact
+            | Verdict::Stale {
+                relocated: None,
+                ..
+            }
+    ) && matches!(store.revision(&quote.id, quote.version), Ok(Some(Record { data: RecordData::Note(n), .. })) if n.markdown.get(quote.start..quote.end) == Some(quote.quote.as_str()))
 }
 
 fn verified_report(

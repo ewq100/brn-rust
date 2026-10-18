@@ -1,0 +1,11 @@
+{
+  "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+  "sha256": "8460c5df3217954c164d25a1aeed7dff6a2628d3c57ebe5c2fca012e93627049",
+  "mtime": 1792247923.4948132,
+  "receipt_mtime": 1792247924.6990178,
+  "not_modified_after_receipt": true,
+  "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+  "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+  "preserved_path": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9",
+  "preserved_dep_info": "/private/tmp/brn-int-d-test-capture-20261017-evidence/final-passing-artifact/brn_ai-0a77908ed974f7b9.d"
+}

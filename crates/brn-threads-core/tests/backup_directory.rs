@@ -85,6 +85,7 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
             expected_version: None,
             archived: false,
             data: RecordData::Run(Run {
+                loaded_skill_details: vec![],
                 instruction: None,
                 queue_claim: None,
                 thread: "synthetic-thread".into(),

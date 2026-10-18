@@ -1,0 +1,11 @@
+--- a/crates/brn-ai/src/threads_summary.rs
++++ b/crates/brn-ai/src/threads_summary.rs
+@@ -577,7 +577,7 @@
+         .map_err(storage)?
+         .map_err(storage)?;
+         let sources = evidence(&evicted[..end])?;
+-        let references = validate(&artifact, &sources)?;
++        let references = Vec::new();
+         let candidate = Entry {
+             format: VERSION,
+             context: start.key.clone(),

@@ -1,0 +1,108 @@
+{
+  "schema": "xlsx1-authored-source-facts/1",
+  "status_at_freeze": "UNEXECUTED",
+  "oracle": "Authored fixed OPC XML and unchanged prior source facts, not extractor output",
+  "controls": {
+    "path": "controls.rs",
+    "sha256": "897dc1b12ad4aaa59f761c3762222ab187660eaa8d3325b95c34908bc6cdd3c0",
+    "test_declarations": 10
+  },
+  "copied_measurement_driver": {
+    "original_sha256": "b3f7a09b4ab2c26eb40e5d71400927be4faf3e43d0447fc4eb1f7e265aeafca0",
+    "new_sha256": "73e7f888628ae0052b55397cb47ab84e2d15bb02180eec93db0cfba67d6f65b9",
+    "only_difference": "literal ROOT redirected to new fixed scratch; all29 assertions unchanged"
+  },
+  "existing_Facts": {
+    "input_sha256": "c8851a764ef2bd788be07d030fc50e287241ec296e0d8621a8b180fddc2a3544",
+    "formulas": [
+      "G3=SUM(A1:A2)",
+      "H3=1+2"
+    ],
+    "cached": [
+      "99",
+      null
+    ],
+    "raw_error_F3": "#DIV/0!",
+    "other_source_facts": "../remaining-formats/corpus.json unchanged"
+  },
+  "authored_formulas": {
+    "Offsets": {
+      "source_order": [
+        "AA12=1+2",
+        "AC12=SUM(AA12:AB12)",
+        "AB14=4+5"
+      ],
+      "cached_values": [
+        "3",
+        "3",
+        "9"
+      ],
+      "holes": "AB12,AA13:AC13,AA14,AC14 absent; no fabricated formula"
+    },
+    "NoFormula": {
+      "C3": "Unchanged Ω",
+      "formula_metadata": "absent"
+    },
+    "Empty": {
+      "cells": [],
+      "formula_metadata": "absent"
+    },
+    "A1": {
+      "formula": "A1=2*3",
+      "cached": "6"
+    },
+    "Last": {
+      "formula": "XFD1048576=1",
+      "cached": "1",
+      "bounds": "last XLSX format row and column, one-cell Range"
+    },
+    "Capped": {
+      "source": "AA12:AA212 inclusive,201 formulas1+1 each cached2",
+      "expected_metadata": "AA12:AA211 inclusive,200 entries in row order; unchanged cap200"
+    }
+  },
+  "authored_errors": {
+    "source_sheet": "Errors",
+    "source_cells": {
+      "A1": "#DIV/0!",
+      "B1": "#N/A",
+      "C1": "#NAME?",
+      "D1": "#NULL!",
+      "E1": "#NUM!",
+      "F1": "#REF!",
+      "G1": "#VALUE!"
+    },
+    "type": "e",
+    "expected": "all seven exact source strings in public Table.cells and semantic grid; page table binding unchanged"
+  },
+  "GettingData": {
+    "source": "GettingData!A1 t=e raw#GETTING_DATA",
+    "required_raw_spelling": "#GETTING_DATA",
+    "source_qualification": "pinned Calamine0.36.1 CellErrorType::Display emits#DATA!; its XLSX FromStr accepts only seven classics. This raw spelling is not proved by seven-classic success, and its source requirement may remain failed.",
+    "no_parser_or_Display_override": true
+  },
+  "Office_controls": {
+    "source": "Copied complete existing real-prefix namespace, Quay order/hidden/pictures/table and notes assertions; same public API now on actual union",
+    "inputs": [
+      {
+        "name": "harbor.docx",
+        "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+      },
+      {
+        "name": "prefix-variation.docx",
+        "sha256": "7c2c8f4f4866db174495ad616d6995f002b63479d3ba3a22b182fb8151493709"
+      },
+      {
+        "name": "prefix-variation.inventory.json",
+        "sha256": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3"
+      },
+      {
+        "name": "quay.pptx",
+        "sha256": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46"
+      }
+    ],
+    "qualification": "Proportional current public controls only, not full prior25/21/14 targets or all-Office union/runtime promotion"
+  },
+  "source_archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+  "no_production_patch_yet": true
+}

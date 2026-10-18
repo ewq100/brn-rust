@@ -1,0 +1,27 @@
+{
+  "task": "int-d-offline-prepare-diagnostic-20261017",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "base": "7dc8536040b8ea6ab38c708af87140f9a62857f5",
+  "branch": "work/int-d-20261017",
+  "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-9527c407",
+  "initial_status": "clean",
+  "initial_precise_heavy_inventory": [],
+  "target": "/private/tmp/brn-int-d-20261017-target",
+  "old_corrected_test_artifact_preserved_before_rebuild": {
+    "check": "ai-int-d-selected-positive",
+    "path": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+    "sha256": "5159ba6df6352042a49eb8e294dd729b34dfaab34fca70a718fc62bff1b88538",
+    "mtime": 1792244696.0492723,
+    "receipt_mtime": 1792244697.2327094,
+    "not_modified_after_receipt": true,
+    "dep_info": "/private/tmp/brn-int-d-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+    "dep_info_sha256": "46e4797f460b173aa90f5bdfdc94f59c11792399ccd8158109fa11b5dfd6e034",
+    "preserved_path": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/ai-int-d-selected-positive-binary",
+    "preserved_dep_info": "/private/tmp/brn-int-d-opus1-20261017-evidence/corrected-artifacts/ai-int-d-selected-positive.d"
+  },
+  "new_preservation_root": "/private/tmp/brn-int-d-offline-prepare-diagnostic-20261017-evidence/prior-artifact",
+  "new_live_starts_authorized": 0,
+  "timestamp": 1792246299.396149
+}

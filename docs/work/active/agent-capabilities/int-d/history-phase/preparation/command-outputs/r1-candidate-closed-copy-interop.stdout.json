@@ -1,0 +1,6 @@
+{
+  "raw_path": "/private/tmp/brn-int-d-history-phase-20261017/local-preparation/r1-candidate-closed-copy-interop.stdout",
+  "sha256": "03170c2922e8c6aa4ab5f911888cf9dec4e708f39f2eb7110cac330edc324ca2",
+  "encoding": "UTF-8 text as exact JSON string",
+  "text": "\nrunning 1 test\ntest closed_copy_metadata_interoperates_for_both_history_arms ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.02s\n\n"
+}

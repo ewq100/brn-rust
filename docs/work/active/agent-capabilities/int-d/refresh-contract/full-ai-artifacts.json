@@ -1,0 +1,17 @@
+{
+  "executed_binary_and_dep_info": [
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9",
+      "sha256": "39b21b4fb02e084c8dea2f35b096a799a7e39edd0b2e4cf15c6d16b7a0721aa7",
+      "bytes": 43173872,
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/full-ai/artifact-copies/brn_ai-0a77908ed974f7b9"
+    },
+    {
+      "path": "/private/tmp/brn-int-d-refresh-contract-20261017-target/debug/deps/brn_ai-0a77908ed974f7b9.d",
+      "sha256": "6dba41aa2397945f76019b70e24b5e25a6351198334f80507dca0edc8361de7f",
+      "bytes": 9514,
+      "copy": "/private/tmp/brn-int-d-refresh-contract-20261017/full-ai/artifact-copies/brn_ai-0a77908ed974f7b9.d"
+    }
+  ],
+  "source_association": "Actual88+WIP as in full-ai receipt; later pin association by334input equality only. Other inventory artifacts may be stale/present, not all asserted produced."
+}

@@ -266,7 +266,7 @@ impl Code {
             Code::MissingOption => "A required option is absent.",
             Code::InvalidValue => "A bad integer, enum, yes/no value, key format, relative path, or malformed --actions JSON. details.expected is human text.",
             Code::InvalidInput => "A file or stdin text problem (details.reason), an unreadable or empty intake source, or an unreadable or malformed --preview-file.",
-            Code::NotFound => "A record or operation does not exist; read returning null in machine mode.",
+            Code::NotFound => "A record, operation or inspected installed skill does not exist; read returning null in machine mode.",
             Code::InvalidRequest => "The shared service refused the request as invalid for the current state, including a backup or export destination whose parent folder does not exist. For ask and useful intake (details.kind tool_rejected or model_refused): ToolRejected and ModelRefused are almost always pre-provider refusals from begin/Selection::validate; finish can also return ToolRejected after provider contact when the run record is inconsistent; the class stays invalid_request/refuse.",
             Code::KeyConflict => "The same key was used for a different request; use a new key for a new change.",
             Code::UnsafeDirectory => "Foreign or newer format, missing database, a symlinked backup or restore parent, non-empty restore target, backup inside the workspace, or an upgrade refused (no backup folder, a Working run or an open edit session; the workspace stays unchanged). An older BRN schema is upgrade_required. A symlinked data folder is data_folder_unusable.",
@@ -275,18 +275,18 @@ impl Code {
             Code::SessionTokenInvalid => "The --token-file token cannot write to this edit session (details.reason: mismatch when another token holds it; desktop when only the owner, in the BRN desktop app, can continue or close it). Nothing was written. Report a desktop-held edit to the owner.",
             Code::TestWorkspaceRequired => "reclaim-edit runs only in a test workspace, created with init --purpose test (details.workspace_purpose is owner). Nothing was written. Report the open edit to the owner, who recovers it in the BRN desktop app.",
             Code::UpgradeRequired => "The workspace has an older BRN schema (details.schema_found, details.schema_required). The CLI never upgrades implicitly, and nothing in the folder was changed, reads included. On the owner's instruction run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first.",
-            Code::CredentialsNotConfigured => "Machine mode: ask or a provider-backed intake on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
+            Code::CredentialsNotConfigured => "Machine mode: ask, useful intake, or AI-On document conversion on a workspace with no credential source (a workspace the CLI created and nobody configured). Nothing was committed and no provider was contacted. Run configure --provider NAME --model ID --effort LEVEL with --auth-file ABSOLUTE_FILE or --credentials-dir ABSOLUTE_DIR on the owner's instruction (details.provider names the selected provider).",
             Code::MissingWorkspace => "Machine mode: a read command named a --data-dir that does not exist or is an empty folder. Nothing was created. Check the path, or run init deliberately.",
             Code::DataFolderUnusable => "The data folder cannot be used (details.problem: read_only, permission_denied, not_a_directory, symlink_refused or missing_parent). A symlinked data folder is symlink_refused.",
             Code::Unavailable => "A service is not available in this build or platform, for example semantic search, conversion for this format, or model installation.",
             Code::ProviderFailed => "ask or useful intake: any other AiErrorKind (none is known to reach Err from run at 771116f0; kept as a fallback); also a provider failure during document conversion. details.kind is the AiErrorKind in snake_case.",
             Code::ConversionFailed => "Document conversion failed; details.reason names the failure.",
             Code::Timeout => "Document conversion exceeded its time limit, or the --timeout deadline passed before the command committed (details.deadline_seconds; details.hard is true when the process stopped without reaching a safe point and may have committed).",
-            Code::Busy => "SQLite stayed locked past the 5 s busy timeout. This transaction did not commit, although earlier steps of the command may have.",
+            Code::Busy => "SQLite stayed locked past the 5 s busy timeout, or the skill catalogue management lock is held. The refused transaction or package action did not commit, although earlier steps of a command may have.",
             Code::Interrupted => "SIGINT was observed before the change was committed.",
             Code::Terminated => "SIGTERM was observed before the change was committed (machine mode; details.hard is true when the process stopped without reaching a safe point and may have committed).",
             Code::StorageError => "Unexpected storage or record-encoding failure.",
-            Code::IoError => "Unexpected I/O failure on the CLI's own paths.",
+            Code::IoError => "Unexpected I/O failure on CLI paths or in the shared skill-management service.",
             Code::Internal => "Unexpected failure, or a committed review whose attention cleanup needs a retry (details.applied or details.dismissed: retry the same command).",
         }
     }
@@ -303,6 +303,11 @@ use Match::{Exact, Prefix};
 /// refusal texts (core and app `Invalid`) and the CLI's own. An unmatched
 /// message carries no reason; `code` stays `invalid_request`.
 pub(crate) const REFUSAL_REASONS: &[(&str, Match, &str)] = &[
+    (
+        "Skill package digest conflict; inspect the current digest before removing or reinstalling",
+        Exact,
+        "skill_digest_conflict",
+    ),
     (
         "Project changed; refresh its settings",
         Exact,
@@ -598,6 +603,26 @@ impl From<AppError> for CliError {
         }
     }
 }
+/// Only owner skill commands reinterpret catalogue contention and domain absence.
+#[cfg(any(test, target_os = "macos", target_os = "linux"))]
+pub(crate) fn skill_error(error: AppError) -> CliError {
+    match error {
+        AppError::Io(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+            CliError::new(Code::Busy, error.to_string())
+        }
+        AppError::Invalid(message) if message == "Skill package is not installed" => {
+            CliError::new(Code::NotFound, message)
+        }
+        other => other.into(),
+    }
+}
+#[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
+pub(crate) fn skills_unavailable() -> CliError {
+    CliError::new(
+        Code::Unavailable,
+        "Local skill packages require macOS or Linux; no package action was performed",
+    )
+}
 impl From<RetrievalError> for CliError {
     fn from(error: RetrievalError) -> Self {
         let message = error.to_string();
@@ -644,9 +669,6 @@ fn conversion_error(error: &ConversionError, message: String) -> CliError {
         ConversionError::Unavailable => CliError::new(Code::Unavailable, message),
         ConversionError::Budget
         | ConversionError::Invalid
-        | ConversionError::PdfTextInvalid
-        | ConversionError::PdfRenderInvalid
-        | ConversionError::PdfPreviewInvalid
         | ConversionError::Protocol
         | ConversionError::Io => CliError::new(Code::ConversionFailed, message)
             .with("reason", snake(&format!("{error:?}"))),
@@ -665,7 +687,6 @@ impl From<ConversionFailure> for CliError {
             ConversionFailure::Interrupted => Self::new(Code::Interrupted, message),
             ConversionFailure::Timeout => Self::new(Code::Timeout, message),
             ConversionFailure::InvalidCandidate => reason("invalid_candidate"),
-            ConversionFailure::InvalidPlanFormat(_) => reason("invalid_plan_format"),
             ConversionFailure::Budget => reason("budget"),
             ConversionFailure::Worker => reason("worker"),
         }
@@ -685,6 +706,20 @@ pub(crate) fn source_read_error(error: ConversionError) -> CliError {
 /// `brn_ai::threads::run` refused or failed before producing a terminal.
 pub(crate) fn run_error(error: brn_ai::AiError) -> CliError {
     use brn_ai::AiErrorKind;
+    if error.kind == AiErrorKind::Other
+        && error.detail.as_ref().is_some_and(|d| {
+            d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")
+        })
+    {
+        return CliError::new(Code::Unavailable, error.to_string());
+    }
+    if error.kind == AiErrorKind::Other
+        && error.detail.as_ref().is_some_and(|d| {
+            d.origin == "mcp_client" && d.code.as_deref() == Some("mcp_unavailable")
+        })
+    {
+        return CliError::new(Code::Unavailable, error.to_string());
+    }
     let message = format!("Provider run failed: {:?}", error.kind);
     let kind = snake(&format!("{:?}", error.kind));
     match error.kind {
@@ -1201,6 +1236,7 @@ mod tests {
             for command in [
                 "apply",
                 "keep-in-brn",
+                "document-conversion",
                 "delegation",
                 "configure",
                 "pause",
@@ -1662,21 +1698,6 @@ mod tests {
                 Some("invalid"),
             ),
             (
-                ConversionError::PdfTextInvalid,
-                Code::ConversionFailed,
-                Some("pdf_text_invalid"),
-            ),
-            (
-                ConversionError::PdfRenderInvalid,
-                Code::ConversionFailed,
-                Some("pdf_render_invalid"),
-            ),
-            (
-                ConversionError::PdfPreviewInvalid,
-                Code::ConversionFailed,
-                Some("pdf_preview_invalid"),
-            ),
-            (
                 ConversionError::Protocol,
                 Code::ConversionFailed,
                 Some("protocol"),
@@ -1705,10 +1726,6 @@ mod tests {
         );
         for (failure, reason) in [
             (ConversionFailure::InvalidCandidate, "invalid_candidate"),
-            (
-                ConversionFailure::InvalidPlanFormat("shape".into()),
-                "invalid_plan_format",
-            ),
             (ConversionFailure::Budget, "budget"),
             (ConversionFailure::Worker, "worker"),
         ] {
@@ -1743,6 +1760,38 @@ mod tests {
         );
         assert_eq!(mapped("x"), (Code::InvalidRequest, json!({})));
         assert_eq!(mapped(String::from("x")), (Code::InvalidRequest, json!({})));
+    }
+
+    #[test]
+    fn skill_errors_keep_io_and_unavailable_meanings_without_global_reclassification() {
+        let io = |kind| AppError::Io(std::io::Error::new(kind, "synthetic OS failure"));
+        for kind in [
+            std::io::ErrorKind::PermissionDenied,
+            std::io::ErrorKind::StorageFull,
+            std::io::ErrorKind::NotFound,
+            std::io::ErrorKind::Other,
+        ] {
+            let error = skill_error(io(kind));
+            assert_eq!(error.code, Code::IoError);
+            assert_eq!(error.code.status(), Status::Internal);
+        }
+        assert_eq!(
+            skill_error(io(std::io::ErrorKind::WouldBlock)).code,
+            Code::Busy
+        );
+        assert_eq!(mapped(io(std::io::ErrorKind::WouldBlock)).0, Code::IoError);
+        assert_eq!(
+            skill_error(AppError::Invalid("Skill package is not installed".into())).code,
+            Code::NotFound
+        );
+        assert_eq!(
+            skill_error(AppError::Invalid("invalid source".into())).code,
+            Code::InvalidRequest
+        );
+        let unavailable = skills_unavailable();
+        assert_eq!(unavailable.code, Code::Unavailable);
+        assert_eq!(unavailable.code.status(), Status::Failed);
+        assert!(unavailable.message.contains("no package action"));
     }
 
     #[test]
@@ -1889,6 +1938,7 @@ mod tests {
             include_str!("../../brn-threads-core/src/read.rs"),
             include_str!("../../brn-threads-core/src/revision_read.rs"),
             include_str!("../../brn-threads-app/src/intake.rs"),
+            include_str!("../../brn-threads-app/src/skills.rs"),
             include_str!("../../brn-threads-app/src/decisions.rs"),
             include_str!("main.rs"),
             include_str!("inspect.rs"),
@@ -1975,5 +2025,89 @@ mod tests {
             assert_eq!(echo(token).is_some(), echoed, "{token}");
         }
         assert_eq!(CliError::missing_option("SECRET").details.len(), 0);
+    }
+}
+
+#[cfg(test)]
+mod skill_run_diagnostics {
+    use super::*;
+    #[test]
+    fn only_local_selected_skill_tuple_maps_to_unavailable() {
+        use brn_ai::{AiError, AiErrorKind, AiFailureDetail};
+        let detail = |kind, origin: &str, code: Option<&str>| AiError {
+            kind,
+            retry_after_seconds: None,
+            detail: Some(Box::new(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })),
+        };
+        let error = run_error(detail(
+            AiErrorKind::Other,
+            "skill_catalogue",
+            Some("skill_unavailable"),
+        ));
+        assert_eq!(error.code, Code::Unavailable);
+        assert_eq!(error.code.status(), Status::Failed);
+        assert_eq!(error.message,"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
+        for input in [
+            AiError::new(AiErrorKind::Other),
+            detail(AiErrorKind::Other, "completion", Some("skill_unavailable")),
+            detail(AiErrorKind::Other, "", Some("skill_unavailable")),
+            detail(AiErrorKind::Other, "skill_catalogue", None),
+            detail(AiErrorKind::Other, "skill_catalogue", Some("other_error")),
+            detail(
+                AiErrorKind::ToolRejected,
+                "skill_catalogue",
+                Some("skill_unavailable"),
+            ),
+        ] {
+            let error = run_error(input);
+            assert_ne!(error.code, Code::Unavailable);
+            assert!(!error.message.contains("Reinstall"));
+        }
+    }
+}
+
+#[cfg(test)]
+mod mcp_run_diagnostics {
+    use super::*;
+    #[test]
+    fn only_exact_host_mcp_tuple_is_unavailable() {
+        use brn_ai::{AiError, AiErrorKind, AiFailureDetail};
+        let detail = |kind, origin: &str, code: Option<&str>| AiError {
+            kind,
+            retry_after_seconds: None,
+            detail: Some(Box::new(AiFailureDetail {
+                origin: origin.into(),
+                code: code.map(str::to_owned),
+                ..Default::default()
+            })),
+        };
+        let local = run_error(detail(
+            AiErrorKind::Other,
+            "mcp_client",
+            Some("mcp_unavailable"),
+        ));
+        assert_eq!(local.code, Code::Unavailable);
+        assert_eq!(local.code.status(), Status::Failed);
+        assert!(local.message.starts_with("The approved MCP connection"));
+        for error in [
+            AiError::new(AiErrorKind::Other),
+            detail(AiErrorKind::Other, "provider", Some("mcp_unavailable")),
+            detail(AiErrorKind::Other, "", Some("mcp_unavailable")),
+            detail(AiErrorKind::Other, "mcp_client", None),
+            detail(AiErrorKind::Other, "mcp_client", Some("other_error")),
+            detail(
+                AiErrorKind::ToolRejected,
+                "mcp_client",
+                Some("mcp_unavailable"),
+            ),
+        ] {
+            let mapped = run_error(error);
+            assert_ne!(mapped.code, Code::Unavailable);
+            assert!(!mapped.message.contains("authorize the exact input"));
+        }
     }
 }

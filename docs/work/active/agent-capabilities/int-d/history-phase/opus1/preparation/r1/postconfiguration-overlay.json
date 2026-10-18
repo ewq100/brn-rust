@@ -1,0 +1,151 @@
+{
+  "pair": "/private/tmp/brn-int-d-qualification-20261017-history-39a67e4f-r1",
+  "manifest_sha256": "97cf2147014d142de8104234e7669b2801f5f93fa732ac8659e8e53074d9ec88",
+  "source_pin": "39a67e4f010e39e7675c220b0df6b3a842e47c5f",
+  "cases": {
+    "control": {
+      "records": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r1-control-final-records.stdout",
+      "records_sha256": "a10572e11daefd35f5d69671d426b1850ef094480346a60848b24350a5b68c76",
+      "context": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r1/control-context.json",
+      "context_sha256": "80dd50748569b481a2e5a3f56e1be8d79a9e9f759e10c00f6959c130bf0e540e",
+      "interop": "/private/tmp/brn-int-d-metadata-result-20261017-history-39a67e4f-r1-control/context.json",
+      "interop_sha256": "e71dfee0dd99df713f350a09255260bd5a0d156fa9e411c7f9254bc8d9fb159a",
+      "expected": "/private/tmp/brn-int-d-metadata-expected-20261017-history-39a67e4f-r1-control.json",
+      "expected_sha256": "eaa6f762fe7dc5d4eed7f54d361c57774784b564fabc33eb6857901012c8c06c",
+      "copy": "/private/tmp/brn-int-d-metadata-copy-20261017-history-39a67e4f-r1-control",
+      "database": {
+        "threads.sqlite3": {
+          "sha256": "7d6f1f106909115fd6324b763cdc5570fff3c4d502a5410dd16d6fe13c8ba773",
+          "bytes": 380928
+        },
+        "threads.sqlite3-wal": null,
+        "threads.sqlite3-shm": null
+      },
+      "initial_database": {
+        "threads.sqlite3": {
+          "sha256": "d3378ca82acf2a6494ece1ffe27e2a6460888b8440e2b6708e0bf385b7b25ea2",
+          "bytes": 376832
+        },
+        "threads.sqlite3-wal": null,
+        "threads.sqlite3-shm": null
+      },
+      "initial_settings": {
+        "id": "191772a1-2d35-4588-9f6c-438d5912128c:0",
+        "version": 3,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": true,
+            "review_first": true,
+            "delegation_chosen": true
+          }
+        }
+      },
+      "postconfiguration_settings": {
+        "id": "191772a1-2d35-4588-9f6c-438d5912128c:0",
+        "version": 4,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": "/Users/evokessler/.codex/auth.json",
+            "credentials_dir": null,
+            "maintenance": true,
+            "review_first": true,
+            "delegation_chosen": true
+          }
+        }
+      },
+      "other_canonical_records_unchanged": true,
+      "original_triple_unchanged_across_copy": true
+    },
+    "candidate": {
+      "records": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r1-candidate-final-records.stdout",
+      "records_sha256": "b1cd6b9b2a6bcba2dd6db218cd385410215d549b1acba3b46d1215e846f5d552",
+      "context": "/private/tmp/brn-int-d-history-opus1-20261017/local-preparation/r1/candidate-context.json",
+      "context_sha256": "731b9b58b1a4b430a47a95f5813f67f5f81233d6133e0aae9a301c3aefb747e7",
+      "interop": "/private/tmp/brn-int-d-metadata-result-20261017-history-39a67e4f-r1-candidate/context.json",
+      "interop_sha256": "17ca5fb81147822ab37651bdbed3e8c05c58e71abe0edc4b72768029df3f4472",
+      "expected": "/private/tmp/brn-int-d-metadata-expected-20261017-history-39a67e4f-r1-candidate.json",
+      "expected_sha256": "fffc08f278646b8fa8240b8d1054112edefc6cee4cec8b8910c7b4e2178ed830",
+      "copy": "/private/tmp/brn-int-d-metadata-copy-20261017-history-39a67e4f-r1-candidate",
+      "database": {
+        "threads.sqlite3": {
+          "sha256": "0bcd2ebd3ff4e24808387a0baa3474d116f1877b3a333023f37c275c1fb0eb47",
+          "bytes": 389120
+        },
+        "threads.sqlite3-wal": null,
+        "threads.sqlite3-shm": null
+      },
+      "initial_database": {
+        "threads.sqlite3": {
+          "sha256": "2a91ffd36f50d499db5e85976464496585c8e708199237a790ff890eee60fd71",
+          "bytes": 389120
+        },
+        "threads.sqlite3-wal": null,
+        "threads.sqlite3-shm": null
+      },
+      "initial_settings": {
+        "id": "847f9cea-75d2-499a-8a06-a1aec07e32fc:0",
+        "version": 5,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "skills": [
+              {
+                "id": "installed:int-d-review",
+                "digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+                "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+                "enabled": true,
+                "selected": true
+              }
+            ],
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": true,
+            "review_first": true,
+            "delegation_chosen": true
+          }
+        }
+      },
+      "postconfiguration_settings": {
+        "id": "847f9cea-75d2-499a-8a06-a1aec07e32fc:0",
+        "version": 6,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "skills": [
+              {
+                "id": "installed:int-d-review",
+                "digest": "752006ebcdce9c5e1ffe562652c4f6fcb9797a0fb8d3acce4da42c230bb598de",
+                "project": "99adf916-0cac-4e87-8230-2dc2f2fbe0f3:0",
+                "enabled": true,
+                "selected": true
+              }
+            ],
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": "/Users/evokessler/.codex/auth.json",
+            "credentials_dir": null,
+            "maintenance": true,
+            "review_first": true,
+            "delegation_chosen": true
+          }
+        }
+      },
+      "other_canonical_records_unchanged": true,
+      "original_triple_unchanged_across_copy": true
+    }
+  }
+}

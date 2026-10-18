@@ -1,0 +1,14 @@
+{
+  "released": true,
+  "at": "2026-10-18T12:04:12.855183+00:00",
+  "owned_groups": [
+    84067,
+    88911,
+    90351
+  ],
+  "precise_heavy": [],
+  "original_test_restored": true,
+  "all_paths_released": true,
+  "sole_heavy_released": true,
+  "no_follow_on_task": true
+}

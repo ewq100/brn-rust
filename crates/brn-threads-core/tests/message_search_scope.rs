@@ -164,6 +164,127 @@ fn set(ids: &[&str]) -> BTreeSet<String> {
     ids.iter().map(|id| (*id).to_owned()).collect()
 }
 
+fn run_data(chat: &str, state: RunState, fence: u64) -> RecordData {
+    RecordData::Run(Run {
+        loaded_skill_details: vec![],
+        instruction: None,
+        queue_claim: None,
+        thread: chat.into(),
+        provider: "Codex".into(),
+        model: "synthetic".into(),
+        guide_identity: "synthetic".into(),
+        budget: 4,
+        effort: "medium".into(),
+        loaded_skills: vec![],
+        fence,
+        state,
+        progress: "retained synthetic progress".into(),
+        operations: vec![],
+        sources: vec![],
+    })
+}
+
+fn assert_run(store: &Store, id: &str, state: RunState, fence: u64, archived: bool) {
+    let record = store.record(id).unwrap().unwrap();
+    assert_eq!(record.archived, archived);
+    assert!(
+        matches!(record.data, RecordData::Run(run) if run.state == state && run.fence == fence)
+    );
+}
+
+#[test]
+fn project_delete_advances_only_actual_terminal_and_live_archive_transitions_once() {
+    for state in [
+        RunState::Interrupted,
+        RunState::Completed,
+        RunState::Cancelled,
+        RunState::Failed,
+    ] {
+        let mut w = world();
+        let p = project(&mut w.store, "Run fences");
+        let c = project_chat(&mut w.store, &p, "Conversation");
+        let runs = write(
+            &mut w.store,
+            "mixed runs",
+            vec![
+                (None, run_data(&c, state.clone(), 7), false),
+                (None, run_data(&c, RunState::Working, 11), false),
+                // Already archived at MAX: deletion/restore must neither advance
+                // this fence nor turn a no-op into an overflow failure.
+                (None, run_data(&c, RunState::Completed, u64::MAX), true),
+            ],
+        );
+        let delete = ProjectCommand::Delete {
+            preview: w.store.project_delete_preview(&p).unwrap(),
+            actions: BTreeMap::new(),
+        };
+        let receipt = project_command(&mut w.store, delete.clone());
+        assert_run(&w.store, &runs[0].id, state.clone(), 8, true);
+        assert_run(&w.store, &runs[1].id, RunState::Interrupted, 12, true);
+        assert_run(&w.store, &runs[2].id, RunState::Completed, u64::MAX, true);
+        let frozen = w.store.records().unwrap();
+        assert_eq!(project_command(&mut w.store, delete), receipt);
+        assert_eq!(
+            w.store.records().unwrap(),
+            frozen,
+            "replay cannot advance any fence again"
+        );
+        let deleted = w.store.record(&p).unwrap().unwrap();
+        project_command(
+            &mut w.store,
+            ProjectCommand::Restore {
+                project: p,
+                version: deleted.version,
+            },
+        );
+        assert_run(&w.store, &runs[0].id, state, 9, false);
+        assert_run(&w.store, &runs[1].id, RunState::Interrupted, 13, false);
+        assert_run(&w.store, &runs[2].id, RunState::Completed, u64::MAX, true);
+    }
+}
+
+#[test]
+fn project_delete_terminal_fence_overflow_refuses_atomically() {
+    let mut w = world();
+    let p = project(&mut w.store, "Overflow");
+    let c = project_chat(&mut w.store, &p, "Conversation");
+    let runs = write(
+        &mut w.store,
+        "overflow runs",
+        vec![
+            (None, run_data(&c, RunState::Failed, u64::MAX), false),
+            (None, run_data(&c, RunState::Working, 1), false),
+        ],
+    );
+    let command = ProjectCommand::Delete {
+        preview: w.store.project_delete_preview(&p).unwrap(),
+        actions: BTreeMap::new(),
+    };
+    let before = w.store.records().unwrap();
+    use sha2::{Digest, Sha256};
+    let binding = format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&command).unwrap())
+    );
+    let op = w
+        .store
+        .allocate_bound_operation("overflow deletion", &binding)
+        .unwrap();
+    let error = w
+        .store
+        .project_command(&op, &command, &HostAuthority::owner("synthetic fixture"))
+        .unwrap_err();
+    assert!(error.to_string().contains("run fence overflow"), "{error}");
+    assert_eq!(
+        w.store.records().unwrap(),
+        before,
+        "no member can be partly archived"
+    );
+    assert!(w.store.receipt(&op).unwrap().is_none());
+    assert_run(&w.store, &runs[0].id, RunState::Failed, u64::MAX, false);
+    assert_run(&w.store, &runs[1].id, RunState::Working, 1, false);
+}
+
 fn scope(data: &Path, chat: &str) -> MessageScope {
     let mut reader = Store::open_reader(data).unwrap();
     let snapshot = reader.snapshot().unwrap();

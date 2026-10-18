@@ -1,0 +1,20 @@
+{
+  "retained-source-export-canary": {
+    "base": "e8e98304af7c6dd871455f8081887bf6a1af3e16",
+    "production_Rust_differences": [],
+    "test_only_patch": "docs/work/active/modular-foundation/int-w/before/retained-source-export-canary.patch",
+    "test_patch_sha256": "0524b0b5eb343e9a10a8c0731c4f5b4021cc02d2c287d73217abeaa843c6767a",
+    "exact_test_source_sha256": "6c6d0daa68655aa84d5ca2b0d04c580f61bc0ad666744baaeaed56c2e136b003",
+    "original_prefix_byte_exact": true,
+    "receipt": "/private/tmp/brn-int-w-20261017-verification/retained-source-export-canary.json"
+  },
+  "retained-source-notes-ui-canary": {
+    "base": "e8e98304af7c6dd871455f8081887bf6a1af3e16",
+    "production_Rust_differences": [],
+    "test_only_patch": "docs/work/active/modular-foundation/int-w/before/retained-source-notes-ui-canary.patch",
+    "test_patch_sha256": "e0b55bfa97fe6498a48b68f56dcdec76b6d39b7da0b549921c0c4b0ecc89e5a3",
+    "exact_test_source_sha256": "fa21c4c41182f6ecb992a594a4f8424c1e66e69019507957961fe349ac12db23",
+    "original_prefix_byte_exact": true,
+    "receipt": "/private/tmp/brn-int-w-20261017-verification/retained-source-notes-ui-canary.json"
+  }
+}

@@ -1,0 +1,549 @@
+{
+  "base": "c8b3026f582c8770c24a984111f562becf529cad",
+  "source_candidate": "521454f2d6f4a3ef446a4e972663ac8980451499",
+  "files": [
+    {
+      "path": "crates/brn-ai/src/threads.rs",
+      "purpose": "Validate v2 saved setup/current access before dedicated model exposure; exclude configuration/v2 metadata from ordinary model reads.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-ai/src/threads_writing_tests.rs",
+      "purpose": "Runtime scope, model exposure and immutable request compatibility witnesses.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_projects.rs",
+      "purpose": "Allocated one WritingSetup label arm only.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_ui.rs",
+      "purpose": "Allocated one WritingSetup title arm only.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-desktop/src/threads_writing.rs",
+      "purpose": "Allocated one WritingSetup candidate label arm only.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-app/src/lib.rs",
+      "purpose": "Export setup view types; use shared paged message inspection.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-app/src/writing.rs",
+      "purpose": "Owner checked configuration, canonical setup identity, unavailable reference view and compatible immutable v2 capture.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/writing.rs",
+      "purpose": "Explicit legacy v1 snapshot fixtures after optional source-level field addition.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-app/tests/writing_setup.rs",
+      "purpose": "Shared service setup/capture/privacy/version/replay/Undo/restart/backup/history regression witnesses.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/backup.rs",
+      "purpose": "Recognize schema6 as an older backup format after schema7 adoption.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/context.rs",
+      "purpose": "Existing scope visibility of configuration/v2 and local lazy scope reuse; preserve pre-CW1 private classification.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/inspect.rs",
+      "purpose": "Discover WritingSetup and preserve scoped message-page filtering/cursors.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/lib.rs",
+      "purpose": "Public exports of CW1 writing setup and compatible envelope types/functions.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/restore.rs",
+      "purpose": "Restore schema6 backup through normal compatible schema7 upgrade.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/store.rs",
+      "purpose": "Schema7 unique identity, checked owner configuration, replay/Undo provenance and setup Current marker protection.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/types.rs",
+      "purpose": "WritingSetup record variant in existing checked store.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/upgrade.rs",
+      "purpose": "Transactional schema7 identity index after verified external backup.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/src/writing.rs",
+      "purpose": "Setup/reference types, scope resolution and active write validation, omitted v2 metadata, canonical revision/size checks.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/edit_tokens.rs",
+      "purpose": "Current-schema expectations for retained old-format migration tests.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/writing.rs",
+      "purpose": "Explicit legacy v1 snapshot fixture after optional source-level field addition.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn-threads-core/tests/writing_setup.rs",
+      "purpose": "Checked authority/atomicity/replay/Undo/legacy identity/size/upgrade/backup/restore and actual conversation safety witnesses.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "crates/brn/tests/agent_upgrade.rs",
+      "purpose": "Current schema7 process expectations; retain contract3 and old fixture capability limits.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/architecture/invariants.md",
+      "purpose": "Record optional v2 setup binding without rewriting v1 identity.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/architecture/threads-behavior.md",
+      "purpose": "Document existing host scope only and actual conversation working-Note exception.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/development/setup.md",
+      "purpose": "Document schema7 backup-first compatibility and rollback limits.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/status.md",
+      "purpose": "Current CW1 progress and remaining review/qualification limits.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/combined-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-05.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/combined-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-05.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-06.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-07.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-08.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-09.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/default-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/native-startup.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/r2-followup-clippy-fixed.log",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/r2-followup-failing-before.log",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/r2-followup-final-focused.log",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/r2-live-canonical-failing-before.log",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/schema6-refusal-afterhashes.json",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/corrected-690fb705/verification-manifest.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/default-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/final-receipt.json",
+      "owner": "CW1 slot A",
+      "purpose": "Final handoff pins, individual acceptance states, verification counts and limits; evidence only."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/fixtures/schema6-before-upgrade.sqlite3",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/focused-run-provenance-521454f2.json",
+      "owner": "CW1 slot A",
+      "purpose": "Explicit post-run association of 104-test receipt with final source/assertions; no manufactured in-run SHA."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/combined-05.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-05.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-06.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-07.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-08.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/default-09.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/native-00.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/native-01.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/native-02.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/native-03.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-56ca7c93-logs/native-04.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/initial-verification-manifest.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/mutation-521454f2-undo-results.json",
+      "owner": "CW1 slot A",
+      "purpose": "Changed Undo partial mutation outcomes, interruption/unstarted IDs, qualified survivors and shared-cap arithmetic."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/mutation-521454f2-undo.diff",
+      "owner": "CW1 slot A",
+      "purpose": "Exact immutable source scope for the bounded changed Undo mutation supplement."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/mutation-521454f2-undo.log",
+      "owner": "CW1 slot A",
+      "purpose": "Actual time-box interruption log; no relabeling of partial results."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/mutation-690fb705-results.json",
+      "owner": "CW1 slot A",
+      "purpose": "Every original corrected-candidate mutant verdict, exact commands/durations, raw hashes and per-survivor classification."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/native-results.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/native-startup.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/obsolete-mutation-attempts.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/opus-review-round1.md",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/opus-review-round2.md",
+      "owner": "CW1 slot A",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/opus-review-round3.md",
+      "owner": "CW1 slot A",
+      "purpose": "Verbatim independent focused Opus source approval, residual limits and proof qualifications."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/path-ownership.json",
+      "purpose": "Exact task file ownership and purpose inventory.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-ai.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-clippy-fixed.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-corrected-focused.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-deferred-undo-failing-before.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-failing-before-ai.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-failing-before-app.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-failing-before-core.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/review-r1-undo-attention.log",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/schema6-cli-receipt.json",
+      "purpose": "CW1 immutable synthetic fixture/verification or review receipt; evidence only, no production behavior.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/cw1/source-test-fingerprint-521454f2.json",
+      "owner": "CW1 slot A",
+      "purpose": "Every changed crate path SHA-256/Git blob and complete crates-tree identity at reviewed source/test pin."
+    },
+    {
+      "path": "docs/work/active/modular-foundation/evidence.md",
+      "purpose": "Candidate, compatibility, file ownership, verification, review dispositions and carry-forward evidence.",
+      "owner": "CW1 slot A"
+    },
+    {
+      "path": "docs/work/active/modular-foundation/plan.md",
+      "purpose": "Concise CW1 allocation and implementation/check steps in accepted plan.",
+      "owner": "CW1 slot A"
+    }
+  ],
+  "unmodified_allocations": [
+    "crates/brn-desktop/src/threads_lists.rs"
+  ],
+  "excluded": [
+    "Root manifests/lock/CI",
+    "Desktop confirmation callbacks and desktop tests",
+    "Frozen proposal packs and prior review logs"
+  ]
+}

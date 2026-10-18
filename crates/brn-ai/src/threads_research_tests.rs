@@ -7,6 +7,196 @@ use rig::completion::Usage;
 use rig::test_utils::{MockCompletionModel, MockStreamEvent};
 use std::time::Duration;
 
+#[tokio::test]
+async fn helper_request_budget_refuses_before_any_scripted_dispatch() {
+    let (_root, request, _) = setup();
+    let (parent, _) = begin(&request).unwrap();
+    let child = research::test_child_scope(&parent);
+    let model = MockCompletionModel::from_stream_turns([answer_turn()]);
+    let answer = run_model_budgeted(
+        model.clone(),
+        child,
+        &"õun English ".repeat(500),
+        ReasoningEffort::High,
+        research::HELPER_ROUNDS,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::test_cap(100),
+    )
+    .await;
+    assert!(matches!(&answer.terminal,AiTerminal::Failed(e) if e.is_context_limit()));
+    assert_eq!(model.request_count(), 0);
+}
+
+#[tokio::test]
+async fn helper_growth_uses_its_chosen_route_budget_instead_of_parent_catalog_limit() {
+    let (_root, mut request, _) = setup();
+    request.trace = TraceLevel::Summary;
+    let text = format!("{PLAN}{}", "x".repeat(16384 - PLAN.len()));
+    let plan = saved(
+        &mut Store::open(&request.data_dir).unwrap(),
+        RecordData::Note(Note::working("Large helper plan", &text)),
+    );
+    let mut choice = luna();
+    choice.provider = "copilot".into();
+    set_helper(&request, Some(choice));
+    let (scope, _) = begin(&request).unwrap();
+    let mut turns=(0..3).map(|round| {
+        let mut calls=(0..6).map(|call|MockStreamEvent::tool_call(format!("r{round}-{call}"),"read_note",json!({"id":plan.id,"version":plan.version,"start":0,"max_bytes":16384,"section":false}))).collect::<Vec<_>>();
+        calls.push(tokens(1));calls
+    }).collect::<Vec<_>>();
+    turns.push(vec![
+        MockStreamEvent::tool_call(
+            "report",
+            "submit_findings",
+            findings(vec![citation(
+                "c1",
+                &plan.id,
+                plan.version,
+                &text,
+                "The ferry leaves at 07:40 from pier 3.",
+            )]),
+        ),
+        tokens(1),
+    ]);
+    let helper = MockCompletionModel::from_stream_turns(turns);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let result = ask(&scope, vec![question("Read the plan")]).await;
+    assert_eq!(result["reports"][0]["outcome"], "answered", "{result}");
+    let requests = helper.requests();
+    assert_eq!(requests.len(), 4);
+    assert!(
+        serde_json::to_vec(&requests[3]).unwrap().len() > 272000,
+        "the actual chosen helper request exceeds the parent's configured estimate budget"
+    );
+    for pair in requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+    }
+    assert!(scope.helper.as_ref().unwrap().notices().is_empty());
+}
+
+#[tokio::test]
+async fn helper_admitted_read_exhausts_tiny_next_dispatch_budget_without_trimming() {
+    let (_root, request, _) = setup();
+    let note = saved(
+        &mut Store::open(&request.data_dir).unwrap(),
+        RecordData::Note(Note::working("Growing helper evidence", "õ".repeat(8192))),
+    );
+    let (parent, _) = begin(&request).unwrap();
+    let child = research::test_child_scope(&parent);
+    let calibration = MockCompletionModel::from_stream_turns([answer_turn()]);
+    let initial = run_model_budgeted(
+        calibration.clone(),
+        child.clone(),
+        "Read evidence",
+        ReasoningEffort::High,
+        5,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::test_cap(272000),
+    )
+    .await;
+    assert!(matches!(initial.terminal, AiTerminal::Completed));
+    let mut request = calibration.requests().remove(0);
+    request.model = None;
+    let cap = serde_json::to_vec(&request).unwrap().len() + 1024 + 8192 + 4096 + 1024;
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call(
+                "read",
+                "read_note",
+                json!({"id":note.id,"version":note.version,"start":0,"max_bytes":16384,"section":false}),
+            ),
+            tokens(1),
+        ],
+        answer_turn(),
+    ]);
+    let answer = run_model_budgeted(
+        model.clone(),
+        child,
+        "Read evidence",
+        ReasoningEffort::High,
+        5,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::test_cap(cap),
+    )
+    .await;
+    assert!(matches!(&answer.terminal,AiTerminal::Failed(e) if e.is_context_limit()));
+    assert_eq!(model.request_count(), 1);
+    assert_eq!(model.requests()[0].chat_history, request.chat_history);
+}
+
+#[tokio::test]
+async fn helper_dispatch_keeps_append_only_history_under_the_shared_guard() {
+    let (_root, request, plan) = setup();
+    let (parent, _) = begin(&request).unwrap();
+    let child = research::test_child_scope(&parent);
+    let helper = MockCompletionModel::from_stream_turns([
+        vec![read_call("first", &plan), tokens(1)],
+        vec![read_call("second", &plan), tokens(1)],
+        answer_turn(),
+    ]);
+    let answer = run_model_budgeted(
+        helper.clone(),
+        child,
+        "Read synthetic evidence",
+        ReasoningEffort::High,
+        research::HELPER_ROUNDS,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+        context_budget::Budget::selected(Provider::Chatgpt, "gpt-6-luna"),
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        answer.terminal
+    );
+    let requests = helper.requests();
+    assert_eq!(requests.len(), 3);
+    for pair in requests.windows(2) {
+        assert_eq!(
+            &pair[1].chat_history[..pair[0].chat_history.len()],
+            &pair[0].chat_history
+        );
+        assert_eq!(pair[0].tools, pair[1].tools);
+    }
+}
+
+#[tokio::test]
+async fn helper_provider_context_limit_is_budget_with_safe_diagnostics_and_no_fallback() {
+    let (_root, scope, _) = codex_helper_scope(TraceLevel::Summary);
+    let http =
+        rig::test_utils::SequencedHttpClient::new([rig::test_utils::MockHttpResponse::error(
+            rig::http_client::StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"context_length_exceeded","message":"CANARY_PROVIDER_CONTEXT"}}"#,
+        )]);
+    scope
+        .helper
+        .as_ref()
+        .unwrap()
+        .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+            http.clone(),
+        ))));
+    let result = ask(&scope, vec![question("Read the synthetic plan")]).await;
+    assert_eq!(result["reports"][0]["outcome"], "budget", "{result}");
+    assert_eq!(http.requests().len(), 1);
+    assert!(scope.helper.as_ref().unwrap().notices().is_empty());
+    assert!(
+        !serde_json::to_string(&helper_traces(&scope))
+            .unwrap()
+            .contains("CANARY_PROVIDER_CONTEXT")
+    );
+}
+
 const PLAN: &str =
     "# Harbor plan\n\nThe ferry leaves at 07:40 from pier 3.\nTickets cost 18 EUR.\n";
 
@@ -20,7 +210,7 @@ struct GateSearch {
 impl RunNoteSearch for GateSearch {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
@@ -38,7 +228,7 @@ impl RunNoteSearch for GateSearch {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
@@ -52,7 +242,7 @@ struct FakeSearch;
 impl RunNoteSearch for FakeSearch {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -68,7 +258,7 @@ impl RunNoteSearch for FakeSearch {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,
@@ -455,8 +645,29 @@ async fn project_without_brn_knowledge_hides_global_notes_from_helpers() {
 
 #[tokio::test]
 async fn helpers_are_read_only_and_cannot_spawn_helpers() {
+    let server = crate::mcp::http_tests::TestServer::start().await;
     let (_root, request, plan) = setup();
-    let (scope, _) = begin(&request).unwrap();
+    let policy = server.policy(vec![McpAccess::General]).await;
+    let mut store = Store::open(&request.data_dir).unwrap();
+    let op = store.allocate_operation(&unique_host_key()).unwrap();
+    store
+        .change_mcp_policy(
+            &op,
+            Some(&policy),
+            &HostAuthority::owner("synthetic review"),
+        )
+        .unwrap();
+    drop(store);
+    let prepared = prepare_run(request)
+        .unwrap()
+        .with_external_input(
+            "public_read",
+            &json!({"query":"approved public helper test"}),
+        )
+        .unwrap();
+    let scope = prepared.scope.clone();
+    let external = mcp_runtime::invocation(&scope).unwrap();
+    external.connect(&CancellationToken::new()).await.unwrap();
     let write = MockCompletionModel::from_stream_turns(vec![vec![
         MockStreamEvent::tool_call(
             "w",
@@ -473,15 +684,41 @@ async fn helpers_are_read_only_and_cannot_spawn_helpers() {
         MockStreamEvent::tool_call("k", "read_skill", json!({"id":"intake"})),
         tokens(10),
     ]]);
-    scripted(&scope, vec![Ok(write.clone()), Ok(spawn), Ok(skill)]);
+    let mcp = MockCompletionModel::from_stream_turns(vec![vec![
+        MockStreamEvent::tool_call(
+            "m",
+            external.name(),
+            json!({"query":"approved public helper test"}),
+        ),
+        tokens(10),
+    ]]);
+    scripted(
+        &scope,
+        vec![Ok(write.clone()), Ok(spawn), Ok(skill), Ok(mcp.clone())],
+    );
     let out = ask(
         &scope,
-        vec![question("one"), question("two"), question("three")],
+        vec![
+            question("one"),
+            question("two"),
+            question("three"),
+            question("four"),
+        ],
     )
     .await;
     for report in out["reports"].as_array().unwrap() {
         assert_eq!(report["outcome"], "failed", "{out}");
     }
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(mcp.request_count(), 1);
+    assert!(
+        !mcp.requests()[0]
+            .tools
+            .iter()
+            .any(|t| t.name.starts_with("mcp_"))
+    );
+    mcp_runtime::cleanup(&scope).await;
+    server.stop().await;
     let store = scope.store.lock().unwrap();
     let current = store.record(&plan.id).unwrap().unwrap();
     assert_eq!(current.version, plan.version);
@@ -1044,9 +1281,20 @@ async fn copilot_helpers_route_through_the_copilot_client() {
     assert_eq!(requests.len(), 2);
     assert!(requests[0].uri.ends_with("/chat/completions"));
     assert!(requests[1].uri.ends_with("/responses"));
-    for request in &requests {
+    for (index, request) in requests.iter().enumerate() {
         let body: Value = serde_json::from_slice(&request.body).unwrap();
         assert_eq!(body["model"], "gpt-6-luna");
+        assert_eq!(
+            if index == 0 {
+                &body["reasoning_effort"]
+            } else {
+                &body["reasoning"]["effort"]
+            },
+            "high"
+        );
+        for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
+            assert!(body.get(field).is_none(), "unexpected {field}: {body}");
+        }
     }
     let body: Value = serde_json::from_slice(&requests[1].body).unwrap();
     assert!(body.get("prompt_cache_key").is_none());
@@ -1709,7 +1957,7 @@ struct ListSearch(Vec<(String, u64)>);
 impl RunNoteSearch for ListSearch {
     fn search(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: usize,
         _: Option<&str>,
@@ -1741,7 +1989,7 @@ impl RunNoteSearch for ListSearch {
     }
     fn connections(
         &self,
-        _: &str,
+        _: Option<&str>,
         _: &str,
         _: u8,
         _: bool,
@@ -1813,7 +2061,7 @@ struct LeaseProbe {
 impl RunNoteSearch for LeaseProbe {
     fn search(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         query: &str,
         limit: usize,
         cursor: Option<&str>,
@@ -1838,7 +2086,7 @@ impl RunNoteSearch for LeaseProbe {
     }
     fn connections(
         &self,
-        chat: &str,
+        chat: Option<&str>,
         note: &str,
         hops: u8,
         sources: bool,
@@ -1892,4 +2140,48 @@ async fn a_helper_sub_run_holds_its_parent_lease_and_saves_no_run() {
         Store::open(&request.data_dir).unwrap().record(&run).unwrap().unwrap().data,
         RecordData::Run(r) if r.state == RunState::Working
     ));
+}
+
+#[tokio::test]
+async fn copilot_helper_provider_overflow_is_budget_without_unavailability_or_fallback() {
+    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
+    let (root, mut request, _plan) = setup();
+    request.trace = TraceLevel::Summary;
+    let dir = root.path().join("copilot-credentials");
+    std::fs::DirBuilder::new().mode(0o700).create(&dir).unwrap();
+    let file = dir.join("copilot.json");
+    std::fs::write(
+        &file,
+        json!({"token":"synthetic-not-a-credential","expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string(),
+    )
+    .unwrap();
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let mut helper = luna();
+    helper.provider = "copilot".into();
+    helper.credentials_dir = Some(dir.to_str().unwrap().into());
+    set_helper(&request, Some(helper));
+    let (scope, _) = begin(&request).unwrap();
+
+    let http = rig::test_utils::SequencedHttpClient::new([
+        rig::test_utils::MockHttpResponse::error(
+            rig::http_client::StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"model_max_prompt_tokens_exceeded","message":"CANARY_COPILOT_HELPER"}}"#,
+        ),
+    ]);
+    scope
+        .helper
+        .as_ref()
+        .unwrap()
+        .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+            http.clone(),
+        ))));
+    let result = ask(&scope, vec![question("Read the plan")]).await;
+    assert_eq!(result["reports"][0]["outcome"], "budget", "{result}");
+    assert_eq!(http.requests().len(), 1);
+    assert!(scope.helper.as_ref().unwrap().notices().is_empty());
+    assert!(
+        !serde_json::to_string(&helper_traces(&scope))
+            .unwrap()
+            .contains("CANARY_COPILOT_HELPER")
+    );
 }

@@ -1,0 +1,50 @@
+{
+  "brn": {
+    "passed": 172,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": 21
+  },
+  "brn_ai": {
+    "passed": 452,
+    "failed": 0,
+    "ignored": 1,
+    "summaries": 2
+  },
+  "brn_desktop": {
+    "passed": 30,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": 1
+  },
+  "brn_intake": {
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": 6
+  },
+  "brn_retrieval": {
+    "passed": 36,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": 5
+  },
+  "brn_threads_app": {
+    "passed": 244,
+    "failed": 0,
+    "ignored": 1,
+    "summaries": 36
+  },
+  "brn_threads_core": {
+    "passed": 208,
+    "failed": 0,
+    "ignored": 1,
+    "summaries": 23
+  },
+  "brn_threads_intake": {
+    "passed": 35,
+    "failed": 1,
+    "ignored": 3,
+    "summaries": 3
+  }
+}

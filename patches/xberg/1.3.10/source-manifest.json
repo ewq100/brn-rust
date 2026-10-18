@@ -1,0 +1,72 @@
+{
+  "package": {
+    "name": "xberg",
+    "version": "1.3.10",
+    "registry_source": "registry+https://github.com/rust-lang/crates.io-index",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "archive_bytes": 3736980,
+    "source_files": 764
+  },
+  "license": {
+    "spdx": "MIT",
+    "declaration": "Cargo.toml:114",
+    "declaration_file_sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+    "authors": [
+      "Na'aman Hirschfeld",
+      "Tobias Perlstein"
+    ],
+    "packaged_license_files": [],
+    "boundary": "Published README:298 points to ../../LICENSE outside the crate; no LICENSE* file is included in this exact archive. This distribution contains a patch, not the upstream tree."
+  },
+  "apply_order": [
+    "0001-docx-table-grid-spans.patch"
+  ],
+  "patch_sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7",
+  "selected_source_files": [
+    {
+      "path": "src/extraction/docx/parser.rs",
+      "pristine_sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "compiled_final_sha256": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+      "independent_apply_sha256": "3292eef1bb5fe8afc2cd6995e2532aa63f90226b608082b2d2180a7b95d1e42e",
+      "prior_candidate_sha256": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5"
+    },
+    {
+      "path": "src/extractors/docx.rs",
+      "pristine_sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+      "compiled_final_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "independent_apply_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "prior_candidate_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25"
+    },
+    {
+      "path": "src/extraction/derive/mod.rs",
+      "pristine_sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405",
+      "compiled_final_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68",
+      "independent_apply_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68",
+      "prior_candidate_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+    }
+  ],
+  "unmodified_build_rs_sha256": "a33a241314b2ee7b07920148850b68199e35e9bcd372b73b01d8196ce537eeac",
+  "scope": "Three upstream production files only. No root manifest/lock adoption, backend dispatch, public schema or validator changes.",
+  "verification": {
+    "external_root": "/private/tmp/brn-x2-office-s3-r1-20261018",
+    "pristine_harness_git": "2835e6c6997c051c56fdd5caca948a11f7976e6d",
+    "compiled_final_git": "683cb52a96b56c344318085d39dbf1725064ddce",
+    "test_source_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c",
+    "harness_lock_sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+    "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "patch_apply_receipt_sha256": "bcc54a593b1944ff96fe1401226b12eb9cc8751a59a303a32831eee698bdcfd4",
+    "pristine_measurement_boundary": "Historical original seven-test harness only; not rerun for correction. New eighth test is appended without changing original bytes.",
+    "focused_result": "1 passed / 0 failed / 7 filtered",
+    "full_result": "7 passed / 1 failed / 0 ignored / 0 filtered; unchanged prefix namespace gap",
+    "metadata_calls_this_correction": 0
+  },
+  "prior_candidate": {
+    "repo_commit": "5b0a0fda1af4be27a1c81720bb5d08c5aaf30d0a",
+    "compiled_upstream_git": "c111e78fb861e1ef337b9e99070ebadfa811ea21",
+    "patch_sha256": "520ca37d49a5fa644667aa85a29efc8b4a9747ef2e5c61fd17ab0bf4296e6ffd",
+    "external_root": "/private/tmp/brn-x2-office-s3-20261018",
+    "full_provenance_snapshot": "/private/tmp/brn-x2-office-s3-r1-20261018/evidence/original/source-manifest.json",
+    "full_provenance_snapshot_sha256": "38e88a4f763bdb8da2668ffc94954c9df6162f86035287e5e88738dfcf030f77",
+    "result": "Original 1 passed / 6 failed -> 6 passed / 1 failed remains unchanged."
+  }
+}

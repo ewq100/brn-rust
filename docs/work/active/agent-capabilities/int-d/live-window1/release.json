@@ -1,0 +1,37 @@
+{
+  "task": "int-d-live-window1",
+  "source_pin": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+  "head_before_evidence_commit": "069bf81476256b6c71e90e5c098dd3a9ff3a4081",
+  "branch": "work/int-d-20261017",
+  "compiled_source_inputs_unchanged": 333,
+  "qualification_scripts_unchanged": 3,
+  "artifacts_and_dep_info_unchanged": true,
+  "all_owned_sessions_reaped": [
+    98252,
+    14778
+  ],
+  "observer_pgids_reaped": [
+    77912,
+    79899
+  ],
+  "precise_heavy_controller_target_inventory": [],
+  "six_unstarted_databases_unchanged": true,
+  "exact_saved_owner_instructions_verified": 2,
+  "ledger_actual_starts": 2,
+  "finished_cases": [
+    1
+  ],
+  "stop_reason": "case2 actual Failed:ToolLimitReached exit7; observer exit1; window stopped, no retry",
+  "unstarted_cases": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "future_starts_authorized": 0,
+  "no_tests_builds_mutants_source_changes": true,
+  "release": "EXPLICITLY RELEASE sole heavy/provider window and all INT-D paths to principal. Source frozen; no more provider starts/actions without a new explicit allocation.",
+  "timestamp": 1792244053.1276212
+}

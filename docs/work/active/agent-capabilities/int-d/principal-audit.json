@@ -1,0 +1,97 @@
+{
+  "original_preflight": {
+    "base": "c2eca56353152bea22df82337d2ef6f9c461a34f",
+    "material": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+    "current_head": "069bf81476256b6c71e90e5c098dd3a9ff3a4081",
+    "status": "",
+    "compiled_input_checks": 333,
+    "command_records_checked": 20,
+    "full_diff_sha256": "67fafc5d8a4e549fbf93304a3e67c9aac2fe03e07e2e182d5f697c04d5340260",
+    "preflight": "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/preflight.json",
+    "preflight_sha256": "0148ad45fa1ed0cb38d7bd52274546bf13b5f06ddb64633ca713f95a5617547d",
+    "artifact_and_depinfo_checks": true,
+    "initial_fixtures_untouched": true,
+    "live_starts": 0,
+    "workflow_cases": 8,
+    "maximum_starts": 12,
+    "errors": [],
+    "audit_scope": "Hashes/counts/invariance/preflight state, not acceptance of all behavioral assertions; independent review pending. Prior SDK/widget/PDF/other qualification retained."
+  },
+  "live_window1": {
+    "source_pin": "f1a5624f096efc956f5b3e771ba0670bd30e952d",
+    "raw_records_verified": 46,
+    "hash_or_length_mismatches": [],
+    "actual_reserved_starts": 2,
+    "finished_cases": [
+      1
+    ],
+    "parent_usage_recomputed": {
+      "input": 200282,
+      "output": 3889,
+      "cached_input": 156544
+    },
+    "summary_usage_recomputed": {
+      "input": 11256,
+      "output": 479,
+      "cached_input": 0
+    },
+    "model_turns_recomputed": 17,
+    "no_repeat_or_stop_continue": true,
+    "qualification": "Live firstpair ended early, no candidates/Apply. Generic preparation cause UNKNOWN, selected admission not comprehension. No causal/superiority/integration acceptance. Source repair independent."
+  },
+  "corrected_material": {
+    "material": "b93904076026536750d392b617e80f065744afa8",
+    "current_head": "bc5eb5dab1b45f3b98f8beca92de3e64441ce560",
+    "compiled_inputs_match_Git_and_worktree": 333,
+    "changed_compiled_inputs": [
+      "crates/brn/tests/int_d.rs",
+      "crates/brn/tests/support/int_d.rs",
+      "crates/brn-ai/src/threads_int_d_tests.rs",
+      "crates/brn-threads-app/tests/int_d.rs"
+    ],
+    "unchanged_compiled_input_count": 329,
+    "qualification_scripts": 3,
+    "indexed_commands": 9,
+    "raw_log_counts": {
+      "s2-stale-before": [
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "cli-int-d-corrected": [
+        [
+          4,
+          0,
+          0
+        ]
+      ],
+      "ai-int-d-selected-positive": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "app-int-d-selected-positive": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "strict-workspace-corrected": [],
+      "strict-scripted-corrected": [],
+      "format-corrected": [],
+      "doc-links-corrected": [],
+      "doc-links-final": []
+    },
+    "harness_cases": 10,
+    "historical_live_evidence_unchanged": true,
+    "original_live_starts": 2,
+    "new_live_starts_authorized": 0,
+    "errors": [],
+    "qualification": "Hash/count/source audit, not independent approval or live completion. Opus2 pending; prior failures/unknowns retained."
+  }
+}

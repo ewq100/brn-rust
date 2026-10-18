@@ -1,0 +1,176 @@
+diff --git a/src/extraction/derive/mod.rs b/src/extraction/derive/mod.rs
+index a5c7175..6c6e5fe 100644
+--- a/src/extraction/derive/mod.rs
++++ b/src/extraction/derive/mod.rs
+@@ -501,17 +501,20 @@ fn element_to_node_content(
+ }
+
+ fn table_node_content(elem: &mut InternalElement, table_index: u32, tables: &[Table]) -> NodeContent {
+-    let native_grid = elem
++    let encoded = elem
+         .attributes
+         .as_mut()
+-        .and_then(|attributes| attributes.remove(crate::types::internal::NATIVE_TABLE_GRID_ATTRIBUTE))
+-        .and_then(|encoded| match serde_json::from_str::<TableGrid>(&encoded) {
+-            Ok(grid) => Some(grid),
+-            Err(error) => {
+-                tracing::warn!(table_index, %error, "discarding invalid internal native table grid");
+-                None
+-            }
+-        });
++        .and_then(|attributes| attributes.remove(crate::types::internal::NATIVE_TABLE_GRID_ATTRIBUTE));
++    if encoded.is_some() && elem.attributes.as_ref().is_some_and(|attributes| attributes.is_empty()) {
++        elem.attributes = None;
++    }
++    let native_grid = encoded.and_then(|encoded| match serde_json::from_str::<TableGrid>(&encoded) {
++        Ok(grid) => Some(grid),
++        Err(error) => {
++            tracing::warn!(table_index, %error, "discarding invalid internal native table grid");
++            None
++        }
++    });
+     let grid = if let Some(table) = tables.get(table_index as usize) {
+         table_to_grid(table, native_grid.as_ref())
+     } else {
+diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
+index cbe2513..6567d51 100644
+--- a/src/extraction/docx/parser.rs
++++ b/src/extraction/docx/parser.rs
+@@ -1066,6 +1066,88 @@ impl Table {
+         cells
+     }
+
++    /// Preserve parsed rectangular merge geometry alongside the unchanged dense grid.
++    /// Missing grids, ragged rows and unmatched vertical continuations keep the legacy
++    /// projection; their source layout cannot be inferred from equal or empty text.
++    pub(crate) fn to_native_grid(
++        &self,
++        render: impl Fn(&Paragraph) -> String,
++    ) -> Option<crate::types::document_structure::TableGrid> {
++        use super::table::VerticalMerge;
++        use crate::types::document_structure::{GridCell, TableGrid};
++
++        let rows = u32::try_from(self.rows.len()).ok()?;
++        let cols = u32::try_from(self.grid.as_ref()?.columns.len()).ok()?;
++        if rows == 0 || cols == 0 {
++            return None;
++        }
++        let mut cells: Vec<GridCell> = Vec::new();
++        // Only merges active in the immediately preceding row may continue.
++        // Each entry binds the exact source column and span to its one origin.
++        let mut previous: Vec<(u32, u32, usize)> = Vec::new();
++        for (row_index, row) in self.rows.iter().enumerate() {
++            let row_index = u32::try_from(row_index).ok()?;
++            let mut col = 0u32;
++            let mut active = Vec::new();
++            let mut previous_cursor = 0;
++            for cell in &row.cells {
++                let props = cell.properties.as_ref();
++                let span = props.and_then(|p| p.grid_span).unwrap_or(1);
++                let end = col.checked_add(span)?;
++                if span == 0 || end > cols {
++                    return None;
++                }
++                match props.and_then(|p| p.v_merge.as_ref()) {
++                    Some(VerticalMerge::Continue) => {
++                        // Both rows advance in source-column order. Visit each previous
++                        // entry at most once, including chains that ended in this row.
++                        while previous.get(previous_cursor).is_some_and(|(start, _, _)| *start < col) {
++                            previous_cursor += 1;
++                        }
++                        let &(start, width, origin) = previous.get(previous_cursor)?;
++                        if start != col || width != span {
++                            return None;
++                        }
++                        previous_cursor += 1;
++                        let origin_cell = cells.get_mut(origin)?;
++                        origin_cell.row_span = origin_cell.row_span.checked_add(1)?;
++                        active.push((col, span, origin));
++                    }
++                    merge => {
++                        let origin = cells.len();
++                        cells.push(GridCell {
++                            content: cell
++                                .paragraphs
++                                .iter()
++                                .map(&render)
++                                .collect::<Vec<_>>()
++                                .join(" ")
++                                .trim()
++                                .to_string(),
++                            row: row_index,
++                            col,
++                            row_span: 1,
++                            col_span: span,
++                            is_header: row_index == 0,
++                            bbox: None,
++                            heading_level: None,
++                            style_name: None,
++                        });
++                        if matches!(merge, Some(VerticalMerge::Restart)) {
++                            active.push((col, span, origin));
++                        }
++                    }
++                }
++                col = end;
++            }
++            if col != cols {
++                return None;
++            }
++            previous = active;
++        }
++        Some(TableGrid { rows, cols, cells })
++    }
++
+     /// Build the per-cell paragraph style ids for this table, in the exact layout
+     /// [`Table::to_cell_grid`] produces.
+     ///
+diff --git a/src/extractors/docx.rs b/src/extractors/docx.rs
+index 027a56a..8410c82 100644
+--- a/src/extractors/docx.rs
++++ b/src/extractors/docx.rs
+@@ -322,7 +322,8 @@ fn build_internal_document(
+                 let cells = table.to_cell_grid(crate::extraction::docx::parser::Paragraph::runs_to_markdown);
+                 if !cells.is_empty() {
+                     let cell_styles = resolve_table_cell_styles(doc, table);
+-                    builder.push_table_from_cells_with_styles(&cells, &cell_styles, Some(current_page), None);
++                    let idx = builder.push_table_from_cells_with_styles(&cells, &cell_styles, Some(current_page), None);
++                    attach_native_table_grid(&mut builder, idx, table, &cell_styles);
+                 }
+             }
+             crate::extraction::docx::parser::DocumentElement::Drawing(idx) => {
+@@ -495,11 +496,34 @@ fn push_header_footer_content(
+         let cells = table.to_cell_grid(crate::extraction::docx::parser::Paragraph::runs_to_markdown);
+         if !cells.is_empty() {
+             let idx = builder.push_table_from_cells(&cells, None, None);
++            attach_native_table_grid(builder, idx, table, &[]);
+             builder.set_layer(idx, layer);
+         }
+     }
+ }
+
++/// Attach geometry to the exact table element without replacing its other attributes.
++fn attach_native_table_grid(
++    builder: &mut InternalDocumentBuilder,
++    index: u32,
++    table: &crate::extraction::docx::parser::Table,
++    cell_styles: &[crate::types::TableCellStyle],
++) {
++    let Some(mut grid) = table.to_native_grid(crate::extraction::docx::parser::Paragraph::runs_to_markdown) else {
++        return;
++    };
++    for cell in &mut grid.cells {
++        if let Ok(style_index) = cell_styles.binary_search_by_key(&(cell.row, cell.col), |s| (s.row, s.col)) {
++            let style = &cell_styles[style_index];
++            cell.heading_level = style.heading_level;
++            cell.style_name = style.style_name.clone();
++        }
++    }
++    if let Ok(encoded) = serde_json::to_string(&grid) {
++        builder.merge_attribute(index, crate::types::internal::NATIVE_TABLE_GRID_ATTRIBUTE, encoded);
++    }
++}
++
+ /// Collect plain text, annotations, and math formulas from a slice of Runs.
+ ///
+ /// Returns `(plain_text, annotations, math_formulas)` where:

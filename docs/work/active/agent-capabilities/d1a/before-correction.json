@@ -1,0 +1,6 @@
+{
+  "source": "exact b617d784 archive plus cfg(test) witnesses",
+  "prior_attempt": "before-history failed fixture setup: creation IDs allocated from different operation; not a valid behavioral witness",
+  "correction": "commit creation writes with exact allocating operation; no production baseline change",
+  "witness_sha256": "258e13284155c12582171d1831a965e793dfb8561fc01af94bbae1371da88c0a"
+}

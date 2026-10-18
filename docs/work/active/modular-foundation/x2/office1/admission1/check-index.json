@@ -1,0 +1,327 @@
+{
+  "base_commit": "95781baa94617e712ad29c289ebdaa2566ea8002",
+  "evidence_root": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa",
+  "paths": "Each label resolves to .json, .log, .source.diff, .before-artifacts.json and .after-artifacts.json under evidence_root. Artifact objects and exact sources are retained by SHA.",
+  "source_pin": "source-pin.json",
+  "final_checks": {
+    "ordinary_alltargets": 107,
+    "union_alltargets": 114,
+    "host_docx_filter": 3,
+    "mock_ai_conversion": 9,
+    "strict_clippy_both_graphs": "PASS",
+    "affected_formatting": "PASS",
+    "markdown_links": "Markdown links: 385 files, 1724 local links, 0 failures; historical outgoing policy=docs/archive/ only",
+    "whitespace": "Final full base-to-staged-tree check is recorded in final-precommit.json; original whitespace failure is preserved in command 23."
+  },
+  "failure_classifications": {
+    "01-before-docx-six": "Genuine compiled behavior red; both schemas accept all six malformed inputs.",
+    "06-union-historical-pair-mismatch": "89 passed / 1 stale paired-current pin failure; no bare-Xberg drift.",
+    "11-ai-conversion-tests": "3 passed / 6 failed from synthetic auth beneath Git; source/binary unchanged, harness-only non-Git private TMPDIR fix verified by command 12.",
+    "13-before-private-tmp": "Same genuine before refusal failure under corrected private TMPDIR.",
+    "23-original-full-delta-whitespace": "Trailing blank line in copied full requirements; initial final shell sequence continued into commit 50faa2b7 after check failure. Original failed full-delta check and commit retained; document-only follow-up removes surplus EOF newline and verifies full base-to-final delta."
+  },
+  "commands": [
+    {
+      "label": "00-preserve-candidate",
+      "command": "python3 -c 'print(\"preserve candidate before any overwrite\")'",
+      "exit": 0,
+      "receipt_sha256": "82f91b823c1b24a96c7684ac5c6c0caddea7eed6ecf5536daa56e56b72adac49",
+      "log_sha256": "3b25f732278f83d9e1bcbcde84a646ffba20c1a100bd8031aa649d2f019f9f20",
+      "before_artifacts_sha256": "df4b1828211ddde5338eccb3c3c6900a0a0ff26b3a13ef57727b118f75de670f",
+      "after_artifacts_sha256": "df4b1828211ddde5338eccb3c3c6900a0a0ff26b3a13ef57727b118f75de670f",
+      "result_summaries": []
+    },
+    {
+      "label": "01-before-docx-six",
+      "command": "cargo +1.98.1 test -p brn-intake --features helper --test docx_inventory a1_docx_member_sizes_required_optional_both_schemas --locked --offline --jobs 1 --message-format=json -- --exact --nocapture --test-threads=1",
+      "exit": 101,
+      "receipt_sha256": "0a293311226382812a8c2b9d2fe1421106d53d1ad97ff3bf915813cdc9777b5f",
+      "log_sha256": "0c991adb5217ff229507c7e9bef7b872c6678a47d97acaef23824f91282985e5",
+      "before_artifacts_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "after_artifacts_sha256": "b119dd6a424e76b6a749cb74d482b11a3c600d15cae51656b6b7e0445f131097",
+      "result_summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "label": "02-build-ordinary-helper",
+      "command": "cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline --jobs 1 --message-format=json",
+      "exit": 0,
+      "receipt_sha256": "e56ce7b6f99b5081390cd9c5b96e69877a1c6696700e61507c652debc2ddc456",
+      "log_sha256": "b421ebb10d7e954dc46aa12b81f8059c7939261020c6d9ad6bd66401b614fd37",
+      "before_artifacts_sha256": "df4b1828211ddde5338eccb3c3c6900a0a0ff26b3a13ef57727b118f75de670f",
+      "after_artifacts_sha256": "09239fb58329f15e16d535e4632e54016fcaeb38264e8793d88d0238d9bf71da",
+      "result_summaries": []
+    },
+    {
+      "label": "03-current-and-a1-ordinary",
+      "command": "cargo +1.98.1 test -p brn-intake --features helper --test docx_inventory --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "3d39654a792da1ddee47e91265393866edaf4abd40e2440151afedcd672722d4",
+      "log_sha256": "e6dccfd4055e7f7cf7c1fadc184531e8f97e520772292f2e41fc6d004e9879e1",
+      "before_artifacts_sha256": "09239fb58329f15e16d535e4632e54016fcaeb38264e8793d88d0238d9bf71da",
+      "after_artifacts_sha256": "505c5616cebbe729948f6e0db839a93b9341b042ed7c239e26cfd10c64cc0434",
+      "result_summaries": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s"
+      ]
+    },
+    {
+      "label": "04-ordinary-all-targets",
+      "command": "cargo +1.98.1 test -p brn-intake --features helper --all-targets --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "fc02bf4b3cf6dd22f9b394b053e233653b3e3b7bf1df49593ad3281f0fc47d82",
+      "log_sha256": "c9e9c2dc426b0f0438f7f3331229e9a1d8d669e729733f7bfdf61ea8a9a7d93c",
+      "before_artifacts_sha256": "505c5616cebbe729948f6e0db839a93b9341b042ed7c239e26cfd10c64cc0434",
+      "after_artifacts_sha256": "f06e166781c46dabb8a7a5d9622f4c9c0c18065b9e50f8f8e7b5cb07645707ed",
+      "result_summaries": [
+        "test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s"
+      ]
+    },
+    {
+      "label": "05-build-union-helper",
+      "command": "cargo +1.98.1 build -p brn-intake --features office-differential --bin brn-intake-helper --locked --offline --jobs 1 --message-format=json",
+      "exit": 0,
+      "receipt_sha256": "60def16d9eef68a3e342ac7a98c46a3afbf6ce82bcaaef4351697e6b0f38022f",
+      "log_sha256": "b38484db1e6308f0ee3fe14b4d2db1045d3f7d3102b82c783254c597c579b355",
+      "before_artifacts_sha256": "f06e166781c46dabb8a7a5d9622f4c9c0c18065b9e50f8f8e7b5cb07645707ed",
+      "after_artifacts_sha256": "6a5eee4cd8857f337adcc167ee7a4afdd589132483aaeacb09832ca0b5a0084e",
+      "result_summaries": []
+    },
+    {
+      "label": "06-union-historical-pair-mismatch",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 101,
+      "receipt_sha256": "cfd3372ce3cda35f0c3d5687d8c9c2bd97b3e68cb28408279578ca05a3ae2321",
+      "log_sha256": "160b64f573930bb965526161c95c09eed594e8cc1356a33fa23c2b0d95e6fad5",
+      "before_artifacts_sha256": "6a5eee4cd8857f337adcc167ee7a4afdd589132483aaeacb09832ca0b5a0084e",
+      "after_artifacts_sha256": "77c3c1d3dd665b214b1867397e5feb630c5e9d152f235b77770c1a67fa84de42",
+      "result_summaries": [
+        "test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s",
+        "test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+      ]
+    },
+    {
+      "label": "07-office-paired-pins",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --test office_differential --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "46e2270bd6fab6a84fd952c369e99d078f09b6f2ab93b8eaa058ca06d0ab8b52",
+      "log_sha256": "78da97ba8de5dbb666c4649ef91bb2bd69d1404edf110e91989d76dfa1c9309e",
+      "before_artifacts_sha256": "77c3c1d3dd665b214b1867397e5feb630c5e9d152f235b77770c1a67fa84de42",
+      "after_artifacts_sha256": "9bef263cdf94e9d4a72339415d1aa7975bf3b8aa3a4075eda029fd7777cc2241",
+      "result_summaries": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      ]
+    },
+    {
+      "label": "08-union-all-targets-final",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "8a587d10e1d711e31cfe338a95afb650c92de755289622bea86c7cdeba4a6a2b",
+      "log_sha256": "cb6bf96d4d51e6eef8912174e795357ba51ccc2d1e7753d3d4bdc94ad3c78b87",
+      "before_artifacts_sha256": "9bef263cdf94e9d4a72339415d1aa7975bf3b8aa3a4075eda029fd7777cc2241",
+      "after_artifacts_sha256": "a6406e895ff0ca1f19bb19410e6f63c29fb3c83c6cdc61a2fb2cda70fde31cf2",
+      "result_summaries": [
+        "test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s"
+      ]
+    },
+    {
+      "label": "09-union-strict-clippy",
+      "command": "cargo +1.98.1 clippy -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- -D warnings",
+      "exit": 0,
+      "receipt_sha256": "90c31ea7290be62b74c496039d20dfcca40e7da56ad716b603fcde5ac8459a66",
+      "log_sha256": "43428f76c6f90735f62150e6a73d7df24145705dfdaf86f20d42ee128f3e41dd",
+      "before_artifacts_sha256": "a6406e895ff0ca1f19bb19410e6f63c29fb3c83c6cdc61a2fb2cda70fde31cf2",
+      "after_artifacts_sha256": "6f25360e5e2d673ba12a804997e42b3d04ec9fee3ae783863f48b097c7a10fa8",
+      "result_summaries": []
+    },
+    {
+      "label": "10-host-docx-qualification",
+      "command": "cargo +1.98.1 test -p brn-threads-intake --test qualification docx --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "10c68f6b1fd602eb24acd2b902aa39acaff0354004b704c852b1aafd0a4b97e5",
+      "log_sha256": "10a5ccf2a34abaaf1ec46fec1a330b94af9d64de43f94e4b4fb7cecb64797745",
+      "before_artifacts_sha256": "6f25360e5e2d673ba12a804997e42b3d04ec9fee3ae783863f48b097c7a10fa8",
+      "after_artifacts_sha256": "9bf3e6a364ff66c601c643bd309c35e96649806131b17caeae58ef17404be504",
+      "result_summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.27s"
+      ]
+    },
+    {
+      "label": "11-ai-conversion-tests",
+      "command": "cargo +1.98.1 test -p brn-ai --lib conversion::tests --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 101,
+      "receipt_sha256": "2c35d5d2ebbd127bb7551f452f02b175ffad6ee3df117250898f5d70b9cce612",
+      "log_sha256": "15fb68aa1dfab31c7b6186600659bc5061decd916210b9ccc6636bf9ce9b7595",
+      "before_artifacts_sha256": "9bf3e6a364ff66c601c643bd309c35e96649806131b17caeae58ef17404be504",
+      "after_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "result_summaries": [
+        "test result: FAILED. 3 passed; 6 failed; 0 ignored; 0 measured; 458 filtered out; finished in 0.01s"
+      ]
+    },
+    {
+      "label": "12-ai-conversion-private-tmp",
+      "command": "cargo +1.98.1 test -p brn-ai --lib conversion::tests --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "01c293dd27606fea268825473aa64d474a0fdfa0f8ccef1c92de154acbedc4a3",
+      "log_sha256": "56ffc9517d3c431aea1dc9f5e626dd067065b54e84e693b11bfe412e967c5999",
+      "before_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "after_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "result_summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 458 filtered out; finished in 0.15s"
+      ]
+    },
+    {
+      "label": "13-before-private-tmp",
+      "command": "cargo +1.98.1 test -p brn-intake --features helper --test docx_inventory a1_docx_member_sizes_required_optional_both_schemas --locked --offline --jobs 1 --message-format=json -- --exact --nocapture --test-threads=1",
+      "exit": 101,
+      "receipt_sha256": "396df6e7c62512f186ed83bb6078d8107747862c6ba97872c24445d67677098a",
+      "log_sha256": "4198a60f8f27c1a9ef28fc458cd37de1baee1a5784f780a41c5c148171ffa481",
+      "before_artifacts_sha256": "b119dd6a424e76b6a749cb74d482b11a3c600d15cae51656b6b7e0445f131097",
+      "after_artifacts_sha256": "b119dd6a424e76b6a749cb74d482b11a3c600d15cae51656b6b7e0445f131097",
+      "result_summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.03s"
+      ]
+    },
+    {
+      "label": "14-union-all-targets-private-tmp",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "e9ed7541f22708c1adf3dd6cb42b68f603ba62a861faaf3bd165ae2ca0f44f1d",
+      "log_sha256": "e507671c0a42b9b8356e07dde6267a281465ec9fbaddb93129c9fc1750a8d7d7",
+      "before_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "after_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "result_summaries": [
+        "test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s"
+      ]
+    },
+    {
+      "label": "15-host-private-tmp",
+      "command": "cargo +1.98.1 test -p brn-threads-intake --test qualification docx --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "4c08a970369e74a892916820efcf90b8a6dd8808d403d5f23726a621d1cf85a6",
+      "log_sha256": "9f0ad05b623b6ee36b159e66f36f975367a7de3d2ac842fe6da233ded8b8eddd",
+      "before_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "after_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "result_summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.22s"
+      ]
+    },
+    {
+      "label": "16-union-clippy-private-tmp",
+      "command": "cargo +1.98.1 clippy -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- -D warnings",
+      "exit": 0,
+      "receipt_sha256": "ba89889bf35e6160e4c4674a1c8e23b7c5ec05cabc4e4af4f3e12a1f71d76e3d",
+      "log_sha256": "5818db3ddaf497f0e6adea78023149cfb5f6fdf39ba532fa01a46344729d83df",
+      "before_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "after_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "result_summaries": []
+    },
+    {
+      "label": "17-build-final-ordinary-helper",
+      "command": "cargo +1.98.1 build -p brn-intake --features helper --bin brn-intake-helper --locked --offline --jobs 1 --message-format=json",
+      "exit": 0,
+      "receipt_sha256": "24ebea4a508bf7ddba915cea167988bedd20957e37c9343d7314c3665e3eb040",
+      "log_sha256": "0a82a9475f94aa0ddb5b12f62790f5ca152626e8e0183b719e3faaf598eb9c3b",
+      "before_artifacts_sha256": "9cd62a0cf1d43e93e6cdd2dce42b5dbdaf6c4e093c8f095bc575811febaaabbd",
+      "after_artifacts_sha256": "34027363b3986c8dbb760fcfd64adb3f13560fed8b6627295945a1f3ed379ec4",
+      "result_summaries": []
+    },
+    {
+      "label": "18-ordinary-all-targets-final",
+      "command": "cargo +1.98.1 test -p brn-intake --features helper --all-targets --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "9dd09a2e32e8e3d7430b02e11809351ae9b0f655c02938053ce824c2d97ba6ca",
+      "log_sha256": "4acd69424573f0468e40a49ad3a425968c37ea29a8312470d3320d9f521967ea",
+      "before_artifacts_sha256": "34027363b3986c8dbb760fcfd64adb3f13560fed8b6627295945a1f3ed379ec4",
+      "after_artifacts_sha256": "d6b6a745d0f953f824a55546747a55e2fa344918b44689313777ab773da93464",
+      "result_summaries": [
+        "test result: ok. 54 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+        "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s",
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s"
+      ]
+    },
+    {
+      "label": "19-ordinary-strict-clippy",
+      "command": "cargo +1.98.1 clippy -p brn-intake --features helper --all-targets --locked --offline --jobs 1 --message-format=json -- -D warnings",
+      "exit": 0,
+      "receipt_sha256": "6c3fbdf5a526cf338d5bd6c8ca19d895d0b8df09d603eb7a249cc3f27b44d67b",
+      "log_sha256": "5e19dcf7a91ef966199e494aa69c3b07b49f28e8a706c2504fddb5dd28953a29",
+      "before_artifacts_sha256": "d6b6a745d0f953f824a55546747a55e2fa344918b44689313777ab773da93464",
+      "after_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "result_summaries": []
+    },
+    {
+      "label": "20-format-check",
+      "command": "rustup run 1.98.1 rustfmt --edition 2024 --config skip_children=true --check crates/brn-intake/src/helper.rs crates/brn-intake/tests/docx_inventory.rs crates/brn-intake/tests/support/office.rs crates/brn-intake/tests/office_differential.rs",
+      "exit": 0,
+      "receipt_sha256": "fd471f97568aef139fe611b1ee9d7ce7c4ce7772ac5327c7c52c09b3b4b0556d",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "before_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "after_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "result_summaries": []
+    },
+    {
+      "label": "21-markdown-links",
+      "command": "python3 scripts/check-markdown-links.py",
+      "exit": 0,
+      "receipt_sha256": "6498f01ff750c696ca9d8a49511b301bb31ccc906588ce785b7a80650791864c",
+      "log_sha256": "7be0dac9cae5ac682338ef565e8dac0e31b3b3d259b992d917f4388805e9d93a",
+      "before_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "after_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "result_summaries": [
+        "Markdown links: 385 files, 1724 local links, 0 failures; historical outgoing policy=docs/archive/ only"
+      ]
+    },
+    {
+      "label": "22-whitespace",
+      "command": "git diff --check",
+      "exit": 0,
+      "receipt_sha256": "08e3e6e97e45b853a2ec6dfb7ff6819e3f55ad2c13bf18c465e2ec20bbfcb20b",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "before_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "after_artifacts_sha256": "1ae4bacbffe50d2c48f1326e9b2f58c27f1e432123d5e68ab3f6af292a37468f",
+      "result_summaries": []
+    }
+  ],
+  "static_proof": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/proof.py",
+    "sha256": "424b15344437f1b8c34f753bc382b067a4627efb9b4e1a9ae95669072daec78d",
+    "qualification": "The proof index distinguishes Xberg build-script/rlib records and regular helper dev opt-level 0/test opt-level 1 artifacts; source-pin binds host to the actual final test-profile executable."
+  },
+  "temporary_directory_correction": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/tmpdir-correction.json",
+    "sha256": "f33c89f718fac4db3ed65d373b28df7f4f7b9aae357ccb031a2f0db95c2ae04b"
+  },
+  "precommit_receipt": "Final complete staged diff/tree/source/document hashes are retained externally in final-precommit.json and final-precommit.diff; final-pin.json records the actual resulting commit.",
+  "original_whitespace_failure": {
+    "receipt": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/23-original-full-delta-whitespace.json",
+    "sha256": "77ebc350a289224dc180a5ae386b5f537f8733676cf3e599d7c6242cd4303116"
+  }
+}

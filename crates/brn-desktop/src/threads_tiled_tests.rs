@@ -178,11 +178,11 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         view.composer.update(cx, |editor, cx| {
             editor.set_value("Selected chat unsent draft", window, cx)
         });
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Human unsaved draft õun", window, cx)
         });
     });
-    let editor = cx.read(|cx| f.view.read(cx).note_editor.clone());
+    let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     for (button, kind, tile) in [
         ("home", TileKind::Overview, "home-needs-you"),
         ("actions", TileKind::Actions, "actions-content"),
@@ -195,9 +195,9 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
             assert!(window.try_find(tile).is_some(), "{tile}");
             let view = f.view.read(cx);
             assert_eq!(view.layout.focus(), Some(kind));
-            assert_eq!(view.note_editor, editor);
+            assert_eq!(view.writing.note_editor, editor);
             assert_eq!(
-                view.note_editor.read(cx).value().as_ref(),
+                view.writing.note_editor.read(cx).value().as_ref(),
                 "Human unsaved draft õun"
             );
             assert_eq!(
@@ -226,14 +226,14 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert_eq!(
-            view.note_editor.read(cx).value().as_ref(),
+            view.writing.note_editor.read(cx).value().as_ref(),
             "Human unsaved draft õun"
         );
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
             "Standalone unsent draft"
         );
-        assert!(view.note.as_ref().unwrap().session.is_some());
+        assert!(view.writing.note.as_ref().unwrap().session.is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
     });
     let reopened = Workspace::open(&f.data).unwrap();
@@ -250,7 +250,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     click(cx, &f, "open-notes");
     click(cx, &f, format!("note-{}", note.id));
     update(cx, &f, |view, window, cx| {
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Unsaved scratchneedle", window, cx)
         });
     });
@@ -279,7 +279,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
         assert_eq!(view.open_note_id(), Some(note.id.as_str()));
         assert!(view.hits.is_empty() && view.notice.is_empty());
         assert_eq!(
-            view.note_editor.read(cx).value().as_ref(),
+            view.writing.note_editor.read(cx).value().as_ref(),
             "Unsaved scratchneedle"
         );
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);

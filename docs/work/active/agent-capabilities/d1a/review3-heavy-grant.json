@@ -1,0 +1,11 @@
+{
+  "verified_material_diff_sha256": "5230c637ea746c75505ee2174b01d532580a40b121d874c2c1996305cded0791",
+  "own_processes_before": [],
+  "tmpdir": "/private/tmp/brn-d1a-review3-zcxsbjrq",
+  "toolchain": "1.98.1",
+  "locked": true,
+  "offline": true,
+  "incremental": 0,
+  "before_git_head": "16da044a67ff94257032729482364e8108e37e1e",
+  "epoch": 1792184524.413955
+}

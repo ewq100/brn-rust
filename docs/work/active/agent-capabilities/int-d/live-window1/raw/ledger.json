@@ -1,0 +1,229 @@
+{
+  "starts": [
+    {
+      "ordinal": 1,
+      "phase": "ask",
+      "command": [
+        "/private/tmp/brn-int-d-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f-history-r1/control",
+        "--timeout",
+        "120",
+        "ask",
+        "--thread",
+        "757d93d5-3766-4eea-8d13-44ddbea51757:0",
+        "--prompt-file",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-control.txt",
+        "--budget",
+        "8",
+        "--trace",
+        "summary"
+      ],
+      "reserved_before_spawn": true,
+      "wall_started": 1792243611.785789,
+      "exit": 0,
+      "elapsed_seconds": 53.38269262504764,
+      "observed_candidate": null,
+      "stop_stage": "not observed; gap if Stop case",
+      "exposed_metrics": {
+        "trace_available": true,
+        "terminal": "Completed",
+        "traced_model_turns": 8,
+        "rounds": 7,
+        "max_rounds": 8,
+        "stopped": null,
+        "runtime_elapsed_ms": 52667,
+        "parent_usage": {
+          "input": 98431,
+          "output": 2206,
+          "cached_input": 69504,
+          "cached_share": 0.7061190072233341
+        },
+        "turn_usage": [
+          {
+            "input": 9967,
+            "output": 68,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 10354,
+            "output": 21,
+            "cached_input": 9856,
+            "cached_share": 0.9519026463202627
+          },
+          {
+            "input": 12073,
+            "output": 54,
+            "cached_input": 10240,
+            "cached_share": 0.8481736105359066
+          },
+          {
+            "input": 12270,
+            "output": 70,
+            "cached_input": 11904,
+            "cached_share": 0.9701711491442543
+          },
+          {
+            "input": 12482,
+            "output": 687,
+            "cached_input": 12160,
+            "cached_share": 0.9742028521070342
+          },
+          {
+            "input": 13183,
+            "output": 695,
+            "cached_input": 12288,
+            "cached_share": 0.9321095350072063
+          },
+          {
+            "input": 13892,
+            "output": 292,
+            "cached_input": 13056,
+            "cached_share": 0.9398214799884825
+          },
+          {
+            "input": 14210,
+            "output": 319,
+            "cached_input": 0,
+            "cached_share": 0.0
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5612,
+            "output": 272,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "candidate_inspection_gap": "no unique exact target candidate; no body substituted or automatic Apply"
+    },
+    {
+      "ordinal": 2,
+      "phase": "ask",
+      "command": [
+        "/private/tmp/brn-int-d-20261017-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f-history-r1/candidate",
+        "--timeout",
+        "120",
+        "ask",
+        "--thread",
+        "f4391b57-8949-4493-802a-7dd804f3c936:0",
+        "--prompt-file",
+        "/private/tmp/brn-int-d-qualification-20261017-window1-f1a5624f/history-r1-candidate.txt",
+        "--budget",
+        "8",
+        "--trace",
+        "summary"
+      ],
+      "reserved_before_spawn": true,
+      "wall_started": 1792243725.185611,
+      "exit": 7,
+      "elapsed_seconds": 50.34226537507493,
+      "observed_candidate": null,
+      "stop_stage": "not observed; gap if Stop case",
+      "exposed_metrics": {
+        "trace_available": true,
+        "terminal": "Failed:ToolLimitReached",
+        "traced_model_turns": 9,
+        "rounds": 8,
+        "max_rounds": 8,
+        "stopped": "budget",
+        "runtime_elapsed_ms": 49578,
+        "parent_usage": {
+          "input": 101851,
+          "output": 1683,
+          "cached_input": 87040,
+          "cached_share": 0.8545816928650676
+        },
+        "turn_usage": [
+          {
+            "input": 10117,
+            "output": 27,
+            "cached_input": 0,
+            "cached_share": 0.0
+          },
+          {
+            "input": 10433,
+            "output": 49,
+            "cached_input": 9984,
+            "cached_share": 0.9569634812613822
+          },
+          {
+            "input": 10506,
+            "output": 48,
+            "cached_input": 10240,
+            "cached_share": 0.9746811345897582
+          },
+          {
+            "input": 10727,
+            "output": 24,
+            "cached_input": 10368,
+            "cached_share": 0.966533047450359
+          },
+          {
+            "input": 10902,
+            "output": 54,
+            "cached_input": 10624,
+            "cached_share": 0.9745000917262887
+          },
+          {
+            "input": 11099,
+            "output": 54,
+            "cached_input": 10752,
+            "cached_share": 0.9687359221551491
+          },
+          {
+            "input": 11296,
+            "output": 37,
+            "cached_input": 11008,
+            "cached_share": 0.9745042492917847
+          },
+          {
+            "input": 13033,
+            "output": 691,
+            "cached_input": 11136,
+            "cached_share": 0.8544464052789074
+          },
+          {
+            "input": 13738,
+            "output": 699,
+            "cached_input": 12928,
+            "cached_share": 0.9410394526131897
+          }
+        ],
+        "summary": {
+          "outcome": "updated",
+          "covered_chunks": 3,
+          "target_chunks": 3,
+          "usage": {
+            "input": 5644,
+            "output": 207,
+            "cached_input": 0
+          }
+        },
+        "helpers": [],
+        "recorded_provider_resends": 0,
+        "auth_requests": "not exposed",
+        "account_identity": "not exposed",
+        "qualification": "observed trace only; no inferred HTTP totals/summary latency/free retries; missing usage unknown"
+      },
+      "candidate_inspection_gap": "no unique exact target candidate; no body substituted or automatic Apply"
+    }
+  ],
+  "finished_cases": [
+    1
+  ]
+}

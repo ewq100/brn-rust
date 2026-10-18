@@ -1,0 +1,5 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_sha256": "0a50173277f51205117ad1d8eba302994ea120fa98dac53a4b6a2a6d0d048f7d",
+  "text": "\nrunning 1 test\ntest checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selection ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.14s\n\n"
+}

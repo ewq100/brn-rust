@@ -63,15 +63,44 @@ fn source_allowed(id: &str, owner: Option<&str>, rows: &[Record], chat: Option<&
     }))
 }
 
+pub(crate) fn writing_snapshot_visible(
+    snapshot: &WritingSnapshot,
+    rows: &[Record],
+    chat: Option<&str>,
+    scope: &std::cell::OnceCell<Result<Option<String>>>,
+) -> bool {
+    scope_allowed(&snapshot.thread, rows, chat)
+        && snapshot.setup.as_ref().is_none_or(|setup| {
+            scope
+                .get_or_init(|| crate::writing_setup_scope(rows, chat))
+                .as_ref()
+                .is_ok_and(|scope| setup.chat == *scope)
+        })
+}
 pub fn visible(record: &Record, records: &[Record], chat: Option<&str>) -> bool {
-    fn visit(r: &Record, rows: &[Record], chat: Option<&str>, seen: &mut BTreeSet<String>) -> bool {
+    visible_with_scope(record, records, chat, &std::cell::OnceCell::new())
+}
+/// One lazy scope resolution for a read/list; no persistent cache or new policy.
+pub(crate) fn visible_with_scope(
+    record: &Record,
+    records: &[Record],
+    chat: Option<&str>,
+    writing_scope: &std::cell::OnceCell<Result<Option<String>>>,
+) -> bool {
+    fn visit(
+        r: &Record,
+        rows: &[Record],
+        chat: Option<&str>,
+        seen: &mut BTreeSet<String>,
+        writing_scope: &std::cell::OnceCell<Result<Option<String>>>,
+    ) -> bool {
         if !seen.insert(r.id.clone()) {
             return false;
         }
         let linked = |id: &str, seen: &mut BTreeSet<String>| {
             rows.iter()
                 .find(|r| r.id == id)
-                .is_some_and(|r| visit(r, rows, chat, seen))
+                .is_some_and(|r| visit(r, rows, chat, seen, writing_scope))
         };
         match &r.data {
             RecordData::Note(n) => {
@@ -96,6 +125,40 @@ pub fn visible(record: &Record, records: &[Record], chat: Option<&str>) -> bool 
                 linked(&l.from, &mut seen.clone()) && linked(&l.to, &mut seen.clone())
             }
             RecordData::Thread(_) => scope_allowed(&r.id, rows, chat),
+            RecordData::Message(m)
+                if matches!(
+                    m.role.as_str(),
+                    WRITING_EVIDENCE_ROLE | WRITING_CONTEXT_ROLE
+                ) =>
+            {
+                let saved = if m.role == WRITING_EVIDENCE_ROLE {
+                    serde_json::from_str::<WritingCandidateEvidence>(&m.text)
+                        .ok()
+                        .filter(|e| e.version == 1)
+                        .map(|e| (e.thread, e.chat))
+                } else {
+                    serde_json::from_str::<WritingContextUse>(&m.text)
+                        .ok()
+                        .map(|e| (e.thread, e.chat))
+                };
+                saved.is_some_and(|(thread, saved_scope)| {
+                    thread == m.thread
+                        && scope_allowed(&thread, rows, chat)
+                        && crate::writing_setup_scope(rows, chat)
+                            .is_ok_and(|scope| scope == saved_scope)
+                })
+            }
+            RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE => {
+                scope_allowed(&m.thread, rows, chat)
+                    && match WritingSnapshot::from_message(r) {
+                        Ok(snapshot) => {
+                            writing_snapshot_visible(&snapshot, rows, chat, writing_scope)
+                        }
+                        // Preserve legacy malformed-body visibility, but invalid v2
+                        // metadata never becomes visible as ordinary conversation.
+                        Err(_) => !crate::writing::scoped_writing_request(r),
+                    }
+            }
             RecordData::Message(m) => scope_allowed(&m.thread, rows, chat),
             RecordData::Run(r) => {
                 Some(r.thread.as_str()) == chat
@@ -132,21 +195,29 @@ pub fn visible(record: &Record, records: &[Record], chat: Option<&str>) -> bool 
             RecordData::Project(_) => {
                 project_scope(rows, chat).is_some_and(|p| !p.archived && p.id == r.id)
             }
+            RecordData::WritingSetup(setup) => {
+                writing_scope
+                    .get_or_init(|| crate::writing_setup_scope(rows, chat))
+                    .as_ref()
+                    .is_ok_and(|scope| setup.chat == *scope)
+                    && linked(&setup.note, seen)
+            }
             RecordData::Settings(_) | RecordData::ChatControl(_) => false,
         }
     }
-    visit(record, records, chat, &mut BTreeSet::new())
+    visit(record, records, chat, &mut BTreeSet::new(), writing_scope)
 }
 
 impl Store {
     pub fn records_for_chat(&self, chat: Option<&str>) -> Result<Vec<Record>> {
         let rows = self.records()?;
+        let scope = std::cell::OnceCell::new();
         Ok(rows
             .iter()
             .filter(|r| {
                 !r.archived
                     && !matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_some())
-                    && visible(r, &rows, chat)
+                    && visible_with_scope(r, &rows, chat, &scope)
             })
             .cloned()
             .collect())

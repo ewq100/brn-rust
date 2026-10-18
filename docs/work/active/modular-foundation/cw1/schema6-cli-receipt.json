@@ -1,0 +1,338 @@
+{
+  "source_commit": "56ca7c9361792150108d2c3a2e63817e3af8849e",
+  "fixture_root": "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5",
+  "old_binary_sha256": "881c98b553e3ee81e4eef649430e1fe4fe25301dc12f41adba1d97b4d3af8b50",
+  "new_binary_sha256": "9878d4df0041d651dab1c9c09f2eeebe980046c06ba571a0e702627c261022f8",
+  "before": {
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "threads.sqlite3": "e00b79070f9856ba115adabcd62194f76e78b239ed3aa45b5f419ed0f15f29e0"
+  },
+  "calls": [
+    {
+      "argv": [
+        "/private/tmp/brn-cw1-20261016-evidence/schema6-brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "init",
+        "--purpose",
+        "test"
+      ],
+      "exit": 0,
+      "stdout": {
+        "contract": 3,
+        "command": "init",
+        "ok": true,
+        "status": "ok",
+        "exit": 0,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": {
+          "ready": true,
+          "data": "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+          "settings": {
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": false,
+            "review_first": false,
+            "delegation_chosen": false
+          }
+        },
+        "error": null,
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": "test",
+          "cli_authority": "full",
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-cw1-20261016-evidence/schema6-brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "note-create",
+        "--title",
+        "Synthetic legacy Note",
+        "--text",
+        "Retained schema-six text"
+      ],
+      "exit": 0,
+      "stdout": {
+        "contract": 3,
+        "command": "note-create",
+        "ok": true,
+        "status": "ok",
+        "exit": 0,
+        "outcome": "Applied",
+        "operation": "88e23860-9b94-4ce4-befa-1ca37e1d4cfd",
+        "key": null,
+        "retry": "duplicate",
+        "changed": [
+          {
+            "id": "88e23860-9b94-4ce4-befa-1ca37e1d4cfd:0",
+            "kind": "Note",
+            "version": 1,
+            "archived": false,
+            "created": true
+          }
+        ],
+        "conflict": null,
+        "result": {
+          "id": "88e23860-9b94-4ce4-befa-1ca37e1d4cfd:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Note": {
+              "title": "Synthetic legacy Note",
+              "markdown": "Retained schema-six text",
+              "protected": false,
+              "confirmed": false,
+              "superseded_by": null,
+              "import": null
+            }
+          }
+        },
+        "error": null,
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": "test",
+          "cli_authority": "full",
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "notes"
+      ],
+      "exit": 6,
+      "stdout": {
+        "contract": 3,
+        "command": "notes",
+        "ok": false,
+        "status": "rejected",
+        "exit": 6,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": null,
+        "error": {
+          "code": "upgrade_required",
+          "message": "workspace schema 6 needs an upgrade to schema 7; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first",
+          "details": {
+            "schema_found": 6,
+            "schema_required": 7
+          }
+        },
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "note-create",
+        "--title",
+        "Refused",
+        "--text",
+        "Nothing should change"
+      ],
+      "exit": 6,
+      "stdout": {
+        "contract": 3,
+        "command": "note-create",
+        "ok": false,
+        "status": "rejected",
+        "exit": 6,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": null,
+        "error": {
+          "code": "upgrade_required",
+          "message": "workspace schema 6 needs an upgrade to schema 7; nothing was changed. Run brn upgrade --backup-directory ABSOLUTE_DIR, which backs up first",
+          "details": {
+            "schema_found": 6,
+            "schema_required": 7
+          }
+        },
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "upgrade",
+        "--backup-directory",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/backups"
+      ],
+      "exit": 0,
+      "stdout": {
+        "contract": 3,
+        "command": "upgrade",
+        "ok": true,
+        "status": "ok",
+        "exit": 0,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "converge",
+        "changed": [],
+        "conflict": null,
+        "result": {
+          "upgraded": true,
+          "data": "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data"
+        },
+        "error": null,
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-c0-20261016-target/debug/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "notes"
+      ],
+      "exit": 0,
+      "stdout": {
+        "contract": 3,
+        "command": "notes",
+        "ok": true,
+        "status": "ok",
+        "exit": 0,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "read",
+        "changed": [],
+        "conflict": null,
+        "result": [
+          {
+            "id": "88e23860-9b94-4ce4-befa-1ca37e1d4cfd:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Note": {
+                "title": "Synthetic legacy Note",
+                "markdown": "Retained schema-six text",
+                "protected": false,
+                "confirmed": false,
+                "superseded_by": null,
+                "import": null
+              }
+            }
+          }
+        ],
+        "error": null,
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": "test",
+          "cli_authority": "full",
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-cw1-20261016-evidence/schema6-brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-cw1-20261016-fixtures/cw1-schema6-ahj1i6a5/data",
+        "notes"
+      ],
+      "exit": 6,
+      "stdout": {
+        "contract": 3,
+        "command": "notes",
+        "ok": false,
+        "status": "rejected",
+        "exit": 6,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "refuse",
+        "changed": [],
+        "conflict": null,
+        "result": null,
+        "error": {
+          "code": "unsafe_directory",
+          "message": "incompatible or unsafe data directory: database application/schema identity mismatch",
+          "details": {}
+        },
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": null,
+          "cli_authority": null,
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "stderr": ""
+    }
+  ],
+  "restored_schema": 7,
+  "source_backup_schema": 6,
+  "committed_fixture": "fixtures/schema6-before-upgrade.sqlite3",
+  "committed_fixture_sha256": "d7d77417f50db42e5efbe9b8906ab3256953603c89750607e8437101f1ec6561"
+}

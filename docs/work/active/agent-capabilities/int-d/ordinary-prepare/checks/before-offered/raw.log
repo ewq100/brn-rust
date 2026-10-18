@@ -1,0 +1,251 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling libc v0.2.189
+   Compiling pin-project-lite v0.2.17
+   Compiling futures-core v0.3.34
+   Compiling memchr v2.8.3
+   Compiling jobserver v0.1.35
+   Compiling synstructure v0.14.0
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling cc v1.5.1
+   Compiling syn v2.0.119
+   Compiling bytes v1.12.1
+   Compiling itoa v1.0.18
+   Compiling zerofrom-derive v0.1.8
+   Compiling pkg-config v0.3.34
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.3
+   Compiling stable_deref_trait v1.2.1
+   Compiling cfg-if v1.0.5
+   Compiling futures-sink v0.3.34
+   Compiling futures-channel v0.3.34
+   Compiling yoke v0.8.3
+   Compiling futures-macro v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling foldhash v0.2.0
+   Compiling futures-task v0.3.34
+   Compiling slab v0.4.12
+   Compiling once_cell v1.21.4
+   Compiling bitflags v2.13.2
+   Compiling futures-util v0.3.34
+   Compiling hashbrown v0.17.1
+   Compiling zerovec-derive v0.11.6
+   Compiling smallvec v1.16.2
+   Compiling zerovec v0.11.8
+   Compiling displaydoc v0.2.7
+   Compiling http v1.5.0
+   Compiling cmake v0.1.58
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.3
+   Compiling tokio-macros v2.7.2
+   Compiling equivalent v1.0.2
+   Compiling serde_core v1.0.229
+   Compiling dunce v1.0.5
+   Compiling zmij v1.0.23
+   Compiling fs_extra v1.3.0
+   Compiling aws-lc-sys v0.45.0
+   Compiling indexmap v2.14.2
+   Compiling tokio v1.53.1
+   Compiling core-foundation-sys v0.8.7
+   Compiling tinystr v0.8.4
+   Compiling tracing-core v0.1.36
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling icu_locale_core v2.3.0
+   Compiling http-body v1.1.0
+   Compiling zerotrie v0.2.5
+   Compiling potential_utf v0.1.6
+   Compiling aws-lc-rs v1.18.1
+   Compiling utf8_iter v1.0.4
+   Compiling icu_normalizer_data v2.3.0
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling icu_provider v2.3.1
+   Compiling tracing-attributes v0.1.31
+   Compiling percent-encoding v2.3.2
+   Compiling serde v1.0.229
+   Compiling zeroize v1.9.0
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling tracing v0.1.44
+   Compiling serde_derive v1.0.229
+   Compiling system-configuration-sys v0.6.0
+   Compiling httparse v1.10.1
+   Compiling autocfg v1.5.1
+   Compiling serde_json v1.0.151
+   Compiling tower-service v0.3.3
+   Compiling num-traits v0.2.19
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling tokio-util v0.7.19
+   Compiling atomic-waker v1.1.2
+   Compiling rustversion v1.0.23
+   Compiling fnv v1.0.7
+   Compiling try-lock v0.2.5
+   Compiling rand_core v0.10.1
+   Compiling untrusted v0.9.0
+   Compiling rustls v0.23.45
+   Compiling typenum v1.20.1
+   Compiling getrandom v0.4.3
+   Compiling rustls-webpki v0.103.15
+   Compiling want v0.3.1
+   Compiling h2 v0.4.19
+   Compiling idna_adapter v1.2.2
+   Compiling core-foundation v0.9.4
+   Compiling sync_wrapper v1.0.2
+   Compiling mime v0.3.17
+   Compiling subtle v2.6.1
+   Compiling tower-layer v0.3.3
+   Compiling httpdate v1.0.3
+   Compiling hyper v1.11.1
+   Compiling system-configuration v0.7.0
+   Compiling idna v1.1.0
+   Compiling form_urlencoded v1.2.2
+   Compiling http-body-util v0.1.5
+   Compiling ref-cast v1.0.27
+   Compiling log v0.4.34
+   Compiling unicase v2.9.0
+   Compiling ipnet v2.12.2
+   Compiling thiserror v2.0.21
+   Compiling base64 v0.23.1
+   Compiling hyper-util v0.1.21
+   Compiling mime_guess v2.0.5
+   Compiling url v2.5.8
+   Compiling encoding_rs v0.8.42
+   Compiling tower v0.5.3
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling security-framework-sys v2.17.0
+   Compiling core-foundation v0.10.1
+   Compiling futures-executor v0.3.34
+   Compiling thiserror-impl v2.0.21
+   Compiling ref-cast-impl v1.0.27
+   Compiling serde_derive_internals v0.30.0
+   Compiling schemars_derive v1.2.2
+   Compiling futures v0.3.34
+   Compiling security-framework v3.7.0
+   Compiling digest v0.10.7
+   Compiling chrono v0.4.45
+   Compiling tokio-rustls v0.26.5
+   Compiling cpufeatures v0.2.17
+   Compiling dyn-clone v1.0.20
+   Compiling simdutf8 v0.1.5
+   Compiling scopeguard v1.2.0
+   Compiling winnow v1.0.4
+   Compiling multiversion_no_op v1.0.0
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling schemars v1.2.2
+   Compiling sha2 v0.10.9
+   Compiling hyper-rustls v0.27.10
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling tower-http v0.6.11
+   Compiling uuid v1.26.1
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling base64 v0.22.1
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling reqwest v0.13.5
+   Compiling futures-timer v3.0.4
+   Compiling unicode-segmentation v1.13.3
+   Compiling lazy_static v1.5.0
+   Compiling strsim v0.11.1
+   Compiling ident_case v1.0.1
+   Compiling simd-adler32 v0.3.10
+   Compiling darling_core v0.23.0
+   Compiling sharded-slab v0.1.7
+   Compiling convert_case v0.11.0
+   Compiling rig-http v0.44.0
+   Compiling proc-macro-crate v3.5.0
+   Compiling tracing-log v0.2.0
+   Compiling thread_local v1.1.10
+   Compiling async-stream-impl v0.3.6
+   Compiling nu-ansi-term v0.50.3
+   Compiling crc32fast v1.5.2
+   Compiling fastrand v2.5.0
+   Compiling adler2 v2.0.1
+   Compiling tracing-subscriber v0.3.23
+   Compiling async-stream v0.3.6
+   Compiling rig-derive v0.44.0
+   Compiling rig-reqwest v0.44.0
+   Compiling darling_macro v0.23.0
+   Compiling ordered-float v5.5.0
+   Compiling glob v0.3.4
+   Compiling vcpkg v0.2.15
+   Compiling libsqlite3-sys v0.38.2
+   Compiling rig-core v0.44.0
+   Compiling darling v0.23.0
+   Compiling miniz_oxide v0.9.1
+   Compiling chacha20 v0.10.2
+   Compiling pin-project-internal v1.1.13
+   Compiling rmcp v2.2.0
+   Compiling pin-project v1.1.13
+   Compiling rand v0.10.3
+   Compiling flate2 v1.1.10
+   Compiling rmcp-macros v2.2.0
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling sse-stream v0.2.6
+   Compiling tokio-stream v0.1.19
+   Compiling async-trait v0.1.92
+   Compiling rustix v1.1.5
+   Compiling unicode-id v0.3.7
+   Compiling pastey v0.2.3
+   Compiling tinyvec v1.13.3
+   Compiling unicode-normalization v0.1.25
+   Compiling markdown v1.0.0
+   Compiling png v0.18.1
+   Compiling tracing-futures v0.2.5
+   Compiling hashlink v0.12.2
+   Compiling errno v0.3.14
+   Compiling fallible-iterator v0.3.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling rusqlite v0.40.2
+   Compiling rig-agent v0.44.0
+   Compiling brn-intake v0.1.0 (/private/tmp/brn-int-d-ordinary-prepare-before-source/crates/brn-intake)
+   Compiling rig-rmcp v0.44.0
+   Compiling rig-memory v0.44.0
+   Compiling axum-core v0.5.6
+   Compiling quick-xml v0.41.0
+   Compiling matchit v0.8.4
+   Compiling axum v0.8.9
+   Compiling brn-threads-intake v0.1.0 (/private/tmp/brn-int-d-ordinary-prepare-before-source/crates/brn-threads-intake)
+   Compiling rig v0.44.0
+   Compiling tempfile v3.27.0
+   Compiling brn-threads-core v0.1.0 (/private/tmp/brn-int-d-ordinary-prepare-before-source/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/private/tmp/brn-int-d-ordinary-prepare-before-source/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 5m 29s
+     Running unittests src/lib.rs (/private/tmp/brn-int-d-ordinary-prepare-before-target/debug/deps/brn_ai-0a77908ed974f7b9)
+
+running 3 tests
+test threads::writing_tests::ordinary_offered_prepare_contract ... FAILED
+test threads::writing_tests::v1_offered_prepare_contract ... FAILED
+test threads::writing_tests::v2_offered_prepare_contract ... ok
+
+failures:
+
+---- threads::writing_tests::ordinary_offered_prepare_contract stdout ----
+
+thread 'threads::writing_tests::ordinary_offered_prepare_contract' (33149855) panicked at crates/brn-ai/src/threads_writing_tests.rs:912:5:
+assertion `left == right` failed: actual ordinary CompletionRequest must match its supported writing contract
+  left: Object {"type": String("object"), "properties": Object {"writing": Object {"type": Array [String("object"), String("null")], "properties": Object {"quotations": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "start": Object {"type": String("integer")}, "end": Object {"type": String("integer")}, "quote": Object {"type": String("string")}}, "required": Array [String("id"), String("version"), String("start"), String("end"), String("quote")], "additionalProperties": Bool(false)}}, "requirements_reported": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"claim": Object {"type": String("string")}, "quotations": Object {"type": String("array"), "items": Object {"type": String("integer")}}}, "required": Array [String("claim"), String("quotations")], "additionalProperties": Bool(false)}}}, "required": Array [String("quotations"), String("requirements_reported")], "additionalProperties": Bool(false)}, "request_key": Object {"type": String("string")}, "request": Object {"type": String("object"), "properties": Object {"reason": Object {"type": String("string")}, "writes": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "expected_version": Object {"type": Array [String("integer"), String("null")]}, "archived": Object {"type": String("boolean")}, "data": Object {"type": String("object"), "description": String("Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders.")}}, "required": Array [String("id"), String("expected_version"), String("archived"), String("data")], "additionalProperties": Bool(false)}}, "inputs": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"record": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "expectation": Object {"type": String("string"), "enum": Array [String("Current"), String("Historical")], "description": String("Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts.")}}, "required": Array [String("record"), String("version")], "additionalProperties": Bool(false)}}}, "required": Array [String("reason"), String("writes"), String("inputs")], "additionalProperties": Bool(false)}}, "required": Array [String("request_key"), String("request")], "additionalProperties": Bool(false)}
+ right: Object {"type": String("object"), "properties": Object {"writing": Object {"type": String("null")}, "request_key": Object {"type": String("string")}, "request": Object {"type": String("object"), "properties": Object {"reason": Object {"type": String("string")}, "writes": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "expected_version": Object {"type": Array [String("integer"), String("null")]}, "archived": Object {"type": String("boolean")}, "data": Object {"type": String("object"), "description": String("Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders.")}}, "required": Array [String("id"), String("expected_version"), String("archived"), String("data")], "additionalProperties": Bool(false)}}, "inputs": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"record": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "expectation": Object {"type": String("string"), "enum": Array [String("Current"), String("Historical")], "description": String("Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts.")}}, "required": Array [String("record"), String("version")], "additionalProperties": Bool(false)}}}, "required": Array [String("reason"), String("writes"), String("inputs")], "additionalProperties": Bool(false)}}, "required": Array [String("request_key"), String("request")], "additionalProperties": Bool(false)}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- threads::writing_tests::v1_offered_prepare_contract stdout ----
+
+thread 'threads::writing_tests::v1_offered_prepare_contract' (33149856) panicked at crates/brn-ai/src/threads_writing_tests.rs:912:5:
+assertion `left == right` failed: actual v1 CompletionRequest must match its supported writing contract
+  left: Object {"type": String("object"), "properties": Object {"writing": Object {"type": Array [String("object"), String("null")], "properties": Object {"quotations": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "start": Object {"type": String("integer")}, "end": Object {"type": String("integer")}, "quote": Object {"type": String("string")}}, "required": Array [String("id"), String("version"), String("start"), String("end"), String("quote")], "additionalProperties": Bool(false)}}, "requirements_reported": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"claim": Object {"type": String("string")}, "quotations": Object {"type": String("array"), "items": Object {"type": String("integer")}}}, "required": Array [String("claim"), String("quotations")], "additionalProperties": Bool(false)}}}, "required": Array [String("quotations"), String("requirements_reported")], "additionalProperties": Bool(false)}, "request_key": Object {"type": String("string")}, "request": Object {"type": String("object"), "properties": Object {"reason": Object {"type": String("string")}, "writes": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "expected_version": Object {"type": Array [String("integer"), String("null")]}, "archived": Object {"type": String("boolean")}, "data": Object {"type": String("object"), "description": String("Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders.")}}, "required": Array [String("id"), String("expected_version"), String("archived"), String("data")], "additionalProperties": Bool(false)}}, "inputs": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"record": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "expectation": Object {"type": String("string"), "enum": Array [String("Current"), String("Historical")], "description": String("Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts.")}}, "required": Array [String("record"), String("version")], "additionalProperties": Bool(false)}}}, "required": Array [String("reason"), String("writes"), String("inputs")], "additionalProperties": Bool(false)}}, "required": Array [String("request_key"), String("request")], "additionalProperties": Bool(false)}
+ right: Object {"type": String("object"), "properties": Object {"writing": Object {"type": String("null")}, "request_key": Object {"type": String("string")}, "request": Object {"type": String("object"), "properties": Object {"reason": Object {"type": String("string")}, "writes": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"id": Object {"type": String("string")}, "expected_version": Object {"type": Array [String("integer"), String("null")]}, "archived": Object {"type": String("boolean")}, "data": Object {"type": String("object"), "description": String("Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders.")}}, "required": Array [String("id"), String("expected_version"), String("archived"), String("data")], "additionalProperties": Bool(false)}}, "inputs": Object {"type": String("array"), "items": Object {"type": String("object"), "properties": Object {"record": Object {"type": String("string")}, "version": Object {"type": String("integer")}, "expectation": Object {"type": String("string"), "enum": Array [String("Current"), String("Historical")], "description": String("Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts.")}}, "required": Array [String("record"), String("version")], "additionalProperties": Bool(false)}}}, "required": Array [String("reason"), String("writes"), String("inputs")], "additionalProperties": Bool(false)}}, "required": Array [String("request_key"), String("request")], "additionalProperties": Bool(false)}
+
+
+failures:
+    threads::writing_tests::ordinary_offered_prepare_contract
+    threads::writing_tests::v1_offered_prepare_contract
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 488 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

@@ -256,6 +256,7 @@ fn a_working_run_makes_archive_a_change_with_a_fence() {
         &mut store,
         "run",
         RecordData::Run(Run {
+            loaded_skill_details: vec![],
             instruction: None,
             queue_claim: None,
             thread: chat_id.clone(),

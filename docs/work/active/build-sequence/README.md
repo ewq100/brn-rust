@@ -1,3 +1,5 @@
+**Current snapshot, 18 October 2026:** the locally accepted foundation/writing and agent-capability source lines are combined with the accepted standard-default Xberg component and inspected main `57c710cc` on `work/final-combined-20261018`. Combined verification and new independent whole-candidate review are in progress; no program PR/main integration, native-human or owner acceptance is claimed. D-S/D-M were approved and D3/D4/INT-D are implemented. The [approved execution amendment](../modular-foundation/x2/standard-default/final-integration-amendment.md) governs this assignment. Earlier proposal/sequence statements below are historical and assign no new work.
+
 # BRN forward build sequence
 
 **Status: proposed sequencing, prepared 16 October 2026 from main `cafb24c2`.** This file orders work that is already proposed. It assigns nothing and grants no implementation, merge or release authority. [Status](../../../status.md) remains the source of truth for current work.
