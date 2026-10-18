@@ -1,0 +1,19 @@
+## Review
+
+**Verdict:** APPROVED
+
+**Blocking findings:** None. Revised Plan C resolves both prior blockers: every maintained generator invocation receives the explicit fetched archive path with pinned SHA verification, and stock-lock fetching precedes generator-test discovery in both documentation and preview workflows. Offline negative controls cover missing arguments and incorrect ordering.
+
+**Advisory suggestions:** None.
+
+**Coverage summary:**
+
+- Coherent removal covers legacy readers, prepared-page APIs, helper binary/features, callers, obsolete tests, example and build steps.
+- Shared conversion transport/errors, current process behavior, helper runtime, cancellation/reaping, transient cleanup, bounded reads and PNG/hash safety have explicit retention or migration.
+- Root and standalone lock pruning, generated-source custody, unchanged accepted patches, current/historical wiki helper arguments and packaging evidence have concrete dispositions.
+- Captured `ImportReport.conversion` provenance and anti-forgery guards, historical unlabelled data, schema9→10 compatibility, protected Save, exact review, replay and Undo remain protected.
+- The active skill failure and carried qualifications remain unresolved; isolated passes do not establish cause or closure.
+
+This approves the plan only. Implementation, dependency closure, workflow negative controls, rebuilt artifacts, packaging qualification and independent whole-feature actual-diff/deletion review remain pending.
+
+Reviewed read-only at HEAD `9f319f3167398d319c8b7b434a70e37cf9113024`. No writes or behavioral checks performed; the separate skill diagnostic change was left untouched.
