@@ -1,0 +1,21 @@
+## Review
+
+**Verdict: APPROVED**
+
+**Blocking findings:** None. The prior P2 is resolved.
+
+- [The filesystem test module](/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/crates/brn-ai/src/threads_summary.rs:768) now requires `all(test, unix)`, excluding its Unix imports, FIFO call and permission methods on Windows.
+- All six affected summary tests and three associated helpers have matching Unix gates. Independently traced callers of `review1::{credentials,copilot_settings,exchange}` are confined to its three gated tests.
+- The enclosing summary and `review1` modules remain enabled. Twenty portable summary tests, including all four portable `review1` tests, remain source-enabled on non-Unix targets. The existing frozen-skill platform gate is unchanged.
+
+**Advisories:** None.
+
+**Standards and specification:** The correction is proportionate and preserves test bodies and assertions. Independently reverting only the cfg delta reproduces the prior source bytes. Production behavior, dependencies, module ownership and checked-service boundaries are unchanged. This repair introduces no abstraction, retired route or consequential design debt requiring broader engineering.
+
+**Coverage and limits:** Reviewed corrected material `ec2f5c25` at clean evidence HEAD `536cc8b1`, the exact two-file delta from `779cf0d1`, subsequent documentation changes, required current records and relevant unchanged production cfg boundaries.
+
+Inspected recorded Mac **28/0/0**, strict scripted all-target Clippy, fmt and static results; verified selected receipt, source, binary and `.d` hashes and identical prior/current 28-name lists. These were evidence inspections, not reviewer-executed checks. **No Windows compilation was performed or established.**
+
+The package remains historically pinned to `2dd7cc60`; prior workspace **1265/10/5**, dispositions and SDK/widget/schema7/live/native-human/owner/platform qualifications remain carried. This focused round does not repeat the earlier whole-union review or complete receipt audit.
+
+No writes, Cargo, tests, formatter, application/Auth/provider/network/GUI operations or delegation were performed. Parent retains acceptance, PR, four required exact-head CI checks, merge and main-CI ownership.
