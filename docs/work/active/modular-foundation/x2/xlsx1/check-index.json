@@ -1,0 +1,474 @@
+{
+  "schema": "xlsx1-actual-checks/1",
+  "status": "CANDIDATE_WITH_HONEST_REMAINING_FAILURES_PARENT_REVIEW_PENDING",
+  "actual_counts": {
+    "before_controls": {
+      "passed": 4,
+      "failed": 6,
+      "ignored": 0,
+      "filtered": 0
+    },
+    "formatted_intermediate_controls": {
+      "passed": 9,
+      "failed": 1
+    },
+    "minimal_candidate_controls": {
+      "passed": 9,
+      "failed": 1,
+      "ignored": 0,
+      "filtered": 0
+    },
+    "full_measurement": {
+      "passed": 14,
+      "failed": 15,
+      "ignored": 0,
+      "filtered": 0
+    },
+    "harness_strict_alltargets_Clippy_exit_code": 0
+  },
+  "outcomes": {
+    "before": {
+      "office_docx_namespace_control": "ok",
+      "office_pptx_quay_notes_control": "ok",
+      "office_pptx_quay_order_control": "ok",
+      "xlsx_existing_non_a1_formulas": "FAILED",
+      "xlsx_formula_empty_and_a1_controls": "ok",
+      "xlsx_formula_format_edge": "FAILED",
+      "xlsx_formula_metadata_cap_unchanged": "FAILED",
+      "xlsx_getting_data_source_spelling_requirement": "FAILED",
+      "xlsx_seven_classic_error_spellings": "FAILED",
+      "xlsx_sparse_beyond_z_formula_order": "FAILED"
+    },
+    "candidate": {
+      "office_docx_namespace_control": "ok",
+      "office_pptx_quay_notes_control": "ok",
+      "office_pptx_quay_order_control": "ok",
+      "xlsx_existing_non_a1_formulas": "ok",
+      "xlsx_formula_empty_and_a1_controls": "ok",
+      "xlsx_formula_format_edge": "ok",
+      "xlsx_formula_metadata_cap_unchanged": "ok",
+      "xlsx_getting_data_source_spelling_requirement": "FAILED",
+      "xlsx_seven_classic_error_spellings": "ok",
+      "xlsx_sparse_beyond_z_formula_order": "ok"
+    },
+    "full_measurement": {
+      "a_capture_complete_values_evidence_only": "ok",
+      "current_route_support_and_decode_policy": "ok",
+      "current_text_and_markdown_keep_complete_bytes": "ok",
+      "eml_current_payloads_and_scope": "ok",
+      "eml_current_prepared_nested_body_is_not_silent_loss": "FAILED",
+      "eml_headers_and_attachment_names": "ok",
+      "eml_html_body_complete_paragraphs": "ok",
+      "eml_nested_source_identity_retained": "FAILED",
+      "eml_nested_standalone_positive": "ok",
+      "eml_plain_alternative_not_discarded": "FAILED",
+      "html_textual_control_is_not_rich_adoption": "ok",
+      "markdown_blank_lines_exact": "FAILED",
+      "markdown_bom_exact": "FAILED",
+      "markdown_crlf_exact": "FAILED",
+      "markdown_fence_links_images_exact": "FAILED",
+      "source_input_receipts": "ok",
+      "text_blank_lines_exact": "FAILED",
+      "text_bom_exact": "FAILED",
+      "text_crlf_exact": "FAILED",
+      "text_markup_exact": "FAILED",
+      "text_no_final_newline_exact": "FAILED",
+      "xlsx_current_source_facts": "ok",
+      "xlsx_error_value_lexeme": "ok",
+      "xlsx_forecast_table_and_page": "ok",
+      "xlsx_formula_absolute_association": "ok",
+      "xlsx_missing_cache_formula_cell_is_retained": "FAILED",
+      "xlsx_numeric_identifier_precision": "FAILED",
+      "xlsx_sheet_order_hidden_and_empty": "ok",
+      "xlsx_sparse_absolute_geometry": "FAILED"
+    }
+  },
+  "measurement_changes": {
+    "xlsx_error_value_lexeme": [
+      "FAILED",
+      "ok"
+    ],
+    "xlsx_formula_absolute_association": [
+      "FAILED",
+      "ok"
+    ]
+  },
+  "control_capture_comparisons": [
+    {
+      "file": "xlsx1-classic-errors.json",
+      "whole_value_identical": false,
+      "source_derived_leaf_changes": 25
+    },
+    {
+      "file": "xlsx1-existing-facts.json",
+      "whole_value_identical": false,
+      "source_derived_leaf_changes": 8
+    },
+    {
+      "file": "xlsx1-formulas.json",
+      "whole_value_identical": false,
+      "source_derived_leaf_changes": 3
+    },
+    {
+      "file": "xlsx1-getting-data.json",
+      "whole_value_identical": true,
+      "source_derived_leaf_changes": 0
+    },
+    {
+      "file": "xlsx1-ns3-real-harbor.json",
+      "whole_value_identical": true,
+      "source_derived_leaf_changes": 0
+    },
+    {
+      "file": "xlsx1-ns3-real-prefix.json",
+      "whole_value_identical": true,
+      "source_derived_leaf_changes": 0
+    },
+    {
+      "file": "xlsx1-quay-notes.json",
+      "whole_value_identical": true,
+      "source_derived_leaf_changes": 0
+    },
+    {
+      "file": "xlsx1-quay-order.json",
+      "whole_value_identical": true,
+      "source_derived_leaf_changes": 0
+    }
+  ],
+  "historical_captures": {
+    "count": 73,
+    "whole_equal": 72,
+    "source_authored_corrected": {
+      "file": "facts-xberg.raw.json",
+      "allowed_leaf_changes": 8
+    },
+    "all_other_fields_equal": true
+  },
+  "input_byte_equality": {
+    "original": 17,
+    "new_control": 8
+  },
+  "source_derived_exact_whole_JSON_allowlist": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/qualification.json",
+    "sha256": "d2aed54032ccf710313da9b06f4a96e82ec44a83c0cc442e23a3163a968b1163"
+  },
+  "phases": [
+    {
+      "label": "01-before-controls",
+      "receipt_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/01-before-controls/receipt.json",
+      "receipt_sha256": "bff0ca4d04b9f801e2a0454f34e33c52b39bda589405e14167acd9b28a5c62b1",
+      "raw_log_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/01-before-controls/raw.log",
+      "raw_log_sha256": "ba51a2363b3338d05f2dc8358ec208fc4899326f039f99602f705af159347d84",
+      "exit_code": 101,
+      "source_count": 805,
+      "xberg_git": "ce3bce28f1e6e7393efe27cfad61f8159208d286",
+      "xberg_tree": "d3ffa3c20128dc8182e7cb7a6c6049a93ba7cb1d",
+      "harness_git": "334f69c7c1e4ae8bd03f7921052dd89b55f717e9",
+      "harness_tree": "ed0bf1081275b7205ae1d812221abe224a38d259",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "xlsx1",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "test_lines": [
+        "running 10 tests",
+        "test office_docx_namespace_control ... ok",
+        "test office_pptx_quay_notes_control ... ok",
+        "test office_pptx_quay_order_control ... ok",
+        "test xlsx_existing_non_a1_formulas ... FAILED",
+        "test xlsx_formula_empty_and_a1_controls ... ok",
+        "test xlsx_formula_format_edge ... FAILED",
+        "test xlsx_formula_metadata_cap_unchanged ... FAILED",
+        "test xlsx_getting_data_source_spelling_requirement ... FAILED",
+        "test xlsx_seven_classic_error_spellings ... FAILED",
+        "test xlsx_sparse_beyond_z_formula_order ... FAILED",
+        "test result: FAILED. 4 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test xlsx1`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "02-candidate-controls",
+      "receipt_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/02-candidate-controls/receipt.json",
+      "receipt_sha256": "3dff52fde74fe3780244cc89899fd5cbc98562ae1f38443ff64a159aa64cdb44",
+      "raw_log_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/02-candidate-controls/raw.log",
+      "raw_log_sha256": "5e73d746a9a9790818b674c85899fca2c27098f11137a2f7275c6e98e3657dc5",
+      "exit_code": 101,
+      "source_count": 805,
+      "xberg_git": "5d126ba37307bb28031d1e8e05ecbbdf3422e856",
+      "xberg_tree": "0a7b4464eb0114ec54a5eb05330489f72d99ae30",
+      "harness_git": "334f69c7c1e4ae8bd03f7921052dd89b55f717e9",
+      "harness_tree": "ed0bf1081275b7205ae1d812221abe224a38d259",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "xlsx1",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "test_lines": [
+        "running 10 tests",
+        "test office_docx_namespace_control ... ok",
+        "test office_pptx_quay_notes_control ... ok",
+        "test office_pptx_quay_order_control ... ok",
+        "test xlsx_existing_non_a1_formulas ... ok",
+        "test xlsx_formula_empty_and_a1_controls ... ok",
+        "test xlsx_formula_format_edge ... ok",
+        "test xlsx_formula_metadata_cap_unchanged ... ok",
+        "test xlsx_getting_data_source_spelling_requirement ... FAILED",
+        "test xlsx_seven_classic_error_spellings ... ok",
+        "test xlsx_sparse_beyond_z_formula_order ... ok",
+        "test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test xlsx1`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "03-minimal-candidate-controls",
+      "receipt_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/03-minimal-candidate-controls/receipt.json",
+      "receipt_sha256": "eab97b1398516f25632ec6dce15a62d17c66c54ee97d159548e6b6d7dea03222",
+      "raw_log_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/03-minimal-candidate-controls/raw.log",
+      "raw_log_sha256": "bdbcd5e580631822e2f5655804dd4364d122bdb978bc3375335d2297c037ed2c",
+      "exit_code": 101,
+      "source_count": 805,
+      "xberg_git": "33da0434a104ddf253801e7db9638cf0e8b45b3b",
+      "xberg_tree": "8ae13438dfa237e6cc79a951ecbea51a76ef0ee0",
+      "harness_git": "07ab11b5a25a1500e5fe8c096624626597338658",
+      "harness_tree": "1f8029d79b7499d5fd7f9cde8484decbe42c2149",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "xlsx1",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "test_lines": [
+        "running 10 tests",
+        "test office_docx_namespace_control ... ok",
+        "test office_pptx_quay_notes_control ... ok",
+        "test office_pptx_quay_order_control ... ok",
+        "test xlsx_existing_non_a1_formulas ... ok",
+        "test xlsx_formula_empty_and_a1_controls ... ok",
+        "test xlsx_formula_format_edge ... ok",
+        "test xlsx_formula_metadata_cap_unchanged ... ok",
+        "test xlsx_getting_data_source_spelling_requirement ... FAILED",
+        "test xlsx_seven_classic_error_spellings ... ok",
+        "test xlsx_sparse_beyond_z_formula_order ... ok",
+        "test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test xlsx1`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "04-full-measurement",
+      "receipt_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/04-full-measurement/receipt.json",
+      "receipt_sha256": "7d7f6443ade638e9d3ca61cc32c0eb2b48d351014d8d2f7dd8143fe856f01199",
+      "raw_log_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/04-full-measurement/raw.log",
+      "raw_log_sha256": "c0830a404b3f3ae5dfda8108b52d3af4076fd78734f2dd7518c88ee82ac5b64f",
+      "exit_code": 101,
+      "source_count": 805,
+      "xberg_git": "33da0434a104ddf253801e7db9638cf0e8b45b3b",
+      "xberg_tree": "8ae13438dfa237e6cc79a951ecbea51a76ef0ee0",
+      "harness_git": "07ab11b5a25a1500e5fe8c096624626597338658",
+      "harness_tree": "1f8029d79b7499d5fd7f9cde8484decbe42c2149",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "test",
+        "--manifest-path",
+        "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--test",
+        "remaining",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "test_lines": [
+        "running 29 tests",
+        "test a_capture_complete_values_evidence_only ... ok",
+        "test current_route_support_and_decode_policy ... ok",
+        "test current_text_and_markdown_keep_complete_bytes ... ok",
+        "test eml_current_payloads_and_scope ... ok",
+        "test eml_current_prepared_nested_body_is_not_silent_loss ... FAILED",
+        "test eml_headers_and_attachment_names ... ok",
+        "test eml_html_body_complete_paragraphs ... ok",
+        "test eml_nested_source_identity_retained ... FAILED",
+        "test eml_nested_standalone_positive ... ok",
+        "test eml_plain_alternative_not_discarded ... FAILED",
+        "test html_textual_control_is_not_rich_adoption ... ok",
+        "test markdown_blank_lines_exact ... FAILED",
+        "test markdown_bom_exact ... FAILED",
+        "test markdown_crlf_exact ... FAILED",
+        "test markdown_fence_links_images_exact ... FAILED",
+        "test source_input_receipts ... ok",
+        "test text_blank_lines_exact ... FAILED",
+        "test text_bom_exact ... FAILED",
+        "test text_crlf_exact ... FAILED",
+        "test text_markup_exact ... FAILED",
+        "test text_no_final_newline_exact ... FAILED",
+        "test xlsx_current_source_facts ... ok",
+        "test xlsx_error_value_lexeme ... ok",
+        "test xlsx_forecast_table_and_page ... ok",
+        "test xlsx_formula_absolute_association ... ok",
+        "test xlsx_missing_cache_formula_cell_is_retained ... FAILED",
+        "test xlsx_numeric_identifier_precision ... FAILED",
+        "test xlsx_sheet_order_hidden_and_empty ... ok",
+        "test xlsx_sparse_absolute_geometry ... FAILED",
+        "test result: FAILED. 14 passed; 15 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s",
+        "error: test failed, to rerun pass `-p remaining-format-harness --test remaining`",
+        "error: 1 target failed:"
+      ]
+    },
+    {
+      "label": "05-clippy",
+      "receipt_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/05-clippy/receipt.json",
+      "receipt_sha256": "e69d9e583fab3c81cad7113578ea11cdcd347e71146951602ae868c9949d4de4",
+      "raw_log_path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/05-clippy/raw.log",
+      "raw_log_sha256": "916712730c01ff5e749fc0ebae209f68d9116f3ae4bd66d7d770a85443ef6bdf",
+      "exit_code": 0,
+      "source_count": 805,
+      "xberg_git": "33da0434a104ddf253801e7db9638cf0e8b45b3b",
+      "xberg_tree": "8ae13438dfa237e6cc79a951ecbea51a76ef0ee0",
+      "harness_git": "07ab11b5a25a1500e5fe8c096624626597338658",
+      "harness_tree": "1f8029d79b7499d5fd7f9cde8484decbe42c2149",
+      "source_wip_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "registry_identities": 276,
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "clippy",
+        "--manifest-path",
+        "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+        "-p",
+        "remaining-format-harness",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--message-format=json",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+        "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+        "CARGO_INCREMENTAL": "0",
+        "RUST_BACKTRACE": "0",
+        "CARGO_TERM_COLOR": "never"
+      },
+      "test_lines": []
+    }
+  ],
+  "patch_reproduction": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/patch-reproduction.json",
+    "sha256": "98fb4c880de4d06a6081648474c52351afad9dd219e0600b61658fdd1b2c8741"
+  },
+  "routine_correction_history": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/owned-corrections.json",
+    "sha256": "7764bc1aacbed5a4991411e518e0beb337e32cabeddf0e78c76e6ac064563dab"
+  },
+  "static_evidence_checker_attempt1": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/qualification-attempt1.log",
+    "sha256": "918aa4d34c48b62ea1960d616f961507e134da06ba440a38bebe82b9f76691bf"
+  },
+  "static_checker_attempt2": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/qualification-attempt2.log",
+    "sha256": "a49d5299f906b3a0cd9594e50491c29a1e664fd09480ada567aee974861e0ee4"
+  },
+  "static_checker_correction": "Exact source comment boundary spelling corrected in checker; no behavioral assertion/Cargo retry involved.",
+  "static_receipt": "External evidence/static-checks.json after all delivery files exist.",
+  "no_dependency_wide_lint_claim": true
+}

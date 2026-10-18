@@ -1,0 +1,101 @@
+{
+  "schema": "xlsx1-source-pin/1",
+  "repo_precommit_HEAD": "50f469f8d2925b8615ede099b1106cda558a5885",
+  "repo_precommit_tree": "03fcc93fffb4dd82e011fd4a0bf9d80ea4473f50",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "accepted_base_xberg": "ce3bce28f1e6e7393efe27cfad61f8159208d286",
+  "actual_compiled_xberg": {
+    "git": "33da0434a104ddf253801e7db9638cf0e8b45b3b",
+    "tree": "8ae13438dfa237e6cc79a951ecbea51a76ef0ee0",
+    "file": {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/xberg/src/extraction/excel.rs",
+      "sha256": "c7987cfbfcc0820be739066aadc854d69b93fa287a2b68736fce99fd2add0cc9"
+    }
+  },
+  "actual_harness": {
+    "git": "07ab11b5a25a1500e5fe8c096624626597338658",
+    "tree": "1f8029d79b7499d5fd7f9cde8484decbe42c2149",
+    "manifest": {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.toml",
+      "sha256": "3bc13100c9aecd78224dada77e36033fb2038351ae7e924ab2129bba2c554929"
+    },
+    "lock": {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/harness/Cargo.lock",
+      "sha256": "7b9919e7ef9acea984257f5dfcf2e2b069645ea6dedcf71c50c06d0e07070279"
+    },
+    "only_manifest_delta": "new explicit xlsx1 test entry; same package/dependencies/relative../xberg topology; no resolution",
+    "measurement_driver": {
+      "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/xlsx1/driver.rs",
+      "sha256": "73e7f888628ae0052b55397cb47ab84e2d15bb02180eec93db0cfba67d6f65b9"
+    },
+    "control_driver": {
+      "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/xlsx1/controls.rs",
+      "sha256": "c3503c8877283e4c280e466aacf2cfb6c1b6cdfe98ca916d37eebf1f942e8f92"
+    },
+    "target": "/private/tmp/brn-x2-xlsx-references1-20261018/target",
+    "TMPDIR": "/private/tmp/brn-x2-xlsx-references1-20261018/private-tmp",
+    "TMPDIR_mode": "0o700"
+  },
+  "original_authored_corpus": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/xlsx1/corpus.json",
+    "sha256": "820f3de630de66017f80d34c32dd4dbb8e4fd8a613e44d89e69a479e98e8e364"
+  },
+  "original_controls_sha256": "897dc1b12ad4aaa59f761c3762222ab187660eaa8d3325b95c34908bc6cdd3c0",
+  "final_controls_only_unused_Value_import_removed": true,
+  "root_lock": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/Cargo.lock",
+    "sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229"
+  },
+  "root_source_manifests_lock_old_patches_oracles_unchanged": true,
+  "prior_root_and_artifact_custody": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/prior-execution-pin.json",
+    "sha256": "06e247041dc7533321c461d4b47c55b8e6c956ec42b6464e2f65d7e1405b1361"
+  },
+  "prior_artifact_associations": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/prior-artifact-associations.json",
+    "sha256": "7ae4e64dce146f5785e32bbde5cc05bb2101df74257933bc5463469ece8ff152"
+  },
+  "all_276_emitted_features_equal_prior_audit_no_new_identity": true,
+  "normal_library_cfg_test_false": [
+    "xberg",
+    "brn-intake",
+    "brn-threads-intake"
+  ],
+  "qualified_sources_logs_artifacts": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/qualification.json",
+    "sha256": "d2aed54032ccf710313da9b06f4a96e82ec44a83c0cc442e23a3163a968b1163"
+  },
+  "independent_patch_reproduction": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/patch-reproduction.json",
+    "sha256": "98fb4c880de4d06a6081648474c52351afad9dd219e0600b61658fdd1b2c8741"
+  },
+  "requirements": {
+    "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/docs/work/active/modular-foundation/x2/xlsx1/requirements.txt",
+    "sha256": "0c1ff67db94a4fb1b5e1c74610a5e378bee203878ea2c3e9e61091b199d8b9d9"
+  },
+  "no_PDF_scratch_access": true,
+  "actual_postcommit_identity": "External evidence/final-repo-pin.json after actual commit creation; precommit receipt and full staged/base diff hashes retained.",
+  "evidence_tools": [
+    {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/run.py",
+      "sha256": "0c1b46b32d48b835208d7189e0b42997118b8cf9b34a36a022e91a195727e45c"
+    },
+    {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/qualify.py",
+      "sha256": "ecaf096d4017e11b8f4ea933c02065a1504e35b729a18b1995930c2274bdfb7e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/reproduce.py",
+      "sha256": "f67a95882c92febeefee13f736f72c2f48d16528a729184b957bdfab3e518c05"
+    },
+    {
+      "path": "/private/tmp/brn-x2-xlsx-references1-20261018/inventory.py",
+      "sha256": "5124cea39369b03c0fee0b4d19142e6a4b0223c60eec9469dfd0109a4831f251"
+    }
+  ],
+  "initial_inventory_custody": {
+    "path": "/private/tmp/brn-x2-xlsx-references1-20261018/evidence/process-inventory-relocation.json",
+    "sha256": "a5962f94158530034538876ff0d24d7d7fb03a9367c720bd2982ca86633ee31a"
+  }
+}
