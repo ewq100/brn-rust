@@ -247,10 +247,16 @@ fn current_office_admission_descriptors_empty_members_and_malformed_baseline() {
             let malformed = size_lie(&source, member, delta, false);
             let a = helper::extract(request(&malformed, IntakeLimits::default()));
             let b = helper::prepared::prepare(request(&malformed, IntakeLimits::default()));
+            assert_eq!(a.as_ref().unwrap_err(), A1_SIZE_ERROR);
+            assert_eq!(b.as_ref().unwrap_err(), A1_SIZE_ERROR);
+            println!(
+                "A1_CURRENT_SIZE {}",
+                json!({"class":"S6","witness":format!("current-size-{member}-{delta}"),"measurement":"EvidenceOnly","expected":{"member":member,"central_minus_actual":delta,"contract":"reject inconsistent member with size-specific refusal after bounded inflation"},"actual":{"schema1":a.as_ref().map(|e|json!({"wording":markdown_wording(&e.markdown),"usage":e.consumed})),"schema2":b.as_ref().map(prepared_atoms)}})
+            );
             record(
                 "S6",
                 &format!("current-size-{member}-{delta}"),
-                json!({"member":member,"central_minus_actual":delta,"contract":"inconsistent member; measure existing acceptance, no production fix"}),
+                json!({"member":member,"central_minus_actual":delta,"contract":"reject inconsistent member with size-specific refusal after bounded inflation"}),
                 json!({"schema1":a.map(|e|json!({"wording":markdown_wording(&e.markdown),"usage":e.consumed})),"schema2":b.map(|d|prepared_atoms(&d))}),
             );
         }
@@ -292,4 +298,294 @@ fn current_office_admission_alias_dtd_depth_and_relationship_count() {
         .collect::<String>();
     let bytes = package(&paragraph("Many relationships."), &rels, &[]);
     record("S6","current-relationship-count",json!({"relationship_count":513,"policy":"measure existing parse/count behavior; no new relationship quota invented"}),json!(helper::extract(request(&bytes,IntakeLimits::default())).map(|e|json!({"usage":e.consumed,"gaps":e.gaps,"wording":markdown_wording(&e.markdown)}))));
+}
+
+const A1_SIZE_ERROR: &str = "Office package member-size-mismatch";
+fn a1_request(kind: &str, bytes: &[u8], limits: IntakeLimits) -> HelperRequest {
+    let mut r = request(bytes, limits);
+    r.kind = kind.into();
+    r
+}
+fn a1_stats(bytes: &[u8]) -> (usize, usize) {
+    let archive = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
+    let expanded = ooxml_opc::unzip_parts(bytes)
+        .unwrap()
+        .iter()
+        .map(|(_, b)| b.len())
+        .sum();
+    (archive.len(), expanded)
+}
+fn a1_valid(kind: &str, original: &[u8], variant: &[u8]) {
+    let (parts, expanded) = a1_stats(variant);
+    let limits = IntakeLimits {
+        max_package_parts: parts,
+        max_expanded_bytes: expanded,
+        ..Default::default()
+    };
+    let base =
+        helper::prepared::prepare(a1_request(kind, original, IntakeLimits::default())).unwrap();
+    let d = helper::prepared::prepare(a1_request(kind, variant, limits.clone())).unwrap();
+    d.validate().unwrap();
+    assert_eq!(d.source_sha256, digest(variant));
+    assert_eq!(d.format, kind);
+    assert_eq!(d.blocks, base.blocks);
+    assert_eq!(d.assets, base.assets);
+    assert_eq!(d.pages, base.pages);
+    assert_eq!(d.gaps, base.gaps);
+    assert_eq!(
+        (d.consumed.package_parts, d.consumed.expanded_bytes),
+        (parts, expanded)
+    );
+    if kind != "xlsx" {
+        let mut base =
+            helper::extract(a1_request(kind, original, IntakeLimits::default())).unwrap();
+        let e = helper::extract(a1_request(kind, variant, limits)).unwrap();
+        e.validate().unwrap();
+        assert_eq!(e.original_sha256, digest(variant));
+        assert_eq!(e.sources[0].bytes, variant);
+        base.sources[0].bytes = variant.to_vec();
+        assert_eq!(e.sources, base.sources);
+        assert_eq!(e.markdown, base.markdown);
+        assert_eq!(e.assets, base.assets);
+        assert_eq!(e.occurrences, base.occurrences);
+        assert_eq!(e.gaps, base.gaps);
+        let usage = e.consumed.unwrap();
+        assert_eq!(
+            (usage.package_parts, usage.expanded_bytes),
+            (parts, expanded)
+        );
+    } else {
+        let cells: Vec<_> = d
+            .blocks
+            .iter()
+            .flat_map(|b| match &b.content {
+                BlockContent::Table { rows } => rows
+                    .iter()
+                    .flatten()
+                    .map(|c| {
+                        (
+                            c.address.as_str(),
+                            c.text.as_str(),
+                            c.row_span,
+                            c.column_span,
+                        )
+                    })
+                    .collect(),
+                _ => vec![],
+            })
+            .collect();
+        assert_eq!(
+            cells,
+            [
+                ("A1", "Out of scope forecast", 1, 1),
+                ("B1", "EUR", 1, 1),
+                ("A2", "Harbor budget", 1, 1),
+                ("B2", "4000", 1, 1)
+            ]
+        );
+    }
+}
+fn a1_boundary() -> Vec<u8> {
+    package(
+        &paragraph("Boundary."),
+        &relationship("fn", "footnotes", "footnotes.xml"),
+        &[(
+            "word/footnotes.xml",
+            "<w:footnotes xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\"><w:footnote w:id=\"1\"><w:p><w:r><w:t>Optional note.</w:t></w:r></w:p></w:footnote></w:footnotes>",
+        )],
+    )
+}
+fn a1_sizes(kind: &str, source: &[u8], members: &[&str]) -> Vec<serde_json::Value> {
+    a1_valid(kind, source, source);
+    let actual: std::collections::BTreeMap<_, _> = ooxml_opc::unzip_parts(source)
+        .unwrap()
+        .into_iter()
+        .collect();
+    let mut failures = vec![];
+    for member in members {
+        for delta in [-1, 1] {
+            let bad = size_lie(source, member, delta, false);
+            let mut archive = zip::ZipArchive::new(std::io::Cursor::new(&bad)).unwrap();
+            let entry = (0..archive.len())
+                .find_map(|i| {
+                    let e = archive.by_index_raw(i).unwrap();
+                    (e.name() == *member).then_some((e.size(), e.is_dir()))
+                })
+                .unwrap();
+            assert!(!entry.1);
+            assert_eq!(
+                entry.0 as i64,
+                actual[*member].len() as i64 + i64::from(delta)
+            );
+            let mut errors = vec![];
+            if kind != "xlsx" {
+                errors.push(
+                    helper::extract(a1_request(kind, &bad, IntakeLimits::default()))
+                        .map(|_| "ACCEPTED"),
+                );
+            }
+            errors.push(
+                helper::prepared::prepare(a1_request(kind, &bad, IntakeLimits::default()))
+                    .map(|_| "ACCEPTED"),
+            );
+            let observation = json!({"kind":kind,"member":member,"central_minus_actual":delta,"input_sha256":hex(&digest(&bad)),"results":errors});
+            println!("A1_SIZE_CHECK {observation}");
+            if errors
+                .iter()
+                .any(|r| !matches!(r,Err(e) if e==A1_SIZE_ERROR))
+            {
+                failures.push(observation);
+            }
+        }
+    }
+    failures
+}
+#[test]
+fn a1_docx_member_sizes_required_optional_both_schemas() {
+    let mut failures = a1_sizes(
+        "docx",
+        &a1_boundary(),
+        &["word/document.xml", "word/footnotes.xml"],
+    );
+    failures.extend(a1_sizes(
+        "docx",
+        &repeated_figures(),
+        &["word/media/same.png"],
+    ));
+    assert!(
+        failures.is_empty(),
+        "size-specific refusals missing: {failures:#?}"
+    );
+}
+#[test]
+fn a1_valid_descriptors_empty_files_and_directories() {
+    for (kind, bytes, main) in [
+        ("docx", a1_boundary(), "word/document.xml"),
+        (
+            "pptx",
+            include_bytes!("fixtures/quay.pptx").to_vec(),
+            "ppt/presentation.xml",
+        ),
+        (
+            "xlsx",
+            include_bytes!("fixtures/forecast.xlsx").to_vec(),
+            "xl/workbook.xml",
+        ),
+    ] {
+        let dirs = empty_members(&bytes);
+        let (count, expanded) = a1_stats(&dirs);
+        assert_eq!(count, a1_stats(&bytes).0 + 3);
+        assert_eq!(expanded, a1_stats(&bytes).1);
+        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(&dirs)).unwrap();
+        let dir = (0..archive.len())
+            .find_map(|i| {
+                let e = archive.by_index_raw(i).unwrap();
+                (e.name() == "opaque/deflated/").then_some((
+                    e.size(),
+                    e.compressed_size(),
+                    e.is_dir(),
+                    e.header_start() as usize,
+                ))
+            })
+            .unwrap();
+        assert_eq!((dir.0, dir.2), (0, true));
+        assert!(dir.1 > 0, "empty deflate stream still has compressed bytes");
+        assert_ne!(dirs[dir.3 + 6] & 8, 0);
+        assert_eq!(&dirs[dir.3 + 14..dir.3 + 26], &[0; 12]);
+        for valid in [
+            bytes.clone(),
+            descriptor(&bytes, main),
+            stored(&bytes, true),
+            dirs,
+        ] {
+            a1_valid(kind, &bytes, &valid);
+        }
+    }
+}
+#[test]
+fn a1_shared_pptx_and_xlsx_required_and_unread_optional_sizes() {
+    let mut failures = a1_sizes(
+        "pptx",
+        include_bytes!("fixtures/quay.pptx"),
+        &["ppt/presentation.xml", "docProps/thumbnail.jpeg"],
+    );
+    failures.extend(a1_sizes(
+        "xlsx",
+        include_bytes!("fixtures/forecast.xlsx"),
+        &["xl/workbook.xml", "docProps/app.xml"],
+    ));
+    assert!(
+        failures.is_empty(),
+        "shared size-specific refusals missing: {failures:#?}"
+    );
+}
+#[test]
+fn a1_nested_eml_refusals_preserve_global_actual_charges() {
+    use base64::{Engine, engine::general_purpose::STANDARD};
+    let valid = package(&paragraph("Attachment boundary."), "", &[]);
+    let bad = size_lie(&valid, "word/document.xml", 1, false);
+    let mut inner = "MIME-Version: 1.0\r\nSubject: Inner\r\nContent-Type: multipart/mixed; boundary=i\r\n\r\n--i\r\nContent-Type: text/plain\r\n\r\nInner body.\r\n".to_owned();
+    for (name, bytes) in [
+        ("bad1.docx", &bad),
+        ("bad2.docx", &bad),
+        ("valid.docx", &valid),
+    ] {
+        inner.push_str(&format!("--i\r\nContent-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\nContent-Disposition: attachment; filename={name}\r\nContent-Transfer-Encoding: base64\r\n\r\n{}\r\n",STANDARD.encode(bytes)));
+    }
+    inner.push_str("--i--\r\n");
+    let outer = format!("MIME-Version: 1.0\r\nSubject: Outer\r\nContent-Type: multipart/mixed; boundary=o\r\n\r\n--o\r\nContent-Type: text/plain\r\n\r\nOuter body.\r\n--o\r\nContent-Type: message/rfc822\r\nContent-Disposition: attachment; filename=inner.eml\r\n\r\n{inner}\r\n--o--\r\n").into_bytes();
+    let (parts, expanded) = a1_stats(&valid);
+    for (max_parts, max_bytes, processed, refusal) in [
+        (3 * parts, 3 * expanded, true, ""),
+        (2 * parts, 3 * expanded, false, "package member budget"),
+        (3 * parts, 2 * expanded, false, "inflated size exceeds"),
+    ] {
+        let limits = IntakeLimits {
+            max_package_parts: max_parts,
+            max_expanded_bytes: max_bytes,
+            ..Default::default()
+        };
+        let e = helper::extract(a1_request("eml", &outer, limits.clone())).unwrap();
+        let d = helper::prepared::prepare(a1_request("eml", &outer, limits)).unwrap();
+        e.validate().unwrap();
+        d.validate().unwrap();
+        let charged = if processed { 3 } else { 2 };
+        for usage in [e.consumed.as_ref().unwrap(), &d.consumed] {
+            assert_eq!(
+                (usage.package_parts, usage.expanded_bytes),
+                (charged * parts, charged * expanded)
+            );
+        }
+        assert_eq!(e.sources[0].bytes, outer);
+        for name in ["bad1.docx", "bad2.docx"] {
+            let s = e.sources.iter().find(|s| s.name == name).unwrap();
+            assert_eq!(s.bytes, bad);
+            assert_eq!(s.status, "unprocessed");
+            assert!(s.text.is_empty());
+            assert!(
+                e.gaps
+                    .iter()
+                    .any(|g| g == &format!("{}: DOCX unprocessed: {A1_SIZE_ERROR}", s.id))
+            );
+            assert!(d.gaps.iter().any(|g|g.detail.contains(name)&&g.detail.contains("Unprocessed attachment")));
+        }
+        let s = e.sources.iter().find(|s| s.name == "valid.docx").unwrap();
+        assert_eq!(s.bytes, valid);
+        assert_eq!(s.status, if processed { "partial" } else { "unprocessed" });
+        assert_eq!(
+            e.markdown.matches("Attachment boundary.").count(),
+            usize::from(processed)
+        );
+        if !processed {
+            assert!(
+                e.gaps
+                    .iter()
+                    .any(|g| g.contains(&s.id) && g.contains(refusal))
+            );
+        }
+        println!(
+            "A1_EML_CHECK {}",
+            json!({"input_sha256":hex(&digest(&outer)),"processed_valid":processed,"usage":e.consumed,"gaps":e.gaps})
+        );
+    }
 }

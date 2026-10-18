@@ -189,56 +189,56 @@
     "current-size-word/document.xml--1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "c40f9c312cb1b6c0b47aa0628ef1243778a2c117a451300b27907cc3a28199cf",
-      "actual_sha256": "db994e452f5ea847e73e109a341378f95a0cec38c773f34f8ec75ea5345e5204",
-      "raw_observation_sha256": "987968919d21d50ac10b0ded449b57416aa5d23e4e230c5b069f8e3724c65e8d",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "111a99b1c55948cfca848e4e1e8646259acf11523ff635320a98663735e09e32",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "8cc081875e83388cc16a88d890d8d03d36cdb55c9f7dabf144f435ae51ceac5c",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "current-size-word/document.xml-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "368a143695b4c2281e8b3b0955774e49cdfcdb445209232eec7255538de349c5",
-      "actual_sha256": "db994e452f5ea847e73e109a341378f95a0cec38c773f34f8ec75ea5345e5204",
-      "raw_observation_sha256": "a6da4f11d353aefb17d4930163b8fcdf5aab3a4432d7e16aa0391667da05afa6",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "73404fd854233d19e99e3d45a63e9127b1350f5ef15b31d9291973fd99872fc0",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "edae1d53bc31ccaee5385137370d776406fba9280394224b0359a13629e2e799",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "current-size-word/footnotes.xml--1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "854fd80def76d3c98d627b33ea1db5bb0c41bd3de02d7bfe5e6ea4886ebce186",
-      "actual_sha256": "db994e452f5ea847e73e109a341378f95a0cec38c773f34f8ec75ea5345e5204",
-      "raw_observation_sha256": "f4e9873b98fb205bfd0b29769c926bba736914a5daae47906b62088b845b3ce7",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "581fb07387af2aaa1856f909bcdbe837ff5a2046fcbcb8ae0a1b04edf4c57017",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "a57c08e80413c3dcc9f72037a98bef74298b6b610f9b3ab20d8e2bf3f1622e22",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "current-size-word/footnotes.xml-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "ec2d72e407387f41bdcb994bee94e153abfe7b6f603ed20431f69bf6b159652e",
-      "actual_sha256": "db994e452f5ea847e73e109a341378f95a0cec38c773f34f8ec75ea5345e5204",
-      "raw_observation_sha256": "7d57fd329c7730bdfd5f6d2f8490cbcffde3da1098c791c42018a69f80114c2d",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "3f9720940820e17f41af23343a2934fe0b4ba06ae990b4135ef2f712a2f24392",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "1b243dae9555318bf58f62e12e4c654d853d8c29df6a05e6c217f518aec5886a",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "current-size-word/media/same.png--1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "8804f8c187816f8b81a87c53dcde7aaccd1d1b54a534801ebe719c36c78fe9f6",
-      "actual_sha256": "c70041c1684b44efe0f953198fa1464d0926df8815171cd73aa9d089e05045e0",
-      "raw_observation_sha256": "ca908d48962db9151d21ca9645a63b38cc675ab8bd285efa89b724b728e0d306",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "5efd7b8ae7b327415601b14791e2d0bfe0b64bcf7ade7c3b209611e12dfc5db1",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "84843b5240a45ac2631aee1dcc031ee7a801966343e06e95add4469ed9e11b29",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "current-size-word/media/same.png-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "b9b904478560ea706923d368b49c8fd1153abb8ec5f8c6fae7a55fa633b7db59",
-      "actual_sha256": "c70041c1684b44efe0f953198fa1464d0926df8815171cd73aa9d089e05045e0",
-      "raw_observation_sha256": "1064fa7bccd64c934e1aebb6d0d923f8ccb8c867516efb1a7a6ea82bebb91c78",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/04-current-admission.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Only serialized envelope output_bytes is excluded; original value retained in the raw capture because original ZIP header bytes vary."
+      "expected_sha256": "d97fe5a221e887730556139021c042429169180af20e57fb37177f682ca76ed4",
+      "actual_sha256": "fdd937214a038c6c4b5b4261499516eab5dbd2df44331fea3e041eb6dbe1aa14",
+      "raw_observation_sha256": "140f7cf7c1b4aa0efc73dc0293f974b3bbfe379761313e4d4617f330f28673f6",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/03-current-and-a1-ordinary.log",
+      "qualification": "A1 observed size-specific refusal on both schemas after bounded inflation. Original accepted complete row and raw association are preserved in admission1/historical-size-observations.json and Git; no refusal normalization is applied."
     },
     "entity-cap": {
       "class": "S6",
@@ -537,55 +537,55 @@
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "9709b062a0341cf9adcbe3494372023c4c8b885eea0a4a0332a282dedb2dd50c",
-      "actual_sha256": "fef1921a7c6faec2c80b97ef7c72e38dbfb0818946067c0d1202f7ca733b615a",
-      "raw_observation_sha256": "4f90079ed9bb85bba0610d712d27e9bbf65f3bb4b381191b7f9de5dcaf3d0bef",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "1ec1d52d87765e47734f833f951b02a9d5b8118ef08f481a187221e0b2852707",
+      "raw_observation_sha256": "983e0badffba24d0be47dcd7e0786be22b27d51f1e55e47c4297eae7976711ac",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-size-word/document.xml-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "5d97159689808412a33082dd87f1b0836eebeb66f68f0468cdab3228f603c4f7",
-      "actual_sha256": "8df75960b5fb976e3453147de9427c745718a34b3b169f901283c5ca555e2290",
-      "raw_observation_sha256": "a662a36fa1434ace2294989ac2d3ce8a4f7391f57b53e19cce9dbdc25c8c70e0",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "62fcf771829ef0118ffa08e9bd80aee3ed6fe0172d3ad6760465f96ca8ea4bf0",
+      "raw_observation_sha256": "0d9b4f9cfd30b6b3d798b9502d4468659f883943fe7888a3fcaaa4f9d9f4ac00",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-size-word/footnotes.xml--1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "35bdba0b882d529b1c009c3421397009c05aec276292cc1345204c0285d845cf",
-      "actual_sha256": "272da3e8f162aae97492674efaacec5724bc6c5b2fcabd442ef085bfe58f6cf7",
-      "raw_observation_sha256": "7d41e6d700099629a28e1618c3016c0556a46cd6b36568cc2cdc9498b0288bde",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "9b348cd1d13057399cc888bae84f841037b30e203ddcff9ba05e16e27fbdca9e",
+      "raw_observation_sha256": "e7e98b7000cfc0b3586844840290b697ff94255088a81ec7f2b40dfa053a003c",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-size-word/footnotes.xml-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "2ce7a8814fd94aa85a1dd31618530703ca613726c36667e298bddbe2467cf0d1",
-      "actual_sha256": "8df75960b5fb976e3453147de9427c745718a34b3b169f901283c5ca555e2290",
-      "raw_observation_sha256": "4de2debb7be2dca9abf72780162058ef6fd2c3e4de4125ad12eee2d86a42c7ef",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "62fcf771829ef0118ffa08e9bd80aee3ed6fe0172d3ad6760465f96ca8ea4bf0",
+      "raw_observation_sha256": "4cc539a37dfd8b4f24f144ba529a91ab885c0b45701cedf4e83019dff63192f4",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-size-word/media/same.png--1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "ebf9f1aba937945522c2542ac6ee2ea408d1c72250d609d11d449e62d1ed12c9",
-      "actual_sha256": "110359313ebc8cbbe0d9831b646c541531a174bbaba0e8e5fb6c0bc80d6ab890",
-      "raw_observation_sha256": "f4040802fd4d449cee6722d48791b13c85e646f8a4efea680ff637a70d3ff5f4",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "b784e90b9e3b4699060bd6e1aa3b4f3848b92164b5cbe1548b8a845417b15e38",
+      "raw_observation_sha256": "2100954f529c68b6855fd6815dcbe02d05b3315886eef0c82e0a41041ec2ab37",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-size-word/media/same.png-1": {
       "class": "S6",
       "measurement": "EvidenceOnly",
       "expected_sha256": "c126a328785081d05d363ed6ef15b62643372852fbde29586a63e349e6bc248f",
-      "actual_sha256": "110359313ebc8cbbe0d9831b646c541531a174bbaba0e8e5fb6c0bc80d6ab890",
-      "raw_observation_sha256": "ba0ecedbddd2e218b685a4610e6f8f8669304a798e3681facec45d13862f2424",
-      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/20-measured-resource-gates.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "actual_sha256": "b784e90b9e3b4699060bd6e1aa3b4f3848b92164b5cbe1548b8a845417b15e38",
+      "raw_observation_sha256": "012b1d1bc2b461b27190485aeae8b5189d1fdef1a5bc3a2f16795b881ca02ef6",
+      "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/06-union-historical-pair-mismatch.log",
+      "qualification": "A1 changes only the paired current-reader member to its observed size-specific refusal. Complete bare-Xberg value equals its original historical value in the permanent test. Original complete row/raw association is preserved in admission1/historical-size-observations.json. Raw capture precedes the expected stale-pin failure; later passing tests verify this pin. EvidenceOnly is not parity."
     },
     "xberg-warning-policy": {
       "class": "S6",

@@ -393,7 +393,7 @@ fn picture_blocks(
     Ok(())
 }
 fn admit_package(bytes: &[u8], budget: &mut Budget) -> Result<BTreeMap<String, Vec<u8>>, String> {
-    let archive = zip::ZipArchive::new(Cursor::new(bytes))
+    let mut archive = zip::ZipArchive::new(Cursor::new(bytes))
         .map_err(|e| format!("Office ZIP admission: {e}"))?;
     if archive.len().saturating_add(budget.package_parts) > budget.limits.max_package_parts {
         return Err("Office package member budget".into());
@@ -410,6 +410,24 @@ fn admit_package(bytes: &[u8], budget: &mut Budget) -> Result<BTreeMap<String, V
     .collect();
     budget.package_parts += archive.len();
     budget.expanded_bytes += parts.values().map(Vec::len).sum::<usize>();
+    // Keep successful inflation charged even if a later consistency check refuses
+    // an attachment and its enclosing MIME message continues with partial evidence.
+    for i in 0..archive.len() {
+        let entry = archive
+            .by_index_raw(i)
+            .map_err(|_| "Office ZIP member metadata")?;
+        // The bounded OPC reader skips directories. They still count as members;
+        // their contents have not been read, so no size-consistency claim is made.
+        if entry.is_dir() {
+            continue;
+        }
+        if parts
+            .get(entry.name())
+            .is_none_or(|actual| entry.size() != actual.len() as u64)
+        {
+            return Err("Office package member-size-mismatch".into());
+        }
+    }
     Ok(parts)
 }
 

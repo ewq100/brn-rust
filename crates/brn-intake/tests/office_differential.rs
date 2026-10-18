@@ -611,6 +611,10 @@ fn office_limits_central_actual_lies_zero_compressed_empty_and_descriptor() {
         )
         .is_err()
     );
+    let history: Value = serde_json::from_str(include_str!(
+        "../../../docs/work/active/modular-foundation/x2/office1/admission1/historical-size-observations.json"
+    )).unwrap();
+    let mut observed = Vec::new();
     for (member, source) in [
         ("word/document.xml", bytes.clone()),
         ("word/footnotes.xml", bytes.clone()),
@@ -620,13 +624,30 @@ fn office_limits_central_actual_lies_zero_compressed_empty_and_descriptor() {
             let malformed = size_lie(&source, member, delta, false);
             let current = helper::extract(request(&malformed, IntakeLimits::default()));
             let maintained = run(&malformed, candidate(&IntakeLimits::default(), 0, 0));
-            record(
-                "S6",
-                &format!("xberg-size-{member}-{delta}"),
-                json!({"member":member,"central_minus_actual":delta,"required":member=="word/document.xml","policy":"reject inconsistent members before future promotion, valid descriptor is separate"}),
-                json!({"current":current.map(|x|json!({"wording":markdown_wording(&x.markdown),"gaps":x.gaps})),"xberg":maintained.map(|x|witness(&x))}),
+            assert_eq!(
+                current.as_ref().unwrap_err(),
+                "Office package member-size-mismatch"
             );
+            let key = format!("xberg-size-{member}-{delta}");
+            let xberg = json!(maintained.map(|x| witness(&x)));
+            // Value equality compares complete content and array order; object key
+            // ordering is immaterial. This is historical drift detection, not parity.
+            assert_eq!(
+                xberg, history["xberg_values"][&key],
+                "bare backend changed: {key}"
+            );
+            let expected = json!({"member":member,"central_minus_actual":delta,"required":member=="word/document.xml","policy":"reject inconsistent members before future promotion, valid descriptor is separate"});
+            let actual = json!({"current":current.map(|x|json!({"wording":markdown_wording(&x.markdown),"gaps":x.gaps})),"xberg":xberg});
+            println!(
+                "A1_PAIRED_SIZE {}",
+                json!({"class":"S6","witness":key,"measurement":"EvidenceOnly","expected":expected,"actual":actual})
+            );
+            observed.push((key, expected, actual));
         }
+    }
+    // Capture every pair before checking the updated current-result pins.
+    for (key, expected, actual) in observed {
+        record("S6", &key, expected, actual);
     }
 }
 #[test]

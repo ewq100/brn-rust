@@ -1,0 +1,13 @@
+# A1 handoff
+
+The package-consistency production candidate is ready for the parent's fresh independent review. Base is `95781baa94617e712ad29c289ebdaa2566ea8002`, tree `a237891ec0a0dd13ce07d2c2686d8ec2ebe7306c`, on the unchanged literal `t3-d611a161` checkout and `work/x2-office-prep-20261018`. Final commit/tree are returned separately. [Source pin](source-pin.json) and the [check index](check-index.json) record actual compiled precommit source; final staged diff/tree are frozen externally, without a future self-SHA.
+
+Only `helper.rs::admit_package` changes in production. Test changes are the allocated current/public controls, minimal empty-directory/descriptor fixture helper, precise conditional successful-capture normalization, and the existing Office size-metadata loop's complete unchanged-Xberg checks. Registry scope is the explicitly amended **12 changed / 52 byte-equivalent rows**; old complete rows/raw associations remain in [history](historical-size-observations.json). No independent oracle, manifest, lock, other production function, other differential test or prior report changes.
+
+Genuine before accepts all six malformed inputs through both schemas and fails the new refusal requirement. Final ordinary **107/0**, union **114/0**, host **3/0**, mock AI **9/0**, strict lint on both graphs and affected formatting pass. Initial stale-pair union **89/1** and initial AI **3/6** are preserved, with the latter diagnosed as the task temp path beneath Git; only the harness moved to real 0700 paths outside Git. See [response](response.md) for exact classifications, directory/accounting controls and retained qualifications.
+
+Evidence is retained under `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa`: genuine before source/target, exact source copies, command logs/JSON, executable/dep-info snapshots and receipts. The before Git source is clean and frozen at `1b7034dc9165b53cfa288a2219c09b81c0188f52`, committed after measurement with identical bytes and no rebuild. No old artifact/cache/worktree was deleted.
+
+This is not Office backend promotion, XML/resource/parity closure, reader retirement or all-document readiness. All carried PDF/SDK/widget/platform/INTW/owner/program/live qualifications remain as recorded. The parent owns independent production review next; no review was delegated here.
+
+All commands/children are reaped at final handoff. Every allocated path, the separate before source and the sole-heavy reservation are released; precise process inventory is retained in final external receipts. No background task or next-family work remains.

@@ -712,7 +712,24 @@ pub fn size_lie(bytes: &[u8], name: &str, delta: i32, zero_compressed: bool) -> 
 }
 /// Valid signed data descriptor: central sizes stay true, local CRC/sizes zero.
 pub fn descriptor(bytes: &[u8], name: &str) -> Vec<u8> {
-    let mut b = stored(bytes, false);
+    with_descriptor(stored(bytes, false), name)
+}
+/// Empty file plus actual stored/deflated directory entries; retain a legal
+/// zero-local-size descriptor on the deflated directory, with true central sizes.
+pub fn empty_members(bytes: &[u8]) -> Vec<u8> {
+    let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
+    let options = zip::write::SimpleFileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated);
+    for (name, data) in ooxml_opc::unzip_parts(bytes).unwrap() {
+        writer.start_file(name, options).unwrap();
+        writer.write_all(&data).unwrap();
+    }
+    writer.add_directory("opaque/stored/", options).unwrap();
+    writer.start_file("opaque/deflated/", options).unwrap();
+    writer.start_file("opaque/empty.bin", options).unwrap();
+    with_descriptor(writer.finish().unwrap().into_inner(), "opaque/deflated/")
+}
+fn with_descriptor(mut b: Vec<u8>, name: &str) -> Vec<u8> {
     let (i, e) = central(&b, name);
     let local = u32_at(&b, i + 42);
     let insert = local + 30 + u16_at(&b, local + 26) + u16_at(&b, local + 28) + u32_at(&b, i + 20);
@@ -812,11 +829,14 @@ fn measured(class: &str, witness: &str, expected: Value, actual: Value, measurem
         let mut stable = observed.actual.clone();
         // Original ZIP header bytes affect schema-1 envelope serialized byte count.
         // Preserve the raw capture separately; this field is not wording/provenance.
-        if witness.starts_with("current-size-") {
-            stable["schema1"]["Ok"]["usage"]
-                .as_object_mut()
-                .unwrap()
-                .remove("output_bytes");
+        if witness.starts_with("current-size-")
+            && let Some(usage) = stable
+                .get_mut("schema1")
+                .and_then(|schema| schema.get_mut("Ok"))
+                .and_then(|ok| ok.get_mut("usage"))
+                .and_then(Value::as_object_mut)
+        {
+            usage.remove("output_bytes");
         }
         assert_eq!(
             pin["actual_sha256"],
