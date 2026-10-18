@@ -1,0 +1,3114 @@
+diff --git a/src/extraction/docx/drawing.rs b/src/extraction/docx/drawing.rs
+index 5e8fed9..846ae7e 100644
+--- a/src/extraction/docx/drawing.rs
++++ b/src/extraction/docx/drawing.rs
+@@ -4,9 +4,11 @@
+ //! from DOCX documents. Drawing objects can be inline or anchored and may contain
+ //! images or shapes.
+
++use super::xml_names::{self as names, Space};
+ use crate::extractors::security::{SecurityBudget, SecurityError};
+-use quick_xml::Reader;
++use quick_xml::NsReader as Reader;
+ use quick_xml::events::{BytesStart, Event};
++use quick_xml::name::NamespaceResolver;
+ use serde::{Deserialize, Serialize};
+
+ /// A drawing object extracted from `<w:drawing>`.
+@@ -128,7 +130,8 @@ fn apply_drawing_position(
+ ) {
+     let element_name = if is_horizontal { "positionH" } else { "positionV" };
+     let default_relative_from = if is_horizontal { "page" } else { "paragraph" };
+-    let relative_from = get_attr(e, "relativeFrom").unwrap_or_else(|| default_relative_from.to_string());
++    let relative_from =
++        get_attr(reader.resolver(), e, "relativeFrom").unwrap_or_else(|| default_relative_from.to_string());
+     let offset = parse_position(reader, element_name);
+     // `parse_position` reads through its own end tag without touching `budget`;
+     // refund the caller's `enter()`.
+@@ -154,33 +157,33 @@ fn handle_drawing_start_event(
+     reader: &mut Reader<&[u8]>,
+     budget: &mut SecurityBudget,
+ ) -> Result<(), SecurityError> {
+-    let local = e.local_name();
+-    let local_name = local.as_ref();
++    let local_name = names::element(reader.resolver(), e.name());
+
+     match local_name {
+-        "inline" => {
++        (Space::WordDrawing, "inline") => {
+             drawing.drawing_type = DrawingType::Inline;
+             *depth += 1;
+         }
+-        "anchor" => {
++        (Space::WordDrawing, "anchor") => {
+             let anchor = AnchorProperties {
+-                behind_doc: get_attr_bool(e, "behindDoc"),
+-                layout_in_cell: get_attr_bool(e, "layoutInCell"),
+-                relative_height: get_attr_i64(e, "relativeHeight"),
++                behind_doc: get_attr_bool(reader.resolver(), e, "behindDoc"),
++                layout_in_cell: get_attr_bool(reader.resolver(), e, "layoutInCell"),
++                relative_height: get_attr_i64(reader.resolver(), e, "relativeHeight"),
+                 ..Default::default()
+             };
+             drawing.drawing_type = DrawingType::Anchored(anchor);
+             *depth += 1;
+         }
+-        "positionH" => apply_drawing_position(reader, budget, drawing, e, true),
+-        "positionV" => apply_drawing_position(reader, budget, drawing, e, false),
+-        "blip" => {
++        (Space::WordDrawing, "positionH") => apply_drawing_position(reader, budget, drawing, e, true),
++        (Space::WordDrawing, "positionV") => apply_drawing_position(reader, budget, drawing, e, false),
++        (Space::Drawing, "blip") => {
+             if drawing.image_ref.is_none() {
+-                drawing.image_ref = get_attr(e, "embed").or_else(|| get_attr(e, "link"));
++                drawing.image_ref =
++                    get_attr(reader.resolver(), e, "embed").or_else(|| get_attr(reader.resolver(), e, "link"));
+             }
+             *depth += 1;
+         }
+-        "txbxContent" => {
++        (Space::Word, "txbxContent") => {
+             // Consumes through its own `</w:txbxContent>` end tag, so it
+             // must not also increment `depth` (#81). `collect_txbx_content_text`
+             // now threads `budget` through and balances the `enter()` above
+@@ -190,13 +193,16 @@ fn handle_drawing_start_event(
+                 drawing.text_box_content = Some(text);
+             }
+         }
+-        "wrapSquare" | "wrapTight" | "wrapTopAndBottom" | "wrapThrough" => {
++        (Space::WordDrawing, "wrapSquare")
++        | (Space::WordDrawing, "wrapTight")
++        | (Space::WordDrawing, "wrapTopAndBottom")
++        | (Space::WordDrawing, "wrapThrough") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 match local_name {
+-                    "wrapSquare" => anchor.wrap_type = WrapType::Square,
+-                    "wrapTight" => anchor.wrap_type = WrapType::Tight,
+-                    "wrapTopAndBottom" => anchor.wrap_type = WrapType::TopAndBottom,
+-                    "wrapThrough" => anchor.wrap_type = WrapType::Through,
++                    (Space::WordDrawing, "wrapSquare") => anchor.wrap_type = WrapType::Square,
++                    (Space::WordDrawing, "wrapTight") => anchor.wrap_type = WrapType::Tight,
++                    (Space::WordDrawing, "wrapTopAndBottom") => anchor.wrap_type = WrapType::TopAndBottom,
++                    (Space::WordDrawing, "wrapThrough") => anchor.wrap_type = WrapType::Through,
+                     _ => {}
+                 }
+             }
+@@ -211,47 +217,46 @@ fn handle_drawing_start_event(
+ }
+
+ /// Apply one `Event::Empty` child element of `<w:drawing>` to `drawing`.
+-fn apply_drawing_empty_event(e: &BytesStart, drawing: &mut Drawing) {
+-    let local = e.local_name();
+-    let local_name = local.as_ref();
++fn apply_drawing_empty_event(ns: &NamespaceResolver, e: &BytesStart, drawing: &mut Drawing) {
++    let local_name = names::element(ns, e.name());
+
+     match local_name {
+-        "extent" => {
+-            if let (Some(cx), Some(cy)) = (get_attr_i64(e, "cx"), get_attr_i64(e, "cy")) {
++        (Space::WordDrawing, "extent") => {
++            if let (Some(cx), Some(cy)) = (get_attr_i64(ns, e, "cx"), get_attr_i64(ns, e, "cy")) {
+                 drawing.extent = Some(Extent { cx, cy });
+             }
+         }
+-        "docPr" => {
++        (Space::WordDrawing, "docPr") => {
+             drawing.doc_properties = Some(DocProperties {
+-                id: get_attr(e, "id"),
+-                name: get_attr(e, "name"),
+-                description: get_attr(e, "descr"),
++                id: get_attr(ns, e, "id"),
++                name: get_attr(ns, e, "name"),
++                description: get_attr(ns, e, "descr"),
+             });
+         }
+-        "blip" if drawing.image_ref.is_none() => {
+-            drawing.image_ref = get_attr(e, "embed").or_else(|| get_attr(e, "link"));
++        (Space::Drawing, "blip") if drawing.image_ref.is_none() => {
++            drawing.image_ref = get_attr(ns, e, "embed").or_else(|| get_attr(ns, e, "link"));
+         }
+-        "wrapNone" => {
++        (Space::WordDrawing, "wrapNone") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 anchor.wrap_type = WrapType::None;
+             }
+         }
+-        "wrapSquare" => {
++        (Space::WordDrawing, "wrapSquare") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 anchor.wrap_type = WrapType::Square;
+             }
+         }
+-        "wrapTight" => {
++        (Space::WordDrawing, "wrapTight") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 anchor.wrap_type = WrapType::Tight;
+             }
+         }
+-        "wrapTopAndBottom" => {
++        (Space::WordDrawing, "wrapTopAndBottom") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 anchor.wrap_type = WrapType::TopAndBottom;
+             }
+         }
+-        "wrapThrough" => {
++        (Space::WordDrawing, "wrapThrough") => {
+             if let DrawingType::Anchored(ref mut anchor) = drawing.drawing_type {
+                 anchor.wrap_type = WrapType::Through;
+             }
+@@ -290,12 +295,12 @@ pub(crate) fn parse_drawing(reader: &mut Reader<&[u8]>, budget: &mut SecurityBud
+                 handle_drawing_start_event(e, &mut drawing, &mut depth, reader, budget)?;
+             }
+             Ok(Event::Empty(ref e)) => {
+-                apply_drawing_empty_event(e, &mut drawing);
++                apply_drawing_empty_event(reader.resolver(), e, &mut drawing);
+             }
+             Ok(Event::End(e)) => {
+                 budget.leave();
+                 depth -= 1;
+-                if e.local_name().as_ref() == "drawing" && depth == 0 {
++                if names::element(reader.resolver(), e.name()) == (Space::Word, "drawing") && depth == 0 {
+                     break;
+                 }
+             }
+@@ -321,7 +326,9 @@ fn parse_position(reader: &mut Reader<&[u8]>, element_name: &str) -> Option<i64>
+
+     loop {
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e)) if e.local_name().as_ref() == "posOffset" => {
++            Ok(Event::Start(ref e))
++                if names::element(reader.resolver(), e.name()) == (Space::WordDrawing, "posOffset") =>
++            {
+                 let mut text_buf = Vec::new();
+                 if let Ok(Event::Text(t)) = reader.read_event_into(&mut text_buf) {
+                     let text = t.xml10_content();
+@@ -330,7 +337,7 @@ fn parse_position(reader: &mut Reader<&[u8]>, element_name: &str) -> Option<i64>
+                 let mut end_buf = Vec::new();
+                 let _ = reader.read_event_into(&mut end_buf);
+             }
+-            Ok(Event::End(e)) if e.local_name().as_ref() == element_name => {
++            Ok(Event::End(e)) if names::element(reader.resolver(), e.name()) == (Space::WordDrawing, element_name) => {
+                 return result;
+             }
+             Ok(Event::Eof) => {
+@@ -346,10 +353,20 @@ fn parse_position(reader: &mut Reader<&[u8]>, element_name: &str) -> Option<i64>
+ }
+
+ /// Extract a string attribute by local name.
+-fn get_attr(e: &BytesStart, key: &str) -> Option<String> {
++fn get_attr(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> Option<String> {
+     e.attributes()
+         .flatten()
+-        .find(|attr| attr.key.local_name().as_ref() == key)
++        .find(|attr| {
++            names::attribute(ns, attr.key)
++                == (
++                    if matches!(key, "embed" | "link") {
++                        Space::Relationship
++                    } else {
++                        Space::Unqualified
++                    },
++                    key,
++                )
++        })
+         .and_then(|attr| {
+             let raw = attr.value.as_ref();
+             quick_xml::escape::unescape(raw).ok().map(|s| s.into_owned())
+@@ -357,13 +374,13 @@ fn get_attr(e: &BytesStart, key: &str) -> Option<String> {
+ }
+
+ /// Extract an i64 attribute by local name.
+-fn get_attr_i64(e: &BytesStart, key: &str) -> Option<i64> {
+-    get_attr(e, key).and_then(|s| s.parse().ok())
++fn get_attr_i64(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> Option<i64> {
++    get_attr(ns, e, key).and_then(|s| s.parse().ok())
+ }
+
+ /// Extract a boolean attribute by local name (value "1" = true).
+-fn get_attr_bool(e: &BytesStart, key: &str) -> bool {
+-    get_attr(e, key).as_deref() == Some("1")
++fn get_attr_bool(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> bool {
++    get_attr(ns, e, key).as_deref() == Some("1")
+ }
+
+ /// Collect visible text from a `<w:txbxContent>` subtree (#81): the paragraphs of a
+@@ -392,15 +409,15 @@ fn collect_txbx_content_text(reader: &mut Reader<&[u8]>, budget: &mut SecurityBu
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.local_name().as_ref() {
+-                    "txbxContent" => depth += 1,
+-                    "t" => in_text = true,
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Word, "txbxContent") => depth += 1,
++                    (Space::Word, "t") => in_text = true,
+                     _ => {}
+                 }
+             }
+-            Ok(Event::Empty(ref e)) => match e.local_name().as_ref() {
+-                "tab" => current.push('\t'),
+-                "br" => current.push('\n'),
++            Ok(Event::Empty(ref e)) => match names::element(reader.resolver(), e.name()) {
++                (Space::Word, "tab") => current.push('\t'),
++                (Space::Word, "br") => current.push('\n'),
+                 _ => {}
+             },
+             Ok(Event::Text(e)) if in_text => {
+@@ -416,10 +433,10 @@ fn collect_txbx_content_text(reader: &mut Reader<&[u8]>, budget: &mut SecurityBu
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                match e.local_name().as_ref() {
+-                    "t" => in_text = false,
+-                    "p" => paragraphs.push(std::mem::take(&mut current)),
+-                    "txbxContent" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Word, "t") => in_text = false,
++                    (Space::Word, "p") => paragraphs.push(std::mem::take(&mut current)),
++                    (Space::Word, "txbxContent") => {
+                         depth -= 1;
+                         if depth == 0 {
+                             break;
+@@ -464,7 +481,7 @@ fn parse_vml_textbox(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) ->
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                if e.local_name().as_ref() == "txbxContent" {
++                if names::element(reader.resolver(), e.name()) == (Space::Word, "txbxContent") {
+                     // `collect_txbx_content_text` consumes its own end tag and
+                     // balances the `enter()` above internally, so no manual
+                     // `budget.leave()` is needed here. ~keep
+@@ -519,7 +536,7 @@ pub(crate) fn parse_vml_pict(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                if e.local_name().as_ref() == "textbox" {
++                if names::element(reader.resolver(), e.name()) == (Space::Vml, "textbox") {
+                     // `parse_vml_textbox` consumes its own end tag and balances
+                     // the `enter()` above internally, so no manual
+                     // `budget.leave()` is needed here. ~keep
+diff --git a/src/extraction/docx/math/collect.rs b/src/extraction/docx/math/collect.rs
+index a2500cd..feb5a87 100644
+--- a/src/extraction/docx/math/collect.rs
++++ b/src/extraction/docx/math/collect.rs
+@@ -4,7 +4,7 @@ use super::*;
+ /// Recursively collect child nodes until the matching close tag.
+ pub(super) fn collect_children(
+     reader: &mut Reader<&[u8]>,
+-    end_tag: &str,
++    end_tag: (Space, &str),
+     budget: &mut SecurityBudget,
+ ) -> Result<Vec<MathNode>, SecurityError> {
+     let mut nodes = Vec::new();
+@@ -15,14 +15,14 @@ pub(super) fn collect_children(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                let tag = e.name().as_ref().to_string();
+-                if let Some(node) = dispatch_omml_tag(&tag, reader, budget)? {
++                let tag = names::element(reader.resolver(), e.name());
++                if let Some(node) = dispatch_omml_tag(tag, reader, budget)? {
+                     nodes.push(node);
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == end_tag {
++                if names::element(reader.resolver(), e.name()) == end_tag {
+                     break;
+                 }
+             }
+@@ -39,34 +39,34 @@ pub(super) fn collect_children(
+ /// `None` for a tag this converter does not recognise (already skipped to its own end
+ /// tag).
+ fn dispatch_omml_tag(
+-    tag: &str,
++    tag: (Space, &str),
+     reader: &mut Reader<&[u8]>,
+     budget: &mut SecurityBudget,
+ ) -> Result<Option<MathNode>, SecurityError> {
+     let node = match tag {
+-        "m:r" => collect_run(reader, budget)?,
+-        "m:sSup" => collect_ssup(reader, budget)?,
+-        "m:sSub" => collect_ssub(reader, budget)?,
+-        "m:sSubSup" => collect_ssubsup(reader, budget)?,
+-        "m:f" => collect_frac(reader, budget)?,
+-        "m:rad" => collect_rad(reader, budget)?,
+-        "m:nary" => collect_nary(reader, budget)?,
+-        "m:d" => collect_delim(reader, budget)?,
+-        "m:func" => collect_func(reader, budget)?,
+-        "m:acc" => collect_acc(reader, budget)?,
+-        "m:eqArr" => collect_eqarr(reader, budget)?,
+-        "m:limLow" => collect_limlow(reader, budget)?,
+-        "m:limUpp" => collect_limupp(reader, budget)?,
+-        "m:bar" => collect_bar(reader, budget)?,
+-        "m:borderBox" => collect_borderbox(reader, budget)?,
+-        "m:m" => collect_matrix(reader, budget)?,
+-        "m:box" | "m:phant" => {
++        (Space::Math, "r") => collect_run(reader, budget)?,
++        (Space::Math, "sSup") => collect_ssup(reader, budget)?,
++        (Space::Math, "sSub") => collect_ssub(reader, budget)?,
++        (Space::Math, "sSubSup") => collect_ssubsup(reader, budget)?,
++        (Space::Math, "f") => collect_frac(reader, budget)?,
++        (Space::Math, "rad") => collect_rad(reader, budget)?,
++        (Space::Math, "nary") => collect_nary(reader, budget)?,
++        (Space::Math, "d") => collect_delim(reader, budget)?,
++        (Space::Math, "func") => collect_func(reader, budget)?,
++        (Space::Math, "acc") => collect_acc(reader, budget)?,
++        (Space::Math, "eqArr") => collect_eqarr(reader, budget)?,
++        (Space::Math, "limLow") => collect_limlow(reader, budget)?,
++        (Space::Math, "limUpp") => collect_limupp(reader, budget)?,
++        (Space::Math, "bar") => collect_bar(reader, budget)?,
++        (Space::Math, "borderBox") => collect_borderbox(reader, budget)?,
++        (Space::Math, "m") => collect_matrix(reader, budget)?,
++        (Space::Math, "box") | (Space::Math, "phant") => {
+             let children = collect_element_body(reader, tag, budget)?;
+             MathNode::Group { children }
+         }
+-        "m:sPre" => collect_spre(reader, budget)?,
+-        "m:oMath" => {
+-            let inner = collect_children(reader, "m:oMath", budget)?;
++        (Space::Math, "sPre") => collect_spre(reader, budget)?,
++        (Space::Math, "oMath") => {
++            let inner = collect_children(reader, (Space::Math, "oMath"), budget)?;
+             MathNode::Group { children: inner }
+         }
+         _ => {
+@@ -92,11 +92,11 @@ fn collect_run(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resul
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:t" => in_text = true,
+-                    "m:rPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "t") => in_text = true,
++                    (Space::Math, "rPr") => {
+                         // Consumes its own `</m:rPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:rPr");
++                        skip_to_end(reader, (Space::Math, "rPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -115,9 +115,9 @@ fn collect_run(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resul
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                match e.name().as_ref() {
+-                    "m:t" => in_text = false,
+-                    "m:r" => break,
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "t") => in_text = false,
++                    (Space::Math, "r") => break,
+                     _ => {}
+                 }
+             }
+@@ -141,12 +141,12 @@ fn collect_ssup(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resu
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => base = collect_children(reader, "m:e", budget)?,
+-                    "m:sup" => sup = collect_children(reader, "m:sup", budget)?,
+-                    "m:sSupPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => base = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "sup") => sup = collect_children(reader, (Space::Math, "sup"), budget)?,
++                    (Space::Math, "sSupPr") => {
+                         // Consumes its own `</m:sSupPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:sSupPr");
++                        skip_to_end(reader, (Space::Math, "sSupPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -154,7 +154,7 @@ fn collect_ssup(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resu
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:sSup" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "sSup") {
+                     break;
+                 }
+             }
+@@ -178,12 +178,12 @@ fn collect_ssub(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resu
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => base = collect_children(reader, "m:e", budget)?,
+-                    "m:sub" => sub = collect_children(reader, "m:sub", budget)?,
+-                    "m:sSubPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => base = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "sub") => sub = collect_children(reader, (Space::Math, "sub"), budget)?,
++                    (Space::Math, "sSubPr") => {
+                         // Consumes its own `</m:sSubPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:sSubPr");
++                        skip_to_end(reader, (Space::Math, "sSubPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -191,7 +191,7 @@ fn collect_ssub(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Resu
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:sSub" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "sSub") {
+                     break;
+                 }
+             }
+@@ -216,13 +216,13 @@ fn collect_ssubsup(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> R
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => base = collect_children(reader, "m:e", budget)?,
+-                    "m:sub" => sub = collect_children(reader, "m:sub", budget)?,
+-                    "m:sup" => sup = collect_children(reader, "m:sup", budget)?,
+-                    "m:sSubSupPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => base = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "sub") => sub = collect_children(reader, (Space::Math, "sub"), budget)?,
++                    (Space::Math, "sup") => sup = collect_children(reader, (Space::Math, "sup"), budget)?,
++                    (Space::Math, "sSubSupPr") => {
+                         // Consumes its own `</m:sSubSupPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:sSubSupPr");
++                        skip_to_end(reader, (Space::Math, "sSubSupPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -230,7 +230,7 @@ fn collect_ssubsup(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> R
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:sSubSup" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "sSubSup") {
+                     break;
+                 }
+             }
+diff --git a/src/extraction/docx/math/elements.rs b/src/extraction/docx/math/elements.rs
+index 08baaa9..d8e9c21 100644
+--- a/src/extraction/docx/math/elements.rs
++++ b/src/extraction/docx/math/elements.rs
+@@ -12,21 +12,21 @@ pub(super) fn collect_frac(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:fPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "fPr") => {
+                         // `collect_frac_pr` reads through its own `</m:fPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         frac_type = collect_frac_pr(reader, budget)?;
+                         budget.leave();
+                     }
+-                    "m:num" => num = collect_children(reader, "m:num", budget)?,
+-                    "m:den" => den = collect_children(reader, "m:den", budget)?,
++                    (Space::Math, "num") => num = collect_children(reader, (Space::Math, "num"), budget)?,
++                    (Space::Math, "den") => den = collect_children(reader, (Space::Math, "den"), budget)?,
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:f" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "f") {
+                     break;
+                 }
+             }
+@@ -48,8 +48,8 @@ fn collect_frac_pr(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> R
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
+-                if e.name().as_ref() == "m:type"
+-                    && let Some(val) = get_m_val(e)
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "type")
++                    && let Some(val) = get_m_val(reader.resolver(), e)
+                 {
+                     frac_type = match val.as_str() {
+                         "noBar" => FracType::NoBar,
+@@ -59,7 +59,7 @@ fn collect_frac_pr(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> R
+                     };
+                 }
+             }
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:fPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "fPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -83,21 +83,21 @@ pub(super) fn collect_rad(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudge
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:radPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "radPr") => {
+                         // `collect_rad_pr` reads through its own `</m:radPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         deg_hide = collect_rad_pr(reader, budget)?;
+                         budget.leave();
+                     }
+-                    "m:deg" => deg = collect_children(reader, "m:deg", budget)?,
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
++                    (Space::Math, "deg") => deg = collect_children(reader, (Space::Math, "deg"), budget)?,
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:rad" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "rad") {
+                     break;
+                 }
+             }
+@@ -118,10 +118,12 @@ fn collect_rad_pr(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Re
+     loop {
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e) | Event::Empty(ref e)) if e.name().as_ref() == "m:degHide" => {
+-                deg_hide = get_m_val(e).as_deref() != Some("0");
++            Ok(Event::Start(ref e) | Event::Empty(ref e))
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "degHide") =>
++            {
++                deg_hide = get_m_val(reader.resolver(), e).as_deref() != Some("0");
+             }
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:radPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "radPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -148,22 +150,22 @@ pub(super) fn collect_nary(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:naryPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "naryPr") => {
+                         // `collect_nary_pr` reads through its own `</m:naryPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         collect_nary_pr(reader, &mut chr, &mut sub_hide, &mut sup_hide, budget)?;
+                         budget.leave();
+                     }
+-                    "m:sub" => sub = collect_children(reader, "m:sub", budget)?,
+-                    "m:sup" => sup = collect_children(reader, "m:sup", budget)?,
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
++                    (Space::Math, "sub") => sub = collect_children(reader, (Space::Math, "sub"), budget)?,
++                    (Space::Math, "sup") => sup = collect_children(reader, (Space::Math, "sup"), budget)?,
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:nary" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "nary") {
+                     break;
+                 }
+             }
+@@ -196,21 +198,21 @@ pub(super) fn collect_nary_pr(
+     loop {
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => match e.name().as_ref() {
+-                "m:chr" => {
+-                    if let Some(val) = get_m_val(e) {
++            Ok(Event::Start(ref e) | Event::Empty(ref e)) => match names::element(reader.resolver(), e.name()) {
++                (Space::Math, "chr") => {
++                    if let Some(val) = get_m_val(reader.resolver(), e) {
+                         *chr = val;
+                     }
+                 }
+-                "m:subHide" => {
+-                    *sub_hide = get_m_val(e).as_deref() != Some("0");
++                (Space::Math, "subHide") => {
++                    *sub_hide = get_m_val(reader.resolver(), e).as_deref() != Some("0");
+                 }
+-                "m:supHide" => {
+-                    *sup_hide = get_m_val(e).as_deref() != Some("0");
++                (Space::Math, "supHide") => {
++                    *sup_hide = get_m_val(reader.resolver(), e).as_deref() != Some("0");
+                 }
+                 _ => {}
+             },
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:naryPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "naryPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -238,22 +240,22 @@ pub(super) fn collect_delim(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:dPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "dPr") => {
+                         // `collect_delim_pr` reads through its own `</m:dPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         collect_delim_pr(reader, &mut begin_chr, &mut end_chr, &mut sep_chr, budget)?;
+                         budget.leave();
+                     }
+-                    "m:e" => {
+-                        elements.push(collect_children(reader, "m:e", budget)?);
++                    (Space::Math, "e") => {
++                        elements.push(collect_children(reader, (Space::Math, "e"), budget)?);
+                     }
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:d" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "d") {
+                     break;
+                 }
+             }
+@@ -284,25 +286,25 @@ pub(super) fn collect_delim_pr(
+     loop {
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => match e.name().as_ref() {
+-                "m:begChr" => {
+-                    if let Some(val) = get_m_val(e) {
++            Ok(Event::Start(ref e) | Event::Empty(ref e)) => match names::element(reader.resolver(), e.name()) {
++                (Space::Math, "begChr") => {
++                    if let Some(val) = get_m_val(reader.resolver(), e) {
+                         *begin_chr = val;
+                     }
+                 }
+-                "m:endChr" => {
+-                    if let Some(val) = get_m_val(e) {
++                (Space::Math, "endChr") => {
++                    if let Some(val) = get_m_val(reader.resolver(), e) {
+                         *end_chr = val;
+                     }
+                 }
+-                "m:sepChr" => {
+-                    if let Some(val) = get_m_val(e) {
++                (Space::Math, "sepChr") => {
++                    if let Some(val) = get_m_val(reader.resolver(), e) {
+                         *sep_chr = val;
+                     }
+                 }
+                 _ => {}
+             },
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:dPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "dPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -325,12 +327,12 @@ pub(super) fn collect_func(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:fName" => name = collect_children(reader, "m:fName", budget)?,
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
+-                    "m:funcPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "fName") => name = collect_children(reader, (Space::Math, "fName"), budget)?,
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "funcPr") => {
+                         // Consumes its own `</m:funcPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:funcPr");
++                        skip_to_end(reader, (Space::Math, "funcPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -338,7 +340,7 @@ pub(super) fn collect_func(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:func" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "func") {
+                     break;
+                 }
+             }
+@@ -362,20 +364,20 @@ pub(super) fn collect_acc(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudge
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:accPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "accPr") => {
+                         // `collect_acc_pr` reads through its own `</m:accPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         collect_acc_pr(reader, &mut chr, budget)?;
+                         budget.leave();
+                     }
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:acc" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "acc") {
+                     break;
+                 }
+             }
+@@ -400,13 +402,13 @@ pub(super) fn collect_acc_pr(
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
+-                if e.name().as_ref() == "m:chr"
+-                    && let Some(val) = get_m_val(e)
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "chr")
++                    && let Some(val) = get_m_val(reader.resolver(), e)
+                 {
+                     *chr = val;
+                 }
+             }
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:accPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "accPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -431,11 +433,11 @@ pub(super) fn collect_eqarr(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => rows.push(collect_children(reader, "m:e", budget)?),
+-                    "m:eqArrPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => rows.push(collect_children(reader, (Space::Math, "e"), budget)?),
++                    (Space::Math, "eqArrPr") => {
+                         // Consumes its own `</m:eqArrPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:eqArrPr");
++                        skip_to_end(reader, (Space::Math, "eqArrPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -443,7 +445,7 @@ pub(super) fn collect_eqarr(
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:eqArr" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "eqArr") {
+                     break;
+                 }
+             }
+@@ -470,12 +472,12 @@ pub(super) fn collect_limlow(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
+-                    "m:lim" => lim = collect_children(reader, "m:lim", budget)?,
+-                    "m:limLowPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "lim") => lim = collect_children(reader, (Space::Math, "lim"), budget)?,
++                    (Space::Math, "limLowPr") => {
+                         // Consumes its own `</m:limLowPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:limLowPr");
++                        skip_to_end(reader, (Space::Math, "limLowPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -483,7 +485,7 @@ pub(super) fn collect_limlow(
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:limLow" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "limLow") {
+                     break;
+                 }
+             }
+@@ -510,12 +512,12 @@ pub(super) fn collect_limupp(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
+-                    "m:lim" => lim = collect_children(reader, "m:lim", budget)?,
+-                    "m:limUppPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "lim") => lim = collect_children(reader, (Space::Math, "lim"), budget)?,
++                    (Space::Math, "limUppPr") => {
+                         // Consumes its own `</m:limUppPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:limUppPr");
++                        skip_to_end(reader, (Space::Math, "limUppPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -523,7 +525,7 @@ pub(super) fn collect_limupp(
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:limUpp" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "limUpp") {
+                     break;
+                 }
+             }
+@@ -547,20 +549,20 @@ pub(super) fn collect_bar(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudge
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:barPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "barPr") => {
+                         // `collect_bar_pr` reads through its own `</m:barPr>` without
+                         // calling `budget.leave()`; refund the enter above.
+                         top = collect_bar_pr(reader, budget)?;
+                         budget.leave();
+                     }
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
+                     _ => {}
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:bar" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "bar") {
+                     break;
+                 }
+             }
+@@ -582,13 +584,13 @@ fn collect_bar_pr(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudget) -> Re
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
+-                if e.name().as_ref() == "m:pos"
+-                    && let Some(val) = get_m_val(e)
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "pos")
++                    && let Some(val) = get_m_val(reader.resolver(), e)
+                 {
+                     top = val != "bot";
+                 }
+             }
+-            Ok(Event::End(ref e)) if e.name().as_ref() == "m:barPr" => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "barPr") => {
+                 break;
+             }
+             Ok(Event::Eof) => break,
+@@ -613,11 +615,11 @@ pub(super) fn collect_borderbox(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => body = collect_children(reader, "m:e", budget)?,
+-                    "m:borderBoxPr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => body = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "borderBoxPr") => {
+                         // Consumes its own `</m:borderBoxPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:borderBoxPr");
++                        skip_to_end(reader, (Space::Math, "borderBoxPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -625,7 +627,7 @@ pub(super) fn collect_borderbox(
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:borderBox" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "borderBox") {
+                     break;
+                 }
+             }
+@@ -651,13 +653,13 @@ pub(super) fn collect_matrix(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:mr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "mr") => {
+                         rows.push(collect_matrix_row(reader, budget)?);
+                     }
+-                    "m:mPr" => {
++                    (Space::Math, "mPr") => {
+                         // Consumes its own `</m:mPr>`; refund the enter above.
+-                        skip_to_end(reader, "m:mPr");
++                        skip_to_end(reader, (Space::Math, "mPr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -665,7 +667,7 @@ pub(super) fn collect_matrix(
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:m" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "m") {
+                     break;
+                 }
+             }
+@@ -689,13 +691,13 @@ fn collect_matrix_row(
+     loop {
+         budget.step()?;
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e)) if e.name().as_ref() == "m:e" => {
++            Ok(Event::Start(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Math, "e") => {
+                 budget.enter()?;
+-                cells.push(collect_children(reader, "m:e", budget)?);
++                cells.push(collect_children(reader, (Space::Math, "e"), budget)?);
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:mr" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "mr") {
+                     break;
+                 }
+             }
+@@ -720,13 +722,13 @@ pub(super) fn collect_spre(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                match e.name().as_ref() {
+-                    "m:e" => base = collect_children(reader, "m:e", budget)?,
+-                    "m:sub" => sub = collect_children(reader, "m:sub", budget)?,
+-                    "m:sup" => sup = collect_children(reader, "m:sup", budget)?,
+-                    "m:sPrePr" => {
++                match names::element(reader.resolver(), e.name()) {
++                    (Space::Math, "e") => base = collect_children(reader, (Space::Math, "e"), budget)?,
++                    (Space::Math, "sub") => sub = collect_children(reader, (Space::Math, "sub"), budget)?,
++                    (Space::Math, "sup") => sup = collect_children(reader, (Space::Math, "sup"), budget)?,
++                    (Space::Math, "sPrePr") => {
+                         // Consumes its own `</m:sPrePr>`; refund the enter above.
+-                        skip_to_end(reader, "m:sPrePr");
++                        skip_to_end(reader, (Space::Math, "sPrePr"));
+                         budget.leave();
+                     }
+                     _ => {}
+@@ -734,7 +736,7 @@ pub(super) fn collect_spre(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "m:sPre" {
++                if names::element(reader.resolver(), e.name()) == (Space::Math, "sPre") {
+                     break;
+                 }
+             }
+@@ -750,7 +752,7 @@ pub(super) fn collect_spre(reader: &mut Reader<&[u8]>, budget: &mut SecurityBudg
+ /// Collect body of a generic element (skip its *Pr, gather m:e children).
+ pub(super) fn collect_element_body(
+     reader: &mut Reader<&[u8]>,
+-    end_tag: &str,
++    end_tag: (Space, &str),
+     budget: &mut SecurityBudget,
+ ) -> Result<Vec<MathNode>, SecurityError> {
+     let mut children = Vec::new();
+@@ -761,22 +763,22 @@ pub(super) fn collect_element_body(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                let tag = e.name().as_ref().to_string();
+-                if tag.ends_with("Pr") {
++                let tag = names::element(reader.resolver(), e.name());
++                if tag.0 == Space::Math && tag.1.ends_with("Pr") {
+                     // Consumes its own matching end tag; refund the enter above.
+-                    skip_to_end(reader, &tag);
++                    skip_to_end(reader, tag);
+                     budget.leave();
+-                } else if tag == "m:e" {
+-                    children.extend(collect_children(reader, "m:e", budget)?);
++                } else if tag == (Space::Math, "e") {
++                    children.extend(collect_children(reader, (Space::Math, "e"), budget)?);
+                 } else {
+                     // Same as the `*Pr` branch: consumes its own matching end tag.
+-                    skip_to_end(reader, &tag);
++                    skip_to_end(reader, tag);
+                     budget.leave();
+                 }
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == end_tag {
++                if names::element(reader.resolver(), e.name()) == end_tag {
+                     break;
+                 }
+             }
+@@ -790,10 +792,10 @@ pub(super) fn collect_element_body(
+ }
+
+ /// Get the `m:val` attribute value from a start/empty element.
+-fn get_m_val(e: &quick_xml::events::BytesStart) -> Option<String> {
++fn get_m_val(ns: &NamespaceResolver, e: &quick_xml::events::BytesStart) -> Option<String> {
+     for attr in e.attributes().flatten() {
+-        let key = attr.key.as_ref();
+-        if key == "m:val" || key == "val" {
++        let key = names::attribute(ns, attr.key);
++        if key == (Space::Math, "val") {
+             return Some(attr.value.to_string());
+         }
+     }
+@@ -801,16 +803,16 @@ fn get_m_val(e: &quick_xml::events::BytesStart) -> Option<String> {
+ }
+
+ /// Skip forward until the matching end tag is consumed.
+-pub(super) fn skip_to_end(reader: &mut Reader<&[u8]>, tag: &str) {
++pub(super) fn skip_to_end(reader: &mut Reader<&[u8]>, tag: (Space, &str)) {
+     let mut depth = 1u32;
+     let mut buf = Vec::new();
+
+     loop {
+         match reader.read_event_into(&mut buf) {
+-            Ok(Event::Start(ref e)) if e.name().as_ref() == tag => {
++            Ok(Event::Start(ref e)) if names::element(reader.resolver(), e.name()) == tag => {
+                 depth += 1;
+             }
+-            Ok(Event::End(ref e)) if e.name().as_ref() == tag => {
++            Ok(Event::End(ref e)) if names::element(reader.resolver(), e.name()) == tag => {
+                 depth -= 1;
+                 if depth == 0 {
+                     break;
+diff --git a/src/extraction/docx/math/mod.rs b/src/extraction/docx/math/mod.rs
+index a1fde74..38602a4 100644
+--- a/src/extraction/docx/math/mod.rs
++++ b/src/extraction/docx/math/mod.rs
+@@ -5,10 +5,12 @@
+ //! delegates here. We collect the subtree into a `MathNode` tree, then
+ //! recursively render it to LaTeX.
+
++use super::xml_names::{self as names, Space};
+ use crate::extraction::math_symbols::render_run_text;
+ use crate::extractors::security::{SecurityBudget, SecurityError};
+-use quick_xml::Reader;
++use quick_xml::NsReader as Reader;
+ use quick_xml::events::Event;
++use quick_xml::name::NamespaceResolver;
+
+ #[derive(Debug, Clone)]
+ enum FracType {
+@@ -93,7 +95,7 @@ pub(crate) fn collect_and_convert_omath_para(
+     reader: &mut Reader<&[u8]>,
+     budget: &mut SecurityBudget,
+ ) -> Result<String, SecurityError> {
+-    let children = collect_children(reader, "m:oMathPara", budget)?;
++    let children = collect_children(reader, (Space::Math, "oMathPara"), budget)?;
+     let mut parts = Vec::new();
+     for child in &children {
+         if let MathNode::Group { children: inner } = child {
+@@ -116,7 +118,7 @@ pub(crate) fn collect_and_convert_omath(
+     reader: &mut Reader<&[u8]>,
+     budget: &mut SecurityBudget,
+ ) -> Result<String, SecurityError> {
+-    let children = collect_children(reader, "m:oMath", budget)?;
++    let children = collect_children(reader, (Space::Math, "oMath"), budget)?;
+     Ok(render_nodes(&children))
+ }
+
+diff --git a/src/extraction/docx/mod.rs b/src/extraction/docx/mod.rs
+index 5df95f5..2dda5c5 100644
+--- a/src/extraction/docx/mod.rs
++++ b/src/extraction/docx/mod.rs
+@@ -13,6 +13,7 @@ pub mod section;
+ pub mod styles;
+ pub mod table;
+ pub mod theme;
++mod xml_names;
+
+ #[cfg(test)]
+ use crate::error::{Result, XbergError};
+diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
+index 6567d51..fff1e37 100644
+--- a/src/extraction/docx/parser.rs
++++ b/src/extraction/docx/parser.rs
+@@ -19,8 +19,10 @@ use ahash::AHashMap;
+ use serde::{Deserialize, Serialize};
+ use std::io::{Cursor, Read, Seek};
+
+-use quick_xml::Reader;
++use super::xml_names::{self as names, Space};
++use quick_xml::NsReader as Reader;
+ use quick_xml::events::{BytesStart, Event};
++use quick_xml::name::NamespaceResolver;
+
+ /// Tracks document element ordering (paragraphs, tables, and drawings interleaved).
+ #[cfg_attr(alef, alef(skip))]
+@@ -234,9 +236,9 @@ pub struct Comment {
+ }
+
+ /// Check if a formatting element is enabled (not explicitly set to false/0/none).
+-fn is_format_enabled(e: &BytesStart) -> bool {
++fn is_format_enabled(ns: &NamespaceResolver, e: &BytesStart) -> bool {
+     for attr in e.attributes().flatten() {
+-        if attr.key.as_ref() == "w:val" {
++        if names::attribute(ns, attr.key) == (Space::Word, "val") {
+             let val = attr.value.as_ref();
+             return !matches!(val, "false" | "0" | "none");
+         }
+@@ -245,9 +247,9 @@ fn is_format_enabled(e: &BytesStart) -> bool {
+ }
+
+ /// Read `w:val` attribute as i64.
+-fn get_val_attr(e: &BytesStart) -> Option<i64> {
++fn get_val_attr(ns: &NamespaceResolver, e: &BytesStart) -> Option<i64> {
+     for attr in e.attributes().flatten() {
+-        if attr.key.as_ref() == "w:val" {
++        if names::attribute(ns, attr.key) == (Space::Word, "val") {
+             let val = attr.value.as_ref();
+             return val.parse().ok();
+         }
+@@ -256,9 +258,9 @@ fn get_val_attr(e: &BytesStart) -> Option<i64> {
+ }
+
+ /// Read `w:val` attribute as String.
+-fn get_val_attr_string(e: &BytesStart) -> Option<String> {
++fn get_val_attr_string(ns: &NamespaceResolver, e: &BytesStart) -> Option<String> {
+     for attr in e.attributes().flatten() {
+-        if attr.key.as_ref() == "w:val" {
++        if names::attribute(ns, attr.key) == (Space::Word, "val") {
+             let val = attr.value.as_ref();
+             return Some(val.to_string());
+         }
+@@ -291,22 +293,22 @@ fn extract_hyperlink_field_url(instr: &str) -> Option<String> {
+ ///
+ /// Returns `(id_opt, author_opt, date_opt)` where `id_opt` is the raw string
+ /// value of the `w:id` attribute (a numeric string like `"42"`).
+-fn collect_revision_attrs(e: &BytesStart) -> (Option<String>, Option<String>, Option<String>) {
++fn collect_revision_attrs(ns: &NamespaceResolver, e: &BytesStart) -> (Option<String>, Option<String>, Option<String>) {
+     let mut id: Option<String> = None;
+     let mut author: Option<String> = None;
+     let mut date: Option<String> = None;
+     for attr in e.attributes().flatten() {
+-        match attr.key.as_ref() {
+-            "w:id" => {
++        match names::attribute(ns, attr.key) {
++            (Space::Word, "id") => {
+                 id = Some(attr.value.to_string());
+             }
+-            "w:author" => {
++            (Space::Word, "author") => {
+                 author = Some(attr.value.to_string());
+                 if author.as_deref() == Some("") {
+                     author = None;
+                 }
+             }
+-            "w:date" => {
++            (Space::Word, "date") => {
+                 date = Some(attr.value.to_string());
+                 if date.as_deref() == Some("") {
+                     date = None;
+@@ -1340,15 +1342,15 @@ struct ParsedSection {
+ /// Handles `<w:b>`, `<w:i>`, `<w:u>`, `<w:strike>`, `<w:dstrike>`,
+ /// `<w:vertAlign>`, `<w:sz>`, `<w:color>`, and `<w:highlight>`.
+ /// Works for both `Event::Start` and `Event::Empty` events.
+-fn apply_run_formatting(e: &BytesStart, current_run: &mut Option<Run>) {
++fn apply_run_formatting(ns: &NamespaceResolver, e: &BytesStart, current_run: &mut Option<Run>) {
+     if let Some(run) = current_run {
+-        match e.name().as_ref() {
+-            "w:b" => run.bold = is_format_enabled(e),
+-            "w:i" => run.italic = is_format_enabled(e),
+-            "w:u" => run.underline = is_format_enabled(e),
+-            "w:strike" | "w:dstrike" => run.strikethrough = is_format_enabled(e),
+-            "w:vertAlign" => {
+-                if let Some(val) = get_val_attr_string(e) {
++        match names::element(ns, e.name()) {
++            (Space::Word, "b") => run.bold = is_format_enabled(ns, e),
++            (Space::Word, "i") => run.italic = is_format_enabled(ns, e),
++            (Space::Word, "u") => run.underline = is_format_enabled(ns, e),
++            (Space::Word, "strike") | (Space::Word, "dstrike") => run.strikethrough = is_format_enabled(ns, e),
++            (Space::Word, "vertAlign") => {
++                if let Some(val) = get_val_attr_string(ns, e) {
+                     match val.as_str() {
+                         "subscript" => {
+                             run.subscript = true;
+@@ -1365,13 +1367,13 @@ fn apply_run_formatting(e: &BytesStart, current_run: &mut Option<Run>) {
+                     }
+                 }
+             }
+-            "w:sz" => {
+-                if let Some(val) = get_val_attr(e) {
++            (Space::Word, "sz") => {
++                if let Some(val) = get_val_attr(ns, e) {
+                     run.font_size = Some(val as u32);
+                 }
+             }
+-            "w:color" => {
+-                if let Some(val) = get_val_attr_string(e)
++            (Space::Word, "color") => {
++                if let Some(val) = get_val_attr_string(ns, e)
+                     && val != "auto"
+                     && val.len() == 6
+                     && val.chars().all(|c| c.is_ascii_hexdigit())
+@@ -1379,8 +1381,8 @@ fn apply_run_formatting(e: &BytesStart, current_run: &mut Option<Run>) {
+                     run.font_color = Some(val);
+                 }
+             }
+-            "w:highlight" => {
+-                if let Some(val) = get_val_attr_string(e) {
++            (Space::Word, "highlight") => {
++                if let Some(val) = get_val_attr_string(ns, e) {
+                     const VALID_HIGHLIGHTS: &[&str] = &[
+                         "yellow",
+                         "green",
+@@ -1409,16 +1411,22 @@ fn apply_run_formatting(e: &BytesStart, current_run: &mut Option<Run>) {
+     }
+ }
+
+-fn collect_run_property_change(e: &BytesStart, changes: &mut Vec<crate::types::revisions::PropertyChange>) {
+-    let (name, from) = match e.name().as_ref() {
+-        "w:b" => ("bold", Some(is_format_enabled(e).to_string())),
+-        "w:i" => ("italic", Some(is_format_enabled(e).to_string())),
+-        "w:u" => ("underline", Some(is_format_enabled(e).to_string())),
+-        "w:strike" | "w:dstrike" => ("strikethrough", Some(is_format_enabled(e).to_string())),
+-        "w:vertAlign" => ("vertical_align", get_val_attr_string(e)),
+-        "w:sz" => ("font_size", get_val_attr(e).map(|v| v.to_string())),
+-        "w:color" => ("font_color", get_val_attr_string(e)),
+-        "w:highlight" => ("highlight", get_val_attr_string(e)),
++fn collect_run_property_change(
++    ns: &NamespaceResolver,
++    e: &BytesStart,
++    changes: &mut Vec<crate::types::revisions::PropertyChange>,
++) {
++    let (name, from) = match names::element(ns, e.name()) {
++        (Space::Word, "b") => ("bold", Some(is_format_enabled(ns, e).to_string())),
++        (Space::Word, "i") => ("italic", Some(is_format_enabled(ns, e).to_string())),
++        (Space::Word, "u") => ("underline", Some(is_format_enabled(ns, e).to_string())),
++        (Space::Word, "strike") | (Space::Word, "dstrike") => {
++            ("strikethrough", Some(is_format_enabled(ns, e).to_string()))
++        }
++        (Space::Word, "vertAlign") => ("vertical_align", get_val_attr_string(ns, e)),
++        (Space::Word, "sz") => ("font_size", get_val_attr(ns, e).map(|v| v.to_string())),
++        (Space::Word, "color") => ("font_color", get_val_attr_string(ns, e)),
++        (Space::Word, "highlight") => ("highlight", get_val_attr_string(ns, e)),
+         _ => return,
+     };
+
+@@ -1673,6 +1681,7 @@ pub(crate) fn trim_blank_lines(text: &str) -> &str {
+ ///
+ /// Resolves the correct paragraph (table context vs top-level) automatically.
+ fn apply_paragraph_property(
++    ns: &NamespaceResolver,
+     e: &BytesStart,
+     table_stack: &mut [TableContext],
+     current_paragraph: &mut Option<Paragraph>,
+@@ -1684,10 +1693,10 @@ fn apply_paragraph_property(
+     };
+
+     if let Some(para) = para {
+-        match e.name().as_ref() {
+-            "w:pStyle" => para.style = get_val_attr_string(e),
+-            "w:ilvl" => para.numbering_level = get_val_attr(e).map(clamp_numbering_level),
+-            "w:numId" => para.numbering_id = get_val_attr(e),
++        match names::element(ns, e.name()) {
++            (Space::Word, "pStyle") => para.style = get_val_attr_string(ns, e),
++            (Space::Word, "ilvl") => para.numbering_level = get_val_attr(ns, e).map(clamp_numbering_level),
++            (Space::Word, "numId") => para.numbering_id = get_val_attr(ns, e),
+             _ => {}
+         }
+     }
+@@ -1721,6 +1730,7 @@ fn push_run_to_current(table_stack: &mut [TableContext], current_paragraph: &mut
+ /// `field_instruction` so the following result run(s) pick it up via
+ /// `current_hyperlink_url`, the same mechanism `<w:hyperlink>` uses (#88, #239).
+ fn apply_fld_char(
++    ns: &NamespaceResolver,
+     e: &BytesStart,
+     in_field_instruction: &mut bool,
+     field_instruction: &mut String,
+@@ -1729,7 +1739,7 @@ fn apply_fld_char(
+     toc: &mut TocState,
+ ) {
+     for attr in e.attributes().flatten() {
+-        if attr.key.as_ref() == "w:fldCharType" {
++        if names::attribute(ns, attr.key) == (Space::Word, "fldCharType") {
+             match attr.value.as_ref() {
+                 "begin" => {
+                     *in_field_instruction = true;
+@@ -1823,8 +1833,9 @@ impl TocState {
+     }
+
+     /// Apply a `w:docPartGallery` to the innermost open `w:sdt`.
+-    fn apply_doc_part_gallery(&mut self, e: &BytesStart) {
+-        let is_toc = get_val_attr_string(e).is_some_and(|val| val.trim().eq_ignore_ascii_case(TOC_DOC_PART_GALLERY));
++    fn apply_doc_part_gallery(&mut self, ns: &NamespaceResolver, e: &BytesStart) {
++        let is_toc =
++            get_val_attr_string(ns, e).is_some_and(|val| val.trim().eq_ignore_ascii_case(TOC_DOC_PART_GALLERY));
+         if !is_toc {
+             return;
+         }
+@@ -1898,11 +1909,16 @@ fn mark_paragraph_in_toc(table_stack: &mut [TableContext], current_paragraph: &m
+
+ /// Record a `w:bookmarkStart` on the open paragraph so internal `w:hyperlink w:anchor`
+ /// references — every entry of a generated TOC — have something to resolve against.
+-fn apply_bookmark_start(e: &BytesStart, table_stack: &mut [TableContext], current_paragraph: &mut Option<Paragraph>) {
++fn apply_bookmark_start(
++    ns: &NamespaceResolver,
++    e: &BytesStart,
++    table_stack: &mut [TableContext],
++    current_paragraph: &mut Option<Paragraph>,
++) {
+     let Some(name) = e
+         .attributes()
+         .flatten()
+-        .find(|attr| attr.key.as_ref() == "w:name")
++        .find(|attr| names::attribute(ns, attr.key) == (Space::Word, "name"))
+         .map(|attr| attr.value.to_string())
+     else {
+         return;
+@@ -2101,6 +2117,7 @@ fn push_or_defer_page_break(
+ /// `w:lastRenderedPageBreak` (see [`apply_last_rendered_page_break`]), it is never
+ /// suppressed as a duplicate.
+ fn apply_break(
++    ns: &NamespaceResolver,
+     e: &BytesStart,
+     table_stack: &[TableContext],
+     current_run: &mut Option<Run>,
+@@ -2110,7 +2127,7 @@ fn apply_break(
+ ) {
+     let mut is_page_break = false;
+     for attr in e.attributes().flatten() {
+-        if attr.key.as_ref() == "w:type" && attr.value.as_ref() == "page" {
++        if names::attribute(ns, attr.key) == (Space::Word, "type") && attr.value.as_ref() == "page" {
+             is_page_break = true;
+             break;
+         }
+@@ -2178,13 +2195,18 @@ fn apply_last_rendered_page_break(
+ /// Symbol). Without per-font glyph tables, the hex value is mapped directly to a
+ /// Unicode scalar; when that's not a valid scalar, a placeholder is inserted and a
+ /// `ProcessingWarning` records the degradation (#171).
+-fn apply_symbol(e: &BytesStart, current_run: &mut Option<Run>, warnings: &mut Vec<crate::types::ProcessingWarning>) {
++fn apply_symbol(
++    ns: &NamespaceResolver,
++    e: &BytesStart,
++    current_run: &mut Option<Run>,
++    warnings: &mut Vec<crate::types::ProcessingWarning>,
++) {
+     let mut font: Option<String> = None;
+     let mut code: Option<String> = None;
+     for attr in e.attributes().flatten() {
+-        match attr.key.as_ref() {
+-            "w:font" => font = Some(attr.value.to_string()),
+-            "w:char" => code = Some(attr.value.to_string()),
++        match names::attribute(ns, attr.key) {
++            (Space::Word, "font") => font = Some(attr.value.to_string()),
++            (Space::Word, "char") => code = Some(attr.value.to_string()),
+             _ => {}
+         }
+     }
+@@ -2427,17 +2449,19 @@ impl<R: Read + Seek> DocxParser<R> {
+
+         loop {
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Empty(ref e)) | Ok(Event::Start(ref e)) if e.name().as_ref() == "Relationship" => {
++                Ok(Event::Empty(ref e)) | Ok(Event::Start(ref e))
++                    if names::element(reader.resolver(), e.name()) == (Space::PackageRelationship, "Relationship") =>
++                {
+                     let mut id = None;
+                     let mut target = None;
+                     let mut rel_type_matches = false;
+                     for attr in e.attributes().flatten() {
+-                        match attr.key.as_ref() {
+-                            "Id" => id = Some(attr.value.to_string()),
+-                            "Target" => {
++                        match names::attribute(reader.resolver(), attr.key) {
++                            (Space::Unqualified, "Id") => id = Some(attr.value.to_string()),
++                            (Space::Unqualified, "Target") => {
+                                 target = Some(attr.value.to_string());
+                             }
+-                            "Type" => {
++                            (Space::Unqualified, "Type") => {
+                                 rel_type_matches = attr.value.contains("hyperlink") || attr.value.contains("image");
+                             }
+                             _ => {}
+@@ -2578,8 +2602,8 @@ impl<R: Read + Seek> DocxParser<R> {
+                     if Some(name.as_ref()) == stop_tag.as_deref() {
+                         stop_depth += 1;
+                     }
+-                    match name.as_ref() {
+-                        "w:p" => {
++                    match names::element(reader.resolver(), name) {
++                        (Space::Word, "p") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.paragraph = Some(Paragraph::new());
+                             } else {
+@@ -2590,18 +2614,19 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 mark_paragraph_in_toc(&mut table_stack, &mut current_paragraph);
+                             }
+                         }
+-                        "w:r" => {
++                        (Space::Word, "r") => {
+                             let mut run = Run::default();
+                             if let Some(ref url) = current_hyperlink_url {
+                                 run.hyperlink_url = Some(url.clone());
+                             }
+                             current_run = Some(run);
+                         }
+-                        "w:t" if !in_field_instruction => {
++                        (Space::Word, "t") if !in_field_instruction => {
+                             in_text = true;
+                         }
+-                        "w:fldChar" => {
++                        (Space::Word, "fldChar") => {
+                             apply_fld_char(
++                                reader.resolver(),
+                                 e,
+                                 &mut in_field_instruction,
+                                 &mut field_instruction,
+@@ -2613,26 +2638,26 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 mark_paragraph_in_toc(&mut table_stack, &mut current_paragraph);
+                             }
+                         }
+-                        "w:sdt" => {
++                        (Space::Word, "sdt") => {
+                             toc.open_sdt();
+                         }
+-                        "w:docPartGallery" => {
+-                            toc.apply_doc_part_gallery(e);
++                        (Space::Word, "docPartGallery") => {
++                            toc.apply_doc_part_gallery(reader.resolver(), e);
+                         }
+-                        "w:bookmarkStart" => {
+-                            apply_bookmark_start(e, &mut table_stack, &mut current_paragraph);
++                        (Space::Word, "bookmarkStart") => {
++                            apply_bookmark_start(reader.resolver(), e, &mut table_stack, &mut current_paragraph);
+                         }
+-                        "w:instrText" => {
++                        (Space::Word, "instrText") => {
+                             in_instr_text = true;
+                         }
+-                        "w:fldSimple" => {
++                        (Space::Word, "fldSimple") => {
+                             // Normalized, not raw: Word writes the instruction's quotes
+                             // as `&quot;`, and the URL extractor looks for real quote
+                             // characters. OOXML parts are XML 1.0.
+                             let instr = e
+                                 .attributes()
+                                 .flatten()
+-                                .find(|a| a.key.as_ref() == "w:instr")
++                                .find(|a| names::attribute(reader.resolver(), a.key) == (Space::Word, "instr"))
+                                 .and_then(|a| {
+                                     a.normalized_value(quick_xml::XmlVersion::Explicit1_0)
+                                         .ok()
+@@ -2648,10 +2673,10 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 mark_paragraph_in_toc(&mut table_stack, &mut current_paragraph);
+                             }
+                         }
+-                        "mc:Fallback" => {
++                        (Space::Compatibility, "Fallback") => {
+                             mc_fallback_depth += 1;
+                         }
+-                        "w:pict" => {
++                        (Space::Word, "pict") => {
+                             // `parse_vml_pict` now threads `budget` through and balances
+                             // its own `</w:pict>` end tag against the `enter()` above
+                             // internally, so no manual `budget.leave()` is needed here. ~keep
+@@ -2666,7 +2691,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 page_breaks.text_since_break = true;
+                             }
+                         }
+-                        "m:oMathPara" => {
++                        (Space::Math, "oMathPara") => {
+                             let latex = super::math::collect_and_convert_omath_para(reader, budget)?;
+                             if !latex.is_empty() {
+                                 let run = Run {
+@@ -2677,7 +2702,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 page_breaks.text_since_break = true;
+                             }
+                         }
+-                        "m:oMath" => {
++                        (Space::Math, "oMath") => {
+                             let latex = super::math::collect_and_convert_omath(reader, budget)?;
+                             if !latex.is_empty() {
+                                 let run = Run {
+@@ -2688,10 +2713,10 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 page_breaks.text_since_break = true;
+                             }
+                         }
+-                        "w:tbl" => {
++                        (Space::Word, "tbl") => {
+                             table_stack.push(TableContext::new());
+                         }
+-                        "w:tblPr" => {
++                        (Space::Word, "tblPr") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 // `parse_table_properties` now threads `budget` through and
+                                 // balances its own `</w:tblPr>` end tag against the `enter()`
+@@ -2699,60 +2724,67 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 ctx.table.properties = Some(super::table::parse_table_properties(reader, budget)?);
+                             }
+                         }
+-                        "w:tblGrid" => {
++                        (Space::Word, "tblGrid") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.table.grid = Some(super::table::parse_table_grid(reader, budget)?);
+                             }
+                         }
+-                        "w:tr" => {
++                        (Space::Word, "tr") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.current_row = Some(TableRow::default());
+                                 ctx.row_ordinal += 1;
+                             }
+                         }
+-                        "w:trPr" => {
++                        (Space::Word, "trPr") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(ref mut row) = ctx.current_row
+                             {
+                                 row.properties = Some(super::table::parse_row_properties(reader, budget)?);
+                             }
+                         }
+-                        "w:tc" => {
++                        (Space::Word, "tc") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.current_cell = Some(TableCell::default());
+                                 ctx.cell_ordinal += 1;
+                             }
+                         }
+-                        "w:tcPr" => {
++                        (Space::Word, "tcPr") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(ref mut cell) = ctx.current_cell
+                             {
+                                 cell.properties = Some(super::table::parse_cell_properties(reader, budget)?);
+                             }
+                         }
+-                        "w:b" | "w:i" | "w:u" | "w:strike" | "w:dstrike" | "w:vertAlign" | "w:sz" | "w:color"
+-                        | "w:highlight" => {
++                        (Space::Word, "b")
++                        | (Space::Word, "i")
++                        | (Space::Word, "u")
++                        | (Space::Word, "strike")
++                        | (Space::Word, "dstrike")
++                        | (Space::Word, "vertAlign")
++                        | (Space::Word, "sz")
++                        | (Space::Word, "color")
++                        | (Space::Word, "highlight") => {
+                             if in_run_property_change {
+-                                collect_run_property_change(e, &mut pending_property_changes);
++                                collect_run_property_change(reader.resolver(), e, &mut pending_property_changes);
+                             } else {
+-                                apply_run_formatting(e, &mut current_run);
++                                apply_run_formatting(reader.resolver(), e, &mut current_run);
+                             }
+                         }
+-                        "w:pStyle" | "w:ilvl" | "w:numId" => {
+-                            apply_paragraph_property(e, &mut table_stack, &mut current_paragraph);
++                        (Space::Word, "pStyle") | (Space::Word, "ilvl") | (Space::Word, "numId") => {
++                            apply_paragraph_property(reader.resolver(), e, &mut table_stack, &mut current_paragraph);
+                         }
+-                        "w:hyperlink" => {
++                        (Space::Word, "hyperlink") => {
+                             let mut has_relationship_id = false;
+                             let mut relationship_url: Option<String> = None;
+                             let mut anchor: Option<String> = None;
+                             for attr in e.attributes().flatten() {
+-                                match attr.key.as_ref() {
+-                                    "r:id" => {
++                                match names::attribute(reader.resolver(), attr.key) {
++                                    (Space::Relationship, "id") => {
+                                         has_relationship_id = true;
+                                         let rid = attr.value.as_ref();
+                                         relationship_url = self.relationships.get(rid).cloned();
+                                     }
+-                                    "w:anchor" => {
++                                    (Space::Word, "anchor") => {
+                                         anchor = Some(attr.value.as_ref())
+                                             .filter(|value| !value.is_empty())
+                                             .map(String::from);
+@@ -2775,7 +2807,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 (false, None, None) => {}
+                             }
+                         }
+-                        "w:drawing" => {
++                        (Space::Word, "drawing") => {
+                             // `parse_drawing` now threads `budget` through and balances its
+                             // own `</w:drawing>` end tag against the `enter()` above
+                             // internally, so no manual `budget.leave()` is needed here. ~keep
+@@ -2785,8 +2817,9 @@ impl<R: Read + Seek> DocxParser<R> {
+                             out.elements.push(DocumentElement::Drawing(idx));
+                             page_breaks.text_since_break = true;
+                         }
+-                        "w:br" => {
++                        (Space::Word, "br") => {
+                             apply_break(
++                                reader.resolver(),
+                                 e,
+                                 &table_stack,
+                                 &mut current_run,
+@@ -2795,7 +2828,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 &mut page_breaks,
+                             );
+                         }
+-                        "w:lastRenderedPageBreak" => {
++                        (Space::Word, "lastRenderedPageBreak") => {
+                             apply_last_rendered_page_break(
+                                 &table_stack,
+                                 &current_run,
+@@ -2804,7 +2837,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 &mut page_breaks,
+                             );
+                         }
+-                        "w:sectPr" => {
++                        (Space::Word, "sectPr") => {
+                             // `parse_section_properties_streaming` now threads `budget`
+                             // through and balances its own `</w:sectPr>` end tag against the
+                             // `enter()` above internally, so no manual `budget.leave()` is
+@@ -2825,22 +2858,22 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 out.sections[section_index].end_element_index = Some(out.elements.len());
+                             }
+                         }
+-                        "w:ins" => {
++                        (Space::Word, "ins") => {
+                             revision_kind = Some(RevisionKind::Insertion);
+-                            revision_attrs = collect_revision_attrs(e);
++                            revision_attrs = collect_revision_attrs(reader.resolver(), e);
+                             revision_text.clear();
+                         }
+-                        "w:del" => {
++                        (Space::Word, "del") => {
+                             revision_kind = Some(RevisionKind::Deletion);
+-                            revision_attrs = collect_revision_attrs(e);
++                            revision_attrs = collect_revision_attrs(reader.resolver(), e);
+                             revision_text.clear();
+                         }
+-                        "w:rPrChange" if revision_kind.is_none() => {
++                        (Space::Word, "rPrChange") if revision_kind.is_none() => {
+                             in_run_property_change = true;
+-                            pending_format_revision_attrs = Some(collect_revision_attrs(e));
++                            pending_format_revision_attrs = Some(collect_revision_attrs(reader.resolver(), e));
+                             pending_property_changes.clear();
+                         }
+-                        "w:delText" => {
++                        (Space::Word, "delText") => {
+                             in_del_text = true;
+                         }
+                         _ => {}
+@@ -2848,9 +2881,10 @@ impl<R: Read + Seek> DocxParser<R> {
+                 }
+                 Ok(Event::Empty(ref e)) => {
+                     let name = e.name();
+-                    match name.as_ref() {
+-                        "w:fldChar" => {
++                    match names::element(reader.resolver(), name) {
++                        (Space::Word, "fldChar") => {
+                             apply_fld_char(
++                                reader.resolver(),
+                                 e,
+                                 &mut in_field_instruction,
+                                 &mut field_instruction,
+@@ -2862,25 +2896,33 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 mark_paragraph_in_toc(&mut table_stack, &mut current_paragraph);
+                             }
+                         }
+-                        "w:docPartGallery" => {
+-                            toc.apply_doc_part_gallery(e);
++                        (Space::Word, "docPartGallery") => {
++                            toc.apply_doc_part_gallery(reader.resolver(), e);
+                         }
+-                        "w:bookmarkStart" => {
+-                            apply_bookmark_start(e, &mut table_stack, &mut current_paragraph);
++                        (Space::Word, "bookmarkStart") => {
++                            apply_bookmark_start(reader.resolver(), e, &mut table_stack, &mut current_paragraph);
+                         }
+-                        "w:b" | "w:i" | "w:u" | "w:strike" | "w:dstrike" | "w:vertAlign" | "w:sz" | "w:color"
+-                        | "w:highlight" => {
++                        (Space::Word, "b")
++                        | (Space::Word, "i")
++                        | (Space::Word, "u")
++                        | (Space::Word, "strike")
++                        | (Space::Word, "dstrike")
++                        | (Space::Word, "vertAlign")
++                        | (Space::Word, "sz")
++                        | (Space::Word, "color")
++                        | (Space::Word, "highlight") => {
+                             if in_run_property_change {
+-                                collect_run_property_change(e, &mut pending_property_changes);
++                                collect_run_property_change(reader.resolver(), e, &mut pending_property_changes);
+                             } else {
+-                                apply_run_formatting(e, &mut current_run);
++                                apply_run_formatting(reader.resolver(), e, &mut current_run);
+                             }
+                         }
+-                        "w:pStyle" | "w:ilvl" | "w:numId" => {
+-                            apply_paragraph_property(e, &mut table_stack, &mut current_paragraph);
++                        (Space::Word, "pStyle") | (Space::Word, "ilvl") | (Space::Word, "numId") => {
++                            apply_paragraph_property(reader.resolver(), e, &mut table_stack, &mut current_paragraph);
+                         }
+-                        "w:br" => {
++                        (Space::Word, "br") => {
+                             apply_break(
++                                reader.resolver(),
+                                 e,
+                                 &table_stack,
+                                 &mut current_run,
+@@ -2889,23 +2931,23 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 &mut page_breaks,
+                             );
+                         }
+-                        "w:tab" => {
++                        (Space::Word, "tab") => {
+                             if let Some(ref mut run) = current_run {
+                                 run.text.push('\t');
+                                 page_breaks.text_since_break = true;
+                             }
+                         }
+-                        "w:noBreakHyphen" => {
++                        (Space::Word, "noBreakHyphen") => {
+                             if let Some(ref mut run) = current_run {
+                                 run.text.push('\u{2011}');
+                                 page_breaks.text_since_break = true;
+                             }
+                         }
+-                        "w:sym" => {
+-                            apply_symbol(e, &mut current_run, warnings);
++                        (Space::Word, "sym") => {
++                            apply_symbol(reader.resolver(), e, &mut current_run, warnings);
+                             page_breaks.text_since_break = true;
+                         }
+-                        "w:lastRenderedPageBreak" => {
++                        (Space::Word, "lastRenderedPageBreak") => {
+                             apply_last_rendered_page_break(
+                                 &table_stack,
+                                 &current_run,
+@@ -2914,15 +2956,16 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 &mut page_breaks,
+                             );
+                         }
+-                        "w:footnoteReference" | "w:endnoteReference" => {
+-                            let note_type = if name.as_ref() == "w:endnoteReference" {
+-                                NoteType::Endnote
+-                            } else {
+-                                NoteType::Footnote
+-                            };
++                        (Space::Word, "footnoteReference") | (Space::Word, "endnoteReference") => {
++                            let note_type =
++                                if names::element(reader.resolver(), name) == (Space::Word, "endnoteReference") {
++                                    NoteType::Endnote
++                                } else {
++                                    NoteType::Footnote
++                                };
+                             if let Some(ref mut run) = current_run {
+                                 for attr in e.attributes().flatten() {
+-                                    if attr.key.as_ref() == "w:id" {
++                                    if names::attribute(reader.resolver(), attr.key) == (Space::Word, "id") {
+                                         let id = attr.value.as_ref();
+                                         // A reference in the body always points at a real note;
+                                         // id 1 is Word's first one (see `parse_notes`).
+@@ -2943,9 +2986,9 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 }
+                             }
+                         }
+-                        "w:commentReference" => {
++                        (Space::Word, "commentReference") => {
+                             for attr in e.attributes().flatten() {
+-                                if attr.key.as_ref() == "w:id" {
++                                if names::attribute(reader.resolver(), attr.key) == (Space::Word, "id") {
+                                     let id = attr.value.as_ref();
+                                     out.comment_ref_ids.push(id.to_string());
+                                     if let Some(ref mut run) = current_run {
+@@ -2954,7 +2997,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 }
+                             }
+                         }
+-                        "w:sectPr" => {
++                        (Space::Word, "sectPr") => {
+                             let section_index = out.sections.len();
+                             out.sections.push(ParsedSection {
+                                 properties: super::section::SectionProperties::default(),
+@@ -2970,24 +3013,24 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 out.sections[section_index].end_element_index = Some(out.elements.len());
+                             }
+                         }
+-                        "w:tblPr" => {
++                        (Space::Word, "tblPr") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.table.properties = Some(super::table::TableProperties::default());
+                             }
+                         }
+-                        "w:tblGrid" => {
++                        (Space::Word, "tblGrid") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.table.grid = Some(super::table::TableGrid::default());
+                             }
+                         }
+-                        "w:trPr" => {
++                        (Space::Word, "trPr") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(ref mut row) = ctx.current_row
+                             {
+                                 row.properties = Some(super::table::RowProperties::default());
+                             }
+                         }
+-                        "w:tcPr" => {
++                        (Space::Word, "tcPr") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(ref mut cell) = ctx.current_cell
+                             {
+@@ -3044,29 +3087,29 @@ impl<R: Read + Seek> DocxParser<R> {
+                     if Some(name.as_ref()) == stop_tag.as_deref() {
+                         stop_depth = stop_depth.saturating_sub(1);
+                     }
+-                    match name.as_ref() {
+-                        "w:t" => {
++                    match names::element(reader.resolver(), name) {
++                        (Space::Word, "t") => {
+                             in_text = false;
+                         }
+-                        "w:instrText" => {
++                        (Space::Word, "instrText") => {
+                             in_instr_text = false;
+                         }
+-                        "w:sdt" => {
++                        (Space::Word, "sdt") => {
+                             toc.close_sdt();
+                         }
+-                        "w:fldSimple" => {
++                        (Space::Word, "fldSimple") => {
+                             toc.close_fld_simple();
+                             if let Some(saved) = field_hyperlink_stack.pop() {
+                                 current_hyperlink_url = saved;
+                             }
+                         }
+-                        "mc:Fallback" => {
++                        (Space::Compatibility, "Fallback") => {
+                             mc_fallback_depth = mc_fallback_depth.saturating_sub(1);
+                         }
+-                        "w:rPrChange" => {
++                        (Space::Word, "rPrChange") => {
+                             in_run_property_change = false;
+                         }
+-                        "w:rPr" if !in_run_property_change => {
++                        (Space::Word, "rPr") if !in_run_property_change => {
+                             if let Some(attrs) = pending_format_revision_attrs.take() {
+                                 push_format_revision(
+                                     &mut out.revisions,
+@@ -3078,7 +3121,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 );
+                             }
+                         }
+-                        "w:r" => {
++                        (Space::Word, "r") => {
+                             if let Some(attrs) = pending_format_revision_attrs.take() {
+                                 push_format_revision(
+                                     &mut out.revisions,
+@@ -3093,7 +3136,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 push_run_to_current(&mut table_stack, &mut current_paragraph, run);
+                             }
+                         }
+-                        "w:p" => {
++                        (Space::Word, "p") => {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 if let Some(para) = ctx.paragraph.take()
+                                     && let Some(ref mut cell) = ctx.current_cell
+@@ -3112,7 +3155,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 }
+                             }
+                         }
+-                        "w:tc" => {
++                        (Space::Word, "tc") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(cell) = ctx.current_cell.take()
+                                 && let Some(ref mut row) = ctx.current_row
+@@ -3121,14 +3164,14 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 row.cells.push(cell);
+                             }
+                         }
+-                        "w:tr" => {
++                        (Space::Word, "tr") => {
+                             if let Some(ctx) = table_stack.last_mut()
+                                 && let Some(row) = ctx.current_row.take()
+                             {
+                                 ctx.table.rows.push(row);
+                             }
+                         }
+-                        "w:tbl" => {
++                        (Space::Word, "tbl") => {
+                             if let Some(completed_ctx) = table_stack.pop() {
+                                 let completed_table = completed_ctx.table;
+                                 if let Some(parent_ctx) = table_stack.last_mut() {
+@@ -3164,10 +3207,10 @@ impl<R: Read + Seek> DocxParser<R> {
+                                 }
+                             }
+                         }
+-                        "w:hyperlink" => {
++                        (Space::Word, "hyperlink") => {
+                             current_hyperlink_url = None;
+                         }
+-                        "w:ins" if revision_kind == Some(RevisionKind::Insertion) => {
++                        (Space::Word, "ins") if revision_kind == Some(RevisionKind::Insertion) => {
+                             let (id_opt, author_opt, date_opt) = (
+                                 revision_attrs.0.take(),
+                                 revision_attrs.1.take(),
+@@ -3199,7 +3242,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                             revision_kind = None;
+                             revision_text.clear();
+                         }
+-                        "w:del" if revision_kind == Some(RevisionKind::Deletion) => {
++                        (Space::Word, "del") if revision_kind == Some(RevisionKind::Deletion) => {
+                             let (id_opt, author_opt, date_opt) = (
+                                 revision_attrs.0.take(),
+                                 revision_attrs.1.take(),
+@@ -3231,7 +3274,7 @@ impl<R: Read + Seek> DocxParser<R> {
+                             revision_kind = None;
+                             revision_text.clear();
+                         }
+-                        "w:delText" => {
++                        (Space::Word, "delText") => {
+                             in_del_text = false;
+                         }
+                         _ => {}
+@@ -3283,34 +3326,34 @@ impl<R: Read + Seek> DocxParser<R> {
+             match reader.read_event_into(&mut buf) {
+                 Ok(Event::Start(ref e)) => {
+                     budget.enter()?;
+-                    match e.name().as_ref() {
+-                        "w:abstractNum" => {
++                    match names::element(reader.resolver(), e.name()) {
++                        (Space::Word, "abstractNum") => {
+                             for attr in e.attributes().flatten() {
+-                                if attr.key.as_ref() == "w:abstractNumId" {
++                                if names::attribute(reader.resolver(), attr.key) == (Space::Word, "abstractNumId") {
+                                     let id_str = attr.value.as_ref();
+                                     current_abstract_num_id = id_str.parse().ok();
+                                 }
+                             }
+                         }
+-                        "w:num" => {
++                        (Space::Word, "num") => {
+                             for attr in e.attributes().flatten() {
+-                                if attr.key.as_ref() == "w:numId" {
++                                if names::attribute(reader.resolver(), attr.key) == (Space::Word, "numId") {
+                                     let id_str = attr.value.as_ref();
+                                     current_num_id = id_str.parse().ok();
+                                 }
+                             }
+                         }
+-                        "w:lvl" => {
++                        (Space::Word, "lvl") => {
+                             for attr in e.attributes().flatten() {
+-                                if attr.key.as_ref() == "w:ilvl" {
++                                if names::attribute(reader.resolver(), attr.key) == (Space::Word, "ilvl") {
+                                     let id_str = attr.value.as_ref();
+                                     current_lvl = id_str.parse().ok();
+                                 }
+                             }
+                         }
+-                        "w:numFmt" => {
++                        (Space::Word, "numFmt") => {
+                             if let (Some(abstract_id), Some(lvl)) = (current_abstract_num_id, current_lvl) {
+-                                let fmt = get_val_attr_string(e);
++                                let fmt = get_val_attr_string(reader.resolver(), e);
+                                 let list_type = match fmt.as_deref() {
+                                     Some("decimal") | Some("decimalZero") | Some("lowerLetter")
+                                     | Some("upperLetter") | Some("lowerRoman") | Some("upperRoman") => {
+@@ -3327,17 +3370,17 @@ impl<R: Read + Seek> DocxParser<R> {
+                         _ => {}
+                     }
+                 }
+-                Ok(Event::Empty(ref e)) => match e.name().as_ref() {
+-                    "w:abstractNumId" => {
++                Ok(Event::Empty(ref e)) => match names::element(reader.resolver(), e.name()) {
++                    (Space::Word, "abstractNumId") => {
+                         if let Some(num_id) = current_num_id
+-                            && let Some(abstract_id) = get_val_attr(e)
++                            && let Some(abstract_id) = get_val_attr(reader.resolver(), e)
+                         {
+                             num_to_abstract.insert(num_id, abstract_id);
+                         }
+                     }
+-                    "w:numFmt" => {
++                    (Space::Word, "numFmt") => {
+                         if let (Some(abstract_id), Some(lvl)) = (current_abstract_num_id, current_lvl) {
+-                            let fmt = get_val_attr_string(e);
++                            let fmt = get_val_attr_string(reader.resolver(), e);
+                             let list_type = match fmt.as_deref() {
+                                 Some("decimal") | Some("decimalZero") | Some("lowerLetter") | Some("upperLetter")
+                                 | Some("lowerRoman") | Some("upperRoman") => ListType::Numbered,
+@@ -3353,15 +3396,15 @@ impl<R: Read + Seek> DocxParser<R> {
+                 },
+                 Ok(Event::End(ref e)) => {
+                     budget.leave();
+-                    match e.name().as_ref() {
+-                        "w:abstractNum" => {
++                    match names::element(reader.resolver(), e.name()) {
++                        (Space::Word, "abstractNum") => {
+                             current_abstract_num_id = None;
+                             current_lvl = None;
+                         }
+-                        "w:lvl" => {
++                        (Space::Word, "lvl") => {
+                             current_lvl = None;
+                         }
+-                        "w:num" => {
++                        (Space::Word, "num") => {
+                             current_num_id = None;
+                         }
+                         _ => {}
+@@ -3463,13 +3506,15 @@ impl<R: Read + Seek> DocxParser<R> {
+
+         loop {
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Empty(ref e)) | Ok(Event::Start(ref e)) if e.name().as_ref() == "Relationship" => {
++                Ok(Event::Empty(ref e)) | Ok(Event::Start(ref e))
++                    if names::element(reader.resolver(), e.name()) == (Space::PackageRelationship, "Relationship") =>
++                {
+                     let mut target: Option<String> = None;
+                     let mut kind: Option<bool> = None;
+                     for attr in e.attributes().flatten() {
+-                        match attr.key.as_ref() {
+-                            "Target" => target = Some(attr.value.to_string()),
+-                            "Type" => {
++                        match names::attribute(reader.resolver(), attr.key) {
++                            (Space::Unqualified, "Target") => target = Some(attr.value.to_string()),
++                            (Space::Unqualified, "Type") => {
+                                 kind = if attr.value.ends_with("/header") {
+                                     Some(true)
+                                 } else if attr.value.ends_with("/footer") {
+@@ -3537,7 +3582,12 @@ impl<R: Read + Seek> DocxParser<R> {
+         loop {
+             budget.step()?;
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Start(ref e)) if matches!(e.name().as_ref(), "w:footnote" | "w:endnote") => {
++                Ok(Event::Start(ref e))
++                    if matches!(
++                        names::element(reader.resolver(), e.name()),
++                        (Space::Word, "footnote") | (Space::Word, "endnote")
++                    ) =>
++                {
+                     let mut id = String::new();
+                     // The separator lines above the notes carry a `w:type` (separator,
+                     // continuationSeparator, continuationNotice); a real note has none or
+@@ -3546,9 +3596,9 @@ impl<R: Read + Seek> DocxParser<R> {
+                     // Skipping id 1 unconditionally dropped the first note of every Word file.
+                     let mut is_separator = false;
+                     for attr in e.attributes().flatten() {
+-                        match attr.key.as_ref() {
+-                            "w:id" => id = attr.value.as_ref().to_string(),
+-                            "w:type" => is_separator = attr.value.as_ref() != "normal",
++                        match names::attribute(reader.resolver(), attr.key) {
++                            (Space::Word, "id") => id = attr.value.as_ref().to_string(),
++                            (Space::Word, "type") => is_separator = attr.value.as_ref() != "normal",
+                             _ => {}
+                         }
+                     }
+@@ -3597,19 +3647,24 @@ impl<R: Read + Seek> DocxParser<R> {
+         loop {
+             budget.step()?;
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Start(ref e)) if e.name().as_ref() == "w:comment" => {
++                Ok(Event::Start(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Word, "comment") => {
+                     let mut id = String::new();
+                     let mut author: Option<String> = None;
+                     for attr in e.attributes().flatten() {
+-                        match attr.key.as_ref() {
+-                            "w:id" => id = attr.value.as_ref().to_string(),
+-                            "w:author" => {
++                        match names::attribute(reader.resolver(), attr.key) {
++                            (Space::Word, "id") => id = attr.value.as_ref().to_string(),
++                            (Space::Word, "author") => {
+                                 author = Some(attr.value.to_string()).filter(|s| !s.is_empty());
+                             }
+                             _ => {}
+                         }
+                     }
+-                    let out = self.parse_body_elements(&mut reader, Some("w:comment".to_string()), budget, warnings)?;
++                    let out = self.parse_body_elements(
++                        &mut reader,
++                        Some((Space::Word, "comment").to_string()),
++                        budget,
++                        warnings,
++                    )?;
+                     let mut paragraphs = out.paragraphs;
+                     for table in out.tables {
+                         for row in table.rows {
+@@ -4273,7 +4328,7 @@ mod tests {
+         let mut reader = Reader::from_str(xml);
+         let mut buf = Vec::new();
+         if let Ok(Event::Empty(ref e)) = reader.read_event_into(&mut buf) {
+-            assert!(is_format_enabled(e));
++            assert!(is_format_enabled(reader.resolver(), e));
+         }
+     }
+
+diff --git a/src/extraction/docx/section.rs b/src/extraction/docx/section.rs
+index 3c53624..6c2a2d0 100644
+--- a/src/extraction/docx/section.rs
++++ b/src/extraction/docx/section.rs
+@@ -3,11 +3,13 @@
+ //! Parses page size, margins, orientation, columns, and other
+ //! section-level properties from OOXML documents.
+
++use super::xml_names::{self as names, Space};
+ #[cfg(test)]
+ use crate::extraction::ooxml_constants::WORDPROCESSINGML_NAMESPACE;
+ use crate::extractors::security::{SecurityBudget, SecurityError};
+-use quick_xml::Reader;
++use quick_xml::NsReader as Reader;
+ use quick_xml::events::{BytesStart, Event};
++use quick_xml::name::NamespaceResolver;
+
+ /// Page orientation.
+ #[cfg_attr(alef, alef(skip))]
+@@ -90,11 +92,10 @@ pub struct SectionProperties {
+ }
+
+ /// Get a namespaced integer attribute.
+-fn get_w_attr_i32(element: &BytesStart, local_name: &str) -> Option<i32> {
+-    let w_prefixed = format!("w:{}", local_name);
++fn get_w_attr_i32(ns: &NamespaceResolver, element: &BytesStart, local_name: &str) -> Option<i32> {
+     for attr in element.attributes().flatten() {
+-        let key = attr.key.as_ref();
+-        if key == w_prefixed || key == local_name {
++        let key = names::attribute(ns, attr.key);
++        if key == (Space::Word, local_name) {
+             let val = attr.value.as_ref();
+             if let Ok(num) = val.parse::<i32>() {
+                 return Some(num);
+@@ -105,10 +106,10 @@ fn get_w_attr_i32(element: &BytesStart, local_name: &str) -> Option<i32> {
+ }
+
+ /// Get a namespaced string attribute.
+-fn get_w_attr_string(element: &BytesStart, local_name: &str) -> Option<String> {
++fn get_w_attr_string(ns: &NamespaceResolver, element: &BytesStart, local_name: &str) -> Option<String> {
+     for attr in element.attributes().flatten() {
+-        let key_str = attr.key.as_ref();
+-        if key_str == local_name || key_str.ends_with(&format!(":{}", local_name)) {
++        let key_str = names::attribute(ns, attr.key);
++        if key_str == (Space::Word, local_name) {
+             let val = attr.value.as_ref();
+             return Some(val.to_string());
+         }
+@@ -201,14 +202,14 @@ pub(crate) fn parse_section_properties_streaming(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(ref e)) => {
+                 budget.enter()?;
+-                apply_section_element(e, &mut props);
++                apply_section_element(reader.resolver(), e, &mut props);
+             }
+             Ok(Event::Empty(ref e)) => {
+-                apply_section_element(e, &mut props);
++                apply_section_element(reader.resolver(), e, &mut props);
+             }
+             Ok(Event::End(ref e)) => {
+                 budget.leave();
+-                if e.name().as_ref() == "w:sectPr" {
++                if names::element(reader.resolver(), e.name()) == (Space::Word, "sectPr") {
+                     break;
+                 }
+             }
+@@ -231,35 +232,35 @@ pub(crate) fn parse_section_properties_streaming(
+ /// Shared handler for both `Event::Start` and `Event::Empty` events,
+ /// since OOXML section child elements (`w:pgSz`, `w:pgMar`, etc.)
+ /// are typically self-closing.
+-fn apply_section_element(e: &BytesStart, props: &mut SectionProperties) {
+-    match e.name().as_ref() {
+-        "w:pgSz" => {
+-            props.page_width_twips = get_w_attr_i32(e, "w");
+-            props.page_height_twips = get_w_attr_i32(e, "h");
+-            props.orientation = get_w_attr_string(e, "orient").and_then(|s| match s.as_str() {
++fn apply_section_element(ns: &NamespaceResolver, e: &BytesStart, props: &mut SectionProperties) {
++    match names::element(ns, e.name()) {
++        (Space::Word, "pgSz") => {
++            props.page_width_twips = get_w_attr_i32(ns, e, "w");
++            props.page_height_twips = get_w_attr_i32(ns, e, "h");
++            props.orientation = get_w_attr_string(ns, e, "orient").and_then(|s| match s.as_str() {
+                 "landscape" => Some(Orientation::Landscape),
+                 "portrait" => Some(Orientation::Portrait),
+                 _ => None,
+             });
+         }
+-        "w:pgMar" => {
+-            props.margins.top = get_w_attr_i32(e, "top");
+-            props.margins.right = get_w_attr_i32(e, "right");
+-            props.margins.bottom = get_w_attr_i32(e, "bottom");
+-            props.margins.left = get_w_attr_i32(e, "left");
+-            props.margins.header = get_w_attr_i32(e, "header");
+-            props.margins.footer = get_w_attr_i32(e, "footer");
+-            props.margins.gutter = get_w_attr_i32(e, "gutter");
++        (Space::Word, "pgMar") => {
++            props.margins.top = get_w_attr_i32(ns, e, "top");
++            props.margins.right = get_w_attr_i32(ns, e, "right");
++            props.margins.bottom = get_w_attr_i32(ns, e, "bottom");
++            props.margins.left = get_w_attr_i32(ns, e, "left");
++            props.margins.header = get_w_attr_i32(ns, e, "header");
++            props.margins.footer = get_w_attr_i32(ns, e, "footer");
++            props.margins.gutter = get_w_attr_i32(ns, e, "gutter");
+         }
+-        "w:cols" => {
+-            props.columns.count = get_w_attr_i32(e, "num");
+-            props.columns.space_twips = get_w_attr_i32(e, "space");
+-            if let Some(eq_width_str) = get_w_attr_string(e, "equalWidth") {
++        (Space::Word, "cols") => {
++            props.columns.count = get_w_attr_i32(ns, e, "num");
++            props.columns.space_twips = get_w_attr_i32(ns, e, "space");
++            if let Some(eq_width_str) = get_w_attr_string(ns, e, "equalWidth") {
+                 props.columns.equal_width = Some(eq_width_str == "1" || eq_width_str == "true");
+             }
+         }
+-        "w:docGrid" => {
+-            props.doc_grid_line_pitch = get_w_attr_i32(e, "linePitch");
++        (Space::Word, "docGrid") => {
++            props.doc_grid_line_pitch = get_w_attr_i32(ns, e, "linePitch");
+         }
+         _ => {}
+     }
+@@ -384,7 +385,9 @@ mod tests {
+
+         loop {
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Start(ref e)) if e.name().as_ref() == "w:sectPr" => break,
++                Ok(Event::Start(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Word, "sectPr") => {
++                    break;
++                }
+                 Ok(Event::Eof) => panic!("unexpected EOF"),
+                 Err(e) => panic!("unexpected error: {}", e),
+                 _ => {}
+@@ -417,7 +420,9 @@ mod tests {
+         let mut buf = Vec::new();
+         loop {
+             match reader.read_event_into(&mut buf) {
+-                Ok(Event::Start(ref e)) if e.name().as_ref() == "w:sectPr" => break,
++                Ok(Event::Start(ref e)) if names::element(reader.resolver(), e.name()) == (Space::Word, "sectPr") => {
++                    break;
++                }
+                 Ok(Event::Eof) => panic!("unexpected EOF"),
+                 _ => {}
+             }
+diff --git a/src/extraction/docx/styles/mod.rs b/src/extraction/docx/styles/mod.rs
+index dcbb822..ca4929a 100644
+--- a/src/extraction/docx/styles/mod.rs
++++ b/src/extraction/docx/styles/mod.rs
+@@ -5,8 +5,8 @@
+
+ use ahash::AHashMap;
+
++use super::xml_names as names;
+ use crate::error::{Result, XbergError};
+-use crate::extraction::ooxml_constants::WORDPROCESSINGML_NAMESPACE;
+ // --- Types ---
+
+ /// The type of a style definition in DOCX.
+@@ -201,7 +201,7 @@ pub(crate) fn parse_styles_xml(xml: &str) -> Result<StyleCatalog> {
+             continue;
+         }
+
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "docDefaults" => parse_doc_defaults(&child, &mut catalog),
+             "style" => {
+                 if let Some(style_def) = parse_style_element(&child) {
+@@ -222,7 +222,7 @@ fn parse_doc_defaults(node: &roxmltree::Node, catalog: &mut StyleCatalog) {
+             continue;
+         }
+
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "rPrDefault" => {
+                 if let Some(rpr) = find_child_element(&child, "rPr") {
+                     catalog.default_run_properties = parse_run_properties(&rpr);
+@@ -242,9 +242,9 @@ fn parse_doc_defaults(node: &roxmltree::Node, catalog: &mut StyleCatalog) {
+ ///
+ /// Returns `None` if the element lacks a `w:styleId` or `w:type` attribute.
+ fn parse_style_element(node: &roxmltree::Node) -> Option<StyleDefinition> {
+-    let style_id = node.attribute((WORDPROCESSINGML_NAMESPACE, "styleId"))?;
++    let style_id = names::word_attribute(node, "styleId")?;
+
+-    let type_str = node.attribute((WORDPROCESSINGML_NAMESPACE, "type"))?;
++    let type_str = names::word_attribute(node, "type")?;
+     let style_type = match type_str {
+         "paragraph" => StyleType::Paragraph,
+         "character" => StyleType::Character,
+@@ -253,9 +253,7 @@ fn parse_style_element(node: &roxmltree::Node) -> Option<StyleDefinition> {
+         _ => return None,
+     };
+
+-    let is_default = node
+-        .attribute((WORDPROCESSINGML_NAMESPACE, "default"))
+-        .is_some_and(|v| v == "1" || v == "true");
++    let is_default = names::word_attribute(node, "default").is_some_and(|v| v == "1" || v == "true");
+
+     let mut name = None;
+     let mut based_on = None;
+@@ -268,7 +266,7 @@ fn parse_style_element(node: &roxmltree::Node) -> Option<StyleDefinition> {
+             continue;
+         }
+
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "name" => {
+                 name = get_w_val(&child).map(String::from);
+             }
+@@ -309,7 +307,7 @@ fn parse_run_properties(node: &roxmltree::Node) -> RunProperties {
+             continue;
+         }
+
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "b" => props.bold = Some(parse_toggle_property(&child)),
+             "i" => props.italic = Some(parse_toggle_property(&child)),
+             "u" => {
+@@ -327,15 +325,11 @@ fn parse_run_properties(node: &roxmltree::Node) -> RunProperties {
+                 props.font_size_half_points = get_w_val(&child).and_then(|v| v.parse::<i32>().ok());
+             }
+             "rFonts" => {
+-                props.font_ascii = child.attribute((WORDPROCESSINGML_NAMESPACE, "ascii")).map(String::from);
+-                props.font_ascii_theme = child
+-                    .attribute((WORDPROCESSINGML_NAMESPACE, "asciiTheme"))
+-                    .map(String::from);
+-                props.font_h_ansi = child.attribute((WORDPROCESSINGML_NAMESPACE, "hAnsi")).map(String::from);
+-                props.font_cs = child.attribute((WORDPROCESSINGML_NAMESPACE, "cs")).map(String::from);
+-                props.font_east_asia = child
+-                    .attribute((WORDPROCESSINGML_NAMESPACE, "eastAsia"))
+-                    .map(String::from);
++                props.font_ascii = names::word_attribute(&child, "ascii").map(String::from);
++                props.font_ascii_theme = names::word_attribute(&child, "asciiTheme").map(String::from);
++                props.font_h_ansi = names::word_attribute(&child, "hAnsi").map(String::from);
++                props.font_cs = names::word_attribute(&child, "cs").map(String::from);
++                props.font_east_asia = names::word_attribute(&child, "eastAsia").map(String::from);
+             }
+             "vertAlign" => {
+                 props.vert_align = get_w_val(&child).map(String::from);
+@@ -386,7 +380,7 @@ fn parse_paragraph_properties(node: &roxmltree::Node) -> ParagraphProperties {
+             continue;
+         }
+
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "jc" => {
+                 props.alignment = get_w_val(&child).map(String::from);
+             }
+@@ -435,7 +429,7 @@ fn parse_paragraph_properties(node: &roxmltree::Node) -> ParagraphProperties {
+                     if !border_child.is_element() {
+                         continue;
+                     }
+-                    match border_child.tag_name().name() {
++                    match names::word_node_name(&border_child) {
+                         "top" => props.border_top = get_w_val(&border_child).map(String::from),
+                         "bottom" => props.border_bottom = get_w_val(&border_child).map(String::from),
+                         "left" | "start" => props.border_left = get_w_val(&border_child).map(String::from),
+@@ -460,7 +454,7 @@ fn parse_numbering_properties(node: &roxmltree::Node) -> (Option<i64>, Option<i6
+         if !child.is_element() {
+             continue;
+         }
+-        match child.tag_name().name() {
++        match names::word_node_name(&child) {
+             "numId" => numbering_id = get_w_val(&child).and_then(|v| v.parse::<i64>().ok()),
+             "ilvl" => numbering_level = get_w_val(&child).and_then(|v| v.parse::<i64>().ok()),
+             _ => {}
+@@ -472,30 +466,25 @@ fn parse_numbering_properties(node: &roxmltree::Node) -> (Option<i64>, Option<i6
+
+ /// Get the `w:val` attribute from a node.
+ ///
+-/// Tries namespaced attribute first, then falls back to unqualified `val`.
++/// Accepts qualified Word attributes, independent of lexical prefix.
+ fn get_w_val<'a>(node: &'a roxmltree::Node) -> Option<&'a str> {
+-    node.attribute((WORDPROCESSINGML_NAMESPACE, "val"))
+-        .or_else(|| node.attribute("val"))
++    names::word_attribute(node, "val")
+ }
+
+ /// Get a namespaced integer attribute from a node (e.g., `w:before`, `w:left`).
+ fn get_w_attr_i32(node: &roxmltree::Node, local_name: &str) -> Option<i32> {
+-    node.attribute((WORDPROCESSINGML_NAMESPACE, local_name))
+-        .or_else(|| node.attribute(local_name))
+-        .and_then(|v| v.parse::<i32>().ok())
++    names::word_attribute(node, local_name).and_then(|v| v.parse::<i32>().ok())
+ }
+
+ /// Get a namespaced string attribute from a node.
+ fn get_w_attr_string(node: &roxmltree::Node, local_name: &str) -> Option<String> {
+-    node.attribute((WORDPROCESSINGML_NAMESPACE, local_name))
+-        .or_else(|| node.attribute(local_name))
+-        .map(String::from)
++    names::word_attribute(node, local_name).map(String::from)
+ }
+
+ /// Find the first child element with the given local name.
+ fn find_child_element<'a>(node: &'a roxmltree::Node, local_name: &str) -> Option<roxmltree::Node<'a, 'a>> {
+     node.children()
+-        .find(|c| c.is_element() && c.tag_name().name() == local_name)
++        .find(|c| c.is_element() && names::word_node_name(&c) == local_name)
+ }
+
+ /// Parse a toggle (boolean) property element.
+diff --git a/src/extraction/docx/table/mod.rs b/src/extraction/docx/table/mod.rs
+index d2e0cc0..2f45967 100644
+--- a/src/extraction/docx/table/mod.rs
++++ b/src/extraction/docx/table/mod.rs
+@@ -3,9 +3,11 @@
+ //! This module provides comprehensive support for parsing table-level, row-level, and cell-level
+ //! properties from OOXML `<w:tblPr>`, `<w:trPr>`, and `<w:tcPr>` elements using streaming XML parsing.
+
++use super::xml_names::{self as names, Space};
+ use crate::extractors::security::{SecurityBudget, SecurityError};
+-use quick_xml::Reader;
++use quick_xml::NsReader as Reader;
+ use quick_xml::events::{BytesStart, Event};
++use quick_xml::name::NamespaceResolver;
+ use serde::{Deserialize, Serialize};
+
+ /// Table-level properties from `<w:tblPr>`.
+@@ -200,15 +202,15 @@ pub struct TableGrid {
+ /// attributes -- handled identically whether the element arrives as `Event::Start` or
+ /// `Event::Empty`. `tblBorders` and `tblCellMar` nest their own children instead and are
+ /// handled by the caller.
+-fn apply_simple_table_property(props: &mut TableProperties, e: &BytesStart) {
+-    match e.local_name().as_ref() {
+-        "tblStyle" => props.style_id = get_attribute(e, "val"),
+-        "tblW" => props.width = parse_width_element(e),
+-        "jc" => props.alignment = get_attribute(e, "val"),
+-        "tblLayout" => props.layout = get_attribute(e, "type"),
+-        "tblLook" => props.look = Some(parse_table_look(e)),
+-        "tblInd" => props.indent = parse_width_element(e),
+-        "tblCaption" => props.caption = get_attribute(e, "val"),
++fn apply_simple_table_property(ns: &NamespaceResolver, props: &mut TableProperties, e: &BytesStart) {
++    match names::word_element(ns, e.name()) {
++        "tblStyle" => props.style_id = get_attribute(ns, e, "val"),
++        "tblW" => props.width = parse_width_element(ns, e),
++        "jc" => props.alignment = get_attribute(ns, e, "val"),
++        "tblLayout" => props.layout = get_attribute(ns, e, "type"),
++        "tblLook" => props.look = Some(parse_table_look(ns, e)),
++        "tblInd" => props.indent = parse_width_element(ns, e),
++        "tblCaption" => props.caption = get_attribute(ns, e, "val"),
+         _ => {}
+     }
+ }
+@@ -225,7 +227,7 @@ pub(crate) fn parse_table_properties(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+                 budget.enter()?;
+-                match e.local_name().as_ref() {
++                match names::word_element(reader.resolver(), e.name()) {
+                     "tblBorders" => {
+                         props.borders = Some(parse_table_borders(reader));
+                         // `parse_table_borders` reads through its own `</w:tblBorders>`
+@@ -238,21 +240,21 @@ pub(crate) fn parse_table_properties(
+                         // Same as `tblBorders`: consumes its own end tag.
+                         budget.leave();
+                     }
+-                    _ => apply_simple_table_property(&mut props, &e),
++                    _ => apply_simple_table_property(reader.resolver(), &mut props, &e),
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                match e.local_name().as_ref() {
++                match names::word_element(reader.resolver(), e.name()) {
+                     "tblBorders" => props.borders = Some(TableBorders::default()),
+                     "tblCellMar" => props.cell_margins = Some(CellMargins::default()),
+-                    _ => apply_simple_table_property(&mut props, &e),
++                    _ => apply_simple_table_property(reader.resolver(), &mut props, &e),
+                 }
+                 buf.clear();
+             }
+             Ok(Event::End(e)) => {
+                 budget.leave();
+-                if e.local_name().as_ref() == "tblPr" {
++                if names::word_element(reader.resolver(), e.name()) == "tblPr" {
+                     break;
+                 }
+                 buf.clear();
+@@ -285,34 +287,34 @@ pub(crate) fn parse_row_properties(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+                 budget.enter()?;
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "trHeight" => {
+-                        props.height = get_attribute_int(&e, "val");
+-                        props.height_rule = get_attribute(&e, "hRule");
++                        props.height = get_attribute_int(reader.resolver(), &e, "val");
++                        props.height_rule = get_attribute(reader.resolver(), &e, "hRule");
+                     }
+                     "tblHeader" => {
+-                        props.is_header = is_toggle_on(&e);
++                        props.is_header = is_toggle_on(reader.resolver(), &e);
+                     }
+                     "cantSplit" => {
+-                        props.cant_split = is_toggle_on(&e);
++                        props.cant_split = is_toggle_on(reader.resolver(), &e);
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "trHeight" => {
+-                        props.height = get_attribute_int(&e, "val");
+-                        props.height_rule = get_attribute(&e, "hRule");
++                        props.height = get_attribute_int(reader.resolver(), &e, "val");
++                        props.height_rule = get_attribute(reader.resolver(), &e, "hRule");
+                     }
+                     "tblHeader" => {
+-                        props.is_header = is_toggle_on(&e);
++                        props.is_header = is_toggle_on(reader.resolver(), &e);
+                     }
+                     "cantSplit" => {
+-                        props.cant_split = is_toggle_on(&e);
++                        props.cant_split = is_toggle_on(reader.resolver(), &e);
+                     }
+                     _ => {}
+                 }
+@@ -320,7 +322,7 @@ pub(crate) fn parse_row_properties(
+             }
+             Ok(Event::End(e)) => {
+                 budget.leave();
+-                if e.local_name().as_ref() == "trPr" {
++                if names::word_element(reader.resolver(), e.name()) == "trPr" {
+                     break;
+                 }
+                 buf.clear();
+@@ -368,15 +370,15 @@ fn validate_grid_span(span: Option<u32>) -> Option<u32> {
+ /// attributes -- handled identically whether the element arrives as `Event::Start` or
+ /// `Event::Empty`. `tcBorders` and `tcMar` nest their own children instead and are handled
+ /// by the caller.
+-fn apply_simple_cell_property(props: &mut CellProperties, e: &BytesStart) {
+-    match e.local_name().as_ref() {
+-        "tcW" => props.width = parse_width_element(e),
+-        "gridSpan" => props.grid_span = validate_grid_span(get_attribute_u32(e, "val")),
+-        "vMerge" => props.v_merge = Some(parse_vmerge(e)),
+-        "shd" => props.shading = Some(parse_cell_shading(e)),
+-        "vAlign" => props.vertical_align = get_attribute(e, "val"),
+-        "textDirection" => props.text_direction = get_attribute(e, "val"),
+-        "noWrap" => props.no_wrap = is_toggle_on(e),
++fn apply_simple_cell_property(ns: &NamespaceResolver, props: &mut CellProperties, e: &BytesStart) {
++    match names::word_element(ns, e.name()) {
++        "tcW" => props.width = parse_width_element(ns, e),
++        "gridSpan" => props.grid_span = validate_grid_span(get_attribute_u32(ns, e, "val")),
++        "vMerge" => props.v_merge = Some(parse_vmerge(ns, e)),
++        "shd" => props.shading = Some(parse_cell_shading(ns, e)),
++        "vAlign" => props.vertical_align = get_attribute(ns, e, "val"),
++        "textDirection" => props.text_direction = get_attribute(ns, e, "val"),
++        "noWrap" => props.no_wrap = is_toggle_on(ns, e),
+         _ => {}
+     }
+ }
+@@ -393,7 +395,7 @@ pub(crate) fn parse_cell_properties(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+                 budget.enter()?;
+-                match e.local_name().as_ref() {
++                match names::word_element(reader.resolver(), e.name()) {
+                     "tcBorders" => {
+                         props.borders = Some(parse_cell_borders(reader));
+                         // `parse_cell_borders` reads through its own `</w:tcBorders>`
+@@ -406,21 +408,21 @@ pub(crate) fn parse_cell_properties(
+                         // `</w:tcMar>` without touching `budget`; refund the enter above.
+                         budget.leave();
+                     }
+-                    _ => apply_simple_cell_property(&mut props, &e),
++                    _ => apply_simple_cell_property(reader.resolver(), &mut props, &e),
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                match e.local_name().as_ref() {
++                match names::word_element(reader.resolver(), e.name()) {
+                     "tcBorders" => props.borders = Some(CellBorders::default()),
+                     "tcMar" => props.margins = Some(CellMargins::default()),
+-                    _ => apply_simple_cell_property(&mut props, &e),
++                    _ => apply_simple_cell_property(reader.resolver(), &mut props, &e),
+                 }
+                 buf.clear();
+             }
+             Ok(Event::End(e)) => {
+                 budget.leave();
+-                if e.local_name().as_ref() == "tcPr" {
++                if names::word_element(reader.resolver(), e.name()) == "tcPr" {
+                     break;
+                 }
+                 buf.clear();
+@@ -453,16 +455,16 @@ pub(crate) fn parse_table_grid(
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+                 budget.enter()?;
+-                if e.local_name().as_ref() == "gridCol"
+-                    && let Some(width) = get_attribute_int(&e, "w")
++                if names::word_element(reader.resolver(), e.name()) == "gridCol"
++                    && let Some(width) = get_attribute_int(reader.resolver(), &e, "w")
+                 {
+                     grid.columns.push(width);
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                if e.local_name().as_ref() == "gridCol"
+-                    && let Some(width) = get_attribute_int(&e, "w")
++                if names::word_element(reader.resolver(), e.name()) == "gridCol"
++                    && let Some(width) = get_attribute_int(reader.resolver(), &e, "w")
+                 {
+                     grid.columns.push(width);
+                 }
+@@ -470,7 +472,7 @@ pub(crate) fn parse_table_grid(
+             }
+             Ok(Event::End(e)) => {
+                 budget.leave();
+-                if e.local_name().as_ref() == "tblGrid" {
++                if names::word_element(reader.resolver(), e.name()) == "tblGrid" {
+                     break;
+                 }
+                 buf.clear();
+@@ -488,51 +490,51 @@ pub(crate) fn parse_table_grid(
+ /// Helper: Check if an OOXML on/off toggle element is enabled.
+ /// Handles `<w:foo/>` (on), `<w:foo w:val="1"/>` (on), `<w:foo w:val="0"/>` (off),
+ /// `<w:foo w:val="true"/>` (on), `<w:foo w:val="false"/>` (off).
+-fn is_toggle_on(e: &BytesStart) -> bool {
++fn is_toggle_on(ns: &NamespaceResolver, e: &BytesStart) -> bool {
+     !matches!(
+-        get_attribute(e, "val").as_deref(),
++        get_attribute(ns, e, "val").as_deref(),
+         Some("0") | Some("false") | Some("off")
+     )
+ }
+
+ /// Helper: Parse border element from attributes.
+-fn parse_border_element(e: &BytesStart) -> BorderStyle {
++fn parse_border_element(ns: &NamespaceResolver, e: &BytesStart) -> BorderStyle {
+     BorderStyle {
+-        style: get_attribute(e, "val").unwrap_or_default(),
+-        size: get_attribute_int(e, "sz"),
+-        color: get_attribute(e, "color"),
+-        space: get_attribute_int(e, "space"),
++        style: get_attribute(ns, e, "val").unwrap_or_default(),
++        size: get_attribute_int(ns, e, "sz"),
++        color: get_attribute(ns, e, "color"),
++        space: get_attribute_int(ns, e, "space"),
+     }
+ }
+
+ /// Helper: Parse width element from attributes.
+-fn parse_width_element(e: &BytesStart) -> Option<TableWidth> {
+-    get_attribute_int(e, "w").map(|value| TableWidth {
++fn parse_width_element(ns: &NamespaceResolver, e: &BytesStart) -> Option<TableWidth> {
++    get_attribute_int(ns, e, "w").map(|value| TableWidth {
+         value,
+-        width_type: get_attribute(e, "type").unwrap_or_default(),
++        width_type: get_attribute(ns, e, "type").unwrap_or_default(),
+     })
+ }
+
+ /// Helper: Parse table look from attributes.
+ /// Handles both OOXML 2012+ individual boolean attributes and legacy hex bitmask.
+-fn parse_table_look(e: &BytesStart) -> TableLook {
++fn parse_table_look(ns: &NamespaceResolver, e: &BytesStart) -> TableLook {
+     let mut look = TableLook::default();
+
+-    let has_individual = get_attribute(e, "firstRow").is_some()
+-        || get_attribute(e, "lastRow").is_some()
+-        || get_attribute(e, "firstColumn").is_some()
+-        || get_attribute(e, "lastColumn").is_some()
+-        || get_attribute(e, "noHBand").is_some()
+-        || get_attribute(e, "noVBand").is_some();
++    let has_individual = get_attribute(ns, e, "firstRow").is_some()
++        || get_attribute(ns, e, "lastRow").is_some()
++        || get_attribute(ns, e, "firstColumn").is_some()
++        || get_attribute(ns, e, "lastColumn").is_some()
++        || get_attribute(ns, e, "noHBand").is_some()
++        || get_attribute(ns, e, "noVBand").is_some();
+
+     if has_individual {
+-        look.first_row = get_attribute(e, "firstRow").as_deref() == Some("1");
+-        look.last_row = get_attribute(e, "lastRow").as_deref() == Some("1");
+-        look.first_column = get_attribute(e, "firstColumn").as_deref() == Some("1");
+-        look.last_column = get_attribute(e, "lastColumn").as_deref() == Some("1");
+-        look.no_h_band = get_attribute(e, "noHBand").as_deref() == Some("1");
+-        look.no_v_band = get_attribute(e, "noVBand").as_deref() == Some("1");
+-    } else if let Some(val_str) = get_attribute(e, "val")
++        look.first_row = get_attribute(ns, e, "firstRow").as_deref() == Some("1");
++        look.last_row = get_attribute(ns, e, "lastRow").as_deref() == Some("1");
++        look.first_column = get_attribute(ns, e, "firstColumn").as_deref() == Some("1");
++        look.last_column = get_attribute(ns, e, "lastColumn").as_deref() == Some("1");
++        look.no_h_band = get_attribute(ns, e, "noHBand").as_deref() == Some("1");
++        look.no_v_band = get_attribute(ns, e, "noVBand").as_deref() == Some("1");
++    } else if let Some(val_str) = get_attribute(ns, e, "val")
+         && let Ok(mask) = i32::from_str_radix(&val_str, 16)
+     {
+         look.first_row = (mask & 0x0020) != 0;
+@@ -547,19 +549,19 @@ fn parse_table_look(e: &BytesStart) -> TableLook {
+ }
+
+ /// Helper: Parse vertical merge state.
+-fn parse_vmerge(e: &BytesStart) -> VerticalMerge {
+-    match get_attribute(e, "val") {
++fn parse_vmerge(ns: &NamespaceResolver, e: &BytesStart) -> VerticalMerge {
++    match get_attribute(ns, e, "val") {
+         Some(val) if val == "restart" => VerticalMerge::Restart,
+         _ => VerticalMerge::Continue,
+     }
+ }
+
+ /// Helper: Parse cell shading from attributes.
+-fn parse_cell_shading(e: &BytesStart) -> CellShading {
++fn parse_cell_shading(ns: &NamespaceResolver, e: &BytesStart) -> CellShading {
+     CellShading {
+-        fill: get_attribute(e, "fill"),
+-        color: get_attribute(e, "color"),
+-        val: get_attribute(e, "val"),
++        fill: get_attribute(ns, e, "fill"),
++        color: get_attribute(ns, e, "color"),
++        val: get_attribute(ns, e, "val"),
+     }
+ }
+
+@@ -571,57 +573,57 @@ fn parse_table_borders(reader: &mut Reader<&[u8]>) -> TableBorders {
+     loop {
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        borders.top = Some(parse_border_element(&e));
++                        borders.top = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "bottom" => {
+-                        borders.bottom = Some(parse_border_element(&e));
++                        borders.bottom = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "left" | "start" => {
+-                        borders.left = Some(parse_border_element(&e));
++                        borders.left = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "right" | "end" => {
+-                        borders.right = Some(parse_border_element(&e));
++                        borders.right = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "insideH" => {
+-                        borders.inside_h = Some(parse_border_element(&e));
++                        borders.inside_h = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "insideV" => {
+-                        borders.inside_v = Some(parse_border_element(&e));
++                        borders.inside_v = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        borders.top = Some(parse_border_element(&e));
++                        borders.top = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "bottom" => {
+-                        borders.bottom = Some(parse_border_element(&e));
++                        borders.bottom = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "left" | "start" => {
+-                        borders.left = Some(parse_border_element(&e));
++                        borders.left = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "right" | "end" => {
+-                        borders.right = Some(parse_border_element(&e));
++                        borders.right = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "insideH" => {
+-                        borders.inside_h = Some(parse_border_element(&e));
++                        borders.inside_h = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "insideV" => {
+-                        borders.inside_v = Some(parse_border_element(&e));
++                        borders.inside_v = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::End(e)) => {
+-                if e.local_name().as_ref() == "tblBorders" {
++                if names::word_element(reader.resolver(), e.name()) == "tblBorders" {
+                     break;
+                 }
+                 buf.clear();
+@@ -644,45 +646,45 @@ fn parse_cell_borders(reader: &mut Reader<&[u8]>) -> CellBorders {
+     loop {
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        borders.top = Some(parse_border_element(&e));
++                        borders.top = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "bottom" => {
+-                        borders.bottom = Some(parse_border_element(&e));
++                        borders.bottom = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "left" | "start" => {
+-                        borders.left = Some(parse_border_element(&e));
++                        borders.left = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "right" | "end" => {
+-                        borders.right = Some(parse_border_element(&e));
++                        borders.right = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        borders.top = Some(parse_border_element(&e));
++                        borders.top = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "bottom" => {
+-                        borders.bottom = Some(parse_border_element(&e));
++                        borders.bottom = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "left" | "start" => {
+-                        borders.left = Some(parse_border_element(&e));
++                        borders.left = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     "right" | "end" => {
+-                        borders.right = Some(parse_border_element(&e));
++                        borders.right = Some(parse_border_element(reader.resolver(), &e));
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::End(e)) => {
+-                if e.local_name().as_ref() == "tcBorders" {
++                if names::word_element(reader.resolver(), e.name()) == "tcBorders" {
+                     break;
+                 }
+                 buf.clear();
+@@ -705,45 +707,47 @@ fn parse_cell_margins_element(reader: &mut Reader<&[u8]>) -> CellMargins {
+     loop {
+         match reader.read_event_into(&mut buf) {
+             Ok(Event::Start(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        margins.top = get_attribute_int(&e, "w");
++                        margins.top = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "bottom" => {
+-                        margins.bottom = get_attribute_int(&e, "w");
++                        margins.bottom = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "left" | "start" => {
+-                        margins.left = get_attribute_int(&e, "w");
++                        margins.left = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "right" | "end" => {
+-                        margins.right = get_attribute_int(&e, "w");
++                        margins.right = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::Empty(e)) => {
+-                let local_name = e.local_name();
+-                match local_name.as_ref() {
++                let local_name = names::word_element(reader.resolver(), e.name());
++                match local_name {
+                     "top" => {
+-                        margins.top = get_attribute_int(&e, "w");
++                        margins.top = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "bottom" => {
+-                        margins.bottom = get_attribute_int(&e, "w");
++                        margins.bottom = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "left" | "start" => {
+-                        margins.left = get_attribute_int(&e, "w");
++                        margins.left = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     "right" | "end" => {
+-                        margins.right = get_attribute_int(&e, "w");
++                        margins.right = get_attribute_int(reader.resolver(), &e, "w");
+                     }
+                     _ => {}
+                 }
+                 buf.clear();
+             }
+             Ok(Event::End(e)) => {
+-                if e.local_name().as_ref() == "tblCellMar" || e.local_name().as_ref() == "tcMar" {
++                if names::word_element(reader.resolver(), e.name()) == "tblCellMar"
++                    || names::word_element(reader.resolver(), e.name()) == "tcMar"
++                {
+                     break;
+                 }
+                 buf.clear();
+@@ -759,11 +763,11 @@ fn parse_cell_margins_element(reader: &mut Reader<&[u8]>) -> CellMargins {
+ }
+
+ /// Helper: Extract string attribute value.
+-/// Uses local_name() to handle namespace-prefixed attributes (e.g., `w:val` matches `val`).
+-fn get_attribute(e: &BytesStart, key: &str) -> Option<String> {
++/// Resolves qualified Word attributes; default element namespaces do not qualify attributes.
++fn get_attribute(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> Option<String> {
+     e.attributes()
+         .flatten()
+-        .find(|attr| attr.key.local_name().as_ref() == key)
++        .find(|attr| names::attribute(ns, attr.key) == (Space::Word, key))
+         .and_then(|attr| {
+             let raw = attr.value.as_ref();
+             quick_xml::escape::unescape(raw).ok().map(|s| s.into_owned())
+@@ -771,13 +775,13 @@ fn get_attribute(e: &BytesStart, key: &str) -> Option<String> {
+ }
+
+ /// Helper: Extract and parse integer attribute value.
+-fn get_attribute_int(e: &BytesStart, key: &str) -> Option<i32> {
+-    get_attribute(e, key).and_then(|s| s.parse().ok())
++fn get_attribute_int(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> Option<i32> {
++    get_attribute(ns, e, key).and_then(|s| s.parse().ok())
+ }
+
+ /// Helper: Extract and parse unsigned integer attribute value.
+-fn get_attribute_u32(e: &BytesStart, key: &str) -> Option<u32> {
+-    get_attribute(e, key).and_then(|s| s.parse().ok())
++fn get_attribute_u32(ns: &NamespaceResolver, e: &BytesStart, key: &str) -> Option<u32> {
++    get_attribute(ns, e, key).and_then(|s| s.parse().ok())
+ }
+
+ #[cfg(test)]
+diff --git a/src/extraction/docx/xml_names.rs b/src/extraction/docx/xml_names.rs
+new file mode 100644
+index 0000000..5a0fe99
+--- /dev/null
++++ b/src/extraction/docx/xml_names.rs
+@@ -0,0 +1,75 @@
++//! Expanded-name queries over quick-xml's maintained namespace resolver.
++//! No event rewriting or namespace stack is implemented here.
++use crate::extraction::ooxml_constants::*;
++use quick_xml::name::{NamespaceResolver, QName, ResolveResult};
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(super) enum Space {
++    Word,
++    Relationship,
++    PackageRelationship,
++    Drawing,
++    WordDrawing,
++    Picture,
++    Math,
++    Compatibility,
++    Vml,
++    Unqualified,
++    Foreign,
++}
++
++fn space(uri: Option<&str>) -> Space {
++    match uri {
++        Some(WORDPROCESSINGML_NAMESPACE | "http://purl.oclc.org/ooxml/wordprocessingml/main") => Space::Word,
++        Some(RELATIONSHIPS_NAMESPACE | "http://purl.oclc.org/ooxml/officeDocument/relationships") => {
++            Space::Relationship
++        }
++        Some(PACKAGE_RELATIONSHIPS_NAMESPACE) => Space::PackageRelationship,
++        Some(DRAWINGML_NAMESPACE) => Space::Drawing,
++        Some(WORDPROCESSINGDRAWING_NAMESPACE) => Space::WordDrawing,
++        Some(PICTURE_NAMESPACE) => Space::Picture,
++        Some("http://schemas.openxmlformats.org/officeDocument/2006/math") => Space::Math,
++        Some("http://schemas.openxmlformats.org/markup-compatibility/2006") => Space::Compatibility,
++        Some("urn:schemas-microsoft-com:vml") => Space::Vml,
++        None => Space::Unqualified,
++        _ => Space::Foreign,
++    }
++}
++
++fn resolved(result: ResolveResult<'_>) -> Space {
++    match result {
++        ResolveResult::Bound(uri) => space(Some(uri.into_inner())),
++        ResolveResult::Unbound => Space::Unqualified,
++        ResolveResult::Unknown(_) => Space::Foreign,
++    }
++}
++
++pub(super) fn element<'n>(ns: &NamespaceResolver, name: QName<'n>) -> (Space, &'n str) {
++    let (uri, local) = ns.resolve_element(name);
++    (resolved(uri), local.into_inner())
++}
++
++pub(super) fn attribute<'n>(ns: &NamespaceResolver, name: QName<'n>) -> (Space, &'n str) {
++    // Default element namespaces never qualify unprefixed attributes.
++    let (uri, local) = ns.resolve_attribute(name);
++    (resolved(uri), local.into_inner())
++}
++
++pub(super) fn word_node_name<'a>(node: &'a roxmltree::Node<'_, '_>) -> &'a str {
++    if space(node.tag_name().namespace()) == Space::Word {
++        node.tag_name().name()
++    } else {
++        ""
++    }
++}
++
++pub(super) fn word_attribute<'a>(node: &'a roxmltree::Node<'_, '_>, local: &str) -> Option<&'a str> {
++    node.attributes()
++        .find(|a| space(a.namespace()) == Space::Word && a.name() == local)
++        .map(|a| a.value())
++}
++
++pub(super) fn word_element<'n>(ns: &NamespaceResolver, name: QName<'n>) -> &'n str {
++    let (space, local) = element(ns, name);
++    if space == Space::Word { local } else { "" }
++}
+diff --git a/src/extraction/pptx/parser.rs b/src/extraction/pptx/parser.rs
+index 6ae1bea..e4dbc89 100644
+--- a/src/extraction/pptx/parser.rs
++++ b/src/extraction/pptx/parser.rs
+@@ -677,7 +677,9 @@ fn collect_runs_from_descendants(container: &Node) -> Vec<Run> {
+ /// The converter is a `quick_xml` streaming API positioned just after the
+ /// start tag, while this module parses with `roxmltree` (a DOM). To bridge
+ /// the two, the math node's byte range in the original document text
+-/// (`xml_str`) is sliced out and re-parsed with a fresh `quick_xml::Reader`.
++/// (`xml_str`) is sliced out unchanged and read with `NsReader`. Parent in-scope
++/// bindings seed level zero; the fragment establishes its own declarations. This
++/// avoids rescanning the full slide for every equation.
+ fn omml_node_to_run(container: &Node, xml_str: &str) -> Option<Run> {
+     let (is_display, math_node) = if let Some(n) = container
+         .descendants()
+@@ -694,14 +696,35 @@ fn omml_node_to_run(container: &Node, xml_str: &str) -> Option<Run> {
+     };
+
+     let raw_xml = xml_str.get(math_node.range())?;
+-    let expected_tag: &str = if is_display { "m:oMathPara" } else { "m:oMath" };
++    let expected_tag: &str = if is_display { "oMathPara" } else { "oMath" };
+
+-    let mut reader = quick_xml::Reader::from_str(raw_xml);
++    let mut reader = quick_xml::NsReader::from_str(raw_xml);
+     reader.config_mut().trim_text(false);
++    // Seed the ELEMENT PARENT, not math_node: declarations on the fragment's
++    // actual start event must establish/shadow their own scope normally.
++    if let Some(parent) = math_node.parent_element() {
++        for binding in parent.namespaces() {
++            let prefix = match binding.name() {
++                Some(name) => quick_xml::name::PrefixDeclaration::Named(name),
++                None => quick_xml::name::PrefixDeclaration::Default,
++            };
++            reader
++                .resolver_mut()
++                .add(prefix, quick_xml::name::Namespace(binding.uri()))
++                .ok()?;
++        }
++    }
+     let mut buf = Vec::new();
+     loop {
+         match reader.read_event_into(&mut buf) {
+-            Ok(quick_xml::events::Event::Start(ref e)) if e.name().as_ref() == expected_tag => break,
++            Ok(quick_xml::events::Event::Start(ref e)) => {
++                let (namespace, local) = reader.resolver().resolve_element(e.name());
++                if matches!(namespace, quick_xml::name::ResolveResult::Bound(uri) if uri.into_inner() == MATH_NAMESPACE)
++                    && local.into_inner() == expected_tag
++                {
++                    break;
++                }
++            }
+             Ok(quick_xml::events::Event::Eof) => return None,
+             Err(_) => return None,
+             _ => {}
