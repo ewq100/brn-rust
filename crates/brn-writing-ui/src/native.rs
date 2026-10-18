@@ -594,7 +594,10 @@ pub fn import_report_details(report: &ImportReport) -> Vec<String> {
     if let Some(conversion) = &report.conversion {
         details.push(format!(
             "{} · AI conversion: {}",
-            match conversion.settings.converter { DocumentConverter::Xberg => "Xberg", DocumentConverter::XbergBrn => "Xberg + BRN layer" },
+            match conversion.settings.converter {
+                DocumentConverter::Xberg => "Xberg",
+                DocumentConverter::XbergBrn => "Xberg + BRN layer",
+            },
             if conversion.settings.ai {
                 "On (GPT-6 Luna, high)"
             } else {
@@ -605,4 +608,3 @@ pub fn import_report_details(report: &ImportReport) -> Vec<String> {
     details.extend(report.issues.iter().map(ImportIssue::display));
     details
 }
-

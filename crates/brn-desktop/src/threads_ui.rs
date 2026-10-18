@@ -1,6 +1,8 @@
 //! Final-use native Threads workspace. All durable changes use the shared service.
 use brn_threads_app::*;
-use brn_threads_intake::{ConversionResult, Converter, DocumentHelpers, DocumentKind, ImportIntent};
+use brn_threads_intake::{
+    ConversionResult, Converter, DocumentHelpers, DocumentKind, ImportIntent,
+};
 use brn_writing_ui::native::*;
 use gpui_kit::base::{Disableable, Selectable};
 use gpui_kit::component::WindowExt;
@@ -1868,8 +1870,16 @@ impl ThreadsUi {
         match request {
             Ok(request) => {
                 if self.begin_run_start(cx) {
+                    // Resume can leave a matching pending item without a dispatch
+                    // claim. Preserve the same exact-prompt queue refusal as chat.
+                    let queued = self.queue_state().pending.is_some_and(|item| {
+                        item.thread == request.thread
+                            && item.text == request.prompt
+                            && item.run.is_none()
+                    });
                     self.start_request(
                         request,
+                        queued,
                         None,
                         "Retry from the note",
                         "Finished. The result is in the note.",
@@ -1922,20 +1932,13 @@ impl ThreadsUi {
             .queue_state()
             .pending
             .filter(|q| q.thread == thread && q.text == prompt && q.run.is_none());
-        let reviewed = match self.take_mcp_review(&thread, &prompt, queued.is_some()) {
-            Ok(reviewed) => reviewed,
-            Err(error) => {
-                self.warn(error);
-                cx.notify();
-                return;
-            }
-        };
         let context_edit_note = match &owner_request {
             Some(brn_ai::threads::OwnerRequest::EditNote { id, version }) => {
                 Some((id.clone(), *version))
             }
             _ => None,
         };
+        let queue_match = queued.is_some();
         let request = brn_threads_app::ThreadRunStart {
             request_message: queued.as_ref().and_then(|q| q.message.clone()),
             queue_claim: queued.and_then(|q| q.dispatch),
@@ -1949,6 +1952,7 @@ impl ThreadsUi {
         };
         self.start_request(
             request,
+            queue_match,
             context_edit_note,
             "Continue from the chat",
             "Finished. The answer and saved changes are in this chat.",
@@ -1960,12 +1964,21 @@ impl ThreadsUi {
     fn start_request(
         &mut self,
         request: ThreadRunStart,
+        queued: bool,
         context_edit_note: Option<(String, u64)>,
         continuation: &'static str,
         completed: &'static str,
         cx: &mut Context<Self>,
     ) {
         let thread = request.thread.clone();
+        let reviewed = match self.take_mcp_review(&thread, &request.prompt, queued) {
+            Ok(reviewed) => reviewed,
+            Err(error) => {
+                self.warn(error);
+                cx.notify();
+                return;
+            }
+        };
         let prepared = match self.workspace.prepare_thread_run(request) {
             Ok(prepared) => {
                 if prepared.search_status != "available" {

@@ -15,6 +15,274 @@ fn policy(chat: &str) -> McpPolicy {
         access: vec![McpAccess::Chat(chat.into())],
     }
 }
+
+const NF1_REFUSAL: &str = "MCP input review no longer matches this exact owner request. No new run was started; review the destination, scope and input again.";
+const NF1_REWRITE: &str = "Rewrite the saved document using the captured feedback and selected chat; prepare a whole-note proposal for review.";
+
+struct StartFixture {
+    _root: tempfile::TempDir,
+    window: gpui_kit::AnyWindowHandle,
+    view: Entity<ThreadsUi>,
+    chat: String,
+    note: Record,
+}
+
+fn start_fixture(cx: &mut TestAppContext, prepare: bool) -> StartFixture {
+    cx.update(gpui_kit::init);
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("nf1");
+    let mut workspace =
+        Workspace::create_without_default_credentials(&data, WorkspacePurpose::Test).unwrap();
+    focus_tests::configure_offline_fixture(&mut workspace);
+    if prepare {
+        let mut settings = workspace.settings().unwrap();
+        settings.provider = "Codex".into();
+        settings.model = "gpt-6.1-sol".into();
+        settings.effort = "medium".into();
+        settings.auth_file = Some(
+            root.path()
+                .join("nonexistent-auth.json")
+                .to_string_lossy()
+                .into(),
+        );
+        settings.credentials_dir = None;
+        workspace.configure(settings).unwrap();
+    }
+    let note = workspace
+        .new_note("NF1 saved draft", "Keep this exact saved text.")
+        .unwrap();
+    let chat = workspace
+        .ensure_writing_context("nf1-writing-context", &note.id, None)
+        .unwrap()
+        .conversation
+        .unwrap();
+    workspace.configure_mcp(Some(policy(&chat))).unwrap();
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut ui = ThreadsUi::new(workspace, data, window, cx);
+                ui.poll = None;
+                ui.open_note(&note.id, None, window, cx);
+                ui.chat = ChatTarget::Thread(chat.clone());
+                ui.refresh();
+                ui
+            })
+        })
+        .unwrap()
+    });
+    StartFixture {
+        _root: root,
+        window,
+        view,
+        chat,
+        note,
+    }
+}
+
+fn review_start(
+    ui: &mut ThreadsUi,
+    prompt: &str,
+    window: &mut Window,
+    cx: &mut Context<ThreadsUi>,
+) {
+    ui.composer
+        .update(cx, |editor, cx| editor.set_value(prompt, window, cx));
+    ui.begin_mcp_input("public_read", window, cx);
+    ui.mcp_view
+        .query
+        .as_ref()
+        .unwrap()
+        .clone()
+        .update(cx, |editor, cx| {
+            editor.set_value("NF1_TRANSIENT_QUERY", window, cx)
+        });
+    ui.review_mcp_input(cx);
+    assert!(ui.mcp_view.pending.is_some());
+}
+
+#[gpui_kit::test]
+fn nf1_retry_consumes_mismatch_before_prepare_and_second_retry_progresses(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, window, cx| f.view.update(cx, |ui, cx| {
+        let saved = ui.workspace.snapshot_writing_request_with_feedback("nf1-snapshot", &f.note.id, f.note.version, &f.chat, &[], "Captured feedback").unwrap();
+        ui.writing.general_feedback.update(cx, |editor, cx| editor.set_value("Unsent next feedback", window, cx));
+        review_start(ui, "Different composer instruction", window, cx);
+        let records = ui.workspace.records().unwrap();
+        let receipts = ui.workspace.history().unwrap();
+        ui.retry_rewrite(saved.request_message.clone(), cx);
+        assert!(ui.worker.is_none());
+        assert!(ui.mcp_view.pending.is_none());
+        assert!(ui.mcp_view.query.is_none());
+        assert_eq!(ui.notice, format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
+        assert_eq!(ui.notice_tone(), Tone::Warning);
+        assert_eq!(ui.workspace.records().unwrap(), records);
+        assert_eq!(ui.workspace.history().unwrap(), receipts);
+        assert_eq!(ui.workspace.writing_request(&saved.request_message).unwrap(), saved);
+        assert_eq!(ui.writing.general_feedback.read(cx).value().as_ref(), "Unsent next feedback");
+        ui.retry_rewrite(saved.request_message.clone(), cx);
+        assert!(ui.worker.is_none());
+        assert_eq!(ui.notice, "Rewrite request saved; AI has not started. Choose a provider and model in Settings before asking BRN. Retry rewrite uses these same saved inputs.");
+        assert_eq!(ui.workspace.records().unwrap(), records);
+        assert_eq!(ui.workspace.history().unwrap(), receipts);
+        assert_eq!(ui.workspace.writing_request(&saved.request_message).unwrap(), saved);
+        assert_eq!(ui.writing.general_feedback.read(cx).value().as_ref(), "Unsent next feedback");
+    })).unwrap();
+}
+
+#[gpui_kit::test]
+fn nf1_chat_mismatch_refuses_without_a_run(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, true);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            review_start(ui, "Reviewed prompt", window, cx);
+            let records = ui.workspace.records().unwrap();
+            let receipts = ui.workspace.history().unwrap();
+            ui.start_run("Different prompt".into(), f.chat.clone(), vec![], None, cx);
+            assert_eq!(ui.notice, NF1_REFUSAL);
+            assert_eq!(ui.notice_tone(), Tone::Warning);
+            assert!(ui.worker.is_none());
+            assert!(ui.mcp_view.pending.is_none());
+            assert!(ui.mcp_view.query.is_none());
+            assert_eq!(ui.workspace.records().unwrap(), records);
+            assert_eq!(ui.workspace.history().unwrap(), receipts);
+        })
+    })
+    .unwrap();
+}
+
+fn queued_start_refuses(cx: &mut TestAppContext, resume: bool, rewrite: bool) {
+    let f = start_fixture(cx, true);
+    cx.update_window(f.window, |_, window, cx| f.view.update(cx, |ui, cx| {
+        let saved = rewrite.then(|| ui.workspace.snapshot_writing_request_with_feedback("nf1-queued-rewrite", &f.note.id, f.note.version, &f.chat, &[], "Captured queued feedback").unwrap());
+        let prompt = if rewrite { NF1_REWRITE } else { "Exact queued instruction" };
+        ui.workspace.queue_message("nf1-enqueue", &f.chat, prompt).unwrap();
+        ui.workspace.resume_queue("nf1-initial-resume").unwrap();
+        assert!(ui.workspace.dispatch_queued("nf1-dispatch").unwrap().unwrap().dispatch.is_some());
+        if resume { ui.workspace.resume_queue("nf1-resume-without-claim").unwrap(); }
+        let pending = ui.queue_state().pending.unwrap();
+        assert!(pending.run.is_none());
+        assert_eq!(pending.dispatch.is_none(), resume);
+        ui.refresh();
+        review_start(ui, prompt, window, cx);
+        let records = ui.workspace.records().unwrap();
+        let receipts = ui.workspace.history().unwrap();
+        if let Some(saved) = saved {
+            ui.retry_rewrite(saved.request_message, cx);
+            assert_eq!(ui.notice, format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
+        } else {
+            ui.start_run(prompt.into(), f.chat.clone(), vec![], None, cx);
+            assert_eq!(ui.notice, NF1_REFUSAL);
+        }
+        assert!(ui.worker.is_none());
+        assert!(ui.mcp_view.pending.is_none());
+        assert!(ui.mcp_view.query.is_none());
+        assert_eq!(ui.notice_tone(), Tone::Warning);
+        assert_eq!(ui.workspace.records().unwrap(), records);
+        assert_eq!(ui.workspace.history().unwrap(), receipts);
+    })).unwrap();
+}
+
+#[gpui_kit::test]
+fn nf1_queued_chat_claim_refuses_before_prepare(cx: &mut TestAppContext) {
+    queued_start_refuses(cx, false, false);
+}
+#[gpui_kit::test]
+fn nf1_queued_chat_without_claim_refuses_before_prepare(cx: &mut TestAppContext) {
+    queued_start_refuses(cx, true, false);
+}
+#[gpui_kit::test]
+fn nf1_retry_fixed_prompt_queue_without_claim_preserves_refusal(cx: &mut TestAppContext) {
+    queued_start_refuses(cx, true, true);
+}
+
+#[gpui_kit::test]
+fn nf1_exact_chat_start_attaches_then_spawns_exactly_one_run(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, true);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            review_start(ui, "Exact owner prompt", window, cx);
+            let before = ui.workspace.records().unwrap();
+            ui.start_run(
+                "Exact owner prompt".into(),
+                f.chat.clone(),
+                vec![],
+                None,
+                cx,
+            );
+            let worker = ui
+                .worker
+                .as_ref()
+                .expect("matching review reaches synchronous spawn");
+            let run = worker.run_id.as_ref().unwrap();
+            assert!(!ui.notice.contains("MCP input review no longer matches"));
+            assert!(!ui.notice.contains("MCP input authorization refused"));
+            assert!(ui.mcp_view.pending.is_none());
+            assert!(ui.mcp_view.query.is_none());
+            let new_runs: Vec<_> = ui
+                .workspace
+                .records()
+                .unwrap()
+                .into_iter()
+                .filter(|r| {
+                    matches!(r.data, RecordData::Run(_)) && !before.iter().any(|old| old.id == r.id)
+                })
+                .collect();
+            assert_eq!(new_runs.len(), 1);
+            assert_eq!(&new_runs[0].id, run);
+            worker.cancel.cancel();
+        })
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn nf1_busy_chat_and_retry_leave_exact_review_available(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let saved = ui
+                .workspace
+                .snapshot_writing_request_with_feedback(
+                    "nf1-busy-snapshot",
+                    &f.note.id,
+                    f.note.version,
+                    &f.chat,
+                    &[],
+                    "Captured feedback",
+                )
+                .unwrap();
+            review_start(ui, "Exact after busy", window, cx);
+            let records = ui.workspace.records().unwrap();
+            let receipts = ui.workspace.history().unwrap();
+            let (_sender, receiver) = mpsc::sync_channel(1);
+            ui.worker = Some(Worker {
+                receiver,
+                cancel: CancellationToken::new(),
+                conversion_cancel: Arc::new(AtomicBool::new(false)),
+                kind: WorkerKind::Run,
+                thread: Some(f.chat.clone()),
+                run_id: None,
+            });
+            ui.start_run("Exact after busy".into(), f.chat.clone(), vec![], None, cx);
+            assert_eq!(ui.notice, WorkerKind::Run.busy_notice());
+            assert!(ui.mcp_view.pending.is_some());
+            assert!(ui.mcp_view.query.is_some());
+            ui.retry_rewrite(saved.request_message, cx);
+            assert_eq!(ui.notice, WorkerKind::Run.busy_notice());
+            assert!(ui.mcp_view.pending.is_some());
+            assert!(ui.mcp_view.query.is_some());
+            assert_eq!(ui.workspace.records().unwrap(), records);
+            assert_eq!(ui.workspace.history().unwrap(), receipts);
+            ui.worker = None;
+            assert!(
+                ui.take_mcp_review(&f.chat, "Exact after busy", false)
+                    .unwrap()
+                    .is_some()
+            );
+        })
+    })
+    .unwrap();
+}
 #[gpui_kit::test]
 fn native_exact_input_is_transient_once_and_cleared_on_scope_policy_or_run_change(
     cx: &mut TestAppContext,

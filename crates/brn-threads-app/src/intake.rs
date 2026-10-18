@@ -213,6 +213,17 @@ impl Workspace {
         {
             return Err(unavailable());
         }
+        // The same bytes can retain a different Note for each converter/AI
+        // variant. Bind the resolver to this checked receipt's whole stored
+        // provenance, including its engine bundle; current preferences and the
+        // Source's later observations cannot relabel the imported Note.
+        let conversion = match &source.data {
+            RecordData::Source(source) => source
+                .report
+                .as_ref()
+                .and_then(|report| report.conversion.as_ref()),
+            _ => return Err(unavailable()),
+        };
         let rows = self.records().map_err(|_| unavailable())?;
         if writing_setup_scope(&rows, scope)
             .map_err(|_| unavailable())?
@@ -239,7 +250,8 @@ impl Workspace {
         );
         let mut eligible = rows.iter().filter(|record| !record.archived
             && matches!(&record.data, RecordData::Note(note) if note.chat.as_deref() == scope && note.superseded_by.is_none()
-                && note.import.as_ref().is_some_and(|import| import.full_note && import.source == source.id))
+                && note.import.as_ref().is_some_and(|import| import.full_note && import.source == source.id
+                    && import.report.as_ref().and_then(|report| report.conversion.as_ref()) == conversion))
             && record_in_chat(record, &rows, scope)
             && rows.iter().any(|link| !link.archived
                 && matches!(&link.data, RecordData::Link(edge) if edge.from == record.id && edge.to == source.id && edge.relation == relation)

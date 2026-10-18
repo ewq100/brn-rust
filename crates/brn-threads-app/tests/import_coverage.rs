@@ -652,3 +652,98 @@ fn b3_import_resolution_rejects_canonical_scope_movement_without_global_fallback
         "scope refusal never rewrites retained Note content"
     );
 }
+
+#[test]
+fn combined_reference_resolution_keeps_exact_conversion_variant_after_reimport() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut app = Workspace::open(root.path().join("combined-reference")).unwrap();
+    let mut expected = Vec::new();
+    for (index, (converter, ai)) in [
+        (DocumentConverter::Xberg, false),
+        (DocumentConverter::Xberg, true),
+        (DocumentConverter::XbergBrn, false),
+        (DocumentConverter::XbergBrn, true),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let settings = DocumentConversionSettings { converter, ai };
+        let result = brn_threads_intake::ConversionResult {
+            intent: brn_threads_intake::ImportIntent::FullNote,
+            markdown: format!(
+                "# Retained variant {index}\n\nSame external bytes, selected output."
+            ),
+            assets: vec![],
+            source_sha256: [91; 32],
+            source_reference: "synthetic://combined-reference-variants".into(),
+            converter: brn_threads_intake::document_conversion_label(
+                if converter == DocumentConverter::Xberg {
+                    "xberg"
+                } else {
+                    "xberg_brn"
+                },
+                ai,
+            )
+            .unwrap(),
+            sources: vec![],
+            coverage: brn_threads_intake::Coverage {
+                status: brn_threads_intake::CoverageStatus::Unchecked,
+                checked_items: vec![],
+                gaps: vec![],
+            },
+        };
+        let ApplyOutcome::Applied(receipt) = app
+            .import_full_scoped_with_conversion(
+                &format!("variant-{index}"),
+                "Retained source",
+                &result,
+                None,
+                &settings,
+            )
+            .unwrap()
+        else {
+            panic!("checked import")
+        };
+        let note = receipt
+            .writes
+            .iter()
+            .find(|write| matches!(write.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after
+            .clone();
+        assert_eq!(
+            app.full_import_note_in_scope(&receipt, &result.source_sha256, None)
+                .unwrap(),
+            note
+        );
+        expected.push((settings, result, note));
+    }
+    assert_eq!(app.notes().unwrap().len(), 4);
+    for (index, (settings, result, note)) in expected.iter().enumerate() {
+        let ApplyOutcome::Applied(receipt) = app
+            .import_full_scoped_with_conversion(
+                &format!("reimport-{index}"),
+                "Retained source",
+                result,
+                None,
+                settings,
+            )
+            .unwrap()
+        else {
+            panic!("checked reimport")
+        };
+        assert!(
+            !receipt
+                .writes
+                .iter()
+                .any(|write| matches!(write.after.data, RecordData::Note(_))),
+            "observation-only receipt must resolve the existing Note"
+        );
+        assert_eq!(
+            app.full_import_note_in_scope(&receipt, &result.source_sha256, None)
+                .unwrap(),
+            *note
+        );
+        assert_eq!(app.notes().unwrap().len(), 4);
+    }
+}

@@ -8,6 +8,7 @@ fn converter_label(converter: DocumentConverter) -> &'static str {
     }
 }
 
+#[cfg(all(test, feature = "native-test-support"))]
 pub(super) use brn_writing_ui::native::import_report_details as report_details;
 
 pub(super) fn report_summary(report: &ImportReport) -> String {

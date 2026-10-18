@@ -2951,6 +2951,8 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
             });
             sender
                 .send(WorkerEvent::Converted {
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
                     result: Box::new(Ok(b3_converted_reference())),
                     title: "B3 cancelled canonical reference".into(),
                     chat: None,
@@ -3212,6 +3214,8 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
     assert_eq!(pending[0].purpose, WritingPurpose::Requirements);
     sender
         .send(WorkerEvent::Converted {
+            settings: DocumentConversionSettings::default(),
+            useful_project: None,
             result: Box::new(Ok(b3_converted_reference())),
             title: "B3 dirty canonical import".into(),
             chat: None,
@@ -3733,6 +3737,8 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
     .unwrap();
     sender
         .send(WorkerEvent::Converted {
+            settings: DocumentConversionSettings::default(),
+            useful_project: None,
             result: Box::new(Ok(b3_converted_reference())),
             title: "A conversion retained without attaching".into(),
             chat: None,

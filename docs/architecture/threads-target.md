@@ -1,3 +1,5 @@
+**Combined implementation, 18 October 2026:** accepted standard-default Xberg code `b8cf75bf` is now locally combined with INT-W `d2d84e66` and main `57c710cc` under the [approved amendment](../work/active/modular-foundation/x2/standard-default/final-integration-amendment.md). Combined verification and independent review are pending; native-human, owner and main acceptance remain separate. The earlier implementation checkpoints below are dated history.
+
 # BRN Threads canonical target
 
 **Owner conversion scope, 18 October 2026:** [document-conversion settings](../work/active/modular-foundation/x2/standard-default/feature-brief.md) select stock pinned Xberg by default, optional Xberg + BRN adaptations, and independent AI conversion for either, Off by default. The existing import/review/save surfaces remain; no comparison screen or old-reader third mode is selected. This new target supersedes finishing every bespoke fidelity component before offering the standard path. It is not yet implemented or verified. Existing canonical protection, scope, checked-save, version/replay and Undo guarantees remain.
