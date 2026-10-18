@@ -1,0 +1,532 @@
+diff --git a/src/extraction/pptx/comments.rs b/src/extraction/pptx/comments.rs
+index 011d1d7..3eb2775 100644
+--- a/src/extraction/pptx/comments.rs
++++ b/src/extraction/pptx/comments.rs
+@@ -1,6 +1,6 @@
+ //! PPTX slide comment extraction.
+ //!
+-//! Parses `ppt/comments/comment{N}.xml` and `ppt/commentAuthors.xml` to
++//! Parses each slide's owned comments part and `ppt/commentAuthors.xml` to
+ //! produce `DocumentRevision { kind: Comment }` entries for each `<p:cm>`
+ //! element found in the presentation.
+
+@@ -17,8 +17,8 @@ use super::container::PptxContainer;
+ /// Extract all slide comments as `DocumentRevision` entries.
+ ///
+ /// Loads `ppt/commentAuthors.xml` for the `authorId → name` map, then
+-/// iterates `ppt/comments/comment{N}.xml` (one file per slide, 1-indexed)
+-/// in slide order.
++/// follows each actual slide's internal comments relationship in declared
++/// presentation order. Orphan numeric filenames are not slide associations.
+ ///
+ /// Returns `None` when no comment XML parts exist in the archive, and
+ /// `Some(vec![])` when files are present but contain no `<p:cm>` elements.
+@@ -34,14 +34,42 @@ pub(super) fn extract_comments<R: Read + Seek>(
+     let mut all_comments: Vec<DocumentRevision> = Vec::new();
+     let mut any_comment_file_found = false;
+
+-    for (slide_idx, _) in slide_paths.iter().enumerate() {
+-        let comment_path = format!("ppt/comments/comment{}.xml", slide_idx + 1);
++    for (slide_idx, slide_path) in slide_paths.iter().enumerate() {
++        let comment_path = match container.related_slide_part(slide_path, "comments") {
++            Ok(Some(path)) => path,
++            Ok(None) => continue,
++            Err(e) => {
++                push_warning(
++                    warnings,
++                    "pptx",
++                    format!(
++                        "Could not resolve comments for slide {} ('{}'): {}; comments were not extracted",
++                        slide_idx + 1,
++                        slide_path,
++                        e
++                    ),
++                );
++                continue;
++            }
++        };
+         let xml_bytes = match container.read_file(&comment_path) {
+             Ok(b) => {
+                 any_comment_file_found = true;
+                 b
+             }
+-            Err(_) => continue,
++            Err(e) => {
++                push_warning(
++                    warnings,
++                    "pptx",
++                    format!(
++                        "Could not read comments for slide {} ('{}'): {}; comments were not extracted",
++                        slide_idx + 1,
++                        comment_path,
++                        e
++                    ),
++                );
++                continue;
++            }
+         };
+
+         let slide_index = slide_idx;
+diff --git a/src/extraction/pptx/container.rs b/src/extraction/pptx/container.rs
+index 0d91fad..adf5efa 100644
+--- a/src/extraction/pptx/container.rs
++++ b/src/extraction/pptx/container.rs
+@@ -140,11 +140,35 @@ impl<R: Read + Seek> PptxContainer<R> {
+         super::image_handling::get_slide_rels_path(slide_path)
+     }
+
++    /// Query the actual slide's optional relationship using the same bounded
++    /// member reader as slide content; no filename/ordinal metadata fallback.
++    pub(super) fn related_slide_part(&mut self, slide_path: &str, relationship_type: &str) -> Result<Option<String>> {
++        let rels_path = self.get_slide_rels_path(slide_path);
++        if self.archive.index_for_name(&rels_path).is_none() {
++            return Ok(None);
++        }
++        let data = self.read_file(&rels_path)?;
++        super::parser::parse_slide_relationship_target(slide_path, &data, relationship_type)
++    }
++
+     fn find_slide_paths(archive: &mut ZipArchive<R>) -> Result<Vec<String>> {
+-        if let Ok(rels_data) = Self::read_file_from_archive(archive, "ppt/_rels/presentation.xml.rels")
+-            && let Ok(paths) = super::parser::parse_presentation_rels(&rels_data)
+-        {
+-            return Ok(paths);
++        // A present declaration is authoritative, including an empty list or
++        // an error. Only genuine absence permits the legacy numeric recovery.
++        if archive.index_for_name("ppt/presentation.xml").is_some() {
++            let presentation = Self::read_file_from_archive(archive, "ppt/presentation.xml")?;
++            let rels = if archive.index_for_name("ppt/_rels/presentation.xml.rels").is_some() {
++                Some(Self::read_file_from_archive(
++                    archive,
++                    "ppt/_rels/presentation.xml.rels",
++                )?)
++            } else {
++                None
++            };
++            return super::parser::parse_presentation_slide_paths(&presentation, rels.as_deref());
++        }
++        if archive.index_for_name("ppt/_rels/presentation.xml.rels").is_some() {
++            let rels_data = Self::read_file_from_archive(archive, "ppt/_rels/presentation.xml.rels")?;
++            return super::parser::parse_presentation_rels(&rels_data);
+         }
+
+         let mut slide_paths = Vec::new();
+@@ -253,6 +277,17 @@ impl<R: Read + Seek> SlideIterator<R> {
+                 }
+             };
+
++            if slide.hidden.is_none() {
++                push_warning(
++                    warnings,
++                    "pptx",
++                    format!(
++                        "Slide {} ('{}') has an invalid or unavailable p:sld@show state; visibility is unknown",
++                        slide_number, slide_path
++                    ),
++                );
++            }
++
+             Self::resolve_graphic_frame_text(
+                 &mut self.container,
+                 &mut slide.elements,
+diff --git a/src/extraction/pptx/elements.rs b/src/extraction/pptx/elements.rs
+index 4257b56..891c728 100644
+--- a/src/extraction/pptx/elements.rs
++++ b/src/extraction/pptx/elements.rs
+@@ -188,6 +188,7 @@ impl SlideElement {
+ #[derive(Debug)]
+ pub(super) struct Slide {
+     pub(super) slide_number: u32,
++    pub(super) hidden: Option<bool>,
+     pub(super) elements: Vec<SlideElement>,
+     pub(super) images: Vec<ImageReference>,
+     /// Hyperlink relationships resolved from the slide rels file.
+@@ -227,7 +228,7 @@ pub(super) enum ParsedContent {
+
+ impl Slide {
+     pub(super) fn from_xml(slide_number: u32, xml_data: &[u8], rels_data: Option<&[u8]>) -> Result<Self> {
+-        let elements = parser::parse_slide_xml(xml_data)?;
++        let (elements, hidden) = parser::parse_slide_xml(xml_data)?;
+
+         let (images, hyperlinks, rel_targets) = if let Some(rels) = rels_data {
+             let slide_rels = parser::parse_slide_rels(rels)?;
+@@ -238,6 +239,7 @@ impl Slide {
+
+         Ok(Self {
+             slide_number,
++            hidden,
+             elements,
+             images,
+             hyperlinks,
+diff --git a/src/extraction/pptx/metadata.rs b/src/extraction/pptx/metadata.rs
+index 349658b..cbc071a 100644
+--- a/src/extraction/pptx/metadata.rs
++++ b/src/extraction/pptx/metadata.rs
+@@ -205,10 +205,10 @@ pub(super) fn extract_metadata<R: Read + Seek>(
+
+ /// Extract speaker notes for every slide, keyed by 1-indexed slide number.
+ ///
+-/// A slide with no `notesSlideN.xml` part is normal (most slides have no
+-/// notes) and is skipped silently. A notes part that exists but fails to
+-/// parse is a genuine degradation and is surfaced as a `ProcessingWarning`
+-/// naming the slide, rather than silently dropping those notes (#238).
++/// Absence of an owned notesSlide relationship is normal. Resolve each real
++/// slide's internal target instead of deriving it from the slide filename.
++/// Invalid bindings, unreadable declared parts and parse failures are surfaced
++/// as a `ProcessingWarning` naming the slide (#238).
+ pub(super) fn extract_all_notes<R: Read + Seek>(
+     container: &mut PptxContainer<R>,
+     warnings: &mut Vec<ProcessingWarning>,
+@@ -218,10 +218,38 @@ pub(super) fn extract_all_notes<R: Read + Seek>(
+     let slide_paths: Vec<String> = container.slide_paths().to_vec();
+
+     for (i, slide_path) in slide_paths.iter().enumerate() {
+-        let notes_path = slide_path.replace("slides/slide", "notesSlides/notesSlide");
++        let notes_path = match container.related_slide_part(slide_path, "notesSlide") {
++            Ok(Some(path)) => path,
++            Ok(None) => continue,
++            Err(e) => {
++                push_warning(
++                    warnings,
++                    "pptx",
++                    format!(
++                        "Could not resolve speaker notes for slide {} ('{}'): {}; notes were not extracted",
++                        i + 1,
++                        slide_path,
++                        e
++                    ),
++                );
++                continue;
++            }
++        };
+         let notes_xml = match container.read_file(&notes_path) {
+             Ok(data) => data,
+-            Err(_) => continue,
++            Err(e) => {
++                push_warning(
++                    warnings,
++                    "pptx",
++                    format!(
++                        "Could not read speaker notes for slide {} ('{}'): {}; notes were not extracted",
++                        i + 1,
++                        notes_path,
++                        e
++                    ),
++                );
++                continue;
++            }
+         };
+         match extract_notes_text(&notes_xml) {
+             Ok(note_text) => {
+diff --git a/src/extraction/pptx/mod.rs b/src/extraction/pptx/mod.rs
+index dee9e80..30bc2dd 100644
+--- a/src/extraction/pptx/mod.rs
++++ b/src/extraction/pptx/mod.rs
+@@ -321,6 +321,7 @@ fn build_page_structure(
+     boundaries: Option<Vec<crate::types::PageBoundary>>,
+     mut page_contents: Option<Vec<crate::types::PageContent>>,
+     extracted_images: &[ExtractedImage],
++    hidden: &std::collections::HashMap<u32, Option<bool>>,
+ ) -> (
+     Option<Vec<crate::types::PageContent>>,
+     Option<crate::types::PageStructure>,
+@@ -348,7 +349,7 @@ fn build_page_structure(
+                     dimensions: None,
+                     image_count: None,
+                     table_count: None,
+-                    hidden: None,
++                    hidden: hidden.get(&pc.page_number).copied().flatten(),
+                     is_blank: pc.is_blank,
+                     has_vector_graphics: false,
+                 })
+@@ -364,6 +365,7 @@ fn build_page_structure(
+ /// processing needs. Bundled so [`process_one_slide`] stays under the
+ /// parameter-count limit; this type has no callers outside this module.
+ struct SlideProcessingContext<'a> {
++    hidden: &'a mut std::collections::HashMap<u32, Option<bool>>,
+     notes: &'a std::collections::HashMap<u32, String>,
+     section_names: &'a std::collections::HashMap<u32, String>,
+     config: &'a ParserConfig,
+@@ -389,6 +391,7 @@ fn process_one_slide<R: std::io::Read + std::io::Seek>(
+     ctx: &mut SlideProcessingContext,
+     warnings: &mut Vec<ProcessingWarning>,
+ ) {
++    ctx.hidden.insert(slide.slide_number, slide.hidden);
+     let byte_start = if ctx.page_config.is_some() {
+         ctx.content_builder.start_slide(slide.slide_number)
+     } else {
+@@ -516,7 +519,9 @@ fn extract_pptx_from_container<R: std::io::Read + std::io::Seek>(
+     };
+     let mut image_index_counter: u32 = 0;
+
++    let mut hidden = std::collections::HashMap::new();
+     let mut ctx = SlideProcessingContext {
++        hidden: &mut hidden,
+         notes: &notes,
+         section_names: &section_names,
+         config: &config,
+@@ -538,7 +543,7 @@ fn extract_pptx_from_container<R: std::io::Read + std::io::Seek>(
+
+     let (content, boundaries, page_contents) = content_builder.build();
+     let (page_contents, page_structure) =
+-        build_page_structure(slide_count, boundaries, page_contents, &extracted_images);
++        build_page_structure(slide_count, boundaries, page_contents, &extracted_images, &hidden);
+
+     let document = doc_builder.map(|b| b.build()).filter(|d| !d.is_empty());
+
+diff --git a/src/extraction/pptx/parser.rs b/src/extraction/pptx/parser.rs
+index e4dbc89..210019c 100644
+--- a/src/extraction/pptx/parser.rs
++++ b/src/extraction/pptx/parser.rs
+@@ -48,7 +48,7 @@ enum GraphicFrameContent {
+     SmartArt(DiagramReference),
+ }
+
+-pub(super) fn parse_slide_xml(xml_data: &[u8]) -> Result<Vec<SlideElement>> {
++pub(super) fn parse_slide_xml(xml_data: &[u8]) -> Result<(Vec<SlideElement>, Option<bool>)> {
+     let xml_str = utf8_validation::from_utf8(xml_data)
+         .map_err(|_| XbergError::parsing("Invalid UTF-8 in slide XML".to_string()))?;
+
+@@ -56,6 +56,17 @@ pub(super) fn parse_slide_xml(xml_data: &[u8]) -> Result<Vec<SlideElement>> {
+
+     let root = doc.root_element();
+     let ns = root.tag_name().namespace();
++    // `show` is an unqualified attribute; a foreign same-local-name attribute
++    // cannot hide a slide. Invalid lexical values leave visibility unknown.
++    let hidden = if root.has_tag_name((PRESENTATIONML_NAMESPACE, "sld")) {
++        match unqualified_attribute(root, "show").map(str::trim) {
++            None | Some("true" | "1") => Some(false),
++            Some("false" | "0") => Some(true),
++            Some(_) => None,
++        }
++    } else {
++        None
++    };
+
+     let c_sld = root
+         .descendants()
+@@ -72,7 +83,7 @@ pub(super) fn parse_slide_xml(xml_data: &[u8]) -> Result<Vec<SlideElement>> {
+         elements.extend(parse_group(&child_node, xml_str)?);
+     }
+
+-    Ok(elements)
++    Ok((elements, hidden))
+ }
+
+ /// Parse a shape-tree node into zero or more `SlideElement`s.
+@@ -898,30 +909,196 @@ pub(super) fn parse_slide_rels(rels_data: &[u8]) -> Result<SlideRels> {
+     })
+ }
+
+-pub(super) fn parse_presentation_rels(rels_data: &[u8]) -> Result<Vec<String>> {
+-    let xml_str = utf8_validation::from_utf8(rels_data)
+-        .map_err(|e| XbergError::parsing(format!("Invalid UTF-8 in presentation rels: {}", e)))?;
++// roxmltree's string-name lookup matches any attribute namespace. OPC
++// attributes and p:sld@show require an actually unqualified attribute.
++fn unqualified_attribute<'a>(node: Node<'a, '_>, local: &str) -> Option<&'a str> {
++    node.attributes()
++        .find(|a| a.namespace().is_none() && a.name() == local)
++        .map(|a| a.value())
++}
+
+-    let doc = Document::parse(xml_str)
+-        .map_err(|e| XbergError::parsing(format!("Failed to parse presentation rels: {}", e)))?;
++/// Resolve one optional part owned by this actual slide. Missing relationships
++/// are normal; malformed, ambiguous or external bindings are not associations.
++pub(super) fn parse_slide_relationship_target(
++    slide_path: &str,
++    rels_data: &[u8],
++    relationship_type: &str,
++) -> Result<Option<String>> {
++    let fail = |message: &str| XbergError::parsing(format!("PPTX slide relationship: {message}"));
++    let xml = utf8_validation::from_utf8(rels_data).map_err(|_| fail("invalid UTF-8"))?;
++    let doc = Document::parse(xml).map_err(|_| fail("malformed relationship XML"))?;
++    const PACKAGE_RELATIONSHIPS: &str = "http://schemas.openxmlformats.org/package/2006/relationships";
++    let root = doc.root_element();
++    if !root.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationships")) {
++        return Err(fail("invalid package relationship namespace"));
++    }
++    let expected_type = format!("{RELATIONSHIPS_NAMESPACE}/{relationship_type}");
++    let mut selected = None;
++    let mut ids = std::collections::HashSet::new();
++    for rel in root
++        .children()
++        .filter(|n| n.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationship")))
++    {
++        if let Some(id) = unqualified_attribute(rel, "Id")
++            && !ids.insert(id)
++        {
++            return Err(fail("duplicate relationship ID"));
++        }
++        if unqualified_attribute(rel, "Type") != Some(expected_type.as_str()) {
++            continue;
++        }
++        if selected.is_some() {
++            return Err(fail("ambiguous owned part relationship"));
++        }
++        if unqualified_attribute(rel, "Id").is_none_or(str::is_empty) {
++            return Err(fail("missing relationship ID"));
++        }
++        if !matches!(unqualified_attribute(rel, "TargetMode"), None | Some("Internal")) {
++            return Err(fail("external or invalid TargetMode"));
++        }
++        let target = unqualified_attribute(rel, "Target")
++            .filter(|t| !t.is_empty())
++            .ok_or_else(|| fail("missing target"))?;
++        if url::Url::parse(target).is_ok() {
++            return Err(fail("absolute URI is not an internal part target"));
++        }
++        let base = slide_path.rsplit_once('/').map_or("", |(base, _)| base);
++        selected = Some(
++            crate::extractors::security::resolve_container_entry(base, target)
++                .map_err(|_| fail("invalid internal part target"))?,
++        );
++    }
++    Ok(selected)
++}
+
+-    let mut slide_paths = Vec::new();
++/// Follow the direct presentation declarations, never relationship-file or
++/// filename order. A present empty sequence is authoritative.
++pub(super) fn parse_presentation_slide_paths(
++    presentation_data: &[u8],
++    rels_data: Option<&[u8]>,
++) -> Result<Vec<String>> {
++    fn order_error(message: impl std::fmt::Display) -> XbergError {
++        XbergError::parsing(format!("PPTX presentation order: {message}"))
++    }
++    let xml = utf8_validation::from_utf8(presentation_data).map_err(order_error)?;
++    let doc = Document::parse(xml).map_err(order_error)?;
++    let root = doc.root_element();
++    if !root.has_tag_name((PRESENTATIONML_NAMESPACE, "presentation")) {
++        return Err(order_error("invalid presentation element namespace"));
++    }
++    let mut lists = root
++        .children()
++        .filter(|n| n.has_tag_name((PRESENTATIONML_NAMESPACE, "sldIdLst")));
++    let Some(list) = lists.next() else {
++        return Ok(Vec::new());
++    };
++    if lists.next().is_some() {
++        return Err(order_error("duplicate slide declaration list"));
++    }
++    let declarations: Vec<_> = list
++        .children()
++        .filter(|n| n.has_tag_name((PRESENTATIONML_NAMESPACE, "sldId")))
++        .collect();
++    if declarations.is_empty() {
++        return Ok(Vec::new());
++    }
++    let rels_xml =
++        utf8_validation::from_utf8(rels_data.ok_or_else(|| order_error("missing presentation relationships"))?)
++            .map_err(order_error)?;
++    let rels = Document::parse(rels_xml).map_err(order_error)?;
++    const PACKAGE_RELATIONSHIPS: &str = "http://schemas.openxmlformats.org/package/2006/relationships";
++    let rels_root = rels.root_element();
++    if !rels_root.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationships")) {
++        return Err(order_error("invalid package relationship namespace"));
++    }
++    let mut by_id = AHashMap::new();
++    for rel in rels_root
++        .children()
++        .filter(|n| n.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationship")))
++    {
++        if let Some(id) = unqualified_attribute(rel, "Id")
++            && by_id.insert(id, rel).is_some()
++        {
++            return Err(order_error("duplicate relationship ID"));
++        }
++    }
++    let mut seen = std::collections::HashSet::new();
++    let mut paths = Vec::with_capacity(declarations.len());
++    for declaration in declarations {
++        let id = declaration
++            .attribute((RELATIONSHIPS_NAMESPACE, "id"))
++            .filter(|id| !id.is_empty())
++            .ok_or_else(|| order_error("missing qualified slide relationship ID"))?;
++        if !seen.insert(id) {
++            return Err(order_error("duplicate slide relationship reference"));
++        }
++        let rel = by_id
++            .get(id)
++            .ok_or_else(|| order_error("unresolved slide relationship ID"))?;
++        if unqualified_attribute(*rel, "Type")
++            != Some("http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide")
++        {
++            return Err(order_error("relationship is not an internal slide type"));
++        }
++        if !matches!(unqualified_attribute(*rel, "TargetMode"), None | Some("Internal")) {
++            return Err(order_error("external or invalid slide TargetMode"));
++        }
++        let target = unqualified_attribute(*rel, "Target")
++            .filter(|t| !t.is_empty())
++            .ok_or_else(|| order_error("missing slide target"))?;
++        if url::Url::parse(target).is_ok() {
++            return Err(order_error("absolute URI is not an internal slide target"));
++        }
++        let path = crate::extractors::security::resolve_container_entry("ppt", target)
++            .map_err(|_| order_error("invalid internal slide target"))?;
++        paths.push(path);
++    }
++    Ok(paths)
++}
+
+-    for node in doc.descendants() {
+-        if node.has_tag_name("Relationship")
+-            && let Some(rel_type) = node.attribute("Type")
+-            && rel_type.contains("slide")
+-            && !rel_type.contains("slideMaster")
+-            && let Some(target) = node.attribute("Target")
++// Legacy recovery only when the presentation part is absent. This retains the
++// existing numeric relationship/filename recovery for incomplete packages.
++pub(super) fn parse_presentation_rels(rels_data: &[u8]) -> Result<Vec<String>> {
++    let fail = |message: &str| XbergError::parsing(format!("PPTX presentation order: {message}"));
++    let xml_str = utf8_validation::from_utf8(rels_data).map_err(|_| fail("invalid UTF-8 in recovery relationships"))?;
++    let doc = Document::parse(xml_str).map_err(|_| fail("malformed recovery relationships"))?;
++    const PACKAGE_RELATIONSHIPS: &str = "http://schemas.openxmlformats.org/package/2006/relationships";
++    let root = doc.root_element();
++    if !root.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationships")) {
++        return Err(fail("invalid recovery relationship namespace"));
++    }
++    let mut slide_paths = Vec::new();
++    let mut ids = std::collections::HashSet::new();
++    for node in root
++        .children()
++        .filter(|n| n.has_tag_name((PACKAGE_RELATIONSHIPS, "Relationship")))
++    {
++        if let Some(id) = unqualified_attribute(node, "Id")
++            && !ids.insert(id)
+         {
+-            let normalized_target = target.strip_prefix('/').unwrap_or(target);
+-            let final_path = if normalized_target.starts_with("ppt/") {
+-                normalized_target.to_string()
+-            } else {
+-                format!("ppt/{}", normalized_target)
+-            };
+-            slide_paths.push(final_path);
++            return Err(fail("duplicate recovery relationship ID"));
+         }
++        if unqualified_attribute(node, "Type")
++            != Some("http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide")
++        {
++            continue;
++        }
++        if unqualified_attribute(node, "Id").is_none_or(str::is_empty) {
++            return Err(fail("missing recovery relationship ID"));
++        }
++        if !matches!(unqualified_attribute(node, "TargetMode"), None | Some("Internal")) {
++            return Err(fail("external or invalid recovery slide TargetMode"));
++        }
++        let target = unqualified_attribute(node, "Target")
++            .filter(|t| !t.is_empty())
++            .ok_or_else(|| fail("missing recovery slide target"))?;
++        if url::Url::parse(target).is_ok() {
++            return Err(fail("absolute URI is not an internal recovery slide target"));
++        }
++        slide_paths.push(
++            crate::extractors::security::resolve_container_entry("ppt", target)
++                .map_err(|_| fail("invalid internal recovery slide target"))?,
++        );
+     }
+
+     slide_paths.sort_by(|a, b| {

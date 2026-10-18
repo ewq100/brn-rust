@@ -1,0 +1,9 @@
+# Order4 frozen handoff
+
+Bounded candidate is ready for the parent's new independent actual review. [Response](response.md) maps requirements and preserved failures; [check index](check-index.json) has exact commands/outcomes; [source pin](source-pin.json) binds compiled source, artifacts and the fixed offline graph.
+
+Exact final-driver measurement: **before 2/19, final 21/0**. Unchanged namespace/S3 **25/0**, complete accepted DOCX/consumer **30/30 equality**, DOCX inputs **24/24**, strict harness Clippy and fresh three-patch reproduction pass. Six upstream files change, including the precise authorized notes/comment amendment. Actual compiled Xberg is `2aefc5301155bfddb19f48266e08acbb2407efd6`; final harness is `2904a8775787eef216451261c732fd82a28d7787`. The new root commit/tree and full base-to-pin delta are recorded after commit in external `evidence/final-repo-pin.json` under `/private/tmp/brn-x2-pptx-order4-20261018`.
+
+Source tests, all attempts, raw patch, genuine before/final/reproduction roots, captures, executables, libraries, dep-info and content-addressed artifact objects remain preserved at that fixed root. Accepted namespace/S3 trees and original archive/global registry are unchanged. Package patch applies after accepted 0001 then 0003; reserved PDF 0002 remains uncomposed.
+
+Heavy reservation is released with an empty precise inventory. All owned source/evidence paths are frozen and released on this handoff; no running Cargo/test/controller remains and no follow-on family is started. Parent retains actual review, component acceptance and integration ownership. This is no BRN adoption, full PPTX/Office/all-eight readiness, reader retirement, PDF acceptance, provider activation or publication claim. Remaining limits are explicit in the response and [release](release.json).

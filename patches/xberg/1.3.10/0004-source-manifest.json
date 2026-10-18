@@ -1,0 +1,106 @@
+{
+  "schema": "xberg-pptx-order4-verified-candidate/1",
+  "status": "INDEPENDENT_ACTUAL_REVIEW_PENDING",
+  "package": {
+    "name": "xberg",
+    "version": "1.3.10",
+    "registry_source": "registry+https://github.com/rust-lang/crates.io-index",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "published_regular_files": 764
+  },
+  "license": {
+    "spdx": "MIT",
+    "manifest_sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+    "authors": [
+      "Na'aman Hirschfeld",
+      "Tobias Perlstein"
+    ],
+    "packaged_license_files": [],
+    "boundary": "Published archive declares MIT; README points outside the archive for LICENSE. Patch-only distribution; broader license custody remains qualified."
+  },
+  "apply_order": [
+    {
+      "name": "0001-docx-table-grid-spans.patch",
+      "sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7"
+    },
+    {
+      "name": "0003-docx-namespaces.patch",
+      "sha256": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f"
+    },
+    {
+      "name": "0004-pptx-order-hidden.patch",
+      "sha256": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d"
+    }
+  ],
+  "reserved_0002": "Provider-interrupted PDF task frozen; not inspected, changed, composed, resumed or accepted.",
+  "patch_sha256": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d",
+  "patch_bytes": 23669,
+  "raw_patch_sha256": "4923ef7d70b1b697c7254b9f23e3193e8d6164c74e665270da29ebe9e446c045",
+  "blank_context_lines_normalized": 26,
+  "selected_source_files": [
+    {
+      "path": "src/extraction/pptx/comments.rs",
+      "pristine_sha256": "e87cd04b03fe9569635ffb4e48fabf3a2a8a74b6c1b18ab71a9a530a0ec24131",
+      "accepted_namespace_baseline_sha256": "e87cd04b03fe9569635ffb4e48fabf3a2a8a74b6c1b18ab71a9a530a0ec24131",
+      "compiled_candidate_sha256": "1087d3bb1437272200632fd5f7578d3f783ead4c40885ae20dedee7622694e73",
+      "independently_applied_sha256": "1087d3bb1437272200632fd5f7578d3f783ead4c40885ae20dedee7622694e73"
+    },
+    {
+      "path": "src/extraction/pptx/container.rs",
+      "pristine_sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+      "accepted_namespace_baseline_sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+      "compiled_candidate_sha256": "c19a8849cf568259896d22c9f0d1802f54892358d383b7e941b05b7fa459909f",
+      "independently_applied_sha256": "c19a8849cf568259896d22c9f0d1802f54892358d383b7e941b05b7fa459909f"
+    },
+    {
+      "path": "src/extraction/pptx/elements.rs",
+      "pristine_sha256": "46944287467f10fd371b43ac2660c229f6385e40f0db82c7a2515a1bf52a4f64",
+      "accepted_namespace_baseline_sha256": "46944287467f10fd371b43ac2660c229f6385e40f0db82c7a2515a1bf52a4f64",
+      "compiled_candidate_sha256": "fe691eab53a5ae8cf69c123619ee63929d5becc05545d055a4cb79b489f29f63",
+      "independently_applied_sha256": "fe691eab53a5ae8cf69c123619ee63929d5becc05545d055a4cb79b489f29f63"
+    },
+    {
+      "path": "src/extraction/pptx/metadata.rs",
+      "pristine_sha256": "326711eaffb8533948feaf0ea859376a306dba77679a8441188848479e30b30e",
+      "accepted_namespace_baseline_sha256": "326711eaffb8533948feaf0ea859376a306dba77679a8441188848479e30b30e",
+      "compiled_candidate_sha256": "1dc2c1d6ea88de179b1e94a6780b21c0d6ac6a781c708641c7840240a2273771",
+      "independently_applied_sha256": "1dc2c1d6ea88de179b1e94a6780b21c0d6ac6a781c708641c7840240a2273771"
+    },
+    {
+      "path": "src/extraction/pptx/mod.rs",
+      "pristine_sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da",
+      "accepted_namespace_baseline_sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da",
+      "compiled_candidate_sha256": "48367df37989bbf51d2988d1d82654f2dfb16c29c19912f9c1c902c732532a84",
+      "independently_applied_sha256": "48367df37989bbf51d2988d1d82654f2dfb16c29c19912f9c1c902c732532a84"
+    },
+    {
+      "path": "src/extraction/pptx/parser.rs",
+      "pristine_sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802",
+      "accepted_namespace_baseline_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4",
+      "compiled_candidate_sha256": "1a4a245ec0708fe5e0c3a93e54323e8fc36bd631a46b7cf36042f48edd6b484f",
+      "independently_applied_sha256": "1a4a245ec0708fe5e0c3a93e54323e8fc36bd631a46b7cf36042f48edd6b484f"
+    }
+  ],
+  "complete_package_files_equal_after_application": 765,
+  "additional_authority": "metadata.rs::extract_all_notes and comments.rs::extract_comments only, plus exact docs and shared existing container/parser query plumbing. Full amendment in requirements.txt.",
+  "test_driver": {
+    "path": "/private/tmp/brn-x2-pptx-order4-20261018/final/harness/tests/pptx_order.rs",
+    "sha256": "1a65ddc4140a36ea64e5b978b877bd3f716f5695558b80c8ec4ed845c2497ca2",
+    "tests": 21,
+    "normal_public_api": "xberg::extract, explicit Office MIME, images/OCR off, pages and document enabled",
+    "genuine_git": "2904a8775787eef216451261c732fd82a28d7787",
+    "harness_lock_sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+    "namespace_driver_sha256": "cd9c7d74269ba16d401d85fa4d33c0142fa697f81fba5f222b8b15c566e70cd9",
+    "spans_driver_sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c"
+  },
+  "compiled_xberg": {
+    "root": "/private/tmp/brn-x2-pptx-order4-20261018/final",
+    "target": "/private/tmp/brn-x2-pptx-order4-20261018/final-target",
+    "xberg_git": "2aefc5301155bfddb19f48266e08acbb2407efd6",
+    "xberg_tree": "49445f5aee77a179ddfca7e8731d623324f655ab",
+    "harness_git": "2904a8775787eef216451261c732fd82a28d7787",
+    "harness_tree": "d7d7f85a454adcd70747f2f200b5f8b13d27bfa2"
+  },
+  "evidence_root": "/private/tmp/brn-x2-pptx-order4-20261018/evidence",
+  "root_adoption": false
+}

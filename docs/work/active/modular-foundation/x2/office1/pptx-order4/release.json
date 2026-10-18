@@ -1,0 +1,40 @@
+{
+  "schema": "pptx-order4-release/1",
+  "source_frozen": true,
+  "handoff_status": "VERIFIED_CANDIDATE_REQUIRES_NEW_INDEPENDENT_ACTUAL_REVIEW",
+  "heavy_released_utc": "2026-10-18T04:09:56Z",
+  "heavy_inventory": {
+    "path": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/heavy-release-inventory.json",
+    "sha256": "04373d21d9dcd06772d64f29ff96ddb710e48ac284ec021df59dca2d5d0078fa",
+    "count": 0
+  },
+  "no_running_own_cargo_compiler_test_or_controller": true,
+  "all_owned_paths_released_on_frozen_handoff": [
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/check-index.json",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/handoff.md",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/release.json",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/requirements.txt",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/response.md",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/source-inventory.json",
+    "docs/work/active/modular-foundation/x2/office1/pptx-order4/source-pin.json",
+    "patches/xberg/1.3.10/0004-pptx-order-hidden.md",
+    "patches/xberg/1.3.10/0004-pptx-order-hidden.patch",
+    "patches/xberg/1.3.10/0004-source-manifest.json"
+  ],
+  "external_fixed_root_released_and_preserved": "/private/tmp/brn-x2-pptx-order4-20261018",
+  "historical_targets_sources_artifacts_preserved": true,
+  "root_brn_sources_manifests_lock_old_patches_oracles_unchanged": true,
+  "future_work_requires_separate_allocation": [
+    "Root adoption/dispatch/retirement or full PPTX/Office/all-eight readiness",
+    "XML/DTD/readset/preallocation/heap/repeated-work qualification",
+    "Full notes/comment identity, authors-part, annotations/locators, merged/nested tables, hidden-shape/layout/pixel/chart fidelity",
+    "Restricted Office runtime and integration/license custody"
+  ],
+  "unchanged_qualifications": [
+    "Provider-interrupted PDF is frozen/read-only/unaccepted and was not inspected",
+    "PDFUnavailable",
+    "SDK/widget/platform/INT-W/native-human/owner/program/main/live"
+  ],
+  "no_follow_on_family_delegation_review_publication_or_live_work": true,
+  "postcommit_pin": "Written only after the actual root commit to external evidence/final-repo-pin.json; no future self-SHA embedded."
+}

@@ -1,0 +1,251 @@
+{
+  "schema": "pptx-order4-source-pin/1",
+  "repo_precommit_HEAD": "d1c1044ab9eb33625a5180eddc3d6d468a769652",
+  "repo_precommit_tree": "5548487ea3c77ccae10283897908048fda5fddd7",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "compiled_xberg": {
+    "root": "/private/tmp/brn-x2-pptx-order4-20261018/final",
+    "target": "/private/tmp/brn-x2-pptx-order4-20261018/final-target",
+    "xberg_git": "2aefc5301155bfddb19f48266e08acbb2407efd6",
+    "xberg_tree": "49445f5aee77a179ddfca7e8731d623324f655ab",
+    "harness_git": "2904a8775787eef216451261c732fd82a28d7787",
+    "harness_tree": "d7d7f85a454adcd70747f2f200b5f8b13d27bfa2"
+  },
+  "before_xberg": {
+    "root": "/private/tmp/brn-x2-pptx-order4-20261018/before",
+    "target": "/private/tmp/brn-x2-pptx-order4-20261018/before-target",
+    "xberg_git": "00ba3b3183719643121824b48ce288a492c2c111",
+    "xberg_tree": "9b3fdd967b63833c83aaf1b91d5331701194938d",
+    "harness_git": "2904a8775787eef216451261c732fd82a28d7787",
+    "harness_tree": "d7d7f85a454adcd70747f2f200b5f8b13d27bfa2"
+  },
+  "compiled_harness_receipt": "2904a8775787eef216451261c732fd82a28d7787",
+  "selected_source_files": [
+    {
+      "path": "src/extraction/pptx/comments.rs",
+      "pristine_sha256": "e87cd04b03fe9569635ffb4e48fabf3a2a8a74b6c1b18ab71a9a530a0ec24131",
+      "accepted_namespace_baseline_sha256": "e87cd04b03fe9569635ffb4e48fabf3a2a8a74b6c1b18ab71a9a530a0ec24131",
+      "compiled_candidate_sha256": "1087d3bb1437272200632fd5f7578d3f783ead4c40885ae20dedee7622694e73",
+      "independently_applied_sha256": "1087d3bb1437272200632fd5f7578d3f783ead4c40885ae20dedee7622694e73"
+    },
+    {
+      "path": "src/extraction/pptx/container.rs",
+      "pristine_sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+      "accepted_namespace_baseline_sha256": "7499fd15d4b2f8f1127a998e6121a44ed2db328ea8f75719ef365d5a3769a955",
+      "compiled_candidate_sha256": "c19a8849cf568259896d22c9f0d1802f54892358d383b7e941b05b7fa459909f",
+      "independently_applied_sha256": "c19a8849cf568259896d22c9f0d1802f54892358d383b7e941b05b7fa459909f"
+    },
+    {
+      "path": "src/extraction/pptx/elements.rs",
+      "pristine_sha256": "46944287467f10fd371b43ac2660c229f6385e40f0db82c7a2515a1bf52a4f64",
+      "accepted_namespace_baseline_sha256": "46944287467f10fd371b43ac2660c229f6385e40f0db82c7a2515a1bf52a4f64",
+      "compiled_candidate_sha256": "fe691eab53a5ae8cf69c123619ee63929d5becc05545d055a4cb79b489f29f63",
+      "independently_applied_sha256": "fe691eab53a5ae8cf69c123619ee63929d5becc05545d055a4cb79b489f29f63"
+    },
+    {
+      "path": "src/extraction/pptx/metadata.rs",
+      "pristine_sha256": "326711eaffb8533948feaf0ea859376a306dba77679a8441188848479e30b30e",
+      "accepted_namespace_baseline_sha256": "326711eaffb8533948feaf0ea859376a306dba77679a8441188848479e30b30e",
+      "compiled_candidate_sha256": "1dc2c1d6ea88de179b1e94a6780b21c0d6ac6a781c708641c7840240a2273771",
+      "independently_applied_sha256": "1dc2c1d6ea88de179b1e94a6780b21c0d6ac6a781c708641c7840240a2273771"
+    },
+    {
+      "path": "src/extraction/pptx/mod.rs",
+      "pristine_sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da",
+      "accepted_namespace_baseline_sha256": "c528823a470b8c252ce465faf50ee46c66e1aef5dcafd711b4b0e683f195b9da",
+      "compiled_candidate_sha256": "48367df37989bbf51d2988d1d82654f2dfb16c29c19912f9c1c902c732532a84",
+      "independently_applied_sha256": "48367df37989bbf51d2988d1d82654f2dfb16c29c19912f9c1c902c732532a84"
+    },
+    {
+      "path": "src/extraction/pptx/parser.rs",
+      "pristine_sha256": "c348535cf679feb834577b70050f761ae7e1138342c2d0dec93404b8e4866802",
+      "accepted_namespace_baseline_sha256": "96a1d9b868f17c8cd61bb458897601bf267c5c667d13cd4340f8bb1a30d17ce4",
+      "compiled_candidate_sha256": "1a4a245ec0708fe5e0c3a93e54323e8fc36bd631a46b7cf36042f48edd6b484f",
+      "independently_applied_sha256": "1a4a245ec0708fe5e0c3a93e54323e8fc36bd631a46b7cf36042f48edd6b484f"
+    }
+  ],
+  "accepted_docx_and_omml_unchanged": true,
+  "omml_bridge_sha256": "44083382f01e2f4bc7e12ac7efdb9ac2a4f2855b11557b8fbcca48e84518d1f2",
+  "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+  "harness_sources": [
+    {
+      "path": "tests/spans.rs",
+      "sha256": "80bb4861525bf6cd77fd236be0d72988bc62b9ea03c6b0e5bf2b10b96205699c"
+    },
+    {
+      "path": "tests/docx_namespaces.rs",
+      "sha256": "cd9c7d74269ba16d401d85fa4d33c0142fa697f81fba5f222b8b15c566e70cd9"
+    },
+    {
+      "path": "tests/pptx_order.rs",
+      "sha256": "1a65ddc4140a36ea64e5b978b877bd3f716f5695558b80c8ec4ed845c2497ca2"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "df868a8a5934e1ef2b0f3644befc1de7639afe1e17005efcd35e86f941d1d688"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2"
+    }
+  ],
+  "toolchain": {
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "actual_registry_identity_feature_union": 239,
+  "actual_features": [
+    "html",
+    "notebook",
+    "office"
+  ],
+  "normal_dependency_cfg_test": false,
+  "dependency_graph_equal_to_accepted_namespace": true,
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/brn-x2-pptx-order4-20261018/final-target",
+    "TMPDIR": "/private/tmp/brn-x2-pptx-order4-20261018/private-final-tmp",
+    "S3_CAPTURE": "/private/tmp/brn-x2-pptx-order4-20261018/evidence/13-final-exact-driver/captures",
+    "CARGO_INCREMENTAL": "0",
+    "RUST_BACKTRACE": "0",
+    "CARGO_TERM_COLOR": "never"
+  },
+  "artifact_custody": [
+    {
+      "label": "12-before-exact-final-driver",
+      "receipt_sha256": "f5722495fad8674db0d81179e2e25cef59c050b7c5daeb65f0e6d993a5d7ddae",
+      "raw_log_sha256": "1e95b3afc46b8392fe55a511522d895ecb7c2462e17cd557422fd923087cc200",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/before-target/debug/deps/libxberg-0994bf7c5554c767.rlib",
+          "bytes": 218985976,
+          "sha256": "921a5bc6b4c3688d76f1804cfbc1853f68601da3cf8a56de443f9914da5d5f84",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/921a5bc6b4c3688d76f1804cfbc1853f68601da3cf8a56de443f9914da5d5f84"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/before-target/debug/deps/libxberg-0994bf7c5554c767.rmeta",
+          "bytes": 22496833,
+          "sha256": "6d98b9de4fc86f1452d87893c2052904ba159f283575c8b83cf465aeccd7a858",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/6d98b9de4fc86f1452d87893c2052904ba159f283575c8b83cf465aeccd7a858"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/before-target/debug/deps/pptx_order-613788c23975c756",
+          "bytes": 86555144,
+          "sha256": "9cb162017789476847b02b6b3c701cf1207d73e92158c376da347839fdab5e1d",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/9cb162017789476847b02b6b3c701cf1207d73e92158c376da347839fdab5e1d"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/before-target/debug/deps/pptx_order-613788c23975c756.d",
+          "bytes": 431,
+          "sha256": "c06459e304a30d3c4b2d80fdb875f6ee18d67f8524fae60de35d3420399a7999",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/c06459e304a30d3c4b2d80fdb875f6ee18d67f8524fae60de35d3420399a7999"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/before-target/debug/deps/xberg-0994bf7c5554c767.d",
+          "bytes": 91538,
+          "sha256": "f5907bd99c40d5be7c5d514481b9cd1c8bc828aaf136f50955dce89d26c2d14d",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/f5907bd99c40d5be7c5d514481b9cd1c8bc828aaf136f50955dce89d26c2d14d"
+        }
+      ]
+    },
+    {
+      "label": "13-final-exact-driver",
+      "receipt_sha256": "bf3353194c9d11b77f0f72ecd87461d3f7e44fcf780146af54113d5d3ed3f9eb",
+      "raw_log_sha256": "c96989b3f722e66a54616afec54b03a473a2602d0c5210cb7d5e90308540d539",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/libxberg-201e8d728fa82b34.rlib",
+          "bytes": 218838176,
+          "sha256": "e878dd6bb5e587c7017835f93855e9ac1de900ef3723b8f49506bb2a79c004ef",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/e878dd6bb5e587c7017835f93855e9ac1de900ef3723b8f49506bb2a79c004ef"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/libxberg-201e8d728fa82b34.rmeta",
+          "bytes": 22510773,
+          "sha256": "3f7c25cbbc9c22837ed3467da494aed217432df7fc67c425b4f11748c4f585a5",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/3f7c25cbbc9c22837ed3467da494aed217432df7fc67c425b4f11748c4f585a5"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/pptx_order-029082dddc24932c",
+          "bytes": 86581208,
+          "sha256": "e94ef0cacb2e1d1ad161d8e0f421a6d98ca06d33edccc79be045db7e6ff07e18",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/e94ef0cacb2e1d1ad161d8e0f421a6d98ca06d33edccc79be045db7e6ff07e18"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/pptx_order-029082dddc24932c.d",
+          "bytes": 429,
+          "sha256": "a8185bd3907dc7b04e02d92811ccd52c0cfef6a55c5ecc97d449f3ef11fd1567",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/a8185bd3907dc7b04e02d92811ccd52c0cfef6a55c5ecc97d449f3ef11fd1567"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/xberg-201e8d728fa82b34.d",
+          "bytes": 90431,
+          "sha256": "a312d9015cce3a8e367fb74e3bc266830c9fc4f5982181cbf8a20f2a01917d80",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/a312d9015cce3a8e367fb74e3bc266830c9fc4f5982181cbf8a20f2a01917d80"
+        }
+      ]
+    },
+    {
+      "label": "14-final-namespace-regression",
+      "receipt_sha256": "d92e17dc51ec1d3252f6381ea38239d51b57f774ef7328c8efb048cbe368cff1",
+      "raw_log_sha256": "e4ef518cde91b4ca7442e78ca6c81ab7e08f7427a81a4d33ec11401f67ba51be",
+      "selected_artifacts": [
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/libxberg-201e8d728fa82b34.rlib",
+          "bytes": 218838176,
+          "sha256": "e878dd6bb5e587c7017835f93855e9ac1de900ef3723b8f49506bb2a79c004ef",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/e878dd6bb5e587c7017835f93855e9ac1de900ef3723b8f49506bb2a79c004ef"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/libxberg-201e8d728fa82b34.rmeta",
+          "bytes": 22510773,
+          "sha256": "3f7c25cbbc9c22837ed3467da494aed217432df7fc67c425b4f11748c4f585a5",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/3f7c25cbbc9c22837ed3467da494aed217432df7fc67c425b4f11748c4f585a5"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/namespaces-1451a94e685038fe",
+          "bytes": 86594600,
+          "sha256": "16bb4a7c1efa589b7b1c18992310929457921bcc0f378ff785696eda0f9dc70f",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/16bb4a7c1efa589b7b1c18992310929457921bcc0f378ff785696eda0f9dc70f"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/namespaces-1451a94e685038fe.d",
+          "bytes": 1095,
+          "sha256": "5d1921343dd4fe2167d8ca34cb01028ea451be0755a37dbea8ee34ea247ceff4",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/5d1921343dd4fe2167d8ca34cb01028ea451be0755a37dbea8ee34ea247ceff4"
+        },
+        {
+          "path": "/private/tmp/brn-x2-pptx-order4-20261018/final-target/debug/deps/xberg-201e8d728fa82b34.d",
+          "bytes": 90431,
+          "sha256": "a312d9015cce3a8e367fb74e3bc266830c9fc4f5982181cbf8a20f2a01917d80",
+          "object": "/private/tmp/brn-x2-pptx-order4-20261018/objects/a312d9015cce3a8e367fb74e3bc266830c9fc4f5982181cbf8a20f2a01917d80"
+        }
+      ]
+    }
+  ],
+  "all_other_baseline_upstream_files_equal": true,
+  "fixture_sources": [
+    {
+      "path": "harbor.pptx",
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280"
+    },
+    {
+      "path": "quay.pptx",
+      "sha256": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46"
+    }
+  ],
+  "requirements_sources": [
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-pptx-order4-actual-implementation-allocation-20261018.md",
+      "sha256": "c315045c9fd99e4f5cf28685174676f745caab26f309ac055bc3f132252e52da"
+    },
+    {
+      "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-pptx-order4-notes-comments-amendment-20261018.md",
+      "sha256": "32c457a0252e1448458b461c7c3597b6194b5238d71f0e2f5293df544f47dd61"
+    }
+  ],
+  "repo_final_pin": "Created after the commit in external evidence/final-repo-pin.json; no future self-SHA embedded."
+}
