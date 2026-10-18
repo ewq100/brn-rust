@@ -1,0 +1,60 @@
+**APPROVED — A1 package-consistency component only.** No concrete must-fix correctness, security, regression or scope finding.
+
+**Full Office promotion: NOT READY.** This approval does not close the existing Xberg semantic, XML/resource, restricted-runtime or integration gates.
+
+Confirmed the frozen candidate is clean:
+
+- Checkout: `/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161`
+- Branch: `work/x2-office-prep-20261018`
+- HEAD: `70af711d76274dde7505d672b0e385cf18f25001`
+- Tree: `2042bc2bc94c952400fd1c060a6d96a88547a23e`
+- Reviewed base: `95781baa94617e712ad29c289ebdaa2566ea8002`
+- Cached `origin/main`: `57c710ccec2b007c4d8a25c9f1d1b5c1c539907c`; no fetch.
+
+I read the original A1 grant, recorder and paired-capture amendments, repository guidance, relevant Threads contracts and development workflow, all-document scope/plan, O1 measurement scope, complete prior review and accepted P2 disposition, and the candidate evidence. The resolved DTD test-boundary correction remains accepted.
+
+**Production assessment.** The change in [helper.rs:395](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/src/helper.rs:395) implements the allocated guard correctly:
+
+- Every non-directory ZIP entry is matched by its exact original name to the already bounded inflated part.
+- Central declared uncompressed length must equal actual returned length. Missing correspondence also refuses.
+- Existing OPC path, normalized-duplicate, member and actual-expanded-byte checks remain intact.
+- Successful inflation remains charged before the new refusal. Nested MIME continuation cannot refund this work or charge it twice.
+- Directories are deliberately skipped while retaining member counting, matching maintained OPC behavior. Their contents receive no consistency claim.
+- The mismatch error is static and bounded.
+
+I inspected pinned ZIP 8.6 and BetterOffice OPC source. OPC preserves authored names and reads through `take(remaining + 1)`. `by_index_raw` supplies metadata without another decompression pass; dropping these borrowed entries does not drain their data. The additional work is a bounded metadata traversal and map lookup. No new parser, dependency, unsafe operation, protocol, converter identity, quota or backend dispatch appears.
+
+**Standards assessment: APPROVED.** Ownership and borrowing are straightforward, errors propagate explicitly, comments explain accounting and directory boundaries, and the implementation introduces no panic path or lint suppression. The narrow production hunk fits the existing module.
+
+**Task/spec assessment: APPROVED.** The tests establish behavior beyond registry hashes:
+
+- [DOCX size tests:398](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/docx_inventory.rs:398) verify the mutated central declaration, parse valid originals first, and require the exact size-mismatch error for ±1 required XML, optional notes and image cases through both schemas.
+- Shared PPTX tests exercise schemas 1/2; XLSX exercises schema 2, including required and unread optional parts.
+- Valid controls compare complete prepared blocks/assets/pages/gaps and schema-1 wording/sources/assets/occurrences/gaps across base, descriptor/local-zero, empty-file and stored/deflated empty-directory encodings. Source hashes, retained bytes and actual usage are checked. XLSX additionally asserts authored cell addresses, wording and spans.
+- [Nested EML coverage:523](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/docx_inventory.rs:523) retains two malformed children as unprocessed, prevents extracted child wording, and tests a following valid child at full and tightened aggregate boundaries. This meaningfully detects refunded or duplicated charges.
+
+The encoding comparisons establish compatibility with their valid bases; the unchanged independent inventories continue to supply source-fidelity expectations.
+
+**Registry and historical evidence.** Independently confirmed exactly **12 changed rows and 52 textually identical rows**. Registry structure and classifications outside those allocations are unchanged. All 12 historical complete rows match `53546fec`, `d49b097e` and base `95781baa`.
+
+I checked all twelve historical canonical capture associations and all twelve new associations against their referenced logs. Each of the six new complete bare-Xberg values equals its historical raw value, including array order. Paired expected hashes and EvidenceOnly classifications remain unchanged. The permanent [differential assertion:614](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/office_differential.rs:614) checks this equality directly.
+
+The [recorder conditional:833](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/support/office.rs:833) removes only `output_bytes` from an existing successful `schema1.Ok.usage`. Its non-inserting lookups preserve refusal structure. These hashes therefore do not conceal acceptance or replace the typed refusal assertions.
+
+**Execution evidence assessed.** The retained before log records successful compilation followed by the intended behavioral failure. Its production bytes equal base `95781baa`; the new test suffix and fixture implementation equal the candidate. All six malformed input hashes match after measurement: **12 before acceptances become 12 exact size-specific refusals**. The clean before freeze at `1b7034dc` is correctly described as committed after measurement.
+
+Final source-associated logs support:
+
+- Ordinary all targets: **107 passed**
+- Office union all targets: **114 passed**
+- Host qualification: **3 passed, 8 filtered**
+- Mock AI conversion: **9 passed, 458 filtered**
+- Strict Clippy on both graphs, affected formatting and documentation checks: recorded passing
+
+The initial union **89/1**, initial AI **3/6**, and requirements EOF whitespace failure remain preserved. The AI rerun retains the same binary association with a corrected external private temporary directory. Final whitespace correction is documentation-only.
+
+**Complete diff scope:** 12 files, 1,793 insertions and 67 deletions: `helper.rs`; `docx_inventory.rs`; `office_differential.rs`; `tests/support/office.rs`; `parity-registry.json`; and seven new `office1/admission1/` records—`requirements.txt`, `scope-additions.json`, `response.md`, `handoff.md`, `source-pin.json`, `check-index.json`, and `historical-size-observations.json`. No manifest, lock, source fixture, independent oracle or previous report changes.
+
+**Review limits.** This was read-only source and evidence inspection. I ran no build, Cargo metadata, tests, lint, formatting, binaries, network/provider/Auth/GUI operations or delegation. I verified 16 source-pin hash entries, full and compiled-diff hashes, 92 receipt/log/artifact-index hashes, and six preserved dep-info hashes. Six selected executable sizes and recorded associations were checked; executable bytes and the full dependency closure were not independently rehashed. The host receipt binds the recorded union helper `ec96f821…`. No mutable PDF checkout was inspected.
+
+No optional code change is required for A1. Complete XML read-set validation, repeated-pass accounting, allocation bounds, semantic associations, S5/O2 and real Xberg Office qualification remain deferred work. All-document readiness, native observation, owner acceptance and merge remain separate; this review performs none of those actions.
