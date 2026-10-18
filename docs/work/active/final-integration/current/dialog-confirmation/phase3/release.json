@@ -1,0 +1,79 @@
+{
+  "heavy_checks_complete": true,
+  "sole_heavy": "RELEASED",
+  "paths": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-dialog-confirmation-20261018-phase3",
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/docs/work/active/final-integration/current/dialog-confirmation/phase3"
+  ],
+  "publication": "No push/PR/merge/review delegation or workeracceptance. Parent owns next independent focusedreview and requiredPR/mainCI.",
+  "current_material": "9271af2967a085846424ac54a13d16bfee2b85be",
+  "at_utc": "2026-10-18T19:31:11.962847+00:00",
+  "remaining_owned_processes": [],
+  "global_heavy_native_test_helper_commands": [],
+  "sessions": [
+    {
+      "phase": "01-focused-corrected",
+      "controller_pid": 70623,
+      "controller_pgid": 70623,
+      "child_pid": 70660,
+      "child_pgid": 70660,
+      "exit": 0
+    },
+    {
+      "phase": "02-affected-widget-suite",
+      "controller_pid": 71148,
+      "controller_pgid": 71148,
+      "child_pid": 71191,
+      "child_pgid": 71191,
+      "exit": 0
+    },
+    {
+      "phase": "03-strict-native-ui",
+      "controller_pid": 71513,
+      "controller_pgid": 71512,
+      "child_pid": 71580,
+      "child_pgid": 71580,
+      "exit": 0
+    },
+    {
+      "phase": "04-strict-widgets",
+      "controller_pid": 71616,
+      "controller_pgid": 71512,
+      "child_pid": 71651,
+      "child_pgid": 71651,
+      "exit": 0
+    },
+    {
+      "phase": "05-strict-writing-ui",
+      "controller_pid": 71715,
+      "controller_pgid": 71512,
+      "child_pid": 71820,
+      "child_pgid": 71820,
+      "exit": 0
+    },
+    {
+      "phase": "06-fmt",
+      "controller_pid": 71881,
+      "controller_pgid": 71512,
+      "child_pid": 71900,
+      "child_pgid": 71900,
+      "exit": 0
+    },
+    {
+      "phase": "07-static-links",
+      "controller_pid": 72475,
+      "controller_pgid": 72475,
+      "child_pid": 72509,
+      "child_pgid": 72509,
+      "exit": 0
+    }
+  ],
+  "serial_controller": {
+    "pid": 71512,
+    "pgid": 71512,
+    "ended": 1792351667.9906461
+  },
+  "path_release": "All listed paths released on final clean handback after the evidence commit; actual final HEAD/status/time recorded externally in raw final-state.json. No further heavy work authorized after release."
+}

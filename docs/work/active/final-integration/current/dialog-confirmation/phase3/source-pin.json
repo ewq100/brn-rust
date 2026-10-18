@@ -1,0 +1,94 @@
+{
+  "material": "9271af2967a085846424ac54a13d16bfee2b85be",
+  "tree": "ec90c2badf609818f6e02527d99b42c923df26b6",
+  "crates_tree": "2ade13855afd7feaf1dd508a31f13fb4c476996c",
+  "parent": "4c6c9c72740d40c3dde91c1434f36f11f7bcc05c",
+  "base_main": "e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a",
+  "scope": "Exactly one existing test function, comment + App-local setting; no production change.",
+  "source_audit_sha256": "c76e91ae23390de0dd1b1cd75587369dbabe45e206d11e416bfe91fc6007f13a",
+  "only_code_path": [
+    "crates/brn-desktop/src/threads_omakase_tests.rs"
+  ],
+  "assertions_and_one_Window_click_original_byte_identical": true,
+  "compiled_test_binary": {
+    "path": "/private/tmp/brn-final-integration-20261018-target/debug/deps/brn_desktop-5976492de41793be",
+    "sha256": "ed8d00b56afa6cedf3ea19ca9c4cd2497a2b06cb2097ed6203a44b66cfc6b452",
+    "d_path": "/private/tmp/brn-final-integration-20261018-target/debug/deps/brn_desktop-5976492de41793be.d",
+    "d_sha256": "681df80d090741ae576b486a7fe7a063bac488c6377ed02c4c5951c163eb9698",
+    "compiled_material": "9271af2967a085846424ac54a13d16bfee2b85be",
+    "features": [
+      "native-ui",
+      "native-test-support"
+    ],
+    "first_compilation_receipt": "01-focused-corrected",
+    "same_binary_for_suite": true,
+    "source_inputs_sha256": "a9c7863038002a8f0a22853b6f28291cc8fb56e3ec5ba542970c52c3174282ba"
+  },
+  "pre_overwrite_probe_binary_sha256": "532b2b610e8b8fd2cd6e912f5223226bee92dc169e7069495fa9fbd3fbb06926",
+  "unchanged_setup_binary_sha256": "b3c7c6aeb28b8111ff8a544b95f5d70dffddd84d3839db4b74ed0a725e174514",
+  "protected_git_identities": {
+    "Cargo.lock": {
+      "before": "c83cebba8f66ff55905aa0ba3bc2a6d3da6595d0",
+      "material": "c83cebba8f66ff55905aa0ba3bc2a6d3da6595d0"
+    },
+    "Cargo.toml": {
+      "before": "d664af046b116be57b3af835235db5890dbb5bdb",
+      "material": "d664af046b116be57b3af835235db5890dbb5bdb"
+    },
+    "crates/brn-writing-ui": {
+      "before": "3097a26fe09bfe0f0b3302762e1a8fe3c78557b8",
+      "material": "3097a26fe09bfe0f0b3302762e1a8fe3c78557b8"
+    },
+    "crates/brn-ai": {
+      "before": "f7b3736f18027dcce25c1f73e8775db675b23568",
+      "material": "f7b3736f18027dcce25c1f73e8775db675b23568"
+    },
+    "crates/brn-threads-core": {
+      "before": "b2fceaa127b52912d9be42e2cb9bed60b8554579",
+      "material": "b2fceaa127b52912d9be42e2cb9bed60b8554579"
+    },
+    "crates/brn-threads-app": {
+      "before": "568f3204dfafef28efafac828ac6e7e163b334e8",
+      "material": "568f3204dfafef28efafac828ac6e7e163b334e8"
+    },
+    "crates/brn-threads-intake": {
+      "before": "5c708baa044921c4d4cf50c0054f38e7fc9e9fcf",
+      "material": "5c708baa044921c4d4cf50c0054f38e7fc9e9fcf"
+    },
+    "crates/brn-intake": {
+      "before": "28487b3323f5f40abbc78efc5864a5d6d556e8db",
+      "material": "28487b3323f5f40abbc78efc5864a5d6d556e8db"
+    },
+    "crates/brn-retrieval": {
+      "before": "ace8c233cc8689a6e877c0f4b509a7039e767bae",
+      "material": "ace8c233cc8689a6e877c0f4b509a7039e767bae"
+    },
+    ".github": {
+      "before": "38f4466d4a82f69780e0a100a4f7b5723c4b4215",
+      "material": "38f4466d4a82f69780e0a100a4f7b5723c4b4215"
+    },
+    "scripts": {
+      "before": "e3171a8d8ccff3782f3db13c78afb6d9d79cca76",
+      "material": "e3171a8d8ccff3782f3db13c78afb6d9d79cca76"
+    }
+  },
+  "helper_bindings": {
+    "BRN_XBERG_HELPER": {
+      "path": "/private/tmp/brn-final-integration-20261018-target/document-helpers/artifacts/brn-xberg-helper",
+      "sha256": "a2c223701c93399b06acc143c3190a2a908befa411f1c674fc7a596fdb545619",
+      "matches_prior_qualified": true
+    },
+    "BRN_XBERG_HELPER_BRN": {
+      "path": "/private/tmp/brn-final-integration-20261018-target/document-helpers/artifacts/brn-xberg-helper-brn",
+      "sha256": "bc8296e57e18ab63f0388871763c26544a850a9d1de517f26bca3c9cf2674952",
+      "matches_prior_qualified": true
+    }
+  },
+  "package": {
+    "source_material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+    "zip_sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196",
+    "byte_invariance_verified": true,
+    "rebuilt_or_retagged": false
+  },
+  "raw": "/private/tmp/brn-dialog-confirmation-20261018-phase3"
+}

@@ -1,0 +1,11 @@
+# Phase3 implementation handoff
+
+**Implemented and locally verified; independent review and hosted verification pending.** Material9271af2967a085846424ac54a13d16bfee2b85be, tree ec90c2badf609818f6e02527d99b42c923df26b6, crates tree2ade13855afd7feaf1dd508a31f13fb4c476996c. It changes only the existing confirmation test by one comment plus App-local reduced motion before dialog open; every original assertion and one Window.click are byte-identical. Parent approved this narrow fixture correction basis after the controlled geometry checkpoint. No production change or unique historical-CI-cause conclusion.
+
+Local corrected exact1/0/0; the one affected widget suite305/0/1,3filtered. All three strict all-target native UI/widget/writing-library Clippy commands and fmt passed with no phase3 failure or retry. Helpers were verified and explicit throughout. [Check index](check-index.json), [source/artifact pin](source-pin.json), [full response and historical limits](response.md), [approved plan](plan.md), [release](release.json).
+
+Raw custody is `/private/tmp/brn-dialog-confirmation-20261018-phase3`: before/current binaries/.d/compiled inputs, source audit, SDK App-local proof, logs, exact commands/features/HEAD/tree and process inventory. The overwritten last binary was the labelled phase2 probe, preserved first. The corrected test executable is genuinely compiled from9271; old helper/setup/probe receipts keep old associations. No source edits occurred during Cargo. Evidence records are documentation-only after the material pin; no future SHA is invented.
+
+Parent next: **new independent focused review**, then normal followup PR and exact-head four required contexts/docs, merge and actual main CI under existing owner authority. Worker did not self-accept, dispatch review, push, create PR or merge. Main UI remains pending corrected hosted evidence. No broad suite/build or provider/GUI/package lane was repeated. The original2dd signed package retains exact bytes and source, without retagging. All old failures and native-human/live/owner qualifications remain as described in the response.
+
+Precise final process/path release and final clean evidence HEAD are recorded in the external raw final-state.json after static checks and evidence commit. No other writer or heavy job is left active at handoff.
