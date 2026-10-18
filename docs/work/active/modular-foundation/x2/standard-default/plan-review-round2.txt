@@ -1,0 +1,15 @@
+## Review
+**Verdict:** APPROVED
+
+**Blocking findings:** None.
+
+**Advisory suggestions:** None remaining from round1.
+
+**Coverage summary:**
+
+- Tasks2–3 now specify a concrete host-owned provenance path through `ImportReport.conversion`, captured CLI/native handoffs, `TransientSource.report` and durable `Source.report`.
+- Verification covers all four settings combinations, reopen/backup/restore, mid-job preference changes, stable Source identity, historical unlabelled reports and model add/change/clear/duplicate refusal with a preserving positive control.
+- Mixed-source useful reports avoid fabricated aggregate provenance; full-import reports retain their own variants.
+- Source-only receipts and prepared-but-unapplied replay fixtures explicitly check stored provenance before dispatch.
+
+This approves the corrected plan only. Implementation, actual builds, relocation, verification and fresh actual-diff review remain gates.
