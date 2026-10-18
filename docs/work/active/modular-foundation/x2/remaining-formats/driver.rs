@@ -775,7 +775,58 @@ fn eml_nested_source_identity_retained() {
         1,
         "current supported nested message needs a located child, depth0 candidate provides none"
     );
-    assert_eq!(children[0].result.content, "Nested body Ω");
+    assert_eq!(children[0].path, "child.eml");
+    assert_eq!(children[0].mime_type, "message/rfc822");
+    assert_nested_email_projection(&children[0].result);
+}
+fn assert_nested_email_projection(d: &ExtractedDocument) {
+    // Authored NESTED source facts: the complete rendered email also has headers.
+    assert_eq!(paragraphs(d), vec!["Nested body Ω"]);
+    let FormatMetadata::Email(m) = d.metadata.format.as_ref().unwrap() else {
+        panic!("expected typed child email metadata");
+    };
+    assert_eq!(m.from_email.as_deref(), Some("child@example.test"));
+    assert_eq!(m.from_name.as_deref(), Some("Child"));
+    assert_eq!(m.to_emails, vec!["parent@example.test"]);
+    assert_eq!(m.message_id.as_deref(), Some("child@example.test"));
+    assert_eq!(d.metadata.subject.as_deref(), Some("Nested Ω"));
+    assert!(d.metadata.created_at.is_none(), "no Date in NESTED source");
+    assert!(m.cc_emails.is_empty() && m.bcc_emails.is_empty());
+    assert!(m.attachments.is_empty());
+}
+#[test]
+fn eml_nested_standalone_positive() {
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .max_blocking_threads(2)
+        .thread_stack_size(16 * 1024 * 1024)
+        .build()
+        .unwrap();
+    let cfg = config();
+    assert!(!cfg.needs_image_data());
+    let result = rt.block_on(xberg::extract(
+        ExtractInput::from_bytes(NESTED.as_bytes().to_vec(), "message/rfc822", None),
+        &cfg,
+    ));
+    drop(rt);
+    // Separate positive-control artifacts; none of the 73 historical captures change.
+    let evidence = PathBuf::from(ROOT)
+        .join("evidence/opus1-positive")
+        .join(std::process::id().to_string());
+    fs::create_dir_all(&evidence).unwrap();
+    fs::write(evidence.join("input.eml"), NESTED.as_bytes()).unwrap();
+    fs::write(
+        evidence.join("result.json"),
+        serde_json::to_vec_pretty(&json!({
+            "result": result.as_ref().ok(),
+            "error": result.as_ref().err().map(|e| e.to_string()),
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let result = result.unwrap();
+    assert!(result.errors.is_empty());
+    assert_eq!(result.results.len(), 1);
+    assert_nested_email_projection(&result.results[0]);
 }
 #[test]
 fn html_textual_control_is_not_rich_adoption() {
