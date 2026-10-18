@@ -1,0 +1,59 @@
+{
+  "schema": "brn-final-integration-checks/2",
+  "recorded": "2026-10-18",
+  "scope": "source-only; Git, text, hash, link and whitespace checks; read-only JSON parse; no Cargo/build/test/lint/formatter/Store/CLI/network/fetch/Auth/provider/GUI/mutants/heavy",
+  "start_identity": {
+    "branch": "work/final-integration-20261017",
+    "head": "ae63fb7d5110327c8aecad5684e65e0573267fe4",
+    "tree": "5f877d636499f613af3cdd74c5cf23a2e75016c1",
+    "status_lines": 0
+  },
+  "checks": [
+    {
+      "id": "identity",
+      "result": "clean at ae63fb7d / tree 5f877d63 before editing"
+    },
+    {
+      "id": "report-copy",
+      "result": "cmp identical; sha256 b39d1b1e3998b3fa1bd6d99844f266da611d48aac7bb27ec7c71ba7c6c58a74d; terminal JSON status completed, claude-opus-5.5, summary equals report except one trailing newline (9002 vs 9003 bytes)"
+    },
+    {
+      "id": "round1-report-unchanged",
+      "result": "opus1/opus-review-round1.md not modified (sha256 65422c3e80159d9fc70b857fa54bedd58c64c22758c3516606ef8a04728d2211)"
+    },
+    {
+      "id": "rewrite-prompt",
+      "command": "git grep of the fixed rewrite string",
+      "result": "same string in INT-W crates/brn-writing-ui/src/native.rs:195 and X2 crates/brn-desktop/src/threads_ui.rs:2234"
+    },
+    {
+      "id": "attach-source",
+      "command": "git show 73ea9ca7:crates/brn-ai/src/threads.rs (lines 200-260)",
+      "result": "attach_external_input sets in-memory scope.external and extends input on success; records terminal Failed on failure; spawn_prepared uses a background thread"
+    },
+    {
+      "id": "json-valid",
+      "result": "inventory.json, binding.json and this file parse"
+    },
+    {
+      "id": "links",
+      "result": "Markdown links: 367 files, 1737 local links, 82 failures; historical outgoing policy=docs/archive/ only; 0 in final-integration/"
+    },
+    {
+      "id": "whitespace",
+      "command": "git diff --cached --check",
+      "result": "ok"
+    }
+  ],
+  "links_final": {
+    "summary": "Markdown links: 367 files, 1737 local links, 82 failures; historical outgoing policy=docs/archive/ only",
+    "failures_in_final_integration": 0,
+    "remaining": "the 82 old failures in x2/source-audit/{api.md,resources.md}; X2 lane's conditional fix; not edited; not a root-wide green claim"
+  },
+  "not_run": [
+    "cargo",
+    "build/test/lint/format",
+    "Store/CLI/Auth/provider/network/fetch/GUI/mutants",
+    "heavy slot"
+  ]
+}
