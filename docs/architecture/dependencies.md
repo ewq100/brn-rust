@@ -8,7 +8,7 @@
 | Application service | Core, transient intake and derived retrieval | `brn-threads-app` shares business operations across CLI, desktop and agent |
 | Provider runtime | Published Rig 0.44.0 and retained provider/auth transports | `brn-ai` owns bounded runtime/tools; no vendored Rig patch |
 | Native surface | GPUI Kit 0.7.3 (gpui-pre 0.3.9) | `brn-desktop` optional native UI/test features; native observation remains separate |
-| Conversion | BetterOffice 0.3.0, mail-parser 0.11.8, bounded image/HTML decoding; Poppler executables for PDF | `brn-intake` restricted helper and `brn-threads-intake` transient adapter |
+| Conversion | Pinned Xberg 1.3.10 stock / separately patched optional bundle, light PNG/Markdown validation | Two standalone restricted helpers; `brn-intake` light DTOs and `brn-threads-intake` process adapter |
 | Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; current application search uses keyword retrieval |
 | Entry points | Thin commands and native host | `brn` and `brn-desktop` call the shared service |
 

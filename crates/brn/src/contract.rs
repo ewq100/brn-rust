@@ -669,9 +669,6 @@ fn conversion_error(error: &ConversionError, message: String) -> CliError {
         ConversionError::Unavailable => CliError::new(Code::Unavailable, message),
         ConversionError::Budget
         | ConversionError::Invalid
-        | ConversionError::PdfTextInvalid
-        | ConversionError::PdfRenderInvalid
-        | ConversionError::PdfPreviewInvalid
         | ConversionError::Protocol
         | ConversionError::Io => CliError::new(Code::ConversionFailed, message)
             .with("reason", snake(&format!("{error:?}"))),
@@ -690,7 +687,6 @@ impl From<ConversionFailure> for CliError {
             ConversionFailure::Interrupted => Self::new(Code::Interrupted, message),
             ConversionFailure::Timeout => Self::new(Code::Timeout, message),
             ConversionFailure::InvalidCandidate => reason("invalid_candidate"),
-            ConversionFailure::InvalidPlanFormat(_) => reason("invalid_plan_format"),
             ConversionFailure::Budget => reason("budget"),
             ConversionFailure::Worker => reason("worker"),
         }
@@ -1702,21 +1698,6 @@ mod tests {
                 Some("invalid"),
             ),
             (
-                ConversionError::PdfTextInvalid,
-                Code::ConversionFailed,
-                Some("pdf_text_invalid"),
-            ),
-            (
-                ConversionError::PdfRenderInvalid,
-                Code::ConversionFailed,
-                Some("pdf_render_invalid"),
-            ),
-            (
-                ConversionError::PdfPreviewInvalid,
-                Code::ConversionFailed,
-                Some("pdf_preview_invalid"),
-            ),
-            (
                 ConversionError::Protocol,
                 Code::ConversionFailed,
                 Some("protocol"),
@@ -1745,10 +1726,6 @@ mod tests {
         );
         for (failure, reason) in [
             (ConversionFailure::InvalidCandidate, "invalid_candidate"),
-            (
-                ConversionFailure::InvalidPlanFormat("shape".into()),
-                "invalid_plan_format",
-            ),
             (ConversionFailure::Budget, "budget"),
             (ConversionFailure::Worker, "worker"),
         ] {

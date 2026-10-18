@@ -9,8 +9,6 @@ fn helpers() -> DocumentHelpers {
 fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
-        helper_path: "/must-not-use-legacy".into(),
-        pdf_tools: None,
         temp_root: root.path().join("scratch"),
         limits: brn_intake::IntakeLimits {
             wall_time_ms: 20000,
@@ -50,7 +48,6 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
                         bytes,
                         intent: ImportIntent::FullNote,
                         source_reference: "synthetic://task2",
-                        inventory: None,
                     },
                     &helpers(),
                     backend,
@@ -73,8 +70,6 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
 fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
-        helper_path: helpers().stock,
-        pdf_tools: None,
         temp_root: root.path().join("scratch"),
         limits: Default::default(),
     };
@@ -83,7 +78,6 @@ fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
         bytes: b"Source",
         intent: ImportIntent::FullNote,
         source_reference: "synthetic://task2",
-        inventory: None,
     };
     let mut paths = helpers();
     paths.brn = paths.stock.clone();
@@ -112,8 +106,6 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
     use std::os::unix::fs::PermissionsExt;
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut converter = Converter {
-        helper_path: "/never-legacy".into(),
-        pdf_tools: None,
         temp_root: root.path().join("scratch"),
         limits: Default::default(),
     };
@@ -122,7 +114,6 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
         bytes: b"fixed bytes",
         intent: ImportIntent::FullNote,
         source_reference: "synthetic://protocol",
-        inventory: None,
     };
     let response = brn_intake::document::DocumentExtraction {
         schema: 1,
@@ -188,8 +179,6 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
 fn restricted_document_conversion_is_unavailable_on_this_platform() {
     let root = tempfile::tempdir().unwrap();
     let converter = Converter {
-        helper_path: "/unused".into(),
-        pdf_tools: None,
         temp_root: root.path().join("scratch"),
         limits: Default::default(),
     };
@@ -205,7 +194,6 @@ fn restricted_document_conversion_is_unavailable_on_this_platform() {
                     bytes: b"Synthetic text",
                     intent: ImportIntent::FullNote,
                     source_reference: "synthetic://unavailable",
-                    inventory: None
                 },
                 &paths,
                 "xberg",

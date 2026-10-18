@@ -39,13 +39,7 @@ Both overrides must be absolute. Without overrides, desktop/CLI resolve these tw
 
 Native Settings → Documents or `brn --data-dir /absolute/workspace document-conversion --converter xberg|xberg-brn --ai off|on` saves checked preferences. Settings inspection explicitly shows stock/false even when canonical default serialization omits the field for historical hash compatibility. Every import snapshots both values. All eight kinds, including Text and Markdown, use the chosen normal helper with no Poppler discovery. AI Off needs no conversion credentials. AI On refines the selected output with fixed GPT-6 Luna/high and the existing explicit ChatGPT auth path; general chat settings stay independent. Useful-information's subsequent agent still requires its own credentials/authority. Reports retain actual captured converter/bundle/AI provenance; keyed full/chat/project replay checks that variant before conversion/Auth.
 
-Legacy explicit prepared-reader and restriction checks still build the maintained typed helper separately:
-
-```sh
-cargo build --locked -p brn-intake --features helper --bin brn-intake-helper
-```
-
-Those compatibility PDF checks require Poppler `pdftotext`, `pdfimages` and native `pdftoppm`, with explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES` and `BRN_PDFTOPPM` paths for reproducibility. They do not select the new production import route. The carried prepared-PDF Unavailable remains qualified separately from representative normal Xberg PDF success. Encrypted PDF is explicitly deferred; no new refusal implementation or verification is claimed.
+The superseded typed reader, prepared-page AI protocol and Poppler tooling are retired together. No old helper or renderer is needed for builds/imports. Historical failed PDF results remain historical; representative normal Xberg PDF success does not establish scanned/complex fidelity or resource proof. Encrypted PDF remains explicitly deferred, without a new refusal implementation claim.
 
 Offline in-process CLI refinement qualification uses the nondefault `scripted-document-tests` alias for existing `brn-ai/scripted-runs`. Ordinary CLI/native entry points have no transport/endpoint override. Maintained verification/CI includes this explicit lane; it is not a live-provider or subprocess AI-success proof.
 

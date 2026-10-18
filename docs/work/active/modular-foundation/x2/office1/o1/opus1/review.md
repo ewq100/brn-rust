@@ -1,4 +1,4 @@
-Rendering note: the complete report below differs from [the verbatim raw report](opus-review-round1.txt) only by link destination normalization. All file links are relative, including links into the external cached registry; original line labels and report text are retained.
+Rendering note: the complete report below differs from [the verbatim raw report](opus-review-round1.txt) only by link destination normalization. Retired source links are pinned to the reviewed Git revision; remaining file links are relative, including links into the external cached registry; original line labels and report text are retained.
 
 **O1 test/evidence candidate: CHANGES_REQUIRED — one bounded P2 test-contract correction.** The empirical measurements are sound and useful. I found no production-route change, feature leak, oracle replacement, or material evidence-integrity problem.
 
@@ -10,14 +10,14 @@ I read the original briefs, both complete prior reports, corrections/allocation 
 
 **Required correction — P2: put the DTD requirement on the checked boundary.**
 
-[office_differential.rs:674](../../../../../../../../crates/brn-intake/tests/office_differential.rs) constructs an unused internal declaration, calls bare `xberg::extract`, records successful extraction, then requires `dtd_result.is_err()`. This applies BRN’s pre-operation rejection requirement to an operation that deliberately bypasses BRN admission.
+[office_differential.rs:674](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/tests/office_differential.rs) constructs an unused internal declaration, calls bare `xberg::extract`, records successful extraction, then requires `dtd_result.is_err()`. This applies BRN’s pre-operation rejection requirement to an operation that deliberately bypasses BRN admission.
 
 The acceptance observation is genuine. It proves **bare Xberg accepts this unused declaration**. It does not prove entity expansion, external access, or an unavoidable upstream-patch requirement.
 
 The current caller map matters:
 
-- [helper.rs:395](../../../../../../../../crates/brn-intake/src/helper.rs) performs ZIP/path/count/actual-expanded-byte admission. It does **not** reject document XML DTDs.
-- [helper.rs:422](../../../../../../../../crates/brn-intake/src/helper.rs) subsequently invokes BetterOffice’s bounded XML/wire parser.
+- [helper.rs:395](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/src/helper.rs) performs ZIP/path/count/actual-expanded-byte admission. It does **not** reject document XML DTDs.
+- [helper.rs:422](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/src/helper.rs) subsequently invokes BetterOffice’s bounded XML/wire parser.
 - That parser explicitly rejects `Event::DocType` at [xml.rs:682](../../../../../../../../../../../../.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-docx-parse-0.3.0/src/xml.rs), before producing the wire result.
 
 The smallest correct permanent disposition is:
@@ -42,7 +42,7 @@ The current-reader comparisons are substantive:
 - Scoped note definitions, source bytes, image hashes/dimensions, repeated occurrences and schema-1 occurrence locators/ranges are checked.
 - Markdown parsing supplies wording comparisons, not provenance.
 
-See [support/office.rs:381](../../../../../../../../crates/brn-intake/tests/support/office.rs). Prefix images remain explicitly partial, rather than being removed from the independent source expectation.
+See [support/office.rs:381](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/tests/support/office.rs). Prefix images remain explicitly partial, rather than being removed from the independent source expectation.
 
 The registry correctly distinguishes `EqualProjection`, `DifferentProjection` and `EvidenceOnly`. Its separate expected/actual hashes prove preservation and drift detection; **they do not prove fidelity between incompatible evidence shapes**. The code and report acknowledge that limit. Direct assertions additionally establish important observed properties: prefix body loss, comment-context absence, span loss, nested-table flattening, note collisions/missing table association, orphan-story behavior and distinct repeated-image indices.
 

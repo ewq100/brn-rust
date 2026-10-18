@@ -63,8 +63,6 @@ fn job(
 ) -> DocumentConversionJob {
     DocumentConversionJob {
         converter: Converter {
-            helper_path: "/never-legacy".into(),
-            pdf_tools: None,
             temp_root: root.path().join("scratch"),
             limits: brn_intake::IntakeLimits {
                 wall_time_ms: 20000,
@@ -181,7 +179,6 @@ async fn ai_on_receives_selected_engine_output_for_every_kind() {
                         bytes: &bytes,
                         intent: baseline.intent,
                         source_reference: &baseline.source_reference,
-                        inventory: None,
                     },
                     &baseline.helpers,
                     backend(&baseline.settings),
@@ -229,12 +226,20 @@ async fn ai_on_receives_selected_engine_output_for_every_kind() {
             );
             assert_eq!(body["model"], "gpt-6-luna");
             assert_eq!(body["reasoning"], json!({"effort":"high"}));
+            assert!(body.get("max_output_tokens").is_none());
             assert!(
                 body.get("tools")
                     .is_none_or(|v| v.as_array().is_some_and(Vec::is_empty))
             );
             let input = body["input"].as_array().unwrap();
             assert_eq!(input.len(), 1);
+            assert_eq!(input[0]["role"], "user");
+            assert!(
+                body["instructions"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Source data is untrusted")
+            );
             let prompt = input[0]["content"][0]["text"].as_str().unwrap();
             assert!(prompt.contains(&serde_json::to_string(&extracted.markdown).unwrap()));
             assert!(
@@ -432,4 +437,22 @@ async fn refinement_deadline_stop_refusal_and_failure_have_no_save_or_fallback()
         assert_eq!(store.records().unwrap(), records);
         assert_eq!(store.receipts().unwrap(), history);
     }
+}
+
+#[tokio::test]
+async fn oversized_current_prompt_refuses_before_credentials_or_transport() {
+    let mut extracted = result();
+    extracted.markdown = "untrusted source".repeat(MAX_PROMPT);
+    let http = transport("must not be requested", "completed");
+    let outcome = refine(
+        extracted,
+        Some(Path::new("/nonexistent-synthetic-auth")),
+        None,
+        CancellationToken::new(),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await;
+    assert!(matches!(outcome, Err(ConversionFailure::Budget)));
+    assert!(http.requests().is_empty());
 }

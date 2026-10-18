@@ -3623,8 +3623,6 @@ impl ThreadsUi {
                 .map_err(|e| e.to_string())?;
                 let helpers = DocumentHelpers::discover().map_err(|e| e.to_string())?;
                 let converter = Converter {
-                    helper_path: helpers.stock.clone(),
-                    pdf_tools: None,
                     temp_root: std::env::temp_dir().join("brn-threads-intake"),
                     limits,
                 };

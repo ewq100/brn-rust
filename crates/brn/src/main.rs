@@ -1539,8 +1539,6 @@ async fn execute_document_transport(
                 .map_err(brn_ai::conversion::ConversionFailure::Intake)?;
             let conversion_job = brn_ai::document_refine::DocumentConversionJob {
                 converter: Converter {
-                    helper_path: helpers.stock.clone(),
-                    pdf_tools: None,
                     temp_root: std::env::temp_dir()
                         .canonicalize()?
                         .join("brn-threads-intake"),
@@ -1928,8 +1926,6 @@ mod document_route_tests {
                 .unwrap();
             let helpers = DocumentHelpers::discover().unwrap();
             let expected = Converter {
-                helper_path: helpers.stock.clone(),
-                pdf_tools: None,
                 temp_root: root.path().join("selected-output-control"),
                 limits: import_limits(DocumentKind::Text),
             }
@@ -1939,7 +1935,6 @@ mod document_route_tests {
                     intent: ImportIntent::FullNote,
                     bytes,
                     source_reference: source.to_str().unwrap(),
-                    inventory: None,
                 },
                 &helpers,
                 if converter == DocumentConverter::Xberg {

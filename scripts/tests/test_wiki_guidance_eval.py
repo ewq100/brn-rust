@@ -166,7 +166,7 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
 
     def test_late_undo_failure_retains_the_completed_provider_and_snapshot(self):
         class FakeCli:
-            def __init__(self, *args):
+            def __init__(self, *args, stock_helper=None, brn_helper=None):
                 self.commands = []
             def call(self, command, **options):
                 self.commands.append({'command': command, 'seconds': 0})

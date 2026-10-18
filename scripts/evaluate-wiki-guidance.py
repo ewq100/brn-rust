@@ -106,13 +106,22 @@ class CallFailed(Exception):
 
 
 class Cli:
-    def __init__(self, binary, data, owned_root, helper, timeout=180):
+    def __init__(self, binary, data, owned_root, helper=None, timeout=180, *, stock_helper=None, brn_helper=None):
         self.binary, self.data, self.timeout = binary, data, timeout
         self.commands = []
         parent = owned_root.resolve()
         if not (parent / 'EVALUATION-OWNED').is_file() or not data.resolve().is_relative_to(parent):
             raise ValueError('CLI data must belong to this exclusively created evaluation root')
-        self.environment = dict(os.environ, BRN_INTAKE_HELPER=str(helper))
+        self.environment = dict(os.environ)
+        self.environment.pop('BRN_INTAKE_HELPER', None)
+        if helper is not None:  # Explicit external historical binary support only.
+            self.environment['BRN_INTAKE_HELPER'] = str(helper)
+        stock = Path(stock_helper) if stock_helper is not None else Path(binary).with_name('brn-xberg-helper')
+        brn = Path(brn_helper) if brn_helper is not None else Path(binary).with_name('brn-xberg-helper-brn')
+        if not stock.is_absolute() or not brn.is_absolute():
+            raise ValueError('Current helper paths must be absolute')
+        self.environment['BRN_XBERG_HELPER'] = str(stock)
+        self.environment['BRN_XBERG_HELPER_BRN'] = str(brn)
 
     def envelope(self, command, **options):
         """One `--json` read: the envelope, whatever its exit status."""
@@ -272,7 +281,8 @@ def verification_problem(checks, undo):
 def run_arm(binary, root, folder, case, selection, args):
     folder.mkdir(parents=True)
     data = folder / 'data'
-    cli = Cli(binary, data, root, args.helper, args.timeout)
+    cli = Cli(binary, data, root, args.helper, args.timeout,
+              stock_helper=getattr(args, "stock_helper", None), brn_helper=getattr(args, "brn_helper", None))
     result = {'case': case['id'], 'rubric': case['rubric'], 'before': None, 'after': None,
               'outcomes': [], 'commands': cli.commands, 'failure': None, 'verification_failure': None,
               'semantic_status': 'not_run', 'provider_completed': False, 'completed': False, 'structural_checks': {},
@@ -367,7 +377,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline-bin', type=Path, required=True)
     parser.add_argument('--wiki-bin', type=Path, required=True)
-    parser.add_argument('--helper', type=Path, required=True)
+    parser.add_argument('--helper', type=Path, help='explicit old helper for external historical binaries only')
+    parser.add_argument('--stock-helper', type=Path, help='current stock helper; default: sibling of each arm binary')
+    parser.add_argument('--brn-helper', type=Path, help='current adapted helper; default: sibling of each arm binary')
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--baseline-commit', required=True)
     parser.add_argument('--candidate-commit', required=True)
@@ -382,7 +394,7 @@ def main():
     parser.add_argument('--filler', type=int, default=0,
                         help='synthetic distractor notes created before each case, so retrieval matters')
     args = parser.parse_args()
-    for binary in [args.baseline_bin, args.wiki_bin, args.helper]:
+    for binary in [args.baseline_bin, args.wiki_bin] + [p for p in [args.helper, args.stock_helper, args.brn_helper] if p is not None]:
         if not binary.is_absolute() or not binary.is_file() or not os.access(binary, os.X_OK):
             parser.error('Executables must be existing absolute executable files')
     if args.live and not all([args.provider, args.model, args.effort]):

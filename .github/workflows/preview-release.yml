@@ -53,6 +53,11 @@ jobs:
         with:
           lane: preview-release-native-ui
           native: 'true'
+      - name: Fetch the committed stock lock for generator fixtures
+        if: steps.gate.outputs.eligible == 'true'
+        run: |
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
       - name: Check portable packaging and release guards
         if: steps.gate.outputs.eligible == 'true'
         run: python3 -m unittest discover -s scripts/tests -v
@@ -61,7 +66,8 @@ jobs:
         run: |
           host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
-          python3 scripts/prepare-xberg-adapted.py
+          archive="${CARGO_HOME:-$HOME/.cargo}/registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate"
+          python3 scripts/prepare-xberg-adapted.py --archive "$archive"
           cargo fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml --target "$host_target"
           bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$GITHUB_WORKSPACE/target/document-helpers"
       - name: Build locked desktop and retain target graphs

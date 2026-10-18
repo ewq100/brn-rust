@@ -34,7 +34,6 @@ if [[ "${1:-}" != "--fixtures-only" ]]; then
     mkdir -p "$CARGO_TARGET_DIR/debug"
     cp "$BRN_XBERG_HELPER" "$BRN_XBERG_HELPER_BRN" "$CARGO_TARGET_DIR/debug/"
   fi
-  cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
   cargo build --workspace --locked --offline
   cargo clippy --workspace --all-targets --locked --offline -- -D warnings
   cargo test --workspace --no-fail-fast --locked --offline

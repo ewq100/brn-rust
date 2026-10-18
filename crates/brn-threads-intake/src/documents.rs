@@ -101,7 +101,6 @@ impl Converter {
                     deadline,
                 },
                 cancel,
-                false,
             )?;
             let extraction: DocumentExtraction =
                 serde_json::from_slice(&output).map_err(|_| ConversionError::Protocol)?;

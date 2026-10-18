@@ -122,7 +122,6 @@ async fn convert_job(
                 intent: job.intent,
                 bytes: &job.bytes,
                 source_reference: &job.source_reference,
-                inventory: None,
             },
             &job.helpers,
             backend(&job.settings),
