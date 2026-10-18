@@ -1,0 +1,285 @@
+{
+  "checks": [
+    {
+      "phase": "01-isolated-before",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "skill_packages::tests::catalog_drop_releases_lock_with_unrelated_inherited_descriptor",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 81.05166697502136,
+      "outer_test_totals": [
+        0,
+        1,
+        0
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/01-isolated-before/result.json",
+      "receipt_sha256": "5a31639beb5d655adf4aa6b43bb968fac0153c81c03a8dd05665e772f28f5d6b",
+      "inputs_sha256": "7a802d8e2c6c148e11968db6e31f13cb2994694f450ce6ded9801acd26002f90",
+      "diff_sha256": "4951f36469ba6853f27e3d1d546fad350c380490dfe1b47e890253e4b757ced7",
+      "stdout_sha256": "aa21cdd667dafa12315504e15b08d1f9e705a96a1178c9c46a36f157c97ebdb8",
+      "stderr_sha256": "47fa671983b1cb12ec1f63ccad12cbb1415ba50eec8211f03d4286d30ce14ab9",
+      "pid_pgid": 59435
+    },
+    {
+      "phase": "02-isolated-after",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "skill_packages::tests::catalog_drop_releases_lock_with_unrelated_inherited_descriptor",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 79.45656204223633,
+      "outer_test_totals": [
+        1,
+        0,
+        0
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/02-isolated-after/result.json",
+      "receipt_sha256": "52cea7cf2588c7d95910b04f6f32ae571c374c66be842b6389c66d2bc61bef16",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "3014ca4927746f83993e47c235ac622c048fcf79b70b7971b8aae97134156de7",
+      "stderr_sha256": "d0aaad4fe374890bd0337535b8ca7c9a2f04bc184e2d62cd87ec09efc8d7bfb3",
+      "pid_pgid": 60286
+    },
+    {
+      "phase": "03-skill-target",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "skill_packages::tests::",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 1.3346927165985107,
+      "outer_test_totals": [
+        12,
+        0,
+        0
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/03-skill-target/result.json",
+      "receipt_sha256": "41c788e8e337e4622a4e145ec67547a3a7f49e9d37186e41e34fae56626b70b5",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "17bb52aa81210215b67165ec6874b91e62683043342d19f760e02b72eb4e73cc",
+      "stderr_sha256": "f9a25fb0b8ff51c60a6c37b76ac9f9989e7eb92d06bce1ddbfd46751768bc19e",
+      "pid_pgid": 61020
+    },
+    {
+      "phase": "04-intd-focused",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "threads::int_d_tests::capture_runner::activation_gate_checks_real_files_context_and_reserves_before_fake_auth_once",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 4.754446744918823,
+      "outer_test_totals": [
+        1,
+        0,
+        0
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/04-intd-focused/result.json",
+      "receipt_sha256": "59d630e49abf2280e6377ccdfbbae5f7b09d975e1024d3749d23e2bf244f161d",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "49ab6db4fd76634f25b714835226084fc84401fb113ccdaa7278e09e8ea1df69",
+      "stderr_sha256": "8af75cb495f7c132056ea34fcdac6a1ced7484bd8409f47e3ce269643f619992",
+      "pid_pgid": 61188
+    },
+    {
+      "phase": "05-intd-target",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "threads::int_d_tests::",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 4.929138898849487,
+      "outer_test_totals": [
+        7,
+        0,
+        1
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/05-intd-target/result.json",
+      "receipt_sha256": "74309245bb5acbdc7552e5d916c23ad8a5c12449ab6bbc2db696af53a2670f0e",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "e6eb1aa22d6c861c316471505d43eef52e2743195ea89c97b9ad07ca2a2b95bd",
+      "stderr_sha256": "291f2d7a79ad87e675da14cc99add01f6b6c1e8c25fca48078b231e226802fb6",
+      "pid_pgid": 61682
+    },
+    {
+      "phase": "06-full-ai",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 0,
+      "seconds": 10.68079686164856,
+      "outer_test_totals": [
+        496,
+        0,
+        2
+      ],
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/06-full-ai/result.json",
+      "receipt_sha256": "1009e1879e4de89302f9aaae2b3c233d2b43bd1036fb16bed4b20a9ec8251c3a",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "8cb6c2e79c947d5069d7b77caa4b92a615f0c64fc4c1de6efbb5553381efb0ea",
+      "stderr_sha256": "f8c6a591baa4ab2978d7463e1df1d1183289201d40b8d8b2f90f447f2bede78a",
+      "pid_pgid": 62314
+    },
+    {
+      "phase": "07-strict-scripted",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 6.3747718334198,
+      "outer_test_totals": null,
+      "head_plus_exact_wip": "0c60608d4fce3ae0574edbf788c9f7e49e547e2c",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/07-strict-scripted/result.json",
+      "receipt_sha256": "b10908295d69574d699a401f9363fdc2dbd0e1a491818922839fbb2e46c22df1",
+      "inputs_sha256": "dc1ecb1a9565cf7a417d1a2fc588b9e6ff8411193ca04ff31592f3a59ba415cd",
+      "diff_sha256": "96e652b4e2a1556ce8f675fd1c9d12b6325740dcb88db9060d85b44f6ded28bd",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a136eb06eb3fc00a5edb6719818b9dd8b894d4c2b86fd6e77089366877735ede",
+      "pid_pgid": 63117
+    },
+    {
+      "phase": "08-static",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; rustfmt +1.98.1 --edition 2024 --config skip_children=true --check crates/brn-ai/src/skill_packages.rs crates/brn-ai/src/skill_packages_tests.rs crates/brn-ai/src/threads_int_d_tests.rs; python3 scripts/check-markdown-links.py; git diff --check"
+      ],
+      "exit": 0,
+      "seconds": 0.6616189479827881,
+      "head_plus_exact_wip": "41a34dec9866accf5b90154a1986d22d6b511017",
+      "receipt": "/private/tmp/brn-x2-retirement-active-gates-20261018/evidence/08-static/result.json",
+      "receipt_sha256": "65a62b06e8e702d0c2b6f55ef2a88a0741b46db688afb0a3f5a0ee34a540f047",
+      "inputs_sha256": "1d8c0972863e472f0411153a20b79b6ad232af83bc6dd30198b4015a77ac8529",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "325a5f4b34f38d16d382db5552df32d816429a635b9a3f5343ad98a359f3a2ac",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pid_pgid": 64591
+    }
+  ],
+  "historical_workspace": [
+    1227,
+    2,
+    5
+  ],
+  "new_full_ai_only": [
+    496,
+    0,
+    2
+  ],
+  "no_workspace_rerun": true,
+  "nested_child_summary_not_added_to_outer_counts": true,
+  "raw_root": "/private/tmp/brn-x2-retirement-active-gates-20261018",
+  "static": {
+    "owned_rustfmt": "PASS",
+    "markdown_links": {
+      "files": 444,
+      "links": 1949,
+      "failures": 0
+    },
+    "whitespace": "PASS"
+  }
+}

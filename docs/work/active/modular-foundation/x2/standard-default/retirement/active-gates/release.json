@@ -1,0 +1,29 @@
+{
+  "task": "brn-x2-retirement-active-gates-20261018",
+  "released": true,
+  "at_utc": "2026-10-18T13:15:17.120037+00:00",
+  "sole_heavy_released": true,
+  "all_allocated_source_test_evidence_paths_released": true,
+  "controllers_commands_reaped": true,
+  "owned_process_groups": [
+    59435,
+    59861,
+    60286,
+    60825,
+    61020,
+    61022,
+    61188,
+    61682,
+    62314,
+    63117,
+    64591
+  ],
+  "remaining_owned_group_members": [],
+  "precise_heavy_inventory": [],
+  "raw_inventory": "/private/tmp/brn-x2-retirement-active-gates-20261018/final-process-inventory.txt",
+  "raw_inventory_sha256": "98c56e752afad9827829a5df1a7c8812e7b3e4c8d63a2e68fa9381cb9aad2bf9",
+  "source_hashes_reverified": true,
+  "executed_binary_and_dep_info_hashes_reverified": true,
+  "no_workspace_rerun": true,
+  "no_follow_on_task": true
+}
