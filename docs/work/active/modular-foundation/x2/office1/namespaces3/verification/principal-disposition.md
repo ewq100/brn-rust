@@ -1,0 +1,13 @@
+# Principal local disposition — 18 October 2026
+
+Accepted for dependent local development: the bounded namespace component at `5f8974c6242714f43688b5ce6c2f7eaa6762a9a4`, tree `e1321cca570d87ea2afa6eac8c38e6df889a7a47`. The [independent actual review](opus-review-round1.txt) approves the complete 0003 delta with zero blocking findings; no additional code correction is required.
+
+The [source pin](source-pin.json), [check index](check-index.json) and [response](response.md) preserve the actual before **10 passed / 15 failed** and final **25 passed / 0 failed**, all eight original S3 tests unchanged, strict harness Clippy, formatting and patch reproduction. Parent checked 45 source/artifact bindings, including 14 unique retained artifacts; the audit is preserved at `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/x2-office-namespaces3-parent-actual-audit-20261018.json`. The reviewer independently checked selected source, patch reconstruction, raw results, graph/features and artifact custody.
+
+Compatibility remains 28 whole-value-identical captures plus the exact source-confirmed features relationship correction. All 24 DOCX input byte vectors are unchanged. The original strict 29-identity comparison failure and previous compiler/fixture failures remain historical evidence. Complete corrected prefix output agrees with the independent source inventory; source paragraph counts are not public locators.
+
+The accepted patch is `e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f`, applied after accepted table-span 0001. Root BRN production, dependency manifests/lock, old registries/oracles and accepted S3 geometry remain unchanged. The PPTX bridge is qualified only for shared math conversion; its three passing controls do not close PPTX O2.
+
+Next bounded Office work may measure and correct actual PowerPoint presentation order and hidden-slide metadata against the existing Harbor/Quay fixtures, with a separate allocation, real before/final checks and independent review. No full Office adoption, reader retirement or all-eight integration is accepted here. XML/DTD/read-set/preallocation/repeated-work bounds, layout/nested tables, notes/annotations/locators/rendering, restricted runtime, license custody and carried PDF/SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications remain open. The provider-interrupted PDF corrections are preserved but unaccepted and are not reopened by this disposition.
+
+All namespace worker paths and the heavy slot were released with an empty process inventory. This docs-only acceptance does not authorize a provider run, publication, PR or merge before remaining integration gates.

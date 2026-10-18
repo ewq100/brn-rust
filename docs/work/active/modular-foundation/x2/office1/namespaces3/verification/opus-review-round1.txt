@@ -1,0 +1,65 @@
+**APPROVED — exact bounded URI-aware namespace component 0003.** No blocking standards, correctness, semantic, complexity or scope finding. This verdict does not approve full Office promotion, root adoption or all-eight-document readiness.
+
+Reviewed the clean isolated checkout:
+
+- Branch: `work/x2-office-prep-20261018`
+- HEAD: `5f8974c6242714f43688b5ce6c2f7eaa6762a9a4`
+- Tree: `e1321cca570d87ea2afa6eac8c38e6df889a7a47`
+- Original accepted-span baseline: `c5cca502e28b4c9c607444ed9fab7c35652ab756`
+- Compiled Xberg: `00ba3b3183719643121824b48ce288a492c2c111`
+- Final patch SHA-256: `e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f`
+
+Cached `origin/main` remains `57c710ccec2b007c4d8a25c9f1d1b5c1c539907c`; no fetch occurred. I reviewed the complete 0003 delta against accepted span-only production, including its original preparation and subsequent corrections.
+
+**Standards and implementation**
+
+The private [namespace helper](/private/tmp/brn-x2-office-ns3-run-20261018/final/xberg/src/extraction/docx/xml_names.rs:1) delegates namespace handling to maintained APIs. It classifies namespace URI plus local name, distinguishes unknown prefixes from unqualified names, and keeps attribute resolution separate from element resolution. Default element namespaces do not qualify unprefixed attributes.
+
+The affected DOCX readers consistently use `NsReader`’s inherent event-reading method. Nested table, drawing, section and math consumers therefore update the same maintained resolver. Inspection of quick-xml’s implementation confirms that Empty/End namespace pops remain deferred until the next read, so resolution during the returned event uses its correct scope. I found no Reader dereference bypass or retained resolver borrow across nested reads.
+
+Word and relationship attributes require their respective URI families. OPC relationship attributes remain unqualified. Styles now guard DOM element names by Word namespace rather than accepting arbitrary same-local-name elements. DrawingML, Word drawing, VML, compatibility and math dispatch use their allocated namespaces.
+
+The corrected [comment stop tag](/private/tmp/brn-x2-office-ns3-run-20261018/final/xberg/src/extraction/docx/parser.rs:3662) copies the opening event’s raw QName. This matches the existing depth-tracked note mechanism and avoids conflating semantic classification with exact opening/closing correspondence.
+
+The actual before/final source comparison contains exactly the 11 allocated changed files. Accepted `to_cell_grid`, `to_native_grid` and `to_cell_style_grid` methods are unchanged. Extractor, derive consumer, theme reader, math renderer, package manifests and lock are unchanged. Ordered budget-method call sequences also remain unchanged. These source comparisons establish preservation, not complete runtime resource bounds.
+
+**PPTX shared-math bridge**
+
+The [bridge](/private/tmp/brn-x2-office-ns3-run-20261018/final/xberg/src/extraction/pptx/parser.rs:696) preserves the exact selected raw fragment and seeds level-zero resolver bindings from its element parent. roxmltree’s maintained namespace collection includes inherited bindings with local shadowing; the fragment’s actual start and descendants then establish their own scopes normally.
+
+Checked resolver insertion preserves reserved-prefix validation and the existing binding cap. No cap increase, synthetic wrapper, XML rewriting, custom namespace stack or per-equation full-slide rescan appears. Existing display-first/inline-fallback selection and conversion behavior remain intact. This is shared-converter qualification only, not PPTX O2.
+
+**Semantic controls and compatibility**
+
+The retained executions establish identical final controls producing **10 passed / 15 failed before** and **25 passed / 0 failed final**, with zero ignored or filtered tests. I inspected the associated receipts and raw logs. All eight accepted S3 tests remain byte-identical, including the original prefix assertion and 4,096-chain case. Historical S3 **7/1** remains historical.
+
+The new real-prefix control checks complete ordered substantive wording, the heading, all nine addressed cells, both repeated figure targets/descriptions, and exact header/footer text. Independent raw XML inspection confirms **15 paragraphs / one table / nine cells / two drawings**; those source counts are not presented as public locators.
+
+Rich canonical/alias/default controls compare complete public results and explicit headings, paragraph order, link ranges/targets, note/comment definitions, revision identity, figure bindings and three-story typed tables. Rebinding, foreign/unbound names, qualified attributes, VML and shared math receive targeted controls.
+
+The corrected negative image expectations are justified by unchanged production code: absent `drawing.image_ref` suppresses the semantic Image node, while the separate metadata loop retains each drawing occurrence. The tests preserve unbound metadata and the restored valid figure’s original index; no production behavior was weakened to obtain green.
+
+I independently compared retained captures:
+
+- **28 complete JSON values are identical.**
+- **24 legacy DOCX input byte vectors are identical.**
+- Features matches exactly the authorized four added URI/path keys and specified destination replacements.
+- Complete corrected prefix output equals canonical Harbor output.
+
+Bounded source inspection confirms features’ rId11 target, both blip references, sole media entry and third chart-drawing metadata record. The authored compatibility checker compares the entire resulting JSON after only the authorized changes. The original strict 29-identity failure remains preserved.
+
+Compiler E0599/E0277 and earlier 23/2, 24/1 and checker failures remain separately qualified; they are not misreported as intended behavioral failures or retroactively green.
+
+**Evidence custody and limits**
+
+I reconstructed all 11 compiled files from the complete distributable patch in memory, without writing files. Selected before/final source hashes, compiled driver/manifest/lock hashes, successful-command receipt/log hashes, and retained final executable, Xberg rlib and both dep-info hashes match their pins. Dep-info and compiler records associate those artifacts with the fixed final source and harness.
+
+The later harness commit changes only the separately executed Python checker; compiled Rust/manifests/lock remain associated with `e8661224f6cd5d83af7e7fc9ebdc25d9867d4725`. Direct before/final compiler-record comparison confirms identical **239 registry identity/feature unions**, with normal-dependency Xberg using `html/notebook/office` and test profile false. I did not repeat the parent’s complete custody/dependency audit.
+
+Retained strict all-target **harness** Clippy and owned formatting/reproduction receipts pass. Dependency-wide lint, performance/RSS, current full-workspace checks and native-PDF execution are not established.
+
+Full XML/DTD/read-set/preallocation/repeated-work qualification, layout/nested tables, note associations, annotations/locators/renderer fidelity, PPTX O2, restricted Office runtime, license custody, retirement/root adoption and all-eight integration remain open. Carried PDFUnavailable, SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications remain unchanged.
+
+This review used read-only Git, source/evidence inspection, bounded fixture inspection, hashing and retained-data comparisons. No files or reports were written; no Cargo, metadata, build, test, lint, project executable, network/acquisition/Auth/provider, GUI, mutants, polling or delegation ran. The unrelated mutable PDF task was not inspected.
+
+**Blocking findings: zero. No additional code change is required for this bounded approval.** Parent retains acceptance and integration ownership.
