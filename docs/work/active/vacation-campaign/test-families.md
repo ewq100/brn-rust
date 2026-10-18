@@ -1,17 +1,16 @@
-# Test-family audit (bounded, source-only)
+# Test-family audit (bounded)
 
-Snapshot: `b512b574`. This is a practical family map, not a per-case retirement
-authorization. No build or test ran for this inventory; no current per-family compile
-or body timings were measured. CI execution graphs below are source-qualified only.
-Historical timing evidence is explicitly labeled. Keep behavior at one authoritative
-interface; add a second layer only for a distinct failure class (native wiring,
-serialized bytes, persistence, OS behavior, package, or pixels).
+Snapshot: current vacation-campaign pilot after integrating shared Note and Review
+lifecycle owners. This is a practical family map, not a per-case retirement
+authorization. Historical timing evidence is explicitly labeled. Keep behavior at
+one authoritative interface; add a second layer only for a distinct failure class
+(native wiring, serialized bytes, persistence, OS behavior, package, or pixels).
 
 | Family / source and interface | Distinct guarantee; consumer or lane | Action and evidence boundary |
 |---|---|---|
 | Checked durable writes: `crates/brn-threads-core/tests/{core,writing,edit_tokens,converge}.rs`; `crates/brn-threads-app/tests/{writing,projects,thread_lifecycle}.rs` | Version/protection/scope checks, replay, dirty guards, grouped changes, Undo, service callers across desktop/CLI/agent | **KEEP.** Store/app service is authoritative; UI mocks cannot replace persistence/replay witnesses. Check full consumer graph before retiring a case. |
 | Durable recovery, backup, restore, upgrades: `crates/brn-threads-core/tests/{backup_directory,data_folder,writing}.rs`, `crates/brn-threads-core/src/restore.rs`; `crates/brn-threads-app/tests/backup_directory.rs` | Restore/reopen, data-root refusal, supported schema migrations, recovery, derived-index rebuild | **KEEP.** Current source/schema and every upgrade fixture require audit before any removal; preserve schemas 3–9 and backup-first upgrade contract. |
-| Production desktop writing lifecycle: `threads_writing_tests.rs`, `threads_document_tests.rs`, `threads_review_tests.rs` | Real navigation/callbacks, typed draft retention, stale save, selection/comment anchor, review/apply/Undo, host interaction | **REWRITE_AT_OWNER** in bounded slices. Tests protect unique behavior but many reach private `ThreadsUi` fields/callbacks. Move combination policy to useful `WritingPanel` owner as implementation lands; retain representative real-host/control witnesses. Full-note owner remains pending; no test deletions authorized by this inventory. |
+| Production writing lifecycle pilot: `brn-writing-ui` `NoteLifecycle`/`ReviewLifecycle`, its owner tests and independent writing host, plus `threads_writing_tests.rs`, `threads_document_tests.rs`, `threads_review_tests.rs` | Shared private owners now handle Note and candidate Review lifecycle policy/effects for desktop and independent host; Store remains authoritative for durable versions, generations, guards, replay and Undo; toolkit owns editor mechanics. Real host tests cover callbacks/wiring separately. | **INTEGRATED PILOTS; old desktop mutation routes retired.** Independent Sol source review passed for both owners. Available owner/host tests: writing 44, independent host 12 passed. Final desktop result: 309 passed, 1 ignored; the ignored shared CLI/desktop case separately passed1 with its synthetic offline fixture. Final production Linux X11 Note input/recovery/Save/OS-close/reopen passed on committed material, exactv3 text and empty recovery. These are pilot evidence, not full workflow or OS qualification; no blanket test retirement follows. |
 | Native desktop domain journeys: `threads_chat_tests.rs`, `threads_projects_tests.rs`, `threads_documents_tests.rs`, `threads_intake_tests.rs`, `threads_backup_tests.rs`, `threads_context_actions_tests.rs`, `threads_mcp_tests.rs`, `threads_skills_tests.rs` | Actual callbacks/menus/dialogs plus store effects across distinct domains | **KEEP** unique real-control journeys. Classify each case against owner-level tests before considering **CONSOLIDATE**; similarly named fixtures do not prove equivalent outcomes. |
 | Desktop layout/focus/presentation: `threads_focus_tests.rs`, `threads_tiled_tests.rs`, `threads_pages_tests.rs`, `threads_polish_tests.rs`, `threads_omakase_tests.rs` | Shortcut/focus traversal, tile geometry, responsive layout, visual text and action availability | **KEEP** representative rendering/focus witnesses; possible **CONSOLIDATE** only for verified duplicated geometry/presentation setup. Pixel/native behavior is a distinct Linux/macOS layer. |
 | Desktop state decision tests: `threads_state.rs` cfg tests and `threads_steering_tests.rs` | Continue/recovery path, queue ownership, recorded outcome/notice decisions | **REWRITE_AT_OWNER** only when a production owner interface takes over the same decision. Preserve pure tests for consequential policy if they remain the authoritative unit seam. |
@@ -26,24 +25,25 @@ serialized bytes, persistence, OS behavior, package, or pixels).
 
 ## CI graph and cost evidence
 
-`.github/workflows/ci.yml` runs default workspace build/lint/test; both Xberg helper
-test/lint graphs; scripted document route; capability fixtures; native desktop state
-tests; and retrieval/native-retrieval lanes. The merged-161 roadmap described Linux
-native CI as skipping Mac-only widget/writing-host steps. Current workflow source now
-guards writing UI build/lint/test and desktop widget build/lint/test with
-`runner.os != 'Windows'`; its pull-request matrix is still macOS-only, while the
-Ubuntu runner is included on push/manual runs. The widget command is filtered to
-`threads_ui::`. Treat this as wired Linux test capability, not execution evidence:
-record the exact Ubuntu run and its executed test result before claiming Linux
-component qualification. Neither these steps nor headless startup qualify a real
-Linux window. Keep the historical post-161 status separate from the current workflow
-definition. Read `docs/development/verification.md` for explicit storage,
-end-to-end, scale and skill-package commands. Avoid running both full local
-verification scripts after each small change; use the narrow command matching the
-risk, then required integrated CI.
+`.github/workflows/ci.yml` carries the default workspace, helper, scripted document,
+capability, native desktop and retrieval lanes. The merged `main` workflow includes
+Windows native UI. Current branch workflow adds Ubuntu native UI alongside macOS to the PR matrix; the
+retrieval PR lane remains macOS-only. Ubuntu widget tests have run locally, but that
+is not a hosted pass. The final local desktop result is309 passed and1 ignored; the ignored shared
+CLI/desktop fixture was executed separately and passed1. The current available writing-owner/host results are 44 and 12
+passed. Record the exact hosted Ubuntu and macOS checks before claiming PR CI
+qualification. Neither widget tests nor headless startup qualify a real Linux
+window. The final production X11 Note input/recovery/Save/close/reopen journey passed on
+committed material with exactv3 text and empty recovery. The 25-domain inventory remains
+provisional: 2 implemented lifecycle pilots and 23 unqualified domains, with 0
+domains fully qualified under the campaign's full acceptance standard; the OS-route
+denominator is incomplete. Astra independently source-reviewed the Linux helper
+filter; the current stock and adapted suites each passed 13 tests. The final filter
+correction is committed in8c951d64.
 Read `docs/development/verification.md` for explicit storage, end-to-end, scale and
-skill-package commands. Avoid running both full local verification scripts after each
-small change; use the narrow command matching the risk, then required integrated CI.
+skill-package commands. Avoid running both full local verification scripts after
+each small change; use the narrow command matching the risk, then required
+integrated CI.
 
 Historical only: roadmap PR160 run `39154786381` reports Mac Core/CLI 25m55s,
 workspace tests 6m35s (4m44s compilation, about 107s summed bodies); both helper

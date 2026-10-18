@@ -1,0 +1,47 @@
+{
+  "observed_at_utc": "2026-10-18T22:41:01.125851+00:00",
+  "source_commit": "609af544545a159638d0f8c0a6523df55e7608e0",
+  "production_source_commit": "8c951d64884e2c21d8fffc631cd7f88380d0973e",
+  "source_qualification": "609af544 changes only a cfg(test) callback fixture; production sources match8c951d64. Docs-only checkpoint updates follow. This is a pilot witness, not release-candidate acceptance.",
+  "platform": "Linux x86_64, Xvfb1280x900x24, Openbox, lavapipe software Vulkan",
+  "binaries": [
+    "efaf1dd1ad290249bbd48cb652c56acecadcfeb5828226258057a489f4e50b14  /workspace/brn-environment/target/debug/brn-desktop",
+    "ff385b59dd9f2394c44d7874a3e57931a3e289c447d7374b399dafe2ccc49210  /workspace/brn-environment/target/debug/brn"
+  ],
+  "fixture": "same synthetic purpose=test workspace as first receipt; preexisting UI-created v2 note",
+  "actions": [
+    "Launch rebuilt production desktop; actual Notes-list click opens previousv2",
+    "Focus actual editor; XTEST Ctrl-End/newlines and two ASCII input batches",
+    "Read-only CLI witnesses canonicalv2 while one open recovery guard contains complete edited text",
+    "Click actual Save; observev3 and empty recovery",
+    "OS Alt-F4; process exited0",
+    "Launch same build/workspace, actual Notes-list and note-row clicks; observev3 text",
+    "Read-only independent CLI verifies exact expected markdown/version3 and empty recovery"
+  ],
+  "expected_markdown": "This paragraph was typed through X11 into the production BRN editor. Linux campaign witness 2026-10-18.\n\nThe final shared Note lifecycle preserved this second edit after Linux save and reopen.\n\nThe final shared Note lifecycle preserved this second edit after Linux save and reopen.",
+  "result": "PASS",
+  "limits": [
+    "No provider invoked and no CLI/SQL content repair.",
+    "XTEST injection completed before the event queue drained during concurrent compilation. Interim reads showed incremental progress; a second input batch intentionally appears as a repeated paragraph. Qualification waits for complete expected text before Save. This is not a latency/responsiveness benchmark.",
+    "ASCII input/save/reopen only; IME, Unicode composition, clipboard, accessibility, hardware GPU, animation and full Mac/Linux parity remain open.",
+    "Some Super/Command labels, substituted fonts and unnamed OS window remain parity gaps."
+  ],
+  "artifacts_sha256": {
+    "linux-note-final-saved.png": "938da2e32c366d1fb93d415e0a9c279d03c1c9d94a1efb7e2581d31794fefe42",
+    "linux-note-final-reopened.png": "8a93bcd0b018f54b92178231bae5cca6db85989a77c8c28362c9661517df5cbb",
+    "linux-note-final-independent-read.json": "ce7ec06fe967c2e402cff0061464353fb5733219687e57b537cd08b6f6d6e7ab",
+    "linux-note-final-independent-recovery.json": "af42ad81bc989c92795491a31e3d7eb9e31dfa79d4d92129c56b9c7505736984",
+    "linux-note-final-before-save.json": "7d6907c5990877402473e4e493f98fbd4ff25732488e01b4a5c3ab3187fc9e8a",
+    "linux-note-final-dirty-recovery.json": "4119881d92e12dc7521d1628a2433c34f6168a8ca566a73ded1d88d5329a6a1d",
+    "linux-note-final-standard-cli-read.json": "ce7ec06fe967c2e402cff0061464353fb5733219687e57b537cd08b6f6d6e7ab",
+    "linux-note-final-standard-cli-recovery.json": "af42ad81bc989c92795491a31e3d7eb9e31dfa79d4d92129c56b9c7505736984"
+  },
+  "standard_production_recheck": {
+    "binary_sha256": [
+      "efaf1dd1ad290249bbd48cb652c56acecadcfeb5828226258057a489f4e50b14  /workspace/brn-environment/target/debug/brn-desktop",
+      "854e25a84667e650172e9b127574d3fa3ae081036b0a89d619440d8468a1e654  /workspace/brn-environment/target/debug/brn"
+    ],
+    "result": "PASS: unchanged desktop hash; standard production CLI independently confirms same exact v3 content and empty recovery",
+    "qualification": "Initial CLI reader hashff385 came from an earlier Cargo build graph. Standard production setup rebuild yields hash854e; both exact receipts retained, no byte-identity claim between those CLI builds."
+  }
+}

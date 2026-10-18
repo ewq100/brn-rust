@@ -1,0 +1,187 @@
+[
+  {
+    "file": "vacation-install-tests.log.gz",
+    "uncompressed_bytes": 2391,
+    "uncompressed_sha256": "7e2aa03889197facd3f18821f3ee73f3a79c81b74591ab40ebfa64019d594f38"
+  },
+  {
+    "file": "vacation-install-dynamic-tests.log.gz",
+    "uncompressed_bytes": 3858,
+    "uncompressed_sha256": "401eee230c84da4f83570dc00feb71231b8708a1e08865e4b703d87f94bec3c3"
+  },
+  {
+    "file": "vacation-stock-helper-tests.log.gz",
+    "uncompressed_bytes": 2774,
+    "uncompressed_sha256": "240271590c2a72c22b1984caedcc28df242056e63dc42f35391e7997a7ca1ccd"
+  },
+  {
+    "file": "vacation-stock-helper-tests2.log.gz",
+    "uncompressed_bytes": 2650,
+    "uncompressed_sha256": "603dadddb7e31bbfca866997999b417e1578e586822e239129beb9ab06165922"
+  },
+  {
+    "file": "vacation-stock-helper-tests3.log.gz",
+    "uncompressed_bytes": 1754,
+    "uncompressed_sha256": "4bcdf5137c0aa153793439c5843886526160f7ae7a177bd04ab2f1a730d71344"
+  },
+  {
+    "file": "vacation-adapted-helper-tests.log.gz",
+    "uncompressed_bytes": 1981,
+    "uncompressed_sha256": "3f6a2278f904e72a0c0de843823943ed0e372da41c6b1939279272022862883f"
+  },
+  {
+    "file": "vacation-intake-host-tests.log.gz",
+    "uncompressed_bytes": 2126,
+    "uncompressed_sha256": "7f5ca1e23206aa3b878e604b848d697998dba030e59a1e5082b16275d57bfa7e"
+  },
+  {
+    "file": "vacation-widget-tests.log.gz",
+    "uncompressed_bytes": 39733,
+    "uncompressed_sha256": "97d658b590a8e3a93b7194439c973771b1772f7949e2a4540e9a3dcaff871a3a"
+  },
+  {
+    "file": "vacation-desktop-final-tests.log.gz",
+    "uncompressed_bytes": 31684,
+    "uncompressed_sha256": "dea3a94113a418495cebd29e74f47d6a076c985bc983652d717a73c187516851"
+  },
+  {
+    "file": "vacation-desktop-checkpoint-tests.log.gz",
+    "uncompressed_bytes": 33395,
+    "uncompressed_sha256": "0344e1345bb4648840d47bffcad93e591ff0f20538774152d6c09727d73d9b36"
+  },
+  {
+    "file": "vacation-desktop-checkpoint-final.log.gz",
+    "uncompressed_bytes": 32718,
+    "uncompressed_sha256": "42e63ba8b3105481b999bb58e96befad10aa7cd3d9e861a8da7725d6bfe83087"
+  },
+  {
+    "file": "vacation-note-writing-tests.log.gz",
+    "uncompressed_bytes": 9447,
+    "uncompressed_sha256": "b95856a40fbe9dc9c3bb81a26616cb96862541232885a4326a2648e3972379c2"
+  },
+  {
+    "file": "vacation-writing-checkpoint-tests.log.gz",
+    "uncompressed_bytes": 5280,
+    "uncompressed_sha256": "6a3ba72b03c7edad60683114c9c100c70c8b763770a1e4414e84b8470f265c00"
+  },
+  {
+    "file": "vacation-cli-intake-tests.log.gz",
+    "uncompressed_bytes": 118,
+    "uncompressed_sha256": "be1eebb86b6e661a960df91eb607ee6859c66641f50ed46985ce5a56e65eb7a6"
+  },
+  {
+    "file": "vacation-cli-intake-tests2.log.gz",
+    "uncompressed_bytes": 5209,
+    "uncompressed_sha256": "a6e36217b04f9a809c89108f45eb86c7f861561f64f34ddafcef93557564cf36"
+  },
+  {
+    "file": "vacation-cli-intake-tests3.log.gz",
+    "uncompressed_bytes": 1305,
+    "uncompressed_sha256": "7271ce7859c024b3697b2324672305836ce1706f7dd9acd4776932ef74d441ad"
+  },
+  {
+    "file": "vacation-cli-desktop-shared-test.log.gz",
+    "uncompressed_bytes": 380,
+    "uncompressed_sha256": "83dd2c6573c79e01955c651c7eae38412fa42b49093e67fbf8a5ea67327f2c37"
+  },
+  {
+    "file": "vacation-ui-clippy.log.gz",
+    "uncompressed_bytes": 4444,
+    "uncompressed_sha256": "3bee4c2b934ac8ed5c0f25bea0cfd50a0d4895f6bc432cbd626f335e05f7e26f"
+  },
+  {
+    "file": "vacation-ui-clippy2.log.gz",
+    "uncompressed_bytes": 267,
+    "uncompressed_sha256": "5646e8eec675589e71d76380ce05fd853ce28bb0e8050769e07b35cc5bb66d96"
+  },
+  {
+    "file": "vacation-ui-clippy-checkpoint.log.gz",
+    "uncompressed_bytes": 1141,
+    "uncompressed_sha256": "e2452299f06359fcf3e348cde6d1fe6091a51c2404548a86c73b68fb7da8bd91"
+  },
+  {
+    "file": "vacation-stock-helper-clippy.log.gz",
+    "uncompressed_bytes": 9110,
+    "uncompressed_sha256": "719048465017e3fbf3c3a8e1891d379084bede42fc7223abb86bbe9911421716"
+  },
+  {
+    "file": "vacation-adapted-helper-clippy.log.gz",
+    "uncompressed_bytes": 9165,
+    "uncompressed_sha256": "2eda0a5e4abf642e096ae7f0d68dd4ba3b36c26ba9062ca6ae5a12a637a31d2d"
+  },
+  {
+    "file": "vacation-tooling-tests.log.gz",
+    "uncompressed_bytes": 32875,
+    "uncompressed_sha256": "d56fc189d5799f66f92f087453344737f33b64d7dd5575fb2549dc91c6d4cc8d"
+  },
+  {
+    "file": "vacation-tooling-final.log.gz",
+    "uncompressed_bytes": 25338,
+    "uncompressed_sha256": "af3a5f02e14a8414662fd1e736c03280603fd6f423e07cec53e88596d0d770df"
+  },
+  {
+    "file": "vacation-discard-dialog-baseline-direct.log.gz",
+    "uncompressed_bytes": 201,
+    "uncompressed_sha256": "bc0fa636e023c3919b143fd2b0a1cf5f7cd23f76c5dd8176740fb0f105d8ae15"
+  },
+  {
+    "file": "vacation-discard-dialog-baseline-probe.log.gz",
+    "uncompressed_bytes": 499,
+    "uncompressed_sha256": "3958ba1397670decc9b814983955000e1fe1f77ab7ed9425b28b6d1c84ed8d29"
+  },
+  {
+    "file": "vacation-setup-complete.log.gz",
+    "uncompressed_bytes": 8410,
+    "uncompressed_sha256": "78a48060deea5d151ae8ace94d56d37e2408dfe0a5dae6c35915e10bff368425"
+  },
+  {
+    "file": "vacation-final-binaries.sha256.gz",
+    "uncompressed_bytes": 228,
+    "uncompressed_sha256": "63b11a9326ba63d3e49bc9e9ccc8e8ba75975946807a76234031b2507c1a2d1e"
+  },
+  {
+    "file": "vacation-helper-artifacts.sha256.gz",
+    "uncompressed_bytes": 278,
+    "uncompressed_sha256": "2a5a8283cc67b08e848955b67462d52edb7121d3d0694a1f4ce660ce7771343b"
+  },
+  {
+    "file": "vacation-helper-seccomp-text.strace.gz",
+    "uncompressed_bytes": 10403,
+    "uncompressed_sha256": "17587870eb5a2758811b7e3fa26cb22fe4aefe1b1a0895e53df04924e3ab4934"
+  },
+  {
+    "file": "vacation-helper-seccomp-text2.strace.gz",
+    "uncompressed_bytes": 10958,
+    "uncompressed_sha256": "6ec06d5eb4ea988419f50b7d5c6b4d97565f8fcae9fd7581d8bc8c98709ea207"
+  },
+  {
+    "file": "vacation-fmt-checkpoint.log.gz",
+    "uncompressed_bytes": 1462,
+    "uncompressed_sha256": "3c2054ba74837d466cd209e09b54b1459aa8ce04967fdb32728d84b85ad166ec"
+  },
+  {
+    "file": "vacation-links-final.log.gz",
+    "uncompressed_bytes": 103,
+    "uncompressed_sha256": "cc294a8ddec7b260ec0e07f68441d449d5ec9baef1cd3edd10d16d08599d03e8"
+  },
+  {
+    "file": "vacation-intake-retirement-final.log.gz",
+    "uncompressed_bytes": 61,
+    "uncompressed_sha256": "10fb696aa27801685a2853e391c0943f4b18df5a08718554cbf51a0e7ca6aa50"
+  },
+  {
+    "file": "vacation-provider-retirement-final.log.gz",
+    "uncompressed_bytes": 44,
+    "uncompressed_sha256": "fb2c6498194d43d855c5d9b93d519ab0d944238b8c1779ba993cbd6d440b3373"
+  },
+  {
+    "file": "vacation-setup-repeat.log.gz",
+    "uncompressed_bytes": 7416,
+    "uncompressed_sha256": "52ea4139e615e5dfe8ab7a8834258bbd3fdbd83afe15fd979cb9cb7e87d2672d"
+  },
+  {
+    "file": "vacation-standard-production-binaries.sha256.gz",
+    "uncompressed_bytes": 228,
+    "uncompressed_sha256": "3336378bc9e5fad9176969e38d5ad08c07af77040d0ed499fbb9415feed2bd91"
+  }
+]

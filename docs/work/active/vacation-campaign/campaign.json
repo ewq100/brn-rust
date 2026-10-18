@@ -19,16 +19,9 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": null,
-  "last_checkpoint_at_utc": "2026-10-18T22:18:31.106227+00:00",
-  "last_committed_source": "39312be9c6c249928252e6df50cfbb2413b7874c",
-  "current_session_jobs": [
-    {
-      "tool_session_id": 52981,
-      "purpose": "corrected writing host then full desktop tests",
-      "status": "running",
-      "log_prefix": "/workspace/brn-environment/logs/vacation-"
-    }
-  ],
+  "last_checkpoint_at_utc": "2026-10-18T22:51:32.755097+00:00",
+  "last_committed_source": "609af544545a159638d0f8c0a6523df55e7608e0",
+  "current_session_jobs": [],
   "capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "HTTP401 authentication parse failure; no new remote task launched",
@@ -43,5 +36,7 @@
     "hard_escalation": "Requested gpt-6-astra high only for native seccomp BPF independent review",
     "effective_model_verification": "Tools accept requested model/reasoning but list_agents exposes status only; effective runtime model/effort and speed not independently observable",
     "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
-  }
+  },
+  "integration_status": "Local pilot qualified; campaign draft PR is reconciled by branch vacation-campaign-20261018. Hosted exact-head CI and remaining campaign acceptance are open.",
+  "next_eligible_work": "Reconcile PR/configuration status, remaining OS routes, then inspect run/worker lifecycle inventory15 before selecting the next bounded owner slice."
 }
