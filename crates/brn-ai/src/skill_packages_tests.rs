@@ -445,7 +445,13 @@ fn remove_rechecks_real_replacement_and_rolls_back_without_deleting_it() {
             dir.rename_exclusive(".replacement-test", name).unwrap();
         }));
     });
-    assert!(remove(&store, "document-review", &info.digest).is_err());
+    let error = remove(&store, "document-review", &info.digest).unwrap_err();
+    if calls.get() == 0 {
+        eprintln!(
+            "synthetic removal refused before hook: kind={:?}, error={error}",
+            error.kind()
+        );
+    }
     assert_eq!(calls.get(), 1);
     assert_eq!(disk::read(&path).unwrap(), replacement);
     assert!(inspect(&store, "document-review").is_err());
@@ -462,4 +468,178 @@ fn remove_rechecks_real_replacement_and_rolls_back_without_deleting_it() {
     assert!(remove(&store, "document-review", &info.digest).unwrap());
     assert!(!remove(&store, "document-review", &info.digest).unwrap());
     assert_eq!(calls.get(), 1);
+}
+
+// Exec isolates this fork experiment from every other parallel libtest fixture.
+// The private flag is set only on this Command, never in the parent environment.
+#[test]
+fn catalog_drop_releases_lock_with_unrelated_inherited_descriptor() {
+    const CHILD: &str = "BRN_PRIVATE_CATALOG_DROP_CHILD";
+    const TEST: &str =
+        "skill_packages::tests::catalog_drop_releases_lock_with_unrelated_inherited_descriptor";
+    if std::env::var_os(CHILD).as_deref() != Some(std::ffi::OsStr::new("1")) {
+        use std::os::unix::process::CommandExt;
+        struct Child(std::process::Child);
+        impl Drop for Child {
+            fn drop(&mut self) {
+                // Also reap/terminate any experiment descendant on panic/timeout.
+                unsafe { libc::kill(-(self.0.id() as i32), libc::SIGKILL) };
+                let _ = self.0.kill();
+                let _ = self.0.wait();
+            }
+        }
+        let logs = tempfile::tempdir().unwrap();
+        let log = disk::File::create(logs.path().join("child.log")).unwrap();
+        let mut child = Child(
+            std::process::Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", TEST, "--nocapture", "--test-threads=1"])
+                .env(CHILD, "1")
+                .process_group(0)
+                .stdout(log.try_clone().unwrap())
+                .stderr(log)
+                .spawn()
+                .unwrap(),
+        );
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        let status = loop {
+            if let Some(status) = child.0.try_wait().unwrap() {
+                break status;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "isolated lock experiment timed out"
+            );
+            // Watchdog polling only; pipe handshakes establish the experiment order.
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        };
+        drop(child);
+        let output = disk::read(logs.path().join("child.log")).unwrap();
+        assert!(output.len() < 64 * 1024);
+        let output = String::from_utf8(output).unwrap();
+        eprintln!("isolated catalogue experiment:\n{output}");
+        assert!(
+            status.success(),
+            "isolated catalogue experiment failed: {status}"
+        );
+        return;
+    }
+
+    use std::os::fd::{AsRawFd, FromRawFd};
+    // This branch runs only after exec (closing inherited CLOEXEC catalogue FDs),
+    // with exactly one libtest test. Its fork child performs libc calls only.
+    struct ForkHolder {
+        pid: libc::pid_t,
+        release: disk::File,
+    }
+    impl Drop for ForkHolder {
+        fn drop(&mut self) {
+            let _ = self.release.write_all(&[1]);
+            unsafe {
+                libc::kill(self.pid, libc::SIGKILL);
+                while libc::waitpid(self.pid, std::ptr::null_mut(), 0) < 0 {
+                    if io::Error::last_os_error().kind() != io::ErrorKind::Interrupted {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    fn pipe() -> (disk::File, disk::File) {
+        let mut fds = [-1; 2];
+        assert_eq!(unsafe { libc::pipe(fds.as_mut_ptr()) }, 0);
+        // These test-only descriptors must not escape a later exec either.
+        for fd in fds {
+            assert_eq!(
+                unsafe { libc::fcntl(fd, libc::F_SETFD, libc::FD_CLOEXEC) },
+                0
+            );
+        }
+        unsafe {
+            (
+                disk::File::from_raw_fd(fds[0]),
+                disk::File::from_raw_fd(fds[1]),
+            )
+        }
+    }
+    let (_root, store, source) = fixture();
+    let info = install(&store, &source).unwrap();
+    let path = store.directory().join("skills/document-review.json");
+    let original = disk::read(&path).unwrap();
+    let records = store.records().unwrap();
+    let receipts = store.receipts().unwrap();
+    let catalog = Catalog::open(&store, false).unwrap().unwrap();
+    let inode = catalog._lock.metadata().unwrap().ino();
+    let (mut ready_read, ready_write) = pipe();
+    let (release_read, release_write) = pipe();
+    let rr = ready_read.as_raw_fd();
+    let rw = ready_write.as_raw_fd();
+    let sr = release_read.as_raw_fd();
+    let sw = release_write.as_raw_fd();
+    // SAFETY: only the isolated exec child forks. After fork the child touches
+    // no Rust state, allocator, locks, Store, or unwinding; only these libc calls.
+    let pid = unsafe { libc::fork() };
+    assert!(pid >= 0);
+    if pid == 0 {
+        unsafe {
+            libc::close(rr);
+            libc::close(sw);
+            let byte: u8 = 1;
+            if libc::write(rw, (&byte as *const u8).cast(), 1) != 1 {
+                libc::_exit(2);
+            }
+            libc::close(rw);
+            let mut release: u8 = 0;
+            libc::read(sr, (&mut release as *mut u8).cast(), 1);
+            libc::close(sr);
+            libc::_exit(0);
+        }
+    }
+    let holder = ForkHolder {
+        pid,
+        release: release_write,
+    };
+    drop(ready_write);
+    drop(release_read);
+    let mut ready = [0];
+    ready_read.read_exact(&mut ready).unwrap();
+    assert_eq!(ready, [1]);
+    drop(catalog);
+    let result = install(&store, &source);
+    assert_eq!(disk::read(&path).unwrap(), original);
+    assert_eq!(store.records().unwrap(), records);
+    assert_eq!(store.receipts().unwrap(), receipts);
+    assert_eq!(
+        unsafe { libc::kill(pid, 0) },
+        0,
+        "descriptor holder must still be alive"
+    );
+    eprintln!(
+        "synthetic lock inode={inode}, pgid={}, install_error={:?}",
+        unsafe { libc::getpgrp() },
+        result
+            .as_ref()
+            .err()
+            .map(|e| (e.kind(), e.raw_os_error(), e.to_string()))
+    );
+    assert_eq!(
+        result.unwrap(),
+        info,
+        "Catalog drop must end its acquired lock ownership"
+    );
+    assert_eq!(inspect(&store, "document-review").unwrap().info, info);
+    // A genuine current owner still excludes another operation. Failed opens
+    // must not unlock that owner's lock; check twice while its guard is alive.
+    let held = Catalog::open(&store, false).unwrap().unwrap();
+    for _ in 0..2 {
+        assert_eq!(
+            install(&store, &source).unwrap_err().kind(),
+            io::ErrorKind::WouldBlock
+        );
+    }
+    drop(held);
+    assert!(remove(&store, "document-review", &info.digest).unwrap());
+    assert_eq!(unsafe { libc::kill(pid, 0) }, 0);
+    assert_eq!(store.records().unwrap(), records);
+    assert_eq!(store.receipts().unwrap(), receipts);
+    drop(holder);
 }

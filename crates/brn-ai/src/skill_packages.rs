@@ -230,6 +230,14 @@ struct Catalog {
     dir: Dir,
     _lock: File,
 }
+impl Drop for Catalog {
+    fn drop(&mut self) {
+        // Only successfully acquired locks become Catalogs. End this guard's
+        // ownership explicitly: an unrelated fork may still hold a duplicate
+        // descriptor, so closing our File alone need not release the lock.
+        let _ = self._lock.unlock();
+    }
+}
 impl Catalog {
     fn open(store: &Store, create: bool) -> io::Result<Option<Self>> {
         let root = Dir::absolute(store.directory())?;

@@ -2380,13 +2380,62 @@ mod capture_runner {
         let source = tempfile::tempdir_in("/private/tmp").unwrap();
         let sources = compiled_input_set().unwrap();
         let actual = Path::new(ROOT).join("../..");
+        // Offline fake-Auth fixture ONLY: these historical map keys were retired
+        // by ce477. This synthetic Git tree is not a compiled checkout or runner
+        // readiness receipt. Keep every key and check the placeholder bytes normally.
+        let retired = [
+            "crates/brn-ai/examples/qualify_conversion.rs",
+            "crates/brn-ai/src/conversion_tests.rs",
+            "crates/brn-intake/src/bin/brn-intake-helper.rs",
+            "crates/brn-intake/src/helper/pptx.rs",
+            "crates/brn-intake/src/helper/prepared/html.rs",
+            "crates/brn-intake/src/helper/prepared/pptx.rs",
+            "crates/brn-intake/src/helper/prepared/xlsx.rs",
+            "crates/brn-intake/src/helper/prepared.rs",
+            "crates/brn-intake/src/helper.rs",
+            "crates/brn-intake/src/prepared/formatting.rs",
+            "crates/brn-intake/src/prepared/tests.rs",
+            "crates/brn-intake/src/prepared.rs",
+            "crates/brn-intake/tests/maintained.rs",
+            "crates/brn-intake/tests/pptx.rs",
+            "crates/brn-intake/tests/protocol.rs",
+            "crates/brn-intake/tests/restricted_helper.rs",
+            "crates/brn-threads-intake/src/docx_markdown.rs",
+            "crates/brn-threads-intake/src/pdf_tools.rs",
+            "crates/brn-threads-intake/src/prepared.rs",
+            "crates/brn-threads-intake/tests/qualification.rs",
+        ]
+        .into_iter()
+        .collect::<std::collections::BTreeSet<_>>();
+        let retirement: Value = serde_json::from_slice(include_bytes!(
+            "../../../docs/work/active/modular-foundation/x2/standard-default/retirement/source-pin.json"
+        )).unwrap();
+        let recorded = retirement["material_deleted_files"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_str().unwrap())
+            .filter(|path| sources.contains_key(*path))
+            .collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(retired.len(), 20);
+        assert_eq!(retired, recorded);
         let mut hashes = BTreeMap::new();
         for path in sources.keys() {
             let to = source.path().join(path);
             fs::create_dir_all(to.parent().unwrap()).unwrap();
-            fs::copy(actual.join(path), &to).unwrap();
+            if retired.contains(path.as_str()) {
+                assert_eq!(
+                    fs::symlink_metadata(actual.join(path)).unwrap_err().kind(),
+                    std::io::ErrorKind::NotFound,
+                    "retired input must actually be absent: {path}"
+                );
+                fs::write(&to, format!("BRN OFFLINE TEST ONLY: SYNTHETIC HISTORICAL INPUT PLACEHOLDER\nretirement=ce477627bf24b322642ab6ac9d8f03d4d04441a4\npath={path}\nNot executable source; not a compiled checkout.\n")).unwrap();
+            } else {
+                fs::copy(actual.join(path), &to).unwrap();
+            }
             hashes.insert(path.clone(), hash_file(&to, 64 * 1024 * 1024).unwrap());
         }
+        assert!(hashes.keys().eq(sources.keys()));
         for args in [
             vec!["init", "--quiet"],
             vec!["add", "."],
@@ -2579,6 +2628,16 @@ mod capture_runner {
             deadline_seconds: 120,
             maximum_starts: 1,
         };
+        source_checks(&p, source.path()).unwrap();
+        let placeholder = source.path().join(retired.first().unwrap());
+        let original_placeholder = fs::read(&placeholder).unwrap();
+        fs::write(&placeholder, b"tampered synthetic historical input\n").unwrap();
+        assert!(source_checks(&p, source.path()).is_err());
+        fs::write(&placeholder, &original_placeholder).unwrap();
+        fs::remove_file(&placeholder).unwrap();
+        assert!(source_checks(&p, source.path()).is_err());
+        fs::write(&placeholder, &original_placeholder).unwrap();
+        source_checks(&p, source.path()).unwrap();
         let pf = files.path().join("preflight.json");
         let activation = files.path().join("activation.json");
         let write_gate = |p: &Preflight| {
