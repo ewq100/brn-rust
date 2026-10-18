@@ -1,0 +1,248 @@
+{
+  "scope": "S3 upstream patch candidate, not Office promotion/root adoption",
+  "environment": {
+    "toolchain": "1.98.1-aarch64-apple-darwin",
+    "jobs": 1,
+    "offline": true,
+    "locked_builds": true,
+    "test_threads_after_initial_compile_error": 1,
+    "targets": [
+      "/private/tmp/brn-x2-office-s3-20261018/before-target",
+      "/private/tmp/brn-x2-office-s3-20261018/final-target"
+    ],
+    "temporary_directories": [
+      {
+        "path": "/private/tmp/brn-x2-office-s3-20261018/tmp-before",
+        "mode": "0o700",
+        "real_path": "/private/tmp/brn-x2-office-s3-20261018/tmp-before"
+      },
+      {
+        "path": "/private/tmp/brn-x2-office-s3-20261018/tmp-final",
+        "mode": "0o700",
+        "real_path": "/private/tmp/brn-x2-office-s3-20261018/tmp-final"
+      }
+    ]
+  },
+  "command_measurements": [
+    {
+      "label": "01-before-tests",
+      "receipt": "/private/tmp/brn-x2-office-s3-20261018/evidence/01-before-tests/receipt.json",
+      "receipt_sha256": "932b65575cde8209eb7f3bece0ece6e31ed4f80a29453b9fff088eac73cae642",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--test",
+        "spans",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-20261018/before/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 101,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "8868bbed5eb17317fe80d1aa6442bcba12739150dbaaa4e943e51ef8d1293815",
+        "xberg/src/extraction/docx/parser.rs": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+        "xberg/src/extractors/docx.rs": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+        "xberg/src/extraction/derive/mod.rs": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405"
+      },
+      "seconds": 111.31070375442505,
+      "stdout_sha256": "a5712830cc86f2029de598abfc06db8b099410c7df0979905edb15dd92b3020e",
+      "stderr_sha256": "2311e58055931fbc9485a662f5d23561013c474400476c11af42508474f6cfb3"
+    },
+    {
+      "label": "02-before-tests",
+      "receipt": "/private/tmp/brn-x2-office-s3-20261018/evidence/02-before-tests/receipt.json",
+      "receipt_sha256": "79001fcb996f8670f2b15ff71cd9625b94fa867c4ca89523a18672229403a545",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--test",
+        "spans",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-20261018/before/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 101,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "351bf6c9b4e9d92a4c75d1d5207dd32fd0a0b5c4e68744f11811141be9d3bb61",
+        "xberg/src/extraction/docx/parser.rs": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+        "xberg/src/extractors/docx.rs": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+        "xberg/src/extraction/derive/mod.rs": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405"
+      },
+      "seconds": 7.474977970123291,
+      "stdout_sha256": "43163b61280610bbad84030f9e24d4fd94bbb2c8826e8fa07e2837a2b35cb002",
+      "stderr_sha256": "c4e7a982fb2ffe50097b5e17c35557606b68c4863c154f8b31cb29519406b948"
+    },
+    {
+      "label": "03-final-tests",
+      "receipt": "/private/tmp/brn-x2-office-s3-20261018/evidence/03-final-tests/receipt.json",
+      "receipt_sha256": "2d1cfb97a1ed503be7a4909745caabc650f8f494b11e4e220eea9b4973038bb4",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--test",
+        "spans",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-20261018/final/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1"
+      ],
+      "exit": 101,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "351bf6c9b4e9d92a4c75d1d5207dd32fd0a0b5c4e68744f11811141be9d3bb61",
+        "xberg/src/extraction/docx/parser.rs": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5",
+        "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+        "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+      },
+      "seconds": 109.82471179962158,
+      "stdout_sha256": "1e628f05b4dc731da2f0be43e605e4846e304a0914c7ec27755638e674c51080",
+      "stderr_sha256": "edd1f95802770ff954e9ccf45400f6d738a3363a153fcccbcd19049615323490"
+    },
+    {
+      "label": "04-harness-clippy",
+      "receipt": "/private/tmp/brn-x2-office-s3-20261018/evidence/04-harness-clippy/receipt.json",
+      "receipt_sha256": "070cfc24c5deaac83e522209a0e3c5289cc2ffe5ea60a8c966d1ba37cb3958a1",
+      "command": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--all-targets",
+        "--message-format",
+        "json",
+        "--manifest-path",
+        "/private/tmp/brn-x2-office-s3-20261018/final/harness/Cargo.toml",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "source": {
+        "harness/Cargo.toml": "daa1426bf8b299a71ddb76cd2c101cb7d65be9fe3afba583767ba83df9ffe9be",
+        "harness/Cargo.lock": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+        "harness/tests/spans.rs": "351bf6c9b4e9d92a4c75d1d5207dd32fd0a0b5c4e68744f11811141be9d3bb61",
+        "xberg/src/extraction/docx/parser.rs": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5",
+        "xberg/src/extractors/docx.rs": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+        "xberg/src/extraction/derive/mod.rs": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+      },
+      "seconds": 48.628689765930176,
+      "stdout_sha256": "b2aa208b74d53f744b3772ea3b196cc4de39a030e7cc03f4a15d7bd027b69f83",
+      "stderr_sha256": "026fe3faad57c6e8e0204d62e08d8919455b9183abd3efada3d33d7ccef6a3b6"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/metadata-command.json",
+      "sha256": "340adb62bf72c3f4949525e51a81a0e5658cbdd20bb1acaf948b0841855c5ee0"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/metadata.json",
+      "sha256": "aa04c61bedc81915f252d7dc24cee9b367056d862b903ab6219ae2793d208059"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/metadata.stderr",
+      "sha256": "8024222a29802534ae583b9fea1aff7df8145dad1c2bef29a9f47b2bdb9f9b59"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/graph-audit.json",
+      "sha256": "c62421cf3f773cee1e3a8823864f217a551c6b324412f8ef9fc04bd8daa61c42"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/target-tree.txt",
+      "sha256": "84fa97bf30893de33f448da945dffa91e5cf7c97dc63903cd3ef2f55d9508c24"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/target-feature-audit.json",
+      "sha256": "d064a7b6bb8712145b0bb5292b00aa05b4ec28ce9a1b404486622f2aa4fb1263"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/target-archive-audit.json",
+      "sha256": "dcc463f21ba4471b78ee5238747c482c8b1b010a77724b033c4e38baf2041a36"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/emitted-graph-audit.json",
+      "sha256": "772c7ee13f15cdf070c52bfa965f77b1ebfe051a31ec16a67b82ae351cae781e"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/fixture-sources.json",
+      "sha256": "6c66ea88cfad9df90641724605d04847bcbf68ba6b0bbb24118ae21f9cb2f3b2"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/output-comparison.json",
+      "sha256": "56377d0a87d0340582ea4eda26aa81c78855a9617063fd1e744236d74fd95d68"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/format-check.json",
+      "sha256": "e1a7f0caadac0f66a3a8e4a1a687ea59b3021b855b2d0049276dd661a00f375d"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/patch-apply.json",
+      "sha256": "36a55086c8e0025455614b8c6f0a06e8e4f5d674bc2d6eebb3ba8b187e143a3c"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/audit-inspection-note.txt",
+      "sha256": "4b4ccfbf8e958cff6d6f68c75cd8e0fc1102d008bb8ad0e0b9c0a7b9decfa64f"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/fmt-initial-error.txt",
+      "sha256": "f52237c7dc800da12a060feb6c36b9e5314ce7eab61fa07114350861c1269274"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/release-inventory.json",
+      "sha256": "15f2938becb39318a447ab51a550f7044e85e076ba4cd0662db736c8f9841b54"
+    },
+    {
+      "path": "/private/tmp/brn-x2-office-s3-20261018/evidence/repository-static-checks.json",
+      "sha256": "bfedfbf5f01dced7f424842cc2a0d140647914afe022559d2fe951f55af0aeab"
+    }
+  ],
+  "preserved_failures": [
+    "Initial cargo fmt command duplicated edition; no compilation (fmt-initial-error.txt).",
+    "01-before-tests compiled dependency but failed harness E0603 private native key; not behavior red. Exact documented key used through existing public builder, no upstream API change.",
+    "02-before-tests: 1 passed / 6 failed; five intended semantic/envelope gaps plus known prefix namespace empty-content failure.",
+    "03-final-tests: 6 passed / 1 failed; unchanged prefix namespace assertion. No skip/ignore/oracle weakening or re-run-to-green.",
+    "Two read-only graph inspection assertions confused build-script/rlib kinds; final inspection uses actual rlib target and no graph changed."
+  ],
+  "unexecuted": [
+    "Xberg dependency itself was not directly Clippy-linted by harness Clippy.",
+    "Upstream private cfg(test) modules are omitted by published archive; no modules suppressed/restored or public test API introduced. Six public derivation cases exercise actual consumer edges instead.",
+    "PDF feature/runtime and global native-PDF consumer execution.",
+    "BRN root adoption, helper route, restricted Xberg runtime, host/native/workspace/all-document parity and owner acceptance."
+  ],
+  "results": {
+    "pristine": "1 passed / 6 failed, after successful real public API compilation",
+    "final": "6 passed / 1 failed, known unchanged prefix-variation namespace failure",
+    "complete_public_comparisons": "22 DOCX + 6 consumer values pass; ten semantic-table representations change only qualified geometry",
+    "strict_harness_all_target_clippy": "pass, -D warnings",
+    "direct_owned_rustfmt": "pass",
+    "pristine_patch_reproduction": "pass, exactly three files change among 764",
+    "actual_target_graph": "239 emitted registry identities, no extra effective feature/identity; archives match root lock checksums",
+    "metadata_boundary": "All-platform metadata has target-only features/packages; effective macOS target tree and emitted artifacts establish active graph, not all-platform output.",
+    "repository_static": "Staged whitespace passes; all owned JSON parses; Markdown checker: 391 files / 1741 local links / 0 failures."
+  }
+}

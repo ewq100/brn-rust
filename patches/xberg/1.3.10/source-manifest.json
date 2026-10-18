@@ -1,0 +1,56 @@
+{
+  "package": {
+    "name": "xberg",
+    "version": "1.3.10",
+    "registry_source": "registry+https://github.com/rust-lang/crates.io-index",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "archive_bytes": 3736980,
+    "source_files": 764
+  },
+  "license": {
+    "spdx": "MIT",
+    "declaration": "Cargo.toml:114",
+    "declaration_file_sha256": "667be0e1155f63324222f5bc94f37fd3a25b2c4d4b39cab81e9d61ecefdb69f4",
+    "authors": [
+      "Na'aman Hirschfeld",
+      "Tobias Perlstein"
+    ],
+    "packaged_license_files": [],
+    "boundary": "Published README:298 points to ../../LICENSE outside the crate; no LICENSE* file is included in this exact archive. This distribution contains a patch, not the upstream tree."
+  },
+  "apply_order": [
+    "0001-docx-table-grid-spans.patch"
+  ],
+  "patch_sha256": "520ca37d49a5fa644667aa85a29efc8b4a9747ef2e5c61fd17ab0bf4296e6ffd",
+  "selected_source_files": [
+    {
+      "path": "src/extraction/docx/parser.rs",
+      "pristine_sha256": "40581a1d9f2d1aa853e9a6e5446a67c23a8cf8fe90b316f974d7324dd37f3035",
+      "compiled_final_sha256": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5",
+      "independent_apply_sha256": "b2bd3cc4742871b8bb8e4457f19bb21605f54fa25668b85f972790951eb9b0e5"
+    },
+    {
+      "path": "src/extractors/docx.rs",
+      "pristine_sha256": "75d9eaabf1f62fdc523e7be6241df18a43c78e002387339573c32ee069ed801a",
+      "compiled_final_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25",
+      "independent_apply_sha256": "b916fd30053382e8a7392162ae91301d27211b1f9f3e48d3c4627871d690df25"
+    },
+    {
+      "path": "src/extraction/derive/mod.rs",
+      "pristine_sha256": "4bb0090b6b0a17cfa5bede5831fc89c32b29ec45b8c7812c141fc7fd627a2405",
+      "compiled_final_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68",
+      "independent_apply_sha256": "6a017d4ead99bdf5174ed7c78e4f9df53a3543068b9e036ecc1eea5b9a8b3b68"
+    }
+  ],
+  "unmodified_build_rs_sha256": "a33a241314b2ee7b07920148850b68199e35e9bcd372b73b01d8196ce537eeac",
+  "scope": "Three upstream production files only. No root manifest/lock adoption, backend dispatch, public schema or validator changes.",
+  "verification": {
+    "external_root": "/private/tmp/brn-x2-office-s3-20261018",
+    "pristine_harness_git": "2835e6c6997c051c56fdd5caca948a11f7976e6d",
+    "compiled_final_git": "c111e78fb861e1ef337b9e99070ebadfa811ea21",
+    "test_source_sha256": "351bf6c9b4e9d92a4c75d1d5207dd32fd0a0b5c4e68744f11811141be9d3bb61",
+    "harness_lock_sha256": "e43f191ff96c08fed5b4a1834d2e31fbb6a01bebe252b34a836ec0471257eef2",
+    "root_lock_sha256": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "patch_apply_receipt_sha256": "36a55086c8e0025455614b8c6f0a06e8e4f5d674bc2d6eebb3ba8b187e143a3c"
+  }
+}
