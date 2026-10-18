@@ -2,7 +2,7 @@
 //! credential source, and machine-mode provider work on it is refused
 //! before any commit or provider contact.
 mod support;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use support::*;
 
 fn history_total(root: &Root, data: &std::path::Path) -> Value {

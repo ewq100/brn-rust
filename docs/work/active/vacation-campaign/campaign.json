@@ -19,8 +19,7 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": null,
-  "last_checkpoint_at_utc": "2026-10-18T22:51:32.755097+00:00",
-  "last_committed_source": "609af544545a159638d0f8c0a6523df55e7608e0",
+  "last_checkpoint_at_utc": "2026-10-18T22:52:44.722444+00:00",
   "current_session_jobs": [],
   "capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -38,5 +37,7 @@
     "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
   },
   "integration_status": "Local pilot qualified; campaign draft PR is reconciled by branch vacation-campaign-20261018. Hosted exact-head CI and remaining campaign acceptance are open.",
-  "next_eligible_work": "Reconcile PR/configuration status, remaining OS routes, then inspect run/worker lifecycle inventory15 before selecting the next bounded owner slice."
+  "next_eligible_work": "Reconcile PR/configuration status, remaining OS routes, then inspect run/worker lifecycle inventory15 before selecting the next bounded owner slice.",
+  "last_qualified_source": "609af544545a159638d0f8c0a6523df55e7608e0",
+  "source_delta_after_qualification": "Only formatting in two CLI test files and documentation/evidence; production code and tested logic unchanged."
 }

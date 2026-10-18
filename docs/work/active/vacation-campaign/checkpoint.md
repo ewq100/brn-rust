@@ -1,6 +1,6 @@
 # Vacation campaign checkpoint
 
-Branch `vacation-campaign-20261018`; baseline `1b7625a8af0808ab0218525ded1d470ad4928e0a` (merged PR161). Fresh fetch still matches that baseline. Production implementation is committed through `8c951d64884e2c21d8fffc631cd7f88380d0973e`; `609af544` additionally stabilizes one Discard callback fixture. Preserve later legitimate changes. [Campaign authority and clock](campaign.json) expire **2026-11-01T21:41:51Z**; do not restart or extend the clock. Original charter/roadmap are preserved byte-for-byte. Campaign commits/push/draft PR are authorized; main merge, publication/release/deployment, new spending, paid API workers, private data and messaging remain excluded.
+Branch `vacation-campaign-20261018`; baseline `1b7625a8af0808ab0218525ded1d470ad4928e0a` (merged PR161). Fresh fetch still matches that baseline. Production implementation is committed through `8c951d64884e2c21d8fffc631cd7f88380d0973e`; `609af544` additionally stabilizes one Discard callback fixture. Later checkpoint formatting only reorders/wraps two CLI test files; production and tested logic remain unchanged. Preserve later legitimate changes. [Campaign authority and clock](campaign.json) expire **2026-11-01T21:41:51Z**; do not restart or extend the clock. Original charter/roadmap are preserved byte-for-byte. Campaign commits/push/draft PR are authorized; main merge, publication/release/deployment, new spending, paid API workers, private data and messaging remain excluded.
 
 ## Implemented and independently reviewed
 

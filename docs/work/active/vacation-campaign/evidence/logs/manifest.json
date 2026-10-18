@@ -183,5 +183,11 @@
     "file": "vacation-standard-production-binaries.sha256.gz",
     "uncompressed_bytes": 228,
     "uncompressed_sha256": "3336378bc9e5fad9176969e38d5ad08c07af77040d0ed499fbb9415feed2bd91"
+  },
+  {
+    "file": "vacation-fmt-final.log.gz",
+    "uncompressed_bytes": 0,
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exit_status": 0
   }
 ]

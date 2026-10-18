@@ -208,9 +208,7 @@ fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_n
         call(
             &root,
             &data,
-            &[
-                "intake", "--source", &file, "--intent", "full", "--key", "second"
-            ]
+            &["intake", "--source", &file, "--intent", "full", "--key", "second"]
         )["outcome"],
         "Applied"
     );
@@ -263,14 +261,12 @@ fn documents_cli_missing_or_wrong_selected_helper_never_falls_back_or_saves() {
             &["intake", "--source", &file, "--intent", "full"],
         );
         assert_ne!(result["status"], "ok", "{result}");
-        assert!(
-            !Workspace::open_existing_no_upgrade(&data)
-                .unwrap()
-                .records()
-                .unwrap()
-                .iter()
-                .any(|r| matches!(r.data, RecordData::Note(_) | RecordData::Source(_)))
-        );
+        assert!(!Workspace::open_existing_no_upgrade(&data)
+            .unwrap()
+            .records()
+            .unwrap()
+            .iter()
+            .any(|r| matches!(r.data, RecordData::Note(_) | RecordData::Source(_))));
     }
 }
 #[test]
