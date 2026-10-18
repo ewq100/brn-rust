@@ -18,7 +18,7 @@ packaging = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(packaging)
 
 
-def qualify_app(app):
+def qualify_app(app, host_cli=None):
     """Actual packaged binaries; never starts GPUI or accesses a real workspace."""
     app = Path(app).resolve()
     binaries = app / "Contents/Resources/bin"
@@ -67,6 +67,54 @@ def qualify_app(app):
                 assert isinstance(result["assets"], list) and isinstance(result["gaps"], list)
                 assert all(isinstance(gap, str) for gap in result["gaps"])
                 captures.append({"kind": kind, "request": request, "result": result})
+        if host_cli is not None:
+            # A test host, not an additional shipped binary. Its only helper
+            # discovery is current_exe siblings copied from the relocated app.
+            host_bin = root / "recipient CLI bin"
+            host_bin.mkdir()
+            cli = host_bin / "brn"
+            shutil.copy2(Path(host_cli).resolve(strict=True), cli)
+            for name in ("brn-xberg-helper", "brn-xberg-helper-brn"):
+                shutil.copy2(binaries / name, host_bin / name)
+                assert packaging.digest(host_bin / name) == packaging.digest(binaries / name)
+            home = root / "recipient home"
+            home.mkdir()
+            environment = {"HOME": str(home), "CODEX_HOME": str(home), "TMPDIR": str(root),
+                           "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
+            workspace = root / "CLI workspace"
+            calls = []
+            def call(*arguments):
+                completed = subprocess.run([str(cli), "--json", "--data-dir", str(workspace), *arguments],
+                                           env=environment, capture_output=True, timeout=45)
+                calls.append({"arguments": arguments, "exit": completed.returncode,
+                              "stdout": completed.stdout.decode(), "stderr": completed.stderr.decode()})
+                assert completed.returncode == 0, calls[-1]
+                envelope = json.loads(completed.stdout)
+                assert envelope["status"] == "ok", envelope
+                return envelope
+            call("init", "--purpose", "test")
+            assert call("settings")["result"]["document_conversion"] == {"converter": "xberg", "ai": False}
+            for backend, choice in [("xberg", "xberg"), ("xberg_brn", "xberg-brn")]:
+                call("document-conversion", "--converter", choice, "--ai", "off")
+                for kind, data in cases:
+                    extension = {"text": "txt", "markdown": "md"}.get(kind, kind)
+                    source = root / f"input.{extension}"
+                    source.write_bytes(data)
+                    imported = call("intake", "--source", str(source), "--intent", "full", "--title", kind,
+                                    "--key", f"{backend}-{kind}")
+                    assert imported["outcome"] == "Applied", imported
+            records = call("records")["result"]
+            notes = [record["data"]["Note"] for record in records if "Note" in record["data"]]
+            sources = [record["data"]["Source"] for record in records if "Source" in record["data"]]
+            assert len(notes) == 16 and len(sources) == 8
+            for note in notes:
+                conversion = note["import"]["report"]["conversion"]
+                assert note["protected"] and note["markdown"].strip()
+                assert conversion["settings"]["ai"] is False
+                assert conversion["engine_identity"] == identities[conversion["settings"]["converter"]]
+            captures.append({"relocated_cli": {"calls": calls, "records": records,
+                                               "environment_names": sorted(environment),
+                                               "shipping_binary_set_unchanged": sorted(p.name for p in binaries.iterdir())}})
         if os.environ.get("BRN_PACKAGE_CAPTURES"):
             Path(os.environ["BRN_PACKAGE_CAPTURES"]).write_text(json.dumps(captures, indent=2) + "\n")
 
@@ -200,7 +248,12 @@ class NativePackageTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "--qualify-app":
-        qualify_app(sys.argv[2])
+    if len(sys.argv) > 1 and sys.argv[1] == "--qualify-app":
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--qualify-app", required=True)
+        parser.add_argument("--host-cli", type=Path)
+        args = parser.parse_args()
+        qualify_app(args.qualify_app, args.host_cli)
     else:
         unittest.main()

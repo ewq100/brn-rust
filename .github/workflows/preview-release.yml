@@ -69,6 +69,7 @@ jobs:
         run: |
           test "$(uname -m)" = arm64
           cargo rustc --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
+          cargo build --release -p brn --locked --offline --jobs 1
           cargo tree --locked --offline -p brn-desktop --features native-ui --target aarch64-apple-darwin --edges normal,build --prefix none --format '{p}' > target/desktop-target-graph.txt
           python3 scripts/package-macos-preview.py --prepare-notices "$GITHUB_WORKSPACE/target/distribution-notices" --graph target/desktop-target-graph.txt --graph target/document-helpers/receipts/stock-target-graph.txt --graph target/document-helpers/receipts/adapted-target-graph.txt
       - name: Package and verify the relocated signed archive
@@ -84,7 +85,7 @@ jobs:
         if: steps.gate.outputs.eligible == 'true'
         run: |
           python3 scripts/tests/test_macos_packaging.py \
-            --qualify-app "$RUNNER_TEMP/brn-preview-distribution/BRN Threads.app"
+            --qualify-app "$RUNNER_TEMP/brn-preview-distribution/BRN Threads.app" --host-cli "$GITHUB_WORKSPACE/target/release/brn"
       - name: Upload, verify and publish the current-main prerelease
         if: steps.gate.outputs.eligible == 'true'
         env:

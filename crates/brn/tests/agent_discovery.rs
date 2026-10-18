@@ -419,7 +419,7 @@ fn every_command_has_text_and_json_help_matching_the_description() {
         assert!(!data.exists(), "{name}");
     }
     let intake = run_argv(&root, &["intake", "--help"], None).stdout;
-    assert!(intake.contains("replays when bytes, path, scope and title match"));
+    assert!(intake.contains("replays when bytes, path, scope, title and captured converter/AI/bundle match a committed import"));
     assert!(intake.contains("Owner decision when --thread names a Project"));
     let save = run_argv(&root, &["save", "--help"], None).stdout;
     assert!(save.contains("begin-edit --note N --base <conflict[0].version>"));
