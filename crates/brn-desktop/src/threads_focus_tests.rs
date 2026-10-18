@@ -2,6 +2,18 @@
 use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
+// Match the editor toolkit’s native bindings while exercising the same action.
+pub(super) const SELECT_ALL: &str = if cfg!(target_os = "macos") {
+    "cmd-a"
+} else {
+    "ctrl-a"
+};
+pub(super) const LINE_START: &str = if cfg!(target_os = "macos") {
+    "cmd-left"
+} else {
+    "home"
+};
+
 pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
     // Persist this before UI creation: navigation reloads the saved settings.
     // Every component fixture refuses provider startup without credential access.

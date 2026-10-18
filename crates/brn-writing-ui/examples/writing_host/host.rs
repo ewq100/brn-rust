@@ -43,6 +43,18 @@ impl WritingHost {
         panel.margin_mode = layout::MarginMode::Stacked;
         let subscriptions = vec![
             cx.subscribe_in(
+                &panel.review_editor,
+                window,
+                |this, editor, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        this.panel
+                            .review
+                            .buffer_changed(editor.read(cx).value().as_ref());
+                        cx.notify();
+                    }
+                },
+            ),
+            cx.subscribe_in(
                 &panel.note_editor,
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
@@ -125,7 +137,7 @@ impl WritingHost {
         self.candidates = self.workspace.candidates()?;
         self.buffers = self.workspace.store.recovery_buffers()?;
         let mut shown = self.candidates.clone();
-        if let Some(review) = &self.panel.review {
+        if let Some(review) = self.panel.review.as_ref() {
             shown.retain(|candidate| candidate.operation != review.candidate.operation);
             shown.push(review.candidate.clone());
         }
@@ -340,45 +352,18 @@ impl WritingHost {
             ));
         }
         let note = self.note()?;
-        let proposed = candidate
+        if !candidate
             .request
             .writes
             .iter()
-            .find_map(|w| match &w.data {
-                RecordData::Note(n) if w.id == note => Some(n.markdown.clone()),
-                _ => None,
-            })
-            .ok_or_else(|| AppError::Invalid("Proposal has no matching document".into()))?;
-        let current = self
-            .workspace
-            .store
-            .note(&note)?
-            .ok_or_else(|| AppError::Invalid("Current document unavailable".into()))?;
-        let RecordData::Note(current) = current.data else {
-            return Err(AppError::Invalid("Not a Note".into()));
-        };
-        let groups = self.workspace.review_groups(candidate.operation.as_str())?;
-        let selected = groups.groups.iter().map(|g| g.id.clone()).collect();
-        self.panel.review = Some(Review {
-            candidate,
-            note: Some(note),
-            original: proposed.clone(),
-            edited: false,
-            groups,
-            selected,
-        });
-        self.panel.review_editing = false;
-        self.panel.review_inputs = false;
-        self.panel.review_editor.update(cx, |editor, cx| {
-            editor.set_value(proposed.clone(), window, cx)
-        });
+            .any(|write| write.id == note && matches!(write.data, RecordData::Note(_)))
+        {
+            return Err(AppError::Invalid(
+                "Proposal has no matching document".into(),
+            ));
+        }
         self.panel
-            .current_view
-            .update(cx, |view, cx| view.set_text(&current.markdown, cx));
-        self.panel
-            .candidate_view
-            .update(cx, |view, cx| view.set_text(&proposed, cx));
-        self.panel.sync_diff(&self.workspace, window, cx);
+            .open_review(&self.workspace, candidate, Some(note), window, cx)?;
         Ok(())
     }
     fn apply(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AppResult<()> {
@@ -396,12 +381,7 @@ impl WritingHost {
                 "Proposal is no longer visible in this document/context".into(),
             ));
         }
-        if review.edited || review.selected.len() != review.groups.groups.len() {
-            return Err(AppError::Invalid(
-                "This host applies only the exact full proposal".into(),
-            ));
-        }
-        let candidate = review.candidate.clone();
+        let candidate = self.panel.review.exact_candidate()?;
         // Fresh service validation; the display batch is never an Apply grant.
         self.workspace
             .writing_candidate_review(candidate.operation.as_str(), None)?;
@@ -416,7 +396,7 @@ impl WritingHost {
                         .applied_rewrite
                         .insert(note, (request.clone(), receipt.operation.as_str().into()));
                 }
-                self.panel.review = None;
+                self.panel.review.completed(candidate.operation.as_str());
                 self.reload(window, cx)?;
                 self.notice =
                     "Applied the exact reviewed proposal; durable Undo is available.".into();
@@ -461,11 +441,26 @@ impl WritingHost {
             WritingRequest::OpenReview(candidate) => self.review(candidate, window, cx)?,
             WritingRequest::ApplyReview => self.apply(window, cx)?,
             WritingRequest::DismissReview => {
-                if let Some(review) = &self.panel.review { self.workspace.review_dismiss(review.candidate.operation.as_str())?; }
-                self.panel.review = None;
+                if let Some(review) = self.panel.review.as_ref() {
+                    let operation = review.candidate.operation.as_str().to_owned();
+                    self.workspace.review_dismiss(&operation)?;
+                    self.panel.review.completed(&operation);
+                }
             }
             WritingRequest::CardDismiss(candidate) => self.workspace.review_dismiss(candidate.operation.as_str())?,
-            WritingRequest::KeepReview => self.panel.review = None,
+            WritingRequest::KeepReview => {
+                if self.panel.review.is_edited() { self.panel.prepare_review_edit(&mut self.workspace, window, cx)?; }
+                self.panel.review.keep()?;
+            }
+            WritingRequest::StartReviewEdit => {
+                if self.panel.review.begin_edit() {
+                    self.panel.review_editor.update(cx, |editor, cx| editor.focus(window, cx));
+                }
+            }
+            WritingRequest::CancelReviewEdit => self.panel.cancel_review_edit(window, cx),
+            WritingRequest::PrepareReviewEdit => self.panel.prepare_review_edit(&mut self.workspace, window, cx)?,
+            WritingRequest::PrepareReviewSelection => self.panel.prepare_review_selection(&mut self.workspace, window, cx)?,
+            WritingRequest::ToggleGroup(id) => self.panel.review.toggle_group(&id),
             WritingRequest::Undo(operation) => {
                 self.context()?;
                 match self.workspace.undo(&operation)? {
@@ -474,8 +469,8 @@ impl WritingHost {
                 }
             }
             WritingRequest::NoteReading(read) => { self.panel.note_reading = read; self.panel.sync_read_text(cx); self.panel.sync_read_marks(&self.workspace, cx); }
-            WritingRequest::ReviewReading(read) => self.panel.review_reading = read,
-            WritingRequest::ToggleReviewInputs => self.panel.review_inputs = !self.panel.review_inputs,
+            WritingRequest::ReviewReading(read) => { self.panel.review.set_reading(read); },
+            WritingRequest::ToggleReviewInputs => self.panel.review.toggle_inputs(),
             WritingRequest::ToggleComments => { let show = !self.view().comments_open(); self.panel.toggle_comments(show); }
             WritingRequest::CollapseComments => self.panel.toggle_comments(false),
             WritingRequest::ToggleExcluded(id) => { if !self.panel.excluded_comments.remove(&id) { self.panel.excluded_comments.insert(id); } }

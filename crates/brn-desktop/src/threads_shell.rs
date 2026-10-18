@@ -296,7 +296,7 @@ impl ThreadsUi {
                 TileKind::Threads.label().into(),
                 TileKind::Threads.label().into(),
             ),
-            TileKind::Note => match (&self.writing.review, &self.writing.note) {
+            TileKind::Note => match (self.writing.review.as_ref(), &self.writing.note) {
                 (_, Some(open)) => named(one_line(&title(&open.record))),
                 (Some(review), None) => named(format!(
                     "Review · {}",
@@ -1682,12 +1682,7 @@ impl Render for ThreadsUi {
             .bg(rgb(p.paper))
             .text_color(rgb(p.ink))
             .on_action(cx.listener(|this, _: &Save, window, cx| {
-                if this
-                    .writing
-                    .review
-                    .as_ref()
-                    .is_some_and(|review| review.edited)
-                {
+                if this.writing.review.is_edited() {
                     this.prepare_review_edit(window, cx);
                 } else if this.writing.note.is_some() {
                     this.save(window, cx);

@@ -891,7 +891,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     });
     click(cx, &f, "review-read-result");
     update(cx, &f, |view, window, cx| {
-        assert!(view.writing.review_reading);
+        assert!(view.writing.review.is_reading());
         assert!(
             view.writing
                 .candidate_view
@@ -914,7 +914,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
     // Changes | Result: the Changes segment returns to the tracked changes.
     click(cx, &f, "review-show-changes");
     update(cx, &f, |view, window, cx| {
-        assert!(!view.writing.review_reading);
+        assert!(!view.writing.review.is_reading());
         assert!(view.writing.diff_editor.focus_handle(cx).is_focused(window));
         assert_eq!(
             view.writing
@@ -949,9 +949,9 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
                 cx,
             )
         });
-        if let Some(review) = &mut view.writing.review {
-            review.edited = true;
-        }
+        view.writing
+            .review
+            .buffer_changed(view.writing.review_editor.read(cx).value().as_ref());
     });
     click(cx, &f, "apply-final");
     update(cx, &f, |view, window, cx| {
@@ -965,7 +965,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             "edited text must be prepared before Apply"
         );
         assert!(
-            view.writing.review.as_ref().unwrap().edited,
+            view.writing.review.is_edited(),
             "card actions keep edited text"
         );
         assert!(view.notice.contains("editing this proposal"));
@@ -981,7 +981,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
         let view = f.view.read(cx);
         let review = view.writing.review.as_ref().unwrap();
         assert_ne!(review.candidate.operation.as_str(), op);
-        assert!(!view.writing.review_editing && !review.edited);
+        assert!(!view.writing.review.is_editing() && !view.writing.review.is_edited());
         assert!(view.writing.diff_editor.read(cx).value().contains("runs."));
         review.candidate.operation.as_str().to_owned()
     });
@@ -1931,7 +1931,7 @@ fn launcher_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppConte
     });
     // A word nothing matches still reads as no matches.
     on_window(cx, &f, |window, cx| {
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.press("backspace", cx);
         window.input("zzznothing", cx);
     });

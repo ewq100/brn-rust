@@ -126,8 +126,10 @@ fn read_select_all_comments_the_exact_markdown_source_without_starting_ai(cx: &m
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(super::focus_tests::SELECT_ALL, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {
@@ -192,8 +194,10 @@ fn editing_after_read_selection_clears_old_range_before_comment_shortcut(cx: &mu
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(super::focus_tests::SELECT_ALL, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {
@@ -661,8 +665,17 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
         assert!(view.writing.note.as_ref().unwrap().session.is_some());
     });
     // Establish that this is the real editor's working local Undo path.
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-z", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(
+            if cfg!(target_os = "macos") {
+                "cmd-z"
+            } else {
+                "ctrl-z"
+            },
+            cx,
+        )
+    })
+    .unwrap();
     cx.run_until_parked();
     f.view.read_with(cx, |view, cx| {
         assert_eq!(
@@ -741,8 +754,17 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
                 view.history.len(),
             )
         });
-        cx.update_window(f.window, |_, window, cx| window.press("cmd-z", cx))
-            .unwrap();
+        cx.update_window(f.window, |_, window, cx| {
+            window.press(
+                if cfg!(target_os = "macos") {
+                    "cmd-z"
+                } else {
+                    "ctrl-z"
+                },
+                cx,
+            )
+        })
+        .unwrap();
         cx.run_until_parked();
         f.view.read_with(cx, |view, cx| {
             assert_eq!(

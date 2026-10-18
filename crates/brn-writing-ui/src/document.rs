@@ -262,7 +262,7 @@ impl WritingPanel {
         cx: &mut Context<T>,
     ) {
         let p = pal();
-        let (text, decorations) = match &self.review {
+        let (text, decorations) = match self.review.as_ref() {
             Some(review) if review.note.is_some() => {
                 let current = review
                     .note

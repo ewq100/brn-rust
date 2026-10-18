@@ -132,7 +132,7 @@ impl<T: 'static> WritingView<'_, T> {
         &self,
         cx: &mut Context<T>,
     ) -> Option<Box<dyn Fn(PopupMenu) -> PopupMenu + 'static>> {
-        if let Some(review) = &self.review {
+        if let Some(review) = self.review.as_ref() {
             return Some(Box::new(self.review_menu_section(review, cx)));
         }
         let open = self.note.as_ref()?;
@@ -303,8 +303,8 @@ impl<T: 'static> WritingView<'_, T> {
         let this = cx.entity().downgrade();
         let dispatch = self.dispatch;
         let note = review.note.is_some();
-        let editing = self.review_editing;
-        let inputs = self.review_inputs || !note;
+        let editing = self.review.is_editing();
+        let inputs = self.review.inputs_shown() || !note;
         let collapsed = self.review_fit.actions_in_menu();
         move |menu: PopupMenu| {
             let menu = menu
@@ -897,7 +897,7 @@ impl<T: 'static> WritingView<'_, T> {
     /// review shows another note's text.
     fn comments_note(&self) -> Option<&OpenNote> {
         let open = self.note.as_ref()?;
-        match &self.review {
+        match self.review.as_ref() {
             Some(review) if review.note.as_deref() != Some(open.record.id.as_str()) => None,
             _ => Some(open),
         }
@@ -1879,7 +1879,7 @@ impl<T: 'static> WritingView<'_, T> {
 
     fn review_body(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let p = pal();
-        let Some(review) = &self.review else {
+        let Some(review) = self.review.as_ref() else {
             return div().into_any_element();
         };
         let has_evidence =
@@ -1924,8 +1924,8 @@ impl<T: 'static> WritingView<'_, T> {
             let tracked = diff::tracked(&current, &review.original);
             format!("+{} −{}", tracked.added, tracked.removed)
         });
-        let editing = self.review_editing;
-        let edited = editing || review.edited;
+        let editing = self.review.is_editing();
+        let edited = editing || self.review.is_edited();
         let grouped = review.groups.groups.len() > 1;
         let partial = review.selected.len() != review.groups.groups.len();
         let snapshot = review
@@ -2018,7 +2018,7 @@ impl<T: 'static> WritingView<'_, T> {
                 vec![
                     button("review-show-changes")
                         .label("Changes")
-                        .selected(!self.review_reading)
+                        .selected(!self.review.is_reading())
                         .disabled(edited)
                         .when_some(why, |segment, why| {
                             segment.accessibility_label(format!("Changes, unavailable: {why}"))
@@ -2027,7 +2027,7 @@ impl<T: 'static> WritingView<'_, T> {
                         .on_click(self.on(cx, WritingRequest::ReviewReading(false))),
                     button("review-read-result")
                         .label("Result")
-                        .selected(self.review_reading)
+                        .selected(self.review.is_reading())
                         .disabled(edited)
                         .when_some(why, |segment, why| {
                             segment.accessibility_label(format!("Result, unavailable: {why}"))
@@ -2152,13 +2152,13 @@ impl<T: 'static> WritingView<'_, T> {
                 .label("Use this text")
                 .compact()
                 .h(components::tokens::COMPACT_CONTROL)
-                .disabled(!review.edited)
-                .accessibility_label(if review.edited {
+                .disabled(!self.review.is_edited())
+                .accessibility_label(if self.review.is_edited() {
                     "Use this text"
                 } else {
                     "Use this text, unavailable: Edit the text first"
                 })
-                .tooltip(if review.edited {
+                .tooltip(if self.review.is_edited() {
                     "Review your text as a new proposal"
                 } else {
                     "Edit the text first"
@@ -2205,7 +2205,8 @@ impl<T: 'static> WritingView<'_, T> {
             .iter()
             .filter(|write| matches!(write.data, RecordData::Note(_)))
             .count();
-        let tall = self.review_inputs || review.note.is_none() || grouped || note_writes > 1;
+        let tall =
+            self.review.inputs_shown() || review.note.is_none() || grouped || note_writes > 1;
         let mut details = div()
             .id("review-details")
             .flex()
@@ -2258,7 +2259,7 @@ impl<T: 'static> WritingView<'_, T> {
                 .filter(|saved| self.writing_requests.get(&saved.request_message) == Some(*saved));
             details = details.child(self.sources_used(evidence, captured));
         }
-        if self.review_inputs || review.note.is_none() {
+        if self.review.inputs_shown() || review.note.is_none() {
             // The bar names the reason when the proposal has no note text.
             if review.note.is_some() {
                 details = details.child(review.candidate.request.reason.clone());
@@ -2399,12 +2400,12 @@ impl<T: 'static> WritingView<'_, T> {
         }
         let body = if review.note.is_none() {
             div().into_any_element()
-        } else if self.review_editing {
+        } else if self.review.is_editing() {
             prose_editor(&self.review_editor)
                 .h_full()
                 .aria_label("Final proposed note text")
                 .into_any_element()
-        } else if self.review_reading {
+        } else if self.review.is_reading() {
             crate::document::readable_document(&self.candidate_view, self.note_assets())
                 .into_any_element()
         } else {
@@ -2479,7 +2480,7 @@ impl<T: 'static> WritingView<'_, T> {
     }
 
     pub fn compare_tile(&self, _: &mut Context<T>) -> gpui_kit::AnyElement {
-        if let Some(review) = &self.review
+        if let Some(review) = self.review.as_ref()
             && review.candidate.request.writes.iter().any(
                 |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
             )

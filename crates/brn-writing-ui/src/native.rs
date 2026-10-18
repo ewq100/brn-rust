@@ -17,6 +17,9 @@ mod references;
 #[path = "setup.rs"]
 pub mod setup;
 use gpui_kit::component::input::InputState;
+#[path = "review.rs"]
+mod review;
+pub use review::ReviewLifecycle;
 
 gpui_kit::actions!(
     brn_threads,
@@ -37,7 +40,6 @@ pub struct Review {
     pub candidate: Prepared,
     pub note: Option<String>,
     pub original: String,
-    pub edited: bool,
     pub groups: ReviewGroups,
     pub selected: BTreeSet<String>,
 }
@@ -115,20 +117,17 @@ pub struct WritingPanel {
     pub note_reading: bool,
     pub read_marks_key: String,
     pub read_source: String,
-    pub review_reading: bool,
     pub comment_marks: Option<RangeDecorationCollection>,
     pub diff_editor: Entity<EditorState>,
     pub diff_marks: Option<TextDecorationCollection>,
     pub current_view: Entity<TextViewState>,
     pub candidate_view: Entity<TextViewState>,
     pub review_editor: Entity<EditorState>,
-    pub review_editing: bool,
-    pub review_inputs: bool,
     pub note: Option<OpenNote>,
     /// Starting this view's edit found another open edit of the note: its
     /// note and base version, from the typed `EditSessionOpen` (U4).
     pub edit_open: Option<(String, u64)>,
-    pub review: Option<Review>,
+    pub review: ReviewLifecycle,
     /// The comments margin beside the text (Wide, Narrow): `None` follows the
     /// note (shown with comments or a draft); the toggle sets it.
     pub margin: Option<bool>,
@@ -283,18 +282,15 @@ impl WritingPanel {
             note_reading: false,
             read_marks_key: String::new(),
             read_source: String::new(),
-            review_reading: false,
             comment_marks: None,
             diff_editor,
             diff_marks: None,
             current_view,
             candidate_view,
             review_editor,
-            review_editing: false,
-            review_inputs: false,
             note: None,
             edit_open: None,
-            review: None,
+            review: ReviewLifecycle::default(),
             margin: None,
             comments_expanded: false,
             comments_scroll: gpui_kit::ScrollHandle::new(),

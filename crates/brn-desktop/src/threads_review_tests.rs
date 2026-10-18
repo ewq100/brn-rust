@@ -543,7 +543,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     on_window(cx, &f, |window, cx| window.click("review-read-result", cx));
     escape_from_comments(cx, &f);
     update(cx, &f, |view, window, cx| {
-        assert!(view.writing.review_reading && !view.writing.comments_expanded);
+        assert!(view.writing.review.is_reading() && !view.writing.comments_expanded);
         assert!(
             view.writing
                 .candidate_view
@@ -562,7 +562,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
     choose(cx, &f, "Edit final text");
     escape_from_comments(cx, &f);
     update(cx, &f, |view, window, cx| {
-        assert!(view.writing.review_editing && !view.writing.comments_expanded);
+        assert!(view.writing.review.is_editing() && !view.writing.comments_expanded);
         assert!(
             view.writing
                 .review_editor
@@ -757,7 +757,7 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
             assert!(
-                view.writing.review_inputs && view.writing.comments_expanded,
+                view.writing.review.inputs_shown() && view.writing.comments_expanded,
                 "{case}"
             );
             assert_eq!(view.writing.review_fit, ReviewFit::Icons, "{case}");
@@ -813,7 +813,7 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
             assert!(
-                view.writing.review_inputs && view.writing.review_editing,
+                view.writing.review.inputs_shown() && view.writing.review.is_editing(),
                 "{case}"
             );
             assert!(view.writing.comments_expanded, "{case}");
@@ -923,9 +923,9 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
         view.writing.review_editor.update(cx, |editor, cx| {
             editor.set_value(format!("{REVISED}\n\nAdded."), window, cx)
         });
-        if let Some(review) = &mut view.writing.review {
-            review.edited = true;
-        }
+        view.writing
+            .review
+            .buffer_changed(view.writing.review_editor.read(cx).value().as_ref());
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(window.find("prepare-final").label(), Some("Use this text"));
@@ -933,7 +933,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     on_window(cx, &f, |window, cx| window.click("cancel-final", cx));
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(!view.writing.review_editing && !view.writing.review.as_ref().unwrap().edited);
+        assert!(!view.writing.review.is_editing() && !view.writing.review.is_edited());
     });
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("prepare-final").is_none());
@@ -945,7 +945,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     // Changes | Result keep their focus.
     on_window(cx, &f, |window, cx| window.click("review-read-result", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(view.writing.review_reading);
+        assert!(view.writing.review.is_reading());
         assert!(
             view.writing
                 .candidate_view
@@ -956,7 +956,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
     });
     on_window(cx, &f, |window, cx| window.click("review-show-changes", cx));
     update(cx, &f, |view, window, cx| {
-        assert!(!view.writing.review_reading);
+        assert!(!view.writing.review.is_reading());
         assert!(
             view.writing
                 .diff_editor
@@ -1847,5 +1847,95 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
         assert!(window.find("note-stale-preview").visible());
         let text = window.find("note-body").bounds();
         assert!(stack.bottom() <= text.top() + px(0.5));
+    });
+}
+
+#[gpui_kit::test]
+fn real_review_input_and_card_apply_share_draft_and_selection_guards(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., TEXT);
+    let thread = commented(cx, &f, false);
+    let actions = tasks(cx, &f);
+    review_rewrite_with(
+        cx,
+        &f,
+        &thread,
+        "Keep the task separate",
+        vec![done(&actions[0])],
+    );
+    let candidate = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .review
+            .as_ref()
+            .unwrap()
+            .candidate
+            .clone()
+    });
+    // Select a strict subset through the actual control, then try the card route.
+    on_window(cx, &f, |window, cx| {
+        window.click(format!("review-group-{}", actions[0].id), cx);
+    });
+    update(cx, &f, |view, window, cx| {
+        view.card_apply(candidate.clone(), window, cx);
+        assert!(view.writing.review.is_some());
+        assert!(
+            view.workspace
+                .store
+                .receipt(&candidate.operation)
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(
+            view.workspace
+                .store
+                .record(&actions[0].id)
+                .unwrap()
+                .unwrap(),
+            actions[0]
+        );
+    });
+    // Restore the full selection and type through GPUI, exercising the real
+    // subscription rather than assigning the owner's dirty status in a fixture.
+    on_window(cx, &f, |window, cx| {
+        window.click(format!("review-group-{}", actions[0].id), cx);
+    });
+    update(cx, &f, |view, window, cx| {
+        view.set_review_reading(true, window, cx);
+        view.start_review_edit(window, cx);
+        let length = view.writing.review_editor.read(cx).value().len();
+        view.writing
+            .review_editor
+            .update(cx, |editor, cx| editor.set_selected_range(0..length, cx));
+    });
+    on_window(cx, &f, |window, cx| {
+        window.input("Owner's final proposed text", cx)
+    });
+    update(cx, &f, |view, window, cx| {
+        assert!(view.writing.review.is_edited());
+        view.card_apply(candidate.clone(), window, cx);
+        view.open_review(candidate.clone(), window, cx);
+        assert!(view.writing.review.is_edited());
+        assert_eq!(
+            view.writing.review_editor.read(cx).value().as_ref(),
+            "Owner's final proposed text"
+        );
+        assert!(
+            view.workspace
+                .store
+                .receipt(&candidate.operation)
+                .unwrap()
+                .is_none()
+        );
+        view.cancel_review_edit(window, cx);
+        assert!(!view.writing.review.is_edited());
+        assert!(
+            view.writing.review.is_reading(),
+            "Cancel restores prior Result presentation"
+        );
+        assert_eq!(
+            view.writing.review_editor.read(cx).value().as_ref(),
+            REVISED
+        );
     });
 }

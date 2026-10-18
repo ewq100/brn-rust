@@ -131,7 +131,7 @@ fn keyboard_selection_shows_strip_and_comment_key_anchors_saved_passage(cx: &mut
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        window.press("cmd-left", cx);
+        window.press(super::focus_tests::LINE_START, cx);
         window.press("shift-right", cx);
     })
     .unwrap();
@@ -537,7 +537,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                 let candidate = view.workspace.store.prepare(&op, &request).unwrap();
                 view.open_project_note(&projects[0], &f.a.id, window, cx);
                 view.open_review(candidate.clone(), window, cx);
-                assert!(!view.writing.review_inputs);
+                assert!(!view.writing.review.inputs_shown());
                 (
                     projects[0].clone(),
                     projects[1].clone(),
@@ -613,16 +613,13 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
     })
     .unwrap();
     cx.run_until_parked();
-    // Candidate content is part of the cache key even when SQLite is unchanged.
-    cx.update_window(f.window, |_, _window, cx| {
+    // A newly displayed candidate is checked by content even when SQLite is unchanged.
+    cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.writing
-                .review
-                .as_mut()
-                .unwrap()
-                .candidate
-                .request
-                .reason = "UNBOUND PRIVATE REASON".into();
+            let mut unbound = candidate.clone();
+            unbound.request.reason = "UNBOUND PRIVATE REASON".into();
+            view.writing.review.keep().unwrap();
+            view.open_review(unbound, window, cx);
             cx.notify();
         });
     })
@@ -635,7 +632,8 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                 .contains("UNBOUND PRIVATE REASON")
         );
         f.view.update(cx, |view, cx| {
-            view.writing.review.as_mut().unwrap().candidate = candidate.clone();
+            view.writing.review.keep().unwrap();
+            view.open_review(candidate.clone(), window, cx);
             cx.notify();
         });
     })
@@ -651,8 +649,8 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
             view.writing
                 .expanded_requests
                 .insert(private_request.clone());
-            view.writing.review_inputs = true;
-            view.writing.review_reading = true;
+            view.writing.review.toggle_inputs();
+            view.writing.review.set_reading(true);
             view.layout.open(TileKind::Compare);
             view.apply_review(window, cx);
             assert!(view.writing.review.is_some());
@@ -1239,7 +1237,7 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
                 "Owner's unsubmitted final text"
             );
             view.show_tile(TileKind::Note, window, cx);
-            assert!(view.writing.review_editing);
+            assert!(view.writing.review.is_editing());
             assert_eq!(
                 view.writing.review.as_ref().unwrap().candidate.operation,
                 candidate_id
@@ -2369,7 +2367,7 @@ fn b3_sources_used_separates_import_reading_claims_quotes_and_changed_removed_ma
                 let candidate = view.workspace.store.prepare(&operation, &request).unwrap();
                 view.refresh();
                 view.open_review(candidate.clone(), window, cx);
-                assert!(!view.writing.review_inputs);
+                assert!(!view.writing.review.inputs_shown());
                 (candidate, source)
             })
         })
@@ -2473,7 +2471,7 @@ fn b3_sources_used_separates_import_reading_claims_quotes_and_changed_removed_ma
             }
             // Reopening the same operation intentionally keeps the current review;
             // clear only the local view to exercise a new forged display batch.
-            view.writing.review = None;
+            view.writing.review.keep().unwrap();
             view.open_review(forged, window, cx);
             assert_eq!(
                 view.workspace.store.prepared(&candidate.operation).unwrap(),
@@ -2888,7 +2886,7 @@ fn b3_saved_host_evidence_has_visible_sources_used_without_opening_inputs(cx: &m
             view.open_note(&f.a.id, None, window, cx);
             view.refresh();
             view.open_review(candidate, window, cx);
-            assert!(!view.writing.review_inputs);
+            assert!(!view.writing.review.inputs_shown());
         });
     })
     .unwrap();
@@ -3185,7 +3183,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
         .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.input("Owner typed this brief during conversion", cx);
     })
     .unwrap();
@@ -3397,7 +3395,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
                 .focus_handle(cx)
                 .focus(window, cx);
         });
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.input("Explicitly discard this later draft", cx);
     })
     .unwrap();
@@ -3435,7 +3433,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
                     .focus_handle(cx)
                     .focus(window, cx);
             });
-            window.press("cmd-a", cx);
+            window.press(super::focus_tests::SELECT_ALL, cx);
             window.input("Keep this draft after a concurrent setup edit", cx);
             f.view.update(cx, |view, cx| {
                 let current = view
@@ -3556,7 +3554,7 @@ async fn b3_reference_next_keeps_its_query_until_owner_starts_a_new_search(
             .reference_query
             .clone()
             .update(cx, |input, cx| input.focus(window, cx));
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.input("PagingBeta", cx);
     })
     .unwrap();
@@ -3698,7 +3696,7 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
         .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.input("Private B brief typed during A conversion", cx);
     })
     .unwrap();
@@ -3822,7 +3820,7 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
                 .focus_handle(cx)
                 .focus(window, cx);
         });
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.input("B owner explicitly discards this later edit", cx);
     })
     .unwrap();

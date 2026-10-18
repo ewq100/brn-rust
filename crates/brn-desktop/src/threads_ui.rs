@@ -587,10 +587,10 @@ impl ThreadsUi {
                 &review_editor,
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
-                    if matches!(event, InputEvent::Change)
-                        && let Some(review) = &mut this.writing.review
-                    {
-                        review.edited = editor.read(cx).value().as_ref() != review.original;
+                    if matches!(event, InputEvent::Change) {
+                        this.writing
+                            .review
+                            .buffer_changed(editor.read(cx).value().as_ref());
                         cx.notify();
                     }
                 },
@@ -764,7 +764,7 @@ impl ThreadsUi {
                 .to_owned();
             let token = self.workspace.store.change_token()?;
             let mut shown = self.candidates.iter().filter(|c| c.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))).collect::<Vec<_>>();
-            if let Some(review) = &self.writing.review
+            if let Some(review) = self.writing.review.as_ref()
                 && review.candidate.request.writes.iter().any(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
             {
                 if let Some(slot) = shown.iter_mut().find(|c| c.operation == review.candidate.operation) {
@@ -943,7 +943,7 @@ impl ThreadsUi {
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.tile_reveal = None;
         self.focus_root(window, cx);
-        if self.writing.review_editing
+        if self.writing.review.is_editing()
             && self.note_tile_visible()
             && self
                 .writing
@@ -1599,23 +1599,23 @@ impl ThreadsUi {
         cx.notify();
     }
     fn prepare_review_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.writing.review else {
-            return;
-        };
-        if review.edited {
-            self.warn("Prepare your edited text before choosing proposal groups.");
-            cx.notify();
-            return;
-        }
-        let selected = review.selected.iter().cloned().collect::<Vec<_>>();
         match self
-            .workspace
-            .review_select(review.candidate.operation.as_str(), &selected)
+            .writing
+            .prepare_review_selection(&mut self.workspace, window, cx)
         {
-            Ok(candidate) => {
-                // The prepared selection replaces the reviewed candidate.
-                self.writing.review = None;
-                self.open_review(candidate, window, cx);
+            Ok(()) => {
+                let note = self
+                    .writing
+                    .review
+                    .as_ref()
+                    .and_then(|review| review.note.clone());
+                if let Some(note) = note
+                    && self.open_note_id() != Some(note.as_str())
+                {
+                    self.open_note(&note, None, window, cx);
+                }
+                self.layout.open(TileKind::Note);
+                self.focus_tile_contents(window, cx);
                 self.inform("The selected notes and tasks are prepared as a new proposal. Review it, then apply it.");
             }
             Err(error) => self.fail(error.to_string()),
@@ -1624,23 +1624,17 @@ impl ThreadsUi {
         cx.notify();
     }
     fn prepare_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.writing.review else {
-            return;
-        };
-        let Some(note) = &review.note else { return };
-        let text = self.writing.review_editor.read(cx).value().to_string();
         match self
-            .workspace
-            .review_replace(review.candidate.operation.as_str(), note, &text)
+            .writing
+            .prepare_review_edit(&mut self.workspace, window, cx)
         {
-            Ok(candidate) => {
-                // The prepared final text replaces the reviewed candidate.
-                self.writing.review = None;
-                self.open_review(candidate, window, cx);
+            Ok(()) => {
+                self.layout.open(TileKind::Note);
+                self.focus_tile_contents(window, cx);
                 self.inform("Your final text is prepared. Review this version, then apply it.");
             }
-            Err(e) => self.fail(e.to_string()),
-        };
+            Err(error) => self.fail(error.to_string()),
+        }
         self.refresh();
         cx.notify();
     }
@@ -2382,7 +2376,6 @@ impl ThreadsUi {
         if let Some(note) = &target
             && self.open_note_id() != Some(note.as_str())
         {
-            self.writing.review = None;
             self.open_note(note, None, window, cx);
         }
         if !has_evidence
@@ -2391,104 +2384,45 @@ impl ThreadsUi {
         {
             self.set_chat(ChatTarget::Thread(snapshot.thread), window, cx);
         }
-        let (id, text, current) = write
-            .map(|write| {
-                let RecordData::Note(note) = &write.data else {
-                    unreachable!()
-                };
-                let current = self
-                    .workspace
-                    .store
-                    .note(&write.id)
-                    .ok()
-                    .flatten()
-                    .and_then(|r| {
-                        if let RecordData::Note(n) = r.data {
-                            Some(n.markdown)
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap_or_default();
-                (Some(write.id.clone()), note.markdown.clone(), current)
-            })
-            .unwrap_or_default();
-        let groups = self
-            .workspace
-            .review_groups(candidate.operation.as_str())
-            .unwrap_or(ReviewGroups {
-                groups: vec![],
-                ungrouped_writes: vec![],
-            });
-        let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
-        self.writing.review = Some(Review {
-            candidate,
-            note: id,
-            original: text.clone(),
-            edited: false,
-            groups,
-            selected,
-        });
-        self.writing.review_editing = false;
-        self.writing.review_inputs = false;
-        self.writing.review_reading = false;
-        self.writing
-            .review_editor
-            .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
-        self.writing
-            .current_view
-            .update(cx, |v, cx| v.set_text(&current, cx));
-        self.writing
-            .candidate_view
-            .update(cx, |v, cx| v.set_text(&text, cx));
+        let id = write.map(|write| write.id.clone());
+        if let Err(error) = self
+            .writing
+            .open_review(&self.workspace, candidate, id, window, cx)
+        {
+            self.fail(error.to_string());
+            cx.notify();
+            return;
+        }
         self.layout.open(TileKind::Note);
         self.sync_diff(window, cx);
         self.focus_tile_contents(window, cx);
         cx.notify();
     }
     fn start_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self
-            .writing
-            .review
-            .as_ref()
-            .is_some_and(|review| review.note.is_some())
-        {
-            self.writing.review_editing = true;
+        if self.writing.review.begin_edit() {
             self.focus_visible_editor(window, cx);
             cx.notify();
         }
     }
     fn cancel_review_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(review) = &mut self.writing.review {
-            let original = review.original.clone();
-            review.edited = false;
-            self.writing
-                .review_editor
-                .update(cx, |e, cx| e.set_value(original, window, cx));
-            if let Some(review) = &mut self.writing.review {
-                review.edited = false;
-            }
-        }
-        self.writing.review_editing = false;
+        self.writing.cancel_review_edit(window, cx);
         self.focus_root(window, cx);
         cx.notify();
     }
     fn apply_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.writing.review else {
-            return;
-        };
-        if review.edited || review.selected.len() != review.groups.groups.len() {
-            self.warn("Prepare your edited text or selected groups before applying it.");
-            cx.notify();
-            return;
+        match self.writing.review.exact_candidate() {
+            Ok(candidate) => self.apply_candidate(candidate, window, cx),
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+            }
         }
-        let candidate = review.candidate.clone();
-        self.apply_candidate(candidate, window, cx);
     }
     /// Card actions must not silently discard final text being edited in review.
     fn refuse_if_editing(&mut self, candidate: &Prepared, cx: &mut Context<Self>) -> bool {
         let editing = self.writing.review.as_ref().is_some_and(|review| {
-            review.edited && review.candidate.operation.as_str() == candidate.operation.as_str()
+            self.writing.review.is_edited()
+                && review.candidate.operation.as_str() == candidate.operation.as_str()
         });
         if editing {
             self.warn("You are editing this proposal's final text. Choose Use this text, or cancel the edit in the note first.");
@@ -2513,6 +2447,14 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        let candidate = match self.writing.review.candidate_to_apply(candidate) {
+            Ok(candidate) => candidate,
+            Err(error) => {
+                self.warn(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
         let has_evidence =
             candidate.request.writes.iter().any(
                 |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
@@ -2547,12 +2489,7 @@ impl ThreadsUi {
                             (input.record.clone(), receipt.operation.as_str().into()),
                         );
                     }
-                    if self.writing.review.as_ref().is_some_and(|review| {
-                        review.candidate.operation.as_str() == candidate.operation.as_str()
-                    }) {
-                        self.writing.review = None;
-                        self.writing.review_editing = false;
-                    }
+                    self.writing.review.completed(candidate.operation.as_str());
                     self.reload_open_note(window, cx);
                 }
             }
@@ -2584,7 +2521,7 @@ impl ThreadsUi {
         self.focus_visible_editor(window, cx);
     }
     fn dismiss_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(review) = &self.writing.review else {
+        let Some(review) = self.writing.review.as_ref() else {
             return;
         };
         let candidate = review.candidate.clone();
@@ -2598,12 +2535,7 @@ impl ThreadsUi {
     ) {
         match self.workspace.review_dismiss(candidate.operation.as_str()) {
             Ok(()) => {
-                if self.writing.review.as_ref().is_some_and(|review| {
-                    review.candidate.operation.as_str() == candidate.operation.as_str()
-                }) {
-                    self.writing.review = None;
-                    self.writing.review_editing = false;
-                }
+                self.writing.review.completed(candidate.operation.as_str());
                 self.focus_visible_editor(window, cx);
                 self.inform("Dismissed the proposal. The note is unchanged.");
             }
@@ -3840,7 +3772,7 @@ impl ThreadsUi {
     /// returns focus to the text above.
     fn collapse_comments(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.writing.comments_expanded = false;
-        if !self.writing.review_editing
+        if !self.writing.review.is_editing()
             && self
                 .writing
                 .review
@@ -3849,7 +3781,7 @@ impl ThreadsUi {
         {
             self.tile_reveal = None;
             self.focus_root(window, cx);
-            if self.writing.review_reading {
+            if self.writing.review.is_reading() {
                 self.writing
                     .candidate_view
                     .read(cx)
@@ -3873,16 +3805,9 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.writing.review_editing
-            || !self
-                .writing
-                .review
-                .as_ref()
-                .is_some_and(|review| review.note.is_some())
-        {
+        if !self.writing.review.set_reading(reading) {
             return;
         }
-        self.writing.review_reading = reading;
         self.focus_root(window, cx);
         if reading {
             self.writing
@@ -4613,7 +4538,7 @@ impl ThreadsUi {
             }
             WritingRequest::PostComment => self.post_comment(window, cx),
             WritingRequest::ToggleReviewInputs => {
-                self.writing.review_inputs = !self.writing.review_inputs;
+                self.writing.review.toggle_inputs();
                 cx.notify();
             }
             WritingRequest::StartReviewEdit => self.start_review_edit(window, cx),
@@ -4646,14 +4571,7 @@ impl ThreadsUi {
                 self.writing.applied_rewrite.remove(&id);
                 cx.notify();
             }
-            WritingRequest::ToggleGroup(id) => {
-                if let Some(review) = &mut self.writing.review
-                    && !review.selected.remove(&id)
-                {
-                    review.selected.insert(id);
-                }
-                cx.notify();
-            }
+            WritingRequest::ToggleGroup(id) => self.writing.review.toggle_group(&id),
             WritingRequest::Undo(id) => self.undo_receipt(&id, window, cx),
             WritingRequest::Retry(id) => self.retry_rewrite(id, cx),
             WritingRequest::SelectReviewNote(id) => self.select_review_note(id, window, cx),
@@ -4732,61 +4650,24 @@ impl ThreadsUi {
         self.writing_view().compare_tile(cx)
     }
     fn keep_review(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.writing.review.as_ref().is_some_and(|r| r.edited) {
+        if self.writing.review.is_edited() {
             self.prepare_review_edit(window, cx);
         }
-        if self.writing.review.as_ref().is_some_and(|r| !r.edited) {
-            self.writing.review = None;
-            self.writing.review_editing = false;
+        if self.writing.review.keep().is_ok() {
             self.focus_visible_editor(window, cx);
         }
         cx.notify();
     }
     fn select_review_note(&mut self, id: String, window: &mut Window, cx: &mut Context<Self>) {
-        if self.writing.review.as_ref().is_some_and(|r| r.edited) {
+        if self.writing.review.is_edited() {
             self.prepare_review_edit(window, cx);
-            if self.writing.review.as_ref().is_some_and(|r| r.edited) {
-                return;
-            }
         }
-        let Some(review) = &mut self.writing.review else {
-            return;
-        };
-        let Some(write) = review.candidate.request.writes.iter().find(|w| w.id == id) else {
-            return;
-        };
-        let RecordData::Note(note) = &write.data else {
-            return;
-        };
-        let text = note.markdown.clone();
-        review.note = Some(id.clone());
-        review.original = text.clone();
-        review.edited = false;
-        let current = self
-            .workspace
-            .store
-            .note(&id)
-            .ok()
-            .flatten()
-            .and_then(|r| {
-                if let RecordData::Note(n) = r.data {
-                    Some(n.markdown)
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
-        self.writing
-            .review_editor
-            .update(cx, |e, cx| e.set_value(text.clone(), window, cx));
-        self.writing
-            .candidate_view
-            .update(cx, |v, cx| v.set_text(&text, cx));
-        self.writing
-            .current_view
-            .update(cx, |v, cx| v.set_text(&current, cx));
-        self.writing.review_editing = false;
-        self.sync_diff(window, cx);
+        if let Err(error) = self
+            .writing
+            .select_review_note(&self.workspace, &id, window, cx)
+        {
+            self.warn(error.to_string());
+        }
         cx.notify();
     }
     fn save_copy(&mut self, window: &mut Window, cx: &mut Context<Self>) {
