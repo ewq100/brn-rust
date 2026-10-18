@@ -1,0 +1,14 @@
+## Review verdict APPROVED
+
+Reviewed clean evidence HEAD `84992c66`, material `9271af29`, against actual-main base `e6511a1d`.
+
+**Blockers:** none. **Advisory findings:** none.
+
+- **Spec:** The [two-line fixture correction](/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/crates/brn-desktop/src/threads_omakase_tests.rs:1661) is appropriate for this confirmation-contract test. Pinned SDK source confirms `reduce_motion` belongs to the individual App; the test macro creates a separate App. Setting it after initialization and before dialog opening stabilizes geometry without changing confirmation policy.
+- **Safety and meaningful coverage:** Every original assertion and the single SDK `Window.click` remain byte-identical. Enter must leave confirmation false and the dialog open; the actual click must confirm and close it. Removing exactly the added comment and setter restores the entire original file byte-for-byte.
+- **Standards and scope:** No concrete correctness or maintainability issue found. All other changes are evidence documentation. Production components, dependencies, locks, workflows and test assertions are unchanged.
+- **Evidence:** The same-binary controlled probe demonstrates a stale-coordinate mechanism: after-target movement produces callback count zero and the original assertion failure; settling before lookup produces one actual callback and closure. This supports the bounded fixture correction. The reports correctly avoid claiming the unique historical CI cause or a production defect.
+
+I independently checked receipt hashes, cached SDK source hashes, source/material identities, probe and corrected executable hashes, and raw result summaries without discrepancies. Recorded corrected checks are focused **1/0**, widgets **305/0/1 with 3 filtered**, strict native/widget/writing Clippy, formatting and static checks.
+
+**Limits:** This was read-only source/evidence review; I ran no tests or builds. Historical failures remain failed. Corrected PR checks, merge and actual-main CI remain pending; animation fidelity, native-human, live-provider and owner acceptance remain separate. Approval applies to this bounded fixture correction and does **not** close the main gate.
