@@ -1,0 +1,68 @@
+**APPROVED — exact corrected DOCX comment5 component. Prior P2 resolved. Blocking findings: zero.** No further code correction is required for this bounded component. Parent acceptance and integration remain separate.
+
+Reviewed the clean isolated checkout:
+
+- Branch: `work/x2-office-prep-20261018`
+- HEAD: `b356e0b3c0a3071d47db86f4826bf5d6ac413375`
+- Tree: `2282c5e5723b70366049594032ca134019478220`
+- Original baseline: `c4b4b12abe2794a43a8071a337b9e2af99385d81`
+- Prior candidate: `d1fe4fd594d5e832fef55eefc5a3d8954089f0bd`
+- Cached `origin/main`: `57c710ccec2b007c4d8a25c9f1d1b5c1c539907c`; no fetch.
+- Corrected 0005 SHA-256: `b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1`
+- Corrected Xberg: `ce3bce28f1e6e7393efe27cfad61f8159208d286`, tree `d3ffa3c20128dc8182e7cb7a6c6049a93ba7cb1d`
+- Identical before/final harness tree: `cca6d8f9c8437cca489afedf7e2dc3e85f3ba233`
+
+**Prior P2 disposition.** The cleanup at [parser.rs:2613](/private/tmp/brn-x2-docx-comment5-r1-20261018/final/xberg/src/extraction/docx/parser.rs:2613) removes only the pending comment-map entry of an active paragraph being replaced. It runs before the existing paragraph replacement and index assignment.
+
+A committed paragraph has already been removed from `current_paragraph` through `take()` at [parser.rs:3160](/private/tmp/brn-x2-docx-comment5-r1-20261018/final/xberg/src/extraction/docx/parser.rs:3160), so its references are preserved. The replacement subsequently collects its own IDs under the pending paragraph index. Later paragraphs receive subsequent indices. The table branch is untouched.
+
+This precisely fixes abandoned paragraph ownership without changing the parser’s existing text recovery or introducing generalized malformed-Word repair.
+
+The retained execution evidence now substantiates the previously source-traced finding. Both new tests successfully extracted the document and passed their text, node and definition assertions before failing at the complete relationship-count assertion:
+
+- Abandoned outer 7: **1 observed versus 0 expected**.
+- Committed 6, abandoned 7, replacement 8/8, later 9: **5 observed versus 4 expected**.
+
+The identical driver then records **14 passed / 0 failed**, versus **12 passed / 2 failed** before, with zero ignored or filtered tests. These are inspected retained executions; this reviewer did not execute tests.
+
+Final assertions preserve `Seven` as an orphan definition and bind only the intended compound targets: `(0,3),(1,5),(1,5),(2,6)`.
+
+**Specification and correctness.** I reviewed the complete two-file 0005 production delta and surrounding parser/exporter lifecycle, not only the three-line correction.
+
+Actual URI-qualified Word comment-reference events populate the private paragraph map. The exporter at [docx.rs:287](/private/tmp/brn-x2-docx-comment5-r1-20261018/final/xberg/src/extractors/docx.rs:287) consumes that map using the original paragraph index. Rendered literal `[cmt:…]` text supplies no semantic authority.
+
+Per-paragraph vectors preserve encounter order and multiplicity. Empty-paragraph omission and page-break elements do not shift ownership. Existing heading/list source mappings, definition keys, empty-ID guard, CommentRef handling and public relationship class remain intact.
+
+Table references are excluded from the map. Only the main-document map reaches `Document`; separate header/footer/note/comment parsing cannot inject references into body paragraphs. Their broader association gaps remain explicitly open.
+
+Flat comment validation, typed-note handling and all **26 ordered parser budget-call expressions** are unchanged. The incremental correction leaves every other previous-candidate file byte-identical, including the exporter. No introduced content loss beyond the documented existing recovery was identified.
+
+**Standards and scope.** The complete production delta is **17 additions / 9 deletions in two files**. The P2 increment is **three parser additions only**. It follows the existing private typed-reference-map pattern and adds no dependency, public DTO/API, generic framework, namespace policy, renderer rewrite or BRN route. No blocking standards or maintenance finding was identified.
+
+**Tests and compatibility.** I inspected the complete 727-line driver and independently verified that its original 651-line prefix is byte-identical. All original 12 tests and assertions remain unchanged.
+
+Independent retained-data comparisons confirmed:
+
+- **30 complete accepted namespace/consumer JSON values equal**
+- **24 legacy DOCX input vectors equal**
+- **86 complete order4 JSON values equal**
+- **15 prior comment captures and their inputs equal**
+- **17 current before/final DOCX vectors byte-identical**
+
+The original literal, namespace, repeated-reference, typed-note, non-body and page controls remain effective. The exact authored bold annotation at bytes **9–13** remains unchanged.
+
+For each new malformed fixture, independently deriving the expected complete final value removes only its abandoned relationship. The zero-reference case additionally omits the empty relationships field, as required by existing serialization. All other public fields remain equal. The preserved initial checker failure reflects that field omission; it does not weaken legacy comparisons.
+
+**Evidence custody and truthful claims.** All five current receipts/raw logs and all nine historical receipt/raw-log hashes matched their pins. I verified current sources and all 26 source snapshots per current phase, ten delivery-file hashes, the root lock and the verbatim prior-review copy.
+
+Eight selected executable/library/dep-info bindings matched retained objects. Compiler records, recorded working directories and dep-info associate them with the expected roots. The first corrected run’s historical rlib/dep-info remain preserved despite later target overwrites.
+
+The first **14/0** compilation correctly binds `cf7ae271` plus the exact three-line WIP and its dirty build ID. Later regression/Clippy records bind actual committed `ce3bce28`; source bytes agree. No future commit identity is retroactively assigned.
+
+Raw compiler records match the retained compiler-message files. Current phase registry identity/feature unions equal accepted order4’s **239 identities**; Xberg is a normal dependency with `html/notebook/office` and test profile false.
+
+Independent in-memory reconstruction from the hashed cached archive through **0001 → 0003 → 0004 → corrected 0005** matched all **765 package files**. Accepted patches remain unchanged. Retained namespace/S3 **25/0**, order4 **21/0**, strict harness Clippy and owned formatting/static results remain accurately qualified. The disclosed default-width formatting failure is preserved.
+
+Broader comment metadata, non-body/note associations, locators, layout/tables/rendering/OCR/chart fidelity, XML/DTD/read-set/preallocation/heap/repeated-work/resource containment, restricted runtime, license custody, root adoption and all-eight retirement remain open. General malformed-Word fidelity and RSS bounds are not established. Order4’s optional invalid-show assertion remains deferred. Carried PDF/SDK/widget/platform/INT-W/native-human/owner/program/main/live qualifications are unchanged.
+
+No files or reports were written. No Cargo, metadata, builds, tests, lint, project executables, network/provider/Auth, GUI, mutants, heavy work, polling or delegation ran. The frozen PDF task was not inspected. This approval makes no owner-acceptance, runtime-cutover, integration or merge claim.
