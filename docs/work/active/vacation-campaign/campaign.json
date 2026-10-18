@@ -18,5 +18,30 @@
     "codex-cli 0.159.2 cloud list returns HTTP 401; remote-task reconciliation unavailable."
   ],
   "remote_jobs_launched": [],
-  "next_wake": null
+  "next_wake": null,
+  "last_checkpoint_at_utc": "2026-10-18T22:18:31.106227+00:00",
+  "last_committed_source": "39312be9c6c249928252e6df50cfbb2413b7874c",
+  "current_session_jobs": [
+    {
+      "tool_session_id": 52981,
+      "purpose": "corrected writing host then full desktop tests",
+      "status": "running",
+      "log_prefix": "/workspace/brn-environment/logs/vacation-"
+    }
+  ],
+  "capability_observations": {
+    "cli": "codex-cli0.159.2",
+    "cloud_list": "HTTP401 authentication parse failure; no new remote task launched",
+    "protocol": "installed experimental schemas include thread goals and account/rateLimits/read; current stdio initialize probe failed, no actual quota snapshot obtained",
+    "app_thread": "current app thread hostId durable, status active; read response exposes no goal/model/quota or wake/expiry guarantee",
+    "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee"
+  },
+  "model_policy": {
+    "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
+    "implementations": "Requested gpt-6.1-sol high via supported spawn override, fork none",
+    "bounded_inventory_and_install_review": "Requested gpt-6-luna high",
+    "hard_escalation": "Requested gpt-6-astra high only for native seccomp BPF independent review",
+    "effective_model_verification": "Tools accept requested model/reasoning but list_agents exposes status only; effective runtime model/effort and speed not independently observable",
+    "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
+  }
 }
