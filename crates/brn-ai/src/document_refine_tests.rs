@@ -1,6 +1,8 @@
 use super::*;
 use brn_threads_intake::{Coverage, CoverageStatus, RetainedAsset};
+#[cfg(unix)]
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+#[cfg(unix)]
 use serde_json::{Value, json};
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
@@ -15,6 +17,7 @@ fn capture(name: &str, value: impl serde::Serialize) {
         .unwrap();
     }
 }
+#[cfg(unix)]
 fn root() -> tempfile::TempDir {
     tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
 }
@@ -85,10 +88,12 @@ fn auth(root: &tempfile::TempDir) -> PathBuf {
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
     path
 }
+#[cfg(unix)]
 fn completed(text: &str, status: &str) -> String {
     let response = json!({"type":"response.completed","sequence_number":1,"response":{"id":"synthetic-response","object":"response","created_at":1,"status":status,"model":"gpt-6-luna","incomplete_details":if status=="incomplete" {json!({"reason":"max_output_tokens"})} else {Value::Null},"output":[{"type":"message","id":"synthetic-message","status":"completed","role":"assistant","content":[{"type":"output_text","annotations":[],"text":text}]}],"tools":[],"usage":{"input_tokens":23,"output_tokens":17,"total_tokens":40}}});
     format!("data: {response}\n\ndata: [DONE]\n\n")
 }
+#[cfg(unix)]
 fn transport(text: &str, status: &str) -> SequencedHttpClient {
     SequencedHttpClient::new([MockHttpResponse::success_typed(
         completed(text, status),

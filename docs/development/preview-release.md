@@ -39,6 +39,7 @@ On an Apple Silicon Mac with the [repository setup](setup.md), build from an app
 ```sh
 export MACOSX_DEPLOYMENT_TARGET=15.0
 cargo rustc --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
+cargo build --release -p brn --locked --offline
 bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$PWD/target/document-helpers"
 cargo tree --locked --offline -p brn-desktop --features native-ui --target aarch64-apple-darwin --edges normal,build --prefix none --format '{p}' > target/desktop-target-graph.txt
 python3 scripts/package-macos-preview.py --prepare-notices "$PWD/target/distribution-notices" \
@@ -51,10 +52,11 @@ python3 scripts/package-macos-preview.py \
   --xberg-helper-brn "$PWD/target/document-helpers/artifacts/brn-xberg-helper-brn" \
   --notices "$PWD/target/distribution-notices" \
   --source-sha "$(git rev-parse HEAD)" --output-dir "$PWD/dist-preview"
-python3 scripts/tests/test_macos_packaging.py --qualify-app "$PWD/dist-preview/BRN Threads.app"
+python3 scripts/tests/test_macos_packaging.py --qualify-app "$PWD/dist-preview/BRN Threads.app" \
+  --host-cli "$PWD/target/release/brn"
 ```
 
-Packaging requires Python 3.11+, an absent output directory and Apple's `lipo`, `otool`, `codesign` and `ditto`. All three binaries must be arm64-only and link exclusively to `/usr/lib` or `/System/Library`. Packaging signs each binary and the bundle ad hoc, verifies it, creates the ZIP, extracts it to another location and verifies its signature again. It never opens the native app. Fixture qualification runs only headless startup/foreign-data refusal and both relocated helpers on all eight representative typed inputs. Fixture bytes remain test inputs; source/build directories are excluded from executable discovery, not deleted. The bundle retains target graphs, locks, checksum-verified registry source archives (including their legal notices), optional patches and BRN helper sources under Resources/notices.
+Packaging requires Python 3.11+, an absent output directory and Apple's `lipo`, `otool`, `codesign` and `ditto`. All three binaries must be arm64-only and link exclusively to `/usr/lib` or `/System/Library`. Packaging signs each binary and the bundle ad hoc, verifies it, creates the ZIP, extracts it to another location and verifies its signature again. It never opens the native app. Fixture qualification runs headless startup/foreign-data refusal and both relocated helpers on all eight representative typed inputs. With --host-cli, it also copies that test-only CLI beside copies of the signed relocated helpers, then imports all eight in both modes with AI Off and no developer helper overrides; the CLI is not shipped in the app. Fixture bytes remain test inputs; source/build directories are excluded from executable discovery, not deleted. The bundle retains target graphs, locks, checksum-verified registry source archives (including their legal notices), optional patches and BRN helper sources under Resources/notices.
 
 ## Publication gate
 
