@@ -23,3 +23,5 @@ Full watch, job logs, annotations, exact timing comparison, source/tree and proc
 This correction must pass independent bounded review, its own required PR checks and actual merged-main verification. The program implementation is already merged; CI completion is still pending. No retry or passing result is claimed here.
 
 Local precommit checks: nine existing CI-summary and intake-retirement/workflow tests passed, Markdown links passed (529 files, 2433 local links), and whitespace passed. No Cargo or application command was needed for this workflow/documentation-only delta. These static checks do not establish hosted execution of the new job limit.
+
+The new independent [bounded review](merged-main-timeout-review.txt) approved material `e042c66a0a36f064fd0063e0e780e6960ed336a2` with no blocking findings. It verified the three-file delta, numeric per-platform result and all 48 sealed evidence-file hashes. The lead accepts this correction for its own PR verification under the existing CI-fix authorization. Later review-record additions are documentation only; hosted PR and merged-main completion remain pending.
