@@ -5256,5 +5256,351 @@
         }
       }
     }
+  ],
+  "current_review_material": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+  "review_followups": [
+    {
+      "round": 1,
+      "material": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+      "tree": "8119e6cce5ab8032139a3dd7734e5626a00bd0b2",
+      "crates_tree": "7905a64962ed2ecacc79b8eed5aecbe14adce4bf",
+      "scope": "Only cfg attributes in summary.rs/summary_tests.rs; no production/assertion change. One focused 28/0/0 lane, strict AI scripted all-target lint, fmt and final static evidence. No broad repeats.",
+      "platform_qualification": "Only installed aarch64-apple-darwin; source-derived non-Unix gating, no Windows build/download.",
+      "raw": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018",
+      "material_test_artifacts": {
+        "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/material-test-artifacts.json",
+        "sha256": "de65c617cb3132809b8d37305cfc05b3a6ea2c614d925d8d05d414424e174efb",
+        "bytes": 4567
+      },
+      "checks": [
+        {
+          "phase": "01-fmt",
+          "argv": [
+            "cargo",
+            "+1.98.1",
+            "fmt",
+            "--all",
+            "--check"
+          ],
+          "identity": {
+            "head": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+            "tree": "8119e6cce5ab8032139a3dd7734e5626a00bd0b2",
+            "branch": "work/final-combined-20261018",
+            "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+            "inputs_sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4"
+          },
+          "exit": 0,
+          "counts": {
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0
+          },
+          "environment": {
+            "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+            "CARGO_BUILD_JOBS": "1",
+            "CARGO_INCREMENTAL": "0",
+            "CARGO_NET_OFFLINE": "true",
+            "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/tmp",
+            "MACOSX_DEPLOYMENT_TARGET": "15.0",
+            "ORT_SKIP_DOWNLOAD": "1",
+            "ORT_OFFLINE": "1"
+          },
+          "source_unchanged_during_command": true,
+          "seconds": 3.4916539192199707,
+          "receipts": {
+            "result.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/result.json",
+              "sha256": "e160c8ebb1356c7d8733cec91172b5b00cdbd54d6584ab61ec78b6ba803d3f48",
+              "bytes": 1385
+            },
+            "inputs.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/inputs.json",
+              "sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4",
+              "bytes": 411411
+            },
+            "source.diff": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/source.diff",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "status.txt": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/status.txt",
+              "sha256": "1ff926873a84fac3fee5338fc848938ec4f4c9b9ef05f9a405771ad7a22e53a4",
+              "bytes": 64
+            },
+            "stdout": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "stderr": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/before-artifacts.json",
+              "sha256": "26657c7e79cfa5cac56cd8835f087d9943d82271cc7895340c3bbfc6b224e783",
+              "bytes": 11878
+            },
+            "after-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/01-fmt/after-artifacts.json",
+              "sha256": "26657c7e79cfa5cac56cd8835f087d9943d82271cc7895340c3bbfc6b224e783",
+              "bytes": 11878
+            }
+          }
+        },
+        {
+          "phase": "02-summary-focused",
+          "argv": [
+            "cargo",
+            "+1.98.1",
+            "test",
+            "--locked",
+            "--offline",
+            "--jobs",
+            "1",
+            "-p",
+            "brn-ai",
+            "--features",
+            "scripted-runs",
+            "--lib",
+            "--",
+            "--test-threads=1",
+            "threads::summary_tests::",
+            "threads::summary::filesystem_tests::"
+          ],
+          "identity": {
+            "head": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+            "tree": "8119e6cce5ab8032139a3dd7734e5626a00bd0b2",
+            "branch": "work/final-combined-20261018",
+            "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+            "inputs_sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4"
+          },
+          "exit": 0,
+          "counts": {
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0
+          },
+          "environment": {
+            "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+            "CARGO_BUILD_JOBS": "1",
+            "CARGO_INCREMENTAL": "0",
+            "CARGO_NET_OFFLINE": "true",
+            "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/tmp",
+            "MACOSX_DEPLOYMENT_TARGET": "15.0",
+            "ORT_SKIP_DOWNLOAD": "1",
+            "ORT_OFFLINE": "1"
+          },
+          "source_unchanged_during_command": true,
+          "seconds": 84.16248488426208,
+          "receipts": {
+            "result.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/result.json",
+              "sha256": "3eb2b701c02ea7a03d6a7b1e6b9087c8fd7793a7913896b61916fdf53d52a577",
+              "bytes": 1683
+            },
+            "inputs.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/inputs.json",
+              "sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4",
+              "bytes": 411411
+            },
+            "source.diff": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/source.diff",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "status.txt": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/status.txt",
+              "sha256": "1ff926873a84fac3fee5338fc848938ec4f4c9b9ef05f9a405771ad7a22e53a4",
+              "bytes": 64
+            },
+            "stdout": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/stdout",
+              "sha256": "1a326f623010659c167ad4881d37d10dd49a776fc8d33ad25f9562621dc77b07",
+              "bytes": 3184
+            },
+            "stderr": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/stderr",
+              "sha256": "b5e44df5757abb4fec356601c23a330524364879eb7af4d28b37b1a6fa368f8b",
+              "bytes": 278
+            },
+            "before-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/before-artifacts.json",
+              "sha256": "26657c7e79cfa5cac56cd8835f087d9943d82271cc7895340c3bbfc6b224e783",
+              "bytes": 11878
+            },
+            "after-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/02-summary-focused/after-artifacts.json",
+              "sha256": "b6358888d72f58f700628340ddbccd26ff9073d5c4d6b33b136f6994717a55c4",
+              "bytes": 11878
+            }
+          }
+        },
+        {
+          "phase": "03-ai-scripted-strict-lint",
+          "argv": [
+            "cargo",
+            "+1.98.1",
+            "clippy",
+            "--locked",
+            "--offline",
+            "--jobs",
+            "1",
+            "-p",
+            "brn-ai",
+            "--features",
+            "scripted-runs",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "identity": {
+            "head": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+            "tree": "8119e6cce5ab8032139a3dd7734e5626a00bd0b2",
+            "branch": "work/final-combined-20261018",
+            "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+            "inputs_sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4"
+          },
+          "exit": 0,
+          "counts": {
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0
+          },
+          "environment": {
+            "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+            "CARGO_BUILD_JOBS": "1",
+            "CARGO_INCREMENTAL": "0",
+            "CARGO_NET_OFFLINE": "true",
+            "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/tmp",
+            "MACOSX_DEPLOYMENT_TARGET": "15.0",
+            "ORT_SKIP_DOWNLOAD": "1",
+            "ORT_OFFLINE": "1"
+          },
+          "source_unchanged_during_command": true,
+          "seconds": 7.546244144439697,
+          "receipts": {
+            "result.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/result.json",
+              "sha256": "924b0b78ab49d27372550f477566a23f84cace04b30a19015e43680fc68be2ad",
+              "bytes": 1575
+            },
+            "inputs.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/inputs.json",
+              "sha256": "0e5ee58799def1e95bfd1ed06e526b37fc043333047a072488ff6c70226970e4",
+              "bytes": 411411
+            },
+            "source.diff": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/source.diff",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "status.txt": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/status.txt",
+              "sha256": "1ff926873a84fac3fee5338fc848938ec4f4c9b9ef05f9a405771ad7a22e53a4",
+              "bytes": 64
+            },
+            "stdout": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "stderr": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/stderr",
+              "sha256": "8e9086b1ddfaf1b70535bfd8863e598b0118b9c683dfed4cbc23eb97afa88ce3",
+              "bytes": 156
+            },
+            "before-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/before-artifacts.json",
+              "sha256": "b6358888d72f58f700628340ddbccd26ff9073d5c4d6b33b136f6994717a55c4",
+              "bytes": 11878
+            },
+            "after-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/03-ai-scripted-strict-lint/after-artifacts.json",
+              "sha256": "9e919572ca2b85f21302b7369154785ebeb6aa09342d3859945b07bd8da276ca",
+              "bytes": 11878
+            }
+          }
+        },
+        {
+          "phase": "04-final-docs-static",
+          "argv": [
+            "python3",
+            "-c",
+            "import subprocess; subprocess.run([\"python3\",\"scripts/check-markdown-links.py\"],check=True); subprocess.run([\"git\",\"diff\",\"--check\"],check=True)"
+          ],
+          "identity": {
+            "head": "ec2f5c25eef393c60816305efda56836bd1d1cd5",
+            "tree": "8119e6cce5ab8032139a3dd7734e5626a00bd0b2",
+            "branch": "work/final-combined-20261018",
+            "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+            "inputs_sha256": "855dc4ef6925ba65af9326222656a1aacc433be2e32fe12a0cbe0522bece26c5"
+          },
+          "exit": 0,
+          "counts": {
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0
+          },
+          "environment": {
+            "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+            "CARGO_BUILD_JOBS": "1",
+            "CARGO_INCREMENTAL": "0",
+            "CARGO_NET_OFFLINE": "true",
+            "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/tmp",
+            "MACOSX_DEPLOYMENT_TARGET": "15.0",
+            "ORT_SKIP_DOWNLOAD": "1",
+            "ORT_OFFLINE": "1"
+          },
+          "source_unchanged_during_command": true,
+          "seconds": 1.2737388610839844,
+          "receipts": {
+            "result.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/result.json",
+              "sha256": "134c5a68dde97995af20f4277ddfb3bf0a13c4f79f721d40770ee1d6ee0562bc",
+              "bytes": 1532
+            },
+            "inputs.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/inputs.json",
+              "sha256": "855dc4ef6925ba65af9326222656a1aacc433be2e32fe12a0cbe0522bece26c5",
+              "bytes": 411553
+            },
+            "source.diff": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/source.diff",
+              "sha256": "41628652d822930258af0e47e847517e8a4d4c7c58c0aca404a59fa49746f81c",
+              "bytes": 74496
+            },
+            "status.txt": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/status.txt",
+              "sha256": "f0063426705371b94efb06df29971fbe051b935dbed54c0634d6475947cb9387",
+              "bytes": 336
+            },
+            "stdout": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/stdout",
+              "sha256": "5be5c428c612569a9443d758819cc02a3a256ad898936ca55d991323773b09ab",
+              "bytes": 103
+            },
+            "stderr": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "bytes": 0
+            },
+            "before-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/before-artifacts.json",
+              "sha256": "9e919572ca2b85f21302b7369154785ebeb6aa09342d3859945b07bd8da276ca",
+              "bytes": 11878
+            },
+            "after-artifacts.json": {
+              "path": "/private/tmp/brn-final-combined-integration-20261018/review-round1-cfg-20261018/checks/04-final-docs-static/after-artifacts.json",
+              "sha256": "9e919572ca2b85f21302b7369154785ebeb6aa09342d3859945b07bd8da276ca",
+              "bytes": 11878
+            }
+          }
+        }
+      ]
+    }
   ]
 }

@@ -1,0 +1,27 @@
+## Review
+
+**Verdict: CHANGES_REQUIRED**
+
+**Blocking finding**
+
+- **P2 — New summary tests compile Unix-only APIs on Windows.** [threads_summary.rs:768](/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/crates/brn-ai/src/threads_summary.rs:768) enables its filesystem tests under plain `cfg(test)`, then imports `std::os::unix::fs` and calls `libc::mkfifo`. The unconditionally included summary test module also uses Unix permission APIs at [threads_summary_tests.rs:820](/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/crates/brn-ai/src/threads_summary_tests.rs:820), including its `review1` credential helper and later bootstrap tests.
+
+  **Trigger:** compiling the default workspace tests or all-target lint for Windows encounters unavailable imports/functions and Unix extension methods. These additions are present in the actual main→candidate union, although unchanged from the accepted Xberg parent.
+
+  **Correction:** apply matching Unix gates to the affected new tests/helpers, or make their fixtures portable. Keep the portable summary checks enabled. This requires only bounded test corrections; existing optional-platform dispositions remain intact. Finding is source-derived; no Windows compilation was executed.
+
+**Advisories:** None.
+
+**Standards and specification assessment**
+
+No additional concrete blocker found in the traced integration paths: NF1 busy/take/prepare/attach ordering, claimless queue matching, captured conversion settings/scope, variant-specific reference resolution, retained-Source privacy, exact review/replay/Undo, and skill/MCP lifecycle controls.
+
+The writing library keeps presentation state separate from checked application policy. The helper isolation and admission machinery serve current requirements; obsolete converter routes are retired coherently. I found no architectural reason to require a broader refactor.
+
+Static lock comparison confirms **942→943 identities**, adding only local `brn-writing-ui`; the existing desktop block gains its writing-library/Rig edges. Both standalone locks and shared helper runtime match the accepted parent bytes.
+
+**Coverage and limits**
+
+Inspected the fixed candidate, main union and both-parent comparisons, required integration/review records, and critical production seams. Material remains `2dd7cc60`, tree `bf586dac`; clean evidence HEAD remains `779cf0d1`, with eight documentation-only paths afterward.
+
+No writes, Cargo, tests, application/Auth/provider/network/GUI operations or delegation were performed. I did not independently repeat the parent’s complete receipt audit. The recorded workspace result remains **1265/10/5**, with its separate dispositions. Required exact-head CI, native-human qualification and owner acceptance remain pending.
