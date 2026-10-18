@@ -167,3 +167,114 @@ impl DocumentExtraction {
         Ok(())
     }
 }
+
+/// Preserve rendered image identities/occurrences through optional refinement.
+/// Retained names come from validated assets. Existing unretained source image
+/// destinations must also stay identical; this does not turn them into assets.
+/// Reference rewrites are deliberately refused (host relocation is inline).
+pub fn check_retained_image_links(
+    before: &str,
+    after: &str,
+    retained_names: &[&str],
+) -> Result<(), String> {
+    use markdown::{ParseOptions, mdast::Node};
+    fn images(
+        node: &Node,
+        text: &str,
+        names: &[&str],
+        out: &mut Vec<String>,
+    ) -> Result<(), String> {
+        match node {
+            Node::Image(image) => {
+                if names.contains(&image.url.as_str())
+                    && image
+                        .position
+                        .as_ref()
+                        .and_then(|position| text.get(position.start.offset..position.end.offset))
+                        .is_none_or(|raw| !raw.ends_with(&format!("]({})", image.url)))
+                {
+                    return Err("retained image requires relocatable inline destination".into());
+                }
+                out.push(image.url.clone());
+            }
+            Node::ImageReference(_) => return Err("reference image rewrite is unsupported".into()),
+            _ => {}
+        }
+        if let Some(children) = node.children() {
+            for child in children {
+                images(child, text, names, out)?;
+            }
+        }
+        Ok(())
+    }
+    if before.len() > MAX_TEXT_BYTES
+        || after.len() > MAX_TEXT_BYTES
+        || retained_names.len() > MAX_ASSETS
+        || retained_names.iter().any(|name| {
+            name.is_empty() || name.len() > 128 || name.contains(['/', '\\', ':', '\0'])
+        })
+        || retained_names
+            .iter()
+            .copied()
+            .collect::<BTreeSet<_>>()
+            .len()
+            != retained_names.len()
+    {
+        return Err("image link input budget or identity".into());
+    }
+    let mut old = Vec::new();
+    let mut new = Vec::new();
+    images(
+        &markdown::to_mdast(before, &ParseOptions::gfm()).map_err(|_| "invalid source Markdown")?,
+        before,
+        retained_names,
+        &mut old,
+    )?;
+    images(
+        &markdown::to_mdast(after, &ParseOptions::gfm()).map_err(|_| "invalid refined Markdown")?,
+        after,
+        retained_names,
+        &mut new,
+    )?;
+    if old != new
+        || retained_names
+            .iter()
+            .any(|name| !old.iter().any(|url| url == name))
+    {
+        return Err("rendered image identity or occurrence mismatch".into());
+    }
+    Ok(())
+}
+#[cfg(test)]
+mod refinement_links_tests {
+    use super::check_retained_image_links as check;
+    #[test]
+    fn rendered_images_keep_identity_multiplicity_and_order() {
+        let old = "![One](a.png) and ![Repeated](a.png) ![Other](b.png)";
+        assert!(
+            check(
+                old,
+                "# Figures\n\n![One](a.png)\n\n![Repeated](a.png) ![Other](b.png)",
+                &["a.png", "b.png"]
+            )
+            .is_ok()
+        );
+        for changed in [
+            "```md\n![One](a.png) and ![Repeated](a.png) ![Other](b.png)\n```",
+            "`![One](a.png)` ![Repeated](a.png) ![Other](b.png)",
+            "[One](a.png) ![Repeated](a.png) ![Other](b.png)",
+            "![One](a.png) ![Other](b.png)",
+            "![One](a.png) ![Repeated](a.png) ![Other](b.png) ![Extra](a.png)",
+            "![One](a.png) ![Repeated](a.png) ![Other](unknown.png)",
+            "![One](<a.png>) ![Repeated](a.png) ![Other](b.png)",
+            "![One][a] ![Repeated](a.png) ![Other](b.png)\n\n[a]: a.png",
+        ] {
+            assert!(
+                check(old, changed, &["a.png", "b.png"]).is_err(),
+                "{changed}"
+            );
+        }
+        assert!(check(old, old, &["fabricated.png"]).is_err());
+        assert!(check(old, old, &["a.png", "a.png"]).is_err());
+    }
+}

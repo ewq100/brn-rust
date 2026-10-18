@@ -14,6 +14,7 @@ fn delegated_store() -> (TempDir, Store) {
         .allocate_operation("explicitly chosen synthetic settings")
         .unwrap();
     let settings = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "synthetic".into(),
@@ -1723,6 +1724,7 @@ fn current_candidate_and_receipt_readers_exclude_retired_and_applied_requests() 
 fn workspace_settings_are_owner_only_and_persist_maintenance_review_policy() {
     let (_dir, mut store) = store();
     let settings = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "owner provider".into(),
@@ -1856,6 +1858,7 @@ fn paused_and_review_first_grants_require_exact_target_and_action() {
             .allocate_operation("settings disable standing writes")
             .unwrap();
         let settings = WorkspaceSettings {
+            document_conversion: Default::default(),
             mcp: None,
             skills: vec![],
             provider: "provider".into(),
@@ -1994,6 +1997,7 @@ fn enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs() {
             &setup,
             0,
             RecordData::Settings(WorkspaceSettings {
+                document_conversion: Default::default(),
                 mcp: None,
                 skills: vec![],
                 provider: "provider".into(),
@@ -2198,6 +2202,7 @@ fn a_second_edit_session_names_the_open_one_and_leaves_it_untouched() {
 fn configuration_reads_and_fences_runs_at_the_actual_writer_boundary() {
     let (_dir, mut store) = store();
     let settings = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "provider".into(),
@@ -2469,6 +2474,7 @@ fn undo_save_restores_supported_anchor_at_new_compensating_revision() {
 fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay() {
     let (_dir, mut store) = store();
     let initial = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "Codex".into(),
@@ -2567,6 +2573,7 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
 fn configuration_replay_checks_immutable_payload_before_receipt() {
     let (_dir, mut store) = store();
     let settings = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "Codex".into(),
@@ -2689,6 +2696,7 @@ fn replacement_replay_binds_original_and_request_across_restart_and_application(
 fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
     let (_dir, mut store) = store();
     let settings = WorkspaceSettings {
+        document_conversion: Default::default(),
         mcp: None,
         skills: vec![],
         provider: "ChatGPT".into(),

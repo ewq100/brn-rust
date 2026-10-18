@@ -215,6 +215,7 @@ fn retained_useful_report(
         })
     };
     let previous_report = coverage.report.clone().unwrap_or_else(|| ImportReport {
+        conversion: None,
         status: ImportStatus::Unchecked,
         issues: coverage
             .gaps
@@ -295,7 +296,11 @@ fn retained_useful_report(
     } else {
         previous_report.status
     };
-    Some(ImportReport { status, issues })
+    Some(ImportReport {
+        conversion: previous_report.conversion,
+        status,
+        issues,
+    })
 }
 
 fn combined_status(first: ImportStatus, second: ImportStatus) -> ImportStatus {
@@ -515,6 +520,7 @@ pub(super) fn materialize_selected_sources(
         }
         if existing_full_import.is_none() && selected_sources.len() > 1 {
             let mut report = ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![],
             };
@@ -557,6 +563,7 @@ pub(super) fn materialize_selected_sources(
             && let Some(coverage) = &mut note.import
         {
             let report = coverage.report.get_or_insert_with(|| ImportReport {
+                conversion: None,
                 status: ImportStatus::Unchecked,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Unverified,
@@ -565,6 +572,15 @@ pub(super) fn materialize_selected_sources(
                         .into(),
                 }],
             });
+            if selected_sources.len() != 1
+                || previous
+                    .import
+                    .as_ref()
+                    .is_none_or(|import| import.source != selected_sources[0].1.id)
+                || report.conversion != retained.conversion
+            {
+                report.conversion = None;
+            }
             report.status = combined_status(report.status, retained.status);
             for issue in retained.issues {
                 if !report.issues.contains(&issue) {

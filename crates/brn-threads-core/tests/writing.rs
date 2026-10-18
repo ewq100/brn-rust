@@ -62,6 +62,7 @@ fn fixture() -> (
                 expected_version: None,
                 archived: false,
                 data: RecordData::Settings(WorkspaceSettings {
+                    document_conversion: Default::default(),
                     mcp: None,
                     skills: vec![],
                     provider: "Codex".into(),

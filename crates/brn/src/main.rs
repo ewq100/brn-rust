@@ -1770,6 +1770,7 @@ mod cw2_run_tests {
     fn shared_selection_retains_cli_invalid_provider_and_effort_contract() {
         for option in ["provider", "effort"] {
             let mut settings = WorkspaceSettings {
+                document_conversion: Default::default(),
                 mcp: None,
                 skills: vec![],
                 provider: "Codex".into(),

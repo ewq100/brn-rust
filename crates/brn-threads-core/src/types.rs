@@ -75,6 +75,8 @@ impl ImportIssue {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ImportReport {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conversion: Option<DocumentConversionProvenance>,
     pub status: ImportStatus,
     pub issues: Vec<ImportIssue>,
 }
@@ -228,8 +230,36 @@ pub struct Run {
     pub operations: Vec<OperationId>,
     pub sources: Vec<String>,
 }
+/// Canonical document engine choice; independent of model refinement.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DocumentConverter {
+    #[default]
+    Xberg,
+    XbergBrn,
+}
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DocumentConversionSettings {
+    pub converter: DocumentConverter,
+    pub ai: bool,
+}
+impl DocumentConversionSettings {
+    fn is_default(&self) -> bool {
+        self == &Self::default()
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DocumentConversionProvenance {
+    pub settings: DocumentConversionSettings,
+    pub engine_identity: String,
+}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkspaceSettings {
+    #[serde(
+        default,
+        skip_serializing_if = "DocumentConversionSettings::is_default"
+    )]
+    pub document_conversion: DocumentConversionSettings,
     /// Owner configuration only; no invocation-local data grant is persisted.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mcp: Option<McpPolicy>,

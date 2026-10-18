@@ -4241,6 +4241,7 @@ mod tests {
                     expected_version: None,
                     archived: false,
                     data: RecordData::Settings(WorkspaceSettings {
+                        document_conversion: Default::default(),
                         mcp: None,
                         skills: vec![],
                         provider: "Chatgpt".into(),
@@ -4340,6 +4341,7 @@ mod tests {
             full_note: true,
             gaps: vec![],
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![],
             }),
@@ -4418,6 +4420,7 @@ mod tests {
                 text: "A result.".into(),
                 fingerprint: Some("a-v1".into()),
                 report: Some(ImportReport {
+                    conversion: None,
                     status: ImportStatus::Partial,
                     issues: vec![ImportIssue {
                         kind: ImportIssueKind::Omission,
@@ -4434,6 +4437,7 @@ mod tests {
                 text: "B result.".into(),
                 fingerprint: Some("b-v1".into()),
                 report: Some(ImportReport {
+                    conversion: None,
                     status: second_status,
                     issues: vec![],
                 }),
@@ -4447,6 +4451,7 @@ mod tests {
             let mut requalified = first;
             requalified.fingerprint = Some("a-v2-qualified".into());
             requalified.report = Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![],
             });
@@ -4500,6 +4505,7 @@ mod tests {
             text: "A result.".into(),
             fingerprint: Some("a-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Partial,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Omission,
@@ -4516,6 +4522,7 @@ mod tests {
             text: "B result.".into(),
             fingerprint: Some("b-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![],
             }),
@@ -4538,6 +4545,7 @@ mod tests {
         requalified.reference = real.clone();
         requalified.fingerprint = Some("a-v2-qualified".into());
         requalified.report = Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Complete,
             issues: vec![],
         });
@@ -4579,6 +4587,7 @@ mod tests {
             text: "PDF result: 7% decrease.".into(),
             fingerprint: Some("short-pdf-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Partial,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Omission,
@@ -4594,6 +4603,7 @@ mod tests {
             text: "DOCX process note.".into(),
             fingerprint: Some("short-docx-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Unchecked,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Unverified,
@@ -4646,6 +4656,7 @@ mod tests {
             text: "Supported PDF study and selected map. ![Map](map.png)".into(),
             fingerprint: Some("pdf-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Partial,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Omission,
@@ -4682,6 +4693,7 @@ mod tests {
             text: "New unrelated process information".into(),
             fingerprint: Some("docx-v1".into()),
             report: Some(ImportReport {
+                conversion: None,
                 status: ImportStatus::Unchecked,
                 issues: vec![ImportIssue {
                     kind: ImportIssueKind::Unverified,
@@ -4750,6 +4762,7 @@ mod tests {
         let mut checked = first;
         checked.fingerprint = Some("pdf-v2-qualified".into());
         checked.report = Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Complete,
             issues: vec![],
         });
@@ -4788,6 +4801,7 @@ mod tests {
         assert_eq!(
             coverage.report.unwrap(),
             ImportReport {
+                conversion: None,
                 status: ImportStatus::Complete,
                 issues: vec![]
             }

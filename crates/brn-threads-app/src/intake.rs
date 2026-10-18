@@ -9,6 +9,7 @@ pub const SOURCE_INTAKE_INSTRUCTION: &str = "Capture useful supported informatio
 /// Preserve the converter's distinction between a detected loss and unchecked coverage.
 pub fn import_report(converted: &ConversionResult) -> ImportReport {
     ImportReport {
+        conversion: None,
         status: match converted.coverage.status {
             CoverageStatus::Complete => ImportStatus::Complete,
             CoverageStatus::Partial => ImportStatus::Partial,
@@ -29,6 +30,41 @@ pub fn import_report(converted: &ConversionResult) -> ImportReport {
             })
             .collect(),
     }
+}
+/// Validate the host's captured preference against the checked helper identity.
+pub fn import_report_with_conversion(
+    converted: &ConversionResult,
+    settings: &DocumentConversionSettings,
+) -> AppResult<ImportReport> {
+    let provenance = document_provenance(settings)?;
+    let backend = match settings.converter {
+        DocumentConverter::Xberg => "xberg",
+        DocumentConverter::XbergBrn => "xberg_brn",
+    };
+    if converted.converter
+        != brn_threads_intake::document_conversion_label(backend, settings.ai)
+            .map_err(|_| AppError::Invalid("Unknown document converter".into()))?
+    {
+        return Err(AppError::Invalid(
+            "Conversion does not match captured document settings".into(),
+        ));
+    }
+    let mut report = import_report(converted);
+    report.conversion = Some(provenance);
+    Ok(report)
+}
+pub(crate) fn document_provenance(
+    settings: &DocumentConversionSettings,
+) -> AppResult<DocumentConversionProvenance> {
+    let backend = match settings.converter {
+        DocumentConverter::Xberg => "xberg",
+        DocumentConverter::XbergBrn => "xberg_brn",
+    };
+    Ok(DocumentConversionProvenance {
+        settings: settings.clone(),
+        engine_identity: brn_threads_intake::expected_engine_identity(backend)
+            .map_err(|_| AppError::Invalid("Unknown document converter".into()))?,
+    })
 }
 impl Workspace {
     /// The chat for useful intake of `locator`: the most recent open chat in
@@ -164,6 +200,35 @@ impl Workspace {
         converted: &ConversionResult,
         chat: Option<&str>,
     ) -> AppResult<ApplyOutcome> {
+        self.import_full_checked(key, title, converted, chat, None)
+    }
+    pub fn import_full_scoped_with_conversion(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        scope: Option<&str>,
+        settings: &DocumentConversionSettings,
+    ) -> AppResult<ApplyOutcome> {
+        let report = import_report_with_conversion(converted, settings)?;
+        self.check_document_import(
+            key,
+            title,
+            &converted.source_reference,
+            &converted.source_sha256,
+            scope,
+            settings,
+        )?;
+        self.import_full_checked(key, title, converted, scope, Some(report))
+    }
+    fn import_full_checked(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        chat: Option<&str>,
+        checked_report: Option<ImportReport>,
+    ) -> AppResult<ApplyOutcome> {
         if converted.intent != ImportIntent::FullNote {
             return Err(AppError::Invalid(
                 "Useful-information intake needs semantic selection, not a full-copy note".into(),
@@ -184,7 +249,15 @@ impl Workspace {
         }
         let binding = format!(
             "{:x}",
-            Sha256::digest(if let Some(chat) = chat {
+            Sha256::digest(if let Some(report) = &checked_report {
+                serde_json::to_vec(&(
+                    "document-conversion",
+                    title,
+                    converted,
+                    chat,
+                    &report.conversion,
+                ))?
+            } else if let Some(chat) = chat {
                 serde_json::to_vec(&("chat-attachment", title, converted, chat))?
             } else {
                 serde_json::to_vec(&(title, converted))?
@@ -235,14 +308,16 @@ impl Workspace {
             .map(|byte| format!("{byte:02x}"))
             .collect::<String>();
         let relation = format!("{}{source_version}", crate::relations::FULL_IMPORT_PREFIX);
-        let previously_imported=records.iter().any(|record|!record.archived && matches!(&record.data,RecordData::Link(link) if link.to==source_id && link.relation==relation && records.iter().any(|note|!note.archived && note.id==link.from && matches!(&note.data,RecordData::Note(n) if n.superseded_by.is_none() && n.import.as_ref().is_some_and(|i|i.full_note && i.source==source_id)))));
+        let previously_imported=records.iter().any(|record|!record.archived && matches!(&record.data,RecordData::Link(link) if link.to==source_id && link.relation==relation && records.iter().any(|note|!note.archived && note.id==link.from && matches!(&note.data,RecordData::Note(n) if n.superseded_by.is_none() && n.import.as_ref().is_some_and(|i|i.full_note && i.source==source_id && checked_report.as_ref().is_none_or(|report| i.report.as_ref().and_then(|report|report.conversion.as_ref()) == report.conversion.as_ref()))))));
         let gaps = converted
             .coverage
             .gaps
             .iter()
             .map(|gap| format!("{}: {}", gap.locator, gap.detail))
             .collect::<Vec<_>>();
-        let report = import_report(converted);
+        let report = checked_report
+            .clone()
+            .unwrap_or_else(|| import_report(converted));
         let observed_at = format!(
             "Unix seconds {}",
             std::time::SystemTime::now()
@@ -270,7 +345,10 @@ impl Workspace {
         };
         source.locator = locator;
         source.observed_at = observed_at;
-        if !previously_imported {
+        if checked_report.is_some() {
+            source.label = title.into();
+        }
+        if !previously_imported || checked_report.is_some() {
             source.external_version = Some(source_version);
             source.outcome = format!("{:?}", converted.coverage.status);
             source.gaps = gaps.clone();

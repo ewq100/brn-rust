@@ -52,6 +52,7 @@ impl Workspace {
             DefaultCredentials::None => None,
         };
         let settings = WorkspaceSettings {
+            document_conversion: Default::default(),
             mcp: None,
             skills: vec![],
             provider: "Codex".into(),
@@ -117,6 +118,20 @@ impl Workspace {
             &op,
             &settings,
             &HostAuthority::owner("owner configuration"),
+        )?;
+        Ok(self.remove_leases_ended_by(outcome))
+    }
+    pub fn choose_document_conversion(
+        &mut self,
+        settings: DocumentConversionSettings,
+    ) -> AppResult<ApplyOutcome> {
+        let op = self
+            .store
+            .allocate_operation(&format!("document-conversion:{}", uuid::Uuid::new_v4()))?;
+        let outcome = self.store.choose_document_conversion(
+            &op,
+            &settings,
+            &HostAuthority::owner("owner document conversion choice"),
         )?;
         Ok(self.remove_leases_ended_by(outcome))
     }

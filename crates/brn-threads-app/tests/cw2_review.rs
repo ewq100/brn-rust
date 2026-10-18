@@ -68,6 +68,7 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
                 outcome: "Partial import".into(),
                 gaps: vec!["Appendix unavailable".into()],
                 report: Some(ImportReport {
+                    conversion: None,
                     status: ImportStatus::Partial,
                     issues: vec![],
                 }),
@@ -87,6 +88,7 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
         full_note: true,
         gaps: vec!["Appendix unavailable".into()],
         report: Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Partial,
             issues: vec![],
         }),

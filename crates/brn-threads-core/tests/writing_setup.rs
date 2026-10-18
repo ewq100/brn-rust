@@ -340,7 +340,7 @@ fn schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidate
         Store::open_existing_without_upgrade(&data),
         Err(Error::UpgradeRequired {
             schema_found: 6,
-            schema_required: 9
+            schema_required: 10
         })
     ));
     assert_eq!(tree(&data), before);
@@ -360,7 +360,7 @@ fn schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidate
     assert_eq!(version(&backup), 6);
     let backup_bytes = std::fs::read(&backup).unwrap();
     let mut current = Store::open_existing_without_upgrade(&data).unwrap();
-    assert_eq!(version(&data.join(DATABASE_FILENAME)), 9);
+    assert_eq!(version(&data.join(DATABASE_FILENAME)), 10);
     assert_eq!(current.prepared(&candidate).unwrap(), prepared);
     assert_eq!(current.receipt(&op).unwrap(), receipt);
     assert_eq!(current.record(&message.id).unwrap().unwrap(), message);
@@ -535,6 +535,7 @@ fn owner_host_schema6_open_uses_remembered_external_backup_first() {
         &mut store,
         "settings",
         RecordData::Settings(WorkspaceSettings {
+            document_conversion: Default::default(),
             mcp: None,
             skills: vec![],
             provider: "offline".into(),
@@ -567,7 +568,7 @@ fn owner_host_schema6_open_uses_remembered_external_backup_first() {
         .collect::<Vec<_>>();
     assert_eq!(files.len(), 1);
     assert_eq!(version(&files[0]), 6);
-    assert_eq!(version(&data.join(DATABASE_FILENAME)), 9);
+    assert_eq!(version(&data.join(DATABASE_FILENAME)), 10);
 }
 
 #[test]

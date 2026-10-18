@@ -17,7 +17,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 9;
+pub(crate) const SCHEMA_VERSION: i64 = 10;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -27,6 +27,7 @@ pub struct Store {
 }
 enum SettingsUpdate<'a> {
     Configure(&'a WorkspaceSettings),
+    DocumentConversion(&'a DocumentConversionSettings),
     Choose(DelegationChoice),
     Pause(bool),
     BackupDirectory(&'a str),
@@ -990,6 +991,19 @@ impl Store {
         validate_backup_directory(&self.directory, directory)
     }
 
+    pub fn choose_document_conversion(
+        &mut self,
+        operation: &OperationId,
+        settings: &DocumentConversionSettings,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        self.update_workspace_settings(
+            operation,
+            SettingsUpdate::DocumentConversion(settings),
+            authority,
+        )
+    }
+
     fn update_workspace_settings(
         &mut self,
         operation: &OperationId,
@@ -1010,6 +1024,9 @@ impl Store {
             |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
         let intent = match update {
+            SettingsUpdate::DocumentConversion(settings) => {
+                Some(serde_json::to_vec(&("document-conversion", settings))?)
+            }
             SettingsUpdate::Choose(choice) => Some(serde_json::to_vec(&choice)?),
             SettingsUpdate::Pause(paused) => Some(serde_json::to_vec(&paused)?),
             SettingsUpdate::BackupDirectory(directory) => {
@@ -1055,6 +1072,11 @@ impl Store {
                 return Err(Error::ImmutableRequest);
             };
             match update {
+                SettingsUpdate::DocumentConversion(settings) => {
+                    if &prior.document_conversion != settings {
+                        return Err(Error::ImmutableRequest);
+                    }
+                }
                 SettingsUpdate::Configure(settings) => {
                     let mut requested = settings.clone();
                     requested.delegation_chosen = prior.delegation_chosen;
@@ -1065,6 +1087,7 @@ impl Store {
                     requested.topics_note = prior.topics_note.clone();
                     requested.skills = prior.skills.clone();
                     requested.mcp = prior.mcp.clone();
+                    requested.document_conversion = prior.document_conversion.clone();
                     if &requested != *prior {
                         return Err(Error::ImmutableRequest);
                     }
@@ -1113,7 +1136,9 @@ impl Store {
         // instead of stopping them.
         if matches!(
             update,
-            SettingsUpdate::Theme(_) | SettingsUpdate::TopicsNote(_)
+            SettingsUpdate::Theme(_)
+                | SettingsUpdate::TopicsNote(_)
+                | SettingsUpdate::DocumentConversion(_)
         ) {
             let mut guarded = Vec::new();
             let mut stmt = tx.prepare(
@@ -1140,11 +1165,15 @@ impl Store {
                 next.topics_note = current_settings.topics_note.clone();
                 next.skills = current_settings.skills.clone();
                 next.mcp = current_settings.mcp.clone();
+                next.document_conversion = current_settings.document_conversion.clone();
                 next
             }
             _ => current_settings.clone(),
         };
         match update {
+            SettingsUpdate::DocumentConversion(settings) => {
+                next.document_conversion = settings.clone()
+            }
             SettingsUpdate::Choose(choice) => {
                 next.delegation_chosen = true;
                 next.maintenance = true;
@@ -1266,7 +1295,9 @@ impl Store {
             |operations| crate::run_attention::active_candidates_on(&tx, operations),
         )?;
         let request = ChangeRequest {
-            reason: if theme_only {
+            reason: if matches!(update, SettingsUpdate::DocumentConversion(_)) {
+                "Owner chose document conversion preferences".into()
+            } else if theme_only {
                 "Owner chose the workspace theme".into()
             } else if matches!(update, SettingsUpdate::TopicsNote(_)) {
                 "Owner chose the root Topics note".into()
@@ -1399,7 +1430,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=8) {
+    if matches!(schema, 3..=9) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {

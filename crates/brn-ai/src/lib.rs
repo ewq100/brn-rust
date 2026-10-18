@@ -8,6 +8,7 @@ pub mod capability_probe;
 mod chat;
 pub mod codex_auth;
 pub mod conversion;
+pub mod document_refine;
 mod error;
 #[path = "threads_mcp.rs"]
 pub mod mcp;

@@ -88,6 +88,104 @@ impl Workspace {
         }
     }
 
+    pub fn full_import_replay_with_conversion(
+        &mut self,
+        key: &str,
+        title: &str,
+        source_reference: &str,
+        source_bytes: &[u8],
+        scope: Option<&str>,
+        settings: &DocumentConversionSettings,
+    ) -> AppResult<Option<ApplyOutcome>> {
+        self.check_document_import(
+            key,
+            title,
+            source_reference,
+            &Sha256::digest(source_bytes).into(),
+            scope,
+            settings,
+        )?;
+        self.full_import_replay(key, title, source_reference, source_bytes, scope)
+    }
+    /// Read the stored request even when it has no receipt or creates no Note.
+    /// An allocated operation without preparation has not captured a variant.
+    pub(crate) fn check_document_import(
+        &self,
+        key: &str,
+        title: &str,
+        source_reference: &str,
+        digest: &[u8; 32],
+        scope: Option<&str>,
+        settings: &DocumentConversionSettings,
+    ) -> AppResult<()> {
+        let Some(op) = self
+            .store
+            .operation_by_host_key(&format!("full-import:{key}"))?
+        else {
+            return Ok(());
+        };
+        let writes = if let Some(receipt) = self.store.receipt(&op)? {
+            receipt
+                .writes
+                .into_iter()
+                .map(|write| write.after.data)
+                .collect::<Vec<_>>()
+        } else {
+            match self.store.prepared(&op) {
+                Ok(prepared) => prepared
+                    .request
+                    .writes
+                    .into_iter()
+                    .map(|write| write.data)
+                    .collect(),
+                Err(Error::Invalid(ref reason)) if reason == "operation not prepared" => {
+                    return Ok(());
+                }
+                Err(error) => return Err(error.into()),
+            }
+        };
+        let expected = crate::intake::document_provenance(settings)?;
+        let hash = digest
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        let mut sources = writes.iter().filter_map(|data| {
+            if let RecordData::Source(source) = data {
+                Some(source)
+            } else {
+                None
+            }
+        });
+        let source = sources.next().ok_or(Error::ImmutableRequest)?;
+        if sources.next().is_some()
+            || !same_locator(&source.locator, &canonical_locator(source_reference))
+            || source.chat.as_deref() != scope
+            || source.label != title
+            || source.external_version.as_deref() != Some(hash.as_str())
+            || source
+                .report
+                .as_ref()
+                .and_then(|report| report.conversion.as_ref())
+                != Some(&expected)
+        {
+            return Err(Error::ImmutableRequest.into());
+        }
+        for data in &writes {
+            if let RecordData::Note(note) = data
+                && (note.title != title
+                    || note
+                        .import
+                        .as_ref()
+                        .and_then(|import| import.report.as_ref())
+                        .and_then(|report| report.conversion.as_ref())
+                        != Some(&expected))
+            {
+                return Err(Error::ImmutableRequest.into());
+            }
+        }
+        Ok(())
+    }
+
     /// Before converting a keyed full, chat or project intake again: when the
     /// key's committed import matches these bytes, path, scope and title,
     /// replay its receipt without converting or sending the document.

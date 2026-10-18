@@ -339,6 +339,33 @@ async fn model_candidate(
         return Err(ConversionFailure::Interrupted);
     }
     let message = model_message(prepared)?;
+    conversion_response(
+        message,
+        PREAMBLE,
+        (auth_file, credentials_dir),
+        cancel,
+        transport,
+        timeout,
+        parse_plan,
+    )
+    .await
+}
+
+/// The same fixed account/model stream path, with response checking inside its
+/// deadline. The parser supplies no tools, history or write authority.
+pub(crate) async fn conversion_response<T>(
+    message: Message,
+    preamble: &str,
+    credentials: (Option<&std::path::Path>, Option<&std::path::Path>),
+    cancel: CancellationToken,
+    transport: Option<DynHttpClient>,
+    timeout: Duration,
+    parse: fn(&str) -> Result<T, ConversionFailure>,
+) -> Result<T, ConversionFailure> {
+    if cancel.is_cancelled() {
+        return Err(ConversionFailure::Interrupted);
+    }
+    let (auth_file, credentials_dir) = credentials;
     let operation = async {
         let selection = Selection {
             provider: Provider::Chatgpt,
@@ -370,7 +397,7 @@ async fn model_candidate(
             )));
         };
         let agent = rig::AgentBuilder::new(client.completion(MODEL))
-            .preamble(PREAMBLE)
+            .preamble(preamble)
             // Rig's qualified subscription route rejects generation-token caps.
             // Bound candidate bytes, model calls and wall time in the host instead.
             .options(
@@ -395,7 +422,7 @@ async fn model_candidate(
         )
         .await;
         match answer.terminal {
-            AiTerminal::Completed => parse_plan(&answer.text),
+            AiTerminal::Completed => parse(&answer.text),
             AiTerminal::Interrupted => Err(ConversionFailure::Interrupted),
             AiTerminal::Failed(error) => Err(ConversionFailure::Provider(error)),
         }

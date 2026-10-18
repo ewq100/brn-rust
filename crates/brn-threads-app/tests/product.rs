@@ -50,6 +50,7 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
                     outcome: "Partial".into(),
                     gaps: vec![],
                     report: Some(ImportReport {
+                        conversion: None,
                         status: ImportStatus::Partial,
                         issues: vec![],
                     }),

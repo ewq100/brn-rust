@@ -27,6 +27,7 @@ fn source() -> TransientSource {
         text: "Retain the map where relevant. ![Map](map.png)\nUnneeded illustration ![Unused](unused.jpg)\nEXCLUDED_RAW_CANARY_FIGURES_68219".into(),
         fingerprint: Some("independent-synthetic-source-fingerprint".into()),
         report: Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Partial,
             issues: vec![
                 ImportIssue { kind: ImportIssueKind::Omission, locator: "body/chart-3".into(), detail: "Unsupported chart could not be extracted".into() },
@@ -74,6 +75,7 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
         full_note: true,
         gaps: vec![],
         report: Some(ImportReport {
+            conversion: None,
             status: ImportStatus::Complete,
             issues: vec![],
         }),
@@ -515,6 +517,7 @@ fn model_cannot_forge_host_source_report_or_fingerprint_in_same_change_group() {
         match kind {
             0 => {
                 forged.report = Some(ImportReport {
+                    conversion: None,
                     status: ImportStatus::Complete,
                     issues: vec![],
                 })
@@ -641,6 +644,7 @@ fn selected_complete_second_source_cannot_hide_first_source_detected_omission() 
     let mut second = source();
     second.reference = "synthetic://z-checked-source".into();
     second.report = Some(ImportReport {
+        conversion: None,
         status: ImportStatus::Complete,
         issues: vec![],
     });
@@ -854,4 +858,256 @@ fn fingerprint_only_host_source_cannot_be_rewritten_by_model_without_report() {
         )
         .is_err()
     );
+}
+
+#[test]
+fn model_cannot_add_change_clear_or_duplicate_conversion_provenance() {
+    for historical in [false, true] {
+        let (_root, mut request, _) = super::tests::fixture();
+        let mut supplied = source();
+        if !historical {
+            supplied.report.as_mut().unwrap().conversion = Some(DocumentConversionProvenance {
+                settings: DocumentConversionSettings {
+                    converter: DocumentConverter::XbergBrn,
+                    ai: true,
+                },
+                engine_identity: brn_intake::document::expected_engine_identity("xberg_brn")
+                    .unwrap(),
+            });
+        }
+        request.sources.push(supplied);
+        let (scope, _) = begin(&request).unwrap();
+        let saved = scope
+            .store
+            .lock()
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|record| matches!(record.data, RecordData::Source(_)))
+            .unwrap();
+        super::tests::read_all(&scope);
+        for kind in 0..5 {
+            let RecordData::Source(mut forged) = saved.data.clone() else {
+                panic!()
+            };
+            let metadata = &mut forged.report.as_mut().unwrap().conversion;
+            match kind {
+                0 => {
+                    *metadata = Some(DocumentConversionProvenance {
+                        settings: DocumentConversionSettings::default(),
+                        engine_identity: brn_intake::document::expected_engine_identity("xberg")
+                            .unwrap(),
+                    })
+                }
+                1 => {
+                    *metadata = Some(DocumentConversionProvenance {
+                        settings: DocumentConversionSettings {
+                            converter: DocumentConverter::Xberg,
+                            ai: true,
+                        },
+                        engine_identity: brn_intake::document::expected_engine_identity("xberg")
+                            .unwrap(),
+                    });
+                }
+                2 => *metadata = None,
+                3 => {
+                    *metadata = Some(DocumentConversionProvenance {
+                        settings: DocumentConversionSettings::default(),
+                        engine_identity: "forged-bundle".into(),
+                    })
+                }
+                _ => {}
+            }
+            // Clearing an already-historical None is the preserving positive below.
+            if historical && kind == 2 {
+                continue;
+            }
+            let request = ChangeRequest {
+                reason: "Attempt conversion provenance forgery".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: if kind == 4 {
+                        "new:0".into()
+                    } else {
+                        saved.id.clone()
+                    },
+                    expected_version: if kind == 4 { None } else { Some(saved.version) },
+                    archived: false,
+                    data: RecordData::Source(forged),
+                }],
+            };
+            assert!(
+                prepare(
+                    &scope,
+                    PrepareArgs {
+                        writing: None,
+                        request_key: format!("conversion-forge-{historical}-{kind}"),
+                        request
+                    }
+                )
+                .is_err()
+            );
+            assert_eq!(
+                scope
+                    .store
+                    .lock()
+                    .unwrap()
+                    .record(&saved.id)
+                    .unwrap()
+                    .unwrap(),
+                saved
+            );
+        }
+        let RecordData::Source(mut preserving) = saved.data.clone() else {
+            panic!()
+        };
+        preserving.label = "Retained exact report".into();
+        let prepared: Prepared = serde_json::from_value(
+            prepare(
+                &scope,
+                PrepareArgs {
+                    writing: None,
+                    request_key: "preserve-conversion".into(),
+                    request: ChangeRequest {
+                        reason: "Preserve host source observation".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: saved.id.clone(),
+                            expected_version: Some(saved.version),
+                            archived: false,
+                            data: RecordData::Source(preserving),
+                        }],
+                    },
+                },
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            apply(
+                &scope,
+                ApplyArgs {
+                    operation: prepared.operation.as_str().into()
+                }
+            )
+            .unwrap()["outcome"],
+            "Applied"
+        );
+        let RecordData::Source(actual) = scope
+            .store
+            .lock()
+            .unwrap()
+            .record(&saved.id)
+            .unwrap()
+            .unwrap()
+            .data
+        else {
+            panic!()
+        };
+        assert_eq!(actual.report, request.sources[0].report);
+    }
+}
+
+#[test]
+fn single_useful_report_keeps_conversion_and_mixed_source_report_has_none() {
+    for mixed in [false, true] {
+        let (_root, mut request, note) = super::tests::fixture();
+        let mut first = source();
+        first.assets.clear();
+        first.text = "First supported fact.".into();
+        let provenance = DocumentConversionProvenance {
+            settings: DocumentConversionSettings::default(),
+            engine_identity: brn_intake::document::expected_engine_identity("xberg").unwrap(),
+        };
+        first.report.as_mut().unwrap().conversion = Some(provenance.clone());
+        request.sources.push(first.clone());
+        if mixed {
+            let mut second = first;
+            second.reference = "synthetic://second-converter".into();
+            second.report.as_mut().unwrap().conversion = Some(DocumentConversionProvenance {
+                settings: DocumentConversionSettings {
+                    converter: DocumentConverter::XbergBrn,
+                    ai: true,
+                },
+                engine_identity: brn_intake::document::expected_engine_identity("xberg_brn")
+                    .unwrap(),
+            });
+            request.sources.push(second);
+        }
+        let (scope, _) = begin(&request).unwrap();
+        super::tests::read_all(&scope);
+        let sources = scope
+            .store
+            .lock()
+            .unwrap()
+            .records()
+            .unwrap()
+            .into_iter()
+            .filter(|record| matches!(record.data, RecordData::Source(_)))
+            .collect::<Vec<_>>();
+        let prepared: Prepared = serde_json::from_value(
+            prepare(
+                &scope,
+                PrepareArgs {
+                    writing: None,
+                    request_key: "single-or-mixed-conversion".into(),
+                    request: ChangeRequest {
+                        reason: "Use supported information from selected sources".into(),
+                        writes: vec![Put {
+                            id: note.clone(),
+                            expected_version: Some(1),
+                            archived: false,
+                            data: RecordData::Note(Note::working(
+                                "Useful source",
+                                "First supported fact and source qualifications.",
+                            )),
+                        }],
+                        inputs: sources
+                            .iter()
+                            .map(|record| RevisionInput {
+                                expectation: InputExpectation::Current,
+                                record: record.id.clone(),
+                                version: record.version,
+                            })
+                            .collect(),
+                    },
+                },
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            apply(
+                &scope,
+                ApplyArgs {
+                    operation: prepared.operation.as_str().into()
+                }
+            )
+            .unwrap()["outcome"],
+            "Applied"
+        );
+        let RecordData::Note(saved) = scope
+            .store
+            .lock()
+            .unwrap()
+            .note(&note)
+            .unwrap()
+            .unwrap()
+            .data
+        else {
+            panic!()
+        };
+        let report = saved.import.unwrap().report.unwrap();
+        assert_eq!(
+            report.conversion,
+            if mixed { None } else { Some(provenance) }
+        );
+        for record in sources {
+            let RecordData::Source(source) = record.data else {
+                panic!()
+            };
+            assert!(source.report.unwrap().conversion.is_some());
+        }
+    }
 }

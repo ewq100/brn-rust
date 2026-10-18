@@ -1,6 +1,9 @@
 //! Bounded transient conversion. Returned knowledge has no original-file payload.
 //! Semantic selection for useful intake and protected-note creation belong to the host.
+mod documents;
 mod docx_markdown;
+pub use brn_intake::document::expected_engine_identity;
+pub use documents::{DocumentHelpers, document_conversion_label};
 mod pdf_tools;
 mod prepared;
 mod process;

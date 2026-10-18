@@ -388,6 +388,7 @@ async fn a_supply_with_a_coverage_report_reuses_a_source_saved_under_an_older_sp
     let (chat, source_id) = seed_older_useful_intake(&mut w, &alias);
     // Both hosts supply a converted file with its coverage report.
     let report = ImportReport {
+        conversion: None,
         status: ImportStatus::Complete,
         issues: vec![],
     };
