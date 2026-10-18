@@ -1658,6 +1658,8 @@ fn consequence_dialogs_confirm_only_by_their_danger_button(cx: &mut TestAppConte
     let confirmed = Rc::new(std::cell::Cell::new(false));
     let seen = confirmed.clone();
     on_window(cx, &f, move |window, cx| {
+        // Test confirmation at rest; entrance motion can stale click coordinates.
+        cx.set_reduce_motion(true);
         let seen = seen.clone();
         window.open_dialog(cx, move |dialog, _, _| {
             let seen = seen.clone();
