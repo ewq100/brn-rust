@@ -1,0 +1,56 @@
+{
+  "at_utc": "2026-10-18T19:22:18.269281+00:00",
+  "sole_heavy": "RELEASED",
+  "remaining_owned_processes": [],
+  "global_heavy_commands": [],
+  "sessions": [
+    {
+      "phase": "01-five-documents-unchanged-binary",
+      "controller_pid": 65668,
+      "controller_pgid": 65668,
+      "child_pid": 65715,
+      "child_pgid": 65715,
+      "exit": 0
+    },
+    {
+      "phase": "02-probe-natural",
+      "controller_pid": 66287,
+      "controller_pgid": 66287,
+      "child_pid": 66340,
+      "child_pgid": 66340,
+      "exit": 101
+    },
+    {
+      "phase": "03-probe-natural-corrected",
+      "controller_pid": 66569,
+      "controller_pgid": 66569,
+      "child_pid": 66617,
+      "child_pgid": 66617,
+      "exit": 0
+    },
+    {
+      "phase": "04-probe-endpoint-after-target",
+      "controller_pid": 66883,
+      "controller_pgid": 66883,
+      "child_pid": 66907,
+      "child_pgid": 66907,
+      "exit": 101
+    },
+    {
+      "phase": "05-probe-endpoint-before-target",
+      "controller_pid": 67234,
+      "controller_pgid": 67234,
+      "child_pid": 67374,
+      "child_pgid": 67374,
+      "exit": 0
+    }
+  ],
+  "released_paths": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-dialog-confirmation-20261018-phase2",
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/docs/work/active/final-integration/current/dialog-confirmation/phase2"
+  ],
+  "temporary_probe": "Preserved with exact source/patch/inputs/binary/.d, then removed exactly; current Rust equals86337588/e651 main. Last target test binary is instrumented and must not be relabelled as built from restored source.",
+  "fix_status": "No retained correction or production change; causal controlled mechanism checkpoint only. Parent allocation required for any retained fixture correction."
+}

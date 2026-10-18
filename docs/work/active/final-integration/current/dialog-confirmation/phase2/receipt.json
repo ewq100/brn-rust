@@ -1,0 +1,193 @@
+{
+  "source_base": "863375885baf575a546e42d555543fab32d03cf5",
+  "unchanged_runtime_material": "e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a",
+  "probe_v2_source_sha256": "66f4614f48c312f5822c61c254d039a47755922b81bf7ee7c2f3c7c1cf699eee",
+  "probe_v2_patch_sha256": "c96ccbc419432225601658c2cb5e40227e1dfce1570310272118071ca3fa2a05",
+  "raw": "/private/tmp/brn-dialog-confirmation-20261018-phase2",
+  "setup_binary": "b3c7c6aeb28b8111ff8a544b95f5d70dffddd84d3839db4b74ed0a725e174514",
+  "setup_d_sha256": "681df80d090741ae576b486a7fe7a063bac488c6377ed02c4c5951c163eb9698",
+  "mechanism_checkpoint_sha256": "11d0b7baf1a3b15264eedc7bcf9bdbbf555e7b11753a129b165b14bece22bd87",
+  "checks": [
+    {
+      "phase": "01-five-documents-unchanged-binary",
+      "command": [
+        "/private/tmp/brn-final-integration-20261018-target/debug/deps/brn_desktop-5976492de41793be",
+        "--exact",
+        "threads_ui::documents_tests::documents_native_worker_runs_selected_helper_without_credentials",
+        "threads_ui::documents_tests::documents_useful_scope_deleted_project_refuses",
+        "threads_ui::documents_tests::documents_useful_scope_general_to_project",
+        "threads_ui::documents_tests::documents_useful_scope_project_a_to_b",
+        "threads_ui::documents_tests::documents_useful_scope_project_to_general",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 1.22166109085083,
+      "summary": [
+        [
+          "ok",
+          "5",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "d49367fb206af0f1e81f51bf5cc4ec9c799ec6c3eacd7a909151a5074eb25322",
+      "stdout_sha256": "d708eac4fc1b997db2aab8b259fa5acca638752b9da50efa2098a344f80735ff",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "02-probe-natural",
+      "command": [
+        "env",
+        "BRN_DIALOG_PROBE_ENDPOINT=natural",
+        "SEED=0",
+        "ITERATIONS=1",
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 7.024958848953247,
+      "summary": [],
+      "source_unchanged": true,
+      "inputs_sha256": "e37bcaa17d58abfb35493ad66c3a5474a59ebb37f1a9c4fe1c0acaa1b4ee5388",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f83bb56d77c39eaf09aaf2c1a281a18f212e9aba083f9fdc088832ca324985fc"
+    },
+    {
+      "phase": "03-probe-natural-corrected",
+      "command": [
+        "env",
+        "BRN_DIALOG_PROBE_ENDPOINT=natural",
+        "SEED=0",
+        "ITERATIONS=1",
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 65.8398871421814,
+      "summary": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "34c530a2f5ce5ca2f6ecedcc1dab0b5698b22bfab3941722b1d38c5f09bbdc1c",
+      "stdout_sha256": "23f0d33e048836b4f129fbd07670747a681f3491f8134fb18e31319f7376c73c",
+      "stderr_sha256": "b41e112aeffd7a0dd37510d99d7b08b023f34b7fd2adac56e06fcc10d29646a6"
+    },
+    {
+      "phase": "04-probe-endpoint-after-target",
+      "command": [
+        "env",
+        "BRN_DIALOG_PROBE_ENDPOINT=after-target",
+        "SEED=0",
+        "ITERATIONS=1",
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "seconds": 1.5616490840911865,
+      "summary": [
+        [
+          "FAILED",
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "34c530a2f5ce5ca2f6ecedcc1dab0b5698b22bfab3941722b1d38c5f09bbdc1c",
+      "stdout_sha256": "e573ec914c4708617b686951842ad9ec687ecf42fa75568fb6d2168b1eb95618",
+      "stderr_sha256": "7b9a1f98e0fc9533f793cc5ded8a1ee2ebcf97e7ce33ad06e884cc5e53f248b1"
+    },
+    {
+      "phase": "05-probe-endpoint-before-target",
+      "command": [
+        "env",
+        "BRN_DIALOG_PROBE_ENDPOINT=before-target",
+        "SEED=0",
+        "ITERATIONS=1",
+        "cargo",
+        "+1.98.1",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "threads_ui::omakase_tests::consequence_dialogs_confirm_only_by_their_danger_button",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "seconds": 1.4689011573791504,
+      "summary": [
+        [
+          "ok",
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "source_unchanged": true,
+      "inputs_sha256": "34c530a2f5ce5ca2f6ecedcc1dab0b5698b22bfab3941722b1d38c5f09bbdc1c",
+      "stdout_sha256": "c22376aaf9bce030e1fe863a0b9660e29d2a78fd8d7f2fa9921bc0eed4edbd97",
+      "stderr_sha256": "c05753207aa3cc13b47f6b2625d5032674d06222c487b7e9ed77e17b6792449b"
+    }
+  ],
+  "interpretation": "01 five setup cases passed on unchanged old binary.02 diagnostic compile failure only.03 natural probe passed.04 controlled after-target endpoint reproduced confirmed.get false.05 before-target endpoint positive passed same binary. No retained fix, no whole suite repeat, no original-CI-cause or main-ready claim."
+}
