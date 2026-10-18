@@ -1,6 +1,6 @@
 # Development setup
 
-**Selected conversion change, 18 October 2026:** the owner confirmed [stock Xberg default, optional BRN layer and independent AI conversion defaulting Off](../work/active/modular-foundation/x2/standard-default/feature-brief.md). Implementation is pending; the commands and always-Luna description below still describe the current code. No new provider qualification is activated.
+**Document conversion, 18 October 2026:** local Tasks1–3 implement [stock Xberg default, optional BRN layer and independent AI conversion defaulting Off](../work/active/modular-foundation/x2/standard-default/feature-brief.md). Native Settings → Documents and the checked CLI command select subsequent imports; existing notes are unchanged. [Task3 evidence](../work/active/modular-foundation/x2/standard-default/task3/handoff.md) separates synthetic verification from pending Task4 distribution, whole-feature review, native-human and integration gates. No live-provider qualification is activated.
 
 Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the active plan linked there. Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
 
@@ -25,17 +25,29 @@ Keep compiler/dependency changes separately scoped and qualified. Native GPUI ta
 
 Use a task-owned Cargo target directory or a known compatible shared cache, plus a fresh explicit absolute BRN `--data-dir` outside Git. Use synthetic material. The core checks directory marker, application ID and supported schema before opening; incompatible old BRN data refuses without migration.
 
-D4 uses schema **9** for canonical scoped MCP policy and host-only external-data authority semantics (schema 8 introduced skill policy/fencing and delivered identities; schema 7 introduced scoped writing configuration). CLI opens of schema 3–8 refuse unchanged with `upgrade_required`; only explicit `upgrade --backup-directory ABSOLUTE_DIR` upgrades after an external verified backup. The desktop retains backup-first open using its remembered folder. Old backups upgrade only their unpublished restore copy. Preserve the pre-upgrade backup when rolling back source: schema-8 executables refuse schema 9 rather than downgrade it. Scoped skill references and selection survive SQLite recovery; local instruction bytes do not. Preserve original packages and explicitly reinstall the exact approved bytes before using a restored selection. Missing/mismatched packages stay unavailable; installation alone never enables them.
+Current schema **10** adds canonical document converter/AI preferences to schema9’s scoped MCP policy and host-only external-data authority semantics (schema 8 introduced skill policy/fencing and delivered identities; schema 7 introduced scoped writing configuration). CLI opens of schema 3–9 refuse unchanged with `upgrade_required`; only explicit `upgrade --backup-directory ABSOLUTE_DIR` upgrades after an external verified backup. The desktop retains backup-first open using its remembered folder. Old backups upgrade only their unpublished restore copy. Preserve the pre-upgrade backup when rolling back source: schema-9 executables refuse schema10 rather than downgrade it. Scoped skill references and selection survive SQLite recovery; local instruction bytes do not. Preserve original packages and explicitly reinstall the exact approved bytes before using a restored selection. Missing/mismatched packages stay unavailable; installation alone never enables them.
 
-Build the maintained intake helper before Mac workspace tests:
+Build the two normal document helpers from the verified cached package and accepted optional bundle:
+
+```sh
+bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root /private/tmp/brn-document-helpers
+export BRN_XBERG_HELPER=/private/tmp/brn-document-helpers/artifacts/brn-xberg-helper
+export BRN_XBERG_HELPER_BRN=/private/tmp/brn-document-helpers/artifacts/brn-xberg-helper-brn
+```
+
+Both overrides must be absolute. Without overrides, desktop/CLI resolve these two names beside their own executable. A missing or wrong selected artifact refuses without trying another converter. Task4 owns final app/CLI packaging and maintained CI lanes; a CLI-only build does not supply the helpers automatically yet.
+
+Native Settings → Documents or `brn --data-dir /absolute/workspace document-conversion --converter xberg|xberg-brn --ai off|on` saves checked preferences. Settings inspection explicitly shows stock/false even when canonical default serialization omits the field for historical hash compatibility. Every import snapshots both values. All eight kinds, including Text and Markdown, use the chosen normal helper with no Poppler discovery. AI Off needs no conversion credentials. AI On refines the selected output with fixed GPT-6 Luna/high and the existing explicit ChatGPT auth path; general chat settings stay independent. Useful-information's subsequent agent still requires its own credentials/authority. Reports retain actual captured converter/bundle/AI provenance; keyed full/chat/project replay checks that variant before conversion/Auth.
+
+Legacy explicit prepared-reader and restriction checks still build the maintained typed helper separately:
 
 ```sh
 cargo build --locked -p brn-intake --features helper --bin brn-intake-helper
 ```
 
-PDF qualification needs Poppler `pdftotext`, `pdfimages` and native `pdftoppm`. Select explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES` and `BRN_PDFTOPPM` executable paths for reproducible checks; shell wrappers cannot run inside the restricted renderer. The renderer uses a host-written system-font configuration and disables disposable disk font caches. [Verification](verification.md) describes gates. Default checks do not include every optional native feature.
+Those compatibility PDF checks require Poppler `pdftotext`, `pdfimages` and native `pdftoppm`, with explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES` and `BRN_PDFTOPPM` paths for reproducibility. They do not select the new production import route. The carried prepared-PDF Unavailable remains qualified separately from representative normal Xberg PDF success. Encrypted PDF is explicitly deferred; no new refusal implementation or verification is claimed.
 
-Document imports other than Markdown/text use the existing explicit ChatGPT authentication path and a dedicated `gpt-6-luna` high-effort request. General chat model settings remain independent. No account, model or converter fallback is implicit. Local preparation/checking have separate 5-second budgets (20 seconds for PDF, within the existing 30-second hard limit); the provider request has a separate 180-second deadline. Full-page previews and originals remain transient; readable Markdown and linked figures pass through the shared checked import service. PDF layout and scan transcription retain source-coverage limitations.
+Offline in-process CLI refinement qualification uses the nondefault `scripted-document-tests` alias for existing `brn-ai/scripted-runs`. Ordinary CLI/native entry points have no transport/endpoint override. Task4 must add this explicit lane to maintained verification/CI; it is not a live-provider or subprocess AI-success proof.
 
 Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.
 

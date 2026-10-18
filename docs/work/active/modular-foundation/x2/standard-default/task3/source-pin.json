@@ -1,0 +1,53 @@
+{
+  "material_commit": "74feabeaee4ea9f1c8e551e4655d5c40c752a7d7",
+  "material_tree": "18bbcc0b861123c367e92105f12f90975e175b52",
+  "base": "25801f1f874196314067ac6c5730d59d4ed99db6",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "sources": {
+    "crates/brn-ai/src/document_refine.rs": "c0773e0b39ab4811623118e7b8c8736b5945ac53728b7441703aafeed87f7728",
+    "crates/brn-desktop/src/threads_chat.rs": "6beb560b27879a496366755c0c857b5af187bbb89de31fd8c326c46f6310a15a",
+    "crates/brn-desktop/src/threads_documents.rs": "e870ac2476ad5899a524bb371ed35c144eef1bbe375916d072b1ac6c40a91b8f",
+    "crates/brn-desktop/src/threads_documents_tests.rs": "0a7650b44f4d645d028fe0de920a99c29da11daf573358394cf721c16577c60f",
+    "crates/brn-desktop/src/threads_focus_tests.rs": "e081aed76628b4de0fb9595568ef0edab31b74352c3e2fa12cebbc15ef6637fa",
+    "crates/brn-desktop/src/threads_intake_tests.rs": "c1868f40cce197b47147ff4d2f1b409b297a056b4399c00ce56e9a54fc866749",
+    "crates/brn-desktop/src/threads_polish_tests.rs": "4d9c3e8cc7ba0b800ceac0c863eb4520562d67e4184c055200e8b9ccf7290da5",
+    "crates/brn-desktop/src/threads_steering_tests.rs": "6f5359fdaee1df0c9cc212e3b46aa6b010c55e7a17446f57fc716df27b42c7f9",
+    "crates/brn-desktop/src/threads_tiles.rs": "141bc0d7e2d3ffa3431130c7bbfe51dc682737a3f90b63b22c584ce591c626e4",
+    "crates/brn-desktop/src/threads_ui.rs": "f3793182c3868433bf4a7401ea24631848b116df157166969a6e071434d3ea5c",
+    "crates/brn-desktop/src/threads_writing.rs": "c4abcfe84a489b0c7291d3d00a1a286037bb95a40ea8aedb035413777c772045",
+    "crates/brn-threads-intake/src/documents.rs": "19dd9cb46d4b24a341a33df8dfc635021b5e039aa0656893d2279ffa027e8a9e",
+    "crates/brn/Cargo.toml": "e6a179f98f307d929ce95edc1a7802d9c7a2c6fef11b075ddd655f2c44c4786f",
+    "crates/brn/README.md": "71131e9cb56e8710279877ae58efa610c3cc07ccb68c25bc0e3d317eeddb5455",
+    "crates/brn/src/contract.rs": "ec9e37cdcac5744577deaaa3c7f4c066c45fcfd7fed7575c796c8d6d618ef50c",
+    "crates/brn/src/help.rs": "f09426c5828660ce283df9b2d83464435b9273b2a959d4eeacb744845665674f",
+    "crates/brn/src/main.rs": "2f925d72c15f8315048d5a46f0836da2af66d03d30be6be06c9ecf370086b199",
+    "crates/brn/src/spec.rs": "56924df5e1dc0bb22b94667f2970f62dd84e0891c0eb6951461d67e724b776b1",
+    "crates/brn/tests/agent_credentials.rs": "3cd6104b4d76d763f09572203fd3a06062c7fc7ed00ce44b53b8909d45f0f80d",
+    "crates/brn/tests/document_modes.rs": "56396bbfdec28e285b4d0fd2690a934625c20a4dca26947072b85bb5ad56ab30"
+  },
+  "compiled_association": "Commands01\u201316 ran at base HEAD plus exact WIP; all20 frozen material paths match16-strict-native inputs and Git blobs.17 builds the ordinary native executable at the actual created material HEAD. Broad input hashes do not mean every file was a selected compile unit; .d/command/feature/artifact receipts distinguish selection. No future SHA was claimed compiled.",
+  "scope_assertions_unchanged_sha256": "56dc376281f38da237a555d924991f14364974cc9cf2bbf6c3a18cf370de4d41",
+  "scope_before": "05e-native-scope-before-source-fixed; same literal candidate source root before the bounded fix, not a fabricated isolated-root build. Full source snapshots and actual binaries/.d retained in content-addressed objects before overwrite. No target was shared across roots.",
+  "protected_root": {
+    "Cargo.toml": "3795ab3115a3c435a698824f81fe00714191a9c70fc474498d3813e3cae39ad2",
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+  },
+  "unchanged_task1_helpers": {
+    "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper": "af2c86403c3f58b5d122e62c4910d7b118fe251961299a507e0a1263f0835113",
+    "/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts/brn-xberg-helper-brn": "2b40f963d63fbca633dce3be61be4a95ae4c907a1fdb49f83901f30ced0e6372"
+  },
+  "unchanged_old9_receipt": "/private/tmp/brn-x2-standard-task3-20261018/evidence/old9-preserved.json",
+  "target": "/private/tmp/brn-x2-standard-task3-20261018/candidate-target",
+  "source_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161",
+  "source_objects": "/private/tmp/brn-x2-standard-task3-20261018/objects",
+  "artifacts_index": "/private/tmp/brn-x2-standard-task3-20261018/evidence/selected-final-artifacts.json",
+  "normal_executables": {
+    "/private/tmp/brn-x2-standard-task3-20261018/candidate-target/debug/brn": "1218974c9e8317b545ff9fe6074173371e3109a87fd478df7d82259d1e20ee72",
+    "/private/tmp/brn-x2-standard-task3-20261018/candidate-target/debug/brn-desktop": "1c64e9b9fa6dab60c060a74fd7e48f127ffe8b18b54c7023d7652b2d0a0cd522"
+  },
+  "feature_fingerprints": "/private/tmp/brn-x2-standard-task3-20261018/evidence/emitted-local-feature-fingerprints.json",
+  "feature_qualification": "Actual emitted local unit fingerprints retained across named commands; not an all-platform metadata graph or one simultaneous runtime union. No metadata/lock reconciliation or new dependency identity. One approved nondefault CLI alias selects existing scripted-runs.",
+  "runner_sha256": "de4efe9df411ecad33d64d1f773165af02a380c296972352b598952a74309d0f"
+}

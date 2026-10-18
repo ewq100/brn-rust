@@ -1,0 +1,10 @@
+{
+  "status": "RELEASED_AFTER_FINAL_EVIDENCE_COMMIT",
+  "sole_heavy": "released; all Cargo/test/controller commands have exited and were reaped; no follow-on work",
+  "all_task3_paths": "released after final evidence commit: all20 material paths, four product/plan summaries, Task3 evidence directory and external source/targets/evidence roots",
+  "material": "74feabeaee4ea9f1c8e551e4655d5c40c752a7d7",
+  "precise_process_inventory": [],
+  "no_cargo_after_this_receipt": true,
+  "final_actual_git_and_inventory_receipt": "/private/tmp/brn-x2-standard-task3-20261018/evidence/postcommit-release.json",
+  "qualifications": "Task4, full independent review, native-human/owner acceptance and integration remain pending. No new source acceptance, distribution, live or publication claim."
+}
