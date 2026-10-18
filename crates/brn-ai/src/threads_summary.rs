@@ -765,7 +765,7 @@ pub(super) fn without_account(
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, unix))]
 mod filesystem_tests {
     use super::*;
     #[test]

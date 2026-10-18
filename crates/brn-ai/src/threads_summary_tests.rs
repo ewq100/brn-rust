@@ -815,6 +815,7 @@ async fn zero_optional_history_fallback_does_not_schedule_compaction() {
     assert!(http.requests().is_empty());
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_without_caps() {
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
@@ -1091,6 +1092,7 @@ async fn resolved_account_change_invalidates_without_a_settings_or_history_chang
 // Round1 witnesses use existing a673 APIs. Saved test-only before production edits.
 mod review1 {
     use super::*;
+    #[cfg(unix)]
     fn credentials(root: &tempfile::TempDir, bootstrap: Option<&str>) -> PathBuf {
         use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
         let dir = root.path().join("review1-copilot");
@@ -1108,6 +1110,7 @@ mod review1 {
         }
         dir
     }
+    #[cfg(unix)]
     fn copilot_settings(request: &ThreadRunRequest) {
         cache_tests::configure(request, "Copilot");
         let mut store = Store::open(&request.data_dir).unwrap();
@@ -1126,6 +1129,7 @@ mod review1 {
             .configure_workspace(&op, &s, &HostAuthority::owner("review1 selected route"))
             .unwrap();
     }
+    #[cfg(unix)]
     fn exchange(token: &str) -> MockHttpResponse {
         MockHttpResponse::success(json!({"token":token,"expires_at":i64::MAX,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string())
     }
@@ -1147,6 +1151,7 @@ mod review1 {
         assert_eq!(result.trace.unwrap().summary.unwrap().outcome, "cached");
         assert_eq!(std::fs::read(path).unwrap(), before);
     }
+    #[cfg(unix)]
     #[tokio::test]
     async fn exchanged_copilot_rotation_reuses_bootstrap_but_account_switch_invalidates() {
         use std::os::unix::fs::PermissionsExt;
@@ -1209,6 +1214,7 @@ mod review1 {
             assert!(!body.contains(raw));
         }
     }
+    #[cfg(unix)]
     #[tokio::test]
     async fn compactor_empty_chat_refusal_retries_same_model_on_responses_once() {
         let (root, mut request, _) = tests::fixture();
@@ -1377,6 +1383,7 @@ mod review1 {
         assert_eq!(std::fs::read(path).unwrap(), old);
     }
 
+    #[cfg(unix)]
     #[tokio::test]
     async fn compactor_context_overflow_or_partial_refusal_never_retries_responses() {
         for partial in [false, true] {
@@ -1438,6 +1445,7 @@ mod review1 {
     }
 }
 
+#[cfg(unix)]
 #[tokio::test]
 async fn missing_copilot_bootstrap_leaves_summary_uncached_and_preserves_chat() {
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
@@ -1491,6 +1499,7 @@ async fn missing_copilot_bootstrap_leaves_summary_uncached_and_preserves_chat() 
         "unavailable_account"
     );
 }
+#[cfg(unix)]
 #[test]
 fn checked_bootstrap_fingerprint_is_trim_stable_and_rejects_invalid_credential() {
     use std::os::unix::fs::PermissionsExt;
