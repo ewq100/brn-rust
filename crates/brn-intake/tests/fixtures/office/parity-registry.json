@@ -468,11 +468,16 @@
     "xberg-dtd-admission": {
       "class": "S6",
       "measurement": "EvidenceOnly",
-      "expected_sha256": "c8120d31f6a1f64234393cc7702a950cc0d22fdc3091a2e880ba21cd21ed947e",
+      "expected_sha256": "aa740a0f06be31a87266585260fe22360b3e276669046b40d5748a01b1662f47",
       "actual_sha256": "79a09455e708663e13cf5334808364ce1a3477163360cb0065cd3fc7db1bbd3b",
       "raw_observation_sha256": "6be3f5326b99ecd984bdc5206d012b8567d6e4a45822a007179c34746f39304d",
       "raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
-      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts."
+      "qualification": "Object keys canonicalized, array order and all source wording retained. EvidenceOnly hashes assert unchanged captured public evidence, not equality to independently authored source facts. Review1 P2 corrects only the checked-boundary requirement. Bare actual evidence is unchanged; both current-schema refusals are direct exact-string assertions on the same input. Future checked Xberg admission remains OPEN.",
+      "review1_p2_correction": {
+        "original_expected_sha256": "c8120d31f6a1f64234393cc7702a950cc0d22fdc3091a2e880ba21cd21ed947e",
+        "original_source_commit": "53546fecf46226c0684250a1091057b5276fc15b",
+        "original_raw_association": "raw_observation_sha256 and raw_log retain the original expected/actual capture; expected_sha256 now pins the corrected checked-boundary requirement"
+      }
     },
     "xberg-empty-orphan": {
       "class": "S6",

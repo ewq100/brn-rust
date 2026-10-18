@@ -680,15 +680,40 @@ fn office_limits_content_cells_depth_and_repeated_story_passes() {
     let mut with_dtd = b"<!DOCTYPE document [<!ENTITY value \"forbidden\">]>".to_vec();
     with_dtd.extend_from_slice(main);
     *main = with_dtd;
-    let dtd_result = run(&ooxml_opc::rezip_parts(&dtd).unwrap(), limits.clone());
+    let dtd_bytes = ooxml_opc::rezip_parts(&dtd).unwrap();
+    let dtd_result = run(&dtd_bytes, limits.clone());
     record(
         "S6",
         "xberg-dtd-admission",
-        json!({"required":"reject DTD before upstream allocation","declaration":"internal entity, unused in body","promotion":"BLOCKED; refusal assertion remains"}),
+        json!({"required":"checked Xberg adapter must reject DTD before backend invocation","declaration":"internal entity, unused in body","bare_backend":"accepts with two ordered R1C1 Cell cells, each span 1x1","promotion":"OPEN; checked Xberg adapter does not exist"}),
         json!(dtd_result.as_ref().map(witness)),
     );
-    // Original refusal requirement is preserved after actual acceptance was measured.
-    assert!(dtd_result.is_err());
+    let dtd_doc = dtd_result.expect("bare Xberg accepts this unused declaration");
+    let expected_cell = Atom::Cell {
+        address: "R1C1".into(),
+        text: "Cell".into(),
+        row_span: 1,
+        column_span: 1,
+    };
+    assert_eq!(
+        atoms(&dtd_doc, true),
+        vec![expected_cell.clone(), expected_cell]
+    );
+    // ZIP admission does not validate XML. Both current public schemas subsequently
+    // reach BetterOffice parse_xml's Event::DocType refusal on these same bytes.
+    let schema1_error = helper::extract(request(&dtd_bytes, IntakeLimits::default())).unwrap_err();
+    let schema2_error =
+        helper::prepared::prepare(request(&dtd_bytes, IntakeLimits::default())).unwrap_err();
+    let expected_error =
+        "DOCX parse: unsafe XML in word/document.xml: DTD/entity declarations are forbidden";
+    assert_eq!(schema1_error, expected_error);
+    assert_eq!(schema2_error, expected_error);
+    println!(
+        "O1_DTD_BOUNDARIES {}",
+        json!({"input_sha256":hex(&digest(&dtd_bytes)),"bare_cells":atoms(&dtd_doc,true),"schema1_error":schema1_error,"schema2_error":schema2_error})
+    );
+    // The future checked Xberg adapter must refuse before calling its backend.
+    // No such adapter exists; these controls leave that promotion gate OPEN.
 }
 #[test]
 fn office_limits_xml_event_and_repeated_story_passes() {

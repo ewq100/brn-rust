@@ -1,0 +1,222 @@
+{
+  "base_commit": "53546fecf46226c0684250a1091057b5276fc15b",
+  "base_tree": "45fe98de3289f45ad394caf4eb2a919379325ce4",
+  "literal_root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "evidence_root": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-review1-p2-20261018-53546fec",
+  "compiled_code_diff": {
+    "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-review1-p2-20261018-53546fec/compiled-source.diff",
+    "sha256": "4ec8dec170d5378332c6c29ad669b820f400a0235f8cd2b33e5799568f353d81"
+  },
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018",
+    "CARGO_BUILD_JOBS": "1",
+    "TMPDIR": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/tmp",
+    "BRN_INTAKE_HELPER": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/brn-intake-helper"
+  },
+  "commands": [
+    {
+      "label": "00-preserve-before",
+      "command": "python3 -c 'print(\"preservation before correction\")'",
+      "exit": 0,
+      "receipt_sha256": "51a73d2a36c4186a6f943aa5e1b685730afb13a254f874f3cd03a5798c5647f5",
+      "log_sha256": "93790ae5a6161dfcb66ed629a96695a6a99dd681b111f666b48a0b2765b72bf5",
+      "before_artifacts_sha256": "45c82f6d20077d5a925da46512e93f804e5c1d560386f71d3fb154ecaec0bbc0",
+      "after_artifacts_sha256": "45c82f6d20077d5a925da46512e93f804e5c1d560386f71d3fb154ecaec0bbc0"
+    },
+    {
+      "label": "01-format-office",
+      "command": "rustup run 1.98.1 rustfmt --edition 2024 crates/brn-intake/tests/office_differential.rs",
+      "exit": 0,
+      "receipt_sha256": "5057d4e0c457a3dc230517600f7f2ed3c776b84320ad28a968f8fbafe9301a6e",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "before_artifacts_sha256": "45c82f6d20077d5a925da46512e93f804e5c1d560386f71d3fb154ecaec0bbc0",
+      "after_artifacts_sha256": "45c82f6d20077d5a925da46512e93f804e5c1d560386f71d3fb154ecaec0bbc0"
+    },
+    {
+      "label": "02-dtd-checked-boundaries",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --test office_differential office_limits_content_cells_depth_and_repeated_story_passes --locked --offline --jobs 1 --message-format=json -- --exact --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "fbdf8e9a63acace0fd63928c705cfeee0a431ee1bb73c96b34dedd9746d60a0b",
+      "log_sha256": "7ca6cc614ecdf6771613021a8b763c77f3860df6a4244fab2a1045d507d6a01a",
+      "before_artifacts_sha256": "45c82f6d20077d5a925da46512e93f804e5c1d560386f71d3fb154ecaec0bbc0",
+      "after_artifacts_sha256": "6ccb87e401fe4752894e72f0cb9db5531e798b5e7bc6cd18d807383afdae3adc"
+    },
+    {
+      "label": "03-full-office",
+      "command": "cargo +1.98.1 test -p brn-intake --features office-differential --test office_differential --locked --offline --jobs 1 --message-format=json -- --nocapture --test-threads=1",
+      "exit": 0,
+      "receipt_sha256": "9e2fbd4ccc907c4398f304fc97c526e5db5bc51c8e4c8be562b481b64cfef714",
+      "log_sha256": "9a5b2021ef615ceee0108b9774a3ee4c900674d4379460ee3ef13a735ae38fa1",
+      "before_artifacts_sha256": "6ccb87e401fe4752894e72f0cb9db5531e798b5e7bc6cd18d807383afdae3adc",
+      "after_artifacts_sha256": "6ccb87e401fe4752894e72f0cb9db5531e798b5e7bc6cd18d807383afdae3adc"
+    },
+    {
+      "label": "04-office-strict-clippy",
+      "command": "cargo +1.98.1 clippy -p brn-intake --features office-differential --all-targets --locked --offline --jobs 1 --message-format=json -- -D warnings",
+      "exit": 0,
+      "receipt_sha256": "60381d3fa2f737af81b1f5694137228f5baaeecabaa572664529fcc5c4d00396",
+      "log_sha256": "fd20484cb3b5ed76d0efd54b06ea7c52af16896acdbd42575ed8860c6469ebc6",
+      "before_artifacts_sha256": "6ccb87e401fe4752894e72f0cb9db5531e798b5e7bc6cd18d807383afdae3adc",
+      "after_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa"
+    },
+    {
+      "label": "05-format-check",
+      "command": "rustup run 1.98.1 rustfmt --edition 2024 --check crates/brn-intake/tests/docx_inventory.rs crates/brn-intake/tests/office_differential.rs crates/brn-intake/tests/support/office.rs",
+      "exit": 0,
+      "receipt_sha256": "df5ae19541c63df7e90274a80f540a59cb4b058266a0c611cbe916104f8c64ac",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "before_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa",
+      "after_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa"
+    },
+    {
+      "label": "06-markdown-links",
+      "command": "python3 scripts/check-markdown-links.py",
+      "exit": 0,
+      "receipt_sha256": "15ea2f10bcc0645a300abcc69dd7130568271284b6f97a17701794e2db5e6eca",
+      "log_sha256": "a3b4e645b5aab84e6b3163427fab7c8d197bcc12e2658e2644710b62b49506fb",
+      "before_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa",
+      "after_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa"
+    },
+    {
+      "label": "07-whitespace",
+      "command": "git diff --check",
+      "exit": 0,
+      "receipt_sha256": "b433b7a518c819968226aef544657f85cc425712755a6083fa4810f78ca9bb9d",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "before_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa",
+      "after_artifacts_sha256": "772462db0a8f2cb26b01b4235f09b2a8a2a2c448664fa237dfd6ed836ce8f0fa"
+    }
+  ],
+  "receipt_paths": "Each label resolves to <evidence_root>/<label>.json, .log, .before-artifacts.json and .after-artifacts.json. These retained external receipts contain complete source maps and artifact inventories.",
+  "compiled_source": {
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "crates/brn-intake/Cargo.toml": "e9a85a7722edc240b3ce733f95c9ad379fec7962afdd287aa9e91e7e403d8802",
+    "crates/brn-intake/tests/docx_inventory.rs": "4f9a68dca8bba5f7925131a5f3a498b1cd489d06dcdf6275da93c07407dd8a34",
+    "crates/brn-intake/tests/office_differential.rs": "d290784b1e2ae82912b9d7661e993ade47a549ff1780af79f14e087d98dd2c46",
+    "crates/brn-intake/tests/support/office.rs": "0c375f8d513f739ce5f32c3a232efc4ba2782c4500e27fee5f300747139c2844",
+    "crates/brn-intake/tests/fixtures/office/parity-registry.json": "d3f47eaa040678daecae454458a18f3a9c36cf4da4df5fa8dfc3bb143543c5eb"
+  },
+  "compiler_artifact": {
+    "package_id": "path+file:///Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake#0.1.0",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "office_differential",
+      "src_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-intake/tests/office_differential.rs",
+      "edition": "2024",
+      "required-features": [
+        "office-differential"
+      ],
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "1",
+      "debuginfo": 0,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [
+      "default",
+      "helper",
+      "office-differential"
+    ],
+    "executable": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/office_differential-82aba775d3a84c1b"
+  },
+  "test_executable_and_dep_info": [
+    {
+      "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/office_differential-82aba775d3a84c1b.d",
+      "sha256": "b8d1cae38ba85469f6e37513a67f6806847a25e907060a9b4b24acab77122322",
+      "bytes": 3277,
+      "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-review1-p2-20261018-53546fec/artifact-by-sha/b8d1cae38ba85469f6e37513a67f6806847a25e907060a9b4b24acab77122322"
+    },
+    {
+      "path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/target/office-o1-20261018/debug/deps/office_differential-82aba775d3a84c1b",
+      "sha256": "eefe01d7b7398a030435cfbbe95257a41922c1504aeb523205fde4a8597ad255",
+      "bytes": 43393648,
+      "preserved": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-review1-p2-20261018-53546fec/artifact-by-sha/eefe01d7b7398a030435cfbbe95257a41922c1504aeb523205fde4a8597ad255"
+    }
+  ],
+  "same_byte_controls": {
+    "input_sha256": "a1cb515e916358265a2532ec164889f2f5cedab41eadab59d9cf56b6a73a9d4b",
+    "input_bytes": 1141,
+    "calls_per_run": 3,
+    "boundaries": [
+      "bare xberg::extract",
+      "helper::extract",
+      "helper::prepared::prepare"
+    ],
+    "logs": [
+      "02-dtd-checked-boundaries",
+      "03-full-office"
+    ],
+    "original_same_input_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/55-input-bound-office.log",
+    "bare_cells": [
+      {
+        "Cell": {
+          "address": "R1C1",
+          "text": "Cell",
+          "row_span": 1,
+          "column_span": 1
+        }
+      },
+      {
+        "Cell": {
+          "address": "R1C1",
+          "text": "Cell",
+          "row_span": 1,
+          "column_span": 1
+        }
+      }
+    ],
+    "schema1_error": "DOCX parse: unsafe XML in word/document.xml: DTD/entity declarations are forbidden",
+    "schema2_error": "DOCX parse: unsafe XML in word/document.xml: DTD/entity declarations are forbidden"
+  },
+  "registry": {
+    "total": 64,
+    "changed_entries": [
+      "xberg-dtd-admission"
+    ],
+    "other_entries_identical": 63,
+    "original_expected_sha256": "c8120d31f6a1f64234393cc7702a950cc0d22fdc3091a2e880ba21cd21ed947e",
+    "corrected_expected_sha256": "aa740a0f06be31a87266585260fe22360b3e276669046b40d5748a01b1662f47",
+    "unchanged_actual_sha256": "79a09455e708663e13cf5334808364ce1a3477163360cb0065cd3fc7db1bbd3b",
+    "original_raw_observation_sha256": "6be3f5326b99ecd984bdc5206d012b8567d6e4a45822a007179c34746f39304d",
+    "original_raw_log": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-o1-run-20261018-02886234/23-dtd-gate-capture.log",
+    "scope": "All entries statically compared; passing Office tests enforce their own registered observations, without a fresh current-target runtime claim."
+  },
+  "unchanged_inputs": {
+    "Cargo.lock": "9d1240de6b039bdd9b34892c4d014fa73f7390b3fe3ddf91604d86d4f048f229",
+    "crates/brn-intake/Cargo.toml": "e9a85a7722edc240b3ce733f95c9ad379fec7962afdd287aa9e91e7e403d8802",
+    "crates/brn-intake/tests/docx_inventory.rs": "4f9a68dca8bba5f7925131a5f3a498b1cd489d06dcdf6275da93c07407dd8a34",
+    "crates/brn-intake/tests/support/office.rs": "0c375f8d513f739ce5f32c3a232efc4ba2782c4500e27fee5f300747139c2844",
+    "docs/work/active/modular-foundation/x2/office1/o1/measurement-receipt.json": "e44f516ef80b06d536b8571f304016820d5b73f0b6bf010ed356a546e1de6cd8",
+    "crates/brn-intake/tests/fixtures/office/harbor.inventory.json": "eacd35e86b76934a533ec4e78bebe1600960fd7053ba44ffd43c0b3a184218f0",
+    "crates/brn-intake/tests/fixtures/office/features.inventory.json": "237aef2062858c32e470bbd9a7754f4a3573425229d5519ee2f8cd4901a12a63",
+    "crates/brn-intake/tests/fixtures/office/prefix-variation.inventory.json": "69fc0769b4460af6882dd25efab49b90ee3d58b3b602bd12ca305b52bd24a8d3",
+    "crates/brn-intake/tests/fixtures/office/footnotes.inventory.json": "7b33083d9c53b4399262f5f31b1df35ca70c2257dd5b29ed89cacdb3414e4ec2"
+  },
+  "review_raw_sha256": "3f1e5d56328800559fd20fbfd8b3aa3cd8afa771dbb6d80af690eb97a445a298",
+  "result": {
+    "affected_test": "1 passed, 6 filtered",
+    "full_office": "7 passed, 0 filtered",
+    "strict_office_all_target_clippy": "passed -D warnings",
+    "format_three_paths": "passed",
+    "markdown_links": "382 files, 1712 local links, 0 failures",
+    "historical_office": "6 passed / 1 failed at 53546fec remains unchanged",
+    "promotion": "OPEN: checked Xberg adapter does not exist; no Office promotion",
+    "whitespace": "passed; final staged delta also checked before commit"
+  },
+  "precise_heavy_processes": [],
+  "reservation": "released on final handoff",
+  "precommit_diff_receipt": "Retained externally as final-precommit.json and final-precommit.diff; computed after staging, excludes any future commit identifier."
+}
