@@ -1,0 +1,338 @@
+{
+  "format": "BRN-PR159-LINUX-TEST-REPAIR-CHECKS-V1",
+  "material": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+  "scope": "Only seven affected CLI test binaries (66/0/0 on Mac), strict CLI/intake default all-target lint, fmt/static. No Linux local execution or broad repeat.",
+  "checks": [
+    {
+      "phase": "01-fmt",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "identity": {
+        "head": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+        "tree": "d9e966fe07bc9a005131b64b4c3cbfc69efdb810",
+        "branch": "work/final-combined-20261018",
+        "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+        "inputs_sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043"
+      },
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/tmp",
+        "MACOSX_DEPLOYMENT_TARGET": "15.0",
+        "ORT_SKIP_DOWNLOAD": "1",
+        "ORT_OFFLINE": "1"
+      },
+      "exit": 0,
+      "counts": [
+        0,
+        0,
+        0
+      ],
+      "source_unchanged_during_command": true,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/result.json",
+          "sha256": "a502742c2612ea430f0afeab74c26ebb041f6b980f4a8126716cbb9c7c6da7dd",
+          "bytes": 1388
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/inputs.json",
+          "sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043",
+          "bytes": 412405
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "before-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/before-artifacts.json",
+          "sha256": "9a851059e93935a6129d356cce572b047086f3898bd3f7598e7f8c4448cfcae0",
+          "bytes": 14286
+        },
+        "after-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/01-fmt/after-artifacts.json",
+          "sha256": "9a851059e93935a6129d356cce572b047086f3898bd3f7598e7f8c4448cfcae0",
+          "bytes": 14286
+        }
+      }
+    },
+    {
+      "phase": "02-affected-cli-tests",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "test",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "-p",
+        "brn",
+        "--test",
+        "agent_contract",
+        "--test",
+        "agent_credentials",
+        "--test",
+        "agent_inspect",
+        "--test",
+        "agent_lists",
+        "--test",
+        "agent_retry",
+        "--test",
+        "source_locator",
+        "--test",
+        "threads"
+      ],
+      "identity": {
+        "head": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+        "tree": "d9e966fe07bc9a005131b64b4c3cbfc69efdb810",
+        "branch": "work/final-combined-20261018",
+        "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+        "inputs_sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043"
+      },
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/tmp",
+        "MACOSX_DEPLOYMENT_TARGET": "15.0",
+        "ORT_SKIP_DOWNLOAD": "1",
+        "ORT_OFFLINE": "1"
+      },
+      "exit": 0,
+      "counts": [
+        66,
+        0,
+        0
+      ],
+      "source_unchanged_during_command": true,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/result.json",
+          "sha256": "a84afdbc1f1293a40df9ce8e43a6464207d92bbcbb1ca587eb8bbedaaf89a9a8",
+          "bytes": 2114
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/inputs.json",
+          "sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043",
+          "bytes": 412405
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/stdout",
+          "sha256": "cd963f6d0272bbffa9db54fa0be3f194c21b9b41c1364aef1fae662aa5d73622",
+          "bytes": 5220
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/stderr",
+          "sha256": "9bcf374d0375c5d6675d6923e3556530d22ba566b8ab241f4417230a2e300a3a",
+          "bytes": 1269
+        },
+        "before-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/before-artifacts.json",
+          "sha256": "9a851059e93935a6129d356cce572b047086f3898bd3f7598e7f8c4448cfcae0",
+          "bytes": 14286
+        },
+        "after-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/02-affected-cli-tests/after-artifacts.json",
+          "sha256": "caa5f2f131ba5feaf98dd6491951fcc000942c83a20bbaf57f2310d17c96cd0f",
+          "bytes": 17175
+        }
+      }
+    },
+    {
+      "phase": "03-cli-intake-strict-lint",
+      "argv": [
+        "cargo",
+        "+1.98.1",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "-p",
+        "brn",
+        "-p",
+        "brn-threads-intake",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "identity": {
+        "head": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+        "tree": "d9e966fe07bc9a005131b64b4c3cbfc69efdb810",
+        "branch": "work/final-combined-20261018",
+        "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+        "inputs_sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043"
+      },
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/tmp",
+        "MACOSX_DEPLOYMENT_TARGET": "15.0",
+        "ORT_SKIP_DOWNLOAD": "1",
+        "ORT_OFFLINE": "1"
+      },
+      "exit": 0,
+      "counts": [
+        0,
+        0,
+        0
+      ],
+      "source_unchanged_during_command": true,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/result.json",
+          "sha256": "b3e0c92b051e6d9065f951bac8d1695ee961dcea3fed65d4f60ce9e2880b03cf",
+          "bytes": 1576
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/inputs.json",
+          "sha256": "13c0e68aa95bd946949c2a841fe8f2ac171f028dfbf0251942793ef115796043",
+          "bytes": 412405
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/stderr",
+          "sha256": "8bf54debc80cb7ab6a19ad4d25a2700feab678b4f96b6dedc4f2cc951e844ca8",
+          "bytes": 1058
+        },
+        "before-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/before-artifacts.json",
+          "sha256": "caa5f2f131ba5feaf98dd6491951fcc000942c83a20bbaf57f2310d17c96cd0f",
+          "bytes": 17175
+        },
+        "after-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/03-cli-intake-strict-lint/after-artifacts.json",
+          "sha256": "73a855f0230cb7f0d940c61c336bb4afacf326d58dadd297cf0314119c33679d",
+          "bytes": 19006
+        }
+      }
+    },
+    {
+      "phase": "04-final-docs-static",
+      "argv": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"python3\",\"scripts/check-markdown-links.py\"],check=True); subprocess.run([\"git\",\"diff\",\"--check\"],check=True)"
+      ],
+      "identity": {
+        "head": "912b577c9e64c6ce41a99cbf6b05749cae3911cc",
+        "tree": "d9e966fe07bc9a005131b64b4c3cbfc69efdb810",
+        "branch": "work/final-combined-20261018",
+        "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+        "inputs_sha256": "75b91d008f5c1cb298de5a54fcb54fa387da10874f5868608576357a9c5ab28d"
+      },
+      "environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-final-integration-20261018-target",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "TMPDIR": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/tmp",
+        "MACOSX_DEPLOYMENT_TARGET": "15.0",
+        "ORT_SKIP_DOWNLOAD": "1",
+        "ORT_OFFLINE": "1"
+      },
+      "exit": 0,
+      "counts": [
+        0,
+        0,
+        0
+      ],
+      "source_unchanged_during_command": true,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/result.json",
+          "sha256": "0de7e60e2c0de4c4e5b4d6a4ffcb619f3893c36e5bc3a8606291ee10995b6772",
+          "bytes": 1541
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/inputs.json",
+          "sha256": "75b91d008f5c1cb298de5a54fcb54fa387da10874f5868608576357a9c5ab28d",
+          "bytes": 412862
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/status.txt",
+          "sha256": "8a330be50ff7434addf067b6d12f601076e666c01c033946e3b587f0b081ebc6",
+          "bytes": 312
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/source.diff",
+          "sha256": "23788809f0b8de86f89287b0016f2c9801f7b14ec67c9252aca6d4ef2679806d",
+          "bytes": 6018
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/stdout",
+          "sha256": "3a9451961d5c88715bfadbcc401443d67479d531c19d1b3c10f42339e738198d",
+          "bytes": 103
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "before-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/before-artifacts.json",
+          "sha256": "73a855f0230cb7f0d940c61c336bb4afacf326d58dadd297cf0314119c33679d",
+          "bytes": 19006
+        },
+        "after-artifacts.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-linux-test-repair-39144593248/checks/04-final-docs-static/after-artifacts.json",
+          "sha256": "73a855f0230cb7f0d940c61c336bb4afacf326d58dadd297cf0314119c33679d",
+          "bytes": 19006
+        }
+      }
+    }
+  ],
+  "cache_phase": "Separate source-associated 19/0 proof at material64d76b3c/evidence42aa9a3b; unchanged relevant cache action/Python test inputs."
+}
