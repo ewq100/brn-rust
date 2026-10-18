@@ -2,7 +2,9 @@
 //! keyed `knowledge-check --seed-chat yes`, keyed intake that replays before
 //! conversion, and key reuse on a different original.
 mod support;
-use serde_json::{json, Value};
+use serde_json::json;
+#[cfg(target_os = "macos")]
+use serde_json::Value;
 use support::*;
 
 #[cfg(target_os = "macos")]
