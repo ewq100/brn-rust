@@ -1,4 +1,4 @@
-Rendering note: the complete report below differs from [the verbatim raw report](opus-review-round1.txt) only by link destination normalization. Retired source links are pinned to the reviewed Git revision; remaining file links are relative, including links into the external cached registry; original line labels and report text are retained.
+Rendering note: the complete report below differs from [the verbatim raw report](opus-review-round1.txt) only by link destination normalization. Retired source links are pinned to the reviewed Git revision; remaining repository file links are relative, while cached dependency links use the matching pinned upstream revision; original line labels and report text are retained.
 
 **O1 test/evidence candidate: CHANGES_REQUIRED — one bounded P2 test-contract correction.** The empirical measurements are sound and useful. I found no production-route change, feature leak, oracle replacement, or material evidence-integrity problem.
 
@@ -18,7 +18,7 @@ The current caller map matters:
 
 - [helper.rs:395](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/src/helper.rs) performs ZIP/path/count/actual-expanded-byte admission. It does **not** reject document XML DTDs.
 - [helper.rs:422](https://github.com/ewq100/brn-rust/blob/53546fecf46226c0684250a1091057b5276fc15b/crates/brn-intake/src/helper.rs) subsequently invokes BetterOffice’s bounded XML/wire parser.
-- That parser explicitly rejects `Event::DocType` at [xml.rs:682](../../../../../../../../../../../../.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-docx-parse-0.3.0/src/xml.rs), before producing the wire result.
+- That parser explicitly rejects `Event::DocType` at [xml.rs:682](https://github.com/openooxml/betteroffice/blob/34b9e93a657158fcf3d1d1035df3202031625bdd/crates/docx-parse/src/xml.rs#L682), before producing the wire result.
 
 The smallest correct permanent disposition is:
 
@@ -94,7 +94,7 @@ Start with checked admission and resource behavior, separately from semantic out
 - Establish the complete Xberg XML read set before its XML allocations: required/optional document parts, relationships, bound and conventional orphan headers/footers, styles/theme and metadata. Preserve DTD refusal and the existing valid-input envelope; do not blindly impose one new aggregate quota over additional parts.
 - Audit repeated-read/pass accounting. The **24/23** fixed threshold and **7302 versus 7301** shared-header witness are useful measurements, not a general E+P proof. Do not raise quotas automatically.
 
-A maintained low-level XML seam already exists: public `parse_xml` plus `ParseBudget` at [xml.rs:576](../../../../../../../../../../../../.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/betteroffice-docx-parse-0.3.0/src/xml.rs). It builds a tree and repairs stray ampersands; it is not an exposed allocation-free count scanner. Reuse its established policy where appropriate, or allocate a narrow audited non-retaining validation seam. Neither the full BetterOffice wire/export path nor the sanitizer should be presented as a metadata-only replacement.
+A maintained low-level XML seam already exists: public `parse_xml` plus `ParseBudget` at [xml.rs:576](https://github.com/openooxml/betteroffice/blob/34b9e93a657158fcf3d1d1035df3202031625bdd/crates/docx-parse/src/xml.rs#L576). It builds a tree and repairs stray ampersands; it is not an exposed allocation-free count scanner. Reuse its established policy where appropriate, or allocate a narrow audited non-retaining validation seam. Neither the full BetterOffice wire/export path nor the sanitizer should be presented as a metadata-only replacement.
 
 Then allocate measured semantic seams:
 
