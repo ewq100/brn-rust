@@ -1,0 +1,25 @@
+## Review
+
+**Verdict: CHANGES_REQUIRED**
+
+**Blocking findings**
+
+1. **P1 — Linux unavailable test recursively launches itself.** At [document_modes.rs:185](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-threads-intake/tests/document_modes.rs:185), both helper paths point to the current integration-test executable. On Linux, `convert_document` reaches `process::run` without a platform refusal and launches it with no arguments. The child runs this same test and launches another child. The required Ubuntu workspace lane therefore recurses until timeout/resource failure instead of returning the asserted `Unavailable`. Each launch also creates another process group.
+
+   **Correction:** establish the intended unsupported-platform refusal before dispatch, or use a bounded, explicitly selected child fixture that proves that refusal. Do not launch an unfiltered libtest executable as the helper.
+
+2. **P2 — New prompt-budget test cannot compile on Windows.** The unconditional test at [document_refine_tests.rs:442](/Users/evokessler/.t3/worktrees/brn-rust/t3-d611a161/crates/brn-ai/src/document_refine_tests.rs:442) calls `transport` at line 446, but that function exists only under `#[cfg(unix)]`. Windows workspace test compilation therefore fails with an unresolved function. This is introduced by the feature, independently of historical Windows qualifications.
+
+   **Correction:** apply the matching Unix gate to this test, or make its synthetic transport dependencies portable.
+
+**Advisory**
+
+None.
+
+**Coverage / remaining unverified**
+
+Reviewed read-only from `612144c50ac97b3a3921c98eaa7b3657bab6566b` to `70f2440f47fcc5a0666510d9d9694bb905443427`, including deletion/rename boundaries, current conversion and shared safety code, settings/schema/replay/provenance, native scope capture, active-gate changes, packaging and CI.
+
+No additional concrete blocker found in those paths. Static inspection confirms explicit generator archive arguments and stock fetching before script-test discovery. Lock inspection confirms 93/6/6 removals with no added or changed surviving package identities.
+
+No builds, tests, formatters, application/provider calls, network access, writes or delegation were performed. Findings above are source-derived. Current native packaging/signing/relocation, required PR/main CI, integration and owner/native acceptance remain pending. Historical failures remain qualified; this review does not establish paid-runner readiness or explain the unique historical skill failures.
