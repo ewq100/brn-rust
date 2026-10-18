@@ -12,6 +12,7 @@ APPLICABLE = (
     'Core and CLI (ubuntu-24.04)',
     'Core and CLI (macos-15)',
     'Native UI build and state (macos-15)',
+    'Native UI build and state (ubuntu-24.04)',
     'Native retrieval and combined build (macos-15)',
 )
 DOCS = 'Documentation and tooling'

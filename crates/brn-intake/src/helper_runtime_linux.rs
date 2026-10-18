@@ -5,8 +5,12 @@
 //! glibc pthread/clone fallback contract:
 //! https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/clone-internal.c
 //! https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/pthread_create.c
-//! No pathname operations, sockets, executable mappings, exec, process-group
-//! changes or cross-process interfaces are admitted. Existing descriptors above
+//! No pathname operations, external socket endpoints, new executable protections
+//! or file-backed mmap, exec, process-group changes or cross-process interfaces
+//! are admitted. The only socket creation is an unnamed AF_UNIX pair for Tokio's
+//! internal signal wakeup; socket/connect and descriptor transfer stay denied.
+//! Existing loader mappings remain; mremap preserves their permissions/backing.
+//! Existing descriptors above
 //! stderr are closed before filtering. Children inherit the filter; the host
 //! continues owning their process group, wall deadline and bounded protocol pipes.
 
@@ -107,7 +111,52 @@ fn policy(process: u32, process_tree_witness: bool) -> Vec<libc::sock_filter> {
     ] {
         allow(&mut filter, syscall);
     }
-    // No file-backed or executable mappings. mmap's protection is argument 2,
+    // Mio's epoll selector clones its owned descriptor with F_DUPFD_CLOEXEC
+    // (minimum fd 3); Rust descriptor cleanup queries F_GETFD. Permit only
+    // these operations, not flag mutation, locking, leases or signal ownership.
+    // All descriptors are protocol pipes, epoll/eventfd or unnamed socket pairs;
+    // close_range removed ambient descriptors, and RLIMIT_NOFILE bounds copies.
+    filter.extend([
+        instruction(EQUAL, 0, 17, libc::SYS_fcntl as u32),
+        instruction(LOAD, 0, 0, 20), // descriptor high word
+        instruction(EQUAL, 1, 0, 0),
+        instruction(RETURN, 0, 0, DENY),
+        instruction(LOAD, 0, 0, 28), // command high word
+        instruction(EQUAL, 1, 0, 0),
+        instruction(RETURN, 0, 0, DENY),
+        instruction(LOAD, 0, 0, 24), // command low word
+        instruction(EQUAL, 8, 0, libc::F_GETFD as u32),
+        instruction(EQUAL, 1, 0, libc::F_DUPFD_CLOEXEC as u32),
+        instruction(RETURN, 0, 0, DENY),
+        instruction(LOAD, 0, 0, 36), // duplication minimum high word
+        instruction(EQUAL, 1, 0, 0),
+        instruction(RETURN, 0, 0, DENY),
+        instruction(LOAD, 0, 0, 32),
+        instruction(EQUAL, 1, 0, 3),
+        instruction(RETURN, 0, 0, DENY),
+        instruction(RETURN, 0, 0, ALLOW),
+    ]);
+    // Tokio's enabled signal driver creates this unnamed, already-connected
+    // process-local wakeup pair. It cannot name a filesystem or external peer.
+    // Do not admit socket/connect/bind or sendmsg/recvmsg descriptor transfer.
+    argument_rule(
+        &mut filter,
+        libc::SYS_socketpair,
+        &[
+            (16, u32::MAX, libc::AF_UNIX as u32),
+            (20, u32::MAX, 0),
+            (
+                24,
+                u32::MAX,
+                (libc::SOCK_STREAM | libc::SOCK_CLOEXEC | libc::SOCK_NONBLOCK) as u32,
+            ),
+            (28, u32::MAX, 0),
+            (32, u32::MAX, 0),
+            (36, u32::MAX, 0),
+        ],
+        ALLOW,
+    );
+    // No new file-backed or executable mmap. mmap's protection is argument 2,
     // flags argument 3; mmap ignores fd when MAP_ANONYMOUS is set.
     argument_rule(
         &mut filter,
@@ -181,6 +230,8 @@ pub(super) fn restrict(process_tree_witness: bool) -> Result<(), String> {
     if unsafe { libc::syscall(libc::SYS_close_range, 3u32, u32::MAX, 0u32) } != 0 {
         return Err("helper descriptor restriction activation failed".into());
     }
+    // AS bounds process virtual address space, not aggregate kernel memory.
+    // FSIZE bounds files; the host separately bounds pipes and kills on overflow.
     for (resource, limit) in [
         (libc::RLIMIT_CPU, 10),
         (libc::RLIMIT_NOFILE, 64),
@@ -234,14 +285,18 @@ mod tests {
         ));
         std::fs::write(&path, b"synthetic forbidden content").unwrap();
         let listener = std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).unwrap();
+        let unix_path = path.with_extension("sock");
+        let _unix_listener = std::os::unix::net::UnixListener::bind(&unix_path).unwrap();
         let port = listener.local_addr().unwrap().port();
         assert!(std::fs::read(&path).is_ok());
         assert!(std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port)).is_ok());
+        assert!(std::os::unix::net::UnixStream::connect(&unix_path).is_ok());
         let mut command = std::process::Command::new(std::env::current_exe().unwrap());
         command
             .env_clear()
             .env("BRN_RESTRICTION_TEST_FILE", &path)
             .env("BRN_RESTRICTION_TEST_PORT", port.to_string())
+            .env("BRN_RESTRICTION_TEST_UNIX", &unix_path)
             .args([
                 "--ignored",
                 "--exact",
@@ -265,6 +320,7 @@ mod tests {
             .output()
             .unwrap();
         std::fs::remove_file(&path).unwrap();
+        std::fs::remove_file(&unix_path).unwrap();
         assert_eq!(x32.status.signal(), Some(libc::SIGSYS));
     }
 
@@ -273,6 +329,7 @@ mod tests {
     fn restricted_child() {
         use std::os::fd::IntoRawFd;
         let path = std::env::var_os("BRN_RESTRICTION_TEST_FILE").unwrap();
+        let unix_path = std::env::var_os("BRN_RESTRICTION_TEST_UNIX").unwrap();
         let port: u16 = std::env::var("BRN_RESTRICTION_TEST_PORT")
             .unwrap()
             .parse()
@@ -296,6 +353,86 @@ mod tests {
             std::io::Error::last_os_error().raw_os_error(),
             Some(libc::EBADF)
         );
+        let epoll = unsafe { libc::epoll_create1(libc::EPOLL_CLOEXEC) };
+        assert!(epoll >= 3);
+        let duplicated = unsafe { libc::fcntl(epoll, libc::F_DUPFD_CLOEXEC, 3) };
+        assert!(duplicated >= 3);
+        assert_eq!(
+            unsafe { libc::fcntl(duplicated, libc::F_GETFD) },
+            libc::FD_CLOEXEC
+        );
+        assert_eq!(unsafe { libc::fcntl(duplicated, libc::F_SETFD, 0) }, -1);
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::EPERM)
+        );
+        unsafe {
+            libc::close(duplicated);
+            libc::close(epoll);
+        }
+        let mut pair = [-1; 2];
+        assert_eq!(
+            unsafe {
+                libc::socketpair(
+                    libc::AF_UNIX,
+                    libc::SOCK_STREAM | libc::SOCK_CLOEXEC | libc::SOCK_NONBLOCK,
+                    0,
+                    pair.as_mut_ptr(),
+                )
+            },
+            0
+        );
+        assert_eq!(unsafe { libc::write(pair[0], b"x".as_ptr().cast(), 1) }, 1);
+        assert_eq!(
+            unsafe { libc::read(pair[1], (&mut byte as *mut u8).cast(), 1) },
+            1
+        );
+        assert_eq!(byte, b'x');
+        // A valid existing local socket still cannot connect to the parent's
+        // live pathname endpoint; the syscall itself is denied before lookup.
+        use std::os::unix::ffi::OsStrExt;
+        let mut address: libc::sockaddr_un = unsafe { std::mem::zeroed() };
+        address.sun_family = libc::AF_UNIX as libc::sa_family_t;
+        let path_bytes = unix_path.as_bytes();
+        assert!(path_bytes.len() < address.sun_path.len());
+        for (slot, &value) in address.sun_path.iter_mut().zip(path_bytes) {
+            *slot = value as libc::c_char;
+        }
+        assert_eq!(
+            unsafe {
+                libc::connect(
+                    pair[0],
+                    (&address as *const libc::sockaddr_un).cast(),
+                    (std::mem::size_of::<libc::sa_family_t>() + path_bytes.len() + 1)
+                        as libc::socklen_t,
+                )
+            },
+            -1
+        );
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::EPERM)
+        );
+        unsafe {
+            libc::close(pair[0]);
+            libc::close(pair[1]);
+        }
+        for (domain, flags) in [
+            (
+                libc::AF_INET,
+                libc::SOCK_STREAM | libc::SOCK_CLOEXEC | libc::SOCK_NONBLOCK,
+            ),
+            (libc::AF_UNIX, libc::SOCK_STREAM),
+        ] {
+            assert_eq!(
+                unsafe { libc::socketpair(domain, flags, 0, pair.as_mut_ptr()) },
+                -1
+            );
+            assert_eq!(
+                std::io::Error::last_os_error().raw_os_error(),
+                Some(libc::EPERM)
+            );
+        }
         let denied = move || {
             assert_eq!(
                 std::fs::read(&path).unwrap_err().raw_os_error(),
@@ -303,6 +440,12 @@ mod tests {
             );
             assert_eq!(
                 std::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, port))
+                    .unwrap_err()
+                    .raw_os_error(),
+                Some(libc::EPERM)
+            );
+            assert_eq!(
+                std::os::unix::net::UnixStream::connect(&unix_path)
                     .unwrap_err()
                     .raw_os_error(),
                 Some(libc::EPERM)

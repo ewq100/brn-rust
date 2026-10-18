@@ -25,7 +25,7 @@ fi
 
 cd "$repo_root"
 cargo fmt --all --check
-if [[ "$(uname -s)" == Darwin ]]; then
+if [[ "$(uname -s)" == Darwin || ( "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ) ]]; then
   bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$CARGO_TARGET_DIR/document-helpers"
   export BRN_XBERG_HELPER="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper"
   export BRN_XBERG_HELPER_BRN="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper-brn"

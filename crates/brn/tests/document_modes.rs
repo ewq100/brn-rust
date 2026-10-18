@@ -1,12 +1,12 @@
 //! Real CLI processes, fixed public fixtures and synthetic data only.
 mod support;
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 use brn_threads_app::RecordData;
 use brn_threads_app::{DocumentConversionSettings, DocumentConverter, Workspace};
 use serde_json::json;
 use support::*;
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn capture(name: &str, value: &impl serde::Serialize) {
     if let Some(path) = std::env::var_os("BRN_TASK3_CAPTURES") {
         let path = std::path::PathBuf::from(path);
@@ -18,13 +18,14 @@ fn capture(name: &str, value: &impl serde::Serialize) {
         .unwrap();
     }
 }
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn root() -> Root {
     let mut root = Root::new();
     for name in ["BRN_XBERG_HELPER", "BRN_XBERG_HELPER_BRN"] {
         root.env.push((
             name.into(),
-            std::env::var(name).expect("declared helper artifact required for macOS qualification"),
+            std::env::var(name)
+                .expect("declared helper artifact required for native qualification"),
         ));
     }
     root.env.extend(support::stub::proxy_env());
@@ -37,7 +38,7 @@ fn select(root: &Root, data: &std::path::Path, converter: &str, ai: &str) {
         &["document-conversion", "--converter", converter, "--ai", ai],
     );
 }
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn corpus() -> Vec<(&'static str, &'static [u8])> {
     vec![
         (
@@ -108,7 +109,7 @@ fn documents_cli_defaults_checked_settings_and_reopen_without_note_effect() {
     assert_error(&refused, "usage", "invalid_value");
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn documents_cli_all_eight_both_engines_off_import_without_auth() {
     let root = root();
     let data = root.workspace("data");
@@ -166,7 +167,7 @@ fn documents_cli_all_eight_both_engines_off_import_without_auth() {
     );
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_note() {
     let mut root = root();
     let data = root.workspace("data");
@@ -207,7 +208,9 @@ fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_n
         call(
             &root,
             &data,
-            &["intake", "--source", &file, "--intent", "full", "--key", "second"]
+            &[
+                "intake", "--source", &file, "--intent", "full", "--key", "second"
+            ]
         )["outcome"],
         "Applied"
     );
@@ -237,7 +240,7 @@ fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_n
     }
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn documents_cli_missing_or_wrong_selected_helper_never_falls_back_or_saves() {
     for wrong in ["/missing/helper", "stock-as-brn", "relative/helper"] {
         let mut root = root();
@@ -260,16 +263,18 @@ fn documents_cli_missing_or_wrong_selected_helper_never_falls_back_or_saves() {
             &["intake", "--source", &file, "--intent", "full"],
         );
         assert_ne!(result["status"], "ok", "{result}");
-        assert!(!Workspace::open_existing_no_upgrade(&data)
-            .unwrap()
-            .records()
-            .unwrap()
-            .iter()
-            .any(|r| matches!(r.data, RecordData::Note(_) | RecordData::Source(_))));
+        assert!(
+            !Workspace::open_existing_no_upgrade(&data)
+                .unwrap()
+                .records()
+                .unwrap()
+                .iter()
+                .any(|r| matches!(r.data, RecordData::Note(_) | RecordData::Source(_)))
+        );
     }
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn documents_cli_useful_handoff_stores_captured_report_before_agent() {
     for converter in ["xberg", "xberg-brn"] {
         let root = root();

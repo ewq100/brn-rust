@@ -16,9 +16,10 @@ requires no conversion credentials. Historical reports/provenance remain data.
 
 The host clears environment, bounds pipes/scratch/output and wall time, monitors
 cancellation and kills/reaps the owned process group before joining pipes. The
-helper installs its own unchanged restriction; no Poppler or host renderer exists.
-Restricted execution is Mac-qualified, with explicit unavailable behavior on
-other platforms. No hard heap/RSS ceiling is claimed.
+helper installs its own restriction: deny-default sandboxing on macOS and a
+fail-closed seccomp-BPF pipe-only policy on Linux x86_64. Other operating systems
+and Linux architectures return unavailable. No Poppler or host renderer exists;
+no hard heap/RSS ceiling is claimed.
 
 Use an absolute private temporary root outside Git and knowledge data. Run
 directories are private and removed on success/failure/cancellation. Creation

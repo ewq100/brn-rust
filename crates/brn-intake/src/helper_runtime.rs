@@ -138,5 +138,5 @@ fn restrictions(process_tree_witness: bool) -> Result<(), String> {
 }
 #[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
 fn restrictions(_process_tree_witness: bool) -> Result<(), String> {
-    Err("native intake restrictions are qualified only on macOS; conversion refused".into())
+    Err("native intake restrictions require macOS or Linux x86_64; conversion refused".into())
 }

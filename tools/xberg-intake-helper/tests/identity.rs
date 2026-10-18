@@ -188,6 +188,6 @@ fn restricted_runtime_reports_platform_unavailable() {
     assert!(!output.status.success());
     assert_eq!(
         serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
-        serde_json::json!({"error":"native intake restrictions are qualified only on macOS; conversion refused"})
+        serde_json::json!({"error":"native intake restrictions require macOS or Linux x86_64; conversion refused"})
     );
 }
