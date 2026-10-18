@@ -9,7 +9,7 @@
 | Provider runtime | Published Rig 0.44.0 and retained provider/auth transports | `brn-ai` owns bounded runtime/tools; no vendored Rig patch |
 | Native surface | GPUI Kit 0.7.3 (gpui-pre 0.3.9) | `brn-writing-ui` owns the reusable panel; desktop and the native-only writing_host example compose it with shared services. GPUI/native tests remain optional; native observation stays separate |
 | Conversion | Pinned Xberg 1.3.10 stock / separately patched optional bundle, light PNG/Markdown validation | Two standalone restricted helpers; `brn-intake` light DTOs and `brn-threads-intake` process adapter |
-| Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; current application search uses keyword retrieval |
+| Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; keyword search plus the optional native dense lane and explicitly installed model |
 | Entry points | Thin commands, desktop and development example | `brn`, `brn-desktop` and the disposable `brn-writing-ui` writing_host example call the shared service; the example has no desktop dependency |
 
 Default builds keep optional native graphs out. Provider, converter and retrieval types do not replace the core's authority contract. Retained capability fixtures and [runtime qualification](../archive/threads-rebuild/evidence.md#rig-044-runtime-integration) remain relevant when those boundaries change.
