@@ -1,5 +1,5 @@
 diff --git a/src/extraction/docx/parser.rs b/src/extraction/docx/parser.rs
-index 31cb755..58f57a0 100644
+index 31cb755..226eb26 100644
 --- a/src/extraction/docx/parser.rs
 +++ b/src/extraction/docx/parser.rs
 @@ -39,6 +39,7 @@ pub(crate) enum DocumentElement {
@@ -26,7 +26,17 @@ index 31cb755..58f57a0 100644
          document.tables = out.tables;
          document.drawings = out.drawings;
          document.elements = out.elements;
-@@ -2993,6 +2996,14 @@ impl<R: Read + Seek> DocxParser<R> {
+@@ -2607,6 +2610,9 @@ impl<R: Read + Seek> DocxParser<R> {
+                             if let Some(ctx) = table_stack.last_mut() {
+                                 ctx.paragraph = Some(Paragraph::new());
+                             } else {
++                                if current_paragraph.is_some() {
++                                    out.comment_refs_by_paragraph.remove(&current_paragraph_index);
++                                }
+                                 current_paragraph_index = out.paragraphs.len();
+                                 current_paragraph = Some(Paragraph::new());
+                             }
+@@ -2993,6 +2999,14 @@ impl<R: Read + Seek> DocxParser<R> {
                                      out.comment_ref_ids.push(id.to_string());
                                      if let Some(ref mut run) = current_run {
                                          run.text.push_str(&format!("[cmt:{}]", id));

@@ -1,0 +1,34 @@
+{
+  "schema": "comment5-opus1-release/1",
+  "status": "CORRECTED_FROZEN_CANDIDATE_INDEPENDENT_ACTUAL_REVIEW2_PENDING",
+  "heavy_released_utc": "2026-10-18T05:04:05Z",
+  "heavy_inventory": {
+    "path": "/private/tmp/brn-x2-docx-comment5-r1-20261018/evidence/heavy-release-inventory.json",
+    "sha256": "ec0347c2413edb9f6a22c9474632f73a8ad4cec5b22be9aad1b060874aee2852",
+    "count": 0
+  },
+  "all_own_cargo_compiler_test_controllers_reaped": true,
+  "all_owned_paths_released_on_frozen_handoff": [
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/check-index.json",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/handoff.md",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/opus-review-round1.txt",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/release.json",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/requirements.txt",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/response.md",
+    "docs/work/active/modular-foundation/x2/office1/comment5/opus1/source-pin.json",
+    "patches/xberg/1.3.10/0005-docx-comment-references.md",
+    "patches/xberg/1.3.10/0005-docx-comment-references.patch",
+    "patches/xberg/1.3.10/0005-source-manifest.json"
+  ],
+  "external_fixed_roots_released_preserved": "/private/tmp/brn-x2-docx-comment5-r1-20261018",
+  "old_sources_artifacts_raw_receipts_immutable": true,
+  "no_follow_on_authority_exercised": true,
+  "remaining_gates": [
+    "General malformed Word fidelity; author/date/range/thread/non-body/note/location/rendering fidelity",
+    "XML/DTD/readset/preallocation/heap/repeated-work/resource containment and restricted runtime",
+    "License custody, BRN adoption/all-eight readiness/reader retirement",
+    "Frozen unaccepted PDF; carried SDK/widget/platform/INT-W/native-human/owner/program/main/live"
+  ],
+  "order4_invalid_show": "DEFERRED_NONBLOCKING_UNCHANGED",
+  "postcommit_identity": "External evidence/final-repo-pin.json after actual commit; no future self-SHA."
+}
