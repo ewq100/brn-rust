@@ -1,0 +1,22 @@
+{
+  "campaign_id": "brn-vacation-20261018",
+  "branch": "vacation-campaign-20261018",
+  "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
+  "started_at_utc": "2026-10-18T21:41:51+00:00",
+  "expires_at_utc": "2026-11-01T21:41:51+00:00",
+  "started_at_local": "2026-10-19T00:41:51+03:00",
+  "expires_at_local": "2026-11-01T23:41:51+02:00",
+  "original_sha256": {
+    "BRN-Codex-Cloud-Vacation-Prompt.txt": "ad1a5d88759ce9f3e270e8863618c7caa71e97697d00ab5af1f16f570aec7d50",
+    "BRN-Vacation-Roadmap.txt": "37e2111ea79c14f8406258b1335e4a3634791a243ed0d0cacb5b4c8cfd5d8fd3"
+  },
+  "authority": "User pasted request adopts preserved charter/roadmap; campaign branch commits, pushes and draft PR allowed; no default-branch merge, publication, deployment, new spending, paid API workers, private data or messaging.",
+  "unattended_status": "INACTIVE",
+  "admission_state": "TELEMETRY_UNAVAILABLE",
+  "continuation_blockers": [
+    "No native goal, quota-read or durable wake/hosting tool exposed in this session.",
+    "codex-cli 0.159.2 cloud list returns HTTP 401; remote-task reconciliation unavailable."
+  ],
+  "remote_jobs_launched": [],
+  "next_wake": null
+}

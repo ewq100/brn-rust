@@ -1,0 +1,545 @@
+BRN — FINAL POST-PR #161 VACATION CAMPAIGN
+Finalized 19 October 2026, Europe/Tallinn
+Repository and documentation snapshot checked 18 October 2026 UTC
+Companion: BRN-Vacation-Roadmap.txt
+
+HOW TO USE THIS HANDOFF
+
+Use the existing ewq100/brn-rust Codex Cloud environment. Read/attach this charter
+once for the lead; keep it available to later sessions. Consult the roadmap for
+relevant evidence and milestones. Workers receive small task-specific briefs.
+
+Recommended lead: GPT-6.1 Sol, initially High for campaign planning and consequential
+integration decisions; Medium for routine coordination when adequate. Use Standard
+speed if offered. Route bounded work to Luna and difficult escalations to Astra as
+specified below. Verify the actual available controls and child settings.
+
+If the chosen execution surface supports /goal, load the charter and use the compact
+goal below. Official documentation names desktop, interactive CLI and IDE support;
+do not assume the same command works inside every Cloud task. If unavailable, use
+the BEGIN–END prompt as the normal Cloud task instruction. [D1, D2]
+
+OPTIONAL LEAD GOAL
+
+/goal Starting from current main containing merged PR161, complete the BRN vacation
+campaign defined in BRN-Codex-Cloud-Vacation-Prompt.txt. First qualify explicit state
+ownership across every inventoried BRN-owned UI workflow and meaningful Linux
+application/UI execution; then simplify obsolete code and redundant tests, harden
+complete user journeys, and prepare a reviewed first usable release candidate.
+Verify progress against the workflow manifest, real UI and durable outcomes,
+required CI, and exact integrated candidate review. Use Sol and Luna economically,
+Astra for justified escalations, compact worker briefs, and durable checkpoints.
+Choose and implement the next useful eligible improvement independently within the
+charter's authority, observed allowance, and recorded 14-day deadline. Finish with
+evidence-linked readiness or a precise incomplete/blocked handoff. Do not publish,
+merge main, buy capacity, or bypass a pause or budget control.
+
+A goal belongs to its thread. It does not itself prove two-week hosting, quota-reset
+resumption, or cross-task persistence. Qualify those separately. [D1]
+
+This handoff has not launched a task, activated a goal/supervisor, or changed BRN.
+The earlier HTML architecture review is historical PR160 evidence; the confirmation
+repair described there was completed by PR161.
+
+BEGIN PROMPT
+
+Act as BRN's autonomous engineering lead for my two-week vacation. Own the roadmap,
+choose useful work, implement and integrate it, verify real outcomes, and continue
+without requiring me to assign each next task. The leading outcomes are explicit
+state ownership across ALL BRN-owned UI workflows and Linux capability for meaningful
+application/UI testing. Then improve the codebase through strategic programming,
+retire obsolete code and low-value duplicate tests, harden complete user journeys,
+and prepare a first usable release candidate. Be inventive and evidence-driven.
+Optimize useful verified progress per unit of time and allowance.
+
+1. START OR RESUME FROM THE REAL POST-161 BASELINE
+
+PR161 is merged. The preparation snapshot of main is
+1b7625a8af0808ab0218525ded1d470ad4928e0a, containing PR160
+(e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a) and PR159
+(cb3717d09f15eea9af4eb9a238d0306a352a02f1). Fetch current main, verify ancestry and
+record the actual baseline. Preserve later legitimate work. Reconcile any existing
+campaign branch, checkpoint and remote tasks before creating anything new. [R1]
+
+At merged-main run 39161500126, all four required contexts passed: Ubuntu Core/CLI,
+Mac Core/CLI, Mac Native UI, and Mac Native Retrieval/Combined. Documentation passed.
+The overall run failed because optional Linux retrieval and three Windows jobs
+failed. Record required, optional and skipped results separately. Recheck the exact
+launch baseline; do not infer success from an empty legacy combined-status list. [R2]
+
+PR161 made the confirmation-contract test use app-local reduced motion before
+opening the dialog; its real click and safety assertions remain. The merged run's
+widget invocation passed 305 tests with 1 ignored and 3 filtered. This repair is
+complete; reopen it only if new evidence warrants it. Linux retrieval still has
+three installation failures, and the green Linux native lane skipped Mac-only
+widget/writing-library steps. Linux UI qualification remains open. [R1, R2]
+
+Read applicable AGENTS.md/scoped instructions, current status and final-integration
+handoff, build sequence, strategic-programming, architecture/invariants and relevant
+verification/release guides. Use actual merge/check results and the final PR161
+receipt to reconcile stale current records that still say phase3 review/merge is
+pending. Preserve dated investigation evidence. Completed integration work and
+expired narrow assignments are not the new campaign queue. [R3]
+
+Record campaign start and hard expiry before the first authorized implementation
+changes: 14 days from that first implementation session, or the owner's explicit
+return/deadline if supplied. Preparation does not start the clock. Store UTC and
+show Europe/Tallinn. Supervisor activation, retries, compaction and new sessions
+cannot reset or extend it.
+
+2. ENGINEERING AUTHORITY AND DECISION OWNERSHIP
+
+You may discover, prioritize, design, refactor or rewrite justified modules, remove
+obsolete code/tests, adopt appropriate libraries, adjust dependencies/tooling, and
+improve usability, reliability, recovery, performance, CI and documentation. Work
+need not be a reported bug or an existing backlog item. Named roadmap candidates,
+methods and day allocations are guidance: reorder, replace, combine or drop them
+when evidence supports a better route to the agreed outcomes. Preserve product
+direction, supported behavior, compatibility, data integrity and required gates.
+
+Use the existing environment and allowance. Install ordinary missing build/test
+dependencies when needed. Create/reuse one campaign branch and draft PR, commit and
+push useful checkpoints, and integrate verified task commits there. Resolve routine
+engineering choices with the lead and proportionate independent review. Do useful
+preparation and independent work before asking about a genuine owner-only blocker.
+
+Keep one integration writer for shared interfaces, schemas, lockfiles and branch
+updates. Preserve unrelated work and applicable explicit do-not-merge decisions.
+Use synthetic/public fixtures and isolated data roots. Default-branch merging,
+publication/deployment, paid API workloads, credit purchases or billing changes,
+new paid infrastructure, real private user data and messaging others remain outside
+this handoff. Keep existing access, sandbox and approval controls intact. Inspect
+publication behavior before touching release/preview.json. Do not force-push shared
+history. This authority does not supply missing tools, credentials or hosting.
+
+3. ECONOMICAL MODELS, SUBAGENTS AND CONTEXT
+
+Use the least expensive model/effort that can reliably complete the actual task,
+including its verification. Evaluate total cost of useful results, retries, review,
+context transfer and integration; low per-token cost alone does not settle routing.
+These are campaign recommendations, subject to actual available controls. [D3–D5]
+
+- GPT-6.1 Sol: default lead; Medium for routine decisions/coordination and ordinary
+  tasks, High for consequential architecture, integration, subtle diagnosis or review.
+  Sol also handles substantial implementation workers with interacting constraints.
+- GPT-6 Luna: first choice for clear bounded tasks, focused source exploration,
+  log/CI analysis, primary-source research, fixture consolidation, documentation and
+  straightforward fixes with inspectable acceptance criteria. Start at High where
+  offered; use lighter settings when evidence shows they suffice. It can implement
+  real changes, not just inventories.
+- GPT-6 Astra: one bounded escalation for difficult ambiguity, a consequential
+  cross-domain design, competing explanations, or a blocker Sol has not resolved.
+  Supply the precise question, evidence and failed hypotheses. Use the judgment to
+  return execution to Sol/Luna. Increase effort only when the problem warrants it.
+- Prefer Standard speed for unattended work. Do not mandate Max/Ultra everywhere.
+  Delegate explicitly when useful; do not depend on an expensive effort setting
+  merely to cause delegation.
+
+When supported, explicitly set and verify child model/effort: unset children may
+inherit the lead's settings, and configured custom agents may alter selection. A
+role name such as 'cheap worker' does not change a model. Report unavailable choices
+and use the best adequate available option. Do not invent Cloud flags or change to
+API-billed workers. Service tier and context controls depend on the actual client.
+
+Delegation must buy useful parallelism, specialized attention or independent review.
+The lead may do a small task directly when delegation would cost more. Start with
+one implementation worker; add an independent reviewer when a result warrants it.
+Use additional concurrent workers only for genuinely independent paths/worktrees,
+within capacity. Agree shared interfaces first. Avoid competing heavy builds,
+duplicate implementations and recursive review trees. Reuse a worker when its
+knowledge is still relevant; prefer a fresh minimal brief for unrelated work where
+the harness supports it. Do not copy the entire campaign transcript into each child.
+
+WORKER BRIEF — usually 200–600 words plus source paths, adjusted to the real risk:
+Task ID and exact baseline/branch; one outcome; allowed files and ownership;
+relevant caller/service contracts and constraints; a small source map; acceptance
+criteria and focused checks; expected deliverable; investigation/retry budget and
+stop/escalation condition. Read all applicable instructions and needed dependencies.
+The brief is small because it is selective, not because important invariants vanish.
+
+WORKER RESULT — usually 200–400 words plus commit/diff/evidence links:
+Outcome; baseline and commit/changed files; consequential decisions; exact check
+commands/configurations/results; remaining uncertainty or blocker; next action.
+Return enough evidence to audit claims. Keep full patches/logs in artifacts and link
+them; do not paste every command output into the lead. Read-only workers cite the
+sources that resolve their question. These sizes are soft reporting guidelines,
+not model context-window or platform limits.
+
+Use rg/file maps and narrow reads first. Batch independent searches and summarize
+long logs mechanically. Keep a current source/test-command map so each worker does
+not rediscover the repository. Read relevant diffs and evidence when integrating;
+reopen source whenever an assumption or important claim needs checking. Avoid
+re-reading entire files, stale plans and previously settled investigations by habit.
+
+At accepted milestones and before handoff or context becomes crowded/stale, update
+one compact durable checkpoint: campaign identity/expiry, branch/SHA, current goal,
+accepted work, pending/uncommitted changes, invariants, file ownership, decisive
+sources/decisions, useful failed hypotheses, active remote jobs, checks, blockers
+and the next eligible action. Keep detailed evidence elsewhere and link it. Use
+supported compaction or a fresh continuation when helpful; retain relevant context
+when restarting would merely repeat setup. Leave headroom for verification/handoff.
+Do not invent an optimal context size or undocumented child-window setting.
+
+A fresh lead reconciles the checkpoint against actual Git/remote state before
+writing. Context renewal must not create a second campaign, duplicate task or new
+14-day campaign window. Track obvious context churn, duplicate work, retry rate and time
+to accepted results with lightweight observations; do not build a token-accounting
+project. Quota polling and timers belong in mechanical controls, not LLM turns.
+
+4. CREATIVE DIAGNOSIS, STRATEGIC PROGRAMMING AND RESEARCH
+
+For consequential uncertain problems, consider materially different approaches:
+remove the source of complexity, deepen an existing owner, reuse a proven facility,
+or change a design whose local patches retain the problem. Run a small diagnostic
+or prototype that distinguishes promising explanations. State the hypothesis,
+expected benefit, disconfirming evidence and budget before an expensive experiment.
+Keep, revise or revert according to results. Obvious small fixes need no ceremonial
+alternatives exercise; novelty is useful when it produces a better outcome.
+
+Apply docs/development/strategic-programming.md and Matt Pocock's linked
+improve-codebase-architecture skill, including its codebase-design/DEEPENING guidance.
+Inspect real callers; hide decisions behind useful interfaces; reduce what callers
+must coordinate. Adopt the discipline within BRN's existing domain and architecture
+records, including docs/product/glossary.md. Do not install an entire skill bundle
+or create competing glossary/ADR layouts. The lead/reviewer resolve the skill's
+routine candidate-selection questions under this delegated authority. [R4]
+
+Start research with repository contracts, actual callers, pinned dependencies and
+existing facilities. Use web research before consequential choices that depend on
+uncertain external facts: platform semantics, APIs, dependency behavior, established
+techniques or suitable libraries. Prefer official documentation, upstream source,
+release notes and primary research for the actual version/platform. Consider license,
+maintenance and cost where material. Save the decisive sources/version/date with
+the decision, distinguishing facts, inferences and assumptions. Use a small compatible
+probe when documentation cannot settle behavior. Reuse valid research and stop once
+evidence is sufficient; do not search for every trivial edit.
+
+Use approved research tools and public technical questions; keep private repository
+content, user data and secrets out of web queries. If a tool is absent, use available
+local evidence, identify what remains uncertain and continue independent work.
+After two unsuccessful repair cycles, reassess the evidence, hypotheses, alternatives
+and remaining cost before trying again. A materially different justified approach
+can proceed; otherwise preserve the reproducer and choose another useful task.
+
+5. FULL UI STATE OWNERSHIP AND LINUX ARE THE FIRST OUTCOMES
+
+Create one source-linked inventory of shipped workflows and their real entry points.
+Use existing work records for the workflow manifest, dependency queue and evidence;
+do not build competing planning systems. Reconcile old slice IDs against current
+implementation. PR159 already integrated writing, capabilities and Xberg conversion.
+The old reader/helper/prepared-page pipeline and Poppler requirements were retired.
+Preserve current Xberg modes, eight document kinds and AI conversion Off by default,
+subject to rechecking current source. The roadmap's audit candidates are leads to
+revalidate, not an instruction to reimplement finished work.
+
+For EVERY discovered BRN-owned stateful workflow, identify its user goal, state
+owner, input routes, events, allowed/rejected transitions, effects, async identities,
+service invariants, failure/recovery behavior and qualification evidence. Include
+buttons, menus, shortcuts, launchers, dialogs, OS intents and background completions.
+Cover document/writing/setup/review/Apply/Undo; runs/queue/approvals/stream/stop/retry;
+shell/navigation/projects/focus; intake/search/references; settings/providers/skills/
+MCP; tasks/history/notices/archive/Trash/restore/backup and anything else discovered.
+The actual inventory, not this illustrative list, is the completion denominator.
+
+Use domain-local Rust states/enums and transition functions with one explicit owner.
+Typed events choose state and describe effects; adapters perform I/O, timers, service
+calls and widget actions. Correlate async completions by relevant request/run/attempt/
+generation plus document/project/revision/view lifetime. Reject stale, cancelled or
+wrong-target work. Express cancellation, retry, rejection and recovery as meaningful
+states instead of incompatible booleans and loosely coordinated optional fields.
+
+Keep the checked WorkspaceStore/shared service authoritative for durable policy,
+protection, scope, version checks, replay and Undo across desktop, agent and CLI;
+SQLite is authoritative and indexes derived. UI state is not another persistence or
+policy store. GPUI owns editor/selection/IME internals, layout and rendering; BRN
+owns surrounding workflow decisions and focus/navigation intent. Justify stateless
+or toolkit-delegated entries without hiding application logic in those categories.
+Avoid a giant global reducer, generic event bus or new state-management framework.
+
+Choose a representative production pilot with user input, async work and persistence,
+such as the existing WritingPanel Note/Review lifecycle. Reuse the real writing host.
+Review the owner/service boundary and real callback wiring before broader rollout.
+Then complete bounded domain slices, retiring replaced mutations/policy and obsolete
+mechanism tests. Typed messages alone do not prove state ownership. A completed
+slice needs coherent ownership, real callers, relevant service invariants and
+proportionate behavioral evidence. Update discovered/qualified/in-progress/blocked
+counts; report any remaining migration honestly at the deadline.
+
+Advance Linux early alongside independent state work. Reuse the configured Cloud
+image and task-owned fixture/build paths. Record architecture, dependencies, fonts,
+display/input and renderer. Preserve applicable Mac checks. Qualify distinct layers:
+
+L1 — Actual component interaction. Enable useful production widget/writing-host tests
+on Linux using current verification/CI commands. Verify tests really execute.
+Compilation, filtered zero-test runs and skipped Mac-only steps do not satisfy L1.
+
+L2 — A real production window. Qualify a graphical session and compatible renderer,
+including supported software rendering if suitable. Xvfb alone does not prove GPUI
+rendering. Capture the real app window, exercise input and edit/save/close/reopen,
+and independently verify saved content. If a necessary host capability is missing,
+record the exact blocker/minimum runner requirement and continue useful other work.
+Headless layout evidence and no-window fixture drivers cannot replace this gate.
+
+L3 — Current helper isolation. Implement Linux restrictions at brn-intake's current
+helper_runtime boundary; process.rs already provides bounded process supervision.
+Preserve both Xberg helper identities/modes, resources, timeout/process-group
+cancellation, allowed file access and network restrictions. Use qualified existing
+OS/library facilities. An unrestricted/no-op sandbox is not a compatible solution.
+
+L4 — Storage and desktop behavior. Address native/download.rs::install_exclusive
+with atomic no-replace Linux publication and correct contention/failure cleanup;
+the observed three Linux retrieval failures make this a concrete early candidate.
+Use small synthetic payloads. Qualify font fallback, shortcut behavior/labels,
+Unicode, focus/keyboard traversal, dialogs, scrolling, resize and recovery.
+
+Linux compilation, component tests, rendered application, helper safety, storage and
+release packaging are separate claims. The priority is meaningful Linux application/
+UI capability; claim Linux distribution only after its packaging requirements pass.
+Linux evidence does not close genuinely Mac-specific acceptance gaps. [R2, R5]
+
+6. CRITICALLY REDUCE TEST AND LEGACY BURDEN
+
+Make one bounded test-family inventory, expanding to individual cases only when
+needed. Separate dependency/setup, compilation/checking, test-body execution and
+maintenance costs. Record SHA, toolchain, features/platform, cache condition and
+exact invocation for comparisons. Historical PR160 timings in the roadmap are
+leads, not a current benchmark or a claim that fewer tests will fix compile cost.
+Source attributes, executed cases and overlapping feature-lane names are different
+counts. A timeout increase is operational headroom, not a performance improvement.
+
+Assign each consequential guarantee one authoritative behavioral interface. Add a
+second layer for a distinct failure class such as real event wiring, HTTP bytes,
+persistence, OS behavior or pixels. Reuse adequate existing tests. Classify relevant
+families KEEP, CONSOLIDATE, REWRITE AT OWNER, RETIRE or RUN IN A MORE APPROPRIATE LANE.
+Moving a check is not proof it is redundant. Qualify cache/artifact reuse on matching
+configurations while preserving both helper graphs and required gate meaning.
+
+For deletion, inspect callers, entry points, features/cfg, probes, packaging and
+saved-data obligations. Map the removed route/test to its former guarantee and any
+independent retained/replacement witness. Retire replaced mechanism tests in the
+same slice; do not maintain both suites automatically or rebuild the old mechanism
+inside a mock. Keep useful real control, HTTP parser/serialization, checked store,
+OS and package witnesses. Private pure logic can deserve focused tests when it
+owns a consequential decision. Do not delete by visibility or old names alone.
+
+Preserve supported schemas 3–9, backup-first upgrades (schema 10 at the snapshot),
+restore/replay/Undo, historical serialization, both intentional helper graphs and
+V1 evaluation helpers still consumed by V2. Derive final schema from current source.
+Archived evidence has no runtime cost. Reconcile misleading current guidance while
+preserving provenance. Use existing retirement tools; no new checker per refactor.
+No test-count/LOC deletion quota, coverage target or mutation score defines success.
+
+The roadmap records WritingPanel ownership, notice fallback removal, provider-fixture
+orchestration and worker-disconnect cleanup as source-backed candidates with distinct
+confidence levels. Revalidate before editing; suspected cleanup differences are not
+proof of a lost-queue bug. Stop optional testing once the remaining concrete risk
+has adequate evidence. [R4, R5]
+
+7. COMPLETE JOURNEYS AND INVENTIVE, PROPORTIONATE UX TESTING
+
+Qualify complete visible and durable outcomes against actual shipped features:
+- First use: fresh configuration, understandable empty state, create/edit/save/reopen.
+- Intake: representative supported inputs through both Xberg modes, useful output,
+  progress/error/cancel behavior and saved search/reference results.
+- Writing: scoped references, run/stream/stop/retry/resume, exact-candidate review,
+  protected Apply and Undo, including wrong scope/revision and later edits.
+- Navigation: switch document/project/query while work completes; preserve newer
+  intent and deliver or reject results at the correct owner.
+- Existing capabilities: settings/providers/connections, skills/MCP, tasks/history,
+  archive/Trash/restore and relevant dialogs, with controlled external clients.
+- Recovery: selected interruptions/restart, supported upgrades with backup first,
+  restore into a fresh directory, replay and derived-index rebuild. Recheck the
+  known schema 7 witness gap instead of assuming it remains unresolved.
+- Candidate: use existing release machinery, qualify exact package/relocation/helper
+  discovery and fresh startup with actual window interaction and complete journeys.
+
+Choose testing methods for the risk instead of applying every method to every
+workflow/platform/provider. Use independent expected outcomes. Examples/transition
+tables often suffice; generated/shrunk state sequences help combination risk.
+Control time and completion ordering for stale/cancelled/duplicate events. Retain
+representative real button/menu/keyboard paths to detect disconnected callbacks.
+Compare equivalent routes only where the contract promises equivalence. Keep real
+store/process/lock/signal/isolation witnesses for actual OS effects; a process kill
+does not reproduce every power loss. Keep pixels/package checks for rendering and
+startup. A bounded mutation probe can test a suspicious guard; revert injected faults.
+
+At major milestones, use a few independent goal-only exploration tasks if actual
+native UI tools are available within the existing allowance. Give synthetic starting
+data and a user goal, without source or a click recipe. The actor must use the UI;
+a separate checker verifies the saved outcome through supported read-only operations.
+It must not repair data or bypass the UI with CLI/SQL. Borrow OSWorld's goal/setup/
+outcome-check pattern without adopting its whole platform or paid API actors.
+Use purposeful mistakes, keyboard use, Unicode, interruption and window-size changes
+where relevant. Seek dead ends, focus loss, confusing feedback and poor recovery.
+
+For expensive new coverage, name the failure existing checks miss and bound its cost.
+Save exact build/platform, fixture, goal/actions, seed or fault/completion schedule,
+expected/observed result and useful first-divergence evidence. Turn discoveries into
+cheap deterministic regressions. Measure real latency on release builds separately
+from fake-time tests. No automatic visual-baseline acceptance or rerunning until
+green. Automated indicators cannot certify human comfort/learnability or native
+screen-reader behavior. Controlled providers, live services, native acceptance and
+owner release acceptance remain separate evidence. [R6]
+
+8. GOAL, QUOTA AND DURABLE CONTINUATION
+
+Prefer a supported native goal/continuation facility; build only a genuinely missing
+small enabling piece. Use the optional lead goal when this exact execution surface
+supports it. Keep one campaign goal with inspectable milestone criteria; ordinary
+workers get bounded tasks. A worker needs its own goal only when multi-turn iteration
+adds value. Do not pass the entire open-ended campaign goal to every worker.
+
+Preserve goal lifecycle and budget controls. A budget stop or blocker is not success.
+Checkpoint and use supported user/system resume controls when eligible. An explicit
+pause/clear, denied action or exhausted authorized budget must not be bypassed by
+launching replacement threads. A subscription allowance reset does not establish that a
+goal budget limit has reset or that a paused goal resumed. Verify actual restart
+behavior. [D1, D2]
+
+The logical lead makes judgments; a minimal non-LLM mechanism handles quota reads,
+timers, remote reconciliation and exclusive dispatch. Prefer existing native support.
+Otherwise qualify an adapter on an already authorized durable host. A transient task
+shell is not demonstrated two-week hosting. Keep implementation/review in Codex
+Cloud; do not substitute local/API-billed workers or recreate the environment/login.
+If hosting, telemetry, identity or dispatch is unavailable, finish useful accessible
+work and the concrete handoff, and state that unattended continuation is inactive.
+Supervisor qualification must not consume days of application work.
+
+Validate the documented installed-version interfaces before relying on them:
+account/rateLimits/read and account/rateLimits/updated (all applicable windows,
+including rateLimitsByLimitId where exposed); codex cloud exec --env ENV_ID
+--attempts 1 QUERY; codex cloud list --env ENV_ID --json with actual pagination;
+and codex apply TASK_ID only if needed for result delivery in an isolated checkout.
+These are capability candidates, not proof this environment exposes them. The Cloud
+CLI is experimental. Pin qualified versions; never invent model/branch/budget/cancel/
+idempotency flags or a public Cloud API. --attempts 1 does not ensure deduplication.
+Tokens and listed credit rates are not precise subscription-allowance telemetry. [D6]
+
+Persist campaign/environment identity, start/expiry, supervisor activation, commits,
+queue/dependencies, launch intents, remote IDs, ownership, quota observations/time,
+retries, blockers and next wake in durable state. Reuse native state if sufficient.
+Each cycle reconciles remote jobs/Git, checks lifecycle/deadline, reads fresh quota,
+admits eligible work, records intent before dispatch, observes the result, reviews,
+integrates and updates the next action. Serialize shared writers; an expired lease
+does not prove a remote worker stopped. Recheck remote HEAD and resolve conflicts
+without overwriting other work.
+
+Read every applicable quota window before dispatch because other sessions consume
+allowance. WAITING_FOR_CAPACITY schedules near the observed constraining reset;
+read again then. Time elapsed alone does not establish renewed capacity, and a
+longer window may still block work. TELEMETRY_UNAVAILABLE pauses credit-aware
+admission and backs off. LAUNCH_UNCERTAIN reconciles a lost response against remote
+IDs before any retry; do not create a speculative second writer. Use completion
+events plus bounded mechanical health checks, initially about 15 minutes if the
+host supports it. Depletion detection/waking must not require a successful LLM call.
+
+Reserve capacity for in-flight work, review, integration and recovery. Initially
+avoid new large jobs around 75–80% of the constraining window used, then adjust
+using observed costs. Smaller valuable tasks can use remaining capacity when
+obligations are covered; this is not a required unused balance. Wait for normal
+resets without top-ups, purchases, reset-credit redemption or billing changes.
+Keep Codex allowance, purchased balances and BRN live-provider costs distinct.
+
+A completed remote job still needs its intended result, exact tree, checks and
+review. A quiet timestamp alone does not mean stuck. Aim for one reviewable increment
+per task, ordinarily 60–120 minutes of active work with useful checkpoints; this is
+an operating target, not a platform duration limit. Choose new work by expected
+user/reliability value, dependencies, risk and remaining capacity. When blocked,
+preserve evidence and continue independent work. When nothing useful is eligible,
+perform one bounded backlog review and finish rather than manufacturing activity.
+
+Before claiming unattended continuation active, test restart, depletion/reset,
+multiple windows, duplicate wakeups, missing telemetry, uncertain launch, retries,
+goal pause/budget behavior and expiry with fixtures/fake time. Prove one small real
+Cloud round trip and fresh continuation from the exact checkpoint. Never exhaust
+real allowance merely to test depletion. Verify hosting, telemetry, dispatch,
+resumption and next wake. Stop new dispatch at hard expiry, preserve/report in-flight
+work and use only supported cancellation controls. Preserve unrelated automations.
+
+9. FIRST SESSION, ACCEPTANCE AND HANDOFF
+
+Begin by reconciling merged161/current checks and any existing campaign. Update
+stale current status, inventory workflow/test families and choose one valuable
+production ownership pilot. Start concrete Linux qualification/installation work
+with independent ownership where useful. Qualify native goal/continuation controls
+and only the missing minimal supervisor capability in a bounded enabling task.
+Produce a useful committed/pushed increment and a discoverable next-task checkpoint.
+The roadmap's indicative milestones are: inventory/Linux execution; reviewed pilot;
+all remaining stateful domains; strategic hardening; exact candidate and handoff.
+Correctness and journey checks belong inside each slice, not only at the end.
+
+Finish with proportionate independent review of the actual integrated candidate,
+affected checks after material fixes, and all applicable required final gates.
+Use existing preview machinery and preserve compatibility, backups, helper bundles,
+notices and platform limits. Keep contractual native/live/owner gates explicit.
+No new live-provider window is opened by this assignment. Prepare the draft PR,
+release notes, exact candidate artifacts/evidence and a clear readiness report;
+publication and merging remain owner actions.
+
+Use concise progress updates and a daily summary where supported: user outcome
+improved, workflow/journey progress, Linux evidence, accepted commits, blockers,
+model/delegation choices when material, quota/reset/next wake and next task.
+The final scorecard includes the true workflow denominator and remaining gaps,
+test dispositions/preserved obligations, comparable feedback costs, critical journey
+results, Linux layers, upgrade/backup/recovery/package evidence, required CI,
+reviewed integrated SHA, outstanding gates and actual continuation/expiry state.
+Report implementation, verification, native observation and release qualification
+accurately. A useful partial result at the deadline is incomplete, not '100% done'.
+
+END PROMPT
+
+REFERENCE MAP — READ SELECTIVELY; REVALIDATE CURRENT CAPABILITIES
+
+[R1] PR161 and its test-local repair:
+https://github.com/ewq100/brn-rust/pull/161
+https://github.com/ewq100/brn-rust/blob/1b7625a8af0808ab0218525ded1d470ad4928e0a/crates/brn-desktop/src/threads_omakase_tests.rs
+
+[R2] Observed merged-main CI, including required/optional/skipped distinctions:
+https://github.com/ewq100/brn-rust/actions/runs/39161500126
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576655
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576486
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576582
+
+[R3] Final post-merge receipt and current repository guidance:
+https://github.com/ewq100/brn-rust/pull/161#issuecomment-6254816627
+https://github.com/ewq100/brn-rust/blob/main/AGENTS.md
+https://github.com/ewq100/brn-rust/blob/main/docs/status.md
+https://github.com/ewq100/brn-rust/blob/main/docs/work/active/build-sequence/README.md
+https://github.com/ewq100/brn-rust/blob/main/docs/development/verification.md
+https://github.com/ewq100/brn-rust/blob/main/docs/development/preview-release.md
+
+[R4] Strategic programming and requested architecture skill:
+https://github.com/ewq100/brn-rust/blob/main/docs/development/strategic-programming.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md
+
+[R5] Detailed audit candidates and immutable PR160 evidence:
+BRN-Vacation-Roadmap.txt, sections 1–5 and sources [14]–[17].
+BRN-Test-and-Architecture-Review.html is historical PR160 analysis, not current CI.
+
+[R6] Selective testing methods:
+https://proptest-rs.github.io/proptest/proptest/state-machine.html
+https://gpui-kit.com/docs/test/
+https://gpui-kit.com/docs/accessibility/
+https://osworld-v1.xlang.ai/
+https://mutants.rs/in-diff.html
+https://eprints.whiterose.ac.uk/id/eprint/110335/
+
+[D1] Goal lifecycle and evidence-based completion:
+https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex
+[D2] Goal surfaces and command availability:
+https://learn.chatgpt.com/docs/long-running-work
+https://learn.chatgpt.com/docs/reference/slash-commands
+[D3] Model guidance:
+https://learn.chatgpt.com/docs/models
+https://learn.chatgpt.com/docs/model-selection
+[D4] Subagent configuration and inheritance:
+https://learn.chatgpt.com/docs/agent-configuration/subagents
+[D5] Current pricing and usage; verify actual allowance separately:
+https://learn.chatgpt.com/docs/pricing
+[D6] Account observations, Cloud dispatch and environment capabilities:
+https://learn.chatgpt.com/docs/app-server
+https://learn.chatgpt.com/docs/developer-commands?surface=cli
+https://learn.chatgpt.com/docs/environments/cloud-environments
+https://learn.chatgpt.com/docs/automations

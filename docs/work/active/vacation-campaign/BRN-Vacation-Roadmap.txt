@@ -1,0 +1,740 @@
+BRN — FINAL POST-PR #161 ROADMAP TO A FIRST USABLE RELEASE CANDIDATE
+Finalized 19 October 2026, Europe/Tallinn — snapshot checked 18 October UTC
+Companions: BRN-Codex-Cloud-Vacation-Prompt.txt; BRN-Test-and-Architecture-Review.html
+
+MISSION
+
+Starting from current main containing merged PR #161, make BRN more reliable and ready for
+its first broadly usable release candidate. The primary work remains reducers/state
+machines across all BRN-owned UI workflows and Linux capability for real Cloud UI
+testing. Start with a bounded current-check and test/legacy audit, then use its
+findings throughout those changes. Test complete outcomes with proportionate
+coverage, retire replaced mechanisms and tests, and qualify the integrated result.
+
+The lead owns the engineering roadmap. Named tasks, audit candidates and suggested
+day allocations are starting guidance; the lead may replace or reorder them when
+evidence supports a better route to the agreed outcomes. New worthwhile work need
+not be on the written backlog. UI/state ownership and Linux remain the leading
+priorities, and release acceptance requirements remain explicit.
+
+One logical lead chooses work and integrates it. A small qualified non-LLM
+supervisor handles quota checks, timers and Cloud task dispatch across normal
+credit resets. Supervisor work is a bounded enabling task, not a replacement for
+BRN development. Use the owner's already configured Codex Cloud environment. Load
+the full charter once for the lead, consult this roadmap selectively, and pass small
+relevant briefs to workers. The two documents are not every worker's context bundle.
+
+These are prepared instructions. No Cloud task, PR-merge watcher, persistent
+supervisor, campaign branch or release is activated by this document. The campaign
+starts from confirmed merged #161; that merge condition was satisfied at this audit.
+The two-week clock begins with the first authorized implementation session. Record
+its start and hard expiry before changes, using an explicit owner return/deadline if
+supplied. Preparation and waiting do not consume it. Delayed supervisor activation,
+retries and restarts cannot extend the deadline. A bounded Cloud task is separate
+from a verified unattended continuation mechanism.
+
+1. CURRENT BASELINE AND REMAINING WORK
+
+PR161 merged after PR160 and PR159. Main was verified at
+1b7625a8af0808ab0218525ded1d470ad4928e0a. PR159 integrated the writing workspace,
+agent capabilities and Xberg conversion. PR160 provided a finite 45-minute Mac
+Core/CLI time budget. PR161 stabilized the confirmation-contract test by setting
+app-local reduced motion before opening the dialog, preserving the real click and
+safety assertions. The narrow repair and its integration are complete. [1, 17]
+
+The actual post-161 main run 39161500126 passed all four required contexts and docs:
+Ubuntu Core/CLI, Mac Core/CLI, Mac Native UI, and Mac Native Retrieval/Combined.
+The Mac widget invocation reported 305 passed, 0 failed, 1 ignored and 3 filtered;
+writing-library, independent writing-host and headless startup checks also passed.
+The overall workflow remained red because optional Linux retrieval and three
+Windows lanes failed. Preserve that distinction; the optional failures are neither
+newly required checks nor waived defects. [17]
+
+There is concrete Linux work. The optional retrieval invocation had 30 passing and
+3 failing tests: two ModelInstall(ExclusiveInstallUnavailable) results and an
+installation-contention assertion expecting TargetOccupied. The green Linux native
+build/state job skipped Mac-only widget/writing-library steps. It establishes no
+Linux real-window or widget qualification. Windows remains secondary unless shared
+portability work advances the agreed Linux/first-release goals. [17]
+
+Some current repository handoffs still describe phase3 review/merge as pending.
+Reconcile those current records with actual merge/check results and the final PR161
+receipt; retain dated investigation evidence. Do not revive an expired narrow
+assignment, completed repair, or old pre-159 implementation queue. [17]
+
+The test suite still warrants critical evaluation. The following is HISTORICAL
+PR160 evidence from run 39154786381, not a current benchmark: [14]
+
+- Mac Core/CLI: 25m55s, passed; workspace tests 6m35s, including 4m44s compilation
+  and about 107s summed test-body time. That invocation reported 1,276 passed and
+  5 ignored, not a unique repository-wide count across configurations.
+- Both helper test/lint graphs: 6m23s, including 1.66s of test bodies.
+- Capability fixtures: 2m16s, including 1m58s compilation and 17.34s test bodies.
+- Helper preparation repeated across three concurrent Mac lanes: 8m04s, 4m44s and
+  5m20s. Their 18m08s sum is aggregate job time, not promised wall-time savings.
+
+The PR161 final receipt reports Mac Core/CLI at 18m14s. Different run/cache conditions
+prevent treating this as a demonstrated performance improvement. Record comparable
+commit, toolchain, feature/platform, cache and invocation before claiming savings.
+A timeout increase is headroom; test-count reduction alone need not improve Rust
+compilation. Investigate setup, checking/compilation, execution and maintenance as
+separate costs. [14, 17]
+
+The historical audit identified non-shipping provider qualification orchestration,
+duplicated fixtures, private-field UI tests and a notice fallback as maintenance
+candidates. Their unique obligations and consumers determine whether to simplify,
+move or retire them. A few giant scenarios can cost more to maintain than many
+cheap focused behavior checks. Revalidate candidates against current source. [16]
+
+The old reader/helper/prepared-page and Poppler routes were already retired by
+PR159. Linux work belongs at current Xberg restrictions and atomic installation.
+BRN has preview-release machinery. Post-161 preview run 39162909733 passed only
+eligibility; package/build/qualification/publication were skipped. It proves no
+new qualified release. Package/native/live-provider/owner gates remain separate.
+The companion HTML review is dated PR160 evidence, including its now-fixed failure.
+Use this roadmap and current checks for campaign status. [3, 4, 17]
+
+2. START GATE AND FIRST POST-MERGE SESSION
+
+G0 — Reconcile merged161, current checks and any existing campaign.
+
+Verify PR161's actual merge SHA and current origin/main ancestry through PR159/160;
+preserve later legitimate changes. The merge condition was already met at this
+snapshot. Inspect required check runs on the actual launch baseline. If a new
+required regression exists, make a bounded diagnosis/repair the first implementation
+slice. Do not automatically reopen the completed confirmation repair or stack broad
+work on an unexplained required regression.
+
+Read applicable guides, status, final receipt, build sequence, product glossary,
+architecture, strategic programming and verification/release contracts. Reuse the
+existing campaign branch, task ledger and recorded expiry if present. Compaction,
+a fresh worker or a new Cloud task cannot create another campaign/writer or reset
+the deadline. Do not recreate the already configured environment.
+
+The first session should produce a useful, reviewable increment:
+
+- Reconciled capability/gap status and explicit required/optional/skipped checks.
+- A complete initial workflow manifest with sources and BRN ownership gaps.
+- A bounded test-family inventory separating compile, execution and maintenance cost.
+- A short critical-journey matrix with an authoritative interface per guarantee.
+- A useful production ownership pilot, likely the existing WritingPanel lifecycle;
+  a separate notice cleanup is optional and may be combined when useful.
+- Initial Linux component/window evidence or precise blockers, with the demonstrated
+  atomic-installation failures as a concrete early implementation candidate.
+- A bounded native /goal/continuation qualification and only the missing minimal
+  supervisor work, alongside a durable next-task checkpoint.
+
+Start with one implementation worker and bring in an independent reviewer when a
+result merits review. Give parallel work disjoint paths/worktrees and one integration
+writer; avoid competing heavy builds. Use Sol for the lead, Luna for clear bounded
+work and Astra for justified escalation, subject to available controls. See section 9.
+Keep one coherent branch/draft PR and useful checkpoints a fresh Cloud run can find.
+Do not make supervisor hosting a prerequisite for useful current-task work.
+
+2A. TEST AND LEGACY AUDIT: WHAT TO CHANGE, WHAT TO PRESERVE
+
+Use Matt Pocock's improve-codebase-architecture skill and its codebase-design /
+DEEPENING references as a focused review discipline. The useful rule is that a
+module should hide decisions behind a small interface, and behavioral tests should
+exercise the interface real callers use. When a deeper owner replaces shallow
+coordination, retire the old mechanism tests once unique obligations are protected
+through the replacement. Do not automatically layer another suite on top. [15]
+
+Adapt the skill to BRN's real domain documents: docs/product/glossary.md, architecture
+contracts and current owner decisions. There is no root GLOSSARY.md or docs/adr
+directory at this baseline. Do not create duplicates or install an entire workflow
+bundle. The lead and reviewer can select routine bounded candidates under the
+vacation assignment; interactive grilling is not a repeated owner-approval gate.
+
+Inventory test families and costly targets first, then individual cases only where
+needed. Record behavior/invariant, interface, consumers, platform/feature/failure
+conditions, setup complexity, compile/execution costs, defect history and action.
+Use source counts, executed cases and repeated invocations as separate observations.
+Do not build a giant second backlog or an architecture-analysis platform.
+
+KEEP — Unique behavior and real effects.
+Protect checked Store operations, protection/scope/version checks, lost-response
+replay, dirty-draft preservation, Undo after later edits, supported upgrades and
+backup/restore. Keep representative real-control, HTTP serialization/parser, OS
+lock/signal/isolation and exact-package witnesses. A source-schema-5 test that now
+checks schema 10 needs an accurate name, not deletion of old-data protection.
+
+CONSOLIDATE — Proven duplicate setup and contract-equivalent cases.
+provider_formats_tests.rs has identical preamble helpers at 4315/5039 and definition
+helpers at 4993/5682. Consolidate that local fixture knowledge. Its similar closed
+helpers assert different required-field contracts; keep those distinctions. Avoid
+merging unrelated scenarios into a huge all-purpose test helper.
+
+REWRITE AT THE OWNER — Valuable behavior coupled to private state.
+The desktop writing tests protect real navigation, dirty drafts and stale recovery,
+but often manipulate exposed fields and private callbacks. Deepen the existing
+WritingPanel lifecycle, move exhaustive state combinations to its useful interface,
+and retain representative real-control/host journeys. Do not duplicate every state
+case at every host and platform. This is the strongest broad architectural candidate.
+
+RETIRE — Replaced mechanisms and their obsolete expectations.
+The notice module's text/tone association is repaired by notice_tone_for string
+comparison. Current production replacements use notice setters, with a few direct
+clear calls left. Close that split ownership, remove the fallback, and retire the
+sixth direct-overwrite case in outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone.
+Keep the five actual outcome cases; move two other direct-write fixtures onto the
+retained notice operation. This is a small optional cleanup pilot; the prior CI repair is complete.
+
+RELOCATE OR REPLACE — Non-shipping qualification orchestration.
+provider_fixture_runtime.rs is explicitly outside the shipped Threads runtime;
+provider_formats_tests.rs contains 81 test attributes across 6,669 lines. The source
+size is a maintenance signal, not proof that 81 tests are excessive. Preserve useful
+shared transport/auth/parser guarantees, place production execution guarantees on
+the shipped run interface, and retain true probe-specific checks explicitly. Remove
+fixture-only duplicate orchestration when consumer/contract evidence permits it.
+
+OPTIMIZE EXECUTION — Recompilation and repeat lanes.
+The Mac capability invocation repeated 467 library test names from the earlier
+workspace invocation, but feature unification can differ. Investigate an appropriately
+targeted probe plus explicit configuration checks instead of dropping coverage by
+name overlap. Qualify same-commit helper artifact/cache reuse across Mac lanes while
+preserving both identities and source graphs. CI already uses end-to-end --fixtures-only;
+avoid calling both full local verification scripts after each small edit. [14]
+
+A further candidate is worker-terminal ownership: two disconnect branches differ
+in reference_import cleanup. Reproduce the consequence first. Both already call
+checked interruption/recovery logic via pause_failed_worker; do not present a
+missing-queue-recovery bug as established. [16]
+
+Before deleting production code, inspect callers, manifest aliases/features/cfg,
+commands, probes, packaging and data compatibility. Supported schemas 3–9 and current
+backup-first upgrade/restore, historical serialized bytes, two intentional Xberg
+graphs and evaluation V1 helpers still consumed by V2 are not dead by age or name.
+Archived evidence is provenance, not a running legacy engine. [3, 5, 16]
+
+For every removal record the obsolete route/test, its former guarantee, why it is
+no longer needed or where it is now protected, and the relevant consumer/feature
+checks. Use existing retirement tooling. Preserve required gate meaning; do not
+silently relocate critical checks, quarantine failures or turn jobs into no-ops.
+Report comparable cold/warm feedback times and reduced duplicated knowledge. Do not
+set a global test-count/LOC reduction, coverage quota or mutation score.
+
+3. THE ROADMAP: DEPENDENCY GATES, WITH A TWO-WEEK PLANNING ENVELOPE
+
+Days are indicative allocations, not promises about throughput or unlimited credit.
+Advance by evidence. Defects and journey tests belong inside each slice; the later
+hardening phase does not postpone correctness. Reserve the final part of the
+campaign for integration, evidence and handoff instead of starting broad new work.
+The lead may overlap or reorder work according to dependencies and current findings.
+These milestones define required outcomes; named candidates and the suggested
+implementation sequence may change under the campaign's engineering authority.
+
+G1 — Linux execution and the full workflow inventory (roughly days 1–2).
+
+Run the production application and current component tests on Linux. Establish
+which display, renderer, input mechanism, fonts and synthetic workspace actually
+work. A compile-only or no-window driver is not sufficient. In parallel, inventory
+all BRN-owned workflows and real action routes, plus test-family obligations and
+feedback costs. Begin current helper and atomic storage portability in independently
+owned work. Keep this audit bounded and apply findings inside implementation slices.
+
+Gate: the workflow denominator is explicit; component tests really execute; one
+real Linux window journey has qualified rendering/input/saved outcomes, or the
+precise environmental blocker is recorded. Independent reducer work may continue
+when a graphics blocker is genuine, but the Linux goal remains open.
+
+G2 — Prove the state ownership pattern in production (roughly days 2–3).
+
+Choose a high-risk workflow with input, async completion and a durable effect. The
+current writing/setup/run/review seams are strong candidates; a separate notice
+cleanup is optional. Define the independent contract, model states/events/effects, wire actual
+callbacks, protect stale/cancelled results and retire the replaced route and its
+mechanism tests. Reuse the real WritingPanel host and review the pilot before rollout.
+
+Gate: a reviewer accepts responsibility placement; relevant state/sequence checks and actual
+production interaction exercise the same workflow and verify its user outcome.
+Typed events without state ownership, or model tests with old callbacks still
+mutating state, do not pass.
+
+G3 — Complete all remaining BRN-owned workflow domains (roughly days 3–8).
+
+Migrate in bounded vertical slices, ordered by current defects and dependencies.
+Each slice includes its state model, service boundary, production wiring, relevant
+Linux evidence, risk-selected behavioral checks and obsolete-path retirement. Reuse
+applicable existing witnesses; demonstrate representative production interaction
+when wiring changes, and choose sequence/failure cases according to the risk.
+Test interactions between domains as well as individual screens. Update the manifest
+whenever the inventory expands.
+
+Gate: every discovered BRN-owned stateful workflow has one qualified owner; stateless
+and toolkit/platform-owned cases are justified; no unexplained duplicate mutation
+route remains. An incomplete migration stays visibly incomplete at expiry.
+
+G4 — Strategic programming and reliability hardening (roughly days 8–11).
+
+Address repeated causes exposed by the journeys: caller coordination, duplicated
+policy, unclear async ownership, recovery gaps, unsafe platform boundaries and
+measured responsiveness and feedback-cost problems. Strengthen deep modules and reuse
+pinned libraries. Consolidate qualified provider fixtures/CI work and remove replaced
+production paths and tests after preserving unique behavior. Keep cleanup tied to
+a demonstrated engineering or user benefit. [5]
+
+Gate: critical invariants have evidence, actionable release-blocking findings are
+resolved, and simplification reduces what callers must know. There is no quota
+for deleted lines, abstraction layers, dependency upgrades or mutation scores.
+
+G5 — Exact candidate, complete journeys and release handoff (roughly days 12–14).
+
+Run the integrated critical-journey matrix, relevant platform and required CI gates,
+selected crash/recovery scenarios, package relocation/startup, supported upgrades
+and backup/restore. Review the final integrated commit independently; material
+fixes require their affected checks and appropriate re-review. Prepare release
+notes, candidate artifacts and an evidence-linked readiness report.
+
+Gate: engineering release criteria pass on the recorded candidate, with no known
+release-blocking defect and all outstanding contractual platform/live/owner gates
+stated accurately. Deliver a draft PR and candidate; do not publish or merge main.
+If a gate remains open when time or useful capacity ends, preserve the coherent
+partial result and specific blockers instead of claiming readiness.
+
+4. WHAT “ALL UI WORKFLOWS” MEANS
+
+Use a source-linked manifest rather than a guessed screen count. Each row has:
+workflow and user goal; entry points; BRN state owner; current implementation;
+state/event/effect contract; async identity/lifetime rules; service invariants;
+model evidence; production wiring; actual UI journey; Linux status; blocker.
+
+Inspect the following families, and add anything else found in the shipped app:
+
+- Shell, navigation, workspace/project/document selection and focus intent.
+- Writing, editing lifecycle, setup, references, comments, review, Apply and Undo.
+- Agent runs, queues, approvals, streaming/progress, stop, retry and resume.
+- Intake/conversion, progress, failure, cancellation and content handoff.
+- Search/launcher, scopes, selection, pagination and stale-result handling.
+- Settings, providers/connections, skills and MCP workflows.
+- Tasks, history, notices, archive/Trash/restore, backup/export and other dialogs.
+
+Within each domain, cover buttons, shortcuts, menus, OS intents and async completion
+routes where BRN makes application decisions. Use meaningful local states rather
+than one giant global machine. Side effects run outside pure transitions. Reject
+wrong-document/project, stale-revision, cancelled and superseded completions.
+
+Keep SQLite and the shared checked service authoritative for persistence and business
+policy across UI, agent and CLI. GPUI keeps editor internals, selection/IME, layout
+and rendering. A stateless presentation component needs a justified classification,
+not a decorative reducer. Those classifications cannot hide BRN-owned workflow logic.
+
+Report actual counts: discovered workflows; stateful owners qualified/in progress/
+blocked; stateless/delegated cases; and critical journeys passed/failed/blocked.
+“Full adoption” describes this inspected scope. It is not a proof covering all
+possible inputs, races, operating systems or human experiences.
+
+5. LINUX ACCEPTANCE IS SEVERAL DISTINCT QUESTIONS
+
+A. Build and component interaction.
+Use locked repository dependencies and current CI commands. Qualify native UI and
+writing-host/widget suites on Linux. Confirm tests execute and real controls drive
+the app's callbacks. Preserve Mac lanes. A zero-test filter or skipped suite does
+not establish behavior.
+
+B. Production window, pixels and input.
+Run the actual application in a qualified graphical session. Prove rendering,
+real input and an edit/save/reopen outcome. Xvfb is only a display option; it does
+not itself provide a suitable renderer. GPUI component snapshots inspect behavior
+and layout, not necessarily pixels or packaged application startup. Retain a real
+window lane for those claims. [6]
+
+C. Current Xberg helpers and storage.
+Implement Linux restrictions at the current helper_runtime boundary, preserving
+both helper modes and their intended isolation, resource limits and cancellation.
+Do not turn restrictions off to obtain a green Linux run. Qualify atomic no-replace
+model publication on Linux and cleanup under contention/failure using synthetic
+payloads. Keep the retired Poppler pipeline retired. [3]
+
+D. Desktop behavior.
+Check Linux font fallback, key bindings and labels, Unicode text, Tab traversal,
+focus restoration, dialogs, scrolling, resize and visible errors/progress. Exercise
+these with real data outcomes. A screenshot without input or a synthetic layout
+snapshot alone is not the completed Linux user experience.
+
+E. Distribution scope.
+Linux capability for development/UI testing is the immediate goal. Claim Linux
+release distribution only after its actual packaging/install/update obligations
+are qualified. Linux evidence does not satisfy a genuinely Mac-specific gate.
+
+6. AUTONOMOUS UX TESTING WITHOUT MULTIPLYING THE SUITE
+
+The earlier eight methods are a selection menu, not eight mandatory suites per
+workflow, platform, feature and provider. Assign each consequential guarantee one
+authoritative behavioral interface. Add another form of evidence only for a distinct
+failure it can catch. Reuse current witnesses first and retire replaced mechanism
+tests in the same change. Complete UI ownership does not imply exhaustive testing
+of the application's entire state cross-product.
+
+Use the smallest useful choice for the risk:
+
+- Pure decision: examples or a transition table; use generated/shrunk sequences when
+  ordering or combinations warrant it. The independent expectation must not call the
+  production reducer to compute its own answer. Save minimal regressions. [7]
+- Async completion: control order and time to expose old search/save/retry results,
+  cancellation and wrong-document/project effects. Use pinned test facilities.
+- New UI binding: one representative real control-to-operation-to-view journey;
+  retain a distinct keyboard path if its binding is separate. Keep the real writing
+  host and inspect durable outcomes when relevant. Pure state tests miss wiring.
+- Equivalent routes: compare saved outcomes for toolbar/menu/shortcut, valid stream
+  chunking and cancel-with-late-result where the contract promises equivalence. [8]
+- Persistence/OS behavior: selected real store, process, lock, signal, helper and
+  crash/reopen witnesses. Controllable decision tests can reduce needless waits,
+  but do not erase the real integration behavior being qualified.
+- Pixels/package: selected real-window and exact-package witnesses on affected
+  platforms. Headless layout and semantic checks prove different facts. [6, 11]
+- Suspicious assertion: a bounded mutation experiment on that guard, with meaningful
+  survivors/equivalence assessed rather than a target score. [10]
+- Major milestone: a few independent goal-only UI exploration tasks if actual native
+  control is available. Give a synthetic profile and a goal without source/click
+  instructions; verify outcomes separately through supported read-only operations.
+  The actor cannot bypass the UI or repair the fixture with CLI/SQL. [9]
+
+Examples remain practical: edit/start save/edit again/switch/old completion/reopen;
+Stop followed by a late result; import and find a document; recover a draft; inspect
+an exact candidate, Apply and Undo. Vary keyboard use, mistakes, Unicode, interruptions
+and window size where relevant. Do not generate every combination by default.
+
+For a costly new test, identify the defect class existing checks miss, the appropriate
+interface and its bounded execution cost. Record the exact build/platform, synthetic
+fixture, minimal actions, seed or completion/fault schedule and useful first-divergence
+image/log when a defect occurs. A separate checker should inspect the saved outcome,
+not merely accept an actor's “looks good.” Turn expensive discoveries into cheap
+regressions and stop when the concrete risk has adequate evidence.
+
+Track goal completion, dead ends, unnecessary actions, focus loss, keyboard access,
+clipping, progress/errors and recovery. Measure real release-build latency separately
+from fake-time logic. Automated evidence can reveal usability defects; it cannot
+certify human intuition/comfort or native screen-reader behavior from semantics alone.
+Do not introduce a new agent platform, test framework or blanket dependency bundle.
+
+7. CRITICAL RELEASE JOURNEY MATRIX
+
+Each journey needs a fixture, real action routes, expected visible outcome, expected
+durable outcome, failure/recovery variant, applicable platform and exact build/SHA.
+
+J1 — Fresh first use and edit/save/reopen.
+A new supported configuration opens, explains its empty state and lets the user
+create meaningful saved content. Close and reopen it. Verify Unicode and a meaningful
+keyboard path. No false success or lost newer draft.
+
+J2 — Import to usable information.
+Use representative qualified inputs across the current conversion modes and format
+inventory. Observe progress, cancel/error behavior and useful saved content/search.
+Preserve AI conversion Off by default. Record unsupported/encrypted or fidelity
+limits instead of claiming universal conversion.
+
+J3 — Scoped agent writing through reviewed Apply and Undo.
+Choose project/references, run with controlled provider behavior, inspect the exact
+candidate, Apply to the intended revision and Undo as specified. Cover stop/retry/
+resume, stale candidates, wrong scope, later edits and a late completion. The service
+must enforce the same rules for every caller.
+
+J4 — Navigate while work is in flight.
+Change document/project or search query while saving, converting, retrieving or
+running. The completion reaches its intended owner or is rejected; it must not
+change the new view's target. Check useful feedback and retained work.
+
+J5 — Existing capabilities and understandable errors.
+Exercise relevant settings, connection/provider setup, skills/MCP, task/history and
+archive/Trash/restore flows present after #159. Use controlled external clients.
+Distinguish offline/mock evidence from actual live service behavior.
+
+J6 — Backup, upgrade, restart and recovery.
+Use supported old-schema fixtures, including the known schema-7 witness gap if still
+applicable. Upgrade with backup first; restore to a fresh directory; verify supported
+older-binary refusal and committed data. Exercise index rebuild and selected crash/
+I/O failure boundaries. Derive current schema and exact obligations from source.
+
+J7 — Exact candidate package.
+Build using existing release machinery, relocate/install into a fresh supported
+configuration, open the actual app and verify helper discovery plus representative
+J1/J2/J3 outcomes. Fixture drivers alone do not qualify the graphical application.
+Keep applicable Mac/package/owner/live acceptance distinct. [4]
+
+8. ENGINEERING AUTONOMY AND STRATEGIC PROGRAMMING
+
+The lead may discover, choose, design, implement, verify, review and integrate useful
+improvements without repeated owner approval. A task is eligible when a defect,
+review finding, source-backed simplification, usability friction, or a measurable
+reliability, performance or feedback-cost opportunity identifies a concrete benefit.
+It need not already be a backlog item. Prefer fixing the owning module once over
+adding coordination to every caller. Preserve checked services, local ownership,
+useful library reuse and data compatibility. Retire the replaced mechanism after
+its replacement is demonstrated. [5]
+
+This includes justified module rewrites, internal design changes, removal of obsolete
+code and redundant tests, appropriate dependency/tooling changes, and improvements
+to usability, recovery, diagnostics, CI and engineering guidance. Choose the smallest
+coherent change that solves the problem, with a larger rewrite eligible when keeping
+the design would preserve the demonstrated problem. Briefly explain consequential
+changes to the plan in the existing work record. Use bounded experiments and keep
+or revert them according to evidence. The lead and reviewer decide routine tradeoffs.
+
+For every structural change answer: what problem becomes harder to cause; which
+module owns the decision; what callers no longer need to know; what old path was
+removed; what user outcome stayed correct or improved; and what evidence supports it.
+
+Connect new work to the agreed first-release experience. Preserve product direction,
+required checks, compatibility, data integrity and truthful evidence. Keep UI/Linux
+progress and release-blocking defects ahead of unrelated expansion. After each
+accepted result, choose the next valuable eligible improvement and continue within
+the budget and deadline. Blocked tasks retain a checkpoint while independent work
+continues. The owner receives progress and consequential decision records rather
+than an approval request for every implementation choice.
+
+Engineering discretion includes campaign-branch/draft-PR integration. Main merging,
+publication, new spending and access beyond existing authorization remain owner-
+reserved. This authority does not create missing credentials, tool capabilities or
+persistent hosting. Prepare accessible work, report a concrete capability gap, and
+continue independent tasks; claim unattended operation only after it is qualified.
+
+For a consequential uncertain problem, compare materially different approaches:
+remove the source of complexity, deepen an existing owner, reuse a proven facility,
+or revise a design that retains the defect. A small diagnostic/prototype should
+separate useful hypotheses. Record expected benefit, disconfirming evidence and a
+budget before expensive experiments; keep/revise/revert based on the result. Obvious
+small fixes do not require a formal alternatives exercise.
+
+Research first in current contracts, callers and pinned dependencies. Before a
+consequential decision based on uncertain external facts, use official docs, upstream
+source, release notes or primary research for the actual platform/version. Check
+license, maintenance and cost where material. Save the decisive sources and distinguish
+facts from inference. Use a small compatibility probe if needed. Reuse still-valid
+research, stop when the decision is supported, and keep private source/data out of
+public queries. These rules enable inventive fixes without endless research.
+
+9. MODEL, SUBAGENT AND CONTEXT POLICY
+
+This is the proposed campaign policy, not a claim about automatic product behavior.
+Select the cheapest model/effort that reliably achieves the task including its
+verification. Use actual available settings and observed results. [18, 19]
+
+Lead and substantial workers — GPT-6.1 Sol.
+Start High for initial cross-domain planning, architecture and consequential
+integration review. Use Medium for routine coordination and ordinary tasks when
+adequate. The lead can implement a small change directly when delegation would add
+more overhead than value. Do not keep an expensive manager generating idle status.
+
+Bounded workers — GPT-6 Luna.
+Use for focused source exploration, CI/log analysis, primary-source research,
+straightforward fixes, fixture consolidation and documentation with clear acceptance.
+Start High when offered, lowering effort where evidence supports it. Luna can deliver
+real implementation, not merely clerical work. Escalate when interacting constraints
+or unresolved evidence make the cheap attempt poor value.
+
+Difficult escalation — GPT-6 Astra.
+Use a bounded consultation or independent review for difficult ambiguity, a serious
+cross-domain tradeoff or a blocker Sol has not resolved. Send the precise question,
+evidence and failed hypotheses, then return implementation to Sol/Luna when useful.
+Do not require Astra review or Max/Ultra reasoning for every task. Prefer Standard
+speed for unattended work; task-specific delegation does not require Ultra.
+
+Verify child model/effort rather than assuming a role label changes them. Unset
+children can inherit the parent, and custom-agent configuration can affect routing.
+Availability and controls depend on the client. Do not invent Cloud flags, physical
+context-window controls or paid API fallbacks. Current model guidance/rates inform
+routing; observed account allowance governs admission. [18, 19]
+
+A worker is worthwhile when it improves accepted throughput, useful independence
+or decision quality after context, review and integration overhead. Start with one
+worker plus a reviewer when needed. Add concurrent workers only for independent
+ownership with agreed interfaces and sufficient compute/allowance. Reuse relevant
+worker context; use a fresh small brief for unrelated work when supported. Avoid
+multiple agents solving the same task or recursively spawning review teams.
+
+Task brief (usually 200–600 words plus paths): ID, exact baseline/branch, one outcome,
+allowed files/ownership, relevant contracts/invariants, small source map, acceptance
+and focused commands, expected deliverable and budget/stop condition. Include all
+applicable instructions. Workers do not need the entire campaign history.
+
+Result (usually 200–400 words plus evidence): outcome, SHA/files, consequential
+decision, actual check command/configuration/result, uncertainty and next action.
+Keep raw logs/patches in files and link them. These are adjustable communication
+budgets, not model window limits. The lead inspects relevant diffs and validates
+important claims without importing every worker transcript.
+
+Maintain one source/test-command map and a compact checkpoint at milestones and
+before crowded/stale context or handoff. It must preserve campaign/expiry, branch/SHA,
+current goal, accepted and pending changes, invariants, ownership, decisive evidence,
+useful failed hypotheses, active jobs, checks, blockers and next task. Detailed logs
+and historical alternatives stay in evidence files. Reconcile actual Git/remote
+state after compaction or fresh continuation. Do not repeatedly restart a relevant
+worker merely to make its context small; repeated setup also costs.
+
+Use selective file reads, narrow searches, mechanical log summaries and supported
+compaction while leaving verification/handoff headroom. Full physical window
+capacity is not a target amount of content to load. Track retry/duplicate work and
+obvious context churn lightly; do not create an accounting framework.
+
+10. GOAL, CREDIT, CONTINUATION AND DAILY DECISIONS
+
+Use the charter's compact /goal text if the exact execution surface supports it.
+The official docs name desktop, interactive CLI and IDE surfaces; do not assume
+command support inside every Codex Cloud task. Keep the charter as durable guidance
+and use milestone completion evidence. Give ordinary workers bounded tasks, reserving
+worker goals for investigations that benefit from multi-turn iteration. [20]
+
+A thread goal does not establish cross-task persistence or automatic resumption at
+an allowance reset. Honor pause/clear and budget controls; checkpoint when stopped
+and use supported user/system resumption. Never spawn replacements to evade a pause
+or budget. Qualify actual lifecycle/reset behavior within the existing environment.
+If /goal is absent, the ordinary Cloud prompt still defines the campaign. [20]
+
+The lead handles judgments. A small persistent non-LLM supervisor handles merge/
+expiry gates, fresh account readings, timers, job reconciliation and exclusive
+launches. Qualify existing native facilities first; use a minimal adapter on an
+already authorized persistent host only if needed. A transient shell or successful
+first Cloud task does not prove two-week hosting.
+
+Validate the actual installed account/rate-limit and Cloud launch/list interfaces.
+Use all relevant windows and observed reset timestamps; refresh before admission
+because other sessions can spend allowance. Do not infer precise subscription
+credits from token totals or assume fixed meanings for quota-window names. The
+Cloud CLI is experimental, so qualify actual version, result delivery and supported
+controls instead of inventing budget/cancel/deduplication flags. [12, 13]
+
+Reserve enough capacity for in-flight work, review and recovery. An initial 75–80% large-job admission threshold is adjustable,
+not a command to waste the rest. Smaller useful tasks can use remaining capacity
+when obligations are covered. Wait for normal resets without buying credits or
+changing billing settings. Recheck the meter after the reset; the clock alone is
+not proof that work can resume.
+
+Persist task dependencies, launch intent, remote IDs, commits, quota observations,
+retries, blockers and next wake. Missing telemetry pauses credit-aware admission.
+A lost launch response requires reconciliation before retry, not a speculative
+second writer. Test duplicate wake-ups, restart, depletion/reset, multiple windows,
+uncertain launch, goal pause/budget controls and expiry using synthetic state before
+activation. Prove a real small Cloud round trip and fresh continuation.
+
+Keep supervisor qualification bounded. If a required capability is absent, prepare
+the concrete adapter/deployment handoff and report unattended continuation inactive.
+Continue independently executable work in the current post-merge Cloud task.
+
+The lead may split/reorder tasks, choose appropriate existing libraries, repair
+reproduced defects, adjust test scope and add demonstrated release-readiness gaps.
+After two unsuccessful repair cycles, reassess the hypothesis, evidence, remaining
+cost and alternatives. Continue with a materially different evidence-backed approach
+when justified; otherwise preserve the reproducer and choose independent work.
+At expiry stop new dispatch, retain in-flight work accurately and produce the final
+handoff. Do one bounded backlog review before
+stopping early when no valuable eligible work remains.
+
+11. ACCEPTANCE AND FINAL HANDOFF
+
+Primary target: every inventoried BRN-owned stateful workflow has a qualified owner,
+Linux supports meaningful application interaction and the critical release journeys
+are qualified on the final integrated candidate. Time estimates are a planning
+envelope; they do not lower these definitions or guarantee completion in two weeks.
+
+The scorecard must report:
+
+- Actual #161 merge SHA, campaign baseline and final integrated/reviewed commit.
+- Workflow denominator, justified stateless/delegated entries and each remaining gap.
+- Test-family dispositions, retired mechanisms and preserved unique obligations.
+- Comparable compile/setup/test-body and total feedback cost, with cache/feature scope.
+- Critical journeys passed/failed/blocked, with concrete visible and saved outcomes.
+- Linux build/component/window/helper/storage evidence separately.
+- Persistence, supported upgrade, backup/restore and exact-package qualification.
+- Required CI and independent review of the final candidate, including material fixes.
+- Unresolved defects, genuine platform/live/owner gates and documented product limits.
+- Branch/draft PR, release notes, regression/evidence locations and next decisions.
+- Actual goal/supervisor status, expiry, quota/reset observations and in-flight tasks.
+- Material model-routing/escalation choices, repeated work and context-handoff issues.
+
+A daily status should emphasize what user outcome improved, what remains blocked
+and why, and the next useful task. Avoid “100% tested,” “release ready” or “running
+for two weeks” when the corresponding gates have not been demonstrated.
+
+SOURCES
+
+[1] Merged PR #160 and earlier #159 program integration:
+https://github.com/ewq100/brn-rust/pull/160
+https://github.com/ewq100/brn-rust/pull/159
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/docs/work/active/build-sequence/README.md
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/docs/status.md
+
+[2] Current writing component and setup seams:
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-writing-ui/src/native.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-writing-ui/src/setup.rs
+
+[3] Current Linux helper/storage boundaries:
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-intake/src/helper_runtime.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-retrieval/src/native/download.rs
+
+[4] Existing preview-release and candidate qualification:
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/docs/development/preview-release.md
+
+[5] BRN strategic programming and engineering authority:
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/docs/development/strategic-programming.md
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/AGENTS.md
+
+[6] GPUI Kit testing, interaction/layout versus native/pixel evidence:
+https://gpui-kit.com/docs/test/
+
+[7] Proptest reference-state-machine testing and shrinking:
+https://proptest-rs.github.io/proptest/proptest/state-machine.html
+
+[8] Metamorphic testing research:
+https://eprints.whiterose.ac.uk/id/eprint/110335/
+
+[9] OSWorld goal/setup and execution-based evaluation pattern:
+https://osworld-v1.xlang.ai/
+
+[10] cargo-mutants diff scope and limitations:
+https://mutants.rs/in-diff.html
+
+[11] GPUI Kit accessibility qualification limits:
+https://gpui-kit.com/docs/accessibility/
+
+[12] Codex account/rate-limit protocol:
+https://learn.chatgpt.com/docs/app-server
+
+[13] Codex Cloud launch and task reconciliation commands:
+https://learn.chatgpt.com/docs/developer-commands?surface=cli
+
+[14] Actual post-160 main CI and job logs (one observed run):
+https://github.com/ewq100/brn-rust/actions/runs/39154786381
+https://github.com/ewq100/brn-rust/actions/runs/39154786381/job/117755655885
+https://github.com/ewq100/brn-rust/actions/runs/39154786381/job/117755655912
+https://github.com/ewq100/brn-rust/actions/runs/39156781408
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/.github/workflows/ci.yml
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/.github/actions/setup-rust/action.yml
+
+[15] Architecture skill and replace-rather-than-accumulate testing guidance:
+https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md
+https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md
+
+[16] Concrete test/retirement and consumer examples:
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-desktop/src/threads_ui.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-desktop/src/threads_steering_tests.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-desktop/src/threads_writing_tests.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-ai/src/provider_fixture_runtime.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-ai/src/provider_formats_tests.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/crates/brn-threads-core/tests/edit_tokens.rs
+https://github.com/ewq100/brn-rust/blob/e6511a1d2e80d3cc3fab845a5a3111e8c9d5386a/scripts/evaluate_wiki_v2.py
+
+
+[17] Verified PR161 completion and exact post-merge evidence (18 October UTC):
+https://github.com/ewq100/brn-rust/pull/161
+https://github.com/ewq100/brn-rust/pull/161#issuecomment-6254816627
+https://github.com/ewq100/brn-rust/blob/1b7625a8af0808ab0218525ded1d470ad4928e0a/crates/brn-desktop/src/threads_omakase_tests.rs
+https://github.com/ewq100/brn-rust/actions/runs/39161500126
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576655
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576486
+https://github.com/ewq100/brn-rust/actions/runs/39161500126/job/117775576582
+https://github.com/ewq100/brn-rust/actions/runs/39162909733
+
+[18] Model selection and current usage/pricing guidance:
+https://learn.chatgpt.com/docs/models
+https://learn.chatgpt.com/docs/model-selection
+https://learn.chatgpt.com/docs/pricing
+
+[19] Subagent behavior, configuration and model inheritance:
+https://learn.chatgpt.com/docs/agent-configuration/subagents
+
+[20] Goal semantics and documented surfaces:
+https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex
+https://learn.chatgpt.com/docs/long-running-work
+https://learn.chatgpt.com/docs/reference/slash-commands
