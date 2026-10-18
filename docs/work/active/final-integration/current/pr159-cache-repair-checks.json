@@ -1,0 +1,209 @@
+{
+  "format": "BRN-PR159-CACHE-REPAIR-CHECKS-V1",
+  "material": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+  "scope": "Only offline Python/shell/generator. No Cargo/download/Auth/provider/GUI/package/mutants or real-target generator invocation.",
+  "focused_test_counts": {
+    "generator": 10,
+    "intake_retirement_workflow": 5,
+    "ci_summary": 4,
+    "total_passed": 19,
+    "failed": 0,
+    "skipped_on_Mac": 0
+  },
+  "manual_witness": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/witness-result.json",
+    "sha256": "8500b640a78e43d871c116427fffdb3a69b772b7df46b1bad7dda070b563639a",
+    "bytes": 2423
+  },
+  "checks": [
+    {
+      "phase": "01-cleanup-shell-parse",
+      "argv": [
+        "bash",
+        "--noprofile",
+        "--norc",
+        "-n",
+        "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/actual-cleanup-step.sh"
+      ],
+      "head": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+      "tree": "85e73df4860fd98963585cb360904d62738166d0",
+      "inputs_sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+      "exit": 0,
+      "source_unchanged_during_command": true,
+      "python_tests": null,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/result.json",
+          "sha256": "6ca995180030b3bd35b2c0a29051461ccb2f5c1f898aff0bfdcc8bc2bf0a1fbc",
+          "bytes": 1405
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/inputs.json",
+          "sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+          "bytes": 412560
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/01-cleanup-shell-parse/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "phase": "02-focused-python",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_prepare_xberg_adapted",
+        "test_intake_retirement",
+        "test_development_tooling.CiTests"
+      ],
+      "head": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+      "tree": "85e73df4860fd98963585cb360904d62738166d0",
+      "inputs_sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+      "exit": 0,
+      "source_unchanged_during_command": true,
+      "python_tests": 19,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/result.json",
+          "sha256": "9fb18d3c34847b30f20f829d9c30e31322b37cff92d0c92c2b24bee04f4ca71c",
+          "bytes": 1374
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/inputs.json",
+          "sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+          "bytes": 412560
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/02-focused-python/stderr",
+          "sha256": "75f1f0280c15d4133b925084d847518f00266cfe43141428dfd95a924c0914ee",
+          "bytes": 2805
+        }
+      }
+    },
+    {
+      "phase": "03-preserved-synthetic-witness",
+      "argv": [
+        "python3",
+        "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/witness.py"
+      ],
+      "head": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+      "tree": "85e73df4860fd98963585cb360904d62738166d0",
+      "inputs_sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+      "exit": 0,
+      "source_unchanged_during_command": true,
+      "python_tests": null,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/result.json",
+          "sha256": "29787461e7a28c67d40bde1b4fcb80ea0ce5a05d91a620164c03abc58d53037b",
+          "bytes": 1367
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/inputs.json",
+          "sha256": "82490e6637bb6acf25d731f4543a6fc2b54022f18cf872b0e8de6649cff17565",
+          "bytes": 412560
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/status.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/source.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/stdout",
+          "sha256": "8500b640a78e43d871c116427fffdb3a69b772b7df46b1bad7dda070b563639a",
+          "bytes": 2423
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/03-preserved-synthetic-witness/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "phase": "04-docs-whitespace",
+      "argv": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"python3\",\"scripts/check-markdown-links.py\"],check=True); subprocess.run([\"git\",\"diff\",\"--check\"],check=True)"
+      ],
+      "head": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+      "tree": "85e73df4860fd98963585cb360904d62738166d0",
+      "inputs_sha256": "93f04e1b95873065526d3134921ae0c303a799b08acd14bb8d8bafb6e7f633b8",
+      "exit": 0,
+      "source_unchanged_during_command": true,
+      "python_tests": null,
+      "receipts": {
+        "result.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/result.json",
+          "sha256": "8326414efe99e9b684352c63b02386f576936a0560cf28609396e52b8bf39ba7",
+          "bytes": 1410
+        },
+        "inputs.json": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/inputs.json",
+          "sha256": "93f04e1b95873065526d3134921ae0c303a799b08acd14bb8d8bafb6e7f633b8",
+          "bytes": 413002
+        },
+        "status.txt": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/status.txt",
+          "sha256": "cffc17be59c5cf14221e21f0a27ba266cddf1b0e7fc7ac16f3e30e2373011ea0",
+          "bytes": 297
+        },
+        "source.diff": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/source.diff",
+          "sha256": "b489dc301ef532892d1d7dff0fb8796dd7d16876cac5b34e4a197c32f2a0e363",
+          "bytes": 5279
+        },
+        "stdout": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/stdout",
+          "sha256": "fbcaca4789b567020fd268b017c9ff74895870a21faa684c04d0ecbb45e6a3eb",
+          "bytes": 103
+        },
+        "stderr": {
+          "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/checks/04-docs-whitespace/stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    }
+  ]
+}

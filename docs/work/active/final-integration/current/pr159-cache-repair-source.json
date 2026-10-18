@@ -1,0 +1,222 @@
+{
+  "format": "BRN-PR159-CACHE-REPAIR-SOURCE-V1",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+  "branch": "work/final-combined-20261018",
+  "parent": "0b33b2f46aa12d12bd4ac114e176d7396ac24b34",
+  "material": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+  "tree": "85e73df4860fd98963585cb360904d62738166d0",
+  "crates_tree_unchanged": "7905a64962ed2ecacc79b8eed5aecbe14adce4bf",
+  "material_paths": [
+    ".github/actions/setup-rust/action.yml",
+    "scripts/tests/test_prepare_xberg_adapted.py"
+  ],
+  "generator_unchanged_sha256": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5",
+  "evidence": {
+    "binding.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/binding.json",
+      "sha256": "1fcda441beadf6d9897b4033692c8f792bda52aa6b43be4f1a77d36bd798f0ab",
+      "bytes": 575
+    },
+    "material.patch": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/material.patch",
+      "sha256": "f0a23c1da027c16eab7208fd2220e533f70107af386d0962134c11e887284b74",
+      "bytes": 5963
+    },
+    "source-inspection.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/source-inspection.json",
+      "sha256": "f319b5eaaf96b9253769901044b6ccfee83bdcf5ada7a2103ecfc7d7a4144202",
+      "bytes": 679
+    },
+    "protected-before.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/protected-before.json",
+      "sha256": "0f5fc000d9bf3006bcf6027d0b0f9b93b2512ddb1b4a80745e83634d698eb2c6",
+      "bytes": 512267
+    },
+    "protected-after.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/protected-after.json",
+      "sha256": "0b810754ca8cf97cc3ea6c1a78241e0455544648a14a31bf76ad13afbd0aae2a",
+      "bytes": 736
+    },
+    "hosted-failure-evidence.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/hosted-failure-evidence.json",
+      "sha256": "59f733c59fcad412483eb96b5f26e74e2e1d30d037b2dc7bcd40fb0a160713b0",
+      "bytes": 2481
+    },
+    "windows-parent-disposition.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/windows-parent-disposition.json",
+      "sha256": "302bfacf0ff5f42aff5deae3022df219460dfdf73d8d082274e5790029db554d",
+      "bytes": 6794
+    },
+    "actual-cleanup-step.sh": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/actual-cleanup-step.sh",
+      "sha256": "b6e002b51a1b49c71337c1a4c0e82208ac4e113710ae014b216364b78559d834",
+      "bytes": 122
+    },
+    "witness.py": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/witness.py",
+      "sha256": "d6bb32630754b6ec67f3a5aad8b33879ce2cd63005045589116010933abd1eeb",
+      "bytes": 4278
+    },
+    "witness-result.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/witness-result.json",
+      "sha256": "8500b640a78e43d871c116427fffdb3a69b772b7df46b1bad7dda070b563639a",
+      "bytes": 2423
+    },
+    "run.py": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/run.py",
+      "sha256": "0799aacaa63975bf004da0f64c60f412a08bbfa499366c8d1f8dbf7c4ef65f74",
+      "bytes": 2357
+    }
+  },
+  "hosted_macOS_failure": {
+    "run": 39144593248,
+    "logs": {
+      "core-macos": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/39144593248-core-macos.log",
+        "sha256": "b854829a2b117b0a4114c01936c1abff282545f3485a1df12d8a943d25264701",
+        "bytes": 40766,
+        "relevant_lines": [
+          {
+            "line": 270,
+            "text": "2026-10-18T16:22:41.1904810Z Cache restored successfully"
+          },
+          {
+            "line": 478,
+            "text": "2026-10-18T16:22:53.2464170Z   File \"/Users/runner/work/brn-rust/brn-rust/scripts/prepare-xberg-adapted.py\", line 129, in prepare"
+          },
+          {
+            "line": 480,
+            "text": "2026-10-18T16:22:53.2465060Z ValueError: occupied/mismatched generated workspace"
+          }
+        ]
+      },
+      "native-ui-macos": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/39144593248-native-ui-macos.log",
+        "sha256": "ae640db5aeb110f35ba7b5ea03d18b47f7ea358a8a75bb7eff33890005a5e776",
+        "bytes": 42401,
+        "relevant_lines": [
+          {
+            "line": 304,
+            "text": "2026-10-18T16:22:40.5295520Z Cache restored successfully"
+          },
+          {
+            "line": 500,
+            "text": "2026-10-18T16:22:51.1662620Z   File \"/Users/runner/work/brn-rust/brn-rust/scripts/prepare-xberg-adapted.py\", line 129, in prepare"
+          },
+          {
+            "line": 502,
+            "text": "2026-10-18T16:22:51.1663550Z ValueError: occupied/mismatched generated workspace"
+          }
+        ]
+      },
+      "native-retrieval-macos": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/39144593248-native-retrieval-macos.log",
+        "sha256": "aed56d29fa456037753d82852e5bc0a485c5435b49cc10b99a35ec9f6069ac6a",
+        "bytes": 42325,
+        "relevant_lines": [
+          {
+            "line": 301,
+            "text": "2026-10-18T16:22:38.5548970Z Cache restored successfully"
+          },
+          {
+            "line": 497,
+            "text": "2026-10-18T16:22:50.2600010Z   File \"/Users/runner/work/brn-rust/brn-rust/scripts/prepare-xberg-adapted.py\", line 129, in prepare"
+          },
+          {
+            "line": 499,
+            "text": "2026-10-18T16:22:50.2600860Z ValueError: occupied/mismatched generated workspace"
+          }
+        ]
+      }
+    },
+    "class": "Restored occupied/incompatible generated workspace rejected by unchanged fail-closed generator",
+    "specific_compared_file": "Not observable in hosted output; no claim."
+  },
+  "windows_parent_disposition": {
+    "parent_disposition": "Preexisting nonrequired Windows limitation; no auth/platform rewrite or scope expansion; Windows is not green.",
+    "current_run": 39144593248,
+    "current_job": 117725976812,
+    "baseline_run": 39067505818,
+    "baseline_job": 117498107487,
+    "baseline_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+    "parent_findings": "26 ordered ANSI-normalized compiler error messages exactly equal; codex_auth exact baseline bytes, auth only checked fingerprint wrapper without failing-operation change. No additional check run by worker.",
+    "artifacts": {
+      "39144593248-core-windows.log": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/39144593248-core-windows.log",
+        "sha256": "fc04c13a7e4664e8d621c14e13934fb1198a6140c32239347ae41363e39af637",
+        "bytes": 56361
+      },
+      "39067505818-core-windows.log": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/39067505818-core-windows.log",
+        "sha256": "0eb0f643f8548f3313f33b35d31dad78e0178f11caa5ac3b91fb00740a3baaef",
+        "bytes": 50170
+      },
+      "windows-baseline-comparison.json": {
+        "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/windows-baseline-comparison.json",
+        "sha256": "7b704bdb65ff106c33c7f04f78742d65fbd1a6916bd27f628dc51d01154d6bd9",
+        "bytes": 5272
+      }
+    }
+  },
+  "synthetic_witness": {
+    "fixture": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/synthetic-cache-witness/checkout",
+    "qualification": "Synthetic checkout-specific manifest mismatch. This does not identify which file differed in hosted cache. No Cargo or compile claim.",
+    "ignored_path_proof": ".gitignore:1:/target/\ttarget/xberg-adapted/workspace/Cargo.toml",
+    "before_cleanup_expected_refusal": {
+      "class": "ValueError",
+      "message": "occupied/mismatched generated workspace"
+    },
+    "before_refusal_preserved_stale_tree": true,
+    "cleanup": {
+      "argv": [
+        "bash",
+        "--noprofile",
+        "--norc",
+        "-e",
+        "-o",
+        "pipefail",
+        "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/actual-cleanup-step.sh"
+      ],
+      "cwd": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/synthetic-cache-witness/checkout",
+      "script_sha256": "b6e002b51a1b49c71337c1a4c0e82208ac4e113710ae014b216364b78559d834",
+      "exit": 0
+    },
+    "regenerated_source_count": 765,
+    "every_hash_matches_canonical_accepted_generation": true,
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "engine_identity": "xberg/1.3.10/brn/524a4d3bb6a9eeae95f586bc71a9330bd2ba7e43af1e1c681e16eb01896bb490",
+    "source_manifest_path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/synthetic-cache-witness/checkout/target/xberg-adapted/source-manifest.json",
+    "source_manifest_sha256": "de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae",
+    "current_workspace_manifest_matches_canonical": true,
+    "committed_lock_sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+    "generated_lock_sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+    "foreign_sibling_sha256": {
+      "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/synthetic-cache-witness/checkout/target/document-helpers/artifacts/foreign-sentinel": "4b17c6d9bdb4bae4d04a814f981ef530adf4e8c1ad57a2547604934a5dc14bee",
+      "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/synthetic-cache-witness/checkout/target/unrelated-source/sentinel": "b1910b4d5041e7a4fdd378e7c0f1d80f5a10a2a70d0310605d43f609b2e773ef"
+    },
+    "real_target_generator_invocations": 0
+  },
+  "protected_bytes": {
+    "material": "64d76b3cf8fa3affc69a45b98100b465130e9f93",
+    "only_changed_tracked_source": [
+      ".github/actions/setup-rust/action.yml",
+      "scripts/tests/test_prepare_xberg_adapted.py"
+    ],
+    "other_tracked_source_byte_identical_count": 396,
+    "all_prior_artifact_and_real_generated_tree_files_byte_identical_count": 2187,
+    "generator_sha256": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5",
+    "root_lock_sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "crates_tree_unchanged": "7905a64962ed2ecacc79b8eed5aecbe14adce4bf",
+    "package_source": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+    "package_zip_sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196"
+  },
+  "package_material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+  "package_zip_sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196",
+  "qualification": "Hosted differing compared file unknown; synthetic manifest mismatch is illustrative only. No hosted success/Windows green/other CI closure. Parent inspection/push/watch/four required exact-head checks/main CI remain. No runtime or candidate crate change; old source-qualified receipts remain at original pins.",
+  "final_evidence_commit": "Separate docs-only commit; actual SHA reported after commit rather than predicted.",
+  "release": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248/release-inventory.json",
+    "sha256": "4b7721fa7d394a67926d307a3331dabcf195e0ce07453332f66394b840f31aa8",
+    "bytes": 1675
+  }
+}

@@ -1,5 +1,25 @@
 # PR 159 CI dispositions
 
+## Restored generated workspace, 18 October 2026
+
+Run [39144593248](https://github.com/ewq100/brn-rust/actions/runs/39144593248) restored the Swatinem root target cache in all three required macOS jobs, then failed at `prepare-xberg-adapted.py:129` with `occupied/mismatched generated workspace`. This establishes an occupied incompatible/incomplete derived workspace. The log does **not** identify which compared file differed. The generated workspace contains checkout-specific absolute paths and current helper-manifest bytes, so a restored derived tree need not match this checkout; that is a supported incompatibility mechanism, not a claim about the particular hosted mismatch.
+
+Correction `64d76b3cf8fa3affc69a45b98100b465130e9f93` adds one clearly named shared setup step immediately after cache restoration and before locked fetch. It removes only literal `target/xberg-adapted`, without a trailing slash, and refuses a symlinked `target` parent. A stale leaf symlink is unlinked without traversing its destination. The later existing generator recreates the workspace from the SHA-pinned archive and accepted patches. Generator code and **all** its refusal/hash/identity/lock checks are byte-identical; cache keys, workflows, required context names, timeouts, helper artifacts, dependencies and runtime code are unchanged.
+
+Offline local checks passed **19/0**: ten generator tests (all six original tests/assertions unchanged, including occupied/mutated-source refusal), five retirement/workflow tests and four CI-summary tests. New cases exercise partial and checkout-path-mismatched cached generations, actual setup-step cleanup, all-765 source/hash reproduction, matching identity/current manifest/committed lock, foreign helper/source siblings, leaf symlink safety and parent-symlink refusal. Shell parsing, links and whitespace passed separately. A preserved synthetic checkout witness records the genuine pre-cleanup refusal and actual cleanup invocation, then regenerates the exact 765-file manifest SHA-256 `de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae`. Its deliberate manifest mismatch is synthetic and does not identify the hosted differing file.
+
+See the small [check index](pr159-cache-repair-checks.json), [source and log bindings](pr159-cache-repair-source.json) and [release inventory](pr159-cache-repair-release.json). Raw witness/source/command/output/diff custody is `/private/tmp/brn-final-combined-integration-20261018/pr159-ci-cache-repair-39144593248`. The three full hosted macOS logs remain in the parent's `pr159-ci/` namespace, with exact hashes in the source evidence. No Cargo, download, provider/Auth, GUI, package, retrieval or mutant command was run, and the real current target was not regenerated. Prior compiled/package bytes and candidate crates are unchanged; package source stays `2dd7cc60`. Parent independently inspects and publishes this small delta, owns the PR watch, and still requires exact-head required checks and main CI. This local repair does not close other CI issues or claim hosted success.
+
+## Nonrequired Windows limitation, parent disposition, 18 October 2026
+
+Parent compared Windows job **117725976812**, run **39144593248**, with current-main `57c710cc` baseline job **117498107487**, run **39067505818**: all **26 ordered ANSI-normalized compiler errors are exactly equal**, involving Unix imports/mode/uid/ino/O_NOFOLLOW in `auth.rs` and `codex_auth.rs`. Parent also inspected `codex_auth.rs` as exact main bytes and `auth.rs` as adding only the checked fingerprint wrapper without changing the failing operations. Parent dispositions this as a preexisting **nonrequired Windows limitation**; no platform/Auth rewrite is allocated. Windows remains red. No additional Windows check was run by this worker; the four required contexts are unchanged and the macOS preparation repair remains required.
+
+The supplied full logs and comparison are preserved under `/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/pr159-ci/`, also bound in the [source evidence](pr159-cache-repair-source.json):
+
+- `39144593248-core-windows.log`: SHA-256 `fc04c13a7e4664e8d621c14e13934fb1198a6140c32239347ae41363e39af637`.
+- `39067505818-core-windows.log`: SHA-256 `0eb0f643f8548f3313f33b35d31dad78e0178f11caa5ac3b91fb00740a3baaef`.
+- `windows-baseline-comparison.json`: SHA-256 `7b704bdb65ff106c33c7f04f78742d65fbd1a6916bd27f628dc51d01154d6bd9`.
+
 ## Documentation links, 18 October 2026
 
 Initial head `c51684fbd7e8629b9f7817dcefc3b0a025824e83`, run [39144370163](https://github.com/ewq100/brn-rust/actions/runs/39144370163), Documentation and tooling job failed: the Markdown checker reported two missing files in the historical Office O1 review. Both rendered links escaped the checkout into the developer's Cargo registry. The 171 tooling tests passed with one platform skip; their pass did not close the failed link step.
