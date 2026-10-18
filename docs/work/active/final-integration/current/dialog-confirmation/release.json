@@ -1,0 +1,42 @@
+{
+  "at_utc": "2026-10-18T19:13:00.730287+00:00",
+  "scope": "Initial bounded diagnosis stopped on first new full-context failures, per allocation. No further heavy command after03.",
+  "controllers_and_children": [
+    {
+      "phase": "01-unchanged-exact",
+      "controller_pid": 61116,
+      "controller_pgid": 61116,
+      "child_pid": 61169,
+      "child_pgid": 61169,
+      "exit": 0
+    },
+    {
+      "phase": "02-unchanged-seeds",
+      "controller_pid": 62194,
+      "controller_pgid": 62194,
+      "child_pid": 62216,
+      "child_pgid": 62216,
+      "exit": 0
+    },
+    {
+      "phase": "03-unchanged-widget-context",
+      "controller_pid": 62349,
+      "controller_pgid": 62349,
+      "child_pid": 62366,
+      "child_pgid": 62366,
+      "exit": 101
+    }
+  ],
+  "remaining_owned_processes": [],
+  "global_heavy_commands": [],
+  "released_paths": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-dialog-confirmation-20261018",
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/docs/work/active/final-integration/current/dialog-confirmation"
+  ],
+  "sole_heavy": "RELEASED",
+  "runtime_or_test_source_changes": false,
+  "package_source": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+  "qualifications": "No local reproduction/causal fix. No native-human/live/owner acceptance or main-gate closure. Historical SDK/widget unknown causes and optional baseline failures unchanged."
+}
