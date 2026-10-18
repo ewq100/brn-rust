@@ -58,15 +58,26 @@ fn workspace(root: &Root, data: &Path) {
         )));
     }
     // A chat-only attachment is not a general note.
-    let source = root.file("attachment.md", b"# Attachment\n\nChat only.\n");
-    let attached = call(
-        root,
+    #[cfg(target_os = "macos")]
+    {
+        let source = root.file("attachment.md", b"# Attachment\n\nChat only.\n");
+        let attached = call(
+            root,
+            data,
+            &[
+                "intake", "--source", &source, "--intent", "chat", "--thread", &chats[0],
+            ],
+        );
+        assert_eq!(attached["outcome"], "Applied", "{attached}");
+    }
+    #[cfg(not(target_os = "macos"))]
+    chat_attachment_fixture(
         data,
-        &[
-            "intake", "--source", &source, "--intent", "chat", "--thread", &chats[0],
-        ],
+        &chats[0],
+        "list-attachment",
+        "Attachment",
+        "Chat only.",
     );
-    assert_eq!(attached["outcome"], "Applied", "{attached}");
     ok(root, data, &["archive", "--thread", &chats[3]]);
     for note in &notes[..3] {
         ok(root, data, &["begin-edit", "--note", note, "--base", "1"]);
@@ -107,6 +118,20 @@ fn workspace(root: &Root, data: &Path) {
         ],
     );
     assert_eq!(deleted["status"], "ok", "{deleted}");
+}
+
+#[test]
+fn checked_chat_attachment_fixture_preserves_private_scope_and_protection() {
+    let root = Root::new();
+    let data = root.workspace("data");
+    let chat = id(&ok(&root, &data, &["thread-start", "--title", "Private"]));
+    let attachment =
+        chat_attachment_fixture(&data, &chat, "private-fixture", "Attachment", "Chat only.");
+    let record = ok(&root, &data, &["read", "--id", &attachment]);
+    assert_eq!(record["data"]["Note"]["chat"], chat);
+    assert_eq!(record["data"]["Note"]["protected"], true);
+    assert!(record["data"]["Note"]["import"].is_null());
+    assert_eq!(ok(&root, &data, &["notes"]), json!([]));
 }
 
 #[test]

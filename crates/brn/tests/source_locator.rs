@@ -1,10 +1,13 @@
 //! One file is one source however its path is spelled on the command line.
 //! Synthetic data; a missing auth file makes every provider step fail offline.
+#[cfg(target_os = "macos")]
 use serde_json::{json, Value};
+#[cfg(target_os = "macos")]
 use std::{
     path::Path,
     process::{Command, Output},
 };
+#[cfg(target_os = "macos")]
 fn command(data: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_brn"))
         .arg("--data-dir")
@@ -13,6 +16,7 @@ fn command(data: &Path, args: &[&str]) -> Output {
         .output()
         .unwrap()
 }
+#[cfg(target_os = "macos")]
 fn json_command(data: &Path, args: &[&str]) -> Value {
     let output = command(data, args);
     assert!(
@@ -23,7 +27,7 @@ fn json_command(data: &Path, args: &[&str]) -> Value {
     serde_json::from_slice(&output.stdout).unwrap()
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 #[test]
 fn useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -90,6 +94,7 @@ fn useful_intake_of_one_markdown_file_through_two_spellings_reuses_its_chat() {
 }
 /// A fresh store configured for Codex with a missing auth file, so every
 /// provider step fails offline.
+#[cfg(target_os = "macos")]
 fn offline_store(root: &Path) -> std::path::PathBuf {
     let data = root.join("useful");
     json_command(&data, &["init", "--purpose", "test"]);
@@ -110,6 +115,7 @@ fn offline_store(root: &Path) -> std::path::PathBuf {
     );
     data
 }
+#[cfg(target_os = "macos")]
 #[test]
 fn two_cli_useful_intakes_of_one_source_post_one_instruction() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();

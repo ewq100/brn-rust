@@ -213,6 +213,41 @@ pub fn note(root: &Root, data: &Path, title: &str, text: &str) -> String {
         &["note-create", "--title", title, "--text", text],
     ))
 }
+/// A checked canonical private Note fixture, without claiming a conversion/import.
+/// Used where a portable test needs chat scope/protection, not converter behavior.
+pub fn chat_attachment_fixture(
+    data: &Path,
+    chat: &str,
+    key: &str,
+    title: &str,
+    markdown: &str,
+) -> String {
+    use brn_threads_app::{ApplyOutcome, ChangeRequest, Note, Put, RecordData, Workspace};
+    let mut app = Workspace::open_without_default_credentials(data).unwrap();
+    let op = app.store.allocate_operation(key).unwrap();
+    let id = op.creation_id(0);
+    let mut note = Note::working(title, markdown);
+    note.chat = Some(chat.into());
+    note.protected = true;
+    assert!(matches!(
+        app.owner_change(
+            key,
+            &ChangeRequest {
+                reason: "Checked synthetic chat attachment fixture".into(),
+                writes: vec![Put {
+                    id: id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Note(note),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    id
+}
 /// `begin-edit --token-out FILE`: the session and the token file's path.
 pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, String) {
     let token = root.join(&format!("token-{}", uuid_like()));

@@ -556,17 +556,22 @@ fn operation_by_key_finds_every_keyed_command() {
         "queue",
         "q1",
     );
-    let source = root.file("doc.md", b"# Doc\n\nBody.\n");
-    let attached = keyed_once(
-        &root,
-        &data,
-        &[
-            "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
-        ],
-        "intake",
-        "i1",
-    );
-    let attachment = created(&attached, "Note");
+    #[cfg(target_os = "macos")]
+    let attachment = {
+        let source = root.file("doc.md", b"# Doc\n\nBody.\n");
+        let attached = keyed_once(
+            &root,
+            &data,
+            &[
+                "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
+            ],
+            "intake",
+            "i1",
+        );
+        created(&attached, "Note")
+    };
+    #[cfg(not(target_os = "macos"))]
+    let attachment = chat_attachment_fixture(&data, &chat, "keyed-attachment", "Doc", "Body.");
     keyed_once(
         &root,
         &data,

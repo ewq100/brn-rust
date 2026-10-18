@@ -1585,7 +1585,7 @@ fn refuse_retry_after_an_interrupted_first_attempt_applies_once() {
 }
 
 /// Markdown intake through the converter, with the child's temp dir in the root.
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 fn markdown_source(root: &Root) -> String {
     root.file(
         "source.md",
@@ -1599,22 +1599,27 @@ fn keyed_keep_in_brn_retry_replays() {
     let root = Root::new();
     let data = workspace(&root, "data");
     let chat = id(&ok(&root, &data, &["thread-start", "--title", "Chat"]));
-    let source = markdown_source(&root);
-    let attached = call(
-        &root,
-        &data,
-        &[
-            "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
-        ],
-    );
-    assert_eq!(attached["outcome"], "Applied", "{attached}");
-    let note = attached["changed"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|c| c["kind"] == "Note")
-        .unwrap()
-        .clone();
+    #[cfg(target_os = "macos")]
+    let note = {
+        let source = markdown_source(&root);
+        let attached = call(
+            &root,
+            &data,
+            &[
+                "intake", "--source", &source, "--intent", "chat", "--thread", &chat,
+            ],
+        );
+        assert_eq!(attached["outcome"], "Applied", "{attached}");
+        attached["changed"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["kind"] == "Note")
+            .unwrap()
+            .clone()
+    };
+    #[cfg(not(target_os = "macos"))]
+    let note = json!({"id": support::chat_attachment_fixture(&data, &chat, "keep-fixture", "Harbor", "Chat only."), "version": 1});
     let version = note["version"].to_string();
     let keep = [
         "keep-in-brn",
@@ -1633,7 +1638,7 @@ fn keyed_keep_in_brn_retry_replays() {
     assert_eq!(second["operation"], first["operation"]);
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "macos")]
 #[test]
 fn keyed_markdown_full_import_replays_and_title_change_conflicts() {
     let root = Root::new();
