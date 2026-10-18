@@ -1,0 +1,481 @@
+{
+  "format": "BRN-FINAL-COMBINED-RELEASE-V1",
+  "recorded_utc": "2026-10-18T15:44:25.962003+00:00",
+  "material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+  "global_heavy_processes": [],
+  "owned_controller_or_child_pgids_live": [],
+  "owned_script_process_query": {
+    "exit": 1,
+    "stdout": "",
+    "pattern": "raw/(run|series|native-series|continuation).py"
+  },
+  "all_recorded_controllers_completed": true,
+  "controller_count": 56,
+  "controllers": [
+    {
+      "controller_pid": 14671,
+      "controller_pgid": 14671,
+      "child_pid": 14689,
+      "child_pgid": 14689,
+      "phase": "01-metadata",
+      "exit": 0
+    },
+    {
+      "controller_pid": 14854,
+      "controller_pgid": 14854,
+      "child_pid": 14866,
+      "child_pgid": 14866,
+      "phase": "02-native-check",
+      "exit": 101
+    },
+    {
+      "controller_pid": 20213,
+      "controller_pgid": 20213,
+      "child_pid": 20227,
+      "child_pgid": 20227,
+      "phase": "03-native-check-fixed",
+      "exit": 0
+    },
+    {
+      "controller_pid": 20781,
+      "controller_pgid": 20781,
+      "child_pid": 20831,
+      "child_pgid": 20831,
+      "phase": "04-native-mcp",
+      "exit": 0
+    },
+    {
+      "controller_pid": 27745,
+      "controller_pgid": 27745,
+      "child_pid": 27757,
+      "child_pgid": 27757,
+      "phase": "05-reference-red",
+      "exit": 101
+    },
+    {
+      "controller_pid": 29070,
+      "controller_pgid": 29070,
+      "child_pid": 29098,
+      "child_pgid": 29098,
+      "phase": "06-reference-green",
+      "exit": 0
+    },
+    {
+      "controller_pid": 29439,
+      "controller_pgid": 29439,
+      "child_pid": 29452,
+      "child_pgid": 29452,
+      "phase": "07-format",
+      "exit": 0
+    },
+    {
+      "controller_pid": 29801,
+      "controller_pgid": 29801,
+      "child_pid": 29879,
+      "child_pgid": 29879,
+      "phase": "08-writing-ui",
+      "exit": 0
+    },
+    {
+      "controller_pid": 30517,
+      "controller_pgid": 30517,
+      "child_pid": 30586,
+      "child_pgid": 30586,
+      "phase": "09-helper-build",
+      "exit": 0
+    },
+    {
+      "controller_pid": 36219,
+      "controller_pgid": 35172,
+      "child_pid": 36238,
+      "child_pgid": 36238,
+      "phase": "10-adapted-tests",
+      "exit": 0
+    },
+    {
+      "controller_pid": 35177,
+      "controller_pgid": 35172,
+      "child_pid": 35258,
+      "child_pgid": 35258,
+      "phase": "10-stock-tests",
+      "exit": 0
+    },
+    {
+      "controller_pid": 36554,
+      "controller_pgid": 35172,
+      "child_pid": 36561,
+      "child_pgid": 36561,
+      "phase": "11-adapted-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 35521,
+      "controller_pgid": 35172,
+      "child_pid": 35542,
+      "child_pgid": 35542,
+      "phase": "11-stock-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 37265,
+      "controller_pgid": 35172,
+      "child_pid": 37313,
+      "child_pgid": 37313,
+      "phase": "12-graphs",
+      "exit": 0
+    },
+    {
+      "controller_pid": 37374,
+      "controller_pgid": 35172,
+      "child_pid": 37381,
+      "child_pgid": 37381,
+      "phase": "13-core-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 38094,
+      "controller_pgid": 35172,
+      "child_pid": 38110,
+      "child_pgid": 38110,
+      "phase": "14-app-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 38325,
+      "controller_pgid": 35172,
+      "child_pid": 38349,
+      "child_pgid": 38349,
+      "phase": "15-intake-current",
+      "exit": 0
+    },
+    {
+      "controller_pid": 38892,
+      "controller_pgid": 35172,
+      "child_pid": 39021,
+      "child_pgid": 39021,
+      "phase": "16-document-refine",
+      "exit": 0
+    },
+    {
+      "controller_pid": 40196,
+      "controller_pgid": 35172,
+      "child_pid": 40234,
+      "child_pgid": 40234,
+      "phase": "17-cli-document-synthetic",
+      "exit": 0
+    },
+    {
+      "controller_pid": 40790,
+      "controller_pgid": 35172,
+      "child_pid": 40824,
+      "child_pgid": 40824,
+      "phase": "18-cli-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 42102,
+      "controller_pgid": 35172,
+      "child_pid": 42118,
+      "child_pgid": 42118,
+      "phase": "19-default-build",
+      "exit": 0
+    },
+    {
+      "controller_pid": 42637,
+      "controller_pgid": 35172,
+      "child_pid": 42667,
+      "child_pgid": 42667,
+      "phase": "20-workspace-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 43179,
+      "controller_pgid": 35172,
+      "child_pid": 43273,
+      "child_pgid": 43273,
+      "phase": "21-ai-scripted-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 43278,
+      "controller_pgid": 35172,
+      "child_pid": 43295,
+      "child_pgid": 43295,
+      "phase": "22-ai-capability-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 43437,
+      "controller_pgid": 35172,
+      "child_pid": 43449,
+      "child_pgid": 43449,
+      "phase": "23-cli-scripted-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 43545,
+      "controller_pgid": 35172,
+      "child_pid": 43594,
+      "child_pgid": 43594,
+      "phase": "24-workspace-counted",
+      "exit": 101
+    },
+    {
+      "controller_pid": 49436,
+      "controller_pgid": 49436,
+      "child_pid": 49518,
+      "child_pgid": 49518,
+      "phase": "24a-cli-setup-recheck",
+      "exit": 0
+    },
+    {
+      "controller_pid": 51241,
+      "controller_pgid": 51241,
+      "child_pid": 51330,
+      "child_pgid": 51330,
+      "phase": "24b-fixture-fmt",
+      "exit": 1
+    },
+    {
+      "controller_pid": 51523,
+      "controller_pgid": 51523,
+      "child_pid": 51573,
+      "child_pgid": 51573,
+      "phase": "24c-fixture-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 52814,
+      "controller_pgid": 52814,
+      "child_pid": 52903,
+      "child_pgid": 52903,
+      "phase": "24c2-fixture-scripted-focused",
+      "exit": 0
+    },
+    {
+      "controller_pid": 53812,
+      "controller_pgid": 53804,
+      "child_pid": 53893,
+      "child_pgid": 53893,
+      "phase": "24d-intd-module",
+      "exit": 0
+    },
+    {
+      "controller_pid": 54323,
+      "controller_pgid": 53804,
+      "child_pid": 54403,
+      "child_pgid": 54403,
+      "phase": "24e-fixture-fmt",
+      "exit": 0
+    },
+    {
+      "controller_pid": 54445,
+      "controller_pgid": 53804,
+      "child_pid": 54491,
+      "child_pgid": 54491,
+      "phase": "24f-ai-scripted-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 54613,
+      "controller_pgid": 53804,
+      "child_pid": 54651,
+      "child_pgid": 54651,
+      "phase": "24g-ai-capability-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 54695,
+      "controller_pgid": 53804,
+      "child_pid": 54714,
+      "child_pgid": 54714,
+      "phase": "25-ai-scripted-serial",
+      "exit": 0
+    },
+    {
+      "controller_pid": 55826,
+      "controller_pgid": 53804,
+      "child_pid": 55910,
+      "child_pgid": 55910,
+      "phase": "26-ai-capability",
+      "exit": 0
+    },
+    {
+      "controller_pid": 56859,
+      "controller_pgid": 53804,
+      "child_pid": 56938,
+      "child_pgid": 56938,
+      "phase": "26a-current-default-cli",
+      "exit": 0
+    },
+    {
+      "controller_pid": 57247,
+      "controller_pgid": 57238,
+      "child_pid": 57290,
+      "child_pgid": 57290,
+      "phase": "27-native-shipping-build",
+      "exit": 0
+    },
+    {
+      "controller_pid": 58390,
+      "controller_pgid": 57238,
+      "child_pid": 58470,
+      "child_pgid": 58470,
+      "phase": "28-native-normal-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 58864,
+      "controller_pgid": 57238,
+      "child_pid": 58945,
+      "child_pgid": 58945,
+      "phase": "29-native-state",
+      "exit": 0
+    },
+    {
+      "controller_pid": 59603,
+      "controller_pgid": 57238,
+      "child_pid": 59684,
+      "child_pgid": 59684,
+      "phase": "30-desktop-shell",
+      "exit": 0
+    },
+    {
+      "controller_pid": 61473,
+      "controller_pgid": 57238,
+      "child_pid": 61554,
+      "child_pgid": 61554,
+      "phase": "31-writing-host-build",
+      "exit": 0
+    },
+    {
+      "controller_pid": 61823,
+      "controller_pgid": 57238,
+      "child_pid": 61903,
+      "child_pgid": 61903,
+      "phase": "32-retrieval",
+      "exit": 0
+    },
+    {
+      "controller_pid": 63585,
+      "controller_pgid": 57238,
+      "child_pid": 63744,
+      "child_pgid": 63744,
+      "phase": "33-app-native",
+      "exit": 0
+    },
+    {
+      "controller_pid": 66571,
+      "controller_pgid": 57238,
+      "child_pid": 66649,
+      "child_pgid": 66649,
+      "phase": "34-cli-native",
+      "exit": 0
+    },
+    {
+      "controller_pid": 67324,
+      "controller_pgid": 57238,
+      "child_pid": 67406,
+      "child_pgid": 67406,
+      "phase": "35-combined-build",
+      "exit": 0
+    },
+    {
+      "controller_pid": 68046,
+      "controller_pgid": 57238,
+      "child_pid": 68412,
+      "child_pgid": 68412,
+      "phase": "36-combined-lint",
+      "exit": 0
+    },
+    {
+      "controller_pid": 68597,
+      "controller_pgid": 57238,
+      "child_pid": 68677,
+      "child_pgid": 68677,
+      "phase": "37-combined-state",
+      "exit": 0
+    },
+    {
+      "controller_pid": 70517,
+      "controller_pgid": 57238,
+      "child_pid": 70597,
+      "child_pgid": 70597,
+      "phase": "38-offline-journeys",
+      "exit": 0
+    },
+    {
+      "controller_pid": 70931,
+      "controller_pgid": 57238,
+      "child_pid": 71021,
+      "child_pgid": 71021,
+      "phase": "39-notices",
+      "exit": 0
+    },
+    {
+      "controller_pid": 71063,
+      "controller_pgid": 57238,
+      "child_pid": 71144,
+      "child_pgid": 71144,
+      "phase": "40-package",
+      "exit": 0
+    },
+    {
+      "controller_pid": 71330,
+      "controller_pgid": 57238,
+      "child_pid": 71411,
+      "child_pgid": 71411,
+      "phase": "41-relocate",
+      "exit": 0
+    },
+    {
+      "controller_pid": 71606,
+      "controller_pgid": 57238,
+      "child_pid": 71721,
+      "child_pgid": 71721,
+      "phase": "42-tooling",
+      "exit": 0
+    },
+    {
+      "controller_pid": 72444,
+      "controller_pgid": 57238,
+      "child_pid": 72524,
+      "child_pgid": 72524,
+      "phase": "43-static",
+      "exit": 1
+    },
+    {
+      "controller_pid": 73636,
+      "controller_pgid": 73636,
+      "child_pid": 73783,
+      "child_pgid": 73783,
+      "phase": "43a-static-corrected",
+      "exit": 0
+    },
+    {
+      "controller_pid": 75255,
+      "controller_pgid": 75255,
+      "child_pid": 75345,
+      "child_pgid": 75345,
+      "phase": "44-final-evidence-static",
+      "exit": 0
+    }
+  ],
+  "inventory": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/final-process-inventory.txt",
+    "sha256": "9fe02c75b9fa63ad9e42c4bc75250598537d11ce394e8719b1cf709b5edc3edb",
+    "process_count": 731,
+    "scope": "Global process command names plus exact recorded controller/child PGIDs; no environment/credential inspection."
+  },
+  "sole_heavy": "RELEASED",
+  "no_further_heavy_work_by_worker": true,
+  "paths_released_to_parent": [
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+    "/private/tmp/brn-final-integration-20261018-target",
+    "/private/tmp/brn-final-integration-20261018-target/document-helpers/stock",
+    "/private/tmp/brn-final-integration-20261018-target/document-helpers/adapted",
+    "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192/target/xberg-adapted",
+    "/private/tmp/brn-final-combined-integration-20261018"
+  ],
+  "disposition": "Artifacts/raw logs remain for parent custody; no cache/user-file/other-checkout cleanup or publication. Only final documentation/static/Git evidence operations follow release."
+}

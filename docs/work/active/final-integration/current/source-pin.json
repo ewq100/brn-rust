@@ -1,0 +1,321 @@
+{
+  "format": "BRN-FINAL-COMBINED-SOURCE-PIN-V1",
+  "material": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+  "tree": "bf586dacd438ae20ce623d29a75091e58d590bd4",
+  "branch": "work/final-combined-20261018",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-e61d5192",
+  "source_subtrees": {
+    "crates": "a5273fc72ef781f589730f95efe609ee5871c47a",
+    "tools": "33c1cd6ba5cc56d5d8157a28ac6f6258b9aeabbd",
+    "scripts": "d6f568b6759e2d42c24e70bfc2e50ce1d6fffba6",
+    ".github": "0609ce0cdb91189ff15b397f7acec04d692b18f1",
+    "patches": "a7901020ace85cc52ebd49dd033dc6dd98b4e2a6"
+  },
+  "clean_material_all_source_file_sha256_manifest": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/checks/24c2-fixture-scripted-focused/inputs.json",
+    "sha256": "ec2848c4bce7fc756a6d5917261e4ffe1d30ff334d9f5437b8e73ba93b9e189f",
+    "bytes": 410495
+  },
+  "evidence_commit": "Separate docs-only commit; actual SHA reported after commit, never predicted here.",
+  "last_main_merge": "f89d8eff06314a87087da81ce900c9e8aa0f714e",
+  "main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "task_base": "124be848f03c53ddbcde32d3fccbc828e3334367",
+  "writing_parent": "d2d84e665e64de14a15f4704eb0868c553c2885a",
+  "production_integration_and_failed_workspace": "ed3a650cb4352b83f9a9229e95cd66b10f6dab9b",
+  "lock": {
+    "sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "identity_count": 943,
+    "only_new_identity": "local brn-writing-ui 0.1.0",
+    "registry_identity_checksum_source_version_drift": false,
+    "retired_identity_count": 93,
+    "retired_identities_resurrected": [],
+    "metadata_locked_offline_runs": 1,
+    "unlocked_fallback_runs": 0
+  },
+  "protected_inputs": {
+    "unchanged_vs_task_base": {
+      "tools/xberg-intake-helper/Cargo.lock": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+      "tools/xberg-intake-helper/adapted.Cargo.lock": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+      "crates/brn-intake/src/helper_runtime.rs": "d7d5a66d0175a9d59da09799d81c349d898c6ede69241793c3e96ed3ab1ea9ae",
+      "patches/xberg/1.3.10/0001-docx-table-grid-spans.patch": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7",
+      "patches/xberg/1.3.10/0003-docx-namespaces.md": "e96f0aa872339aef6567254201cfcc33357f14dc90c08bfeb6701d65717598f2",
+      "patches/xberg/1.3.10/0003-docx-namespaces.patch": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f",
+      "patches/xberg/1.3.10/0003-source-manifest.json": "c1a43690ae46797e4559162038139ec6b46bf228c2248d83173162f8d3a75bfb",
+      "patches/xberg/1.3.10/0004-pptx-order-hidden.md": "b59019cce3d6944165889bee6a9ccfb95690f86ad663badb40a331ca7e02d8b8",
+      "patches/xberg/1.3.10/0004-pptx-order-hidden.patch": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d",
+      "patches/xberg/1.3.10/0004-source-manifest.json": "1663517db2adaa068c216da25eb9709a023ee23434c6b5daeb226ce53d39996b",
+      "patches/xberg/1.3.10/0005-docx-comment-references.md": "4bc9ffd47305e7e5af16bbe27e5e2a2871a0f4629e2416a4ada5d2e87e1c9153",
+      "patches/xberg/1.3.10/0005-docx-comment-references.patch": "b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1",
+      "patches/xberg/1.3.10/0005-source-manifest.json": "9d85cd446f5368ed523a8de95536192b6762e4f960e1e68f92d552f2695e8a6d",
+      "patches/xberg/1.3.10/0007-excel-formula-error.md": "0c7b20379b7ebee7f0e3dc97912d77b49ba117ff8fe16e850784dd72fb1edbd0",
+      "patches/xberg/1.3.10/0007-excel-formula-error.patch": "a8dee616cc64d57c08156b89875c76e7a3b672f0d5be382702216f2041dd1cd0",
+      "patches/xberg/1.3.10/0007-source-manifest.json": "20f68fd4e4b8a4f6431d885117551c1145463cc9b3cca0926536499b020fb8db",
+      "patches/xberg/1.3.10/README.md": "9b73f8770bae56f4642b1bd21fc2c7ce6eb3218315e5b3caf162a1fc95db6e9b",
+      "patches/xberg/1.3.10/source-manifest.json": "56a1953f4e47f7ae7a53692b5cc417e6b0f5ada8fb6fd6362dad5f637dc3c81e"
+    },
+    "retired_root_identity_count": 93,
+    "retired_identities_resurrected": [],
+    "root_expected_identities": 943
+  },
+  "cached_ort": {
+    "path": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7/libonnxruntime.a",
+    "sha256": "d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3",
+    "bytes": 80425592
+  },
+  "evidence": {
+    "initial-binding.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/initial-binding.json",
+      "sha256": "44ea046d66bfe5feaa4fb9f336bf58bebcae17499cf3250cbf16cc885a3a85b7",
+      "bytes": 405
+    },
+    "three-way-lock-before.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/three-way-lock-before.json",
+      "sha256": "c8ffad973362436fb2d3ebf52495645c74085c6294e670db3da196c9ed6ee035",
+      "bytes": 25865
+    },
+    "combined-lock-audit.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/combined-lock-audit.json",
+      "sha256": "ee1357e88adfd0da7712099746f561803637ea154158dd6053415c5996805f60",
+      "bytes": 1085
+    },
+    "protected-inputs-audit.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/protected-inputs-audit.json",
+      "sha256": "b0d46239d686d3102c71d35bd1e89a9580da9284fbee2339a7226c2ee3906b97",
+      "bytes": 2336
+    },
+    "preflight.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/preflight.json",
+      "sha256": "5b0adc643bd7cb2c624673c342525ece0e8d910889dc9d638db4c2195d228824",
+      "bytes": 1505
+    },
+    "preparation-attempts.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/preparation-attempts.json",
+      "sha256": "90a2ece1d2862a1016966d84289ec899b6236a1db3719e9a77d9ae38532f9a8c",
+      "bytes": 861
+    },
+    "original16-immutability.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/original16-immutability.json",
+      "sha256": "a58e00a55662bdab7f32209a77a797c2502ebcf08e1eaa77cc8e6cffa79f01cf",
+      "bytes": 2213
+    },
+    "generated-source-audit.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/generated-source-audit.json",
+      "sha256": "b35774017f5bc2812b2e65b8af89d1d53d2851d448c99aa0f2a0f295b36d2c15",
+      "bytes": 431
+    },
+    "generated-source-manifest.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/generated-source-manifest.json",
+      "sha256": "de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae",
+      "bytes": 80006
+    },
+    "generated-source-after-desktop-script.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/generated-source-after-desktop-script.json",
+      "sha256": "050711549c000f088bc58c627ee8eb9df00047a10612088cad42f45180c3b1b7",
+      "bytes": 326
+    },
+    "graphs/index.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/graphs/index.json",
+      "sha256": "5d7cd7ed826824dc036fb6caf90adfb6a0a6ecb01452e0850b2a2f6d62ddfa59",
+      "bytes": 10496
+    },
+    "emitted-graphs-current.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/emitted-graphs-current.json",
+      "sha256": "6042f125f9c4df31c65c4754d5e18add99cd0dd80e3c3aa3e165ce009357ca73",
+      "bytes": 869064
+    },
+    "material-freeze.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/material-freeze.json",
+      "sha256": "3fc1b0ff1a40fa379e1a8f756831acbc7d4291c5e6c8cfb47d2b08841495ca87",
+      "bytes": 752
+    },
+    "workspace-failure-diagnosis.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/workspace-failure-diagnosis.json",
+      "sha256": "fac1091febeeb8a1eb3c5df69e2392e3f2d10cc2c85ba51bc3e60a2230568141",
+      "bytes": 3470
+    },
+    "failed-workspace-artifact-custody-confirmed.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/failed-workspace-artifact-custody-confirmed.json",
+      "sha256": "b0dfe8fea9c30381539b242efa9010387569e18121130b279f813e3e8f40ac0a",
+      "bytes": 2169
+    },
+    "intd-moved-input-source-facts.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/intd-moved-input-source-facts.json",
+      "sha256": "1c8bc2db829f340852e3909add93aaa08bc56b09a0c7b980c1700f603fac5904",
+      "bytes": 1598
+    },
+    "fixture-bounded-delta.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/fixture-bounded-delta.json",
+      "sha256": "39904d244d32cba4d44c95323fc06ef92d81eb876a64dba0b4f99166b325c43b",
+      "bytes": 394
+    },
+    "fixture-authorized-material.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/fixture-authorized-material.json",
+      "sha256": "f3f7494831c4a9429a0a0f1f4322a205e739e296dae7895763aa9cd2327f7ced",
+      "bytes": 519
+    },
+    "fixture-guard-audit.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/fixture-guard-audit.json",
+      "sha256": "9e1b495db5a283987f95f9fffe23d4ee77ae4270149ff1278c87cfd3f64fa8ea",
+      "bytes": 365
+    },
+    "static-link-failure-diagnosis.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/static-link-failure-diagnosis.json",
+      "sha256": "0ff1dc91b8d21fd267c22bab2e9f9c4e49a39801df16a3237677d44d737b2487",
+      "bytes": 1941
+    },
+    "one-link-correction.patch": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/one-link-correction.patch",
+      "sha256": "f416c4b1b20e6d85c8affb49c8081d308732fe0e16b9d5412f94212e292079ff",
+      "bytes": 1867
+    },
+    "one-link-correction-proof.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/one-link-correction-proof.json",
+      "sha256": "aea4c843ea312a3a8e1d1d4811deb6eca3d3bf302179c597ae60023c345f1e31",
+      "bytes": 558
+    },
+    "relocation.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/relocation.json",
+      "sha256": "8e0d4a5591ecfb884439c89b54ef62ca9a7d9963ad209d34c3cdb87e966f26ca",
+      "bytes": 640
+    },
+    "packaged-captures.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/packaged-captures.json",
+      "sha256": "1044d61c25237027e7cfb83382dc063ed15a5808e2b94e37bcd1bd847610581c",
+      "bytes": 5479439
+    },
+    "diffs/index.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/diffs/index.json",
+      "sha256": "110a3292440a30d84fc9b6060657a1c8713a263ae56270f4efed3f6b900a3df4",
+      "bytes": 2179
+    },
+    "diffs/2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d/index.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/diffs/2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d/index.json",
+      "sha256": "523400b92b9103fb1664b8600ef2986157bc680f342a4f9ad394a1391b7c51e6",
+      "bytes": 2421
+    },
+    "artifacts/default-cli/source.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/artifacts/default-cli/source.json",
+      "sha256": "3a19f7660928fbb28a95f1af8b3ac3d3599538c328b5a0fd37fe96dd2c58dec4",
+      "bytes": 296
+    },
+    "artifacts/default-cli-current/source.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/artifacts/default-cli-current/source.json",
+      "sha256": "1c29fc0a757202ef3e6ab9429136c81e73b1a2be823bb46a236af8a7969bf16c",
+      "bytes": 303
+    },
+    "artifacts/native-ui/source.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/artifacts/native-ui/source.json",
+      "sha256": "e24a938dd708819720b6aa714b8e977b1eaa1f727834e57bf1621de1bd3fd3f0",
+      "bytes": 332
+    },
+    "artifacts/combined/source.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/artifacts/combined/source.json",
+      "sha256": "5495fcece2f9fcf0d32cf8d29e082526602d42c361e4163213c6c36fc3636c76",
+      "bytes": 920
+    },
+    "artifacts/helpers-current/source.json": {
+      "path": "/private/tmp/brn-final-combined-integration-20261018/artifacts/helpers-current/source.json",
+      "sha256": "b9afa239e524c8b3209a0a6ecb46ef3fbfb6687165d048b084f6cbbc3c1866b2",
+      "bytes": 2100
+    }
+  },
+  "package_manifest": {
+    "path": "/private/tmp/brn-final-combined-integration-20261018/distribution/BRN-Threads-v0.1.0-preview.2-macos-arm64.manifest.json",
+    "sha256": "1af09c51954fc0b914d8556137c1c87e32cfe617ea446a81a81bf07169154fec",
+    "bytes": 4073
+  },
+  "package": {
+    "schema": 1,
+    "enabled": true,
+    "version": "v0.1.0-preview.2",
+    "build_number": 2,
+    "platform": "macos-arm64",
+    "minimum_macos": "15.0",
+    "features": [
+      "native-ui"
+    ],
+    "notes_file": "docs/development/preview-release.md",
+    "source_sha": "2dd7cc604425658ad60f52734e4f8aa2f6b7fa3d",
+    "signing": "ad-hoc; not notarized",
+    "binaries": {
+      "brn-desktop": {
+        "sha256": "54aa04a82c2cf9fce29b67afffaec694f04cb173b182700c97ecac1a7f5cb741",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+          "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+          "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+          "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libobjc.A.dylib",
+          "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+          "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+          "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+          "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+          "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+          "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+          "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+          "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+          "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+          "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+          "/usr/lib/libiconv.2.dylib",
+          "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+        ],
+        "source_binary_sha256": "8e852963021f4eff818c5a1b0cf7d9f66793871f799164d8e25d69069fe8fccf"
+      },
+      "brn-xberg-helper": {
+        "sha256": "cff16c98518bb71e566a6f3d49bc0bf7d9923bff6e1bd38676e66a3c941dc4b2",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "a2c223701c93399b06acc143c3190a2a908befa411f1c674fc7a596fdb545619"
+      },
+      "brn-xberg-helper-brn": {
+        "sha256": "bf935ca71cb99fd161826e38cf8e3272492cdd832131884d1e2c9902aae724ef",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "bc8296e57e18ab63f0388871763c26544a850a9d1de517f26bca3c9cf2674952"
+      }
+    },
+    "data_directory": "~/Library/Application Support/BRN Threads Preview/workspace",
+    "qualification": {
+      "native_interaction": "deferred",
+      "live_provider": "deferred",
+      "recovery_acceptance": "pending"
+    },
+    "external_pdf_tools": [],
+    "notices_index_sha256": "e8f908f4748c00556039d67ad155c8191c71940e850be1864973241010c40cb9",
+    "bundled_embeddings": false,
+    "bundled_provider_credentials": false,
+    "cargo_lock_sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+    "archive": {
+      "name": "BRN-Threads-v0.1.0-preview.2-macos-arm64.zip",
+      "sha256": "08f34d06654b627a1951d13239fed931f44e7054f5b3792194e78816daca2196",
+      "bytes": 185175643
+    }
+  },
+  "artifact_custody": "Each check before/after-artifacts.json maps exact binaries and .d files to SHA256 objects under raw/objects. Clean current-material inputs include all tracked source; generated helper inputs are separately bound by all765 hashes and unchanged locks/patches. Earlier ed3 artifacts remain historical; shipping current-material and combined copies are distinct.",
+  "qualifications": [
+    "Workspace 1265/10/5 retained without repeat; parent-dispositioned nine setup cases passed unchanged binaries and four-move fixture passed fresh targeted/full AI lanes.",
+    "One historical href correction is docs-only and separately dispositioned; package retains material pin.",
+    "No GUI/native-human/live capture/owner/program/release/PR/main acceptance.",
+    "Dedicated schema7 setup carry-forward witness absent; current schema6 and qualified schema9 through10 controls passed.",
+    "Historical SDK/widget causes and three prepare causes remain unknown; provider windows and mutation budgets closed."
+  ]
+}
