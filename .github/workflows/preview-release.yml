@@ -56,18 +56,29 @@ jobs:
       - name: Check portable packaging and release guards
         if: steps.gate.outputs.eligible == 'true'
         run: python3 -m unittest discover -s scripts/tests -v
-      - name: Build the locked native desktop and maintained helper
+      - name: Prepare locked stock and adapted document helpers
+        if: steps.gate.outputs.eligible == 'true'
+        run: |
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
+          python3 scripts/prepare-xberg-adapted.py
+          cargo fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml --target "$host_target"
+          bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$GITHUB_WORKSPACE/target/document-helpers"
+      - name: Build locked desktop and retain target graphs
         if: steps.gate.outputs.eligible == 'true'
         run: |
           test "$(uname -m)" = arm64
           cargo rustc --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
-          cargo rustc --release -p brn-intake --features helper --bin brn-intake-helper --locked --offline -- -C link-arg=-mmacosx-version-min=15.0
+          cargo tree --locked --offline -p brn-desktop --features native-ui --target aarch64-apple-darwin --edges normal,build --prefix none --format '{p}' > target/desktop-target-graph.txt
+          python3 scripts/package-macos-preview.py --prepare-notices "$GITHUB_WORKSPACE/target/distribution-notices" --graph target/desktop-target-graph.txt --graph target/document-helpers/receipts/stock-target-graph.txt --graph target/document-helpers/receipts/adapted-target-graph.txt
       - name: Package and verify the relocated signed archive
         if: steps.gate.outputs.eligible == 'true'
         run: |
           python3 scripts/package-macos-preview.py \
             --binary "$GITHUB_WORKSPACE/target/release/brn-desktop" \
-            --intake-helper "$GITHUB_WORKSPACE/target/release/brn-intake-helper" \
+            --xberg-helper "$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" \
+            --xberg-helper-brn "$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" \
+            --notices "$GITHUB_WORKSPACE/target/distribution-notices" \
             --source-sha "$SOURCE_SHA" --output-dir "$RUNNER_TEMP/brn-preview-distribution"
       - name: Qualify packaged startup and helper using disposable fixtures
         if: steps.gate.outputs.eligible == 'true'

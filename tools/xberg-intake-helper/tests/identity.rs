@@ -177,3 +177,17 @@ fn checked_png_identity_dimensions_duplicates_and_request_pixel_budget() {
     r.limits.max_total_image_pixels = 1;
     assert!(good.validate_for(&r).is_err());
 }
+
+#[test]
+#[cfg(not(target_os = "macos"))]
+fn restricted_runtime_reports_platform_unavailable() {
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_brn-xberg-helper"))
+        .env_clear()
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
+        serde_json::json!({"error":"native intake restrictions are qualified only on macOS; conversion refused"})
+    );
+}

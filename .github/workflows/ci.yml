@@ -29,11 +29,16 @@ jobs:
   documentation:
     name: Documentation and tooling
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Fetch the committed stock lock for generator fixtures
+        run: |
+          rustup show
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
       - name: Check current Markdown file and fragment links
         run: python3 scripts/check-markdown-links.py
       - name: Test deterministic development tooling
@@ -68,6 +73,18 @@ jobs:
       - name: Install bounded PDF converter tools on macOS
         if: runner.os == 'macOS'
         run: brew install poppler
+      - name: Prepare both locked document helper graphs
+        if: runner.os == 'macOS'
+        run: |
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
+          python3 scripts/prepare-xberg-adapted.py
+          cargo fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml --target "$host_target"
+          bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$GITHUB_WORKSPACE/target/document-helpers"
+          mkdir -p target/debug
+          cp target/document-helpers/artifacts/brn-xberg-helper* target/debug/
+          echo "BRN_XBERG_HELPER=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" >> "$GITHUB_ENV"
+          echo "BRN_XBERG_HELPER_BRN=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" >> "$GITHUB_ENV"
       - name: Qualify maintained intake helper on macOS
         if: runner.os == 'macOS'
         run: |
@@ -88,7 +105,22 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
       - name: Test the default workspace
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' }}
-        run: cargo test --workspace --locked --offline
+        run: cargo test --workspace --no-fail-fast --locked --offline
+      - name: Both document helpers normal API and restrictions
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        run: |
+          for mode in stock adapted; do
+            manifest=tools/xberg-intake-helper/Cargo.toml
+            if [[ "$mode" == adapted ]]; then manifest=target/xberg-adapted/workspace/Cargo.toml; fi
+            export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target/document-helpers/$mode"
+            cargo test --manifest-path "$manifest" --all-targets --locked --offline --jobs 1
+            cargo clippy --manifest-path "$manifest" --all-targets --locked --offline --jobs 1 -- -D warnings
+          done
+      - name: Scripted document CLI route (no live provider)
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        run: |
+          cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1
+          cargo clippy -p brn --features scripted-document-tests --all-targets --locked --offline --jobs 1 -- -D warnings
       - name: Test provider capability fixtures offline
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: cargo test -p brn-ai --features capability-spike --all-targets --locked --offline
@@ -132,6 +164,18 @@ jobs:
         with:
           lane: native-ui
           native: 'true'
+      - name: Prepare both locked document helper graphs
+        if: runner.os == 'macOS'
+        run: |
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
+          python3 scripts/prepare-xberg-adapted.py
+          cargo fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml --target "$host_target"
+          bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$GITHUB_WORKSPACE/target/document-helpers"
+          mkdir -p target/debug
+          cp target/document-helpers/artifacts/brn-xberg-helper* target/debug/
+          echo "BRN_XBERG_HELPER=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" >> "$GITHUB_ENV"
+          echo "BRN_XBERG_HELPER_BRN=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" >> "$GITHUB_ENV"
       - name: Build maintained intake helper on macOS
         if: runner.os == 'macOS'
         run: cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline
@@ -200,6 +244,18 @@ jobs:
         with:
           lane: native-ui-native-retrieval
           native: 'true'
+      - name: Prepare both locked document helper graphs
+        if: runner.os == 'macOS'
+        run: |
+          host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
+          cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
+          python3 scripts/prepare-xberg-adapted.py
+          cargo fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml --target "$host_target"
+          bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$GITHUB_WORKSPACE/target/document-helpers"
+          mkdir -p target/debug
+          cp target/document-helpers/artifacts/brn-xberg-helper* target/debug/
+          echo "BRN_XBERG_HELPER=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" >> "$GITHUB_ENV"
+          echo "BRN_XBERG_HELPER_BRN=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" >> "$GITHUB_ENV"
       - name: Build maintained intake helper on macOS
         if: runner.os == 'macOS'
         run: cargo build -p brn-intake --features helper --bin brn-intake-helper --locked --offline

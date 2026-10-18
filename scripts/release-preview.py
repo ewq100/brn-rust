@@ -75,6 +75,8 @@ def validate_delivery(directory, approved, sha):
             or delivered.get("source_sha") != sha
             or delivered.get("signing") != "ad-hoc; not notarized"):
         raise ValueError("Delivery identity differs from the approved preview and source")
+    if set(delivered.get("binaries", {})) != {"brn-desktop", "brn-xberg-helper", "brn-xberg-helper-brn"}:
+        raise ValueError("Delivery must contain exactly desktop, stock and BRN document helpers")
     archive = directory / f"{name}.zip"
     if delivered.get("archive") != {"name": archive.name, "sha256": packaging.digest(archive),
                                    "bytes": archive.stat().st_size}:

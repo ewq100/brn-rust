@@ -37,13 +37,40 @@ def qualify_app(app):
         assert result.returncode != 0
         assert list(foreign.iterdir()) == [foreign / "brn.sqlite"]
         assert (foreign / "brn.sqlite").read_bytes() == b"synthetic old BRN data"
-        eml = b"From: test@example.invalid\r\nTo: test@example.invalid\r\nSubject: Synthetic\r\nContent-Type: text/plain\r\n\r\nPortable helper witness.\r\n"
-        converted = subprocess.run([str(binaries / "brn-intake-helper")],
-                                   input=json.dumps({"kind": "eml", "bytes": list(eml)}).encode(),
-                                   env={}, capture_output=True, check=True)
-        result = json.loads(converted.stdout)
-        assert "Portable helper witness." in json.dumps(result)
-    print("Packaged headless startup/reopen, foreign-data preservation and synthetic helper passed")
+        # Fixtures are public/synthetic inputs, not engine/build lookup paths.
+        import hashlib
+        archive_sha = "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+        material = archive_sha + "\nutf8-identity-v1\n"
+        for patch in ["0001-docx-table-grid-spans.patch", "0003-docx-namespaces.patch",
+                      "0004-pptx-order-hidden.patch", "0005-docx-comment-references.patch"]:
+            material += f"{patch} {packaging.digest(ROOT / 'patches/xberg/1.3.10' / patch)}\n"
+        identities = {"xberg": f"xberg/1.3.10/stock/{archive_sha}",
+                      "xberg_brn": "xberg/1.3.10/brn/" + hashlib.sha256(material.encode()).hexdigest()}
+        fixtures = [("pdf", ROOT / "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf")]
+        fixtures += [(kind, ROOT / f"crates/brn-intake/tests/fixtures/{name}") for kind, name in
+                     [("docx", "harbor.docx"), ("pptx", "quay.pptx"), ("xlsx", "forecast.xlsx"),
+                      ("eml", "single.eml"), ("html", "textual.html")]]
+        cases = [(kind, path.read_bytes()) for kind, path in fixtures]
+        cases += [("text", b"Portable source\r\n"), ("markdown", b"# Portable source\n")]
+        captures = []
+        for backend, executable in [("xberg", "brn-xberg-helper"), ("xberg_brn", "brn-xberg-helper-brn")]:
+            for kind, data in cases:
+                request = {"schema": 1, "backend": backend, "kind": kind, "limits": {}, "bytes": list(data)}
+                converted = subprocess.run([str(binaries / executable)], input=json.dumps(request).encode(),
+                                           env={}, capture_output=True, check=True, timeout=35)
+                result = json.loads(converted.stdout)
+                assert set(result) == {"schema", "backend", "engine_identity", "source_sha256", "markdown", "assets", "gaps"}
+                assert result["schema"] == 1 and result["backend"] == backend
+                assert result["engine_identity"] == identities[backend]
+                assert result["source_sha256"] == list(hashlib.sha256(data).digest())
+                assert result["markdown"] and "\0" not in result["markdown"]
+                assert isinstance(result["assets"], list) and isinstance(result["gaps"], list)
+                assert all(isinstance(gap, str) for gap in result["gaps"])
+                captures.append({"kind": kind, "request": request, "result": result})
+        if os.environ.get("BRN_PACKAGE_CAPTURES"):
+            Path(os.environ["BRN_PACKAGE_CAPTURES"]).write_text(json.dumps(captures, indent=2) + "\n")
+
+    print("Packaged headless startup/reopen, foreign-data preservation and both helpers/all eight typed fixtures passed")
 
 
 class LauncherTests(unittest.TestCase):
@@ -53,7 +80,7 @@ class LauncherTests(unittest.TestCase):
         self.binary = self.root / "builder binary ' ü"
         self.binary.write_text('#!/bin/bash\nprintf "%s\\n" "$@" > "$BRN_TEST_ARGS"\nexit "${BRN_TEST_EXIT:-0}"\n')
         self.binary.chmod(0o700)
-        self.helper = self.root / "brn-intake-helper"
+        self.helper = self.root / "brn-xberg-helper"
         self.helper.write_text("#!/bin/bash\nexit 0\n")
         self.helper.chmod(0o700)
         self.home = self.root / "recipient home ' ü"
@@ -68,7 +95,7 @@ class LauncherTests(unittest.TestCase):
         args = ["bash", str(ROOT / "scripts/make-macos-app.sh"), "--output", str(self.root / name),
                 "--binary", str(self.binary), "--preview-version", version]
         if helper:
-            args += ["--intake-helper", str(self.helper)]
+            args += ["--xberg-helper", str(self.helper), "--xberg-helper-brn", str(self.helper)]
         return subprocess.run(args + list(extra), capture_output=True, text=True)
 
     def test_explicit_launcher_existing_contract(self):
@@ -99,6 +126,12 @@ class LauncherTests(unittest.TestCase):
             self.assertEqual(info["LSMinimumSystemVersion"], "15.0")
             self.assertEqual(info["CFBundleShortVersionString"], "0.1.0")
 
+    def test_either_missing_helper_refuses_before_creating_output(self):
+        for flag in ["--xberg-helper", "--xberg-helper-brn"]:
+            result = self.assemble(extra=(flag, str(self.root / "missing")))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse((self.root / "Preview.app").exists())
+
     def test_invalid_input_and_occupied_output_refuse(self):
         self.assertNotEqual(self.assemble(helper=False).returncode, 0)
         for version in ("v0.1.0", "v0.1.0-preview.0", "../evil", "v0.1.0-preview.1$(touch injected)"):
@@ -115,7 +148,7 @@ class LauncherTests(unittest.TestCase):
         result = subprocess.run([str(launcher)], env=dict(self.env, BRN_TEST_EXIT="7"), capture_output=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("status 7", (self.root / "logs/startup.log").read_text())
-        (self.root / "Preview.app/Contents/Resources/bin/brn-intake-helper").unlink()
+        (self.root / "Preview.app/Contents/Resources/bin/brn-xberg-helper-brn").unlink()
         result = subprocess.run([str(launcher)], env=self.env, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("helper is missing", (self.root / "logs/startup.log").read_text())
@@ -132,9 +165,13 @@ class NativePackageTests(unittest.TestCase):
             subprocess.run(["xcrun", "clang", "-arch", "arm64", "-mmacosx-version-min=15.0",
                             str(source), "-o", str(binary)], check=True, capture_output=True)
             manifest = ROOT / "release/preview.json"
-            output = packaging.package(binary, binary, manifest, "a" * 40, root / "delivery")
+            notices = root / "notices"
+            notices.mkdir()
+            (notices / "README.txt").write_text("Synthetic notices")
+            (notices / "index.json").write_text(json.dumps({"files": {"README.txt": packaging.digest(notices / "README.txt")}}))
+            output = packaging.package(binary, binary, binary, manifest, "a" * 40, root / "delivery", notices)
             receipt = json.loads(next(output.glob("*.manifest.json")).read_text())
-            for name in ("brn-desktop", "brn-intake-helper"):
+            for name in ("brn-desktop", "brn-xberg-helper", "brn-xberg-helper-brn"):
                 installed = output / "BRN Threads.app/Contents/Resources/bin" / name
                 self.assertEqual(receipt["binaries"][name]["sha256"], packaging.digest(installed))
             subprocess.run(["codesign", "--verify", "--strict", "--deep", str(output / "BRN Threads.app")],
@@ -144,8 +181,22 @@ class NativePackageTests(unittest.TestCase):
             with zipfile.ZipFile(archive) as zipped:
                 self.assertIn("BRN Threads.app/Contents/Resources/build-manifest.json", zipped.namelist())
             self.assertFalse((output / ".incomplete").exists())
+            # Never copy unindexed files or follow a notice-directory symlink.
+            extra = notices / "unindexed"
+            extra.write_text("not approved for packaging")
+            with self.assertRaisesRegex(ValueError, "every retained file"):
+                packaging.package(binary, binary, binary, manifest, "a" * 40, root / "extra", notices)
+            extra.unlink()
+            link = notices / "linked"
+            link.symlink_to(notices / "README.txt")
+            index = {"README.txt": packaging.digest(notices / "README.txt"), "linked": packaging.digest(link)}
+            (notices / "index.json").write_text(json.dumps({"files": index}))
+            with self.assertRaisesRegex(ValueError, "Symlinks"):
+                packaging.package(binary, binary, binary, manifest, "a" * 40, root / "linked", notices)
+            link.unlink()
+            (notices / "index.json").write_text(json.dumps({"files": {"README.txt": packaging.digest(notices / "README.txt")}}))
             with self.assertRaises(ValueError):
-                packaging.package(binary, binary, manifest, "a" * 40, output)
+                packaging.package(binary, binary, binary, manifest, "a" * 40, output, notices)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,9 @@ use super::*;
 use brn_threads_intake::{Coverage, CoverageStatus, RetainedAsset};
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 use serde_json::{Value, json};
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
+#[cfg(target_os = "macos")]
 fn capture(name: &str, value: impl serde::Serialize) {
     if let Some(path) = std::env::var_os("BRN_TASK2_CAPTURES") {
         std::fs::create_dir_all(&path).unwrap();
@@ -16,13 +18,11 @@ fn capture(name: &str, value: impl serde::Serialize) {
 fn root() -> tempfile::TempDir {
     tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
 }
+#[cfg(target_os = "macos")]
 fn helpers() -> DocumentHelpers {
-    let base = PathBuf::from("/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts");
-    DocumentHelpers {
-        stock: base.join("brn-xberg-helper"),
-        brn: base.join("brn-xberg-helper-brn"),
-    }
+    DocumentHelpers::discover().expect("declared document helpers must resolve")
 }
+#[cfg(target_os = "macos")]
 fn cases() -> Vec<(DocumentKind, Vec<u8>)> {
     vec![
         (
@@ -50,6 +50,7 @@ fn cases() -> Vec<(DocumentKind, Vec<u8>)> {
         (DocumentKind::Markdown, b"# Exact Markdown\n".to_vec()),
     ]
 }
+#[cfg(target_os = "macos")]
 fn job(
     root: &tempfile::TempDir,
     converter: DocumentConverter,
@@ -77,6 +78,7 @@ fn job(
         credentials_dir: None,
     }
 }
+#[cfg(unix)]
 fn auth(root: &tempfile::TempDir) -> PathBuf {
     let path = root.path().join("auth.json");
     std::fs::write(&path,r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-not-a-credential","account_id":"synthetic"}}"#).unwrap();
@@ -118,6 +120,7 @@ fn response(converted: &ConversionResult) -> Refinement {
     }
 }
 #[tokio::test]
+#[cfg(target_os = "macos")]
 async fn ai_off_never_opens_auth_for_either_engine_all_eight() {
     let root = root();
     std::fs::write(
@@ -158,6 +161,7 @@ async fn ai_off_never_opens_auth_for_either_engine_all_eight() {
     }
 }
 #[tokio::test]
+#[cfg(target_os = "macos")]
 async fn ai_on_receives_selected_engine_output_for_every_kind() {
     let root = root();
     let file = auth(&root);
@@ -238,6 +242,7 @@ async fn ai_on_receives_selected_engine_output_for_every_kind() {
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn invalid_hash_fields_terminal_and_auth_fail_without_candidate() {
     let root = root();
     let file = auth(&root);
@@ -305,7 +310,9 @@ fn retained_assets_and_finite_fields_are_checked_without_reextracting() {
 }
 
 #[derive(Clone)]
+#[cfg(target_os = "macos")]
 struct StalledHttp(SequencedHttpClient);
+#[cfg(target_os = "macos")]
 impl rig::http_client::HttpClientExt for StalledHttp {
     fn send<T, U>(
         &self,
@@ -354,6 +361,7 @@ impl rig::http_client::HttpClientExt for StalledHttp {
     }
 }
 #[tokio::test]
+#[cfg(target_os = "macos")]
 async fn refinement_deadline_stop_refusal_and_failure_have_no_save_or_fallback() {
     let root = root();
     let file = auth(&root);

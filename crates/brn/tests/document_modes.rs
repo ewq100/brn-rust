@@ -1,9 +1,12 @@
 //! Real CLI processes, fixed public fixtures and synthetic data only.
 mod support;
-use brn_threads_app::{DocumentConversionSettings, DocumentConverter, RecordData, Workspace};
+#[cfg(target_os = "macos")]
+use brn_threads_app::RecordData;
+use brn_threads_app::{DocumentConversionSettings, DocumentConverter, Workspace};
 use serde_json::json;
 use support::*;
 
+#[cfg(target_os = "macos")]
 fn capture(name: &str, value: &impl serde::Serialize) {
     if let Some(path) = std::env::var_os("BRN_TASK3_CAPTURES") {
         let path = std::path::PathBuf::from(path);
@@ -15,12 +18,13 @@ fn capture(name: &str, value: &impl serde::Serialize) {
         .unwrap();
     }
 }
+#[cfg(target_os = "macos")]
 fn root() -> Root {
     let mut root = Root::new();
     for name in ["BRN_XBERG_HELPER", "BRN_XBERG_HELPER_BRN"] {
         root.env.push((
             name.into(),
-            std::env::var(name).expect("Task1 helper path required"),
+            std::env::var(name).expect("declared helper artifact required for macOS qualification"),
         ));
     }
     root.env.extend(support::stub::proxy_env());
@@ -33,6 +37,7 @@ fn select(root: &Root, data: &std::path::Path, converter: &str, ai: &str) {
         &["document-conversion", "--converter", converter, "--ai", ai],
     );
 }
+#[cfg(target_os = "macos")]
 fn corpus() -> Vec<(&'static str, &'static [u8])> {
     vec![
         (
@@ -62,7 +67,7 @@ fn corpus() -> Vec<(&'static str, &'static [u8])> {
 }
 #[test]
 fn documents_cli_defaults_checked_settings_and_reopen_without_note_effect() {
-    let root = root();
+    let root = Root::new();
     let data = root.workspace("data");
     let original = note(&root, &data, "Unchanged", "Original body");
     let before = ok(&root, &data, &["read", "--id", &original]);
@@ -103,6 +108,7 @@ fn documents_cli_defaults_checked_settings_and_reopen_without_note_effect() {
     assert_error(&refused, "usage", "invalid_value");
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn documents_cli_all_eight_both_engines_off_import_without_auth() {
     let root = root();
     let data = root.workspace("data");
@@ -160,6 +166,7 @@ fn documents_cli_all_eight_both_engines_off_import_without_auth() {
     );
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_note() {
     let mut root = root();
     let data = root.workspace("data");
@@ -230,6 +237,7 @@ fn documents_cli_replay_checks_variant_before_auth_or_helper_and_preserves_old_n
     }
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn documents_cli_missing_or_wrong_selected_helper_never_falls_back_or_saves() {
     for wrong in ["/missing/helper", "stock-as-brn", "relative/helper"] {
         let mut root = root();
@@ -261,6 +269,7 @@ fn documents_cli_missing_or_wrong_selected_helper_never_falls_back_or_saves() {
     }
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn documents_cli_useful_handoff_stores_captured_report_before_agent() {
     for converter in ["xberg", "xberg-brn"] {
         let root = root();

@@ -1,3 +1,8 @@
+#[cfg(target_os = "macos")]
+use std::{
+    io::Write,
+    process::{Command, Stdio},
+};
 #[path = "../src/engine.rs"]
 mod engine;
 #[path = "../src/project.rs"]
@@ -6,11 +11,7 @@ use brn_intake::{
     IntakeLimits,
     document::{DocumentExtraction, DocumentRequest},
 };
-use std::{
-    io::Write,
-    path::PathBuf,
-    process::{Command, Stdio},
-};
+use std::path::PathBuf;
 fn request(kind: &str, bytes: Vec<u8>) -> DocumentRequest {
     DocumentRequest {
         schema: 1,
@@ -65,7 +66,7 @@ fn eight_kinds_equal_normal_public_sdk() {
         capture(&format!("{kind}-sdk"), &raw);
         assert!(raw.errors.is_empty(), "{kind}: {:?}", raw.errors);
         assert_eq!(raw.results.len(), 1, "{kind}");
-        let actual = engine::extract(&r).unwrap();
+        let actual: DocumentExtraction = engine::extract(&r).unwrap();
         capture(&format!("{kind}-envelope"), &actual);
         // These ordinary fixtures return no retained bytes with images disabled.
         assert!(
@@ -82,14 +83,17 @@ fn eight_kinds_equal_normal_public_sdk() {
             "normal SDK/explicit identity {kind}"
         );
         actual.validate_for(&r).unwrap();
-        let out = helper(&r);
-        assert!(
-            out.status.success(),
-            "restricted {kind}: {}",
-            String::from_utf8_lossy(&out.stdout)
-        );
-        let restricted: DocumentExtraction = serde_json::from_slice(&out.stdout).unwrap();
-        assert_eq!(restricted, actual, "restricted {kind}");
+        #[cfg(target_os = "macos")]
+        {
+            let out = helper(&r);
+            assert!(
+                out.status.success(),
+                "restricted {kind}: {}",
+                String::from_utf8_lossy(&out.stdout)
+            );
+            let restricted: DocumentExtraction = serde_json::from_slice(&out.stdout).unwrap();
+            assert_eq!(restricted, actual, "restricted {kind}");
+        }
     }
 }
 #[test]
@@ -116,7 +120,7 @@ fn nine_utf8_vectors_have_only_explicit_brn_identity_adjustment() {
     ];
     for (i, (kind, text)) in vectors.into_iter().enumerate() {
         let r = request(kind, text.as_bytes().to_vec());
-        let actual = engine::extract(&r).unwrap();
+        let actual: DocumentExtraction = engine::extract(&r).unwrap();
         let runtime = engine::runtime().unwrap();
         let raw = runtime
             .block_on(xberg::extract(
@@ -184,6 +188,7 @@ fn actual_office_bundle_difference_controls() {
         }
     }
 }
+#[cfg(target_os = "macos")]
 fn helper(r: &DocumentRequest) -> std::process::Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_brn-xberg-helper"))
         .env_clear()
@@ -201,6 +206,7 @@ fn helper(r: &DocumentRequest) -> std::process::Output {
     child.wait_with_output().unwrap()
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn restricted_protocol_and_backend_identity() {
     let r = request("text", b"Synthetic restricted text".to_vec());
     let out = helper(&r);
@@ -249,6 +255,7 @@ fn asset_relocation_changes_only_exact_image_destination() {
 }
 
 #[test]
+#[cfg(target_os = "macos")]
 fn unrelated_environment_is_refused_alone_and_with_cf_marker() {
     for cf in [false, true] {
         let r = request("text", b"Must not extract".to_vec());

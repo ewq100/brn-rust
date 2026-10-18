@@ -311,6 +311,7 @@ fn documents_useful_handoff_keeps_snapshot_and_settings_defer_while_working(
 }
 
 #[gpui_kit::test]
+#[cfg(target_os = "macos")]
 fn documents_native_worker_runs_selected_helper_without_credentials(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();

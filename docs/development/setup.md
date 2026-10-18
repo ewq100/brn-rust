@@ -35,7 +35,7 @@ export BRN_XBERG_HELPER=/private/tmp/brn-document-helpers/artifacts/brn-xberg-he
 export BRN_XBERG_HELPER_BRN=/private/tmp/brn-document-helpers/artifacts/brn-xberg-helper-brn
 ```
 
-Both overrides must be absolute. Without overrides, desktop/CLI resolve these two names beside their own executable. A missing or wrong selected artifact refuses without trying another converter. Task4 owns final app/CLI packaging and maintained CI lanes; a CLI-only build does not supply the helpers automatically yet.
+Both overrides must be absolute. Without overrides, desktop/CLI resolve these two names beside their own executable. A missing or wrong selected artifact refuses without trying another converter. The app packagers require both artifacts and place them beside the desktop under Resources/bin. A CLI-only cargo build still needs these siblings or the two explicit absolute overrides. CI fetches both committed standalone locks during setup, then uses the offline builder and explicit helper/scripted lanes.
 
 Native Settings → Documents or `brn --data-dir /absolute/workspace document-conversion --converter xberg|xberg-brn --ai off|on` saves checked preferences. Settings inspection explicitly shows stock/false even when canonical default serialization omits the field for historical hash compatibility. Every import snapshots both values. All eight kinds, including Text and Markdown, use the chosen normal helper with no Poppler discovery. AI Off needs no conversion credentials. AI On refines the selected output with fixed GPT-6 Luna/high and the existing explicit ChatGPT auth path; general chat settings stay independent. Useful-information's subsequent agent still requires its own credentials/authority. Reports retain actual captured converter/bundle/AI provenance; keyed full/chat/project replay checks that variant before conversion/Auth.
 
@@ -47,7 +47,7 @@ cargo build --locked -p brn-intake --features helper --bin brn-intake-helper
 
 Those compatibility PDF checks require Poppler `pdftotext`, `pdfimages` and native `pdftoppm`, with explicit `BRN_INTAKE_HELPER`, `BRN_PDFTOTEXT`, `BRN_PDFIMAGES` and `BRN_PDFTOPPM` paths for reproducibility. They do not select the new production import route. The carried prepared-PDF Unavailable remains qualified separately from representative normal Xberg PDF success. Encrypted PDF is explicitly deferred; no new refusal implementation or verification is claimed.
 
-Offline in-process CLI refinement qualification uses the nondefault `scripted-document-tests` alias for existing `brn-ai/scripted-runs`. Ordinary CLI/native entry points have no transport/endpoint override. Task4 must add this explicit lane to maintained verification/CI; it is not a live-provider or subprocess AI-success proof.
+Offline in-process CLI refinement qualification uses the nondefault `scripted-document-tests` alias for existing `brn-ai/scripted-runs`. Ordinary CLI/native entry points have no transport/endpoint override. Maintained verification/CI includes this explicit lane; it is not a live-provider or subprocess AI-success proof.
 
 Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.
 

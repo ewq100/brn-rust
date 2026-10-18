@@ -1,13 +1,11 @@
 use brn_threads_intake::*;
-use std::{path::PathBuf, sync::atomic::AtomicBool};
+use std::sync::atomic::AtomicBool;
+#[cfg(target_os = "macos")]
 fn helpers() -> DocumentHelpers {
-    let root = PathBuf::from("/private/tmp/brn-x2-standard-task1-20261018/targets/artifacts");
-    DocumentHelpers {
-        stock: root.join("brn-xberg-helper"),
-        brn: root.join("brn-xberg-helper-brn"),
-    }
+    DocumentHelpers::discover().expect("declared document helpers must resolve")
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
@@ -71,6 +69,7 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
     }
 }
 #[test]
+#[cfg(target_os = "macos")]
 fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
@@ -108,6 +107,7 @@ fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
 }
 
 #[test]
+#[cfg(target_os = "macos")]
 fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_enforced() {
     use std::os::unix::fs::PermissionsExt;
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -180,5 +180,38 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
             .convert_document(request(), &paths, "xberg", &AtomicBool::new(false))
             .unwrap_err(),
         ConversionError::Budget
+    );
+}
+
+#[test]
+#[cfg(not(target_os = "macos"))]
+fn restricted_document_conversion_is_unavailable_on_this_platform() {
+    let root = tempfile::tempdir().unwrap();
+    let converter = Converter {
+        helper_path: "/unused".into(),
+        pdf_tools: None,
+        temp_root: root.path().join("scratch"),
+        limits: Default::default(),
+    };
+    let paths = DocumentHelpers {
+        stock: std::env::current_exe().unwrap(),
+        brn: std::env::current_exe().unwrap(),
+    };
+    assert_eq!(
+        converter
+            .convert_document(
+                ConversionRequest {
+                    kind: DocumentKind::Text,
+                    bytes: b"Synthetic text",
+                    intent: ImportIntent::FullNote,
+                    source_reference: "synthetic://unavailable",
+                    inventory: None
+                },
+                &paths,
+                "xberg",
+                &AtomicBool::new(false)
+            )
+            .unwrap_err(),
+        ConversionError::Unavailable
     );
 }

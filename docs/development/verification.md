@@ -47,3 +47,12 @@ Build the maintained `brn-intake-helper` before the Mac workspace tests. PDF fix
 Use `cargo test -p brn-ai --lib skill_packages`, `cargo test -p brn-threads-core --test data_folder`, `cargo test -p brn-threads-app --test skills` and `cargo test -p brn --test skill_packages`, with the pinned toolchain and locked/offline flags. These cover strict manifest/path/byte bounds, hostile filesystem/collision/refusal, exact-digest removal, real owner-service/CLI reopen, and canonical positive-control backup/restore/export with installed instruction bytes excluded. This exclusion is an explicit local-configuration limitation, not a failed canonical backup or a complete D3 runtime qualification.
 
 D3a does not prove runtime selection/loading, per-run frozen catalogue/update/revoke fencing or project-scope injection S01/S03/S04; those remain D3b. No installed instruction may self-enable a tool, connector or protected-write grant. Preserve actual before-source failures and all candidate errors; targeted mutation runs only after a compiled immutable pin and passing copied baseline under its single cumulative slice cap.
+
+
+## Standard-default document conversion
+
+[Reproduction and the eight-kind matrix](../work/active/modular-foundation/x2/standard-default/verification.md) identify both standalone locks, the SHA-verified optional source generation, declared artifacts and platform limits. Build both document helpers before Mac tests and export `BRN_XBERG_HELPER` / `BRN_XBERG_HELPER_BRN`; missing artifacts fail Mac qualification. Restricted execution is Mac-only; portable DTO/settings checks and explicit non-Mac unavailable controls remain separate.
+
+Run the explicit offline synthetic CLI lane with `cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1` and its strict all-target Clippy equivalent. This is an in-process test-only transport check, not a live provider or subprocess AI-success claim. Ordinary builds do not expose injection. Standalone helper test/lint commands use their own literal stock/adapted targets, not the root workspace target.
+
+The app distribution contains desktop plus stock and BRN helpers, without a legacy production helper or Poppler dependency. Legacy explicit typed-reader tests still require their own helper/tools and retain their separate PDF qualification. Representative normal PDF conversion does not establish encrypted/scanned/complex fidelity, custom refusal or resource proof. Encrypted support remains owner-deferred.

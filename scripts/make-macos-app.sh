@@ -4,8 +4,8 @@ set -euo pipefail
 
 usage() {
   cat <<'HELP'
-Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY [--intake-helper ABSOLUTE_HELPER] --data-dir ABSOLUTE_DIRECTORY
-       make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --intake-helper ABSOLUTE_HELPER --preview-version vX.Y.Z-preview.N [--build-number N]
+Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --xberg-helper ABSOLUTE_STOCK --xberg-helper-brn ABSOLUTE_ADAPTED --data-dir ABSOLUTE_DIRECTORY
+       make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --xberg-helper ABSOLUTE_STOCK --xberg-helper-brn ABSOLUTE_ADAPTED --preview-version vX.Y.Z-preview.N [--build-number N]
 
 Creates an unsigned local .app. The specified binary is copied into the bundle.
 An explicit fresh Threads data directory is required.
@@ -16,17 +16,18 @@ Startup failures are logged at ~/Library/Logs/BRN Threads/startup.log
 HELP
 }
 
-output= binary= intake_helper= data_dir= preview_version= build_number=1
+output= binary= xberg_helper= xberg_helper_brn= data_dir= preview_version= build_number=1
 while (($#)); do
   case "$1" in
     --help) usage; exit 0 ;;
-    --output|--binary|--intake-helper|--data-dir|--preview-version|--build-number)
+    --output|--binary|--xberg-helper|--xberg-helper-brn|--data-dir|--preview-version|--build-number)
       key="$1"
       if (($# < 2)); then echo "$key needs a value" >&2; exit 2; fi
       case "$key" in
         --output) output="$2" ;;
         --binary) binary="$2" ;;
-        --intake-helper) intake_helper="$2" ;;
+        --xberg-helper) xberg_helper="$2" ;;
+        --xberg-helper-brn) xberg_helper_brn="$2" ;;
         --data-dir) data_dir="$2" ;;
         --preview-version) preview_version="$2" ;;
         --build-number) build_number="$2" ;;
@@ -36,12 +37,11 @@ while (($#)); do
   esac
 done
 
-for value in "$output" "$binary"; do
+for value in "$output" "$binary" "$xberg_helper" "$xberg_helper_brn"; do
   if [[ "$value" != /* ]]; then echo "Required paths must be absolute and nonempty" >&2; exit 2; fi
 done
 if [[ -n "$preview_version" ]]; then
   if [[ -n "$data_dir" || ! "$preview_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[1-9][0-9]*$ ]]; then echo 'Choose a valid preview version or an explicit data directory' >&2; exit 2; fi
-  if [[ -z "$intake_helper" ]]; then echo 'Portable previews require --intake-helper' >&2; exit 2; fi
 elif [[ "$data_dir" != /* ]]; then
   echo 'An absolute --data-dir or --preview-version is required' >&2; exit 2
 fi
@@ -51,18 +51,14 @@ if [[ -e "$output" ]]; then echo "Output already exists: $output" >&2; exit 2; f
 if [[ ! -f "$binary" || ! -x "$binary" ]]; then echo "Desktop binary is missing or not executable: $binary" >&2; exit 2; fi
 if [[ -n "$data_dir" && ( "$data_dir" != /* || ! -d "$data_dir" || ! -w "$data_dir" ) ]]; then echo "Data directory is missing or not writable: $data_dir" >&2; exit 2; fi
 
-if [[ -z "$intake_helper" && -x "$(dirname "$binary")/brn-intake-helper" ]]; then
-  intake_helper="$(dirname "$binary")/brn-intake-helper"
-fi
-if [[ -n "$intake_helper" && ( "$intake_helper" != /* || ! -f "$intake_helper" || ! -x "$intake_helper" ) ]]; then echo "Intake helper is missing or not executable" >&2; exit 2; fi
-
+for helper in "$xberg_helper" "$xberg_helper_brn"; do
+  if [[ ! -f "$helper" || ! -x "$helper" ]]; then echo 'Both document helpers must be executable' >&2; exit 2; fi
+done
 mkdir -p "$output/Contents/MacOS" "$output/Contents/Resources/bin"
 cp "$binary" "$output/Contents/Resources/bin/brn-desktop"
-chmod +x "$output/Contents/Resources/bin/brn-desktop"
-if [[ -n "$intake_helper" ]]; then
-  cp "$intake_helper" "$output/Contents/Resources/bin/brn-intake-helper"
-  chmod +x "$output/Contents/Resources/bin/brn-intake-helper"
-fi
+cp "$xberg_helper" "$output/Contents/Resources/bin/brn-xberg-helper"
+cp "$xberg_helper_brn" "$output/Contents/Resources/bin/brn-xberg-helper-brn"
+chmod +x "$output/Contents/Resources/bin/"*
 cat > "$output/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -112,9 +108,9 @@ fail() {
 }
 : > "$log" || exit 1
 [[ -x "$binary" ]] || fail "Desktop binary is missing or not executable: $binary"
-if [[ "$portable_preview" == 1 ]]; then
-  [[ -x "$resource_dir/bin/brn-intake-helper" ]] || fail 'Bundled intake helper is missing or not executable'
-fi
+for helper in brn-xberg-helper brn-xberg-helper-brn; do
+  [[ -x "$resource_dir/bin/$helper" ]] || fail "Bundled document helper is missing or not executable: $helper"
+done
 args=()
 if [[ -n "$data_dir" ]]; then
   if [[ "$portable_preview" == 0 ]]; then
