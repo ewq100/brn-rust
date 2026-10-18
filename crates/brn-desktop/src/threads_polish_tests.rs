@@ -1021,6 +1021,8 @@ fn each_writing_state_has_one_primary_and_run_outcomes_show_their_full_reason(
 
 #[gpui_kit::test]
 fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
+    // Test the confirmation callbacks at rest; entrance motion is separate.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx, 1250., 860., "Saved text");
     cx.update(|cx| cx.bind_keys(bindings()));
     type_edit(cx, &f, " unsaved");
