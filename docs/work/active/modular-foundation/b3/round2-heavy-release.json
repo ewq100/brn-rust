@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-10-16T23:22:02.253911+00:00",
+  "branch": "work/b3-20261017",
+  "compiled_source_pin": "93b92d7bc519d598c23e16562512b167a59d5c49",
+  "tree": "c28388560864f9633923b9b06c6c9f409a22cdf2",
+  "crates_tree": "0afb215e543bc5a2512b1fac24107169a39818af",
+  "source_material_328_match_compiled_commands": true,
+  "material_fingerprint": "31a11c985b10c4ea6bca8a46e1060a75fb54f727c86d8faced488a608d3e463d",
+  "candidate_git_status": "",
+  "before_exact_def_production_plus_original_test_patch_retained": true,
+  "before_test_only_diff_sha256": "39d57b877f9a1541fa0c0b3370329add2cc93c977969016c38cf958bc3c7d0d2",
+  "before_source": "/private/tmp/brn-b3-opus2-before-20261017-source",
+  "before_target": "/private/tmp/brn-b3-opus2-before-20261017-target",
+  "candidate_source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "candidate_target": "/private/tmp/brn-b3-20261017-target",
+  "running_command_receipts": [],
+  "completed_command_pids": [
+    60632,
+    67005,
+    67114,
+    67185,
+    67244,
+    67458,
+    67523,
+    67663
+  ],
+  "heavy_processes": [],
+  "own_task_controllers_binaries": [],
+  "all_own_children_reaped": true,
+  "heavy_slot": "EXPLICITLY RELEASED to principal; no further heavy commands",
+  "source_ownership": "All allocated B3 source/test/shared hunks retained frozen for principal Opus3 and explicit handoff",
+  "mutation": "none this window; original allocation217.265250/600 closed",
+  "toolchain": {
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "toolchain_file": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n"
+  }
+}

@@ -176,6 +176,81 @@ impl Workspace {
         }
         self.post_message(chat, SOURCE_INTAKE_INSTRUCTION).map(Some)
     }
+    /// Resolve a successful full import to its current canonical Note without
+    /// trusting a receipt payload or inferring requested bytes from a Source's
+    /// latest external_version. Observation-only re-import receipts omit the Note.
+    /// This is a scoped read, never attachment or write authority.
+    pub fn full_import_note_in_scope(
+        &self,
+        receipt: &Receipt,
+        source_sha256: &[u8; 32],
+        scope: Option<&str>,
+    ) -> AppResult<Record> {
+        let unavailable = || {
+            AppError::Invalid(
+                "Imported reference is no longer available in this writing scope".into(),
+            )
+        };
+        let token = self.store.change_token().map_err(|_| unavailable())?;
+        let saved = self
+            .store
+            .receipt(&receipt.operation)
+            .map_err(|_| unavailable())?
+            .filter(|saved| saved == receipt)
+            .ok_or_else(unavailable)?;
+        let sources = saved
+            .writes
+            .iter()
+            .filter_map(|write| {
+                matches!(write.after.data, RecordData::Source(_)).then_some(&write.after)
+            })
+            .collect::<Vec<_>>();
+        let [source] = sources.as_slice() else {
+            return Err(unavailable());
+        };
+        if source.archived
+            || !matches!(&source.data, RecordData::Source(saved) if saved.chat.as_deref() == scope)
+        {
+            return Err(unavailable());
+        }
+        let rows = self.records().map_err(|_| unavailable())?;
+        if writing_setup_scope(&rows, scope)
+            .map_err(|_| unavailable())?
+            .as_deref()
+            != scope
+        {
+            return Err(unavailable());
+        }
+        let current_source = rows.iter().find(|record| record.id == source.id && !record.archived
+            && matches!(&record.data, RecordData::Source(current) if current.chat.as_deref() == scope))
+            .ok_or_else(unavailable)?;
+        if !record_in_chat(current_source, &rows, scope) || !record_in_chat(source, &rows, scope) {
+            return Err(unavailable());
+        }
+        // Re-importing X after Y may intentionally leave Source.external_version=Y.
+        // The host-observed converted SHA, not that mutable field, selects the immutable import relation.
+        let relation = format!(
+            "{}{}",
+            crate::relations::FULL_IMPORT_PREFIX,
+            source_sha256
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
+        let mut eligible = rows.iter().filter(|record| !record.archived
+            && matches!(&record.data, RecordData::Note(note) if note.chat.as_deref() == scope && note.superseded_by.is_none()
+                && note.import.as_ref().is_some_and(|import| import.full_note && import.source == source.id))
+            && record_in_chat(record, &rows, scope)
+            && rows.iter().any(|link| !link.archived
+                && matches!(&link.data, RecordData::Link(edge) if edge.from == record.id && edge.to == source.id && edge.relation == relation)
+                && record_in_chat(link, &rows, scope)))
+            .collect::<Vec<_>>();
+        if eligible.len() != 1 || self.store.change_token().map_err(|_| unavailable())? != token {
+            return Err(unavailable());
+        }
+        eligible.pop().cloned().ok_or_else(unavailable)
+    }
+
     pub fn import_full(
         &mut self,
         key: &str,

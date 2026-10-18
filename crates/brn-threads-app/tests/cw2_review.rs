@@ -686,3 +686,539 @@ async fn general_writing_uses_real_search_counts_and_never_delivers_new_private_
         .unwrap();
     assert!(review.sources.iter().all(|s| s.id != other));
 }
+
+/// Join the previously separate setup/export, P1 review and general runtime
+/// witnesses: check a pending P1 candidate in P2/general, then retain its applied/
+/// undone private provenance while both scopes execute real tools and proposals.
+#[tokio::test]
+async fn int_w_f21_private_context_never_enters_p2_or_general_delivery() {
+    for source_private in [false, true] {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let mut app =
+            Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+        let note = app
+            .new_note("Shared INT-W draft", "Public working text")
+            .unwrap();
+        let public = app
+            .new_note("INTWneedle public", "INTWneedle public positive control")
+            .unwrap();
+        let (p1, c1) = project(&mut app, "INT-W P1", &note);
+        let (p2, c2) = project(&mut app, "INT-W P2", &note);
+        let general = app
+            .ensure_writing_context("int-w-general", &note.id, None)
+            .unwrap()
+            .conversation
+            .unwrap();
+        let mut reference = Note::working("INTW_P1_TITLE", "INTWneedle INTW_P1_BODY Ω");
+        reference.chat = if source_private {
+            None
+        } else {
+            Some(p1.clone())
+        };
+        let mut private_source_id = "INTW_NO_PRIVATE_SOURCE".to_owned();
+        if source_private {
+            let op = app
+                .store
+                .allocate_operation("int-w-retained-private-source")
+                .unwrap();
+            private_source_id = op.creation_id(0);
+            owner_put(
+                &mut app,
+                "int-w-retained-private-source",
+                Put {
+                    id: private_source_id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Source(Source {
+                        chat: Some(p1.clone()),
+                        locator: "synthetic:int-w-retained".into(),
+                        label: "INTW_P1_SOURCE_LABEL".into(),
+                        observed_at: "synthetic".into(),
+                        external_version: None,
+                        outcome: "Retained synthetic source".into(),
+                        gaps: vec![],
+                        report: None,
+                    }),
+                },
+            );
+            reference.import = Some(ImportCoverage {
+                source: private_source_id.clone(),
+                full_note: false,
+                gaps: vec![],
+                report: None,
+            });
+        }
+        let op = app
+            .store
+            .allocate_operation("int-w-private-reference")
+            .unwrap();
+        let reference_id = op.creation_id(0);
+        owner_put(
+            &mut app,
+            "int-w-private-reference",
+            Put {
+                id: reference_id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Note(reference),
+            },
+        );
+        app.project_command(
+            "int-w-link-private",
+            ProjectCommand::LinkDocument {
+                project: p1.clone(),
+                note: reference_id.clone(),
+            },
+        )
+        .unwrap();
+        // One hidden and one visible neighbour give counts a nonzero control.
+        for (index, target) in [&reference_id, &public.id].into_iter().enumerate() {
+            let key = format!("int-w-evidence-link-{index}");
+            let op = app.store.allocate_operation(&key).unwrap();
+            owner_put(
+                &mut app,
+                &key,
+                Put {
+                    id: op.creation_id(0),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Link(Link {
+                        from: note.id.clone(),
+                        to: target.clone(),
+                        relation: "evidence".into(),
+                    }),
+                },
+            );
+        }
+        let setup = app
+            .set_writing_setup(
+                "int-w-p1-setup",
+                None,
+                &WritingSetup {
+                    note: note.id.clone(),
+                    chat: Some(p1.clone()),
+                    brief: Some("INTW_P1_BRIEF".into()),
+                    references: vec![WritingReference {
+                        note: reference_id.clone(),
+                        purpose: WritingPurpose::Style,
+                    }],
+                },
+            )
+            .unwrap();
+        let setup_id = setup
+            .writes
+            .iter()
+            .find(|w| matches!(w.after.data, RecordData::WritingSetup(_)))
+            .unwrap()
+            .after
+            .id
+            .clone();
+        let first = app
+            .snapshot_writing_request("int-w-p1-request", &note.id, 1, &c1, &[])
+            .unwrap();
+        assert_eq!(
+            first.setup.as_ref().unwrap().references[0].purpose,
+            WritingPurpose::Style
+        );
+        let prepared = app
+            .prepare_thread_run(ThreadRunStart {
+                thread: c1.clone(),
+                prompt: "unused".into(),
+                request_message: None,
+                queue_claim: None,
+                owner_request: Some(OwnerRequest::RewriteNote {
+                    request_message: first.request_message.clone(),
+                }),
+                sources: vec![],
+                max_tool_rounds: Some(4),
+                trace: TraceLevel::Full,
+                offered_copilot_models: None,
+            })
+            .unwrap();
+        let model = MockCompletionModel::from_stream_turns([
+            vec![
+                MockStreamEvent::tool_call(
+                    "read-p1",
+                    "read_note",
+                    json!({"id":reference_id,"version":1,"start":0,"max_bytes":4096,"section":false}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::tool_call(
+                    "propose-p1",
+                    "prepare_changes",
+                    json!({"request_key":"int-w-p1-proposal","request":first.change_request("Public exact reviewed revision").unwrap(),"writing":null}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::text("Prepared for exact review."),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+        ]);
+        let result = run_prepared_scripted(prepared.prepared, model.clone())
+            .await
+            .unwrap();
+        assert!(
+            matches!(result.answer.terminal, AiTerminal::Completed),
+            "{:?}",
+            result.answer.terminal
+        );
+        let delivered_p1 = serde_json::to_string(&model.requests()).unwrap();
+        for marker in ["INTW_P1_BRIEF", "INTW_P1_BODY", reference_id.as_str()] {
+            assert!(delivered_p1.contains(marker));
+        }
+        let private_candidate = app.candidates().unwrap().pop().unwrap();
+        let review = app
+            .writing_candidate_review(private_candidate.operation.as_str(), Some(&p1))
+            .unwrap();
+        let source = review
+            .sources
+            .iter()
+            .find(|s| s.id == reference_id)
+            .unwrap();
+        assert_eq!(source.title, "INTW_P1_TITLE");
+        assert!(source.private_into_wider_note);
+        assert!(source.retained_read.as_ref().unwrap().complete);
+        assert!(matches!(
+            app.store
+                .apply(
+                    &private_candidate.operation,
+                    &HostAuthority::maintenance("source content is not owner review")
+                )
+                .unwrap(),
+            ApplyOutcome::NeedsReview { .. }
+        ));
+        assert!(
+            app.store
+                .receipt(&private_candidate.operation)
+                .unwrap()
+                .is_none()
+        );
+
+        // A Note has one active candidate. Check pending presentation in both
+        // other scopes before the explicit owner Apply/Undo frees that slot.
+        for displayed in [Some(p2.as_str()), None] {
+            let checked = app
+                .writing_context_review(
+                    &note.id,
+                    displayed,
+                    std::slice::from_ref(&private_candidate),
+                )
+                .unwrap()
+                .1;
+            assert!(checked.candidates.is_empty());
+            assert!(!checked.requests.contains_key(&first.request_message));
+            assert!(
+                app.writing_candidate_review(private_candidate.operation.as_str(), displayed)
+                    .is_err()
+            );
+            assert!(
+                app.review_apply_in_context(private_candidate.operation.as_str(), displayed)
+                    .is_err()
+            );
+            assert!(
+                app.store
+                    .receipt(&private_candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+        }
+        let applied = app
+            .review_apply_in_context(private_candidate.operation.as_str(), Some(&p1))
+            .unwrap();
+        assert!(matches!(applied, ApplyOutcome::Applied(_)));
+        assert_eq!(
+            app.review_apply_in_context(private_candidate.operation.as_str(), Some(&p1))
+                .unwrap(),
+            applied
+        );
+        assert!(matches!(
+            app.undo_with_key("int-w-undo", private_candidate.operation.as_str())
+                .unwrap()
+                .1,
+            ApplyOutcome::Applied(_)
+        ));
+        let restored = app.store.note(&note.id).unwrap().unwrap();
+        assert_eq!(restored.data, note.data);
+        assert!(restored.version > note.version);
+
+        // Inspect encoded tool-result JSON too, not only the model's final words.
+        fn pages(value: &serde_json::Value, found: &mut Vec<serde_json::Value>) {
+            if (value
+                .get("results")
+                .is_some_and(serde_json::Value::is_array)
+                && value.get("total").is_some())
+                || (value.get("centre").is_some()
+                    && value.get("hops").is_some_and(serde_json::Value::is_array))
+            {
+                found.push(value.clone());
+            }
+            match value {
+                serde_json::Value::String(s) => {
+                    if let Ok(v) = serde_json::from_str::<serde_json::Value>(s) {
+                        pages(&v, found);
+                    }
+                }
+                serde_json::Value::Array(a) => {
+                    for v in a {
+                        pages(v, found);
+                    }
+                }
+                serde_json::Value::Object(o) => {
+                    for v in o.values() {
+                        pages(v, found);
+                    }
+                }
+                _ => (),
+            }
+        }
+        for (index, (displayed, thread)) in
+            [(Some(p2.as_str()), c2.as_str()), (None, general.as_str())]
+                .into_iter()
+                .enumerate()
+        {
+            let hidden = [
+                "INTW_P1_BRIEF",
+                "INTW_P1_TITLE",
+                "INTW_P1_BODY",
+                "INTW_P1_SOURCE_LABEL",
+                private_source_id.as_str(),
+                reference_id.as_str(),
+                setup_id.as_str(),
+                first.request_message.as_str(),
+            ];
+            let visible = app.store.records_for_chat(displayed).unwrap();
+            let visible_text = serde_json::to_string(&visible).unwrap();
+            for marker in hidden {
+                assert!(
+                    !visible_text.contains(marker),
+                    "scope {index} list leaked {marker}"
+                );
+            }
+            let config = app.writing_setup(&note.id, displayed).unwrap();
+            assert!(config.record.is_none());
+            assert!(config.references.is_empty());
+            let handle = app.search_handle().unwrap();
+            let page = handle
+                .request_keyword_page("INTWneedle", displayed, 1, None)
+                .wait()
+                .unwrap();
+            assert_eq!(page.total, 1);
+            assert!(page.next.is_none());
+            assert_eq!(page.matches[0].note, public.id);
+            let connections = handle.connections(&note.id, displayed, 1, true).unwrap();
+            assert_eq!(connections.hops[0].available, 1);
+            assert_eq!(connections.hops[0].shown[0].id, public.id);
+            let checked = app
+                .writing_context_review(
+                    &note.id,
+                    displayed,
+                    std::slice::from_ref(&private_candidate),
+                )
+                .unwrap()
+                .1;
+            assert!(checked.candidates.is_empty());
+            assert!(!checked.requests.contains_key(&first.request_message));
+            assert!(
+                app.writing_candidate_review(private_candidate.operation.as_str(), displayed)
+                    .is_err()
+            );
+            assert!(
+                app.review_apply_in_context(private_candidate.operation.as_str(), displayed)
+                    .is_err()
+            );
+            assert!(
+                app.store
+                    .receipt(&private_candidate.operation)
+                    .unwrap()
+                    .is_some()
+            );
+            let snapshot = app
+                .snapshot_writing_request(
+                    &format!("int-w-other-request-{index}"),
+                    &note.id,
+                    restored.version,
+                    thread,
+                    &[],
+                )
+                .unwrap();
+            assert!(snapshot.setup.as_ref().unwrap().brief.is_none());
+            assert!(snapshot.setup.as_ref().unwrap().references.is_empty());
+            for marker in hidden {
+                assert!(!snapshot.message_text().unwrap().contains(marker));
+            }
+            let prepared = app
+                .prepare_thread_run(ThreadRunStart {
+                    thread: thread.into(),
+                    prompt: "unused".into(),
+                    request_message: None,
+                    queue_claim: None,
+                    owner_request: Some(OwnerRequest::RewriteNote {
+                        request_message: snapshot.request_message.clone(),
+                    }),
+                    sources: vec![],
+                    max_tool_rounds: Some(6),
+                    trace: TraceLevel::Full,
+                    offered_copilot_models: None,
+                })
+                .unwrap();
+            let model = MockCompletionModel::from_stream_turns([
+                vec![
+                    MockStreamEvent::tool_call(
+                        "search",
+                        "search_notes",
+                        json!({"query":"INTWneedle","limit":1,"cursor":null,"mode":"keyword"}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+                vec![
+                    MockStreamEvent::tool_call(
+                        "connections",
+                        "note_connections",
+                        json!({"id":note.id,"hops":1,"sources":true}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+                vec![
+                    MockStreamEvent::tool_call(
+                        "list",
+                        "read_records",
+                        json!({"ids":[public.id,reference_id],"query":null}),
+                    ),
+                    MockStreamEvent::tool_call(
+                        "exact",
+                        "read_note",
+                        json!({"id":public.id,"version":public.version,"start":0,"max_bytes":4096,"section":false}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+                vec![
+                    MockStreamEvent::tool_call(
+                        "propose",
+                        "prepare_changes",
+                        json!({"request_key":format!("int-w-other-proposal-{index}"),"request":snapshot.change_request("Another public proposal").unwrap(),"writing":null}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+                vec![
+                    MockStreamEvent::text("Prepared for review."),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+            ]);
+            let result = run_prepared_scripted(prepared.prepared, model.clone())
+                .await
+                .unwrap();
+            assert!(
+                matches!(result.answer.terminal, AiTerminal::Completed),
+                "{:?} model requests: {}",
+                result.answer.terminal,
+                serde_json::to_string(&model.requests()).unwrap()
+            );
+            let delivery = serde_json::to_value(model.requests()).unwrap();
+            let text = delivery.to_string();
+            assert!(text.contains("INTWneedle public"));
+            let mut host_delivery = delivery.clone();
+            for request in host_delivery.as_array_mut().unwrap() {
+                request["chat_history"]
+                    .as_array_mut()
+                    .unwrap()
+                    .retain(|message| message["role"] != "assistant");
+            }
+            let host_text = host_delivery.to_string();
+            for marker in hidden {
+                assert!(
+                    !host_text.contains(marker),
+                    "scope {index} model/tool context leaked {marker}"
+                );
+            }
+            let mut actual_pages = vec![];
+            pages(&delivery, &mut actual_pages);
+            assert!(
+                !actual_pages.is_empty(),
+                "actual search response must reach the model"
+            );
+            let search_pages: Vec<_> = actual_pages
+                .iter()
+                .filter(|p| p.get("results").is_some())
+                .collect();
+            let neighbourhoods: Vec<_> = actual_pages
+                .iter()
+                .filter(|p| p.get("centre").is_some())
+                .collect();
+            assert!(!search_pages.is_empty());
+            assert!(
+                !neighbourhoods.is_empty(),
+                "actual Connections response must reach the model"
+            );
+            assert!(search_pages.iter().all(|p| {
+                p["total"] == 1
+                    && p["shown"] == 1
+                    && p["cursor"].is_null()
+                    && p["results"].as_array().unwrap().len() == 1
+                    && p["results"][0]["id"] == public.id
+                    && p["results"][0]["snippet"]
+                        .as_str()
+                        .unwrap()
+                        .contains("public positive control")
+            }));
+            assert!(neighbourhoods.iter().all(|p| p["centre"]["id"] == note.id
+                && p["hops"][0]["available"] == 1
+                && p["hops"][0]["neighbours"].as_array().unwrap().len() == 1
+                && p["hops"][0]["neighbours"][0]["id"] == public.id));
+            let other = app
+                .candidates()
+                .unwrap()
+                .into_iter()
+                .find(|c| {
+                    c.operation != private_candidate.operation
+                        && c.request
+                            .inputs
+                            .iter()
+                            .any(|i| i.record == snapshot.request_message)
+                })
+                .unwrap();
+            let review = app
+                .writing_candidate_review(other.operation.as_str(), displayed)
+                .unwrap();
+            assert!(review.sources.iter().all(|s| s.id != reference_id));
+            assert!(review.host_verified_quotations.is_empty());
+            assert!(
+                review
+                    .sources
+                    .iter()
+                    .any(|s| s.id == public.id
+                        && s.retained_read.as_ref().is_some_and(|r| r.complete))
+            );
+            // Free the single candidate slot by explicit owner dismissal, never by
+            // replacing another scope's proposal or weakening the store's rule.
+            app.review_dismiss(other.operation.as_str()).unwrap();
+        }
+        // The owner may inspect/backup all private canonical state; that is not scoped delivery.
+        assert!(app.records().unwrap().iter().any(|r| r.id == reference_id));
+        let export = root.path().join("general-export");
+        app.export_now(&export).unwrap();
+        for entry in std::fs::read_dir(&export).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_file() {
+                let text = std::fs::read_to_string(path).unwrap();
+                for marker in [
+                    "INTW_P1_BRIEF",
+                    "INTW_P1_TITLE",
+                    "INTW_P1_BODY",
+                    "INTW_P1_SOURCE_LABEL",
+                    private_source_id.as_str(),
+                    reference_id.as_str(),
+                    setup_id.as_str(),
+                ] {
+                    assert!(!text.contains(marker), "general export leaked {marker}");
+                }
+            }
+        }
+        let RecordData::Note(saved) = app.store.note(&note.id).unwrap().unwrap().data else {
+            panic!("Note")
+        };
+        assert_eq!(saved.markdown, "Public working text");
+    }
+}

@@ -1,0 +1,25 @@
+   Compiling brn-threads-app v0.1.0 (/private/tmp/brn-int-w-guard-20261017/source/crates/brn-threads-app)
+   Compiling brn-writing-ui v0.1.0 (/private/tmp/brn-int-w-guard-20261017/source/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/private/tmp/brn-int-w-guard-20261017/source/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 18.25s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/private/tmp/brn-int-w-guard-20261017/target/debug/deps/brn_desktop-ddcd9d7ab3061f22)
+
+running 1 test
+
+thread 'threads_ui::writing_tests::int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source' (30118062) panicked at crates/brn-desktop/src/threads_writing_tests.rs:4026:13:
+assertion `left == right` failed: a hidden reference must not contribute an inbound count to a visible Note
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads_ui::writing_tests::int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source ... FAILED
+
+failures:
+
+failures:
+    threads_ui::writing_tests::int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 288 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

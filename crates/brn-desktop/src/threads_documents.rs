@@ -8,22 +8,7 @@ fn converter_label(converter: DocumentConverter) -> &'static str {
     }
 }
 
-pub(super) fn report_details(report: &ImportReport) -> Vec<String> {
-    let mut details = Vec::new();
-    if let Some(conversion) = &report.conversion {
-        details.push(format!(
-            "{} · AI conversion: {}",
-            converter_label(conversion.settings.converter),
-            if conversion.settings.ai {
-                "On (GPT-6 Luna, high)"
-            } else {
-                "Off"
-            },
-        ));
-    }
-    details.extend(report.issues.iter().map(ImportIssue::display));
-    details
-}
+pub(super) use brn_writing_ui::native::import_report_details as report_details;
 
 pub(super) fn report_summary(report: &ImportReport) -> String {
     match &report.conversion {

@@ -92,124 +92,7 @@ impl TileKind {
 /// Gap between panels and padding around the row, as the renderer draws them.
 pub(super) const PANEL_GAP: f32 = 6.;
 
-/// Where a Note's comments sit: beside the text at a fixed margin width, or
-/// docked below it when the Note has no room.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum MarginMode {
-    Wide,
-    Narrow,
-    Stacked,
-}
-impl MarginMode {
-    pub(super) const WIDE: f32 = 280.;
-    pub(super) const NARROW: f32 = 220.;
-    /// Width the margin adds to the Note's minimum.
-    pub(super) fn width(self) -> f32 {
-        match self {
-            Self::Wide => Self::WIDE,
-            Self::Narrow => Self::NARROW,
-            Self::Stacked => 0.,
-        }
-    }
-}
-
-/// The width each Note toolbar arrangement needs on one row, padding and
-/// borders included. The renderer measures them for the open note from its
-/// labels and its status chip and comment count (`note_toolbar_needs`), so
-/// Edit note and Connections fold only when this note's row doesn't fit.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(super) struct NoteNeeds {
-    pub(super) full: f32,
-    pub(super) format_menu: f32,
-    pub(super) compact: f32,
-}
-impl NoteNeeds {
-    /// The widest row in the test text system, a "Protected · v12" chip and
-    /// a 12-comment toggle (797, 752 and 543 pt), plus about 12 pt.
-    pub(super) const WIDEST: Self = Self {
-        full: NoteFit::FULL,
-        format_menu: NoteFit::FORMAT_MENU,
-        compact: NoteFit::COMPACT,
-    };
-}
-
-/// How much of the Note toolbar fits on its one row, by the Note panel's
-/// width and what the open note's row needs (`NoteNeeds`). Icons needs
-/// 315 pt, under the Note's 360 pt minimum.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
-pub(super) enum NoteFit {
-    /// Format and Outline are icon triggers, and the status chip shows its
-    /// icon and version.
-    Icons,
-    /// Edit note and Connections move into the Note ⋯.
-    Compact,
-    /// The five formatting buttons fold into Format ▾.
-    FormatMenu,
-    #[default]
-    Full,
-}
-impl NoteFit {
-    pub(super) const FULL: f32 = 810.;
-    pub(super) const FORMAT_MENU: f32 = 765.;
-    pub(super) const COMPACT: f32 = 555.;
-    pub(super) fn for_width(width: f32, needs: NoteNeeds) -> Self {
-        if width >= needs.full {
-            Self::Full
-        } else if width >= needs.format_menu {
-            Self::FormatMenu
-        } else if width >= needs.compact {
-            Self::Compact
-        } else {
-            Self::Icons
-        }
-    }
-    pub(super) fn format_menu(self) -> bool {
-        self < Self::Full
-    }
-    pub(super) fn actions_in_menu(self) -> bool {
-        self < Self::FormatMenu
-    }
-    pub(super) fn icons(self) -> bool {
-        self == Self::Icons
-    }
-}
-
-/// How much of the review bar fits on its one row, by the Note panel's
-/// width. Each threshold is the measured width its arrangement needs on a
-/// protected whole-note review with a 12-comment toggle (915 and 658 pt,
-/// padding and borders included) plus a few points for wider counts; the
-/// icon arrangement needs 405 pt, so 900×600 Write (Note 406 pt) keeps one
-/// row. The exact-text footer below the review never folds.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
-pub(super) enum ReviewFit {
-    /// The primary reads Apply or Approve, the Proposal label drops its
-    /// shape and the Protected chip shows only its lock.
-    Icons,
-    /// Keep for later and Dismiss move into the Note ⋯, and the +a −r counts
-    /// into the Proposal label's tooltip.
-    Compact,
-    #[default]
-    Full,
-}
-impl ReviewFit {
-    pub(super) const FULL: f32 = 920.;
-    pub(super) const COMPACT: f32 = 670.;
-    pub(super) fn for_width(width: f32) -> Self {
-        if width >= Self::FULL {
-            Self::Full
-        } else if width >= Self::COMPACT {
-            Self::Compact
-        } else {
-            Self::Icons
-        }
-    }
-    pub(super) fn actions_in_menu(self) -> bool {
-        self < Self::Full
-    }
-    pub(super) fn icons(self) -> bool {
-        self == Self::Icons
-    }
-}
+pub(super) use brn_writing_ui::layout::{MarginMode, NoteFit, NoteNeeds, ReviewFit};
 
 /// Resolve layout weights to widths the way flex does: share the space by
 /// weight, pin any panel that would fall below its minimum, and share the rest
@@ -864,34 +747,6 @@ mod width_tests {
 
     #[test]
     fn note_toolbar_folds_in_order_as_the_note_narrows() {
-        for (width, fit) in [
-            (1200., NoteFit::Full),
-            (NoteFit::FULL, NoteFit::Full),
-            (NoteFit::FULL - 1., NoteFit::FormatMenu),
-            (NoteFit::FORMAT_MENU, NoteFit::FormatMenu),
-            (NoteFit::FORMAT_MENU - 1., NoteFit::Compact),
-            (NoteFit::COMPACT, NoteFit::Compact),
-            (NoteFit::COMPACT - 1., NoteFit::Icons),
-            (360., NoteFit::Icons),
-        ] {
-            assert_eq!(NoteFit::for_width(width, NoteNeeds::WIDEST), fit, "{width}");
-        }
-        // A plainer note's narrower row keeps Edit note and Connections at
-        // a width where the widest row folds them.
-        let plain = NoteNeeds {
-            full: 740.,
-            format_menu: 690.,
-            compact: 500.,
-        };
-        assert_eq!(NoteFit::for_width(700., plain), NoteFit::FormatMenu);
-        assert_eq!(
-            NoteFit::for_width(700., NoteNeeds::WIDEST),
-            NoteFit::Compact
-        );
-        assert!(!NoteFit::Full.format_menu());
-        assert!(NoteFit::FormatMenu.format_menu() && !NoteFit::FormatMenu.actions_in_menu());
-        assert!(NoteFit::Compact.actions_in_menu() && !NoteFit::Compact.icons());
-        assert!(NoteFit::Icons.icons() && NoteFit::Icons.actions_in_menu());
         // Write at 1250 (Wide margin open), 1050 and 900 pt (stacked).
         let mut layout = Layout::default();
         layout.open(TileKind::Threads);
@@ -908,19 +763,6 @@ mod width_tests {
 
     #[test]
     fn review_bar_folds_in_order_as_the_note_narrows() {
-        for (width, fit) in [
-            (1200., ReviewFit::Full),
-            (ReviewFit::FULL, ReviewFit::Full),
-            (ReviewFit::FULL - 1., ReviewFit::Compact),
-            (ReviewFit::COMPACT, ReviewFit::Compact),
-            (ReviewFit::COMPACT - 1., ReviewFit::Icons),
-            (360., ReviewFit::Icons),
-        ] {
-            assert_eq!(ReviewFit::for_width(width), fit, "{width}");
-        }
-        assert!(!ReviewFit::Full.actions_in_menu());
-        assert!(ReviewFit::Compact.actions_in_menu() && !ReviewFit::Compact.icons());
-        assert!(ReviewFit::Icons.icons() && ReviewFit::Icons.actions_in_menu());
         // Write: 1250 pt (Note 687, Wide margin) folds Keep for later and
         // Dismiss into the menu; 900 pt (Note 406) is the icon arrangement.
         assert_eq!(

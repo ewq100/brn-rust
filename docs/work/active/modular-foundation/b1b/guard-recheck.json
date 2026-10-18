@@ -1,0 +1,183 @@
+{
+  "all_original_source_and_Git_hashes_reverified_after_cache_invalidation": true,
+  "baseline_binary_retention": "Exact hash retained at baseline completion; its reused literal target filename was overwritten by the variant. No post-variant assertion of baseline bytes at that filename.",
+  "budget_seconds": 300,
+  "candidate_HEAD": "9b4f48e768ac561e84a3bffb4bb78c385b4d6147",
+  "candidate_material_count": 955,
+  "commands": [
+    {
+      "artifacts": [
+        {
+          "bytes": 71087328,
+          "path": "/private/tmp/brn-b1b-before-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+          "sha256": "93c0ffaf488cc988c04983c173d8c79db81c7c9463a17e3f8efb2f9028877ed2"
+        }
+      ],
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "compiled_successfully": true,
+      "cwd": "/private/tmp/brn-b1b-before-20261016-source",
+      "duration_seconds": 51.16700745804701,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1b-before-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1b-before-20261016-target",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "label": "unmutated",
+      "log": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/unmutated.log",
+      "log_sha256": "fab196ea49f38de10f47babda0fcd22a7721a80b34ba5d93bd0f76297c29cd0c",
+      "source_inputs": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/unmutated-inputs.json",
+      "source_inputs_sha256": "2dc849c6ebb18b19b41b0e8713ec20b98a400a120be29c5c5a5e42b3b9cb96be",
+      "synthetic_Git_HEAD": "459e2c94b0ddadd3c9a8ee25a643707a5f6d8dd7",
+      "timed_out": false
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 71086640,
+          "path": "/private/tmp/brn-b1b-before-20261016-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+          "sha256": "e552fee8e7240494c9d653b51c4d871aa6dec3707f5242e00762a1c56f4b3627"
+        }
+      ],
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection",
+        "--locked",
+        "--offline",
+        "--",
+        "--nocapture"
+      ],
+      "compiled_successfully": true,
+      "cwd": "/private/tmp/brn-b1b-before-20261016-source",
+      "duration_seconds": 18.667168416897766,
+      "env": {
+        "BRN_INTAKE_HELPER": "/private/tmp/brn-b1b-before-20261016-target/debug/brn-intake-helper",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1b-before-20261016-target",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "TMPDIR": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "label": "omission",
+      "log": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/omission.log",
+      "log_sha256": "a28d0a98a20af47e917f025f1eef979aede00772d36aebf8c1c49cf01f6bcd26",
+      "source_inputs": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/omission-inputs.json",
+      "source_inputs_sha256": "e93fb6e0841fa50d50d95d944c6e166167d07faf97f19c38af0d742c6171e78c",
+      "synthetic_Git_HEAD": "459e2c94b0ddadd3c9a8ee25a643707a5f6d8dd7",
+      "timed_out": false
+    }
+  ],
+  "controller_script": {
+    "path": "/private/tmp/brn-b1b-low-window-20261017/one-omission.py",
+    "sha256": "51a509a5073bde91008c2925ad8c7f1c4c8670b86d5a690824508a898ffbada5"
+  },
+  "duration_seconds_including_failed_preflight_setup_baseline_variant_restore_reap_verification": 208.817199,
+  "every_candidate_material_byte_verified_before_baseline": true,
+  "finished_utc": "2026-10-16T21:19:43.148175+00:00",
+  "initial_identity_preflight_failure": {
+    "budget_seconds": 300,
+    "candidate_HEAD": "9b4f48e7dd99c164e99399999999999999999999",
+    "candidate_source": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+    "candidate_target_excluded": "/private/tmp/brn-b1a-20261016-target",
+    "commands": [],
+    "duration_seconds_including_setup_restore_reap_verification": 0.05874499992933124,
+    "exception": "AssertionError()",
+    "finished_utc": "2026-10-16T21:16:14.387321+00:00",
+    "groups": [],
+    "kind": "ONE contextual-reader omission; no automatic mutants",
+    "outcome": "NO VERDICT",
+    "remaining_own_groups_or_precise_heavy_processes": [],
+    "source": "/private/tmp/brn-b1b-before-20261016-source",
+    "started_utc": "2026-10-16T21:16:14.328702+00:00",
+    "target": "/private/tmp/brn-b1b-before-20261016-target",
+    "within_cumulative_300s_cap": true
+  },
+  "kind": "ONE contextual-reader omission; recovery completed within original continuous cap",
+  "no_post_restore_executable_reuse": true,
+  "original_before_archive": {
+    "path": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/original-before-source.tar",
+    "sha256": "49627ea535b23c8450eeb90a85574707148c5d86f389dc56495033ff61450130"
+  },
+  "original_before_artifacts_unchanged": [
+    {
+      "bytes": 70614112,
+      "path": "/private/tmp/brn-b1b-before-20261016-target/debug/deps/brn_desktop-f8e8bac48a5a3b3c",
+      "sha256": "8de882a6aa964d3a954916ddc60c7f57a9ac9851e22499785b30231a74a70961"
+    }
+  ],
+  "original_before_fully_restored": true,
+  "original_before_manifest_sha256": "8a850d16cf0ca211074d849f425652bea884b895ae7f485916ab406731ff6e91",
+  "original_before_test_patch": {
+    "identity_not_relabelled": true,
+    "path": "/private/tmp/brn-b1b-source-20261016/before-context-refusal-fixture.patch",
+    "sha256": "97df04a50de5ae3a4d9d8c93188122469962a4001558f7813a0d4016ab7eba26"
+  },
+  "original_clock_started_utc": "2026-10-16T21:16:14.328702+00:00",
+  "original_synthetic_Git_HEAD": "459e2c94b0ddadd3c9a8ee25a643707a5f6d8dd7",
+  "original_synthetic_Git_tree": "c3e5e792827b63f2dcfd69d60d7af8029f220b7c",
+  "outcome": "CAUGHT: successful mutated compile; displayed-context assertion failed",
+  "precise_heavy_processes": [],
+  "raw_failed_assertion": "thread 'threads_ui::writing_tests::saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection' (28819720) panicked at crates/brn-desktop/src/threads_writing_tests.rs:1730:17:\nassertion failed: view.notice.contains(\"unavailable in this displayed context\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ntest threads_ui::writing_tests::saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_offline_selection ... FAILED\n\n",
+  "raw_result": {
+    "path": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/result.json",
+    "sha256": "ee3c1e5e71ef46cecf92d919740a71aec0eee91fe1f4c7f7aae64688670ee726"
+  },
+  "recheck_closed_no_further_executions": true,
+  "restoration_harness_failure": {
+    "classification": "No test/production issue. tarfile.extractall attempted to overwrite an identical read-only synthetic Git object. Recovered by restoring differing snapshot files only, verifying complete original file/symlink manifest including .git. No additional build/test/variant.",
+    "error": "PermissionError: [Errno 13] Permission denied: '/private/tmp/brn-b1b-before-20261016-source/./.git/objects/00/1bbd66176d69826f82ce498184578f390fc5eb'",
+    "timing": "Recovery included in original continuous 300-second cap."
+  },
+  "restored_before_manifest_sha256": "8a850d16cf0ca211074d849f425652bea884b895ae7f485916ab406731ff6e91",
+  "restored_material_mtimes_advanced_to_invalidate_variant_artifacts": [
+    "Cargo.lock",
+    "crates/brn-desktop/Cargo.toml",
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_writing_tests.rs",
+    "crates/brn-threads-app/src/lib.rs",
+    "crates/brn-writing-ui/src/native.rs"
+  ],
+  "retained_seeded_binary": {
+    "path": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/context-reader-omission-01-binary",
+    "sha256": "e552fee8e7240494c9d653b51c4d871aa6dec3707f5242e00762a1c56f4b3627"
+  },
+  "seed": {
+    "exact_patch": "--- unmutated/crates/brn-writing-ui/src/native.rs\n+++ omission/crates/brn-writing-ui/src/native.rs\n@@ -166,8 +166,9 @@\n         let note = self.open_note_id().ok_or_else(|| {\n             RewriteStartError::Context(AppError::Invalid(\"Working Note is unavailable\".into()))\n         })?;\n+        let _ = (note, displayed_scope);\n         let snapshot = workspace\n-            .writing_request_in_context(message, note, displayed_scope)\n+            .writing_request(message)\n             .map_err(RewriteStartError::Context)?;\n         let changed = snapshot.current_inputs().iter().any(|input| {\n             workspace\n",
+    "file": "crates/brn-writing-ui/src/native.rs",
+    "id": "B1b-context-reader-omission-01",
+    "mutated_sha256": "fb432c8c7e99b68ca975a6da4c09c63a7e4e14e417a086b5bd3719bbde5bd2df",
+    "no_other_material_changes": true,
+    "patch": "/private/tmp/brn-b1b-low-window-20261017/one-omission-execution/context-reader-omission.patch",
+    "patch_sha256": "4ebd5cfd3fc361b2ec6d6d2105bf18428aeeb2b8fb810d5a899552be787bb790",
+    "unmutated_sha256": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb"
+  },
+  "source_root": "/private/tmp/brn-b1b-before-20261016-source",
+  "target": "/private/tmp/brn-b1b-before-20261016-target",
+  "verdict_limits": "One seeded integration omission only; not a general CW2 guard campaign, full F21 or owner/native-human/hosted proof. No second variant, no automatic mutants, no broader tests.",
+  "within_cumulative_300s_cap": true
+}

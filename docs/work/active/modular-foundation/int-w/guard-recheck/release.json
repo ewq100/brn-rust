@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-17T00:59:19.473135+00:00",
+  "elapsed_including_setup_checks_restore_evidence_precommit_seconds": 288.9276888750028,
+  "limit_seconds": 600,
+  "copy_all_332_restored": true,
+  "candidate_all_332_unchanged": true,
+  "copy_git_status": "clean",
+  "copy_remotes": [],
+  "own_pgids": [
+    63226,
+    67556,
+    69302,
+    69351,
+    69453
+  ],
+  "remaining_owned_processes": [],
+  "precise_heavy_executable_matches": [],
+  "heavy_released": true,
+  "all_guard_followup_paths_released": true,
+  "source_and_tests_frozen": true,
+  "candidate_crates_unchanged": true,
+  "links": "Markdown links: 231 files, 1174 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+  "diff_check": 0
+}

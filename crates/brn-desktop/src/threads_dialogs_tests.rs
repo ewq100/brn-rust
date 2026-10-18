@@ -155,12 +155,13 @@ fn new_note_dialog_creates_on_enter_and_stays_open_without_a_title(cx: &mut Test
         let view = f.view.read(cx);
         assert_eq!(note_titles(view), ["Pilot proposal"]);
         assert!(
-            view.note
+            view.writing
+                .note
                 .as_ref()
                 .is_some_and(|open| title(&open.record) == "Pilot proposal")
         );
         assert!(
-            view.note_editor.focus_handle(cx).is_focused(window),
+            view.writing.note_editor.focus_handle(cx).is_focused(window),
             "the new note's text has focus"
         );
     });
@@ -269,6 +270,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
         assert!(
             f.view
                 .read(cx)
+                .writing
                 .note_editor
                 .focus_handle(cx)
                 .is_focused(window)
@@ -423,7 +425,7 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
         press(cx, &f, "escape");
     };
     let in_note_text = |view: &ThreadsUi, window: &Window, cx: &App| {
-        assert!(view.note_editor.focus_handle(cx).is_focused(window));
+        assert!(view.writing.note_editor.focus_handle(cx).is_focused(window));
     };
     // At 900×600 Edit note… is in the Note ⋯.
     on_window(cx, &f, |window, cx| window.click("note-menu", cx));
@@ -431,7 +433,7 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     escape_returns(cx, &in_note_text);
     // A dirty note offers Discard edit…; Escape keeps the edit.
     update(cx, &f, |view, window, cx| {
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Saved text, edited", window, cx)
         });
         view.preserve_visible_note_input(cx);
@@ -440,7 +442,16 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     choose(cx, &f, "Discard edit…");
     escape_returns(cx, &in_note_text);
     cx.read(|cx| {
-        assert!(f.view.read(cx).note.as_ref().unwrap().session.is_some());
+        assert!(
+            f.view
+                .read(cx)
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session
+                .is_some()
+        );
     });
     // The Chats ＋ menu's New note.
     update(cx, &f, |view, window, cx| {
@@ -694,7 +705,7 @@ fn write_at_900x600_has_no_horizontal_overflow_and_the_launcher_fits(cx: &mut Te
             assert!(kinds.contains(&navigation), "{kinds:?}");
             assert!(kinds.contains(&TileKind::Note) && kinds.contains(&TileKind::Chat));
             assert_eq!(
-                view.margin_mode,
+                view.writing.margin_mode,
                 layout::MarginMode::Stacked,
                 "{navigation:?}"
             );

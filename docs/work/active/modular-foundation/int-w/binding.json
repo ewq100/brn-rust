@@ -1,0 +1,18 @@
+{
+  "base": "e8e98304af7c6dd871455f8081887bf6a1af3e16",
+  "base_crates": "bd080caaf5a7df92a7bf7226b67450210143299d",
+  "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "branch": "work/int-w-20261017",
+  "provider": "OpenAI/Codex",
+  "model": "gpt-6.1-sol",
+  "reasoning": "high",
+  "task": "INT-W local integration qualification",
+  "origin_main_no_fetch": "8f768943964a77711b26d5235df146f8efe1dc6c",
+  "initial_status": "",
+  "utc": "2026-10-17T00:23:07.075061+00:00",
+  "precise_heavy_initial": [],
+  "target": "/private/tmp/brn-int-w-20261017-target",
+  "scratch": "/private/tmp/brn-int-w-20261017-verification",
+  "sole_heavy_granted": true,
+  "mutations_granted": false
+}

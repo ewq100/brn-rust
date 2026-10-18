@@ -1,0 +1,26 @@
+{
+  "preserved": [
+    {
+      "command": "native-writing-tests",
+      "original_path": "/private/tmp/brn-int-w-20261017-target/debug/examples/writing_host-dce738f6e55d88a9",
+      "snapshot": "/private/tmp/brn-int-w-20261017-verification/first-traversal-artifacts/native-writing-tests-writing_host-dce738f6e55d88a9",
+      "sha256": "63d3a4932b2d8575caf359990eaef231c84215bec65a7304aeaa6bf02a26ac48"
+    },
+    {
+      "command": "native-desktop-tests",
+      "original_path": "/private/tmp/brn-int-w-20261017-target/debug/deps/brn_desktop-ddcd9d7ab3061f22",
+      "snapshot": "/private/tmp/brn-int-w-20261017-verification/first-traversal-artifacts/native-desktop-tests-brn_desktop-ddcd9d7ab3061f22",
+      "sha256": "64f369d0cedcc9ef8bf72f4d1b16838ecae68262e8f428f436cf900287c395b3"
+    }
+  ],
+  "superseded": [
+    {
+      "earlier_command": "focused-f21-current",
+      "path": "/private/tmp/brn-int-w-20261017-target/debug/deps/cw2_review-d4d0c2da036154fd",
+      "earlier_sha256": "a4d1b1306f44fcc1fdeac663f990956ad0aa91c434dc12b6f41cb88b8f1e2389",
+      "current_sha256": "efdc6b1ba0c06c27f1d53d3f8bf030afe9dd8292f5105070c4a987489a1d2116",
+      "reason": "same-root test binary recompiled by broad traversal after adding final cursor/snippet/Connections assertions; old command source/log hash remains historical, current file cannot prove it"
+    }
+  ],
+  "initial_collector_assertion": "Retained: first snapshot attempt stopped on focused-f21-current old hash mismatch; no wrong-source binary was adopted."
+}

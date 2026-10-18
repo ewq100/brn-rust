@@ -1,0 +1,134 @@
+{
+  "acceptance": "Principal local acceptance pending; Opus production round1 approved; no material production change since review.",
+  "actual_precommit_HEAD": "9b4f48e768ac561e84a3bffb4bb78c385b4d6147",
+  "actual_precommit_tree": "f9cf00d3f1ca6c1c8ef890c8820b19f2eba33e73",
+  "affected_checks": {
+    "format": "cargo fmt --all -- --check, passed",
+    "receipt": "round1-checks.json",
+    "sha256": "6e79726d7f95b67b535b2d6845490ef510898e14136a2199ebcb8a4a4d90ec5e",
+    "strict_lint": "desktop native-ui,native-test-support all targets, -D warnings, passed",
+    "test": "1 passed / 0 failed / 272 filtered"
+  },
+  "all_B1b_production_test_shared_ownership": "EXPLICITLY RELEASED to principal; no unused reserves retained",
+  "all_production_manifests_lock_equal_approved": true,
+  "base": "5e98b0157a70076f2fe69346f1496cccc869bc78",
+  "bound_path": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "branch": "work/b1b-20261016",
+  "crates_tree": "b55901026b14c37a917d26d48755540d589b7641",
+  "empty_process_receipt": {
+    "all_recheck_children_reaped": true,
+    "command": [
+      "ps",
+      "-axo",
+      "pid=,ppid=,pgid=,comm=,args="
+    ],
+    "no_further_heavy_commands_after_release": true,
+    "original_disposable_source_and_Git_manifest_restored": true,
+    "own_controllers_or_children": [],
+    "precise_heavy_executables": [],
+    "recorded_utc": "2026-10-16T21:21:33.039302+00:00",
+    "selection": "Exact executable basenames for heavy tools; exact Python script argv tokens for own controllers. No shell/rg self-match."
+  },
+  "empty_process_scratch_sha256": "750b405b561dc1fc06b587be49b836d61ded26f6d0a17f562960c57fede90ddd",
+  "heavy_slot": "EXPLICITLY RELEASED to principal; no further heavy commands",
+  "kind": "Final B1b handoff; evidence-only successor to tested precision pin",
+  "no_crate_delta_since_tested_precision_commit": true,
+  "no_new_scope": [
+    "No D1A source/lock integration",
+    "No AI/core/CLI operation, provider/model/schema/permission redesign",
+    "No full workspace/native script/combined/headless repeats",
+    "No second variant, automatic mutants, stress, benchmark, live/GUI/owner data",
+    "No push/PR/main merge/release/B3/B4"
+  ],
+  "one_recheck": {
+    "artifact_cache_restore": "Only six restored material file mtimes advanced; no source hash changes, no post-restore executable reuse.",
+    "cap_seconds": 300,
+    "cumulative_seconds": 208.817199,
+    "original_before_and_Git_restored": true,
+    "outcome": "CAUGHT after successful compile; 1 baseline pass and 1 mutated behavioral failure",
+    "receipt": "guard-recheck.json",
+    "sha256": "3af30031c78cf34a9a7b0399d5a9567504a6ce1475745a2b3b880d2c89eb5348",
+    "variant_count": 1
+  },
+  "only_crate_delta_since_review": "crates/brn-desktop/src/threads_writing_tests.rs",
+  "ownership": [
+    {
+      "hunks": "RewriteStartError; WritingPanel::rewrite_run_start",
+      "paths": [
+        "crates/brn-writing-ui/src/native.rs"
+      ],
+      "state": "RELEASED; production unchanged since approved 601e95d3"
+    },
+    {
+      "hunks": "retry_rewrite; start_run; begin_run_start; start_request; adopt_writing_thread comment",
+      "paths": [
+        "crates/brn-desktop/src/threads_ui.rs"
+      ],
+      "state": "RELEASED; production unchanged since approved 601e95d3"
+    },
+    {
+      "hunks": "Two appended B1b fixtures; precision rename and offline-selection notice assertion only",
+      "paths": [
+        "crates/brn-desktop/src/threads_writing_tests.rs"
+      ],
+      "state": "RELEASED; pre-B1b 57827-byte prefix and all original assertions unchanged"
+    },
+    {
+      "hunks": "One OwnerRequest/TraceLevel re-export only",
+      "paths": [
+        "crates/brn-threads-app/src/lib.rs"
+      ],
+      "state": "RELEASED; unchanged since approved 601e95d3"
+    },
+    {
+      "hunks": "Existing scripted-runs/pinned rig test-utils dev-deps; exact desktop -> rig lock edge",
+      "paths": [
+        "crates/brn-desktop/Cargo.toml",
+        "Cargo.lock"
+      ],
+      "state": "RELEASED; unchanged since approved 601e95d3"
+    },
+    {
+      "hunks": "Unused narrow adapter/test reserves; zero B1b delta",
+      "paths": [
+        "crates/brn-writing-ui/src/writing.rs",
+        "crates/brn-writing-ui/src/workbench.rs",
+        "crates/brn-desktop/src/threads_writing.rs",
+        "crates/brn-desktop/src/threads_workbench_tests.rs"
+      ],
+      "state": "RELEASED; no silently retained reservation"
+    },
+    {
+      "hunks": "B1b plan/ownership/preparation/check/review/recheck/handoff evidence",
+      "paths": [
+        "docs/work/active/modular-foundation/b1b/"
+      ],
+      "state": "RELEASED after final evidence-only commit"
+    },
+    {
+      "hunks": "Unused link reserve; zero delta",
+      "paths": [
+        "minimal status/plan/evidence links outside b1b/"
+      ],
+      "state": "RELEASED"
+    }
+  ],
+  "recorded_utc": "2026-10-16T21:21:33.039302+00:00",
+  "remaining_limits": [
+    "Carried missing native pdftoppm/PDF Unavailable baseline",
+    "Hosted Linux/macOS F22",
+    "Native-human and owner gates",
+    "Full F21/program gates",
+    "Historical B1a/CW2 external-fixture/widget causal limits unchanged"
+  ],
+  "review_approved_production": "601e95d343fcc9bf86edda832b06eb35ac6f4657",
+  "source_fingerprint_sha256": "ffcc9df9231bcb4a5d7cefc03ac4ea5eafaac0ae093fae3ebc369e5f543fa8c0",
+  "source_hashes": {
+    "Cargo.lock": "b742357ec641f357c7beecc14bcc3c81657a039f01bb6fcd397dac6413d0d313",
+    "crates/brn-desktop/Cargo.toml": "5b21d2ccb2121a53c02c603d70a2d9be513c88ff86ec7e27435a12c31e7ed8f7",
+    "crates/brn-desktop/src/threads_ui.rs": "bd03c560faeecdfb3e73440e9f1da83a3e944b3ea18965b79713942fcae06aeb",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "a05c3756f5a72fe11b8bfc30b07ed6316afb213963f711ba621bbe657d2f7c1e",
+    "crates/brn-threads-app/src/lib.rs": "1221b3fb1e7ff004f2d27125062655fba1b870d5d95e7daa2747aa729b1262b2",
+    "crates/brn-writing-ui/src/native.rs": "71c227263750c49085b3e89a80d455f45b65e4634175432d0a532e85f249acdb"
+  }
+}

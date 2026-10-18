@@ -1,4 +1,14 @@
+**Principal INT-W local disposition, 17 October:** [Opus](int-w/opus-review-round1.md) APPROVED actual combined writing source0efd73f1; [local disposition](int-w/principal-disposition.md) reconciles332 material hashes/61 raw command associations, both original privacy red proofs, corrected test counts and three actual seeded omission catches. M01 original controller NO_VERDICT/raw audit is preserved; M02 now directly proves inbound-count protection. Hosted/native-human/owner/PDF qualification and D3/D4 decision gates remain open. No full-program, general mutation-pass or main-merge claim.
+
+## Current INT-W qualification — 17 October 2026
+
+Accepted base `e8e98304af7c6dd871455f8081887bf6a1af3e16`, new `work/int-w-20261017`, same bound UI checkout. [Actual qualification](int-w/verification.md), [exact ownership](int-w/ownership.md), [F-case map](int-w/f-cases.md), [routes](int-w/routes.md), [prior mutation limitations](int-w/mutations.md) and [review brief](int-w/review-brief.md) retain source-qualified evidence. Two real compiled red canaries exposed general export and Notes title/count leaks for canonical-private retained-Source Notes; the exact principal-allocated fixes pass. Final default1116/1 carried PDF/6ignored, native library44+host5, desktop288/0/1, app/native247/0/1 and combined55; full literal commands/log/hash/artifact ledger preserves failures and old sources. No new mutation, schema/interface/manifest/lock/CI change. Principal comprehensive review/local acceptance and hosted/native-human/owner/full-program/PDF tooling remain pending.
+
+**Principal B4 local disposition, 17 October:** [Opus3](b4/opus-review-round3.md) APPROVED exact3515f96a; [local contract acceptance](b4/principal-disposition.md) records the same real Workspace/panel/shared runtime, final5 host journeys and strict lint/fmt, earlier source-qualified native/default checks, six existing dependency edges and returned ownership. INT-W is now eligible; full F21/native-human/hosted/owner/PDF and separate-lane integration remain open. No writing-milestone or main-merge claim.
+
 # Combined C0 evidence
+
+**Principal B3 local disposition, 17 October:** [Opus3](b3/opus-review-round3.md) APPROVED final source93b92d7b and [the principal accepts its local contracts](b3/principal-disposition.md). Final native287/0/1, library44, strict lint/fmt and genuine hidden-draft before proof are reconciled against328 hashes/eight raw check associations. Earlier broad counts and two actual guard catches retain their original pins and limitations. B4 source preparation is eligible; D2 retains heavy. INT-W/full F21/native-human/hosted/owner/PDF and separate-lane integration remain open.
 
 Worktree: `/Users/evokessler/.t3/worktrees/brn-rust/t3-ceb6e16c`
 Branch: `work/build-c0-20261016`
@@ -237,3 +247,13 @@ Final documentation commit changes no source/tests. On its completion the worker
 ## Principal CW2 local integration disposition
 
 The principal reconciled worker final `4ccece6f`, approved source `12b0d329`, all 204 Rust hashes, the verbatim Opus round-3 approval and explicit full ownership/build release. [Disposition](cw2/principal-disposition.md) accepts the contracts for local dependent development, preserves partial mutation and qualification limits, and makes B1a/D1A eligible without authorizing publication or main merge.
+
+
+## Principal B1a local disposition
+
+The principal accepted final B1a source `60f604f5` for local dependent development after verifying 295 production hashes, 21 raw command/source-manifest identities, actual harness totals and the bounded LOW review corrections. [Disposition](b1a/principal-disposition.md) separates local source acceptance from the carried PDF tooling failure, hosted CI, native human observation and owner/program qualification. B1a has explicitly released all paths and its heavy slot; D1A owns the sole heavy slot while B1b can prepare source. No publication or main merge.
+
+
+## Principal B1b local disposition — 17 October 2026
+
+[Opus approval](b1b/opus-review-round1.md) and [principal disposition](b1b/principal-disposition.md) accept reviewed601 production with the tested precision-only correction in final handoff `d9aab018` for local dependent development. The one contextual-reader omission was actually caught within208.817199/300s; all old assertions and before identities remain. PDF tooling, hosted/native-human/owner/full-program qualification remain open. B3 may prepare source; no main merge/publication.

@@ -1,0 +1,18 @@
+{
+  "recorded_utc": "2026-10-16T22:25:42.957269+00:00",
+  "actual_HEAD": "c1eeeb19083631422bf2f296b6865720c159deae",
+  "precise_heavy_names": [
+    "cargo",
+    "rustc",
+    "rustdoc",
+    "cargo-mutants"
+  ],
+  "heavy_processes": [],
+  "own_target_processes": [],
+  "own_controllers": [],
+  "unfinished_receipts": [],
+  "heavy_slot": "RELEASED to principal; no further heavy work without allocation",
+  "UI_shared_source_ownership": "RETAINED frozen in exact B3 ownership map pending independent review and explicit handoff",
+  "mutation_seconds_used": 0,
+  "mutation_grant": "none; proposal only"
+}

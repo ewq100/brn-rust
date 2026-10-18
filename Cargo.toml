@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/brn", "crates/brn-retrieval", "crates/brn-desktop", "crates/brn-ai", "crates/brn-intake", "crates/brn-threads-core", "crates/brn-threads-intake", "crates/brn-threads-app"]
+members = ["crates/brn", "crates/brn-retrieval", "crates/brn-desktop", "crates/brn-ai", "crates/brn-intake", "crates/brn-threads-core", "crates/brn-threads-intake", "crates/brn-threads-app", "crates/brn-writing-ui"]
 default-members = ["crates/brn"]
 resolver = "2"
 

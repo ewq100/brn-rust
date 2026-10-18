@@ -1,0 +1,390 @@
+{
+  "generated_utc": "2026-10-16T18:56:22.675998+00:00",
+  "state": "pure-helper move implemented in pending worktree; checks passed; principal review/commit authorization pending",
+  "base": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+  "worktree": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "branch": "work/b1a-cw2-20261016",
+  "production_patch_sha256": "279a618a6d9dbfbb6506f91dbe0e2b3ce9b1abe3bcfc843e11e973b00b038619",
+  "source_unchanged_during_checks": true,
+  "source_snapshot_scratch": "/private/tmp/brn-b1a-20261016-evidence/initial-source-sha256.json",
+  "worker_changed_existing_source_only": [
+    "Cargo.lock"
+  ],
+  "principal_supplied_glue_unchanged": true,
+  "helper_provenance": "helper-provenance.json",
+  "test_counts": {
+    "passed": 34,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0
+  },
+  "lock_audit": {
+    "added_local_packages": [
+      [
+        "brn-writing-ui",
+        "0.1.0",
+        ""
+      ]
+    ],
+    "removed_packages": [],
+    "changed_packages": [
+      [
+        "brn-desktop",
+        "0.1.0",
+        ""
+      ]
+    ],
+    "desktop_change": "one brn-writing-ui dependency edge",
+    "external_packages_versions_checksums_unchanged": true
+  },
+  "f22": {
+    "command_receipt": "default-tree.json",
+    "gpui_entries": [],
+    "new_crate_normal_dependencies": [],
+    "default_workspace_build_pending": false,
+    "default_build_passed": true,
+    "gpui_compile_lines": []
+  },
+  "commands": [
+    {
+      "label": "lock-generation",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "update",
+        "--workspace",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:50:40.916566+00:00",
+      "duration_seconds": 0.9934656620025635,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "478792553b19f956ec1945b664243da80a5263860069b3297c5d34e43aa9fd27",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "975d693f5f50d3d1a6febcaec21057dc71a8ad450ecdb88183002c5ca97daedb"
+    },
+    {
+      "label": "helper-tests",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "test",
+        "-p",
+        "brn-writing-ui",
+        "--lib",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:50:56.970535+00:00",
+      "duration_seconds": 1.6140623092651367,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "761b3ffb682484f5b2b7601b52d334907709bfdc348ec4214e26e162a2d46a17"
+    },
+    {
+      "label": "helper-clippy",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-writing-ui",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:51:07.089295+00:00",
+      "duration_seconds": 0.6427938938140869,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "64223007165005cdd6ac4afc5f0fa44acc05a2165435275074e6fee73eca23ea"
+    },
+    {
+      "label": "format",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:51:11.241821+00:00",
+      "duration_seconds": 1.4431791305541992,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "default-tree",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "tree",
+        "--workspace",
+        "--edges",
+        "normal",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:51:12.391770+00:00",
+      "duration_seconds": 0.3906519412994385,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "c1fc963d2e3f22014d79f517c32c1f9a08a1601e49f6c3ae3105f98c864becb7"
+    },
+    {
+      "label": "default-build",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:51:19.773155+00:00",
+      "duration_seconds": 28.547871112823486,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "a65c140ca1bdc4c43375362c10f37c0c0a547c3c80e6dca107ad19cbcd1fb4a5"
+    },
+    {
+      "label": "native-desktop-build",
+      "argv": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "head": "b617d7842c1e668292b4f23c7b321ec195a76a1d",
+      "started_utc": "2026-10-16T18:52:28.104641+00:00",
+      "duration_seconds": 39.163589000701904,
+      "exit_code": 0,
+      "explicit_environment": {
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "CARGO_INCREMENTAL": "0",
+        "TMPDIR": "/private/tmp/brn-b1a-20261016-evidence/synthetic-tmp",
+        "BRN_NATIVE_MODEL_DIR": "",
+        "BRN_EMBEDDING_MODEL_DIR": "",
+        "RUST_BACKTRACE": "1"
+      },
+      "source_sha256": {
+        "Cargo.lock": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6",
+        "Cargo.toml": "92d4e068aefe844db0d4d725f9c33df53b48544a2084c282597bc6ca5336fc28",
+        "crates/brn-writing-ui/Cargo.toml": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac",
+        "crates/brn-writing-ui/src/formatting.rs": "0380a29e43e356e44ef99e891aa16a87de570f343023e9b87c8e1524b456b903",
+        "crates/brn-writing-ui/src/lib.rs": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6",
+        "crates/brn-writing-ui/src/diff.rs": "a5b8f160695c0db0e7399af919a16c35ef184e876dcc0547b6341ca936e4ed07",
+        "crates/brn-desktop/src/threads_ui.rs": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+      },
+      "log_sha256": "2a3cb49de153ec921c45ddaaef90c169e72f0f02f4beb4c2181a98c599aa2eef"
+    }
+  ],
+  "default_and_helper_artifacts": [
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn",
+      "bytes": 58619552,
+      "sha256": "845ef9f435d7917f8043e59894177927bf56fe8d2200d9923cb38c596c0babab"
+    },
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-desktop",
+      "bytes": 7792688,
+      "sha256": "8234bdf544178aed5b2012ace4dc1c449721f36f43159412499990b33662aee2"
+    },
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/libbrn_writing_ui.rlib",
+      "bytes": 424504,
+      "sha256": "42db67f91e9a17eea8cf6d131a1a175540e0ec8957e39d14ef8e6e785da07c36"
+    },
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-c710a83fd4671f1e",
+      "bytes": 1094416,
+      "sha256": "363b878fd5ca36ca1019d9bc2074186184a51eda2616e7c2f5b221e1b1b34d46"
+    }
+  ],
+  "native_artifacts": [
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-desktop",
+      "bytes": 152403328,
+      "sha256": "cc5f06029714354dd3814ae97149ee00fd813daa6e5b8c4913ddbe2f52b80443"
+    },
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/libbrn_writing_ui-5c239517e1e79c2f.rlib",
+      "bytes": 424504,
+      "sha256": "544b003243ed0dea33423ef4d5982ae2559d462bd18162cc16a7e18f3a887f49"
+    },
+    {
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/libbrn_writing_ui-c88da1bb87c00d05.rlib",
+      "bytes": 424504,
+      "sha256": "42db67f91e9a17eea8cf6d131a1a175540e0ec8957e39d14ef8e6e785da07c36"
+    }
+  ],
+  "heavy_slot_release": {
+    "observed_utc": "2026-10-16T18:53:33.958326+00:00",
+    "precise_process_names_checked": [
+      "brn-desktop",
+      "brn_desktop",
+      "cargo",
+      "cargo-mutants",
+      "clippy-driver",
+      "rustc",
+      "rustfmt"
+    ],
+    "active_heavy_processes": [],
+    "all_started_command_children_completed": true,
+    "heavy_slot": "released to principal; no further Cargo/build/test commands by B1a without allocation"
+  },
+  "observed_warnings": [
+    "Native desktop build: future-incompatibility warning for unchanged external block 0.1.6."
+  ],
+  "not_run": [
+    "default workspace tests",
+    "default workspace strict lint",
+    "native widgets",
+    "native state tests",
+    "full native all-target lint",
+    "stress",
+    "mutants",
+    "providers",
+    "GUI",
+    "hosted checks"
+  ],
+  "qualification_limits": [
+    "F22 default graph/build verified here; full default clippy/test lanes not rerun",
+    "No new full CW2/F21/milestone qualification",
+    "Native compilation is not human native observation/owner acceptance",
+    "Known missing native pdftoppm gap and original widget-B causal uncertainty remain open",
+    "Full-panel support/interface proposal only; F15 local editor Undo witness remains later scope",
+    "No commit/staging/publication/merge/release"
+  ]
+}

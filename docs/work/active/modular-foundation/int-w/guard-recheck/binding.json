@@ -1,0 +1,10 @@
+{
+  "root": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "HEAD": "9a0ce46de0a0334af6a7215263a3ced422cbab8a",
+  "crates": "9097bafba6c0261ae14a1dee9da129d1f94fa0d1",
+  "material_files": 332,
+  "all_hashes_match": true,
+  "initial_heavy": [],
+  "copy": "/private/tmp/brn-int-w-guard-20261017/source",
+  "target": "/private/tmp/brn-int-w-guard-20261017/target"
+}

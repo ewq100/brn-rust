@@ -1,0 +1,1935 @@
+{
+  "artifacts": [
+    {
+      "bytes": 7792688,
+      "cargo_fingerprint": {
+        "bin-brn-desktop.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-retrieval\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              2145939652136225981,
+              "tokio",
+              false,
+              8557392861357652819
+            ],
+            [
+              2470433106247373313,
+              "brn_threads_intake",
+              false,
+              1720689632886935354
+            ],
+            [
+              4911165895187294695,
+              "brn_writing_ui",
+              false,
+              17484495876121430000
+            ],
+            [
+              5330460842384404171,
+              "serde_json",
+              false,
+              6343813705651546074
+            ],
+            [
+              5624760385523954354,
+              "brn_intake",
+              false,
+              2366671577556616116
+            ],
+            [
+              6557439603276904804,
+              "serde",
+              false,
+              12940907666311578443
+            ],
+            [
+              13418606097529052090,
+              "brn_ai",
+              false,
+              4883103560928815644
+            ],
+            [
+              14167262109204400564,
+              "uuid",
+              false,
+              5915165740335499714
+            ],
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              4997917808223450092
+            ],
+            [
+              18193492161279344325,
+              "tokio_util",
+              false,
+              14551159306333244156
+            ]
+          ],
+          "features": "[\"default\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-desktop-12a84fb5c8b81f70/dep-bin-brn-desktop"
+              }
+            }
+          ],
+          "path": 2971375248567893033,
+          "profile": 8378823585564974145,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 7774385119241979415
+        }
+      },
+      "mtime_utc": "2026-10-16T18:51:47.694745+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-12a84fb5c8b81f70",
+      "sha256": "8234bdf544178aed5b2012ace4dc1c449721f36f43159412499990b33662aee2"
+    },
+    {
+      "bytes": 70608896,
+      "cargo_fingerprint": {
+        "test-bin-brn-desktop.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-retrieval\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              2145939652136225981,
+              "tokio",
+              false,
+              14877355274618063147
+            ],
+            [
+              2470433106247373313,
+              "brn_threads_intake",
+              false,
+              13920723960645968382
+            ],
+            [
+              4911165895187294695,
+              "brn_writing_ui",
+              false,
+              14252004399558044199
+            ],
+            [
+              5330460842384404171,
+              "serde_json",
+              false,
+              13956101952916117577
+            ],
+            [
+              5624760385523954354,
+              "brn_intake",
+              false,
+              3608621862859476560
+            ],
+            [
+              6557439603276904804,
+              "serde",
+              false,
+              14129338093640217404
+            ],
+            [
+              9723370144619655183,
+              "tempfile",
+              false,
+              11082380113857487550
+            ],
+            [
+              13418606097529052090,
+              "brn_ai",
+              false,
+              10112421151130983693
+            ],
+            [
+              14167262109204400564,
+              "uuid",
+              false,
+              9784930507199488199
+            ],
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              652322203639720844
+            ],
+            [
+              18106200608417208759,
+              "gpui_kit",
+              false,
+              16396698922524936846
+            ],
+            [
+              18193492161279344325,
+              "tokio_util",
+              false,
+              3212683262484967859
+            ]
+          ],
+          "features": "[\"default\", \"native-test-support\", \"native-ui\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-desktop-f8e8bac48a5a3b3c/dep-test-bin-brn-desktop"
+              }
+            }
+          ],
+          "path": 2971375248567893033,
+          "profile": 12903058056359346092,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 7774385119241979415
+        }
+      },
+      "mtime_utc": "2026-10-16T19:45:51.395408+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-f8e8bac48a5a3b3c",
+      "sha256": "152d0f4606b8dd1107804d34aacb36e70f6bb0c50cbcb75f715abf2b24ccd2e2"
+    },
+    {
+      "bytes": 5582416,
+      "cargo_fingerprint": {
+        "test-lib-brn_writing_ui.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              652322203639720844
+            ],
+            [
+              18106200608417208759,
+              "gpui_kit",
+              false,
+              16396698922524936846
+            ]
+          ],
+          "features": "[\"default\", \"native-test-support\", \"native-ui\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-writing-ui-312dec7c0abdb770/dep-test-lib-brn_writing_ui"
+              }
+            }
+          ],
+          "path": 14596805417963730451,
+          "profile": 12903058056359346092,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 2014210109210219898
+        }
+      },
+      "mtime_utc": "2026-10-16T19:46:54.833567+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-312dec7c0abdb770",
+      "sha256": "f73dee1b7c306da36fe7cac5f02d3f89fb4c347442238906e0c55fe13aafae2e"
+    },
+    {
+      "bytes": 152403328,
+      "cargo_fingerprint": {
+        "bin-brn-desktop.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-retrieval\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              2145939652136225981,
+              "tokio",
+              false,
+              2078284560470524613
+            ],
+            [
+              2470433106247373313,
+              "brn_threads_intake",
+              false,
+              267117766303945467
+            ],
+            [
+              4911165895187294695,
+              "brn_writing_ui",
+              false,
+              11289857182368291279
+            ],
+            [
+              5330460842384404171,
+              "serde_json",
+              false,
+              15791313612082688408
+            ],
+            [
+              5624760385523954354,
+              "brn_intake",
+              false,
+              2360213481500012563
+            ],
+            [
+              6557439603276904804,
+              "serde",
+              false,
+              7009348021121437977
+            ],
+            [
+              9723370144619655183,
+              "tempfile",
+              false,
+              585071374374229018
+            ],
+            [
+              13418606097529052090,
+              "brn_ai",
+              false,
+              12852767021942425696
+            ],
+            [
+              14167262109204400564,
+              "uuid",
+              false,
+              6594277522585465611
+            ],
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              7257903726475975867
+            ],
+            [
+              18106200608417208759,
+              "gpui_kit",
+              false,
+              17169150538006034332
+            ],
+            [
+              18193492161279344325,
+              "tokio_util",
+              false,
+              14909623784867175378
+            ]
+          ],
+          "features": "[\"default\", \"native-ui\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-desktop-8f3a9fb77cf73e1b/dep-bin-brn-desktop"
+              }
+            }
+          ],
+          "path": 2971375248567893033,
+          "profile": 8378823585564974145,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 7774385119241979415
+        }
+      },
+      "mtime_utc": "2026-10-16T18:53:07.191258+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-8f3a9fb77cf73e1b",
+      "sha256": "cc5f06029714354dd3814ae97149ee00fd813daa6e5b8c4913ddbe2f52b80443"
+    },
+    {
+      "bytes": 154640432,
+      "cargo_fingerprint": {
+        "bin-brn-desktop.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-retrieval\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              2145939652136225981,
+              "tokio",
+              false,
+              2078284560470524613
+            ],
+            [
+              2470433106247373313,
+              "brn_threads_intake",
+              false,
+              267117766303945467
+            ],
+            [
+              4911165895187294695,
+              "brn_writing_ui",
+              false,
+              16661074405650128943
+            ],
+            [
+              5330460842384404171,
+              "serde_json",
+              false,
+              15791313612082688408
+            ],
+            [
+              5624760385523954354,
+              "brn_intake",
+              false,
+              2360213481500012563
+            ],
+            [
+              6557439603276904804,
+              "serde",
+              false,
+              7009348021121437977
+            ],
+            [
+              9723370144619655183,
+              "tempfile",
+              false,
+              585071374374229018
+            ],
+            [
+              13418606097529052090,
+              "brn_ai",
+              false,
+              12852767021942425696
+            ],
+            [
+              14167262109204400564,
+              "uuid",
+              false,
+              6594277522585465611
+            ],
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              7257903726475975867
+            ],
+            [
+              18106200608417208759,
+              "gpui_kit",
+              false,
+              279202615109594681
+            ],
+            [
+              18193492161279344325,
+              "tokio_util",
+              false,
+              14909623784867175378
+            ]
+          ],
+          "features": "[\"default\", \"native-test-support\", \"native-ui\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-desktop-943978d19d472cbf/dep-bin-brn-desktop"
+              }
+            }
+          ],
+          "path": 2971375248567893033,
+          "profile": 8378823585564974145,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 7774385119241979415
+        }
+      },
+      "mtime_utc": "2026-10-16T19:47:02.815300+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-943978d19d472cbf",
+      "sha256": "7b7790bf98aefbcaf5e9fe9940ed389b394fca679c1efa69ea5abbfb75e22cea"
+    },
+    {
+      "bytes": 1094416,
+      "cargo_fingerprint": {
+        "test-lib-brn_writing_ui.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-ui\"]",
+          "deps": [],
+          "features": "[\"default\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-writing-ui-c710a83fd4671f1e/dep-test-lib-brn_writing_ui"
+              }
+            }
+          ],
+          "path": 14596805417963730451,
+          "profile": 12903058056359346092,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 2014210109210219898
+        }
+      },
+      "mtime_utc": "2026-10-16T18:50:58.069999+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_writing_ui-c710a83fd4671f1e",
+      "sha256": "363b878fd5ca36ca1019d9bc2074186184a51eda2616e7c2f5b221e1b1b34d46"
+    },
+    {
+      "bytes": 7792688,
+      "cargo_fingerprint": {
+        "bin-brn-desktop.json": {
+          "compile_kind": 0,
+          "config": 9396254390672932401,
+          "declared_features": "[\"default\", \"native-retrieval\", \"native-test-support\", \"native-ui\"]",
+          "deps": [
+            [
+              2145939652136225981,
+              "tokio",
+              false,
+              8557392861357652819
+            ],
+            [
+              2470433106247373313,
+              "brn_threads_intake",
+              false,
+              1720689632886935354
+            ],
+            [
+              4911165895187294695,
+              "brn_writing_ui",
+              false,
+              11855996733306375272
+            ],
+            [
+              5330460842384404171,
+              "serde_json",
+              false,
+              6343813705651546074
+            ],
+            [
+              5624760385523954354,
+              "brn_intake",
+              false,
+              2366671577556616116
+            ],
+            [
+              6557439603276904804,
+              "serde",
+              false,
+              12940907666311578443
+            ],
+            [
+              13418606097529052090,
+              "brn_ai",
+              false,
+              4883103560928815644
+            ],
+            [
+              14167262109204400564,
+              "uuid",
+              false,
+              5915165740335499714
+            ],
+            [
+              17687019032225951910,
+              "brn_threads_app",
+              false,
+              4997917808223450092
+            ],
+            [
+              18193492161279344325,
+              "tokio_util",
+              false,
+              14551159306333244156
+            ]
+          ],
+          "features": "[\"default\"]",
+          "local": [
+            {
+              "CheckDepInfo": {
+                "checksum": false,
+                "dep_info": "debug/.fingerprint/brn-desktop-d2905afef603fe6d/dep-bin-brn-desktop"
+              }
+            }
+          ],
+          "path": 2971375248567893033,
+          "profile": 8378823585564974145,
+          "rustc": 17329007180185699724,
+          "rustflags": [],
+          "target": 7774385119241979415
+        }
+      },
+      "mtime_utc": "2026-10-16T19:47:06.217492+00:00",
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/deps/brn_desktop-d2905afef603fe6d",
+      "sha256": "5c923a4b61a1731b68e726dbb883f0cfed1c0088acb130348637e147c3c2f1f0"
+    },
+    {
+      "bytes": 34084368,
+      "path": "/private/tmp/brn-b1a-20261016-target/debug/brn-intake-helper",
+      "sha256": "25b6e40b3e4aa29f90465c3234ac02b132b2b4d5ab4387dd1a5bcd597d68e445"
+    }
+  ],
+  "base": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+  "branch": "work/b1a-cw2-20261016",
+  "checkout": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 2.2225955419708043,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:37:37.928386+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-build-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-first.log",
+      "log_sha256": "456b7b2e31062fe80eba62cd2eaf3319729fd685111eb89b38ab1de3d6f6a77f",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "0d45f80cce0e1bb7c46d3459dd5f449af310b5a8e388e27f6025d94bb19672b0",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "6d63d32305454707b4f82daac6163d43fce8eeb77355827e6615bf9501ca3864",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "73677f77707e25fdeaf660c471b4e08465d3fb7c7ca61a496a9bc661c7f5e367",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/components.rs": {
+          "checked_sha256": "80b769c9edd13d6d611db4727d22c9591b0d5c092717ae3ac220f798a4ddbe64",
+          "final_sha256": "9f1bb46126fc60e6b79b69c373ce4a0f7a73fd0930dddbc384a805a30d0a298e"
+        },
+        "crates/brn-writing-ui/src/document.rs": {
+          "checked_sha256": "3562ff96e9943a68204d2ababd55e6054cf67f1ad91d7b960341586bc1970381",
+          "final_sha256": "219971fd0a4b3fa86050b741001f60d314cbe549cb5f62b4b583604ce11fad71"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "869f2de37672f77cba1420df84be50763656bcbef5cc616502582bdf6aeeb61a",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        },
+        "crates/brn-writing-ui/src/writing.rs": {
+          "checked_sha256": "3132ec7847a110b7150b20e1604d9743d8f86dc843e2239d00b27642389e5177",
+          "final_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04"
+        }
+      },
+      "source_identity_sha256": "a988084f439c118cee8285982fc9acf56c07379f76c3ceca9983f0802f75f9bd",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-first-source.json",
+      "source_manifest_file_sha256": "ff06b249459db79a8f3042500588a1f4a11bc044f823ffb623cbfa06d3963f65",
+      "started_utc": "2026-10-16T19:37:35.705804+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.8752212920226157,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:39:10.314535+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-build-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-corrected.log",
+      "log_sha256": "be093c00d00ee6abe817d8089c0f8ef3c73a8c56d57e72b385cb6d21c10058d1",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "73677f77707e25fdeaf660c471b4e08465d3fb7c7ca61a496a9bc661c7f5e367",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "33bafcc2c5eca3192a5cc3aa1dc42115a84b39b52630be994053d73ba93253d0",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        },
+        "crates/brn-writing-ui/src/writing.rs": {
+          "checked_sha256": "a4aeba52d45a83f76596c4a7dc6972198517d7b965b9c4821672a38bb7457e6c",
+          "final_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04"
+        }
+      },
+      "source_identity_sha256": "2bf0233ebe3637d44f290b890948188b096cd776f6ba5a31d70637ac75ed3c4b",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-corrected-source.json",
+      "source_manifest_file_sha256": "9ad6c69b2227803f07b81d7d6db8b6c5eb652f8f4b237e7ffe8e8bcc4ecec992",
+      "started_utc": "2026-10-16T19:39:08.439323+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 23.51271016697865,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:39:49.028748+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-clippy-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-first.log",
+      "log_sha256": "84be580a363e92aac4108e9af8a14dc1bf66d33ec033e32a304a15ba8288406d",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "73677f77707e25fdeaf660c471b4e08465d3fb7c7ca61a496a9bc661c7f5e367",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "33bafcc2c5eca3192a5cc3aa1dc42115a84b39b52630be994053d73ba93253d0",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        },
+        "crates/brn-writing-ui/src/writing.rs": {
+          "checked_sha256": "a4aeba52d45a83f76596c4a7dc6972198517d7b965b9c4821672a38bb7457e6c",
+          "final_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04"
+        }
+      },
+      "source_identity_sha256": "2bf0233ebe3637d44f290b890948188b096cd776f6ba5a31d70637ac75ed3c4b",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-first-source.json",
+      "source_manifest_file_sha256": "9ad6c69b2227803f07b81d7d6db8b6c5eb652f8f4b237e7ffe8e8bcc4ecec992",
+      "started_utc": "2026-10-16T19:39:25.515871+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-intake",
+        "--features",
+        "helper",
+        "--bin",
+        "brn-intake-helper",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 17.774189667077735,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:40:15.228574+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "intake-helper-build",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/intake-helper-build.log",
+      "log_sha256": "b5dc5c47294366d9cf1414e087c4e8355cc20b2a3294fb30975344b2ad694ba6",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "33bafcc2c5eca3192a5cc3aa1dc42115a84b39b52630be994053d73ba93253d0",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        },
+        "crates/brn-writing-ui/src/writing.rs": {
+          "checked_sha256": "a4aeba52d45a83f76596c4a7dc6972198517d7b965b9c4821672a38bb7457e6c",
+          "final_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04"
+        }
+      },
+      "source_identity_sha256": "dc8ce858ff1b15eac00c3c535ea0b8b55c25692f000410e613f9243bcd6bae99",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/intake-helper-build-source.json",
+      "source_manifest_file_sha256": "edb02f5af270d8be082bdf3a9dc950392549a005d9b6e2e6f006424252a4938c",
+      "started_utc": "2026-10-16T19:39:57.454264+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 3.425759791978635,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:40:16.229997+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-clippy-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-corrected.log",
+      "log_sha256": "dc41ba4d0b38c661f5faab0b5b72e93d9e2d89afb79a146a05d360893e2cf804",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "d6b73ca9599f4d07874cf2a64ffdf65e5b70df2ecb0536d91076112e4aba6f0f",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        }
+      },
+      "source_identity_sha256": "c28b720826f455de27600634e656ffa1673e6ed9904cb1dd97ed7610400b8882",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-corrected-source.json",
+      "source_manifest_file_sha256": "7dde5819ae75738b2534d48d1f28f002dff9afd5672cbfc2edb37f0ce5acc822",
+      "started_utc": "2026-10-16T19:40:12.804234+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 68.1275688749738,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:41:39.473312+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-tests",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-tests.log",
+      "log_sha256": "513045b92878a76eacb654147f1235b6ab41de409d11d8ca51be05611e2ede1a",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "d6b73ca9599f4d07874cf2a64ffdf65e5b70df2ecb0536d91076112e4aba6f0f",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        }
+      },
+      "source_identity_sha256": "c28b720826f455de27600634e656ffa1673e6ed9904cb1dd97ed7610400b8882",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-tests-source.json",
+      "source_manifest_file_sha256": "7dde5819ae75738b2534d48d1f28f002dff9afd5672cbfc2edb37f0ce5acc822",
+      "started_utc": "2026-10-16T19:40:31.345213+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 19.22301983309444,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:42:01.886371+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-build-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-first.log",
+      "log_sha256": "37bc64e61e5600cd31cb2ec9c72fec004410983e31f0b2ff76552c2922b15641",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "d68c48efa9401498462eedd9c6a992a667d01d793442a54d2f97aa9317927aec",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-desktop/src/threads_writing.rs": {
+          "checked_sha256": "f3bcef51a88f373a992f958641cb160b2622c58899c4c49045c471cf1bc2e23a",
+          "final_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "d6b73ca9599f4d07874cf2a64ffdf65e5b70df2ecb0536d91076112e4aba6f0f",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        }
+      },
+      "source_identity_sha256": "c28b720826f455de27600634e656ffa1673e6ed9904cb1dd97ed7610400b8882",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-first-source.json",
+      "source_manifest_file_sha256": "7dde5819ae75738b2534d48d1f28f002dff9afd5672cbfc2edb37f0ce5acc822",
+      "started_utc": "2026-10-16T19:41:42.663219+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 3.8032507499447092,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:42:15.069946+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-build-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-corrected.log",
+      "log_sha256": "dceea707343aeb16a0e0abb86bf476d28cfc07837a6cd7886e9af5af5611a0d2",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_chat.rs": {
+          "checked_sha256": "8fe2b32acbd11d1742c440c6c8b7c2af232db3a90c92aca122847648cc0857bc",
+          "final_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec"
+        },
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "0c68b52493cee5641b9211e633bbe67a51c5cf51fde4b93af228871101d60125",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "d6b73ca9599f4d07874cf2a64ffdf65e5b70df2ecb0536d91076112e4aba6f0f",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        }
+      },
+      "source_identity_sha256": "21b3aeac13f61fc4c796c4a80873f5bb0ea5aad67627fc0389eb8d23b8a9e4b3",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-corrected-source.json",
+      "source_manifest_file_sha256": "eecf1e1e42082ed0cdf4d14b3dd65e9d019e2f2262e2d92b5e8d81ce6135b73d",
+      "started_utc": "2026-10-16T19:42:11.266699+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 3.6437637500930578,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:42:49.522691+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-clippy-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-first.log",
+      "log_sha256": "ec4a4f9dea47095db36c20c7320e1ff02eb4c595a7d94a13fe8bed86a544554b",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_document_tests.rs": {
+          "checked_sha256": "741afe5fda98383d04b2f59ad07306b21aca33b86be3fdf7243ce91087356f47",
+          "final_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3"
+        },
+        "crates/brn-desktop/src/threads_omakase_tests.rs": {
+          "checked_sha256": "d32663d53f3d91c4cbf5420c4265f9cfbdaba8745b6a9ba26a99b591d322fffe",
+          "final_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8"
+        },
+        "crates/brn-desktop/src/threads_ui.rs": {
+          "checked_sha256": "f8d51c6b958d6adf708db359f632304f43b0468c2f088d7f653e454da2f5e239",
+          "final_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5"
+        },
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        },
+        "crates/brn-writing-ui/src/native.rs": {
+          "checked_sha256": "a7b78abf202086a294b475f40d29b6ff9484f00999f7d122996211cbb0f785ce",
+          "final_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f"
+        }
+      },
+      "source_identity_sha256": "7f9d177dd9fbd07bbf80c910d7d748515a64a9ac12f50df6789a3dc4f941ca2e",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-first-source.json",
+      "source_manifest_file_sha256": "03bd95e273c4c1ed82fbc04fd06d9186c602839c9cf18287506f48d35e740b04",
+      "started_utc": "2026-10-16T19:42:45.878926+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 3.0246309170033783,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:43:29.389764+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-clippy-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-corrected.log",
+      "log_sha256": "16be8fe5cf62923e3a71e00cf17b52b8ef22657074328275ca65c011ff231822",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        }
+      },
+      "source_identity_sha256": "f74e1fa65e1d78ee6fa156e82a046ae0b1fba21f7a253f333577fdb49a000f92",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-corrected-source.json",
+      "source_manifest_file_sha256": "72341ae604fa0f214d6ce6b7fb46346d4f0fd4e7b0689010f23b07394f2b2abc",
+      "started_utc": "2026-10-16T19:43:26.365139+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 16.600783084053546,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:44:03.042672+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "f15-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/f15-first.log",
+      "log_sha256": "71e6695e964b77ee17f7841be45478610959e7da882405f54f18b2e1b104b1de",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        }
+      },
+      "source_identity_sha256": "f74e1fa65e1d78ee6fa156e82a046ae0b1fba21f7a253f333577fdb49a000f92",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/f15-first-source.json",
+      "source_manifest_file_sha256": "72341ae604fa0f214d6ce6b7fb46346d4f0fd4e7b0689010f23b07394f2b2abc",
+      "started_utc": "2026-10-16T19:43:46.441788+00:00",
+      "test_results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 270 filtered out; finished in 0.17s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.0487482500029728,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:44:42.216161+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "work-bound-first",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-first.log",
+      "log_sha256": "bee800f07c0fdda4f4f264bcda10e276fe3adc6b04292e9b1347b280a9db7a63",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "3dffe1aa76440d8d4264e59b7e66451d74a324d2fe674a6de729d063d054d608",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        }
+      },
+      "source_identity_sha256": "f74e1fa65e1d78ee6fa156e82a046ae0b1fba21f7a253f333577fdb49a000f92",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-first-source.json",
+      "source_manifest_file_sha256": "72341ae604fa0f214d6ce6b7fb46346d4f0fd4e7b0689010f23b07394f2b2abc",
+      "started_utc": "2026-10-16T19:44:41.167433+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 3.9653236659942195,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 101,
+      "finished_utc": "2026-10-16T19:45:27.636705+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "work-bound-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-corrected.log",
+      "log_sha256": "e4e1b37b0bdcb19c732281e84f2474c89f16d7464079e87b57921f67b03d52db",
+      "production_delta_from_final": {
+        "crates/brn-desktop/src/threads_workbench_tests.rs": {
+          "checked_sha256": "ed3bdd2d5c9af87d807283b29baea78fefb059014d634f3c7879598869b997f0",
+          "final_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999"
+        }
+      },
+      "source_identity_sha256": "9ae168b70847f62d0939a02c497023dc2b1396dbf7b2a0d48f369bac04730c02",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-corrected-source.json",
+      "source_manifest_file_sha256": "dadded94616b6e1a095b24443d145a4928f3560ae0b3310dd8803800025fd510",
+      "started_utc": "2026-10-16T19:45:23.671378+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 15.468607250018977,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:45:52.302887+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "work-bound-fixture-corrected",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-fixture-corrected.log",
+      "log_sha256": "22c667727d100a444cb6fe5d85cc2b9de5d2fe4437b1e051d513a66c1bd53d8b",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/work-bound-fixture-corrected-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:45:36.834187+00:00",
+      "test_results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 270 filtered out; finished in 0.04s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 5.289394709048793,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:46:04.503706+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-native-complete",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-native-complete.log",
+      "log_sha256": "0c6f20db9998483817e861936f39ab1c1e032f6e971230b1487f991fd9f8bac4",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-native-complete-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:45:59.214299+00:00",
+      "test_results": [
+        "test result: ok. 270 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.38s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.9103408749215305,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:46:52.506649+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-clippy-final",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-final.log",
+      "log_sha256": "fdfd10e6ebe01e72c5b187e625ca14677a6c4d086ffceebb9131a6f066ad3b21",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-clippy-final-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:46:50.596320+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 2.692780917044729,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:46:55.316432+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-tests-final",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-tests-final.log",
+      "log_sha256": "3c6e1045aad169cfafce044987d2f2b682c129a7ed06cb732edc67156886a3e8",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-tests-final-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:46:52.623655+00:00",
+      "test_results": [
+        "test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 2.751053374959156,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:46:58.197493+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-clippy-final",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-final.log",
+      "log_sha256": "685a060391bbb66c68a0ab277cc92b743b2cf0628bf9d64848879e8bb5646dc6",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-clippy-final-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:46:55.446452+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 4.579871083027683,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:47:02.890527+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "desktop-build-final",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-final.log",
+      "log_sha256": "4cc91837e4bd38bca4028a4edcac421beca6d8a12f16e44634889b58c149931f",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/desktop-build-final-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:46:58.310648+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.3063273340230808,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:47:04.323553+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "fmt-all",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/fmt-all.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/fmt-all-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:47:03.017242+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--workspace",
+        "--edges",
+        "normal",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 0.2117274170741439,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:47:04.645777+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "default-tree-normal",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/default-tree-normal.log",
+      "log_sha256": "029d23bf34dc6f5feb5e6d7bff41923dbe6f3a1eb749976e4be5b150cfe0e012",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/default-tree-normal-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:47:04.434071+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "tree",
+        "--workspace",
+        "--edges",
+        "features",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 0.2604441660223529,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:47:05.014731+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "default-tree-features",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/default-tree-features.log",
+      "log_sha256": "b70024d342fd19e2bf05f79b796f129d84d8567b75622c98433fed7f80358174",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/default-tree-features-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:47:04.754314+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.095627958071418,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:47:06.266130+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "default-build",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/default-build.log",
+      "log_sha256": "e8bb4efa8069cec110489c13e2784170262e3e34c13b0d7336179aa6e8e0ce5a",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/default-build-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:47:05.170519+00:00"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-writing-ui",
+        "--features",
+        "native-ui",
+        "--locked",
+        "--offline"
+      ],
+      "cwd": "/Users/evokessler/.t3/worktrees/brn-rust/t3-239c29dc",
+      "duration_seconds": 1.752868750016205,
+      "env": {
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/brn-b1a-20261016-target",
+        "TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-16T19:49:16.528653+00:00",
+      "head": "df5e48e38549ad19a70daeaf47f9b6b185ef6d0e",
+      "label": "library-build-final",
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-final.log",
+      "log_sha256": "4fcd495c12a3f077ddfef74d6cdf41464d43f4f2360220751ae80e22e8976cb7",
+      "production_delta_from_final": {},
+      "source_identity_sha256": "277e1f0ec609f812f0ad4ed6a0443a466608cfe01057b1a9f12dcd5f88dd797a",
+      "source_manifest": "/private/tmp/brn-b1a-panel-window1-20261016/library-build-final-source.json",
+      "source_manifest_file_sha256": "fc5b6439aee07f22a123e6686ff3e89964dba0679a56fb278d1c06add3705e20",
+      "started_utc": "2026-10-16T19:49:14.775804+00:00"
+    }
+  ],
+  "controller_overlap_note": "One corrected Clippy controller started 2.42s before helper controller exit; Cargo blocked on the same task-target build lock, then compiled. Both exact timings/log retained. Subsequent gates explicitly serialized. No parallel compilation or second owner used the slot.",
+  "deferred": [
+    "default full workspace Clippy/tests",
+    "combined native/retrieval and full headless qualification",
+    "existing shared CLI-to-native intake fixture (ignored baseline)",
+    "native pdftoppm/PDF qualification",
+    "fresh independent Copilot Opus actual-diff review",
+    "principal acceptance/global qualification",
+    "hosted CI and human native/owner acceptance"
+  ],
+  "environment": {
+    "CARGO_INCREMENTAL": "0",
+    "cargo": "1.98.1 (797e8a9bc, 2026-08-05)",
+    "host": "aarch64-apple-darwin",
+    "native_pdftoppm": "absent from PATH; carried qualification gap",
+    "pdfimages": "/Users/evokessler/.local/bin/pdfimages",
+    "pdftotext": "/Users/evokessler/.local/bin/pdftotext",
+    "prior_target_use": "same bound root, previously authorized helper candidate; no shared C0/cross-root reuse",
+    "rust": "1.98.1 (48a229ceaefd4985c50990b14116b6d856af0985, 2026-09-01)",
+    "synthetic_TMPDIR": "/private/tmp/brn-b1a-panel-window1-20261016/synthetic-tmp",
+    "target": "/private/tmp/brn-b1a-20261016-target"
+  },
+  "initial_process_receipt": {
+    "exact_heavy_processes": [],
+    "utc": "2026-10-16T19:37:09.124518+00:00"
+  },
+  "kind": "first-window local qualification; independent review/acceptance pending",
+  "lock": {
+    "after": {
+      "dependencies": [
+        "brn-threads-app",
+        "gpui-kit"
+      ],
+      "name": "brn-writing-ui",
+      "version": "0.1.0"
+    },
+    "before": {
+      "dependencies": [
+        "gpui-kit"
+      ],
+      "name": "brn-writing-ui",
+      "version": "0.1.0"
+    },
+    "current_lock_sha256": "db9897de266af25068aab354bf8df502a1ce3657b96b08ca00d78733f6e666ce",
+    "only_changed_package": [
+      "brn-writing-ui:0.1.0"
+    ]
+  },
+  "production_fingerprint_sha256": "87a2340c017378c11e435fc6132420a3979f08111791e136d5436d7d514af95e",
+  "production_paths": {
+    ".github/workflows/ci.yml": {
+      "after_sha256": "22291660f707ae56491fff9e91cb5c0fca49a02efc17243af96cd6608ce804d6",
+      "before_sha256": "fe3282d8466cbed9203e0f12f997f1e24e2744b08707d589b73df8ff26fc07eb"
+    },
+    "Cargo.lock": {
+      "after_sha256": "db9897de266af25068aab354bf8df502a1ce3657b96b08ca00d78733f6e666ce",
+      "before_sha256": "8dd42e874ca7a7751bf9aabab608d2a7c46310435a73da76e2ab57cddf5e68b6"
+    },
+    "crates/brn-desktop/Cargo.toml": {
+      "after_sha256": "672e0569e87dfa5ea7af04c8a61dcac675797b11c9095cfb8f863b50dd6d3c5a",
+      "before_sha256": "2fc5aafd32607ec0f7002776f102b2aaaa487774b2f4f6c3fdb45e1d7860114e"
+    },
+    "crates/brn-desktop/src/threads_chat.rs": {
+      "after_sha256": "56f597bbb7acf13796b62b6a9cab2646cd7e0f6959a78bfc0e9b10effe0cd5ec",
+      "before_sha256": "755f257e9413cb39a29784cc96cd4ce2cd07a1822e9c44b392c31e492a465790"
+    },
+    "crates/brn-desktop/src/threads_components.rs": {
+      "after_sha256": "8a4fd21076d2fe8bbf18bba598e2c0e6881b75d113f172bbae9e87b2c318441e",
+      "before_sha256": "d3a695b7d0cbbe9075f4428e55d8db684d72b8c6a26bbb3ee73c9c6003c1bc37"
+    },
+    "crates/brn-desktop/src/threads_context_actions.rs": {
+      "after_sha256": "fb7f881f79a91984c9c7799db58de440f24513b2698277f3712a1c241bdca795",
+      "before_sha256": "629f05c665d264addf3d87b227a1eeea7258b4b4dbb2363df3868d5e888584e9"
+    },
+    "crates/brn-desktop/src/threads_dialogs_tests.rs": {
+      "after_sha256": "2dfe26e52edbb1816b6b5dee59c731a4946dac669d4f560d4785491d3f90accc",
+      "before_sha256": "c201dbdc7e009d9414ecd7f2e5fe489ef152571ca72a98601144fa1133260d18"
+    },
+    "crates/brn-desktop/src/threads_document.rs": {
+      "after_sha256": null,
+      "before_sha256": "c89a52ff04e37711301e8b4714caef715bc892b4c1b6060e93ce2eac4a59fea8"
+    },
+    "crates/brn-desktop/src/threads_document_tests.rs": {
+      "after_sha256": "a8c14a3f70346a187cc91e09e3f41b8cfd56a3f87cfdeecc5ec4af4e3f8d08a3",
+      "before_sha256": "c44af96161662fa889a839784ab47a35fc899a989dc158f95e39e81b74750443"
+    },
+    "crates/brn-desktop/src/threads_focus_tests.rs": {
+      "after_sha256": "7bdf58ec2fd248f263434118c0fc31f88fea00bbaa37ca898d8eb61cccd85adf",
+      "before_sha256": "c654e632d8bc80359825bf2f9d3bfe39d5fc978737de056b190c16c6c1202a82"
+    },
+    "crates/brn-desktop/src/threads_layout.rs": {
+      "after_sha256": "66e89e7aff29218266fa596698ba0c5010753c0c08c98c2649c774545e11251b",
+      "before_sha256": "accac5718b9e585c7a9f5bb4427a5a3314d4eba956db90fc1a118e6f425ed879"
+    },
+    "crates/brn-desktop/src/threads_omakase_tests.rs": {
+      "after_sha256": "0e6f18d63370e8690b398a4b8568d04e20e2ea55a22665b457b6166d57e9e6d8",
+      "before_sha256": "4b33bf78db1db9a51e7921ebc46cf821fa60cf035623b45cd66610235928374b"
+    },
+    "crates/brn-desktop/src/threads_pages_tests.rs": {
+      "after_sha256": "57a0e47681794b644e4e2aa7e6b350c3242d86fc9136c9b4fc95ef93e2c683d7",
+      "before_sha256": "b42b253b1a91f03a10046a51496e65f09ad6915233952177edb392ef03a16886"
+    },
+    "crates/brn-desktop/src/threads_polish_tests.rs": {
+      "after_sha256": "18261f3147d20e6ec032364d3bab4e7c261b74d4e7d0668b37fea03997325d00",
+      "before_sha256": "2fc9b8ebda80bae0e8e242dc84456f855292ce7248a09c1127ab6ea09c808bbc"
+    },
+    "crates/brn-desktop/src/threads_review_tests.rs": {
+      "after_sha256": "18f678bd5024a65c303c11328691cc5524dbc1d1b1dbd7e5ad30a85c09ae9024",
+      "before_sha256": "7046d0bce697cbbaab37a0a8b868cc6b73011f977691f91dfea16db24ccfd556"
+    },
+    "crates/brn-desktop/src/threads_shell.rs": {
+      "after_sha256": "721792ae516bd4238ab989cc2def86fcee5501da014bf706980f516e3c7c86b5",
+      "before_sha256": "7d0dd32298cfdae5baa9cc722718a703157cbef0ddc45fa9e7fa63385b5fd2d1"
+    },
+    "crates/brn-desktop/src/threads_state.rs": {
+      "after_sha256": "3c6ed6890eeafc2a2f90ffd876c5d697b4977c4d345f645b203178ad282c5c2c",
+      "before_sha256": "1490fe8ff18e17a71790098fd69141f0acd5347dd5e109fff0ff06628a79857c"
+    },
+    "crates/brn-desktop/src/threads_steering_tests.rs": {
+      "after_sha256": "e5b3fd8e244b24b7561756d3127b04a844cb7cf13ab5b1674c21e54a5f42a52e",
+      "before_sha256": "0aa0400c2ab895d851568f430fcb292897429920f44452a4d9ed9daeda15978f"
+    },
+    "crates/brn-desktop/src/threads_theme.rs": {
+      "after_sha256": "2a71bc6a6ebecb0e5e97d67ba01854ce743c7dddbaca02a809e51092dbf57ae0",
+      "before_sha256": "0efc3540ad084c772c70b36ddeb91c96848c4f357e7168d681b93b54324e46b1"
+    },
+    "crates/brn-desktop/src/threads_tiled_tests.rs": {
+      "after_sha256": "211ec9c1d463fef2af21086a8a192cca5918d96447401757dc9d49c1214d7c22",
+      "before_sha256": "d8d7299f8e020739b5c31c4b3ac036e815a42795cb458a68810a4edecc4c494a"
+    },
+    "crates/brn-desktop/src/threads_tiles.rs": {
+      "after_sha256": "7aadfecd226ee8f4b741a8ca79a1761cf1583ba3233def5040ff0e609267243e",
+      "before_sha256": "5e8307e21394f0ad2e92dbd7f4dc6b68a764e8bce5e26fb6201e12823e9c4c3e"
+    },
+    "crates/brn-desktop/src/threads_ui.rs": {
+      "after_sha256": "4abf9d3ead11f241cdb1a92e45fd58e6ad382dfba574f0707d608e0ce61c99a5",
+      "before_sha256": "0e2a7b6bedb030460f85cb5644c900220c207e8977ba151a3ca0690967c00c0b"
+    },
+    "crates/brn-desktop/src/threads_workbench.rs": {
+      "after_sha256": null,
+      "before_sha256": "f0659f8c444855f153693e4a4a2cdcd4e6ec117e615ee89f6e733d84d779cd28"
+    },
+    "crates/brn-desktop/src/threads_workbench_tests.rs": {
+      "after_sha256": "59bbcb588ef9998a7e1b3f55099afb2c58dc334b5861239fc9d6b14b60521999",
+      "before_sha256": "b90d3dc34608ddf165569020daff701f1e668e84687cb59b197a8ef3537ccf98"
+    },
+    "crates/brn-desktop/src/threads_writing.rs": {
+      "after_sha256": "0cbfa77960e179f76ac6897403429694157ff5c7acf58dbad92fe7dbaf86e489",
+      "before_sha256": "f63fa16c4f260e906fe4b8fc834fd10aae1fd4747668653e7f69d54f84cab056"
+    },
+    "crates/brn-desktop/src/threads_writing_tests.rs": {
+      "after_sha256": "97582c5af8dd28ae6b949d0b05c9781190d810184a680b9ead48f1d048bfa251",
+      "before_sha256": "62b39eb68c0a753327155bb800f1f4fd96c874d9ab9852296af5353d3d0a62ac"
+    },
+    "crates/brn-writing-ui/Cargo.toml": {
+      "after_sha256": "be0c63d49bb253b3b637277d49a51ccee895f2764602c291eae79a4db6ab7f60",
+      "before_sha256": "22a5e153ee3607fa810351ad4cacfbe26b3763b446c2c0ed98c3890867cf0cac"
+    },
+    "crates/brn-writing-ui/src/components.rs": {
+      "after_sha256": "9f1bb46126fc60e6b79b69c373ce4a0f7a73fd0930dddbc384a805a30d0a298e",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/document.rs": {
+      "after_sha256": "219971fd0a4b3fa86050b741001f60d314cbe549cb5f62b4b583604ce11fad71",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/layout.rs": {
+      "after_sha256": "830e4852a64ee8a3659b6378ae7296a02c89d6a59541094e65bd4959505c318e",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/lib.rs": {
+      "after_sha256": "3f5f8eda01b6042dd373ddbdfffcb5e2f7c4d903c3dccf31e064d74299391c8f",
+      "before_sha256": "b1493bc593b13c2ccd766d8dfb32d60f10239c8ae80ab51fe653b9a0dc9a43a6"
+    },
+    "crates/brn-writing-ui/src/markdown.rs": {
+      "after_sha256": "6d1478bb1715c89878065ca167d04738658f30d6a5f53fec17e5e95fb27b8a7b",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/native.rs": {
+      "after_sha256": "faf7472c8149826f51dd2d947d4e697e637adc764373a4647837c4e37d08354f",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/theme.rs": {
+      "after_sha256": "056f4ee0234cc84654c59fd06e124bfcf40d6b257d9d449f6423a213b7367de9",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/workbench.rs": {
+      "after_sha256": "6f8b788080e63cc14a8de34cd8e5bf430a789f24e2956891719bd678e3620213",
+      "before_sha256": null
+    },
+    "crates/brn-writing-ui/src/writing.rs": {
+      "after_sha256": "d767133b731697c56cab90cf9154d0513fc4af625c216b789a5fac1c11fd1e04",
+      "before_sha256": null
+    },
+    "scripts/verify-desktop-shell.sh": {
+      "after_sha256": "684213a46b07ca96041e8985dc058761f000d19ed1b1f59460e27edc9c2188fc",
+      "before_sha256": "f0917a22bd31c6c3b01fa9eae98140a0b5cf2f0e7f51fca26ffa111d0ca785a9"
+    }
+  },
+  "raw_evidence_directory": "/private/tmp/brn-b1a-panel-window1-20261016",
+  "scope_assertions": {
+    "AI_core_app_unchanged": true,
+    "approved_formatting_and_diff_bytes_unchanged": true,
+    "existing_native_assertion_event_sequences": {
+      "threads_backup_tests.rs": {
+        "original_assertion_and_event_sequence_count": 54,
+        "preserved": true
+      },
+      "threads_chat_tests.rs": {
+        "original_assertion_and_event_sequence_count": 201,
+        "preserved": true
+      },
+      "threads_context_actions_tests.rs": {
+        "original_assertion_and_event_sequence_count": 66,
+        "preserved": true
+      },
+      "threads_dialogs_tests.rs": {
+        "original_assertion_and_event_sequence_count": 94,
+        "preserved": true
+      },
+      "threads_document_tests.rs": {
+        "original_assertion_and_event_sequence_count": 67,
+        "preserved": true
+      },
+      "threads_focus_tests.rs": {
+        "original_assertion_and_event_sequence_count": 158,
+        "preserved": true
+      },
+      "threads_intake_tests.rs": {
+        "original_assertion_and_event_sequence_count": 122,
+        "preserved": true
+      },
+      "threads_omakase_tests.rs": {
+        "original_assertion_and_event_sequence_count": 290,
+        "preserved": true
+      },
+      "threads_pages_tests.rs": {
+        "original_assertion_and_event_sequence_count": 155,
+        "preserved": true
+      },
+      "threads_polish_tests.rs": {
+        "original_assertion_and_event_sequence_count": 125,
+        "preserved": true
+      },
+      "threads_projects_tests.rs": {
+        "original_assertion_and_event_sequence_count": 81,
+        "preserved": true
+      },
+      "threads_review_tests.rs": {
+        "original_assertion_and_event_sequence_count": 268,
+        "preserved": true
+      },
+      "threads_steering_tests.rs": {
+        "original_assertion_and_event_sequence_count": 169,
+        "preserved": true
+      },
+      "threads_tiled_tests.rs": {
+        "original_assertion_and_event_sequence_count": 157,
+        "preserved": true
+      },
+      "threads_workbench_tests.rs": {
+        "original_assertion_and_event_sequence_count": 137,
+        "preserved": true
+      },
+      "threads_writing_tests.rs": {
+        "original_assertion_and_event_sequence_count": 183,
+        "preserved": true
+      }
+    },
+    "principal_CI_and_script_bytes_unchanged_from_window_start": true,
+    "root_manifest_unchanged": true,
+    "single_cache_and_authority_method_normalized_sha256": {
+      "apply_candidate": "69f122b4e822f9de6d7a41dda981998e05438b4ef4cd22fa93e6d615a2936f25",
+      "ensure_writing_thread": "d3158d4e7cac9e7875ce0f2aa26cb45e24ad18f94c6765e3f231b055167febe5",
+      "new_writing_thread": "1b746c8844b30e212dac7106d98e6652a997250eaf11b0c0cef46282ecd95d64",
+      "open_note": "fde73593b38c791db4623da492e169837c8c291f7fc6eadca3d68d1d1be0c88e",
+      "open_note_in_context": "e1da6818bec8949f492a20215543f606a7d19412b272e0c3a0e0caf519ae27ec",
+      "open_review": "9cef005d4bd83daadad39ad37994b0fb1fc1ec7443f155c37594fe5a7ce2ed98",
+      "open_thread": "09be637b07842933d7463b3920aec8a811f0b60079f627309ec2eda753cc0737",
+      "refresh_writing_review_cache": "471b6d6e9e1f20a66f4c12988e4541e108d2f4b3c5bbedf773505573020acb3f",
+      "reload_open_note": "754f23a189f28cdadba66baa64531c6fce2ee1150f1f5d2b5b638b32dd512dbe",
+      "save": "51dc409142541bdedfb57846bd722a93ce655cfb4a9eb26317931214544f1810",
+      "select_writing_thread": "722d0a45e7bf0e1dacc1ac9ca724d0745c9ea9fa9f11438079d359509ee2e57d",
+      "set_chat": "16e209382477fce1cee65077a95db9fd5599df9eb25839071f33d66bc3f1b248",
+      "start_run": "6da2ba1a6f0e2af7837bb43274fa3a94294d360e6ed825c9422646989834add0"
+    }
+  },
+  "source_prep_history": [
+    "37a10fd99f26e1e07fff6a9927e710f429230a2e5e36ace4f6959f96cc23f748",
+    "ebe7628bbd57a51b535296e8b8e944afba9dc158df96009b5adc88ffd6db5bef",
+    "db515af6dbb024c1e160f5cb7a0e0e205a6761ed07d2423ab2337bd21019659a"
+  ],
+  "static_selfchecks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/final-diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/brn-b1a-panel-window1-20261016/final-markdown-links.log",
+      "log_sha256": "0d55e5e1db90b9866e0cde2a07c5e3aa42f03580de54651129a0a5a3ebf5b05e",
+      "output": "Markdown links: 179 files, 881 local links, 0 failures; historical outgoing policy=docs/archive/ only\n"
+    }
+  ]
+}

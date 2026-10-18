@@ -1,10 +1,13 @@
-//! Writing interactions stay with the document; chat remains optional.
-use super::shell::pill;
-use super::*;
+//! Writing status/result presentation; checked inputs come from the host cache.
+use crate::native::*;
+use crate::{components, theme::pal};
+use brn_threads_app::*;
 use gpui_kit::component::button::ButtonVariants;
+use gpui_kit::component::input::Textarea;
 use gpui_kit::component::{Icon, Sizable, Size};
-impl ThreadsUi {
-    pub(super) fn writing_candidate_note(&self, candidate: &Prepared) -> Option<String> {
+use gpui_kit::{Context, TestSupportExt, div, prelude::*, px, rgb};
+impl<T: 'static> WritingView<'_, T> {
+    pub fn writing_candidate_note(&self, candidate: &Prepared) -> Option<String> {
         candidate.request.inputs.iter().find_map(|input| {
             self.workspace
                 .writing_request(&input.record)
@@ -13,7 +16,7 @@ impl ThreadsUi {
         })
     }
     /// Match persisted host intent, never prompt prose or arbitrary conversation content.
-    pub(super) fn latest_writing_instruction(&self, thread: &str) -> Option<String> {
+    pub fn latest_writing_instruction(&self, thread: &str) -> Option<String> {
         self.workspace
             .messages(thread)
             .ok()?
@@ -28,10 +31,10 @@ impl ThreadsUi {
             })
             .flatten()
     }
-    pub(super) fn writing_worker_for(&self, note: &str) -> bool {
+    pub fn writing_worker_for(&self, note: &str) -> bool {
         self.worker
             .as_ref()
-            .and_then(|worker| worker.run_id.as_ref())
+            .and_then(|worker| worker.run_id)
             .and_then(|id| self.workspace.store.record(id).ok().flatten())
             .and_then(|record| match record.data {
                 RecordData::Run(run) => run.instruction,
@@ -40,7 +43,7 @@ impl ThreadsUi {
             .and_then(|id| self.writing_requests.get(&id))
             .is_some_and(|snapshot| snapshot.note.id == note)
     }
-    pub(super) fn writing_activity(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    pub fn writing_activity(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let Some(note) = self.open_note_id() else {
             return div().into_any_element();
         };
@@ -69,7 +72,7 @@ impl ThreadsUi {
             .child(div().flex_1().min_w_0().child(if self.progress.is_empty() {
                 "Rewriting…".to_owned()
             } else {
-                self.progress.clone()
+                self.progress.to_owned()
             }))
             .child(
                 button("stop-writing")
@@ -79,12 +82,12 @@ impl ThreadsUi {
                     .outline()
                     .h(components::tokens::COMPACT_CONTROL)
                     .tooltip("Stop the current work and pause the queue · ⌘.")
-                    .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
+                    .on_click(self.on(cx, WritingRequest::Cancel)),
             )
             .test_support()
             .into_any_element()
     }
-    pub(super) fn writing_proposals(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    pub fn writing_proposals(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let Some(note) = self.open_note_id() else {
             return div().into_any_element();
         };
@@ -133,48 +136,44 @@ impl ThreadsUi {
             let show = candidate.clone();
             let dismiss = candidate.clone();
             let op = candidate.operation.as_str();
-            proposals =
-                proposals.child(
-                    div()
-                        .id(format!("writing-proposal-{op}"))
-                        .flex()
-                        .flex_wrap()
-                        .items_center()
-                        .gap_2()
-                        .px_3()
-                        .py_1()
-                        .child(div().flex_1().min_w_0().text_size(UI_TEXT).child(summary))
-                        .child(pill(format!("writing-dismiss-{op}"), "Dismiss").on_click(
-                            cx.listener(move |this, _, window, cx| {
-                                this.card_dismiss(dismiss.clone(), window, cx)
-                            }),
-                        ))
-                        .child({
-                            let review = button(format!("writing-review-{op}"))
-                                .label("Review rewrite")
-                                .compact()
-                                .h(components::tokens::COMPACT_CONTROL)
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.open_review(show.clone(), window, cx)
-                                }));
-                            if lead && index == newest {
-                                review.primary()
-                            } else {
-                                review.outline()
-                            }
-                        })
-                        .test_support(),
-                );
+            proposals = proposals.child(
+                div()
+                    .id(format!("writing-proposal-{op}"))
+                    .flex()
+                    .flex_wrap()
+                    .items_center()
+                    .gap_2()
+                    .px_3()
+                    .py_1()
+                    .child(div().flex_1().min_w_0().text_size(UI_TEXT).child(summary))
+                    .child(
+                        pill(format!("writing-dismiss-{op}"), "Dismiss")
+                            .on_click(self.on(cx, WritingRequest::CardDismiss(dismiss.clone()))),
+                    )
+                    .child({
+                        let review = button(format!("writing-review-{op}"))
+                            .label("Review rewrite")
+                            .compact()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .on_click(self.on(cx, WritingRequest::OpenReview(show.clone())));
+                        if lead && index == newest {
+                            review.primary()
+                        } else {
+                            review.outline()
+                        }
+                    })
+                    .test_support(),
+            );
         }
         proposals.test_support().into_any_element()
     }
-    pub(super) fn latest_note_writing_request(&self, note: &str) -> Option<Record> {
+    pub fn latest_note_writing_request(&self, note: &str) -> Option<Record> {
         let thread = self.writing_threads.get(note)?;
         self.workspace.messages(thread).ok()?.into_iter().rev().find(|record| {
             matches!(&record.data, RecordData::Message(message) if message.role == "writing-request") && self.writing_requests.get(&record.id).is_some_and(|s| s.note.id == note)
         })
     }
-    pub(super) fn latest_rewrite_applied(&self, note: &str) -> bool {
+    pub fn latest_rewrite_applied(&self, note: &str) -> bool {
         self.applied_rewrite.get(note).is_some_and(|(request, _)| {
             self.latest_note_writing_request(note)
                 .is_some_and(|record| record.id == *request)
@@ -183,7 +182,7 @@ impl ThreadsUi {
     /// The last rewrite's recorded outcome, under the conditions today's
     /// saved-status line used: no live worker for this note, no proposal and
     /// no applied rewrite.
-    pub(super) fn writing_run_outcome(&self) -> Option<RunOutcome> {
+    pub fn writing_run_outcome(&self) -> Option<RunOutcome> {
         let note = self.open_note_id()?;
         if self.writing_worker_for(note)
             || self
@@ -202,14 +201,14 @@ impl ThreadsUi {
         if snapshot.note.id != note {
             return None;
         }
-        let run = latest_run(&self.records, &self.history, thread).and_then(|record| match &record
-            .data
-        {
-            RecordData::Run(run) if run.instruction.as_deref() == Some(request.as_str()) => {
-                Some((record.id.clone(), run))
-            }
-            _ => None,
-        });
+        let run = self
+            .latest_run(thread)
+            .and_then(|record| match &record.data {
+                RecordData::Run(run) if run.instruction.as_deref() == Some(request.as_str()) => {
+                    Some((record.id.clone(), run))
+                }
+                _ => None,
+            });
         // A failed or interrupted rewrite reads as its chat's recorded
         // notice (the Needs you text), as the status line and the chat's
         // recovery card do.
@@ -243,7 +242,7 @@ impl ThreadsUi {
     /// `writing-run-status`: the outcome's tone and the full recorded reason,
     /// wrapping, never truncated. Beside a recorded notice, the run's
     /// progress is a muted second line, `writing-run-detail` (U10).
-    pub(super) fn writing_run_status(&self) -> gpui_kit::AnyElement {
+    pub fn writing_run_status(&self) -> gpui_kit::AnyElement {
         let Some(outcome) = self.writing_run_outcome() else {
             return div().into_any_element();
         };
@@ -272,7 +271,7 @@ impl ThreadsUi {
             .into_any_element()
     }
     /// The writing bar's first matching row for the open note.
-    pub(super) fn writing_bar_row(&self) -> Option<WritingRow> {
+    pub fn writing_bar_row(&self) -> Option<WritingRow> {
         let open = self.note.as_ref()?;
         let note = open.record.id.as_str();
         let proposal = self
@@ -301,7 +300,7 @@ impl ThreadsUi {
         ))
     }
     /// An open edit whose base version is behind the saved note.
-    pub(super) fn edit_is_stale(&self) -> bool {
+    pub fn edit_is_stale(&self) -> bool {
         self.note
             .as_ref()
             .and_then(|open| open.session.as_ref())
@@ -312,7 +311,7 @@ impl ThreadsUi {
             })
     }
     /// A response is writing-owned only when committed with its exact bound terminal run.
-    pub(super) fn writing_result_note(&self) -> Option<Record> {
+    pub fn writing_result_note(&self) -> Option<Record> {
         let note = self.open_note_id()?;
         if self.writing_worker_for(note)
             || self
@@ -330,7 +329,7 @@ impl ThreadsUi {
         if self.workspace.writing_request(&request).ok()?.note.id != note {
             return None;
         }
-        let record = latest_run(&self.records, &self.history, thread)?;
+        let record = self.latest_run(thread)?;
         let RecordData::Run(run) = &record.data else {
             return None;
         };
@@ -344,7 +343,7 @@ impl ThreadsUi {
                 } else { None }
             }))
     }
-    pub(super) fn writing_result(&self) -> gpui_kit::AnyElement {
+    pub fn writing_result(&self) -> gpui_kit::AnyElement {
         let Some(record) = self.writing_result_note() else {
             return div().into_any_element();
         };
@@ -382,7 +381,7 @@ impl ThreadsUi {
     }
     /// The writing bar's feedback field: one line when empty, up to four as
     /// the owner writes. Its placeholder names it; the label is announced.
-    pub(super) fn overall_feedback(&self) -> gpui_kit::AnyElement {
+    pub fn overall_feedback(&self) -> gpui_kit::AnyElement {
         div()
             .id("overall-feedback")
             .pt_1()
@@ -400,7 +399,7 @@ impl ThreadsUi {
 
 /// How the last rewrite ended, when nothing newer owns the writing bar.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) enum RunOutcome {
+pub enum RunOutcome {
     /// Failed or Interrupted with the chat's recorded notice for this run;
     /// the run's progress is secondary detail.
     Recorded {
@@ -420,7 +419,7 @@ pub(super) enum RunOutcome {
 }
 impl RunOutcome {
     /// `None` is neutral.
-    pub(super) fn tone(&self) -> Option<Tone> {
+    pub fn tone(&self) -> Option<Tone> {
         match self {
             Self::Recorded { failed: true, .. } | Self::Failed(_) => Some(Tone::Error),
             Self::Recorded { .. } => Some(Tone::Warning),
@@ -429,7 +428,7 @@ impl RunOutcome {
         }
     }
     /// The state, then the run's recorded reason verbatim when it has one.
-    pub(super) fn text(&self) -> String {
+    pub fn text(&self) -> String {
         let with = |state: &str, progress: &str| {
             if progress.trim().is_empty() {
                 state.to_owned()
@@ -453,7 +452,7 @@ impl RunOutcome {
     }
     /// The run's progress beside a recorded notice, as the chat's recovery
     /// card shows it: a secondary line, only when it says something else.
-    pub(super) fn detail(&self) -> Option<&str> {
+    pub fn detail(&self) -> Option<&str> {
         match self {
             Self::Recorded { notice, detail, .. }
                 if !detail.trim().is_empty() && detail.trim() != notice.trim() =>
@@ -468,7 +467,7 @@ impl RunOutcome {
 /// The writing bar's first matching row (plan.md step 3), which owns the one
 /// filled primary. Rows 5 and 6 come from the recorded run outcome.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum WritingRow {
+pub enum WritingRow {
     /// A kept edit blocks the note: Recover edit, in the banner.
     Recover,
     /// The note changed since the edit began: Save as new note, in the banner.
@@ -486,7 +485,7 @@ pub(super) enum WritingRow {
     /// Rewrite with AI.
     Idle,
 }
-pub(super) fn writing_row(
+pub fn writing_row(
     dirty: bool,
     stale: bool,
     proposal: bool,

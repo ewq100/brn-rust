@@ -181,12 +181,22 @@ const TOOLBAR_IDS: [&str; 13] = [
 /// Type into the open note so it has an unsaved, recoverable edit.
 pub(super) fn type_edit(cx: &mut TestAppContext, f: &Fixture, tail: &str) {
     update(cx, f, |view, window, cx| {
-        let text = format!("{}{tail}", view.note_editor.read(cx).value());
-        view.note_editor
+        let text = format!("{}{tail}", view.writing.note_editor.read(cx).value());
+        view.writing
+            .note_editor
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
         view.preserve_visible_note_input(cx);
     });
-    assert!(cx.read(|cx| f.view.read(cx).note.as_ref().unwrap().session.is_some()));
+    assert!(cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .note
+            .as_ref()
+            .unwrap()
+            .session
+            .is_some()
+    }));
 }
 
 /// Change the saved note outside this view, as another window or BRN would.
@@ -273,8 +283,8 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
                 let f = widest(cx, width, height);
                 update(cx, &f, |view, window, cx| {
                     // Comments open or closed, beside the text or stacked.
-                    view.margin = Some(margin);
-                    view.comments_expanded = margin;
+                    view.writing.margin = Some(margin);
+                    view.writing.comments_expanded = margin;
                     view.show_tile(navigation, window, cx);
                 });
                 assert!(cx.read(|cx| f.view.read(cx).layout.contains(navigation)));
@@ -283,7 +293,7 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
                         type_edit(cx, &f, " edited");
                     }
                     on_window(cx, &f, |window, cx| {
-                        let fit = f.view.read(cx).note_fit;
+                        let fit = f.view.read(cx).writing.note_fit;
                         let case = format!(
                             "{width}x{height} {navigation:?} margin {margin} dirty {dirty} {fit:?}"
                         );
@@ -374,7 +384,7 @@ fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
         "# Alpha\n\nOne two.\n\n## **Beta**\n\nThree.",
     );
     on_window(cx, &f, |window, cx| {
-        assert!(f.view.read(cx).note_fit.format_menu());
+        assert!(f.view.read(cx).writing.note_fit.format_menu());
         assert!(window.try_find("format-bold").is_none());
         window.click("format-menu", cx);
     });
@@ -385,7 +395,7 @@ fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
     on_window(cx, &f, |window, cx| window.press("escape", cx));
     update(cx, &f, |view, _, cx| {
         let start = "# Alpha\n\n".len();
-        view.note_editor.update(cx, |editor, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_selected_range(start..start + 3, cx)
         });
     });
@@ -393,14 +403,20 @@ fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
     choose(cx, &f, "Bold");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert!(view.note_editor.read(cx).value().contains("**One** two."));
+        assert!(
+            view.writing
+                .note_editor
+                .read(cx)
+                .value()
+                .contains("**One** two.")
+        );
     });
     // Write: Outline lists the headings and reveals the chosen one.
     on_window(cx, &f, |window, cx| window.click("note-outline", cx));
     assert_eq!(menu_rows(cx, &f), ["Alpha", "Beta"]);
     choose(cx, &f, "Beta");
     cx.read(|cx| {
-        let editor = f.view.read(cx).note_editor.read(cx);
+        let editor = f.view.read(cx).writing.note_editor.read(cx);
         let range = editor.selected_range();
         assert_eq!(editor.value().get(range), Some("**Beta**"));
     });
@@ -492,7 +508,7 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
     on_window(cx, &f, |window, cx| window.click("save-buffer-copy", cx));
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let open = view.note.as_ref().unwrap();
+        let open = view.writing.note.as_ref().unwrap();
         assert_ne!(open.record.id, f.note.id, "the text became a new note");
         assert!(matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Saved text and my words"));
     });
@@ -581,7 +597,8 @@ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut
     let f = widest(cx, 1250., 860.);
     type_edit(cx, &f, " edited");
     update(cx, &f, |view, _, cx| {
-        view.note_editor
+        view.writing
+            .note_editor
             .update(cx, |editor, cx| editor.set_selected_range(10..15, cx));
         view.track_selection(cx);
     });
@@ -615,8 +632,11 @@ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut
     let f = widest(cx, 900., 600.);
     on_window(cx, &f, |window, cx| {
         // 900 pt stacks the comments, so the Note keeps about 406 pt.
-        assert_eq!(f.view.read(cx).margin_mode, layout::MarginMode::Stacked);
-        assert!(f.view.read(cx).note_fit.icons());
+        assert_eq!(
+            f.view.read(cx).writing.margin_mode,
+            layout::MarginMode::Stacked
+        );
+        assert!(f.view.read(cx).writing.note_fit.icons());
         assert_eq!(
             window.find("note-status-chip").label(),
             Some("Protected · v12")
@@ -1004,7 +1024,15 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., "Saved text");
     cx.update(|cx| cx.bind_keys(bindings()));
     type_edit(cx, &f, " unsaved");
-    let unsaved = cx.read(|cx| f.view.read(cx).note_editor.read(cx).value().to_string());
+    let unsaved = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .writing
+            .note_editor
+            .read(cx)
+            .value()
+            .to_string()
+    });
     on_window(cx, &f, |window, cx| window.click("discard-note", cx));
     on_window(cx, &f, |window, cx| {
         assert!(window.has_active_dialog(cx));
@@ -1022,10 +1050,10 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.note.as_ref().unwrap().session.is_some(),
+            view.writing.note.as_ref().unwrap().session.is_some(),
             "Cancel keeps the edit"
         );
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), unsaved);
+        assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), unsaved);
     });
     on_window(cx, &f, |window, cx| {
         assert!(!window.has_active_dialog(cx));
@@ -1048,9 +1076,12 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
     });
     cx.read(|cx| {
         let view = f.view.read(cx);
-        let open = view.note.as_ref().unwrap();
+        let open = view.writing.note.as_ref().unwrap();
         assert!(open.session.is_none());
-        assert_eq!(view.note_editor.read(cx).value().as_ref(), "Saved text");
+        assert_eq!(
+            view.writing.note_editor.read(cx).value().as_ref(),
+            "Saved text"
+        );
         assert!(view.workspace.store.recovery_buffers().unwrap().is_empty());
     });
     on_window(cx, &f, |window, cx| assert!(!window.has_active_dialog(cx)));

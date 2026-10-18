@@ -1,4 +1,5 @@
 //! Shared product use cases. Every canonical write delegates to the checked core.
+pub use brn_ai::threads::{OwnerRequest, TraceLevel};
 pub use brn_threads_core::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
