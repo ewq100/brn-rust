@@ -11,13 +11,14 @@
     "strict_clippy_both_graphs": "PASS",
     "affected_formatting": "PASS",
     "markdown_links": "Markdown links: 385 files, 1724 local links, 0 failures; historical outgoing policy=docs/archive/ only",
-    "whitespace": "PASS; full staged delta checked again immediately before commit"
+    "whitespace": "Final full base-to-staged-tree check is recorded in final-precommit.json; original whitespace failure is preserved in command 23."
   },
   "failure_classifications": {
     "01-before-docx-six": "Genuine compiled behavior red; both schemas accept all six malformed inputs.",
     "06-union-historical-pair-mismatch": "89 passed / 1 stale paired-current pin failure; no bare-Xberg drift.",
     "11-ai-conversion-tests": "3 passed / 6 failed from synthetic auth beneath Git; source/binary unchanged, harness-only non-Git private TMPDIR fix verified by command 12.",
-    "13-before-private-tmp": "Same genuine before refusal failure under corrected private TMPDIR."
+    "13-before-private-tmp": "Same genuine before refusal failure under corrected private TMPDIR.",
+    "23-original-full-delta-whitespace": "Trailing blank line in copied full requirements; initial final shell sequence continued into commit 50faa2b7 after check failure. Original failed full-delta check and commit retained; document-only follow-up removes surplus EOF newline and verifies full base-to-final delta."
   },
   "commands": [
     {
@@ -318,5 +319,9 @@
     "path": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/tmpdir-correction.json",
     "sha256": "f33c89f718fac4db3ed65d373b28df7f4f7b9aae357ccb031a2f0db95c2ae04b"
   },
-  "precommit_receipt": "Final complete staged diff/tree/source/document hashes are retained externally in final-precommit.json and final-precommit.diff; final-pin.json records the actual resulting commit."
+  "precommit_receipt": "Final complete staged diff/tree/source/document hashes are retained externally in final-precommit.json and final-precommit.diff; final-pin.json records the actual resulting commit.",
+  "original_whitespace_failure": {
+    "receipt": "/Users/evokessler/.codex/brn-build-orchestration/2026-10-16/office-a1-run-20261018-95781baa/23-original-full-delta-whitespace.json",
+    "sha256": "77ebc350a289224dc180a5ae386b5f537f8733676cf3e599d7c6242cd4303116"
+  }
 }
