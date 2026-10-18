@@ -9,21 +9,21 @@ pub struct NoteLifecycle {
 enum State {
     #[default]
     Closed,
-    Open(OpenNote),
+    Open(Box<OpenNote>),
 }
 #[derive(Clone, Copy)]
 enum Presentation {
     Write,
     Read,
 }
-enum Editing {
+enum EditState {
     Clean,
     Editing(EditSession),
     BlockedElsewhere { note: String, base_version: u64 },
 }
 pub struct OpenNote {
     record: Record,
-    editing: Editing,
+    editing: EditState,
     presentation: Presentation,
 }
 impl OpenNote {
@@ -32,7 +32,7 @@ impl OpenNote {
     }
     pub fn session(&self) -> Option<&EditSession> {
         match &self.editing {
-            Editing::Editing(session) => Some(session),
+            EditState::Editing(session) => Some(session),
             _ => None,
         }
     }
@@ -56,7 +56,7 @@ impl NoteLifecycle {
     }
     pub fn open_edit_elsewhere(&self) -> Option<(&str, u64)> {
         match &self.as_ref()?.editing {
-            Editing::BlockedElsewhere { note, base_version } => Some((note, *base_version)),
+            EditState::BlockedElsewhere { note, base_version } => Some((note, *base_version)),
             _ => None,
         }
     }
@@ -134,11 +134,11 @@ impl WritingPanel {
         } else {
             Presentation::Write
         };
-        self.note.state = State::Open(OpenNote {
+        self.note.state = State::Open(Box::new(OpenNote {
             record,
-            editing: session.map_or(Editing::Clean, Editing::Editing),
+            editing: session.map_or(EditState::Clean, EditState::Editing),
             presentation,
-        });
+        }));
         self.selection = None;
         self.note_editor
             .update(cx, |editor, cx| editor.set_value(text, window, cx));
@@ -161,10 +161,10 @@ impl WritingPanel {
         let RecordData::Note(note) = &open.record.data else {
             return Ok(None);
         };
-        if matches!(open.editing, Editing::Clean) && text == note.markdown {
+        if matches!(open.editing, EditState::Clean) && text == note.markdown {
             return Ok(None);
         }
-        if !matches!(open.editing, Editing::Editing(_)) {
+        if !matches!(open.editing, EditState::Editing(_)) {
             let session = match workspace
                 .store
                 .begin_edit(&open.record.id, open.record.version)
@@ -175,7 +175,7 @@ impl WritingPanel {
                         note, base_version, ..
                     } = &error
                     {
-                        open.editing = Editing::BlockedElsewhere {
+                        open.editing = EditState::BlockedElsewhere {
                             note: note.clone(),
                             base_version: *base_version,
                         };
@@ -184,9 +184,9 @@ impl WritingPanel {
                 }
                 Err(error) => return Err(AppError::Core(error)),
             };
-            open.editing = Editing::Editing(session);
+            open.editing = EditState::Editing(session);
         }
-        let Editing::Editing(session) = &open.editing else {
+        let EditState::Editing(session) = &open.editing else {
             unreachable!()
         };
         if session.markdown == text {
@@ -198,7 +198,7 @@ impl WritingPanel {
                 .update_buffer(&session.id, session.generation + 1, &text)?
             {
                 BufferOutcome::Updated(updated) => {
-                    open.editing = Editing::Editing(updated);
+                    open.editing = EditState::Editing(updated);
                     (
                         Tone::Info,
                         "Your edit is recoverable. Save to update the note.",
@@ -282,7 +282,7 @@ impl WritingPanel {
         let State::Open(open) = &self.note.state else {
             return Ok(());
         };
-        if !matches!(open.editing, Editing::Clean) {
+        if !matches!(open.editing, EditState::Clean) {
             return Ok(());
         }
         let id = open.record.id.clone();
@@ -309,9 +309,9 @@ impl WritingPanel {
             }
             BufferOutcome::Updated(closed) if closed.closed => {
                 if let State::Open(open) = &mut self.note.state
-                    && matches!(open.editing, Editing::BlockedElsewhere { .. })
+                    && matches!(open.editing, EditState::BlockedElsewhere { .. })
                 {
-                    open.editing = Editing::Clean;
+                    open.editing = EditState::Clean;
                 }
                 self.note_changed(workspace, self.note_editor.read(cx).value().to_string())?;
                 let adopted = self

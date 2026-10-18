@@ -11,7 +11,7 @@ enum State {
     #[default]
     Closed,
     Open {
-        review: Review,
+        review: Box<Review>,
         mode: Mode,
         inputs: bool,
     },
@@ -224,13 +224,13 @@ impl WritingPanel {
             .unwrap_or_default();
         let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
         self.review.state = State::Open {
-            review: Review {
+            review: Box::new(Review {
                 candidate,
                 note,
                 original,
                 groups,
                 selected,
-            },
+            }),
             mode: Mode::Changes,
             inputs: false,
         };
