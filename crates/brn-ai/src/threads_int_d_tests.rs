@@ -2419,6 +2419,51 @@ mod capture_runner {
             .collect::<std::collections::BTreeSet<_>>();
         assert_eq!(retired.len(), 20);
         assert_eq!(retired, recorded);
+        // INT-W d2d84e665e64de14a15f4704eb0868c553c2885a moved these
+        // modules. Preserve the historical keys using actual current bytes ONLY
+        // inside this fresh synthetic Git fixture, not a compiled source checkout.
+        let moved = BTreeMap::from([
+            (
+                "crates/brn-desktop/src/threads_diff.rs",
+                "crates/brn-writing-ui/src/diff.rs",
+            ),
+            (
+                "crates/brn-desktop/src/threads_document.rs",
+                "crates/brn-writing-ui/src/document.rs",
+            ),
+            (
+                "crates/brn-desktop/src/threads_format.rs",
+                "crates/brn-writing-ui/src/formatting.rs",
+            ),
+            (
+                "crates/brn-desktop/src/threads_workbench.rs",
+                "crates/brn-writing-ui/src/workbench.rs",
+            ),
+        ]);
+        assert_eq!(moved.len(), 4);
+        assert_eq!(
+            moved
+                .values()
+                .collect::<std::collections::BTreeSet<_>>()
+                .len(),
+            4
+        );
+        for (old, current) in &moved {
+            assert!(sources.contains_key(*old));
+            assert!(!retired.contains(old));
+            assert_eq!(
+                fs::symlink_metadata(actual.join(old)).unwrap_err().kind(),
+                std::io::ErrorKind::NotFound,
+                "moved input must actually be absent: {old}"
+            );
+            assert!(
+                fs::symlink_metadata(actual.join(current))
+                    .unwrap()
+                    .file_type()
+                    .is_file(),
+                "current mapped input must be a real regular file: {current}"
+            );
+        }
         let mut hashes = BTreeMap::new();
         for path in sources.keys() {
             let to = source.path().join(path);
@@ -2430,6 +2475,12 @@ mod capture_runner {
                     "retired input must actually be absent: {path}"
                 );
                 fs::write(&to, format!("BRN OFFLINE TEST ONLY: SYNTHETIC HISTORICAL INPUT PLACEHOLDER\nretirement=ce477627bf24b322642ab6ac9d8f03d4d04441a4\npath={path}\nNot executable source; not a compiled checkout.\n")).unwrap();
+            } else if let Some(current) = moved.get(path.as_str()) {
+                fs::copy(actual.join(current), &to).unwrap();
+                assert_eq!(
+                    fs::read(&to).unwrap(),
+                    fs::read(actual.join(current)).unwrap()
+                );
             } else {
                 fs::copy(actual.join(path), &to).unwrap();
             }
@@ -2629,6 +2680,18 @@ mod capture_runner {
             maximum_starts: 1,
         };
         source_checks(&p, source.path()).unwrap();
+        for old in moved.keys() {
+            let alias = source.path().join(old);
+            let original = fs::read(&alias).unwrap();
+            fs::write(&alias, b"tampered synthetic historical key alias\n").unwrap();
+            assert!(source_checks(&p, source.path()).is_err());
+            fs::write(&alias, &original).unwrap();
+            source_checks(&p, source.path()).unwrap();
+            fs::remove_file(&alias).unwrap();
+            assert!(source_checks(&p, source.path()).is_err());
+            fs::write(&alias, &original).unwrap();
+            source_checks(&p, source.path()).unwrap();
+        }
         let placeholder = source.path().join(retired.first().unwrap());
         let original_placeholder = fs::read(&placeholder).unwrap();
         fs::write(&placeholder, b"tampered synthetic historical input\n").unwrap();
