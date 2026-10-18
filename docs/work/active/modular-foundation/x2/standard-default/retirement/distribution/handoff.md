@@ -1,0 +1,9 @@
+# Retirement D handoff
+
+Source/code pin **b8cf75bf56470b390b383baca37afdbc8fc4ff86**, tree **f39dfd74cb9fe3bec5854c67d2da593b726e3d34**. [Implementation and limits](implementation.md), [checks](check-index.json), [package/source/artifacts](source-pin.json), [release](release.json).
+
+Local signed final artifact: `/private/tmp/brn-x2-retirement-distribution-20261018/final-distribution/BRN-Threads-v0.1.0-preview.2-macos-arm64.zip`; SHA256 `7438d2eb453b64ef962a9756479112caaa360d9af22bb66ff048079f2fd7d521`. Embedded source is `b8cf75bf`; pre-correction70f and historical2cf packages remain separate and immutable. No public release or source acceptance is claimed.
+
+Actual current checks: intake10/0/1 ignored; refiner6/0;16 typed helper plus16 CLI imports/all8×2 Off through relocated siblings; Documents8/0; one native widget323/0/1 ignored; combined build/state95/0; strict affected/native/combined all-target lint; tooling171/0; offline108steps/1266checks. Counts overlap and are not a campaign total. Static results are in the final check receipt. The Unix/non-Mac source correction still requires real Ubuntu/Windows CI; no target installation or recursive before-run occurred.
+
+All raw commands/input snapshots/diffs/logs, original and new executable/library/.d bytes, graphs/notices/source audits/signatures and captures live under `/private/tmp/brn-x2-retirement-distribution-20261018`. No full workspace or full AI retry, live Auth/provider/network/model/GUI/mutation/activation/publication ran. Older failed results, skill unique-cause UNKNOWN and carried SDK/widget/PDF/platform/INT-W/native-human/owner/program/main/live/resource/license qualifications remain historical and explicit. Parent owns independent round2 and final integration/CI. No further slice is started. All paths/heavy release follows final reaping/inventory in release.json.

@@ -1,0 +1,186 @@
+{
+  "task": "brn-x2-retirement-distribution-verification-20261018",
+  "verification_material": "b8cf75bf56470b390b383baca37afdbc8fc4ff86",
+  "verification_tree": "f39dfd74cb9fe3bec5854c67d2da593b726e3d34",
+  "starting_head": "70f2440f47fcc5a0666510d9d9694bb905443427",
+  "retirement_material": "ce477627bf24b322642ab6ac9d8f03d4d04441a4",
+  "active_gate_material": "41a34dec9866accf5b90154a1986d22d6b511017",
+  "whole_feature_base": "612144c50ac97b3a3921c98eaa7b3657bab6566b",
+  "whole_feature_diff_sha256": "74366b0d7003383acae3f4ea607d3653f75815ba25a5134edb1db3be56ebce12",
+  "review1_precision_range": "4c45619f80130d54744b917d0f33ae1b4a96c424..b8cf75bf56470b390b383baca37afdbc8fc4ff86",
+  "review1_precision_diff_sha256": "a91460d2bf71b091be146974ac740386ec0b9f0a410eee322122237cf5816008",
+  "branch": "work/x2-office-prep-20261018",
+  "cached_origin_main": "57c710ccec2b007c4d8a25c9f1d1b5c1c539907c",
+  "source_proof": {
+    "path": "/private/tmp/brn-x2-retirement-distribution-20261018/final-source-proof.json",
+    "sha256": "90239e91a509b27fc7a2867677a007dac683b86d75aefa3d9e95d14a84b9864d"
+  },
+  "approved_correction_sources": {
+    "crates/brn-threads-intake/src/documents.rs": "6c79b83ff92928110c351db5f15f5549e357f6f947f15572f18c0a72a5f4f00c",
+    "crates/brn-threads-intake/tests/document_modes.rs": "0917d52ea42454fb0e93a92f3a01f3e35ab69557f5b6ef90e79602a0106aa83e",
+    "crates/brn-ai/src/document_refine_tests.rs": "48ea6c1c3694200cbe2e009aa2369a3765ee76b7a16361f37e5c8ffaed7df9aa"
+  },
+  "graph_receipts": {
+    "/private/tmp/brn-x2-retirement-distribution-20261018/final-combined-target-graph.txt": "a74a77efe021133c3ad4df167cda651a1e99dd8fd8ed0505a7b2bffb97e754ac",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/cli-target-graph.txt": "65490c15ab887cda2b89043df91754d0221bde4c770749b298d1114dc2fc4fd6",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/final-desktop-target-graph.txt": "9e13c53d6d72d1446cc0152d8cdc4c470edfa216b14fd99c47322cfd566e0572",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/final-cli-target-graph.txt": "65490c15ab887cda2b89043df91754d0221bde4c770749b298d1114dc2fc4fd6",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/desktop-target-graph.txt": "9e13c53d6d72d1446cc0152d8cdc4c470edfa216b14fd99c47322cfd566e0572",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/adapted-effective-features.txt": "ccb2cbacf546ee64345b103bd9aef12caefb96b26c5259236e5a8716767a05b9",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/stock-effective-features.txt": "e7e67d892e32464da46404ed9d26e6819e5e70c2dcc137da507c1794fc6fa91b"
+  },
+  "compiled_graph_receipts": {
+    "/private/tmp/brn-x2-retirement-distribution-20261018/09-final-native-build-emitted-graph.json": "5c646f67c0f0c3fd3ade047f5a979d0300b1fa6ff6b983d6fab589db5c590011",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/19-combined-build-emitted-graph.json": "f520d07e45cd1c6981327e0f4f0d8cff0508308ed085d71f5a82a8143e702798",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/10-final-cli-build-emitted-graph.json": "2db97a3ca0d55ff53c183ee5df2fb27705f44ee9868cc142021a104a04340c89"
+  },
+  "package": {
+    "source_pin": "b8cf75bf56470b390b383baca37afdbc8fc4ff86",
+    "manifest": "/private/tmp/brn-x2-retirement-distribution-20261018/final-distribution/BRN-Threads-v0.1.0-preview.2-macos-arm64.manifest.json",
+    "manifest_sha256": "817afe749debf055f295725138a1e0d42a3ee59123565aa1c98cdbd0ff5f3cbb",
+    "archive": {
+      "name": "BRN-Threads-v0.1.0-preview.2-macos-arm64.zip",
+      "sha256": "7438d2eb453b64ef962a9756479112caaa360d9af22bb66ff048079f2fd7d521",
+      "bytes": 185047060,
+      "path": "/private/tmp/brn-x2-retirement-distribution-20261018/final-distribution/BRN-Threads-v0.1.0-preview.2-macos-arm64.zip"
+    },
+    "embedded_source_pin": "b8cf75bf56470b390b383baca37afdbc8fc4ff86",
+    "binaries": {
+      "brn-desktop": {
+        "sha256": "a044f43c142708255e1adc4081aea02abd81022ee4bfebd8ca141909ee6b7a39",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+          "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+          "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+          "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libobjc.A.dylib",
+          "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+          "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+          "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+          "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+          "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+          "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+          "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+          "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+          "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+          "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+          "/usr/lib/libiconv.2.dylib",
+          "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+        ],
+        "source_binary_sha256": "79a724277655dc94adda14c726da9d0c0474fae3f3e521d7b6b5e9d9918d3861"
+      },
+      "brn-xberg-helper": {
+        "sha256": "be1530d07f3fe60df6cc99a1a0921f632d11c35c37ba51134aa300da41ac8138",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "b265ae28920aa8666288c821b6aa93a49b6fb4888e8ad6f22cb1d8ab149b3ed2"
+      },
+      "brn-xberg-helper-brn": {
+        "sha256": "73df841395c4396cacddb2a639711c26e1dc93dbe325a67021c45a629bb44a55",
+        "architecture": "arm64",
+        "minimum_macos": "15.0",
+        "libraries": [
+          "/usr/lib/libsandbox.1.dylib",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "source_binary_sha256": "e9a96d6832f1ad7bf406d083d3296c3b82ef773375a1b4514be46c5cd13d5375"
+      }
+    },
+    "shipping_bin_inventory": [
+      "brn-desktop",
+      "brn-xberg-helper",
+      "brn-xberg-helper-brn"
+    ],
+    "launcher": "Contents/MacOS/BRN-Threads (shell launcher, not an extra converter)",
+    "typed_helper_flows": 16,
+    "cli_imports": 16,
+    "cli_environment_names": [
+      "CODEX_HOME",
+      "HOME",
+      "PATH",
+      "TMPDIR"
+    ],
+    "captures": "/private/tmp/brn-x2-retirement-distribution-20261018/evidence/14-final-relocated/captures.json",
+    "captures_sha256": "76e8dde961ee2c37c2136929eea7ec3637b35219b09e8ce957784b36fc7c000c",
+    "notices_index_sha256": "6630a3fe2857819d814d7c17ce4bf6e24e88f0cf1cecbb41a9831a7ad1d996cd",
+    "relocation": "New synthetic path with spaces/Unicode, system PATH and no developer helper overrides. Source/build paths remain physically present; only fixture loading uses the checkout. Runtime/helper discovery uses relocated siblings.",
+    "signing": "local ad-hoc, strict/deep verified; no notarization/publication",
+    "native_interaction": "UNEXECUTED"
+  },
+  "notices": {
+    "path": "/private/tmp/brn-x2-retirement-distribution-20261018/final-notices",
+    "packages": 652,
+    "indexed_files": 686,
+    "index_sha256": "6630a3fe2857819d814d7c17ce4bf6e24e88f0cf1cecbb41a9831a7ad1d996cd",
+    "audit": "/private/tmp/brn-x2-retirement-distribution-20261018/final-source-notices-audit.json",
+    "audit_sha256": "35cb46b444ef0e0e5dddff034192bd1244cb93fe9bf7718d75fe300efc6f4136",
+    "missing_required_materials": []
+  },
+  "adapted_full_source": {
+    "files": 765,
+    "exact": true,
+    "manifest_sha256": "de74864ab0116bed9f8cd2de238ef8f940949f31af8810007c002bc9eab9fbae",
+    "archive_sha256": "f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d",
+    "patches": [
+      {
+        "name": "0001-docx-table-grid-spans.patch",
+        "sha256": "92178fcfb5887328dec2f11b1c63d28687b628f4764e4cc41cae30a81598a6d7"
+      },
+      {
+        "name": "0003-docx-namespaces.patch",
+        "sha256": "e64020a6df795f4cd1b32ad5eba124197e644fec08c88033cc904313442b851f"
+      },
+      {
+        "name": "0004-pptx-order-hidden.patch",
+        "sha256": "aaf5c6f67c22ff492fae7b80aec446ce083b620837864d6eb80e782d64983a1d"
+      },
+      {
+        "name": "0005-docx-comment-references.patch",
+        "sha256": "b574b0374514860dccf0d6b503bd8408ce16a259f2ce68f3dd6cef8aa18a69b1"
+      }
+    ]
+  },
+  "helper_effective_features": [
+    "email",
+    "excel",
+    "html",
+    "image-encode",
+    "notebook",
+    "office",
+    "pdf",
+    "pdf-native",
+    "tokio-runtime"
+  ],
+  "root_and_both_standalone_locks_unchanged": true,
+  "literal_targets": {
+    "root": "/private/tmp/brn-x2-standard-task4-20261018/root-target",
+    "stock": "/private/tmp/brn-x2-standard-task4-20261018/helpers/stock",
+    "adapted": "/private/tmp/brn-x2-standard-task4-20261018/helpers/adapted"
+  },
+  "artifact_custody": "/private/tmp/brn-x2-retirement-distribution-20261018/objects",
+  "all_command_artifact_maps": "evidence/<phase>/before-artifacts.json and result.json; hashes resolve to immutable objects/<sha256>. Includes prior/historical variants, not proof every inventory entry was emitted by that command.",
+  "compiled_source_association": "01-05 are precorrection source70f and remain separate.06-08 record HEAD4c45619f plus exact WIP/source hashes matching materialb8cf.09 onward execute frozen clean b8cf source. Final package embeds b8cf and uses preserved native-ui/default-CLI artifacts, not the later combined binary. No future evidence SHA is labelled compiled.",
+  "historical_package": "Task4 source2cf package remains at its original path; own70f package remains in distribution/. Neither is final-distribution/.",
+  "artifact_source_receipts": {
+    "/private/tmp/brn-x2-retirement-distribution-20261018/artifacts/default-cli/source.json": "d7668be5ed0376a9854a48f9d53ba70c3c9680196bc3cbf865009e6fecd385c4",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/artifacts/native-ui/source.json": "20c754df21bba55538c1ba7b0485d58f39ee17de49ecbd3b7695ce7f35c36479",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/artifacts/final-native-ui/source.json": "3a2278a4d829339a68fa867c18be9879c84506f334a031aaa12f160afb73465a",
+    "/private/tmp/brn-x2-retirement-distribution-20261018/artifacts/final-default-cli/source.json": "6deb01c32c27eca58b49de62f4cbc781953826d3b25c3b3a67e95fe73fd24c31"
+  },
+  "ort_cached_archive_sha256": "d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3",
+  "ort_mode": "cached only; ORT_LIB_PATH explicit, ORT_SKIP_DOWNLOAD=1, ORT_OFFLINE=1; empty model directory; no model installation/inference qualification"
+}
