@@ -63,7 +63,7 @@ Current rules and active work remain in the stable plan/checkpoint above.
 The later [reference-import owner](reference-import.md) is implemented as
 ed859aa4/integrated14d7c43e, independently approved without findings and locally
 qualified321/0/1 plus strict lint/format and production build. Independent Luna final
-receipt audit passed. Hosted integration remains pending; no local writer/build is active.
+receipt audit passed. Hosted integration remains pending; the reference worker released its build slot.
 Lead history merge2bd890ef contains no crate/root manifest/lock/toolchain delta
 from reviewed14d7c43e.
 No CI helper-sharing workflow change is selected yet; measured costs and feasibility
@@ -79,9 +79,10 @@ The selected [export-picker repair](export-picker.md), original98035888/integrat
 passed focused1 +related6, final322/0/1, strict lint/format and production build.
 A candidate-only error-report mutation failed at the intended status assertion;
 production bytes were restored exactly. Independent Sol approved complete945, also
-covering the separate test-only helper consolidation22d5/54eb. That helper worker
-now owns the single build slot for its own provider-fixture checks; those remain
-pending. No old-source failing run or actual OS transport error is claimed.
+covering the separate test-only helper consolidation22d5/54eb. The [helper qualification](provider-fixture-helpers.md) now records its affected
+4/7/12 passing families plus strict capability-spike package lint/format; no tests
+were added or retired. The clean unmanaged checkout was removed after preserving
+source branch/patch and sibling evidence. No old-source failing run or actual OS transport error is claimed.
 
 A bounded settings source audit found no delayed catalogue crossing a selectable
 provider/config through the UI. A successful empty Copilot catalogue currently

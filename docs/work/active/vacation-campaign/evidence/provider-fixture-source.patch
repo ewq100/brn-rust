@@ -1,0 +1,111 @@
+diff --git a/crates/brn-ai/src/provider_formats_tests.rs b/crates/brn-ai/src/provider_formats_tests.rs
+index dbebfda0..31867b5e 100644
+--- a/crates/brn-ai/src/provider_formats_tests.rs
++++ b/crates/brn-ai/src/provider_formats_tests.rs
+@@ -13,6 +13,27 @@ use std::sync::{
+ };
+ use tokio_util::sync::CancellationToken;
+ 
++fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
++    if provider == Provider::Chatgpt {
++        body["instructions"].as_str().unwrap().to_owned()
++    } else {
++        body[if responses { "input" } else { "messages" }]
++            .as_array()
++            .unwrap()
++            .iter()
++            .find(|message| message["role"] == "system")
++            .unwrap()["content"]
++            .to_string()
++    }
++}
++
++fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
++    body["tools"].as_array().unwrap().iter().find_map(|tool| {
++        let tool = if responses { tool } else { &tool["function"] };
++        (tool["name"] == name).then(|| tool.clone())
++    })
++}
++
+ mod visual_tests {
+     use super::rewrite_tests::{partial_sse, with_chunks};
+     use super::*;
+@@ -4312,19 +4333,6 @@ mod action_proposal_tool_tests {
+     use super::*;
+     use crate::proposal_tools::{ProposeActions, canonical_schema};
+     use rig::tool::Tool;
+-    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+-        if provider == Provider::Chatgpt {
+-            body["instructions"].as_str().unwrap().to_owned()
+-        } else {
+-            body[if responses { "input" } else { "messages" }]
+-                .as_array()
+-                .unwrap()
+-                .iter()
+-                .find(|message| message["role"] == "system")
+-                .unwrap()["content"]
+-                .to_string()
+-        }
+-    }
+ 
+     fn args() -> Value {
+         let data = json!({
+@@ -4990,12 +4998,6 @@ mod knowledge_proposal_tool_tests {
+             }
+         }
+     }
+-    fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
+-        body["tools"].as_array().unwrap().iter().find_map(|tool| {
+-            let tool = if responses { tool } else { &tool["function"] };
+-            (tool["name"] == name).then(|| tool.clone())
+-        })
+-    }
+     fn closed(schema: &Value, fields: &[&str]) {
+         assert_eq!(schema["additionalProperties"], false);
+         let properties = schema["properties"].as_object().unwrap();
+@@ -5036,19 +5038,6 @@ mod knowledge_proposal_tool_tests {
+             })
+             .collect()
+     }
+-    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+-        if provider == Provider::Chatgpt {
+-            body["instructions"].as_str().unwrap().to_owned()
+-        } else {
+-            body[if responses { "input" } else { "messages" }]
+-                .as_array()
+-                .unwrap()
+-                .iter()
+-                .find(|message| message["role"] == "system")
+-                .unwrap()["content"]
+-                .to_string()
+-        }
+-    }
+     fn exact_behavior_tools(body: &Value, responses: bool, actions: bool, knowledge: bool) {
+         let mut actual = body["tools"]
+             .as_array()
+@@ -5679,25 +5668,6 @@ mod conflict_tool_tests {
+             "observations":[{"state":"changed"},{"state":"unavailable"}]}],
+             "next_cursor":next,"complete":next.is_none()})
+     }
+-    fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
+-        body["tools"].as_array().unwrap().iter().find_map(|tool| {
+-            let tool = if responses { tool } else { &tool["function"] };
+-            (tool["name"] == name).then(|| tool.clone())
+-        })
+-    }
+-    fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
+-        if provider == Provider::Chatgpt {
+-            body["instructions"].as_str().unwrap().into()
+-        } else {
+-            body[if responses { "input" } else { "messages" }]
+-                .as_array()
+-                .unwrap()
+-                .iter()
+-                .find(|m| m["role"] == "system")
+-                .unwrap()["content"]
+-                .to_string()
+-        }
+-    }
+     fn replies(body: &Value, responses: bool) -> Vec<String> {
+         body[if responses { "input" } else { "messages" }]
+             .as_array()

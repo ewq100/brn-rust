@@ -3,7 +3,7 @@
 Updated 19 October 2026. Current main is
 `b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
 is source `945a0a7a`, combining qualified export worker `98035888` with
-test-only provider helper consolidation `22d5cd5f` (its own checks running).
+test-only provider helper consolidation `22d5cd5f` (affected families/lint pass).
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-continuation`. PR166 merged normally from
 `codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
@@ -178,8 +178,8 @@ passed. A candidate-only error-report mutation failed its intended assertion and
 production was restored exactly; no unchanged-old-source or OS transport failure
 run is claimed. The helper removes five local reader definitions in favor of two
 shared test functions, preserving all callers/assertions/cases and production code.
-That worker now owns the sole build slot for its separate provider-fixture checks.
-Export receipts passed independent Luna audit. Complete helper gates and reconcile PR167
+The [helper checks](provider-fixture-helpers.md) passed4/7/12 and strict package
+lint/format. Export receipts passed independent Luna audit. Reconcile PR167
 integration/main, then publish this coherent later candidate. Preserve checked heads.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
@@ -194,3 +194,9 @@ from concrete behavior and maintenance evidence rather than forcing refactors.
 Continue useful work while allowance permits; the recovery heartbeat is not batch
 pacing. [Preserved planning history](planning-history-through-2026-10-19.md) retains
 earlier snapshots. Current owner/resource/gate rules remain at this stable path.
+
+A new source audit identified a possible stuck pending indicator when scoped search
+finishes while its unchanged draft is hidden. A Luna worker now owns the reused
+drain checkout and single build slot to reproduce the exact old-source sequence
+before a minimal job-retirement fix. Preserve stale-result and replacement-draft
+fences; no broader setup/search/conversion state migration is selected.

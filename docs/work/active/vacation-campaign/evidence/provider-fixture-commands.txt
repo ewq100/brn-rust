@@ -1,0 +1,15 @@
+# Selected gate from .github/workflows/ci.yml (Test provider capability fixtures offline)
+# Pinned toolchain, offline and lockfile enforced; jobs=1 for shared-target resource policy.
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets --locked --offline --jobs 1
+
+# Focused existing provider-format test module families (no tests added or removed).
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::action_proposal_tool_tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::knowledge_proposal_tool_tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::conflict_tool_tests --locked --offline --jobs 1
+
+# Matching strict all-target Clippy gate from .github/workflows/ci.yml.
+rustup run 1.98.1 cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline --jobs 1 -- -D warnings
+
+# Formatting and whitespace.
+rustup run 1.98.1 cargo fmt -p brn-ai -- --check
+git diff --check

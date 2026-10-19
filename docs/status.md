@@ -42,6 +42,11 @@ The later [reference-import owner](work/active/vacation-campaign/reference-impor
 also passed independent review and321/0/1, lint/format/production build at14d7c43e;
 its separate hosted integration is being prepared after PR166. Native recovery
 across normal close/relaunch is queued, with no crash/race guarantee claimed.
+The later [export picker feedback](work/active/vacation-campaign/export-picker.md)
+and [test-only helper consolidation](work/active/vacation-campaign/provider-fixture-helpers.md)
+are source-reviewed at945, with desktop322/0/1 and affected provider4/7/12 plus
+strict matching checks passing. They are not merged. A further scoped-search pending
+issue is being tested against unchanged source before any fix.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

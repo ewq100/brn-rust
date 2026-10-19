@@ -1,126 +1,79 @@
 # Vacation campaign checkpoint
 
-## Current local continuation —19October2026
+## Resume here —19 October2026
 
-Latest fetched main isb4a5deeb9ad00bfbdee428386c62b34a0618e1b5 (PR166), merged
-normally at08:07:12UTC after all four required exact-head73780065 checks passed
-in run39217700176. Resulting-main run39220505231 is running. PR165/f4753e99
-merged normally at07:29:42UTC after required head run39213694797 passed.
-Resulting-main run39216341691 passed all four required jobs, docs and Ubuntu
-UI/retrieval; optional Windows Core/UI/retrieval failed. Earlier PR164 merged348959b7 after
-required exact-head run39209590789.
-Resulting-main run39212874814 passed all four required jobs; optional Windows
-failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5f01b07 required main checks
-passed in run39209331228; optional Windows failures remain explicit.
+Read [current authorization/resource/gate rules](plan.md) first. Reconcile actual
+Git, agents and processes against this snapshot before dispatching or building;
+do not assume a recorded job is still alive. Preserve the original checkout and
+unrelated trial work. The latest pushed continuation branch and Git history retain
+intermediate checkpoints; [preserved earlier history](checkpoint-history-through-2026-10-19.md)
+retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, current source945a0a7a. Export original98035888
-is locally qualified; the additional test-only helper22d5/54eb has its own checks
-running. Prior reference14d7c43e/worker ed859aa4 remains in fixed PR167408.
-Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
-The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
-production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
-receipts retain exact source qualification. PR165 checked head a961a75a is now
-merged; [integration receipt](evidence/pr165-integration.json) records the required
-contexts and retained optional Windows failure. Follow actual resulting-main checks.
-Always list all open PRs and inspect actual source/jobs before dispatching a slice.
+branch `codex/hardening-continuation`, reviewed source945a0a7a. Later commits are
+docs/evidence only. Latest main isb4a5deeb (PR166), merged normally from checked737
+once all four required contexts passed in run39217700176. Its resulting-main
+run39220505231 is still being followed; optional Windows failures remain explicit.
+Earlier PR163/164/165 required head/main checks passed; don't redo their source work.
 
-The later lead branch includes the test-only late-refresh/newer-typing witness at
-a631371d (worker original335ce1c). It passed the focused healthy run; temporarily
-bypassing only refresh sampling failed at the visible-text preservation assertion.
-The production file was restored byte-for-byte, with matching SHA256
-19b84f2ae2402a9615c4792e18bf2831a5a2f81762e785044ae5ae166d7d52de.
-Restored final desktop321/0/1, strict native lint and format pass. Independent Sol
-test-effectiveness review approved a631371d; [durable receipts](late-refresh.md) are imported. No production
-defect or native interaction is claimed.
+PR167 [reference owner](reference-import.md) is published at fixed40879f71 on
+`codex/hardening-followup`, required run39220781564. At the latest observation,
+three required contexts passed and Mac Core remained running. Its source14d7/ed859aa4
+and receipts passed independent reviews; keep that checked head unchanged. Inspect
+actual strict protection, all four required successes and exact head before normal
+merge, then inspect resulting-main checks. Do not bypass or hide optional failures.
 
-Run-bound edit-refresh source23c27cd1 is integrated as c39a6af3. Independent Sol
-approved complete candidate c39 without correctness/design findings. The target is
-restricted to the Run operation; current identity, admission/retirement ordering
-and the existing clean/typed/hidden refresh gate are retained. Focused completion1/0,
-worker7/0 and contextual3/0 passed; final native321/0/1, strict all-target lint,
-format and actual production-only native-ui build passed. Binary SHA256
-c6b5639af0f4d30100729bcf4f14001dd26621b235c4fd776bef2124821dee79.
-The [durable source/result receipt](run-edit-refresh.md) is imported; publication
-and hosted/main gates remain pending. Run-target work is complete. Preserve its older source-bound artifacts.
+The later source945 combines [export feedback](export-picker.md), original98035888,
+and [test-only fixture helper sharing](provider-fixture-helpers.md), original22d5/lead54eb.
+Independent Sol approved the complete source without findings. Export focused1 +
+related6, final desktop322/0/1, strict native lint/format and production-only build
+passed; candidate-only mutation failed its intended status assertion, then original
+production bytes were restored exactly. Independent Luna audited its receipts.
+Helper affected families4/7/12 and strict capability-spike package lint/format
+passed. Every caller/assertion/test remains; no production code changed in that
+helper move. No OS error-transport or unchanged-old-source failing run is claimed.
+Its final receipt audit passed. The clean unmanaged helper checkout was removed
+with normal Git after preserving branch22, patch and sibling evidence.
 
-The Connections loading issue is now reproduced and fixed in d98374f4, integrated
-as98188942. Independent Sol approved the complete candidate981 without findings.
-The expanded existing test fails on unchanged production at the pending assertion,
-then passes with one result-invalidation line. Final desktop321/0/1, strict native
-lint/format and production-only native-ui build pass. [Connections receipts](connections-pending.md)
-retain baseline patch/failure, final logs, source and immutable artifact identity.
-The reference worker completed and released the build slot. PR166 merged at
-checked head73780065 asb4a5deeb after all four required jobs passed. Main run39220505231
-is running. Lead history-only merge2bd890ef has no crate/root manifest/lock/toolchain
-delta from reviewed14d7c43e. Native gates remain pending. [CI timing research](ci-feedback.md)
-is observation and a future qualification idea, not an implemented workflow change.
+## Active job and next gate
 
-Continue useful authorized batches inside the active session. The two-hour
-`brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily
-`brn-batched-mac-interaction-checks` heartbeat owns ready real Mac sessions at18:00
-Tallinn. Both are ACTIVE through the original2026-11-01T21:41:51Z expiry. First
-unattended executions remain unobserved. The Mac/app must remain available.
-Near5% remaining allowance, checkpoint and back off near the verified constraining
-reset using supported scheduling; recheck before resuming. No purchase/reset credit.
+Luna `/root/qualification_audit` owns the reused drain checkout
+`/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust`, new branch
+`codex/reference-search-retirement` at e2f7ce60, and the sole shared build slot.
+Scope: threads_ui.rs +threads_writing_tests.rs. Reproduce completion while the
+unchanged original setup draft is hidden leaving its pending indicator stuck;
+require a compiled old-source failure before any minimal fix. Preserve stale-result,
+generation and replacement-draft fences. No general state framework is selected.
+See [campaign state](campaign.json) for snapshot ownership. No other local builder
+is authorized while this job owns the slot. Independent source review follows a
+concrete candidate; source inspection alone does not establish a defect or pass.
 
-The owner authorizes normal required-check merges, Mac-first hardening, small Luna
-implementation/research/docs work and parallel/nested helpers. Four, five, six or
-more useful helpers are permitted when actual runtime capacity supports them; no
-permanent three-helper user cap. This runtime currently exposes4 total slots
-including the lead. Count nested/review helpers in actual capacity, isolate source
-writers and serialize shared-target builds. Sol handles consequential decisions,
-difficult changes and meaningful independent review. Web research is authorized
-when uncertain; prefer primary sources. No automatic Astra or global model change.
-[Plan](plan.md), [campaign state](campaign.json), [evidence](evidence.md) and both
-persisted resume prompts carry these owner decisions. No live provider/model/private
-data, new billing, release/publication/deployment or external messaging is included.
+Finish that bounded gate and reconcile PR167 integration/main before publishing the
+later coherent candidate. Preserve source-bound artifacts. Current allowance was
+75% used/25% remaining in the applicable seven-day window, reset1792874447. Recheck
+at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
+reset without purchases/reset credits. Continue useful active work; two-hour
+`brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains
+2026-11-01T21:41:51Z. Both saved heartbeats are ACTIVE; unattended execution remains
+unobserved, and Mac/app availability is required.
 
-Native scenarios remain in [the queue](native-queue.md). Retained older source1e binary:
-`/Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-1e89f4e8`,
-SHA256d9002ff689841cb10e1bae5795e25f48590bea377c4ffe2fd29683fdf1752346.
-The older notice36 binary remains source-bound. Both current helper artifacts and
-build receipts live under `/Users/evokessler/.codex/worktrees/notice-state/document-helpers`.
-Preserve these task-owned artifacts and the campaign shared target until needed
-reuse/retention is complete. Actual Mac input/IME/accessibility, owner acceptance
-and release readiness remain separate; no such acceptance is claimed.
+## Native and retained evidence
 
-Earlier status is preserved in [dated history](../../../archive/status-through-2026-10-18.md)
-and prior Git checkpoints. A stopped duplicate identity worktree was archived;
-do not restore/publish that patch or redo merged PR163.
+The separate daily18:00Tallinn [native queue](native-queue.md) owns actual Mac
+Save/reopen, backup notice restore and already-durable unsaved close/relaunch.
+Verify then-current main against its exact qualified production artifact; old1e/36
+binaries cannot qualify newer main. No actual OS input/IME/accessibility, owner
+acceptance or release qualification has run in this local campaign.
+Current qualified stock/adapted helpers and receipts remain under
+`/Users/evokessler/.codex/worktrees/notice-state/document-helpers`.
+Export980's immutable production binary is under the drain checkout's sibling
+export-picker-evidence; referenceed859aa4 and prior binaries/receipts remain in their
+source-bound locations. Preserve these artifacts and shared target while needed.
 
-[Preserved checkpoint history](checkpoint-history-through-2026-10-19.md) retains
-the original cloud handoff and earlier local snapshots without changing their text.
-
-The bounded main-search audit found no supported production defect: query identity,
-old-row hiding and failures are already handled. A pending-frame test extension is
-only a future qualification opportunity; no change is selected. A Luna feasibility
-study evaluates CI helper sharing without editing workflows or weakening checks.
-Both app automation views still render successfully; they do not establish an
-observed unattended execution. Native Mac qualification remains queued.
-
-Independent Sol approved reference owner source ed859aa4/integrated14d7c43e,
-without source/design findings. Focused six filters/seven executions, final321/0/1,
-strict lint/format and production-only native-ui build pass. [Durable receipts](reference-import.md)
-retain the initial compile errors, raw/compressed hashes and immutable binary.
-No local source writer/build is active. Independent Luna final receipt audit passed;
-PR167 is published at fixed40879f71, required run39220781564 queued/running.
-PR166 is merged, with main checks running.
-The worker-preview audit found no justified refactor; retained post-completion chat
-activity must outlive Worker. Settings audit found existing active-work controls;
-empty-Copilot-catalogue semantics are unspecified and no behavior change is selected.
-
-Export source98035888 is integrated945a0a7a, with focused1 +related6, final322/0/1,
-strict lint/format and production build passing. The candidate-only error-report
-mutation failed its intended status assertion; production was restored exactly.
-Independent Sol approved complete945 including test-only helper22d5/54eb, without
-findings. [Export receipts](export-picker.md) are imported, final Luna receipt audit passed.
-The export worker is idle and released the build slot. The provider helper worker
-now owns it in direct-Git sibling checkout
-`/Users/evokessler/.codex/worktrees/provider-fixture-helpers/brn-rust`, branch
-`codex/provider-fixture-helpers` at22d5. Three affected provider-family checks and
-strict capability-spike lint remain pending. No test or assertion was retired.
-Source scope is only provider_formats_tests.rs; preserve its branch/receipts before
-ordinary Git cleanup (app attach rejected this unmanaged checkout). See campaign.json
-for snapshot ownership; reconcile actual agents/Git/processes after restart.
-Keep PR167's checked408 head unchanged; hosted/main/native gates remain separate.
+Recent search/settings/preview/test-retirement audits found no justified broader
+refactor or deletion. Retained chat activity must outlive Worker. Empty Copilot
+catalogue semantics are unspecified; no provider policy change is selected.
+[CI timing research](ci-feedback.md) is deferred feasibility, not an implemented
+workflow saving. No live provider/model/private data, release/deployment, new billing
+or external messaging is included. Rules for useful Luna/nested helpers, actual
+runtime capacity and independent review remain in the stable plan and saved prompts.

@@ -1,0 +1,78 @@
+{
+  "source_commit": "22d5cd5f3761ed38800c7b934f88b52107e82726",
+  "integrated_commit": "54eb89cc",
+  "complete_reviewed_source": "945a0a7aa205d9de96df37246f1e2a908787d3c5",
+  "source_file": "crates/brn-ai/src/provider_formats_tests.rs",
+  "source_sha256": "d2fd422d2ae3316f58a66f53c4e98c9896fb80d9b93533505f9b0b78479d1b8f",
+  "source_patch_sha256": "5645a1a285e5905c1879e543b8549e6d97d4ccdcf41bc5f31d38bd1a3871b20a",
+  "production_delta": false,
+  "tests_added_or_retired": 0,
+  "change": "Three equivalent preamble readers and two identical definition readers consolidated into two parent test helpers; all callers/assertions/cases unchanged.",
+  "focused": {
+    "action": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    "knowledge": {
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    "conflict": {
+      "passed": 12,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "strict_capability_spike_all_target_clippy": "passed",
+  "format_and_whitespace": "passed",
+  "review": "Independent Sol approved complete945 without findings, including helper semantic equivalence and coherent retirement.",
+  "logs": [
+    {
+      "path": "provider-fixture-action-tests.log.gz",
+      "raw_sha256": "c192efd0813cc30526ceed21257d852205ab2e442e2678a69deb899f459f04c6",
+      "gzip_sha256": "b764199332e84871707eba0d497c7953008b929c285cb605c247a41f33ae47e1",
+      "raw_bytes": 5187,
+      "exit": 0
+    },
+    {
+      "path": "provider-fixture-clippy.log.gz",
+      "raw_sha256": "49f2e8b3354b67ac4e1898a66799475b21e7a35397bda282f7f26dafe71e1dad",
+      "gzip_sha256": "43203bd6e9c62af58fa626adaa8cdd341ee50e421774a4fec361b13e720c6790",
+      "raw_bytes": 3045,
+      "exit": 0
+    },
+    {
+      "path": "provider-fixture-conflict-tests.log.gz",
+      "raw_sha256": "f44e0159e8c6ffdab17f7cf794f471c6e8940d9456b1d1a20223f9fb616ffc0d",
+      "gzip_sha256": "0f9d17931e7eeb7f88528f40a2e21979b2c58eb2b1271d6ccc0d443a2568015b",
+      "raw_bytes": 2230,
+      "exit": 0
+    },
+    {
+      "path": "provider-fixture-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0,
+      "exit": 0
+    },
+    {
+      "path": "provider-fixture-knowledge-tests.log.gz",
+      "raw_sha256": "5bb7f3ef3926015d4e28cf92a287431115bd614997c05f5948c423d2f922d17a",
+      "gzip_sha256": "bdaee5e68fa1adcf17a98e3b34fd24623dfa9d69018c7fa7a235b3022b657625",
+      "raw_bytes": 1629,
+      "exit": 0
+    }
+  ],
+  "commands": "provider-fixture-commands.txt",
+  "executed_commands": "provider-fixture-execution.txt",
+  "limits": [
+    "Full CI invocation in commands.txt is reference only; focused affected families and strict package lint actually ran.",
+    "Initial wrong-cwd knowledge invocation exited101 at workspace resolution; worker-copied tool error retained separately, then successful rerun from assigned checkout.",
+    "No native production rebuild for cfg(test)-only helper relocation; export native qualification is separate.",
+    "No live provider or external network qualification; provider transport fixtures use synthetic local endpoints.",
+    "Hosted/main integration remains pending."
+  ],
+  "receipt_audit": "Independent Luna verified source/patch hashes, all5 imported compressed/raw hashes and raw equality with originals, actual0 exits and4/7/12 focused results, reference/executed command distinction and wrong-cwd disclosure. Imported gzip is deterministic recompression; compressed-byte equality to sibling gzip is not claimed."
+}

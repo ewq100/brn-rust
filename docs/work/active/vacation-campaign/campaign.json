@@ -18,27 +18,27 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:22:34.277914+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T08:27:12.856740+00:00",
   "current_session_jobs": [
     {
-      "agent": "/root/worker_next_slice",
-      "role": "test-only fixture-helper consolidation",
-      "checkout": "/Users/evokessler/.codex/worktrees/provider-fixture-helpers/brn-rust",
-      "branch": "codex/provider-fixture-helpers",
-      "baseline": "40879f71f5db03b67da6ec3b9822eb5f6f774169",
+      "agent": "/root/qualification_audit",
+      "role": "reproduce then repair scoped-reference search pending retirement",
+      "checkout": "/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust",
+      "branch": "codex/reference-search-retirement",
+      "baseline": "e2f7ce60f0162feebb4d0b954c0744037ad1ec77",
       "scope": [
-        "crates/brn-ai/src/provider_formats_tests.rs"
+        "crates/brn-desktop/src/threads_ui.rs",
+        "crates/brn-desktop/src/threads_writing_tests.rs"
       ],
-      "build_slot": "exclusive after export worker release",
-      "checkout_note": "Worker created direct Git sibling rather than reusing assigned clean checkout. No extra target/helper setup; source scope unchanged. Not app-managed; preserve patch/receipts before ordinary Git worktree cleanup.",
-      "source_commit": "22d5cd5f3761ed38800c7b934f88b52107e82726"
+      "build_slot": "exclusive after provider helper release",
+      "gate": "Original production must fail intended pending assertion before any fix; no speculative change if unreproduced."
     }
   ],
   "integration_status": "PR163/164/165 required head/main checks pass; optional Windows failures retained. PR166 normal exact73780065 merge b4a5deeb at08:07:12UTC after all four required head checks39217700176 passed. Resulting-main39220505231 running.",
-  "next_eligible_work": "Finish provider-helper local checks and combined receipt/current-record audit; reconcile PR167 actualrequired/main gates. Publish coherent reviewed export+fixturecleanup candidate after PR167 integration. Native18:00Tallinn qualification pending.",
+  "next_eligible_work": "Audit provider-helper receipts/current records; validate scoped-search original-source witness before selecting exact fix. Follow PR167 exacthead and PR166 main checks, normalmerge only after requiredpass; publish later coherent candidate when ready. Native18:00Tallinn remains queued.",
   "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
   "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
-  "active_work": "Export source98035888 integrated945a0a7a: final322/0/1 lintfmt/prod pass, candidate-only mutant fails expectedstatus, source restored exactly. Independent Sol approved complete945 incl test-only helper22d5/54eb without findings. Helper worker owns sole buildslot for3affected provider families/strictcapability-spikelint. Export receipts imported; finalLunaaudit passed. PR167 fixed408 CI39220781564 and PR166 main39220505231 running.",
+  "active_work": "Current source945: export980 native322/0/1 lintfmt/prod +independentSol+Lunareceipts pass. Provider helper22d5/54eb affected4/7/12 and strictpackagecapabilitylintfmt pass; receipts imported. Its clean unmanagedcheckout removed with normalGit after preserving branch22/patch/siblingevidence. Luna now reproduces scopedsearch hiddencompletion/pending leak in reused drain checkout on codex/reference-search-retirement, solebuildslot. PR167fixed408 required39220781564 +PR166main39220505231 running.",
   "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
