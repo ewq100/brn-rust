@@ -1,0 +1,11 @@
+{
+  "authorization_date": "2026-10-19",
+  "timezone": "Europe/Tallinn",
+  "expires_at_utc": "2026-11-01T21:41:51Z",
+  "provider": "Codex existing signed-in account only",
+  "max_attempts_per_session": 3,
+  "max_attempts_per_day": 6,
+  "client_deadline_seconds": 180,
+  "max_initial_input_utf8_bytes": 8192,
+  "attempts": []
+}

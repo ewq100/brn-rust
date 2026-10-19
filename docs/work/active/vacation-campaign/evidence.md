@@ -502,3 +502,17 @@ fixture failure. Only disposable fixture creation changes; storage guards and
 every assertion remain. Four lossless archives retain actual command/environment,
 log and exact reviewed patch/source. No additional broad test run was selected.
 Frozen PR173 is unaffected; later test-support integration remains pending.
+
+
+## Owner authorized bounded Codex-account AI tests
+
+The owner explicitly permitted existing-account AI/native tests on19October.
+[Policy](codex-ai-testing.md) sets3 attempts/session,6/Tallinn day,180s client
+deadline, small synthetic input, existing guards and5% quota floor. Attempts must
+be reserved in the persistent ledger before dispatch. No live test has run yet.
+Both existing ACTIVE automation prompts were updated through the app tool to
+remove the earlier conflicting live-Codex exclusion and read this policy, preserving
+their schedule/chat/original expiry. [Authorization receipt](evidence/codex-ai-test-authorization.json)
+records saved hashes. Private data, credential edits/copy/logging, other providers,
+purchases and release remain outside scope. Latest actual allowance91% used/9%
+remaining; first unattended wake remains unobserved.

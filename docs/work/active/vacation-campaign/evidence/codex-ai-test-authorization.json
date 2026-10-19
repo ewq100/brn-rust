@@ -1,0 +1,37 @@
+{
+  "observed_at_utc": "2026-10-19T12:04:44.492819+00:00",
+  "owner_request": "Explicit permission to use existing Codex account for AI/native AI tests with reasonable limits",
+  "policy": "../codex-ai-testing.md",
+  "limits": {
+    "attempts_per_session": 3,
+    "attempts_per_tallinn_day": 6,
+    "client_deadline_seconds": 180,
+    "initial_input_utf8_bytes": 8192,
+    "quota_floor_remaining_percent": 5
+  },
+  "automation_updates": [
+    {
+      "id": "brn-mac-vacation-hardening",
+      "status": "ACTIVE",
+      "config_sha256": "ef8799d9079eacd86d437ffbff8714311847abaffaad3d66264b3003c2c414e3",
+      "prompt_sha256": "c31d7400741c221fbe5318f35edbd96236677ccbded8d837b3775fc29e82e985",
+      "original_expiry_preserved": true,
+      "target_thread_preserved": true
+    },
+    {
+      "id": "brn-batched-mac-interaction-checks",
+      "status": "ACTIVE",
+      "config_sha256": "b827ae320e674d30af22c363c899ec58de93cd86703ac6535fffd3b3a826fa68",
+      "prompt_sha256": "9b8c0fcca7f0541fee48473e6527ec0b44a0514841816a69e6b0f85352718e20",
+      "original_expiry_preserved": true,
+      "target_thread_preserved": true
+    }
+  ],
+  "live_results": "none yet; authorization is not qualification",
+  "retained_exclusions": [
+    "Other live providers/new paid API infrastructure",
+    "Owner/private note data",
+    "Credential edits/copy/logging",
+    "Purchases/model acquisition/external delivery/release"
+  ]
+}

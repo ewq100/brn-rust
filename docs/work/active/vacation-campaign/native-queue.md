@@ -11,7 +11,10 @@ active jobs, account quota and available native controls. Do not compete with an
 active desktop session or writer. Below about 5% remaining capacity, wait for a
 verified reset. No desktop session is needed when no consequential scenario is ready.
 Use one current qualified production build and fresh explicit synthetic data.
-Keep owner files and credentials outside these scenarios; no live provider is needed.
+Keep owner files outside these scenarios. Most checks need no provider; the owner
+now permits bounded existing-Codex-account tests under [the policy](codex-ai-testing.md).
+Only those tests may read the existing auth source; never copy/log it. Reserve the
+attempt ledger before dispatch and retain the ordinary synthetic-only checks.
 
 | ID | Scenario and independently expected outcome | Readiness / evidence |
 |---|---|---|

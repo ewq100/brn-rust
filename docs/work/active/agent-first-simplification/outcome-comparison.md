@@ -28,8 +28,10 @@ action alongside selected resolution during review.
 The owner-plan semantic journeys concerning synthesis, conflicting protected
 sources, equivalent instructions and model-reported findings retain their current
 fixtures and contracts. They have not received a fresh controlled live-provider
-comparison in this campaign. Such calls are outside current authority. Record
-that gap instead of replacing semantic evidence with a green scripted test.
+comparison in this campaign. The owner's later19October authorization now permits bounded existing-Codex-account
+tests under [the campaign policy](../vacation-campaign/codex-ai-testing.md).
+These have not run yet; choose a small useful comparison within that budget,
+without treating a scripted check as model-quality evidence.
 Actual Mac input and subjective owner acceptance remain separate pending gates.
 
 The mandatory scope through M4 and applicable M6 integration is still in progress.

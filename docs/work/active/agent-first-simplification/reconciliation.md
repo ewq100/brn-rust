@@ -50,9 +50,12 @@ priority over speculative broad UI state conversion. Preserve objective checks
 and measured cheap processing, including intake prefetch, until relevant evidence
 justifies replacement. Existing successful/source-qualified behavior is retained.
 
-No new live provider/API workload, private-data use, release/deployment, billing,
-credential change, external send or broad executable permission follows from this
-plan. M5 must finish permitted synthetic/interface work and record any precise
+The plan alone grants no account access. The owner's later19October instruction
+explicitly authorizes bounded tests through their existing Codex account under
+[the campaign policy](../vacation-campaign/codex-ai-testing.md); no live result is
+claimed yet. Other provider/API workloads, private-data use, release/deployment,
+billing, credential change, external send and broad executable permission remain
+excluded. M5 must finish permitted synthetic/interface work and record any precise
 activation decision. The Mac18:00 native batch, continuous useful work, about5%
 allowance floor, normal reviewed merges/four required checks/resulting-main gates,
 actual runtime helper capacity and fixed2026-11-01T21:41:51Z expiry remain unchanged.

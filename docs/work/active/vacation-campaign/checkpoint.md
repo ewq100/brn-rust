@@ -103,7 +103,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Capacity, schedules and continuation
 
-Last native quota reading90% used/10% remaining, seven-day reset1792874447.
+Last native quota reading91% used/9% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
 and back off near the verified constraining reset without purchases/reset credits.
 Runtime has four active slots including lead. Owner permits more/nested helpers
@@ -119,8 +119,12 @@ lead, duplicate schedule or daemon. Preserve qualified helpers and sibling data.
 Disk was about1.58GiB after M4b immutable executable copies; no new target/helper rebuilds,
 and stop a compile below1GiB.
 
-No live provider/model acquisition/private data, release/deployment, new billing,
-credential changes or external messaging is authorized. Linux improvements stay
+Owner updated authority: bounded existing-Codex-account AI/native tests are now
+authorized under [the policy](codex-ai-testing.md), max3 attempts/session and6/day,
+180s client deadline, synthetic input only, reserve ledger before dispatch and
+retain5% quota floor. No actual live call has run yet. Other live providers, model
+acquisition/private data, release/deployment, new billing, credential changes and
+external messaging remain excluded. Linux improvements stay
 lower priority; retain existing gates. [History](checkpoint-history-through-2026-10-19.md)
 keeps earlier snapshots; dated observations do not assign new work or override
 current user authority.

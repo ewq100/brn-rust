@@ -1,16 +1,16 @@
 # Mac vacation hardening continuation
 
-Updated 19 October 2026. Current main9a6feab2 is PR171, normally merged from
-checked7a9867a8 after all four required head checks passed. All four required resulting-main
-run39240783382 checks passed; optional Windows Core/UI/retrieval jobs failed. PR170
-main39236565242, PR169 main39232087600 and earlier required head/main checks
-passed; optional Windows failures remain explicit. Lead checkout:
-`/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/agent-first-followthrough`. PR171 contains reviewed M0/schema/M1/M2+skill UI;
-combined19efe checks and production build passed. M3/M4 are combined-qualified at7a970 with an immutable production artifact;
-PR172 fixes checkedb8735ea1 while the lead continues separately. Model-proposed
-comment suggestions remain the selected next item. [Current checkpoint](checkpoint.md) owns active
-jobs and next action.
+Updated19October2026. Current main689ab234 is PR172, normally merged from
+checkedb8735ea1 after all four required head checks passed; three required
+resulting-main39246001617 jobs passed, Mac Core/CLI is still running. PR171 and
+earlier required head/main checks passed; optional Windows failures stay explicit.
+Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
+`codex/agent-first-followthrough`. PR173 freezes model suggestions atcf7e4f2e:
+source4e81 is independently approved and locally qualified, three required head
+checks passed and Mac Core/CLI is running. The synthetic v2 Mac fixturef819 is
+independently reviewed and qualified separately, with no actual native observation.
+[The checkpoint](checkpoint.md) owns actual jobs and next gates. The owner's new
+Codex-account test authorization and limits are recorded below.
 
 ## Current owner authorization
 
@@ -38,8 +38,13 @@ the preserved cloud charter and earlier checkpoint:
   Checkpoint before capacity is exhausted; wait and verify renewed capacity after
   the constraining reset. No credit purchase, reset-credit redemption or new billing.
 
-Publication/release/deployment, new paid infrastructure or API workloads, private
-vault/data use, credential changes and messaging others remain outside this work.
+The owner subsequently authorized bounded tests through their existing Codex
+account on19October; [the test policy](codex-ai-testing.md) and persistent attempt
+ledger govern them: at most3 attempts/session,6/Tallinn day,180seconds each,
+synthetic inputs only and the existing5% allowance floor. No call has yet run under
+that permission. Publication/release/deployment, new paid infrastructure/API
+workloads, other live providers, private vault/data use, credential changes and
+messaging others remain outside this work.
 Preserve supported data, schemas, lockfiles and the checked service contracts.
 Consequential changes to product meaning still need an owner decision; isolate those
 and continue independent maintenance rather than blocking the whole programme.
@@ -95,8 +100,9 @@ pre-effect tool correction and M2 factual-check/skill-guidance separation now ta
 priority over speculative broad state conversion. Finish already owned small
 maintenance/integration gates safely; do not redo merged worker/notice/reference/MCP
 work. M3 exact local edits and M4 consistent instruction/review follow; M5 broader
-capability is conditional. Current authorities exclude live/provider/private-data
-activation. The original roadmap is preserved history, with these live priorities
+capability is conditional. Bounded existing-Codex-account tests are now explicitly
+authorized under the linked test policy; private-data and other provider activation
+remain excluded. The original roadmap is preserved history, with these live priorities
 superseding its conflicting Cloud-first or all-domain assumptions.
 
 ## First implementation slice: worker identity
