@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-10-19T10:39:53.537096+00:00",
+  "automation_prompts_changed": false,
+  "verification": [
+    {
+      "id": "brn-mac-vacation-hardening",
+      "status": "ACTIVE",
+      "saved_toml_sha256": "1ed4a684e7623217a4546c2fdc364c4f7b6ec7f312d37e16127aeebbe03518a3",
+      "prompt_sha256": "f0ee62a9ebb1ebaf2d50f82747fa611a2b7b4e34daaaa1df463c8b6988dbc2fa",
+      "entry": "Absolute lead worktree/current campaign plan/checkpoint read at resume, linking agent-first reconciliation."
+    },
+    {
+      "id": "brn-batched-mac-interaction-checks",
+      "status": "ACTIVE",
+      "saved_toml_sha256": "18719aa0d44d029351e153ce95d66a7a08248d60d3aedf202d6086533f693cb4",
+      "prompt_sha256": "0cd91b2830768405100b37c0383430a99f54dc778d02eedbb722b8e581b621ce",
+      "entry": "Absolute lead worktree/current campaign plan/checkpoint read at resume, linking agent-first reconciliation."
+    }
+  ],
+  "owner_source_sha256": "b4da3eb9955f516f2445fadb3fe8b10100553cc0bd4e5db059ac62e663d9b742",
+  "unattended_execution": "not observed",
+  "clock_restarted": false
+}

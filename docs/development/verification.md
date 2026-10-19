@@ -17,6 +17,13 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 
 Use the repository pin (currently Rust 1.98.1) and lockfile. Compiler/dependency changes need applicable task scope and relevant qualification. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
+When sharing a target directory between checkouts, a single build slot prevents
+concurrent writers but does not prove cached artifact identity. Timestamp freshness
+can retain an earlier checkout's local library after a source switch. Verify an
+observable source identity where available and force affected local crates to
+rebuild when identity disagrees. Preserve the failed observation and the exact
+rebuild action; unchanged source bytes alone do not establish executable identity.
+
 ## Behavior and architecture evidence
 
 Follow the [strategic programming guide](strategic-programming.md). A regression test should expose the original bug when practical; document the limitation when the old behavior cannot safely or deterministically be reproduced. Preserve distinct boundary, feature and failure cases when consolidating tests. Test or line counts do not establish equivalence.
@@ -47,7 +54,7 @@ Distinguish implemented, verified, native-observed, owner-accepted, and merged. 
 
 ## Current local gates
 
-Build both current document helpers before macOS or Linux x86_64 workspace tests and declare their absolute `BRN_XBERG_HELPER` / `BRN_XBERG_HELPER_BRN` paths. Current gates exercise normal stock/adapted output, exact identity, PNG/assets, bounded reads, transient cleanup, cancellation/reaping and synthetic fixed-Luna refinement. No old helper, prepared-page protocol or Poppler installation is required. Historical legacy-PDF failures remain recorded, not converted into passing current checks.
+Build both current document helpers before macOS or Linux x86_64 workspace tests and declare their absolute `BRN_XBERG_HELPER` / `BRN_XBERG_HELPER_BRN` paths. For direct CLI process-test commands, also place these exact qualified helpers beside the built CLI in `$CARGO_TARGET_DIR/debug/`, as the maintained verification scripts and CI do. Those tests intentionally clear `BRN_*` overrides and exercise the installed sibling discovery path. Setting helper variables alone does not satisfy that path. Current gates exercise normal stock/adapted output, exact identity, PNG/assets, bounded reads, transient cleanup, cancellation/reaping and synthetic fixed-Luna refinement. No old helper, prepared-page protocol or Poppler installation is required. Historical legacy-PDF failures remain recorded, not converted into passing current checks.
 
 `verify-storage.sh` covers default formatting/build/lint/tests. `verify-end-to-end.sh` adds fresh CLI/desktop Save, recovery, search, export/backup, startup and foreign-data refusal. `verify-end-to-end.sh` also runs the CLI journey through the documented `--json` contract. `verify-desktop-shell.sh` compiles/lints/tests native state. Semantic search is optional: a native build installs the pinned model with `brn model-install --destination …`, and hosts use the folder named by `BRN_EMBEDDING_MODEL_DIR`; `retrieval_eval --retriever hybrid` qualifies it. The 10,000-note witness in `brn-threads-app/tests/user_scale.rs` proves reopen without rebuild, one-note sync, query latency, current-revision search refresh and archive exclusion; run it with `BRN_SCALE_STRICT=1 cargo test --release -p brn-threads-app --test user_scale` for the acceptance bounds. Removed standalone experiments remain accessible through the [fixed baseline archive](../archive/README.md); maintained production/test fixtures remain in the crates.
 

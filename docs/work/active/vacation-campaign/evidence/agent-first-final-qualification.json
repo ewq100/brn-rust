@@ -1,0 +1,668 @@
+{
+  "observed_at_utc": "2026-10-19T11:13:42.805043+00:00",
+  "source": "7a9706fd68ab74bebe3175030b697b1c1d72339b",
+  "tree": "f1d86fa45e08b241eb222507233614bbbdeddd55",
+  "source_sha256": {
+    "agent/BRN.md": "71616dbaa23f488445f8c8d54d651d2c93f3d05a3b0ad9f1f86e2a35113261e9",
+    "crates/brn-ai/README.md": "4a12a602d8de94aa6d45672a5ea098c2b835497205c46ac31bcb4e10b77e645d",
+    "crates/brn-ai/src/threads.rs": "ff6eb0ad9c5c453cd1ac8fe98f8abb05310a6c412f3be086f78752e59b821ac9",
+    "crates/brn-ai/src/threads_guides.rs": "24a6168f014f236181818728a2adfe9665cf148daaf03bce02843e573264d350",
+    "crates/brn-ai/src/threads_history.rs": "36cc6a480e31fe8c96ee5b05815bbcf0a321015c836286a35638f7e5819c70cd",
+    "crates/brn-ai/src/threads_int_d_tests.rs": "d54b8e449811a4d5400770c692110366eb7727aa70906521b5bc425778db1fc3",
+    "crates/brn-ai/src/threads_note_edit.rs": "5c93ae5492dae1f561cfcebee782eac23ef86b5d9f69e4a5d8edb7cc7592c586",
+    "crates/brn-ai/src/threads_note_edit_tests.rs": "ef372cbb6e5825e5a23f24a922f3b7f99f4cf950ce597fb66fe6443f342ef45f",
+    "crates/brn-ai/src/threads_reads_tests.rs": "fd7e590c0e978319d75390436c5535e8dd1f6e779f17973152378fd5a9e45c73",
+    "crates/brn-ai/src/threads_summary_tests.rs": "d45a06498bd379528e2e8fb7955751fba52c01b959ea193d715e4c829ebfa4a6",
+    "crates/brn-desktop/src/threads_ui.rs": "3415f196d517d3806da86d8f3081f783be5a320cb67b16a10f065b58f775d004",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "c52b63865a5982d7d033ad8eb117f83cfe829323292984ca4a4b6874badcdaa1",
+    "crates/brn-threads-app/examples/native_writing_fixture.rs": "30d586b7dc896df7c9e7bf566e0347031361c0b780c249bf8cd6c1ac9f49939a",
+    "crates/brn-threads-app/src/lib.rs": "a06f731d87e65b76b25b07704bcb682ae27638996f313870034c608a67815d9f",
+    "crates/brn-threads-app/src/review.rs": "f2fc1db8b4a27195e1d59c709fe5b1e4b2f09de33db07385b60bb1db98952399",
+    "crates/brn-threads-app/tests/cw2_review.rs": "9690a3d32245665daab7b1e837b9c27ffb18aef10255cebe6205dc5b540f6fce",
+    "crates/brn-threads-app/tests/daily_workflow_eval.rs": "17c7a83ea340de1b9e25a4cd7a52671017b031230a8e50b52036e8a8fbd42ef7",
+    "crates/brn-threads-app/tests/int_d.rs": "c28c3856c115b752cf927bc543089d64556c919adac66e7b907b5ca6c20c3722",
+    "crates/brn-threads-app/tests/killed_run_candidate.rs": "4ed0116d94ba08448336ebb558c10af92206e2d4d49a90ec10baabcf6783436a",
+    "crates/brn-threads-app/tests/product.rs": "0c6ef2fd03ce3f0e91856cfad8302d48b045f7b0b5ce6c28ac810d5db785511f",
+    "crates/brn-threads-app/tests/writing.rs": "af2c5622e583dba56ad2d9e473e1f7051daafdbdeed10298393cff79b2c07f5c",
+    "crates/brn-writing-ui/examples/writing_host/host.rs": "39795bc2eb1233f70f5041e84b98b8ffe5f8aaf7c6f3e72579332bacf8365d6d",
+    "crates/brn-writing-ui/src/native.rs": "5f3ab9d39635500f0c5a9c47dc01e42a068b9f6db13e941d2ae07ce17b805f04",
+    "crates/brn-writing-ui/src/review.rs": "2086e9ad40a8148dafd6c25490f788a18ba5cf8fb1e02bc3a074c381ac5dd6b6",
+    "crates/brn-writing-ui/src/writing.rs": "d801174ce0f9f1cfd21c79721a5299f3aa9313f285bc2c6d65c71ba8b2368662",
+    "crates/brn/src/main.rs": "10ce42027147dd4f906480de2b0adc3cdd74c9f7c8a756ea19d1c6c5db63055b",
+    "crates/brn/tests/agent_runs.rs": "bcebb93f74d4747045f602ce067712ecfeac5700327a6071bc593fb46c1af402"
+  },
+  "artifact": "/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-final-evidence/brn-desktop-7a9706fd",
+  "artifact_sha256": "0d28de08d9d71a3abec7ee755247446b6ca81bde3373fc63373e1a7adecc6212",
+  "artifact_bytes": 165732112,
+  "embedded_guidance_version_lines": [
+    "notesThese notes are long. `research` can digest them and return cited passages without loading them into your context; read one yourself when you need its full text, for example before changing it.reasoningeffortsearch_notesread_noteread_recordssubmit_findingsbudgetcontext_windowbrn-threads-guidance-16ownercancelledinternal error: entered unreachable code: reaching this means there probably is an off by one bug{",
+    "brn-threads-guidance-16missing frontmatter---frontmatter closing --- required: only literal key: value lines supporteddescriptioninvalid, duplicate, unknown or unsupported metadata fieldempty, control-bearing or YAML-shaped metadata is unsupportedname requireddescription requiredinstruction body requiredfrontmatter exceeds 8 KiBfrontmatter must start with ---SKILL.md must be UTF-8 text of at most 64 KiB without NUL",
+    "brn-threads-guidance-16catalogue metadataowner_installedbuiltin# BRN agent guide"
+  ],
+  "qualification_transfer": "Runtime at4a2042af; native/app/CLI atb290; final7a970 changes only fixture str.len byte counts. Fixture runtime e4e transfers through independently reviewed equivalent c055 byte-count expressions. Strict all-target lint/fmt and native-ui-only production build pass at7a970. No production source differs from the reviewed component pins.",
+  "results": {
+    "runtime": "518 passed/0 failed/2 retained ignores",
+    "native_state": "332 passed/0 failed/1 retained ignore",
+    "shared_result_faults": "2 passed",
+    "cli": "43 passed/0 failed (authority5,contract23,runs15)",
+    "strict_affected_all_target_lint": "passed",
+    "workspace_format": "passed",
+    "production_native_ui_only": "passed",
+    "fixture": "fresh exact independent state plus three refusal cases passed"
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "4a2042afb664ad41e61ed8c8ed86689c92ae1768",
+      "status": "",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2459611136,
+      "exit": 0,
+      "elapsed_seconds": 128.9177377920132,
+      "disk_after": 2473537536,
+      "name": "combined-runtime",
+      "log_sha256": "648f35e765adcaf454d6476f65c487c6a23367175c04a91e2c553442952f4967"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+      "status": " M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2461282304,
+      "exit": 0,
+      "elapsed_seconds": 80.11657187505625,
+      "disk_after": 2460110848,
+      "name": "combined-native",
+      "log_sha256": "8032acd72a8c33a3eddf581a9c9e3213cc7385dd2e6186c1a2a894b02df40669"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-threads-app",
+        "--lib",
+        "apply_status_tests",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+      "status": " M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2460102656,
+      "exit": 0,
+      "elapsed_seconds": 5.3373360419645905,
+      "disk_after": 2459574272,
+      "name": "combined-app-status",
+      "log_sha256": "0f7106bbe0eb7668abbd1edaf781b430475ea6c8ec915c806488c66c76d5d194"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "agent_runs",
+        "--test",
+        "agent_authority",
+        "--test",
+        "agent_contract",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+      "status": " M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/checkpoint.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture-qualification.json\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture/\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2452652032,
+      "exit": 0,
+      "elapsed_seconds": 59.00086812488735,
+      "disk_after": 2450173952,
+      "name": "combined-cli-rebuilt",
+      "log_sha256": "3b68af733d538ab3806fa6ec1428d6b5745b6de360fbbe807347aca524e46f24"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "-p",
+        "brn-threads-app",
+        "-p",
+        "brn-writing-ui",
+        "-p",
+        "brn-desktop",
+        "-p",
+        "brn",
+        "--all-targets",
+        "--features",
+        "brn-ai/scripted-runs,brn-desktop/native-test-support,brn-writing-ui/native-test-support",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "7a9706fd68ab74bebe3175030b697b1c1d72339b",
+      "status": " M docs/development/verification.md\n M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/checkpoint.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/agent-first-simplification/proposed-feedback.md\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture-qualification.json\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture/\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2329567232,
+      "exit": 0,
+      "elapsed_seconds": 4.537824708037078,
+      "disk_after": 2327953408,
+      "name": "combined-clippy-fixed",
+      "log_sha256": "e7105c5491771eda331ddc739e5bf46c4859b46d67340181d3f469e8ec74508b"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "7a9706fd68ab74bebe3175030b697b1c1d72339b",
+      "status": " M docs/development/verification.md\n M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/checkpoint.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/agent-first-simplification/proposed-feedback.md\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture-qualification.json\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture/\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2323935232,
+      "exit": 0,
+      "elapsed_seconds": 1.3828896668273956,
+      "disk_after": 2323857408,
+      "name": "combined-fmt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui",
+        "--bin",
+        "brn-desktop",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "7a9706fd68ab74bebe3175030b697b1c1d72339b",
+      "status": " M docs/development/verification.md\n M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/checkpoint.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/agent-first-simplification/proposed-feedback.md\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture-qualification.json\n?? docs/work/active/vacation-campaign/evidence/native-writing-fixture/\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2323853312,
+      "exit": 0,
+      "elapsed_seconds": 13.88950162497349,
+      "disk_after": 2322534400,
+      "name": "production-native",
+      "log_sha256": "381aa3bd70f57a077a07583297e78bf1eec2872a307d91cb65109a535b4c4eeb"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-threads-app",
+        "--example",
+        "native_writing_fixture",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+      "status": " M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2472697856,
+      "exit": 0,
+      "elapsed_seconds": 2.1322887500282377,
+      "disk_after": 2461704192,
+      "name": "fixture-build-fixed",
+      "log_sha256": "67d2ef3df6006b1ea7bd212756cbd9719a48144950f7a2ba3778bf546d9209ef"
+    },
+    {
+      "command": [
+        "python3",
+        "../agent-first-final-evidence/qualify_fixture.py"
+      ],
+      "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "head": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+      "status": " M docs/work/active/agent-first-simplification/writing-review.md\n M docs/work/active/vacation-campaign/native-queue.md\n?? docs/work/active/vacation-campaign/evidence/writing-review-qualification.json\n?? docs/work/active/vacation-campaign/evidence/writing-review/\n",
+      "environment": {
+        "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "disk_before": 2461704192,
+      "exit": 0,
+      "elapsed_seconds": 0.42577995802275836,
+      "disk_after": 2461282304,
+      "name": "fixture-state",
+      "log_sha256": "7024ef71ee31b0da27ba6d07523e87ddde6c2f9c87cec19a6f3706bf26788399"
+    }
+  ],
+  "retained_failures": [
+    "fixture-build: imported Result alias; explicit standard Result fixes it",
+    "combined-cli:42passed/1failed because default cached agent library embeddedguide15; observed binary SHA/version, byte-identical local crate-root touch forced rebuild and CLI43passesguide16",
+    "combined-clippy: three needless_as_bytes warnings in fixture; equivalent str.len resolves them"
+  ],
+  "review": "M3e227, M4 3b3 and fixturec055 independently source-approved; exact integrated source hashes verified.",
+  "limits": [
+    "No actual native input/IME/accessibility or owner acceptance",
+    "No live provider/model usefulness or release qualification",
+    "Model-proposed addressed-comment IDs remain separate next M4 item",
+    "Hosted/head/resulting-main integration pending"
+  ],
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/cli-stale-artifact-observation.json.gz",
+      "raw_sha256": "d2c51f64741ceee7a49019bd4e5c447f7f32ad6732fc39790e31bc7a298fdcb6",
+      "archive_sha256": "ab521379c89c265ea598086705aa08652be01c6cff938f6a71c4494761e9135a",
+      "raw_bytes": 881
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-app-status.json.gz",
+      "raw_sha256": "b532657720570ce52774117a2e5d8da25242f49a8b6b1e35a590f4f91781b29e",
+      "archive_sha256": "d909edfd2abe369c84e3ef772e6eba9479392b455982bca5602d218603df2f62",
+      "raw_bytes": 2310
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-app-status.log.gz",
+      "raw_sha256": "0f7106bbe0eb7668abbd1edaf781b430475ea6c8ec915c806488c66c76d5d194",
+      "archive_sha256": "538a48d3fc11b21ca3399d8367fae38d2a43c8be3e0037d18738767e17770bfe",
+      "raw_bytes": 600
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-cli-rebuilt.json.gz",
+      "raw_sha256": "15914549cf26e9021a1906ddd7b1cce4f6b09ad976001f796bf4cdf5f4caf3d1",
+      "archive_sha256": "58c029f8486d0aa574d68a9195a67d2f3a2eee05a38f9a87cd474cebfdfefaa1",
+      "raw_bytes": 2578
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-cli-rebuilt.log.gz",
+      "raw_sha256": "3b68af733d538ab3806fa6ec1428d6b5745b6de360fbbe807347aca524e46f24",
+      "archive_sha256": "3751ee56d95e507e8a89b04c14004167b1020fb3ae71bfd578763ccf3a7d26d6",
+      "raw_bytes": 3803
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-cli.json.gz",
+      "raw_sha256": "e1ca31655117f8836b2bd0c331c9865c90ef44258680ec2be8f6d91f14ae91d2",
+      "archive_sha256": "fe80d183491f3e02394434d45007867d10ab0de93f2d872c93fdc039612ede48",
+      "raw_bytes": 2366
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-cli.log.gz",
+      "raw_sha256": "9c347a538cc6f03718764c82363148aa85e85f7612659946981d7e0d1e3c0d02",
+      "archive_sha256": "d575e32097ac2aa62f853326a7872d991edb1679965eb1c15b31f6fe54d4045a",
+      "raw_bytes": 4316
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-clippy-fixed.json.gz",
+      "raw_sha256": "e007b31e2776af8458f20ca79a5101307e827419d1e0ba9aee80874fda39043c",
+      "archive_sha256": "fec4effe907ee55ed8f2b23c4a167aa8aa3785aa16d696b09e761296e8301cfa",
+      "raw_bytes": 2869
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-clippy-fixed.log.gz",
+      "raw_sha256": "e7105c5491771eda331ddc739e5bf46c4859b46d67340181d3f469e8ec74508b",
+      "archive_sha256": "09505df551ccf29b5f2ac15c2d3d43c81920aed22dbaa4c77627fb6e6c5bbb48",
+      "raw_bytes": 527
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-clippy.json.gz",
+      "raw_sha256": "38f3c7ccde0bf7c340094806f163887ebaca8e6a2ac4f1b61296c9a5865b50cc",
+      "archive_sha256": "5af10c421917269228d8ed57acfc9b9469e755bdc72c75def1fd6455f8eec72c",
+      "raw_bytes": 2871
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-clippy.log.gz",
+      "raw_sha256": "14d3f2580307109f47f33f712352d1685e45d4726e6029dda6150b545903d608",
+      "archive_sha256": "39da02bf7a32d1a65efa9ac0145b51afd78ca8e616047392d47e1b1c87ca4e3f",
+      "raw_bytes": 4802
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-fmt.json.gz",
+      "raw_sha256": "b086abe7c789c256cf6ffc74210ba2de7a141a9faa7749d32064f07b29a89665",
+      "archive_sha256": "2bbb9344855e3fac87a2b2c4bf9f8e0ffe916fa9af2f53d4c4c82b9b8a15ba1f",
+      "raw_bytes": 2540
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-native.json.gz",
+      "raw_sha256": "b4ed5424c43d784b31185dca8a586e532f7c9857247282b702f0870bb38a95b2",
+      "archive_sha256": "05172f87b4e775ee7c602cafc01d205065ee7231e5019848f4df159b025b69e8",
+      "raw_bytes": 2353
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-native.log.gz",
+      "raw_sha256": "8032acd72a8c33a3eddf581a9c9e3213cc7385dd2e6186c1a2a894b02df40669",
+      "archive_sha256": "4aeb7c9c103a952bcf29a3c3669f0709fd5e968803924142da22e9ce8921abd8",
+      "raw_bytes": 34644
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-runtime.json.gz",
+      "raw_sha256": "dd616e5d060b6ed8a9544a79296747368ac48d7bd82adb7023200159d148ccb1",
+      "archive_sha256": "ba5331cfe8fda716616f91828654ca419e24be9a8bd7e97c83c42a26758f8164",
+      "raw_bytes": 2046
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/combined-runtime.log.gz",
+      "raw_sha256": "648f35e765adcaf454d6476f65c487c6a23367175c04a91e2c553442952f4967",
+      "archive_sha256": "a2b27a7d8fe061649b5736e4544a5aa1b3cb2aad6fb68eca5efe98fa3c49d29f",
+      "raw_bytes": 54715
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/existing-fixture-sentinel.txt.gz",
+      "raw_sha256": "6fd72564850b1eb80f9124c803c35f486a6e826c2e53b458898c3c7534af17b8",
+      "archive_sha256": "eeda2f3326c0aa33add4d150c46cde2ee852fef8f096dfb2879bfd1542c73c7c",
+      "raw_bytes": 24
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/final-source.json.gz",
+      "raw_sha256": "779c95e9467a1177fbe45ce4adcf70079abcfd2efcc050fa2cdfbf0d75316af0",
+      "archive_sha256": "c74a8e703e2e18c902aae0918bebca9494bf1747addeffce91da0ff40fdb38b3",
+      "raw_bytes": 4794
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/final_remaining.py.gz",
+      "raw_sha256": "201f470d2fb0f10947d2764a7f171c09256a64664b712dd7ca97632d4a42a6b3",
+      "archive_sha256": "d66237707aacb81436bc4889e5a93db3068a73e0db40f2490d6226a6c9eb811e",
+      "raw_bytes": 686
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/final_suite.py.gz",
+      "raw_sha256": "e7026f193bf18839ff0091ea71d7762b0fb37c24a3f0c82376fd4dfa4deeaa85",
+      "archive_sha256": "002e93f70030bc19d7c90be7c4f160fb73baea03181d9fd6bba7e26c4ee0c59a",
+      "raw_bytes": 1359
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-build-fixed.json.gz",
+      "raw_sha256": "6299ed115f361ec2b858743d7df1161ae9159e9d7b09d4d7fde4d4d6472e1f74",
+      "archive_sha256": "4b70f0ba2633835a16fe37521184fbb7f0dc21cea2bb48cc4b39536d3d6081ad",
+      "raw_bytes": 2319
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-build-fixed.log.gz",
+      "raw_sha256": "67d2ef3df6006b1ea7bd212756cbd9719a48144950f7a2ba3778bf546d9209ef",
+      "archive_sha256": "202776f151e68378946d82e66979071f6dd347b2540b769f07a53682fb42be63",
+      "raw_bytes": 184
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-build.json.gz",
+      "raw_sha256": "42cbe7d978ddcb48873013f332dfe1bf376b0a58a48d87aec1ab1cc950c5a9ac",
+      "archive_sha256": "cf129c36e7a87a3d7b5b7659f6431f4b3d32bd1223602eac6162fc5eb637dbbc",
+      "raw_bytes": 2053
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-build.log.gz",
+      "raw_sha256": "fcceaf6e13e8f9343f31e5cfd5207dd924cb591263f28cb4536e5bc64cfa1d0b",
+      "archive_sha256": "172cce5f9aef4a5e04df6888bbe5748dd1a50e428f27667c6aa4169247295343",
+      "raw_bytes": 28293
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-existing-directory.stderr.gz",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "archive_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_bytes": 68
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-existing-directory.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-existing-file.stderr.gz",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "archive_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_bytes": 68
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-existing-file.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-fresh.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-fresh.stdout.gz",
+      "raw_sha256": "8baf0a3970ec15b764d833e1c7b4bf6b95130f4100d2d34456e5e45271189202",
+      "archive_sha256": "3a298ad84ddc57944746e9e0e4fb9e4266999ec87dc2ffee796346f669942bb6",
+      "raw_bytes": 128
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-manifest.json.gz",
+      "raw_sha256": "3a03258aaaa43bdb6215ac7376f5173f413e75ed43f7eac2c77aa1250f371cf6",
+      "archive_sha256": "bd16795b185aa7671c6af5c1d2b2255e8415c317647be0b1e1b450fb4de016aa",
+      "raw_bytes": 4574
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-qualification.json.gz",
+      "raw_sha256": "cf72476205601f857bac34696cc25391203b4303ec6b157646c9a4e1530e6cb6",
+      "archive_sha256": "51584844c36f707a8a5a0178da6cde6f3153080a05e19b3fc52f704a9c5db3da",
+      "raw_bytes": 2234
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-relative.stderr.gz",
+      "raw_sha256": "09debea8eb0da04ad7b04b176ad4fb957dea175ffcaf8e906c59051168f6fb8e",
+      "archive_sha256": "188c1c60cd839f698acce0177b2b127e9e44a92519512bbeba41f4081afe91e5",
+      "raw_bytes": 58
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-relative.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-reviewed-source.patch.gz",
+      "raw_sha256": "385826a5f79f23d8109182ac60658a286e2cd2bcc206648da44327c7b61c7ae7",
+      "archive_sha256": "91031886038b5407ae5f1d34b3172e03e5625afd89be93428680779b6c4dd501",
+      "raw_bytes": 8717
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-state.json.gz",
+      "raw_sha256": "1c00a3b7eaebbb5b4936a32a4782ae3cf82de701a9bfc5a95439409ec2b8c3a9",
+      "archive_sha256": "45497313520b264c70e37f870b23b2c831fe1f19be310b39a1b9c14003517cc9",
+      "raw_bytes": 2229
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/fixture-state.log.gz",
+      "raw_sha256": "7024ef71ee31b0da27ba6d07523e87ddde6c2f9c87cec19a6f3706bf26788399",
+      "archive_sha256": "81fcaedadb0f0f63108c52d49d568121d2734468b5b7b4b294f4da0112d4191a",
+      "raw_bytes": 91
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/force-current-runtime-build.json.gz",
+      "raw_sha256": "2d277ca2dbfad4ca0145b8efbd86abc01dcfa63e4b40a8aac8115138d44cd7f9",
+      "archive_sha256": "ac1d6b811630b70a8345628d8aee5cc8a412010a07b159662c844254d3f7a287",
+      "raw_bytes": 391
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/prequalification-source.json.gz",
+      "raw_sha256": "c73ec7d50cfed1c0b46a2b250d4d3bcf7f9f0db6a36f0ba7fc1b6d8eac383abc",
+      "archive_sha256": "db6b9e59ea73f03db544fd661eec1b004c70bdc7ef8b7a23c5e3c03c8090c167",
+      "raw_bytes": 14212
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/production-native.json.gz",
+      "raw_sha256": "99f5ea71486257fda612a5997a8554ccc7ea6993ea0d12adb281d9c2b48aebc9",
+      "archive_sha256": "5da50dd966204b1b0a01ec86f982476b7f01e1a6626a980cb17fa6204ba99388",
+      "raw_bytes": 2655
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/production-native.log.gz",
+      "raw_sha256": "381aa3bd70f57a077a07583297e78bf1eec2872a307d91cb65109a535b4c4eeb",
+      "archive_sha256": "f0325730563c2d4b8fe0c8d2b34da1b10d22eb98f5a21fe87431c35f81d613b0",
+      "raw_bytes": 772
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/qualify_fixture.py.gz",
+      "raw_sha256": "93d2ad39bd30097b0d52b7211638dabe34430dd5d1530c2fbd4db861491b0dc2",
+      "archive_sha256": "e6366e905cabb4ca7e4cda45c1049e087cefd33a9fadfc79e188cfde8282a5cb",
+      "raw_bytes": 4247
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/run_check.py.gz",
+      "raw_sha256": "5833628a13c8a440348a60da955c978a5a37f7dea447d88b6eb7810e5fbf74f7",
+      "archive_sha256": "71164a0958fa8ae462b213dddcc7110c38f65bede197a0f4d77462c676a0ec3a",
+      "raw_bytes": 2295
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/runtime-source.json.gz",
+      "raw_sha256": "0a2150ead52ba5b7901c87287b582ccf4f05ff77e5482d051de3dd672995e133",
+      "archive_sha256": "1b3f5615664abf9e61181f08672b4e3047b3f410d1502f8d68957236e779676e",
+      "raw_bytes": 3408
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-final/source.json.gz",
+      "raw_sha256": "b4813560e3addf46d5f96f786dadb6d0a7e179a22cb086d29b4abb8bfb1ebdc9",
+      "archive_sha256": "81916a9551679148200315dfa583b41364310b1a77491b6e328323621353eda0",
+      "raw_bytes": 3688
+    }
+  ]
+}

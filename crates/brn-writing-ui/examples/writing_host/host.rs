@@ -350,10 +350,16 @@ impl WritingHost {
         // Fresh service validation; the display batch is never an Apply grant.
         self.workspace
             .writing_candidate_review(candidate.operation.as_str(), None)?;
-        match self
-            .workspace
-            .review_apply_in_context(candidate.operation.as_str(), None)?
-        {
+        let comments = self
+            .panel
+            .review
+            .comments_to_address(candidate.operation.as_str());
+        let result = self.workspace.review_apply_selected_comments(
+            candidate.operation.as_str(),
+            None,
+            &comments,
+        )?;
+        match &result.outcome {
             ApplyOutcome::Applied(receipt) => {
                 let note = self.note()?;
                 if let Some(request) = &self.last_request {
@@ -367,6 +373,9 @@ impl WritingHost {
                     "Applied the exact reviewed proposal; durable Undo is available.".into();
             }
             other => self.notice = format!("Apply refused; proposal retained: {other:?}"),
+        }
+        if let Some(pending) = result.pending_updates() {
+            self.notice = pending;
         }
         Ok(())
     }
@@ -427,6 +436,7 @@ impl WritingHost {
             WritingRequest::PrepareReviewEdit => self.panel.prepare_review_edit(&mut self.workspace, window, cx)?,
             WritingRequest::PrepareReviewSelection => self.panel.prepare_review_selection(&mut self.workspace, window, cx)?,
             WritingRequest::ToggleGroup(id) => self.panel.review.toggle_group(&id),
+            WritingRequest::ToggleReviewComment(id) => self.panel.review.toggle_comment(&id),
             WritingRequest::Undo(operation) => {
                 self.context()?;
                 match self.workspace.undo(&operation)? {

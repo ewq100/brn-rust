@@ -378,3 +378,77 @@ its synthetic stale-binding/first compile failure and two exact files are retain
 in [qualification](evidence/skill-reapproval-qualification.json). No OS/live/owner
 result follows. M3 now owns the build slot; M4 source work uses a separate checkout.
 Fresh quota83%used/17%remaining, same reset/floor/expiry.
+
+
+## M3 qualified exact passage edits and conditional M5 proof
+
+[Targeted-edit qualification](evidence/targeted-edit-qualification.json) binds
+independently approvede227 and ten exact lead88b source files. Final runtime518/0/2,
+strict scripted lint/full format and CLI guide1 passed. The real original refresh
+module compiled/fails partial-read/full-refresh, restored candidate passes; explicit
+source linkage avoids claiming a whole-baseline build. Old missing-read fixtures
+and diagnostic-catalog failure remain, repaired by actual reads/explicit denial.
+
+M4 final9e5e independently source-approved; old19efe rendered selector witness
+compiled/fails, candidate shared-result2/app52/nativewriting37 pass so far. Exact
+final lint/broader/CLI/host qualification still running in its isolated checkout.
+M3/M4 need their combined production binary; old19efe cannot qualify changed runtime.
+
+[M5 proof](../agent-first-simplification/artifact-capability.md) uses existing
+bundled ReportLab/Decimal, no installs: synthetic expected values/chart SVG/report
+and fresh-copy byte-identical reproduction pass. Production activation is deferred
+with output-format/packaging/containment/review scope gaps. No agent/BRN/native/model
+qualification follows. Both saved ACTIVE schedule prompts still read the absolute
+lead worktree's current campaign entries; [linkage receipt](evidence/agent-first-restart-linkage.json)
+retains exact hashes, no changed schedule or new clock. Unattended wake unobserved.
+
+PR170 main39236565242 passed all four required jobs; optional Windows failures
+remain. PR171 fixes checked7a9867a8 while continuation uses codex/agent-first-next.
+Fresh quota85%used/15%remaining; floor/reset/expiry unchanged.
+
+
+## PR171 integration and next review candidate
+
+PR171 merged normally at9a6feab2 from exact7a9867a8 after all four required
+head checks passed. [Integration receipt](evidence/pr171-integration.json) retains
+actual protection, head jobs and resulting-main39240783382, currently running.
+Optional Windows Core failed at the PR head. Lead continuation has merged that
+main while preserving M3 source88b and its independent qualification.
+
+M4 finald235 is independently approved. Its duplicate feedback list caused two
+real unchanged small-window failures; reusing existing comment cards repairs the
+layout, and full native332/0/1 passes. Final CLI/lint/host checks remain pending.
+The synthetic native fixture source4d59 is independently approved after replacing
+initial workspace credential discovery with open_without_default_credentials;
+the earlier source would have retained an owner auth path in initial settings
+history even after clearing current settings. No provider was called. Fixture
+runtime qualification and actual Mac review remain pending.
+
+[M6 comparison](../agent-first-simplification/outcome-comparison.md) records actual
+retirement and remaining evidence. No semantic/live/native equivalence or
+whole-plan completion is inferred from scripted checks.
+
+
+## Exact edit and selected review combined-qualified
+
+[Final combined receipt](evidence/agent-first-final-qualification.json) binds
+source7a970, exact reviewed component files, runtime518/0/2, native332/0/1,
+shared-result2, CLI43/0, strict affected all-target lint, full format and production
+native-ui-only build. The immutable executable and exact SHA are in that receipt
+and the native queue. No actual native/live/owner acceptance follows.
+
+The combined CLI first exposed a stale default agent library retained in the
+shared target after switching source checkouts: executable guide15 disagreed with
+current guide16. Baseline overrides were absent. The old binary SHA/embedded guide
+and failed test are retained; byte-identical crate-root touch forced rebuild and
+all43 CLI tests passed. Strict lint separately found three equivalent fixture
+byte-length conversions. No guard/assertion was weakened. The
+[fixture receipt](evidence/native-writing-fixture-qualification.json) retains fresh
+state and existing-file/directory/relative refusal checks, plus no credential
+paths in settings history. Its v1 scope is explicit.
+
+The remaining [M4 suggestion specification](../agent-first-simplification/proposed-feedback.md)
+was independently reviewed after narrowing the core replacement exception and
+clarifying captured membership. It selects optional untrusted model reports,
+never automatic owner selection. Implementation follows publication of this
+checked candidate; no new provider permission is required or granted.

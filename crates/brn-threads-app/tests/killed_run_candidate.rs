@@ -532,7 +532,7 @@ async fn resume_or_dispatch_after_a_kill_adds_the_review_and_removes_the_free_le
         assert_eq!(owner_messages(&workspace, &w.questions), 1);
         // Exact-candidate review still works and leaves the notice.
         assert!(matches!(
-            workspace.review_apply(&operation).unwrap(),
+            workspace.review_apply(&operation).unwrap().outcome,
             ApplyOutcome::Applied(_)
         ));
         assert_eq!(attention(&workspace, &w.intake), vec![interrupted(&id)]);

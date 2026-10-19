@@ -4325,3 +4325,428 @@ fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
         });
     }
 }
+
+#[gpui_kit::test]
+fn review_feedback_selector_and_apply_click_commit_exact_subset_with_undo(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let mut ids = Vec::new();
+    let mut operation = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(view, &f.a, "tere", 0..4, "Clarify greeting", window, cx);
+            feedback(view, &f.a, "õun", 10..14, "Keep the fruit", window, cx);
+            ids = view
+                .workspace
+                .writing_comments(&f.a.id)
+                .unwrap()
+                .into_iter()
+                .map(|entry| entry.record.id)
+                .collect();
+            let (_, candidate) = proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                &ids,
+                "Exact UI accepted revision",
+                "selected-ui",
+            );
+            operation = candidate.operation.as_str().into();
+            view.open_review(candidate, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("review-feedback").visible());
+        assert!(
+            window
+                .find("note-bar")
+                .label()
+                .unwrap()
+                .contains("stay open")
+        );
+        window.click(format!("review-address-comment-{}", ids[0]), cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, _| {
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&view.workspace.store.operation(&operation).unwrap())
+                    .unwrap()
+                    .is_none()
+            );
+        });
+        assert!(
+            window
+                .find("note-bar")
+                .label()
+                .unwrap()
+                .contains("1 captured comment addressed")
+        );
+        window.click("apply-final", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            assert!(view.writing.review.is_none());
+            assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), "Exact UI accepted revision");
+            assert!(matches!(view.workspace.store.note(&f.a.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Exact UI accepted revision"));
+            let comments = view.workspace.writing_comments(&f.a.id).unwrap();
+            assert!(comments.iter().find(|entry| entry.record.id == ids[0]).unwrap().addressed);
+            assert!(!comments.iter().find(|entry| entry.record.id == ids[1]).unwrap().addressed);
+            assert_eq!(view.writing.applied_rewrite.get(&f.a.id).unwrap().1, operation);
+            assert!(view.workspace.store.note(&f.b.id).unwrap().as_ref() == Some(&f.b));
+        });
+        window.click("undo-writing-apply", cx);
+    }).unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, _| {
+            assert!(view.workspace.writing_comments(&f.a.id).unwrap().iter().all(|comment| !comment.addressed));
+            assert!(matches!(view.workspace.store.note(&f.a.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "tere tere õun"));
+        });
+    }).unwrap();
+}
+
+#[gpui_kit::test]
+fn exact_review_feedback_selection_preserves_reopen_but_clears_replacement_and_close(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(view, &f.a, "tere", 0..4, "Clarify greeting", window, cx);
+            let ids = view
+                .workspace
+                .writing_comments(&f.a.id)
+                .unwrap()
+                .into_iter()
+                .map(|entry| entry.record.id)
+                .collect::<Vec<_>>();
+            let (_, candidate) = proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                &ids,
+                "First proposal",
+                "selection-state",
+            );
+            let operation = candidate.operation.as_str().to_owned();
+            view.open_review(candidate.clone(), window, cx);
+            view.writing.review.toggle_comment("uncaptured");
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(&operation)
+                    .is_empty()
+            );
+            view.writing.review.toggle_comment(&ids[0]);
+            view.open_review(candidate, window, cx);
+            assert_eq!(view.writing.review.comments_to_address(&operation), ids);
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address("another-candidate-card")
+                    .is_empty()
+            );
+            view.writing.review.begin_edit();
+            view.writing.review.buffer_changed("Final owner text");
+            assert!(view.writing.review.exact_candidate().is_err());
+            view.writing.review.toggle_comment(&ids[0]);
+            assert_eq!(
+                view.writing.review.comments_to_address(&operation),
+                ids,
+                "editing freezes confirmation selection"
+            );
+            view.writing.review_editor.update(cx, |editor, cx| {
+                editor.set_value("Final owner text", window, cx)
+            });
+            view.writing
+                .prepare_review_edit(&mut view.workspace, window, cx)
+                .unwrap();
+            let replacement = view
+                .writing
+                .review
+                .as_ref()
+                .unwrap()
+                .candidate
+                .operation
+                .as_str()
+                .to_owned();
+            assert_ne!(operation, replacement);
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(&replacement)
+                    .is_empty()
+            );
+            view.writing.review.toggle_comment(&ids[0]);
+            view.writing.review.completed(&operation);
+            assert_eq!(
+                view.writing.review.comments_to_address(&replacement),
+                ids,
+                "old completion cannot clear newer review"
+            );
+            view.writing.review.keep().unwrap();
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(&replacement)
+                    .is_empty()
+            );
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn applied_review_with_failed_status_updates_reloads_text_and_keeps_undo(cx: &mut TestAppContext) {
+    for attention_failed in [true, false] {
+        let f = fixture(cx);
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.open_note(&f.a.id, None, window, cx);
+                view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+                let (_, candidate) = proposal(
+                    view,
+                    &f.a,
+                    &f.chat_a,
+                    &[],
+                    "Committed despite status failure",
+                    "partial-ui",
+                );
+                view.open_review(candidate.clone(), window, cx);
+                let mut result = view
+                    .workspace
+                    .review_apply_in_context(candidate.operation.as_str(), None)
+                    .unwrap();
+                // App tests inject actual follow-up failures after the real commit.
+                // This native seam verifies both typed partial outcomes reach visible controls.
+                if attention_failed {
+                    result.attention_error = Some("Synthetic attention failure".into());
+                } else {
+                    result.comments_error = Some("Synthetic captured feedback changed".into());
+                }
+                view.finish_review_apply(&candidate, result, window, cx);
+                assert!(view.notice.text().contains("Revision applied"));
+                assert!(view.notice.text().contains(if attention_failed {
+                    "review attention"
+                } else {
+                    "selected comments"
+                }));
+                assert!(view.writing.review.is_none());
+                assert_eq!(
+                    view.writing.note_editor.read(cx).value().as_ref(),
+                    "Committed despite status failure"
+                );
+                assert_eq!(
+                    view.writing.applied_rewrite.get(&f.a.id).unwrap().1,
+                    candidate.operation.as_str()
+                );
+                cx.notify();
+            });
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, window, cx| {
+            assert!(window.find("applied-state").visible());
+            window.click("undo-writing-apply", cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+        cx.update_window(f.window, |_, _, cx| {
+            f.view.update(cx, |view, _| {
+                assert!(matches!(view.workspace.store.note(&f.a.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "tere tere õun"));
+            });
+        }).unwrap();
+    }
+}
+
+#[gpui_kit::test]
+fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(view, &f.a, "tere", 0..4, "Clarify greeting", window, cx);
+            let ids = view
+                .workspace
+                .writing_comments(&f.a.id)
+                .unwrap()
+                .into_iter()
+                .map(|entry| entry.record.id)
+                .collect::<Vec<_>>();
+            let snapshot = view
+                .workspace
+                .snapshot_writing_request("two-note-request", &f.a.id, f.a.version, &f.chat_a, &ids)
+                .unwrap();
+            let mut request = snapshot.change_request("First note proposal").unwrap();
+            let RecordData::Note(mut other) = f.b.data.clone() else {
+                unreachable!()
+            };
+            other.markdown = "Second note proposal".into();
+            request.writes.push(Put {
+                id: f.b.id.clone(),
+                expected_version: Some(f.b.version),
+                archived: false,
+                data: RecordData::Note(other),
+            });
+            let operation = view
+                .workspace
+                .store
+                .allocate_operation("two-note-proposal")
+                .unwrap();
+            let candidate = view.workspace.store.prepare(&operation, &request).unwrap();
+            view.open_review(candidate, window, cx);
+            view.writing.review.toggle_comment(&ids[0]);
+            assert_eq!(
+                view.writing.review.comments_to_address(operation.as_str()),
+                ids
+            );
+            view.writing
+                .select_review_note(&view.workspace, &f.b.id, window, cx)
+                .unwrap();
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(operation.as_str())
+                    .is_empty()
+            );
+            view.writing.review.toggle_comment(&ids[0]);
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(operation.as_str())
+                    .is_empty(),
+                "another member cannot select this note's feedback"
+            );
+            view.writing
+                .select_review_note(&view.workspace, &f.a.id, window, cx)
+                .unwrap();
+            view.writing.review.toggle_comment(&ids[0]);
+            view.writing.review.toggle_group(&f.b.id);
+            assert!(view.writing.review.exact_candidate().is_err());
+            view.writing
+                .prepare_review_selection(&mut view.workspace, window, cx)
+                .unwrap();
+            let replacement = view
+                .writing
+                .review
+                .as_ref()
+                .unwrap()
+                .candidate
+                .operation
+                .as_str();
+            assert_ne!(replacement, operation.as_str());
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(replacement)
+                    .is_empty()
+            );
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_apply(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let mut id = String::new();
+    let mut operation = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(
+                view,
+                &f.a,
+                "tere",
+                0..4,
+                "Original captured instruction",
+                window,
+                cx,
+            );
+            let captured = view
+                .workspace
+                .writing_comments(&f.a.id)
+                .unwrap()
+                .remove(0)
+                .record;
+            id = captured.id.clone();
+            let (_, candidate) = proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                std::slice::from_ref(&id),
+                "Must not be applied",
+                "changed-feedback-card",
+            );
+            operation = candidate.operation.as_str().into();
+            view.open_review(candidate, window, cx);
+            let mut newer = captured.data;
+            if let RecordData::Comment(comment) = &mut newer {
+                comment.body = "New owner instruction".into();
+            }
+            view.workspace
+                .owner_change(
+                    "change-feedback-before-review-apply",
+                    &ChangeRequest {
+                        reason: "Owner updated feedback in another view".into(),
+                        writes: vec![Put {
+                            id: id.clone(),
+                            expected_version: Some(captured.version),
+                            archived: false,
+                            data: newer,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            view.refresh();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert_eq!(
+            window.find(format!("comment-card-{id}")).label(),
+            Some("Captured passage: “tere”. Instruction: Original captured instruction")
+        );
+        assert!(
+            window
+                .find(format!("comment-status-{id}"))
+                .label()
+                .unwrap()
+                .contains("changed since")
+        );
+        window.click(format!("review-address-comment-{id}"), cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("apply-final", cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, _| {
+            let operation = view.workspace.store.operation(&operation).unwrap();
+            assert!(view.workspace.store.receipt(&operation).unwrap().is_none());
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            assert!(view.writing.review.is_some());
+            assert!(view.workspace.writing_comments(&f.a.id).unwrap().iter().all(|comment| !comment.addressed));
+            assert!(matches!(view.workspace.store.record(&id).unwrap().unwrap().data, RecordData::Comment(comment) if comment.body == "New owner instruction"));
+        });
+    }).unwrap();
+}

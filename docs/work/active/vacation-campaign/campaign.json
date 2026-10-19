@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/hardening-maintenance",
+  "branch": "codex/agent-first-next",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -18,24 +18,24 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T10:30:12.899306+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T10:48:20.485974+00:00",
   "current_session_jobs": [
     {
-      "agent": "targeted_edit_impl",
-      "task": "M3 exact local edit baseline/final qualification; single builder",
+      "agent": "writing_review_design",
+      "task": "M4 baseline/candidate checks; single builder",
       "model_requested": "gpt-6.1-sol high"
     },
     {
-      "agent": "writing_review_design",
-      "task": "M4 explicit captured comment review composition; isolated source only",
-      "model_requested": "gpt-6.1-sol high"
+      "agent": "native_writing_fixture",
+      "task": "one offline synthetic fixture example source only; no Cargo",
+      "model_requested": "gpt-6-luna medium"
     }
   ],
-  "integration_status": "PR163–169 required exact-head/resulting-main pass; optional Windows failures retained. PR170 normal merge d7f48e6c from checked9000 after all four required39232265037 success; resulting-main39236565242 pending.",
-  "next_eligible_work": "Publish reviewed combined candidate on checked PR after normal PR170 history reconciliation, follow actual required head/main gates. Continue M3 baseline/final qualification, then M4 reviews/checks; native18 remains separate.",
+  "integration_status": "PR163–170 all four required exact-head/resulting-main checks passed. Optional Windows failures retained. PR171 frozen7a9867a8 actual required head checks running; no merge yet.",
+  "next_eligible_work": "Follow frozen PR171 required head→normalmatchheadmerge→resulting-main. Finish M4 exactfinal qualification/review and integrate with M3 on codex/agent-first-next, qualify combined runtime/native/CLI and freeze new production artifact. Small offline nativefixture prep after buildslot grant; native18 separate.",
   "last_qualified_source": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
   "source_delta_after_qualification": "Combined source19efe qualified runtime505/desktop327/CLI15/app journeys8/strict native lint/format/production build; frozen binarySHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Later lead changes docs/evidence only; verify exact source comparison before reuse. M3/M4 source not yet integrated.",
-  "active_work": "Combined19efe M0/schema/M1/M2+skill UI independently reviewed components; runtime505/desktop327/CLI15/journeys8 and native strict lint/fmt/prodbuild pass. M3 finalsource review and build qualification active, owns slot; M4 isolated source draft, no Cargo.",
+  "active_work": "M3 e227 independently approved and locally qualified518/0/2/lint/fmt/CLI1; exact tenfiles in lead88b. M4 final9e5e source-approved, baselineUI missing-controlred, app2+52/nativewriting37 pass, broaderchecks active. M5 synthetic SVG/reproduction passed; production deferred. Native fixture small example source-only.",
   "continuation_baseline": "d7f48e6caa3c200fba931ef75df0012171cd0ed3",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -48,7 +48,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot83% used/17% remaining in seven-day window; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot85% used/15% remaining in seven-day window; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -87,5 +87,13 @@
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json",
   "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
   "agent_first_plan": "../agent-first-simplification/plan.md",
-  "agent_first_reconciliation": "../agent-first-simplification/reconciliation.md"
+  "agent_first_reconciliation": "../agent-first-simplification/reconciliation.md",
+  "checked_pr": {
+    "number": 171,
+    "head": "7a9867a871fbf584804277d3fe877ee8e260f4c4",
+    "branch": "codex/hardening-maintenance",
+    "url": "https://github.com/ewq100/brn-rust/pull/171",
+    "required_head_checks": "running",
+    "resulting_main": "not merged"
+  }
 }

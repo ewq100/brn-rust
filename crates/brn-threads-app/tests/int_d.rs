@@ -298,8 +298,10 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
         restored.store.record(&original.id).unwrap().unwrap(),
         original
     );
-    let ApplyOutcome::Applied(receipt) =
-        restored.review_apply(candidate.operation.as_str()).unwrap()
+    let ApplyOutcome::Applied(receipt) = restored
+        .review_apply(candidate.operation.as_str())
+        .unwrap()
+        .outcome
     else {
         panic!("exact owner review must apply")
     };
@@ -308,7 +310,10 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
     let applied = restored.store.record(&original.id).unwrap().unwrap();
     assert_ne!(applied.data, original.data);
     assert_eq!(
-        restored.review_apply(candidate.operation.as_str()).unwrap(),
+        restored
+            .review_apply(candidate.operation.as_str())
+            .unwrap()
+            .outcome,
         ApplyOutcome::Applied(receipt)
     );
     assert_eq!(

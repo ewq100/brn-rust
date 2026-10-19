@@ -15,7 +15,7 @@ Keep owner files and credentials outside these scenarios; no live provider is ne
 
 | ID | Scenario and independently expected outcome | Readiness / evidence |
 |---|---|---|
-| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending: verify then-current main against the complete source of its immutable production artifact. Current maine1c0ddaf (PR169) matches worker274, whose production bytes match qualified0f and the immutable [MCP artifact](mcp-discovery.md); verify exact source/artifact hash at session start. The earlier [reference-search artifact](reference-search.md) qualifies PR168 only. The earlier [reference-owner artifact](reference-import.md) qualifies its recorded older source. Older1e/36/d983 artifacts cannot qualify later source. The shared target binary can be overwritten by another build: use the recorded immutable artifact and verify its hash, not an assumed latest executable. Confirm actual native access at session start. Older Linux and hosted widget results do not satisfy this Mac session. |
+| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending: verify then-current main against the complete source of its immutable production artifact. Main9a6feab2 (PR171) supersedes the older MCP/reference artifacts. See the current candidate section below; M3/M4 require a new combined production artifact, now being qualified. The shared target can be overwritten by another build: use a recorded immutable executable and verify its source/hash at session start. Confirm actual native access; hosted/toolkit results do not satisfy this Mac session. |
 | MAC-02 | Collect changed control/navigation/recovery scenarios from each reviewed slice, then exercise them together. A completion remains attached to its original target; later typing and current navigation survive; unavailable/conflict states explain the next action. | Add source-bound cases only when a change or concrete remaining risk warrants them. The typed worker identity slice retains existing GPUI integration tests; it has not yet produced a new OS-specific failure to reproduce. |
 | MAC-03 | Using MAC-01's synthetic workspace and a separate explicit backup destination, create a full backup through Settings → Data. After the actual completion, dismiss its banner and restore it from Layout → Last work status twice. The same success text/severity returns, no second backup starts, and the completed backup remains readable. | Ready for the batched Mac session on the then-current qualified main; notice source review and native-feature checks passed. GPUI tests separately cover active-worker/newer-error refusal and equal-text ordinary-notice provenance; those do not establish OS interaction. |
 | MAC-04 | After MAC-01/03, leave a fresh exact Unicode/multiline edit unsaved. Before closing, supported read-only inspection must confirm canonical text/version remains unchanged and the exact recovery buffer/base is already durable. Close the actual window normally, relaunch the same explicit data root, and open the Note through normal controls (use Recover if offered). The exact draft and original base/session remain available, while canonical text is unchanged and no implicit Save occurred. | Queued: [source/adjacent-witness audit](native-close-audit.md) finds this route distinct from Save-before-close. This qualifies relaunch of an already durable edit, not a race with an unprocessed Change event or crash/power-loss durability. |
@@ -58,3 +58,33 @@ has occurred. Add explicit unavailable-old-skill Inspect/current-version enable,
 then separate Select, to this candidate's ready controls. Preserve captured digest
 refusal/scope and synthetic policy fixture. M3/M4 require their own later binary
 if integrated before the actual session; do not use19efe for changed source.
+
+
+## Selected-feedback writing review preparation
+
+MAC-06 is queued for one actual production writing journey: open the qualified
+fresh offline fixture, inspect its captured repeated/Unicode passages, select only
+the first comment, Apply the exact revision, verify only that comment addressed
+and the unrelated note unchanged, then Undo and verify canonical/comment state.
+The fixture is v1 ordinary captured-request review, not v2 evidence qualification.
+Use the source-bound fixture manifest and exact expected bytes. Its construction
+must not discover owner credentials or run a provider. Sourcee4e is independently
+approved; first example compilation failed on an imported Result alias and the
+one-line correction is under runtime qualification. No actual Mac observation
+has occurred. Promote readiness only after the new combined source and artifact
+pass; old19efe cannot qualify these changed controls.
+
+
+## Combined production candidate7a9706fd
+
+M3/M4 plus the offline fixture are combined-qualified: runtime518/0/2,
+state332/0/1, shared-result fault2, CLI43/0, strict affected all-target lint,
+workspace format and production native-ui-only build pass. [Final receipt](evidence/agent-first-final-qualification.json)
+retains both the cached-guide failure/rebuild and earlier fixture compilation/lint
+failures. Immutable executable:
+`/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-final-evidence/brn-desktop-7a9706fd`,
+SHA0d28de08d9d71a3abec7ee755247446b6ca81bde3373fc63373e1a7adecc6212.
+Use only matching then-current source after hosted/main verification. No Mac use
+has occurred. MAC-06 fixture construction and independent exact-state/refusal
+checks pass; use its source-bound manifest under sibling
+`agent-first-final-evidence/native-fixture`. Its v1 scope remains explicit.

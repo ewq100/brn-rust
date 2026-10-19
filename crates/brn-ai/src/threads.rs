@@ -62,6 +62,11 @@ mod mcp_runtime;
 #[cfg(all(test, feature = "scripted-runs"))]
 #[path = "threads_mcp_runtime_tests.rs"]
 mod mcp_tests;
+#[path = "threads_note_edit.rs"]
+mod note_edit;
+#[cfg(test)]
+#[path = "threads_note_edit_tests.rs"]
+mod note_edit_tests;
 #[path = "threads_search.rs"]
 mod note_search;
 #[path = "threads_reads.rs"]
@@ -547,6 +552,7 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
             "Supply id (1..256 bytes), version (positive integer or null), nonnegative start and max_bytes in 1..131072; only offered fields are accepted.",
         ),
         "refresh_candidate" => return history::validate_refresh_arguments(args),
+        "prepare_note_edit" => return note_edit::validate_arguments(args),
         "read_records" => (
             args.get("query").is_some()
                 && serde_json::from_value::<ReadArgs>(args.clone()).is_ok_and(|a| {
@@ -634,6 +640,7 @@ fn schema(name: &str) -> Value {
         "read_message" => note_search::message_schema(),
         "read_history" => history::history_schema(),
         "refresh_candidate" => history::refresh_schema(),
+        "prepare_note_edit" => note_edit::schema(),
         "read_records" => object(
             json!({"ids":{"type":"array","items":{"type":"string"}},"query":{"type":["string","null"]}}),
             json!(["ids", "query"]),
@@ -769,10 +776,12 @@ tool!(
 #[derive(Clone, Copy)]
 struct PrepareChanges {
     writing_evidence: bool,
+    local_edits: bool,
 }
 impl PrepareChanges {
     fn for_scope(scope: &Scope) -> Self {
         Self {
+            local_edits: scope.writing_snapshot.is_none(),
             writing_evidence: scope
                 .writing_snapshot
                 .as_ref()
@@ -781,6 +790,7 @@ impl PrepareChanges {
     }
     fn without_evidence() -> Self {
         Self {
+            local_edits: true,
             writing_evidence: false,
         }
     }
@@ -862,17 +872,23 @@ macro_rules! runtime_catalog {
     (@instance $prepare:ident, $tool:ident, $constructor:expr) => { ($constructor)($prepare) };
     ($(($tool:ident, $activity:literal $(, $constructor:expr)?)),+ $(,)?) => {
         fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>, prepare: PrepareChanges) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
-            builder$(.tool(runtime_catalog!(@instance prepare, $tool $(, $constructor)?)))+
+            let builder = builder$(.tool(runtime_catalog!(@instance prepare, $tool $(, $constructor)?)))+;
+            if prepare.local_edits { builder.tool(note_edit::PrepareNoteEdit) } else { builder }
         }
         fn core_budget_definitions(prepare: PrepareChanges) -> Vec<Value> {
-            vec![$({let tool = runtime_catalog!(@instance prepare, $tool $(, $constructor)?);
-                json!({"name":<$tool as Tool>::NAME,"description":tool.description(),"parameters":tool.parameters()})}),+]
+            let mut definitions = vec![$({let tool = runtime_catalog!(@instance prepare, $tool $(, $constructor)?);
+                json!({"name":<$tool as Tool>::NAME,"description":tool.description(),"parameters":tool.parameters()})}),+];
+            if prepare.local_edits {
+                let tool = note_edit::PrepareNoteEdit;
+                definitions.push(json!({"name":note_edit::PrepareNoteEdit::NAME,"description":tool.description(),"parameters":tool.parameters()}));
+            }
+            definitions
         }
         fn core_tool_activity(name: &str) -> Option<&'static str> {
-            match name { $(<$tool as Tool>::NAME => Some($activity),)+ _ => None }
+            match name { $(<$tool as Tool>::NAME => Some($activity),)+ note_edit::PrepareNoteEdit::NAME => Some("Preparing an exact note passage edit…"), _ => None }
         }
-        /// Tools every run has; search tools are added when the host has search.
-        pub fn tool_names() -> Vec<&'static str> { vec![$(<$tool as Tool>::NAME),+] }
+        /// Parent tool catalog; Rewrite omits exact edits, helpers use their own tools.
+        pub fn tool_names() -> Vec<&'static str> { vec![$(<$tool as Tool>::NAME),+, note_edit::PrepareNoteEdit::NAME] }
     };
 }
 runtime_catalog!(
@@ -1949,19 +1965,14 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
             &explanation,
         )?;
     }
-    if scope.writing_snapshot.is_none()
-        && let Some(reason) = unread_replacement(scope, &store, &args.request)?
-    {
-        return Ok(json!({"outcome":"Invalid","reason":reason}));
-    }
-    // A rule the request broke is reported so the model can correct it;
-    // scope rejections above stay generic.
-    let prepared = match store.prepare(&op, &args.request) {
+    let prepared = match prepare_checked(
+        scope,
+        &mut store,
+        &op,
+        PreparationInput::Model(args.request),
+    )? {
         Ok(prepared) => prepared,
-        Err(Error::Invalid(reason) | Error::Missing(reason)) => {
-            return Ok(json!({"outcome":"Invalid","reason":reason}));
-        }
-        Err(error) => return Err(storage(error)),
+        Err(invalid) => return Ok(invalid),
     };
     if let Some(snapshot) = &scope.writing_snapshot {
         attention(
@@ -1974,6 +1985,37 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         )?;
     }
     prepared_output(&prepared)
+}
+// Only the exact-edit constructor can supply this non-deserializable proof.
+// Ordinary model changes, including refresh, retain their whole-read guard.
+enum PreparationInput {
+    Model(ChangeRequest),
+    Exact(note_edit::ExactEdit),
+}
+fn prepare_checked(
+    scope: &Scope,
+    store: &mut Store,
+    op: &OperationId,
+    input: PreparationInput,
+) -> AiResult<std::result::Result<Prepared, Value>> {
+    let request = match input {
+        PreparationInput::Model(request) => {
+            if scope.writing_snapshot.is_none()
+                && let Some(reason) = unread_replacement(scope, store, &request)?
+            {
+                return Ok(Err(json!({"outcome":"Invalid","reason":reason})));
+            }
+            request
+        }
+        PreparationInput::Exact(edit) => edit.into_request(),
+    };
+    match store.prepare(op, &request) {
+        Ok(prepared) => Ok(Ok(prepared)),
+        Err(Error::Invalid(reason) | Error::Missing(reason)) => {
+            Ok(Err(json!({"outcome":"Invalid","reason":reason})))
+        }
+        Err(error) => Err(storage(error)),
+    }
 }
 fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     let mut store = scope.store.lock().map_err(storage)?;
@@ -2074,10 +2116,17 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
     };
     let result = match &outcome {
         ApplyOutcome::Applied(receipt) => {
-            // The run wrote these versions, so it knows their whole text.
+            // Host-constructed local edits do not reveal untouched text. Receipt
+            // replay (including fresh Continue) may promote only known bases or
+            // newly authored complete notes; receiving a receipt is not a read.
             let mut reads = scope.reads.lock().map_err(storage)?;
             for write in &receipt.writes {
-                if matches!(write.after.data, RecordData::Note(_)) {
+                if matches!(write.after.data, RecordData::Note(_))
+                    && write
+                        .before
+                        .as_ref()
+                        .is_none_or(|before| reads.knows(&before.id, before.version))
+                {
                     reads.complete(&write.after.id, write.after.version);
                 }
             }
@@ -2281,7 +2330,7 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     let Some(result) = result else {
         return "error";
     };
-    if name == "prepare_changes"
+    if matches!(name, "prepare_changes" | "prepare_note_edit")
         && result.status_name() == "success"
         && result
             .output()
@@ -2461,6 +2510,10 @@ impl AgentHook for BatchHook {
                     }
                 }
             }
+            if name == note_edit::PrepareNoteEdit::NAME {
+                args["expected_text"] = json!("[passage omitted]");
+                args["replacement_text"] = json!("[passage omitted]");
+            }
             let serialized = args.to_string();
             let text = format!(
                 "> {name} {}{}",
@@ -2591,6 +2644,7 @@ impl AgentHook for BatchHook {
             }
             // Frozen-contract and availability refusals are never correction.
             forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
+            forbidden |= name == note_edit::PrepareNoteEdit::NAME && !self.prepare.local_edits;
             forbidden |= name == "read_skill" && self.skill_refused(&args);
             match validate_arguments(name, &args) {
                 Ok(()) => {}
@@ -5408,7 +5462,7 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 11);
+        assert_eq!(tool_names().len(), 12);
         assert!(tool_names().contains(&"read_message"));
         assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {

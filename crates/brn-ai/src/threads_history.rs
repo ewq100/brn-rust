@@ -170,6 +170,9 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
         &scope.source_ids,
     )?;
     bind_project_inputs(scope, &store, &mut args.request)?;
+    if let Some(reason) = unread_replacement(scope, &store, &args.request)? {
+        return Ok(json!({"outcome":"Invalid","reason":reason}));
+    }
     let authority = bind(
         scope,
         HostAuthority::runtime("Threads candidate refresh", &scope.run),
@@ -264,6 +267,7 @@ mod tests {
                 matches!(store.record(&note).unwrap().unwrap().data, RecordData::Note(data) if data.markdown == "Owner changed current")
             );
         }
+        super::super::tests::read_all(&scope);
         let candidate = refresh(
             &scope,
             RefreshArgs {
@@ -344,6 +348,7 @@ mod tests {
             )
             .is_err()
         );
+        super::super::tests::read_all(&scope);
         let candidate = refresh(
             &scope,
             RefreshArgs {
@@ -502,6 +507,11 @@ mod tests {
                     "history",
                     "read_history",
                     json!({"id":note,"version":1,"start":0,"max_bytes":4096}),
+                ),
+                MockStreamEvent::tool_call(
+                    "current",
+                    "read_records",
+                    json!({"ids":[note],"query":null}),
                 ),
                 MockStreamEvent::final_response_with_total_tokens(1),
             ],

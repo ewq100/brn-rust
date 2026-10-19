@@ -27,7 +27,9 @@ pub use run::{
     resolve_run_selection,
 };
 mod review;
-pub use review::{WritingCandidateReview, WritingContextReview, WritingSourceReview};
+pub use review::{
+    ReviewApplyResult, WritingCandidateReview, WritingContextReview, WritingSourceReview,
+};
 mod review_groups;
 pub mod search;
 mod settings;

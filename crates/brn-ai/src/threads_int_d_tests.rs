@@ -2929,7 +2929,10 @@ mod capture_runner {
                 permitted(name)
                     || matches!(
                         name,
-                        "apply_changes" | "withdraw_proposal" | "refresh_candidate"
+                        "apply_changes"
+                            | "withdraw_proposal"
+                            | "refresh_candidate"
+                            | "prepare_note_edit"
                     ),
                 "runtime catalogue changed: {name}"
             );
@@ -2941,6 +2944,7 @@ mod capture_runner {
             "apply_changes",
             "withdraw_proposal",
             "refresh_candidate",
+            "prepare_note_edit",
             "filesystem-failure",
             "missing-correlation",
             "event-overflow",
@@ -3009,6 +3013,11 @@ mod capture_runner {
                     "effect",
                     mode,
                     json!({"operation":op.as_str(),"request_key":"replacement","request":change}),
+                ),
+                "prepare_note_edit" => MockStreamEvent::tool_call(
+                    "effect",
+                    mode,
+                    json!({"id":note,"version":before.version,"start":0,"end":3,"expected_text":"Mon","replacement_text":"Tues","request_key":"local-proposal","reason":"Exact local diagnostic"}),
                 ),
                 _ => MockStreamEvent::tool_call("prepare", "prepare_changes", args),
             };
@@ -3105,6 +3114,12 @@ mod capture_runner {
                 panic!()
             };
             assert_eq!(run.state, RunState::Interrupted);
+            if mode == "prepare_note_edit" {
+                assert!(
+                    run.operations.is_empty(),
+                    "diagnostic observer must stop the local edit before preparation"
+                );
+            }
             if !matches!(mode, "missing-correlation" | "event-overflow") {
                 assert!(run.progress.contains("RUNNER_REPORTED_PLAN_CANARY"));
             }

@@ -133,7 +133,7 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
         .unwrap(),
     );
     assert!(
-        matches!(app.review_apply(selected.operation.as_str()).unwrap(), ApplyOutcome::Stale { records } if records.contains(&source.id))
+        matches!(app.review_apply(selected.operation.as_str()).unwrap().outcome, ApplyOutcome::Stale { records } if records.contains(&source.id))
     );
     assert!(
         app.records()
@@ -257,7 +257,11 @@ fn independent_whole_note_and_action_selection_requires_new_displayed_candidate(
             .iter()
             .any(|write| write.id == action.id)
     );
-    let applied = outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    let applied = outcome(
+        app.review_apply(selected.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
     assert_eq!(app.store.record(&action.id).unwrap().unwrap(), action);
     assert!(
         matches!(&app.store.record(&note.id).unwrap().unwrap().data, RecordData::Note(note) if note.markdown.contains("Complete selected wording"))
@@ -290,7 +294,11 @@ fn independent_whole_note_and_action_selection_requires_new_displayed_candidate(
     let selected = app
         .review_select(next.as_str(), std::slice::from_ref(&action.id))
         .unwrap();
-    outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    outcome(
+        app.review_apply(selected.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
     assert_eq!(app.store.record(&note.id).unwrap().unwrap(), current);
     assert!(
         matches!(app.store.record(&action.id).unwrap().unwrap().data, RecordData::Action(action) if action.state == ActionState::Done)
@@ -365,7 +373,11 @@ fn review_selection_preserves_structural_new_record_dependencies_and_exact_bases
             .iter()
             .all(|write| write.id.starts_with(selected.operation.as_str()))
     );
-    outcome(app.review_apply(selected.operation.as_str()).unwrap());
+    outcome(
+        app.review_apply(selected.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
     let existing = app.new_note("Exact base", "Initial").unwrap();
     let independent = app.new_note("Independent", "Other").unwrap();
     let original = app.store.allocate_operation("stale subset").unwrap();
@@ -394,7 +406,9 @@ fn review_selection_preserves_structural_new_record_dependencies_and_exact_bases
         .review_select(original.as_str(), std::slice::from_ref(&existing.id))
         .unwrap();
     assert!(matches!(
-        app.review_apply(selected.operation.as_str()).unwrap(),
+        app.review_apply(selected.operation.as_str())
+            .unwrap()
+            .outcome,
         ApplyOutcome::Stale { .. }
     ));
     assert!(
@@ -542,7 +556,7 @@ fn dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on
         SaveOutcome::Saved(_)
     ));
     assert!(matches!(
-        app.review_apply(proposal.as_str()).unwrap(),
+        app.review_apply(proposal.as_str()).unwrap().outcome,
         ApplyOutcome::Stale { .. }
     ));
     app.review_dismiss(proposal.as_str()).unwrap();
@@ -574,7 +588,7 @@ fn dismiss_stale_proposal_releases_slot_preserves_current_and_other_attention_on
     app.store
         .prepare(&next, &request(vec![put(&current, RecordData::Note(data))]))
         .unwrap();
-    outcome(app.review_apply(next.as_str()).unwrap());
+    outcome(app.review_apply(next.as_str()).unwrap().outcome);
     assert!(app.review_dismiss(next.as_str()).is_err());
 }
 fn converted() -> ConversionResult {
@@ -980,7 +994,11 @@ fn review_replacement_remaps_created_records_refs_and_applies_exact_final_text()
     assert_eq!(app.candidates().unwrap().len(), 1);
     assert_ne!(replacement.operation, original);
     assert!(app.review_apply(original.as_str()).is_err());
-    outcome(app.review_apply(replacement.operation.as_str()).unwrap());
+    outcome(
+        app.review_apply(replacement.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
     let rows = app.records().unwrap();
     let imported = rows
         .iter()
@@ -1106,7 +1124,7 @@ fn accepted_review_clears_only_matching_attention_and_replay_finishes_cleanup_on
             .apply(&op, &HostAuthority::owner("owner review"))
             .unwrap(),
     );
-    let applied = app.review_apply(op.as_str()).unwrap();
+    let applied = app.review_apply(op.as_str()).unwrap().outcome;
     assert!(matches!(applied, ApplyOutcome::Applied(_)));
     let RecordData::Thread(t) = app.store.record(&thread.id).unwrap().unwrap().data else {
         panic!()
@@ -1114,7 +1132,7 @@ fn accepted_review_clears_only_matching_attention_and_replay_finishes_cleanup_on
     assert_eq!(t.attention.len(), 1);
     assert_eq!(t.attention[0].reason, "separate owner question");
     let history = app.history().unwrap().len();
-    assert_eq!(app.review_apply(op.as_str()).unwrap(), applied);
+    assert_eq!(app.review_apply(op.as_str()).unwrap().outcome, applied);
     assert_eq!(app.history().unwrap().len(), history);
     assert_eq!(app.needs_you().unwrap()[0].id, thread.id);
 }
@@ -1167,7 +1185,11 @@ fn replacement_attention_follows_new_candidate_and_acceptance_preserves_other_qu
         Some(replacement.operation.as_str().into())
     );
     assert_eq!(t.attention[1].reason, "separate question");
-    outcome(app.review_apply(replacement.operation.as_str()).unwrap());
+    outcome(
+        app.review_apply(replacement.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
     let RecordData::Thread(t) = app.store.record(&thread.id).unwrap().unwrap().data else {
         panic!()
     };
@@ -1311,7 +1333,11 @@ fn review_remap_requires_exact_known_asset_token_and_keeps_failed_original_activ
         format!("Owner final ![Known](brn-asset://{})", asset.id)
     );
     assert!(!note.markdown.contains(&original.creation_id(2)));
-    outcome(app.review_apply(replacement.operation.as_str()).unwrap());
+    outcome(
+        app.review_apply(replacement.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
 }
 
 #[test]
@@ -1370,7 +1396,10 @@ fn selected_review_groups_and_replacement_preserve_current_or_historical_note_in
             )
             .unwrap(),
         );
-        let applied = app.review_apply(selected.operation.as_str()).unwrap();
+        let applied = app
+            .review_apply(selected.operation.as_str())
+            .unwrap()
+            .outcome;
         match expectation {
             InputExpectation::ChatContext => unreachable!("These cases exercise note inputs"),
             InputExpectation::Current => {

@@ -125,6 +125,25 @@ impl ReviewLifecycle {
             review.selected.insert(id.into());
         }
     }
+    pub fn toggle_comment(&mut self, id: &str) {
+        if let State::Open { review, mode, .. } = &mut self.state
+            && !matches!(mode, Mode::Editing { .. })
+            && review.feedback.as_ref().is_some_and(|snapshot| {
+                review.note.as_ref() == Some(&snapshot.note.id)
+                    && snapshot.comments.iter().any(|comment| comment.id == id)
+            })
+            && !review.selected_comments.remove(id)
+        {
+            review.selected_comments.insert(id.into());
+        }
+    }
+    /// A different candidate card never inherits this exact review's confirmation.
+    pub fn comments_to_address(&self, operation: &str) -> Vec<String> {
+        self.as_ref()
+            .filter(|review| review.candidate.operation.as_str() == operation)
+            .map(|review| review.selected_comments.iter().cloned().collect())
+            .unwrap_or_default()
+    }
     /// No dirty draft or partial selection can authorize the old candidate.
     pub fn exact_candidate(&self) -> AppResult<Prepared> {
         let review = self
@@ -223,6 +242,27 @@ impl WritingPanel {
             })
             .unwrap_or_default();
         let selected = groups.groups.iter().map(|group| group.id.clone()).collect();
+        let feedback = {
+            let mut snapshots = candidate
+                .request
+                .inputs
+                .iter()
+                .filter(|input| input.expectation == InputExpectation::Current)
+                .filter_map(|input| workspace.writing_request(&input.record).ok())
+                .filter(|snapshot| {
+                    candidate.request.writes.iter().any(|write| {
+                        write.id == snapshot.note.id
+                            && write.expected_version == Some(snapshot.note.version)
+                            && matches!(write.data, RecordData::Note(_))
+                    })
+                });
+            let first = snapshots.next();
+            if snapshots.next().is_some() {
+                None
+            } else {
+                first
+            }
+        };
         self.review.state = State::Open {
             review: Box::new(Review {
                 candidate,
@@ -230,6 +270,8 @@ impl WritingPanel {
                 original,
                 groups,
                 selected,
+                feedback,
+                selected_comments: BTreeSet::new(),
             }),
             mode: Mode::Changes,
             inputs: false,
@@ -308,6 +350,9 @@ impl WritingPanel {
             else {
                 return Ok(());
             };
+            if review.note.as_deref() != Some(id) {
+                review.selected_comments.clear();
+            }
             review.note = Some(id.into());
             review.original = text;
             *mode = Mode::Changes;

@@ -537,3 +537,141 @@ fn new_requests_capture_v2_setup_without_changing_the_note() {
     assert_eq!(value["version"], 2);
     assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
 }
+
+#[test]
+fn combined_review_selects_only_captured_subset_replays_and_reopens_after_undo() {
+    let (dir, mut app, note, thread) = setup();
+    let first = comment(&mut app, &note, &thread, "first", (0, 12));
+    let second = comment(&mut app, &note, &thread, "second", (13, 25));
+    let ids = vec![first.id.clone(), second.id.clone()];
+    let snapshot = app
+        .snapshot_writing_request("request", &note.id, note.version, &thread.id, &ids)
+        .unwrap();
+    let operation = app.store.allocate_operation("proposal").unwrap();
+    app.store
+        .prepare(
+            &operation,
+            &snapshot.change_request("Exact accepted text").unwrap(),
+        )
+        .unwrap();
+    // Unknown or duplicated selections fail before Apply.
+    for selected in [
+        vec!["unknown-comment".into()],
+        vec![first.id.clone(), first.id.clone()],
+    ] {
+        assert!(
+            app.review_apply_selected_comments(operation.as_str(), None, &selected)
+                .is_err()
+        );
+        assert!(app.store.receipt(&operation).unwrap().is_none());
+    }
+    let selected = std::slice::from_ref(&second.id);
+    let result = app
+        .review_apply_selected_comments(operation.as_str(), None, selected)
+        .unwrap();
+    assert!(matches!(result.outcome, ApplyOutcome::Applied(_)));
+    assert!(result.pending_updates().is_none());
+    let comments = app.writing_comments(&note.id).unwrap();
+    assert!(
+        !comments
+            .iter()
+            .find(|c| c.record.id == first.id)
+            .unwrap()
+            .addressed
+    );
+    assert!(
+        comments
+            .iter()
+            .find(|c| c.record.id == second.id)
+            .unwrap()
+            .addressed
+    );
+    let history = app.history().unwrap().len();
+    assert_eq!(
+        app.review_apply_selected_comments(operation.as_str(), None, selected)
+            .unwrap(),
+        result
+    );
+    assert_eq!(app.history().unwrap().len(), history);
+    drop(app);
+    let mut app = Workspace::open(dir.path().join("data")).unwrap();
+    assert!(
+        app.writing_comments(&note.id)
+            .unwrap()
+            .iter()
+            .find(|c| c.record.id == second.id)
+            .unwrap()
+            .addressed
+    );
+    let proof = app.history().unwrap().into_iter().find(|receipt| receipt.writes.iter().any(|write| matches!(&write.after.data, RecordData::Message(message) if message.role == "writing-addressed"))).unwrap();
+    app.undo(proof.operation.as_str()).unwrap();
+    assert!(
+        app.writing_comments(&note.id)
+            .unwrap()
+            .iter()
+            .all(|comment| !comment.addressed)
+    );
+    // A fresh, explicit individual confirmation remains available after reopening.
+    app.mark_writing_comments_addressed(
+        "new-owner-confirmation",
+        &snapshot.request_message,
+        operation.as_str(),
+        selected,
+    )
+    .unwrap();
+    assert!(
+        app.writing_comments(&note.id)
+            .unwrap()
+            .iter()
+            .find(|c| c.record.id == second.id)
+            .unwrap()
+            .addressed
+    );
+    app.undo(operation.as_str()).unwrap();
+    assert!(
+        app.writing_comments(&note.id)
+            .unwrap()
+            .iter()
+            .all(|comment| !comment.addressed)
+    );
+    assert!(
+        matches!(app.store.note(&note.id).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Tere maailm. Tere maailm.")
+    );
+}
+
+#[test]
+fn combined_apply_only_and_order_independent_feedback_replay() {
+    for selected in [false, true] {
+        let (_dir, mut app, note, thread) = setup();
+        let first = comment(&mut app, &note, &thread, "first", (0, 12));
+        let second = comment(&mut app, &note, &thread, "second", (13, 25));
+        let mut ids = vec![first.id, second.id];
+        let snapshot = app
+            .snapshot_writing_request("request", &note.id, note.version, &thread.id, &ids)
+            .unwrap();
+        let op = app.store.allocate_operation("proposal").unwrap();
+        app.store
+            .prepare(&op, &snapshot.change_request("Applied text").unwrap())
+            .unwrap();
+        let chosen = if selected { ids.as_slice() } else { &[] };
+        let result = app
+            .review_apply_selected_comments(op.as_str(), None, chosen)
+            .unwrap();
+        assert!(result.pending_updates().is_none());
+        assert!(
+            app.writing_comments(&note.id)
+                .unwrap()
+                .iter()
+                .all(|comment| comment.addressed == selected)
+        );
+        let history = app.history().unwrap().len();
+        ids.reverse();
+        let chosen = if selected { ids.as_slice() } else { &[] };
+        assert_eq!(
+            app.review_apply_selected_comments(op.as_str(), None, chosen)
+                .unwrap(),
+            result
+        );
+        assert_eq!(app.history().unwrap().len(), history);
+    }
+}

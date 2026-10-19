@@ -497,7 +497,7 @@ fn parse(
                     } else {
                         "mcp-tool"
                     },
-                )))
+                )));
             }
         }
     }
@@ -1349,11 +1349,16 @@ async fn execute_document_transport(
         },
         "recovery" if inspect::page_mode(inv) => inspect::recovery(&workspace, inv, notes)?,
         "recovery" => encode(workspace.store.recovery_buffers()?)?,
-        "apply" => applied(
-            workspace
+        "apply" => {
+            let result = workspace
                 .review_apply(inv.arg("operation")?)
-                .map_err(|e| review_error(&workspace, inv, "applied", e))?,
-        ),
+                .map_err(|e| review_error(&workspace, inv, "applied", e))?;
+            let mut value = applied(result.outcome);
+            if let Some(error) = result.attention_error {
+                value["attention_error"] = json!(error);
+            }
+            value
+        }
         "dismiss" => {
             workspace
                 .review_dismiss(inv.arg("operation")?)
@@ -1430,7 +1435,7 @@ async fn execute_document_transport(
                     return Err(CliError::invalid_value(
                         "converter",
                         "Choose xberg or xberg-brn",
-                    ))
+                    ));
                 }
             };
             let ai = match inv.arg("ai")? {
