@@ -56,9 +56,10 @@ resulting-main separately. Never bypass a required check.
 
 6. Lead's test-only follow-upd9b56d8a changes mcp_format fixture tempdir to
    canonical tempdir_in, matching existing core fixtures. Independently approved;
-   [review](evidence/canonical-temp-fixture-review.json). One focused run under
-   original inherited Mac TMPDIR remains after Luna releases the build slot.
-   Frozen PR173 is unchanged; this follow-up is not yet qualified or merged.
+   [review](evidence/canonical-temp-fixture-review.json). Focused1/1 passes under
+   exact original inherited /var TMPDIR, with no environment override; [qualification](evidence/canonical-temp-fixture-qualification.json).
+   Root released the slot back to Luna for the source-approvedf819 runtime fixture.
+   Frozen PR173 is unchanged; this test-only follow-up is not yet merged.
 
 ## Qualified components and preserved evidence
 

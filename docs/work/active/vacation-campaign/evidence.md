@@ -491,3 +491,14 @@ actual Mac, model-usefulness or owner-acceptance completion follows.
 
 The source worker released the single build slot to the bounded Luna runtime
 fixture task; no duplicate target/helper rebuild or production switch is selected.
+
+
+## Existing Mac fixture path repair
+
+[One-line canonical-temp repair](evidence/canonical-temp-fixture-qualification.json)
+is independently source-approved and passes the existing Settings/backup fixture
+1/1 under the exact inherited /var TMPDIR that caused the original unchanged
+fixture failure. Only disposable fixture creation changes; storage guards and
+every assertion remain. Four lossless archives retain actual command/environment,
+log and exact reviewed patch/source. No additional broad test run was selected.
+Frozen PR173 is unaffected; later test-support integration remains pending.

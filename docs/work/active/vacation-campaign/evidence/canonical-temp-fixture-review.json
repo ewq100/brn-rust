@@ -9,7 +9,7 @@
   "requested_effort": "high",
   "disposition": "approved; no findings",
   "reason": "Existing unchanged fixture refused inherited macOS /var temp symlink during4e qualification. Create disposable root beneath canonical temp directory, matching other core fixtures; preserve storage guards and every assertion.",
-  "verification": "Pending one focused run under the original inherited Mac environment after single build slot release",
+  "verification": "Passed focused1/1 under exact original inherited /var TMPDIR at source-equivalent7b696; no canonical environment override",
   "prior_evidence": "proposed-feedback-qualification.json preserves original failure and same-binary canonical-TMPDIR diagnosis",
   "limits": [
     "Test-only change; no product behavior",
