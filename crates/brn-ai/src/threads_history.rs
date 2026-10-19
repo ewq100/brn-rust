@@ -267,6 +267,7 @@ mod tests {
                 matches!(store.record(&note).unwrap().unwrap().data, RecordData::Note(data) if data.markdown == "Owner changed current")
             );
         }
+        super::super::tests::read_all(&scope);
         let candidate = refresh(
             &scope,
             RefreshArgs {
@@ -347,6 +348,7 @@ mod tests {
             )
             .is_err()
         );
+        super::super::tests::read_all(&scope);
         let candidate = refresh(
             &scope,
             RefreshArgs {
@@ -505,6 +507,11 @@ mod tests {
                     "history",
                     "read_history",
                     json!({"id":note,"version":1,"start":0,"max_bytes":4096}),
+                ),
+                MockStreamEvent::tool_call(
+                    "current",
+                    "read_records",
+                    json!({"ids":[note],"query":null}),
                 ),
                 MockStreamEvent::final_response_with_total_tokens(1),
             ],
