@@ -900,5 +900,7 @@ fn hub_findings_and_the_review_message_stay_bounded() {
     let text = review_text(&mut ws, &check);
     assert!(text.len() <= REVIEW_MESSAGE_BYTES, "{}", text.len());
     assert!(text.contains("more findings are not listed here"));
-    assert!(text.contains("Usual remedies") && text.contains("A clean check is not proof"));
+    assert!(
+        text.contains("maintain-notes playbook") && text.contains("A clean check is not proof")
+    );
 }
