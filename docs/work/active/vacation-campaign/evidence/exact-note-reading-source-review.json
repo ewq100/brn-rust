@@ -1,0 +1,26 @@
+{
+  "observed_at_utc": "2026-10-19T12:19:43.187932+00:00",
+  "source_candidate": "9229085a9683a1c988a1cb12d647f52df18115f6",
+  "base": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "full_diff_sha256": "72ffc59758861cb695f8239807143eec808b0e0658ae77029d3b7958a7220eac",
+  "file": "crates/brn-ai/src/threads.rs",
+  "file_sha256": "42b59c2623da1c587104bd4f58637786c851c41d0e14f47d1173e1b72294a0a7",
+  "reviewer": "writing_review_review",
+  "requested_model": "gpt-6.1-sol",
+  "requested_effort": "high",
+  "result": "approved final complete source; no actionable findings",
+  "finding_disposition": "Initial start description omitted advertised nonzero heading starts. Corrected in9229085; final independently reviewed against store section semantics.",
+  "unchanged": [
+    "JSON schema types/required fields/numeric limits",
+    "Exact ID comparisons and access/visibility guards",
+    "Tool dispatch and result semantics",
+    "Packaged instruction bundle17 bytes"
+  ],
+  "limits": [
+    "Source-only review; no reviewer builds or account calls",
+    "One observed failure motivates clarification, not systematic model-quality finding",
+    "Metadata tool descriptions do not change packaged-bundle17 identity; executable/source pin distinguishes this candidate"
+  ],
+  "integrated_lead_source": "5c684d6471d9974f4bd1d8050385596ca6b49d21",
+  "integrated_source_equivalence": "Entire production source/manifests/locks/toolchain equal reviewed9229085; only separately qualified test support and campaign docs differ."
+}
