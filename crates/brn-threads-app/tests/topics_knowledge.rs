@@ -700,10 +700,8 @@ fn supersession_keeps_recorded_conflicts_and_matches_relations() {
     // A `source` link to the replacement does not make `related` redundant.
     assert!(!supersession.detail.contains("Already linking"));
     let text = review_text(&mut ws, &check);
-    assert!(text.contains("for ordinary unprotected notes"), "{text}");
-    assert!(
-        text.contains("never archive or re-point a `contradicts` link without an owner decision")
-    );
+    assert!(text.contains("maintain-notes playbook"), "{text}");
+    assert!(text.contains("do not establish truth"), "{text}");
 
     write(
         &mut ws,
