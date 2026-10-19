@@ -34,7 +34,10 @@ interaction gates remain pending. The notice worker released the single build sl
 then passed actual before/after protocol tests, full desktop320/0/1, strict lint and
 production build. Independent review approved integrated2bf8eb08;
 [drain qualification](drain-fairness.md) retains the newer evidence and binary.
-PR165 remains fixed at exactheada961a75a with required run39213694797 in progress.
+PR165 merged normally asf4753e99 after all four required exactheada961a75a
+contexts passed in run39213694797. Docs/Ubuntu UI also passed; optional Windows
+Core failed. [Integration receipt](evidence/pr165-integration.json) retains exact
+check identities; resulting-main run39216341691 is pending.
 The later branch adds the [late-refresh witness](late-refresh.md), locally qualified
 at original335ce1c/integrateda631371d with a diagnostic mutant failure and restored
 321/0/1 desktop pass. Independent Sol test-effectiveness review approved a631371d without findings.
@@ -43,7 +46,7 @@ independently approved without findings. Existing target/admission/retirement ga
 are preserved. Focused completion1/0, worker7/0, contextual3/0 and final desktop321/0/1,
 strict native lint/format and production-only build passed. The [durable receipt](run-edit-refresh.md) is imported; required hosted/integration/native
 gates remain separate. Current
-quota remains72% used/28% remaining, above the approximate5% remaining floor.
+quota is73% used/27% remaining, above the approximate5% remaining floor.
 
 ## 19 October 2026: baseline and assignment
 

@@ -384,3 +384,32 @@ approved the complete candidate without source/design findings. Final321/0/1,
 strict lint/format and production-only build pass; [source-bound receipts](run-edit-refresh.md)
 retain exact outcomes and native/live-worker limitations. Later edits reconcile
 docs only; hosted integration remains separate.
+
+## Next selected fix: Connections query replacement
+
+At production candidate c39a6af3, request generation/cancellation already fences late result publication. A separate presentation gap remains: refresh_connections keeps the previous result, and connections_tile accepts it when only centre.id matches. Changing Direct to Two hops therefore changes the section/query controls while old same-note result rows remain actionable and the pending indicator is absent. This is source-supported until the expanded existing test reproduces it; no data loss, native observation or async publication race is claimed.
+
+When a new Connections refresh invalidates the current request, clear graph.result with the existing pending/error/task/cancellation reset. The existing result-none rendering already shows pending and hides old rows until a matching current response arrives. Preserve generation/cancellation, depth/source/relation behavior, search service authority, errors/retry, view/navigation admission and all data. No new enum/owner/framework/API or dependency is needed for this one invalidation effect. Knowledge checks are outside scope.
+
+Extend the existing connections_tile_lists_visible_links_filters_relations_and_recenters test instead of adding a redundant test. Its current 'Signed reference' is a Note with a SOURCE relation, not a Source record; do not confuse that with the Sources toggle. Add one independently named second-hop Note and a RELATED edge from the existing direct Operations Note. Retain the current first-hop exact count/privacy, relation filter, and recenter assertions.
+
+After the current direct result is loaded, dispatch the actual Depth 2 control using window.click directly inside update_window, bypassing only the fixture helper's later run_until_parked. The toolkit mouse-up renders before explicit executor draining. In that immediate frame assert pending visible, old direct result rows/status absent, and second-hop-only row absent. Then drain explicitly; verify the matching two-hop result contains that independently expected Note, pending is absent and the normal recenter behavior still works. Publication requires foreground task delivery, so no sleep, backend delay or scheduler test hook should be introduced. If this direct control path unexpectedly drains completion, reassess rather than force a delay.
+
+First run the exact expanded test against unchanged production and require the stale-presentation assertion to fail for the intended reason. Retain its test-only patch, raw original failure and source identity. Add only the invalidation effect, rerun the exact test, then final full native suite, strict all-target lint, formatting and actual production native-ui build; retain immutable artifact/hash and raw result receipts. Do not count zero selected tests as passing. Reassess after two failed approaches or an ordering/authority ambiguity.
+
+Use an independent bounded Luna plan-readiness check before implementation, then a Luna medium source worker in a reused clean managed checkout on a fresh branch at the reviewed current source. Keep the already-published preceding PR heads fixed. One shared target/build slot; preserve older source-bound helper/artifact/evidence paths. Lead owns docs/integration; independent Sol must review meaningful source and behavior evidence before publishing. No provider/model/private data or OS input work is authorized by this slice.
+
+Independent Luna readiness approved the reviewed plan content SHA-256
+`0b25bba27a1e77cd1874a3cc489a063cb45ddfc20fb08783cf48689a39258fef`
+against source c39a6af3. Make the drained witness's second-hop membership and `via`
+Operations id explicit, then retain normal recenter behavior. Rust/manifests at
+lead92fdfbaa match c39 and qualified source23c27; intervening changes are receipts/docs.
+The next worker will reuse the clean drain checkout on a fresh branch; one build
+slot. The preceding PR165 remains fixed. Both later fixes can share one coherent
+reviewed hardening PR, avoiding repeated complete hosted builds for tiny slices.
+
+Luna now implements the selected Connections fix on `codex/connections-pending-display`
+in the reused clean drain checkout at92fdfbaa, with the sole shared build slot.
+PR165 has since merged normally asf4753e99 after all four exact-head checks passed;
+its resulting-main run39216341691 is pending. The merged crate tree exactly matches
+qualified source1e89f4e8. This supersedes the earlier PR165-pending snapshots.

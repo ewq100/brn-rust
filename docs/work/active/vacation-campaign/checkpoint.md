@@ -2,8 +2,10 @@
 
 ## Current local continuation —19October2026
 
-Latest fetched main is348959b7138de6230cb77852f860b910155c64d4 (PR164), merged
-normally after all four required exact-head checks passed in run39209590789.
+Latest fetched main isf4753e99baa9a2a70047a54d10c0bdc0bbd96dad (PR165), merged
+normally at07:29:42UTC after all four required exact-head checks passed in run39213694797.
+Resulting-main run39216341691 is pending. Earlier PR164 merged348959b7 after
+required exact-head run39209590789.
 Resulting-main run39212874814 passed all four required jobs; optional Windows
 failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5f01b07 required main checks
 passed in run39209331228; optional Windows failures remain explicit.
@@ -13,9 +15,9 @@ branch `codex/late-refresh-hardening`, current source c39a6af3 matching qualifie
 worker23c27cd1. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
 The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
 production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
-receipts retain exact source qualification. PR165 remains fixed at remote
-`codex/notice-hardening` exactheada961a75a; required run39213694797 is in progress.
-Follow actual required exact-head gates, merge normally and inspect main checks.
+receipts retain exact source qualification. PR165 checked head a961a75a is now
+merged; [integration receipt](evidence/pr165-integration.json) records the required
+contexts and retained optional Windows failure. Follow actual resulting-main checks.
 Always list all open PRs and inspect actual source/jobs before dispatching a slice.
 
 The later lead branch includes the test-only late-refresh/newer-typing witness at
@@ -35,13 +37,16 @@ worker7/0 and contextual3/0 passed; final native321/0/1, strict all-target lint,
 format and actual production-only native-ui build passed. Binary SHA256
 c6b5639af0f4d30100729bcf4f14001dd26621b235c4fd776bef2124821dee79.
 The [durable source/result receipt](run-edit-refresh.md) is imported; publication
-and hosted/main gates remain pending. No source writer/build is active. Preserve older source-bound artifacts.
+and hosted/main gates remain pending. Run-target work is complete; the later Connections worker below owns the build slot.
+Preserve older source-bound artifacts.
 
 A bounded source-only audit found a possible same-note Connections stale-display
 gap while depth/source queries are replaced; generation/cancellation already fences
-late result publication. Deterministic pending-UI witness readiness is being checked.
-No new slice implementation is authorized yet. Do not broaden it to Knowledge or
-claim a runtime-reproduced defect. Keep PR165's exact checked head fixed.
+late result publication. Independent Luna readiness approved plan0b25bba2. Luna now owns the bounded
+implementation on new `codex/connections-pending-display` at92fdfbaa in the reused
+drain checkout, with the sole shared build slot. First require the expanded existing
+control test to fail on unchanged production; no runtime reproduction is yet claimed.
+Do not broaden it to Knowledge. PR165 is merged; preserve its checked-head evidence.
 
 Continue useful authorized batches inside the active session. The two-hour
 `brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily

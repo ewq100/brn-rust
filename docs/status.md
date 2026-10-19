@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`348959b7138de6230cb77852f860b910155c64d4` (PR164).
+`f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -21,7 +21,8 @@ passed before its normal merge; all four required resulting-main jobs in run3921
 PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
-Next: finish PR165's required head/main gates. Prior drain source1e89f4e8 passed
+PR165 merged normally after all four required exact-head checks passed in
+run39213694797. Resulting-main run39216341691 is pending. Prior drain source1e89f4e8 passed
 local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.

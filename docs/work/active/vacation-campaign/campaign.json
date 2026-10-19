@@ -18,14 +18,14 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T07:24:43.971755+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T07:30:23.110659+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163/b5f01b07 required main jobs passed39209331228. PR164 merged348959b7 after required exacthead checks39209590789; all four required main jobs39212874814 now pass, docs/Ubuntu UI/retrieval pass, optional Windows fail. PR165 fixed a961a75a required CI39213694797 in progress.",
-  "next_eligible_work": "Follow PR165 exacthead gates/normal merge/main verification. Finalize reviewed sourcec39 docs and publish cohesive next candidate; independent readiness for bounded Connections pending-display correction before implementation. Continue authorized useful work above quota floor.",
+  "integration_status": "PR163 and PR164 required head/main checks pass, optional Windows fail. PR165 normal mergef4753e99 at07:29:42UTC after all four exactheada961 checks39213694797 passed; docs/UbuntuUI passed, optionalWindowsCore failed. Resulting-main39216341691 pending.",
+  "next_eligible_work": "Qualify/review Connections pending-display correction and publish coherent later hardening candidate with Run-bound edit owner/late-refresh witness. Follow PR165 resulting-main39216341691; preserve prior exacthead receipts. Continue useful authorized work above quota floor.",
   "last_qualified_source": "23c27cd1ed2a0878c4bed9cae254106584ef7034",
   "source_delta_after_qualification": "Lead c39a6af3 source matches qualified worker23c27cd1 (including late-refresh test335/a631). Independent complete source review approved c39. Later policy/receipts are docs only. Native OS qualification and hosted/merge/main gates remain separate.",
-  "active_work": "Run-bound edit-refresh source23c27cd1 integratedc39a6af3 approved by independent Sol; desktop321/0/1, strict lint/format and productionnativeui build passed. Durable binary/hashed receipts imported, publication pending. PR165 fixeda961a75a required CI39213694797 still in progress. Source-only Connections audit found possible stale pending display; no implementation authorized yet.",
-  "continuation_baseline": "348959b7138de6230cb77852f860b910155c64d4",
+  "active_work": "Run-bound edit source23c27 integratedc39 independently approved;321/0/1 lintfmt/prodbuild receipts complete. Luna owns Connections pending-display fix in reused draincheckout newbranchcodex/connections-pending-display @92fdfbaa, solebuildslot. Required PR165 checks passed/merged; main39216341691 pending.",
+  "continuation_baseline": "f4753e99baa9a2a70047a54d10c0bdc0bbd96dad",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot72% used /28% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "quota": "Latest native snapshot73% used /27% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
