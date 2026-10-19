@@ -4,9 +4,9 @@
 //! SIGTERM, deadline) and a killed run left Working.
 #![cfg(unix)]
 mod support;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::{path::Path, time::Duration};
-use support::stub::{Reply, Stub, answer, proxy_env, tool};
+use support::stub::{answer, proxy_env, tool, Reply, Stub};
 use support::*;
 
 /// A root whose children see only the stub (proxies on a closed port).
@@ -154,11 +154,9 @@ fn stub_model_candidate_review_apply_and_dismiss() {
     // The note the model read, and the chat context the run added.
     let inputs = info["inputs"].as_array().unwrap();
     assert!(inputs.contains(&json!({"record": a, "version": 1, "expectation": "Current"})));
-    assert!(
-        inputs
-            .iter()
-            .any(|i| i["record"] == chat.as_str() && i["expectation"] == "ChatContext")
-    );
+    assert!(inputs
+        .iter()
+        .any(|i| i["record"] == chat.as_str() && i["expectation"] == "ChatContext"));
     assert_eq!(info["inputs_total"], inputs.len());
     let applied = call(&root, &data, &["apply", "--operation", &first]);
     assert_eq!(applied["outcome"], "Applied", "{applied}");
@@ -513,29 +511,23 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
     for scope in [None, Some(p2)] {
         let args = scope.map_or(vec!["skills"], |id| vec!["skills", "--project", id]);
         let inventory = ok(&root, &data, &args);
-        assert!(
-            inventory["skills"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|s| s["id"] == "installed:run-review")
-        );
-        assert!(
-            !inventory["policy"]
-                .to_string()
-                .contains("installed:run-review")
-        );
+        assert!(inventory["skills"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|s| s["id"] == "installed:run-review"));
+        assert!(!inventory["policy"]
+            .to_string()
+            .contains("installed:run-review"));
         assert!(!inventory["policy"].to_string().contains(digest));
         let args = scope.map_or(vec!["skill-inspect", "--name", "run-review"], |id| {
             vec!["skill-inspect", "--name", "run-review", "--project", id]
         });
         let inspected = ok(&root, &data, &args);
-        assert!(
-            inspected["files"]["SKILL.md"]
-                .as_str()
-                .unwrap()
-                .contains("SCOPED_SELECTED_CANARY")
-        );
+        assert!(inspected["files"]["SKILL.md"]
+            .as_str()
+            .unwrap()
+            .contains("SCOPED_SELECTED_CANARY"));
         assert_eq!(inspected["policy"], json!([]));
     }
     let result = call(
@@ -555,20 +547,16 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
     assert_eq!(stub.requests().len(), 17);
     let requests = stub.requests();
     let first = &requests[0];
-    assert!(
-        first["messages"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|m| m["role"] == "user" && m.to_string().contains("SCOPED_SELECTED_CANARY"))
-    );
-    assert!(
-        !first["messages"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|m| m["role"] == "system" && m.to_string().contains("SCOPED_SELECTED_CANARY"))
-    );
+    assert!(first["messages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|m| m["role"] == "user" && m.to_string().contains("SCOPED_SELECTED_CANARY")));
+    assert!(!first["messages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|m| m["role"] == "system" && m.to_string().contains("SCOPED_SELECTED_CANARY")));
     let listed = runs(&root, &data, &["--thread", &chat]);
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0]["loaded_skill_details_total"], 17);
@@ -577,19 +565,15 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
         listed[0]["loaded_skill_details"].as_array().unwrap().len(),
         16
     );
-    assert!(
-        listed[0]["guide_identity"]
-            .as_str()
-            .unwrap()
-            .starts_with("brn-threads-guidance-16:")
-    );
-    assert!(
-        listed[0]["loaded_skill_details"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .all(|d| d["project"] == project && d["package_digest"] == digest)
-    );
+    assert!(listed[0]["guide_identity"]
+        .as_str()
+        .unwrap()
+        .starts_with("brn-threads-guidance-16:"));
+    assert!(listed[0]["loaded_skill_details"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|d| d["project"] == project && d["package_digest"] == digest));
     ok(
         &root,
         &data,
@@ -681,10 +665,7 @@ fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_
     let before = ok(&root, &restored, &["read", "--id", &note]);
     let result = ask(&root, &restored, &chat);
     assert_error(&result, "failed", "unavailable");
-    assert_eq!(
-        result["error"]["message"],
-        "The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing."
-    );
+    assert_eq!(result["error"]["message"],"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
     assert!(
         stub.requests().is_empty(),
         "no auth, summary or chat dispatch"
@@ -736,12 +717,10 @@ fn every_packaged_builtin_can_be_explicitly_selected_and_is_actually_delivered()
             "{id}: exact selected body absent from actual system text blocks"
         );
         let saved = runs(&root, &data, &["--thread", &chat]);
-        assert!(saved.iter().any(|r| {
-            r["loaded_skill_details"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|d| d["id"] == *id && d["origin"] == "builtin" && d["file"] == "SKILL.md")
-        }));
+        assert!(saved.iter().any(|r| r["loaded_skill_details"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|d| d["id"] == *id && d["origin"] == "builtin" && d["file"] == "SKILL.md")));
     }
 }
