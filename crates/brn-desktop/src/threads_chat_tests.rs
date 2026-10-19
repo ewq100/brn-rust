@@ -575,7 +575,7 @@ fn a_saved_working_reply_stops_only_through_its_confirming_dialog(cx: &mut TestA
         let ui = f.view.read(cx);
         assert!(ui.queue_state().paused);
         assert_eq!(
-            ui.notice,
+            ui.notice.text(),
             "Reply stopped. The queue is paused; Continue or Resume queue when ready."
         );
     });
@@ -954,7 +954,7 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
             view.composer
                 .update(cx, |editor, cx| editor.set_value(text, window, cx));
             view.ask(window, cx);
-            view.notice.clone()
+            view.notice.text().to_owned()
         })
     };
     let (sender, lease) = update(cx, &f, |view, _, cx| {
@@ -1044,7 +1044,7 @@ fn an_idle_send_skips_the_queue_and_replaces_an_earlier_queue_notice(cx: &mut Te
             editor.set_value("Idle message", window, cx)
         });
         view.ask(window, cx);
-        view.notice.clone()
+        view.notice.text().to_owned()
     });
     assert!(!notice.contains("Queued"), "{notice}");
     assert!(notice.contains("Choose a provider"), "{notice}");
@@ -1079,7 +1079,7 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
     click(cx, &f, "resolve-thread");
     let archived =
         "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.";
-    cx.read(|cx| assert_eq!(f.view.read(cx).notice, archived));
+    cx.read(|cx| assert_eq!(f.view.read(cx).notice.text(), archived));
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "chat-archived"), "Archived");
         assert!(window.try_find("resolve-thread").is_none());
@@ -1106,7 +1106,7 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(view.worker.is_none());
-        assert_eq!(view.notice, archived);
+        assert_eq!(view.notice.text(), archived);
     });
     // U11: opening the archived chat never focuses its composer; focus
     // lands on Unarchive, the one next step.

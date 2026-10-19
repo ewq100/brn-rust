@@ -54,6 +54,9 @@ mod lists;
 mod mcp_tests;
 #[path = "threads_mcp.rs"]
 mod mcp_view;
+#[path = "threads_notice.rs"]
+mod notice;
+use notice::NoticeState;
 #[path = "threads_projects.rs"]
 mod projects_view;
 #[path = "threads_search.rs"]
@@ -417,12 +420,7 @@ struct ThreadsUi {
     context_edit_note: Option<(String, String, u64)>,
     run_activity_status: String,
     run_activity_scroll: gpui_kit::ScrollHandle,
-    notice: String,
-    /// Applies only while `notice` still equals `notice_tone_for`, so a direct
-    /// `notice` write never inherits an older tone.
-    notice_tone: Tone,
-    notice_tone_for: String,
-    last_work_notice: Option<(Tone, String)>,
+    notice: NoticeState,
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
@@ -696,10 +694,7 @@ impl ThreadsUi {
             context_edit_note: None,
             run_activity_status: String::new(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
-            notice: String::new(),
-            notice_tone: Tone::Info,
-            notice_tone_for: String::new(),
-            last_work_notice: None,
+            notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
@@ -955,20 +950,12 @@ impl ThreadsUi {
         cx.notify();
     }
     fn show_last_work_notice(&mut self, cx: &mut Context<Self>) {
-        // Never replace a newer error/status or show a past completion as live work.
-        if self.worker.is_none()
-            && self.notice.is_empty()
-            && let Some((tone, notice)) = self.last_work_notice.clone()
-        {
-            self.set_notice(tone, notice);
+        if self.notice.restore(self.worker.is_some()) {
             cx.notify();
         }
     }
-    /// Text, tone and the tone's guard change together.
     fn set_notice(&mut self, tone: Tone, text: impl Into<String>) {
-        self.notice = text.into();
-        self.notice_tone = tone;
-        self.notice_tone_for.clone_from(&self.notice);
+        self.notice.set(tone, text);
     }
     fn inform(&mut self, text: impl Into<String>) {
         self.set_notice(Tone::Info, text);
@@ -982,13 +969,8 @@ impl ThreadsUi {
     fn fail(&mut self, text: impl Into<String>) {
         self.set_notice(Tone::Error, text);
     }
-    /// The workspace notice's tone; any later direct write reads as Info.
     fn notice_tone(&self) -> Tone {
-        if self.notice == self.notice_tone_for {
-            self.notice_tone
-        } else {
-            Tone::Info
-        }
+        self.notice.tone()
     }
     fn report_outcome(&mut self, outcome: &ApplyOutcome) {
         self.set_notice(apply_tone(outcome), outcome_message(outcome));
@@ -1785,7 +1767,7 @@ impl ThreadsUi {
                     let tone = self.notice_tone();
                     let text = format!(
                         "Rewrite request saved; AI has not started. {} Retry rewrite uses these same saved inputs.",
-                        self.notice
+                        self.notice.text()
                     );
                     self.set_notice(tone, text);
                 }
@@ -2766,8 +2748,7 @@ impl ThreadsUi {
                             .unwrap_or(thread);
                         text = format!("Work in {} · {text}", short(&name));
                     }
-                    self.set_notice(tone, text);
-                    self.last_work_notice = Some((tone, self.notice.clone()));
+                    self.notice.complete_work(tone, text);
                     match kind {
                         Some(WorkerKind::Export) => self.export_status = status,
                         Some(WorkerKind::Backup) => self.backup_status = status,

@@ -129,11 +129,8 @@ fn first_picker_saves_then_backs_up_and_saved_click_reloads_folder_and_uses_fres
         // banner above says the backup was made.
         assert!(ui.layout.settings_open());
         assert_eq!(ui.settings_section, SettingsSection::Data);
-        assert_eq!(ui.notice, "Full backup created.");
-        assert_eq!(
-            ui.last_work_notice.as_ref().map(|(_, text)| text.as_str()),
-            Some("Full backup created.")
-        );
+        assert_eq!(ui.notice.text(), "Full backup created.");
+        assert!(ui.notice.is_work_status());
     });
     assert_eq!(saved_folder(&f).as_deref(), f.folder.to_str());
 }
@@ -180,7 +177,7 @@ fn picker_return_and_backup_click_refuse_busy_without_changing_folder(cx: &mut T
             ui.backup_folder_chosen(Ok(Some(vec![f.folder.clone()])), true, cx);
             assert!(ui.workspace.settings().unwrap().backup_directory.is_none());
             assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Import);
-            assert_eq!(ui.notice, WorkerKind::Import.busy_notice());
+            assert_eq!(ui.notice.text(), WorkerKind::Import.busy_notice());
             ui.choose_output(true, window, cx);
             ui.choose_backup_folder(false, window, cx);
             assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Import);

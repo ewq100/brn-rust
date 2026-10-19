@@ -107,7 +107,7 @@ fn supply(cx: &mut TestAppContext, f: &Fixture, reference: &str) -> String {
             window,
             cx,
         );
-        assert!(ui.worker.is_some(), "{}", ui.notice);
+        assert!(ui.worker.is_some(), "{}", ui.notice.text());
         ui.chat_thread().unwrap().to_owned()
     });
     for _ in 0..1000 {
@@ -971,7 +971,7 @@ fn the_owners_stop_of_a_killed_reply_adds_its_review_but_no_notice(cx: &mut Test
         assert!(has_candidate(ui, &operation));
         assert!(!lease_file(ui, &run).exists());
         assert_eq!(
-            ui.notice,
+            ui.notice.text(),
             "Reply stopped. The queue is paused; Continue or Resume queue when ready."
         );
     });
@@ -993,7 +993,7 @@ fn continue_clears_the_interrupted_notice_when_the_next_run_starts(cx: &mut Test
     update(cx, &f, |ui, window, cx| {
         ui.open_thread(&chat, window, cx);
         ui.continue_run(chat.clone(), cx);
-        assert!(ui.worker.is_some(), "{}", ui.notice);
+        assert!(ui.worker.is_some(), "{}", ui.notice.text());
     });
     wait_for_worker(cx, &f);
     update(cx, &f, |ui, _, _| {
@@ -1033,7 +1033,7 @@ fn continue_in_a_chat_whose_reply_no_process_holds_interrupts_it(cx: &mut TestAp
     });
     update(cx, &f, |ui, _, cx| {
         ui.continue_run(chat.clone(), cx);
-        assert!(ui.worker.is_some(), "{}", ui.notice);
+        assert!(ui.worker.is_some(), "{}", ui.notice.text());
     });
     wait_for_worker(cx, &f);
     update(cx, &f, |ui, _, _| {

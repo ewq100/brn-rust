@@ -239,7 +239,7 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
                 view.writing.comment_input.read(cx).value().as_ref(),
                 "A passage draft"
             );
-            assert!(view.notice.contains("Save your edit"));
+            assert!(view.notice.text().contains("Save your edit"));
         })
     })
     .unwrap();
@@ -262,7 +262,7 @@ fn batch_rewrite_captures_selected_chat_and_retry_keeps_saved_inputs(cx: &mut Te
         view.composer.update(cx,|editor,cx|editor.set_value("Unsent must stay unsent",window,cx));
         view.rewrite_note(cx);
         assert!(view.worker.is_none());
-        assert!(view.notice.contains("AI has not started"));
+        assert!(view.notice.text().contains("AI has not started"));
         assert_eq!(view.open_note_id(),Some(f.a.id.as_str()));
         assert_eq!(view.composer.read(cx).value().as_ref(),"Unsent must stay unsent");
         request=view.workspace.messages(&f.chat_a).unwrap().into_iter().find(|record|matches!(&record.data,RecordData::Message(body) if body.role=="writing-request")).unwrap().id;
@@ -320,7 +320,7 @@ fn stale_comment_and_saved_rewrite_preserve_feedback_with_actionable_recovery(
         assert!(view.writing.comment_anchor.is_some());
         assert!(view.workspace.writing_comments(&f.a.id).unwrap().is_empty());
         view.retry_rewrite(request,cx);
-        assert!(view.notice.contains("Reload saved note"));
+        assert!(view.notice.text().contains("Reload saved note"));
         assert!(view.worker.is_none());
         assert_eq!(view.writing.comment_input.read(cx).value().as_ref(),"Retain stale passage");
     })).unwrap();
@@ -931,7 +931,7 @@ fn review_thread_switch_preserves_both_chat_drafts_and_the_human_buffer(cx: &mut
             );
             view.apply_review(window, cx);
             assert!(view.writing.review.is_some());
-            assert!(view.notice.contains("open edit"));
+            assert!(view.notice.text().contains("open edit"));
             assert_eq!(
                 view.writing.note_editor.read(cx).value().as_ref(),
                 "Preserved human buffer"
@@ -1098,7 +1098,7 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
                 cx,
             );
             assert_eq!(view.workspace.writing_comments(&f.a.id).unwrap().len(), 0);
-            assert!(view.notice.contains("Unarchive"));
+            assert!(view.notice.text().contains("Unarchive"));
             assert!(
                 view.writing
                     .comment_input
@@ -1344,7 +1344,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             view.preserve_visible_note_input(cx);
             assert_eq!(view.writing.note.open_edit_elsewhere(), Some((f.a.id.as_str(), f.a.version)));
             assert_eq!(
-                view.notice,
+                view.notice.text(),
                 format!(
                     "An edit of this note is already open from v{}. What you typed here isn't saved.",
                     f.a.version
@@ -1352,7 +1352,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             );
             // Before: "Could not preserve this edit: this note already has
             // an open unsaved edit. …" and nothing to act on.
-            assert!(!view.notice.contains("Could not preserve"));
+            assert!(!view.notice.text().contains("Could not preserve"));
             assert!(view.writing.note.as_ref().unwrap().session().is_none());
             cx.notify();
         })
@@ -1439,7 +1439,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
                 .closed
         );
         assert_eq!(
-            view.notice,
+            view.notice.text(),
             "Discarded the open edit. What you typed here is now your unsaved edit."
         );
         assert!(window.try_find("note-edit-open-banner").is_none());
@@ -1525,10 +1525,11 @@ fn panel_shared_start_keeps_scoped_saved_retry_when_chat_is_other_and_hidden(
             view.worker.is_none(),
             "catalogue refusal must not access a provider"
         );
-        assert!(view.notice.contains("not offered by GitHub Copilot"));
-        assert!(view.notice.contains("b1b-only-offered"));
+        assert!(view.notice.text().contains("not offered by GitHub Copilot"));
+        assert!(view.notice.text().contains("b1b-only-offered"));
         assert!(
             view.notice
+                .text()
                 .contains("Retry rewrite uses these same saved inputs")
         );
         assert_eq!(view.notice_tone(), Tone::Warning);
@@ -1740,11 +1741,11 @@ fn saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_o
                 view.retry_rewrite(snapshot.request_message.clone(), cx);
                 assert!(view.worker.is_none());
                 assert!(
-                    view.notice
+                    view.notice.text()
                         .contains("unavailable in this displayed context")
                 );
                 assert!(
-                    !view.notice.contains("Choose a provider"),
+                    !view.notice.text().contains("Choose a provider"),
                     "context refusal precedes selection"
                 );
                 assert_eq!(view.workspace.records().unwrap(), before.0);
@@ -1768,7 +1769,7 @@ fn saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_o
             );
             view.retry_rewrite(snapshot.request_message.clone(), cx);
             assert!(
-                view.notice
+                view.notice.text()
                     .contains("unavailable in this displayed context")
             );
             assert_eq!(view.workspace.records().unwrap(), before.0);
@@ -1788,7 +1789,7 @@ fn saved_retry_refuses_wrong_displayed_context_and_preserves_archived_state_at_o
             // Archived saved context remains readable; this offline fixture
             // stops at provider selection, not an archive-specific retry gate.
             assert_eq!(
-                view.notice,
+                view.notice.text(),
                 "Rewrite request saved; AI has not started. Choose a provider and model in Settings before asking BRN. Retry rewrite uses these same saved inputs."
             );
             assert_eq!(view.workspace.records().unwrap(), before.0);
@@ -1967,7 +1968,7 @@ fn b3_stale_setup_save_refuses_preserves_form_and_checked_replay_is_exact(cx: &m
             );
             assert_eq!(view.workspace.store.receipts().unwrap().len(), count);
             view.save_writing_setup(window, cx);
-            assert!(view.notice.contains("changed"));
+            assert!(view.notice.text().contains("changed"));
             assert_eq!(
                 view.writing.setup_brief.read(cx).value().as_ref(),
                 "Unsaved local brief"
@@ -2182,7 +2183,7 @@ fn b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical
             let receipts = view.workspace.store.receipts().unwrap();
             // Existing importer key replays the canonical outcome. A stale target must not rebind attachment.
             view.complete_writing_reference_import(&intent, "B3 retained reference", &converted, &DocumentConversionSettings::default(), window, cx);
-            assert!(view.notice.contains("already attached in this writing scope"));
+            assert!(view.notice.text().contains("already attached in this writing scope"));
             assert_eq!(view.workspace.records().unwrap(), before);
             assert_eq!(view.workspace.store.receipts().unwrap(), receipts);
             let target = view.writing.setup.as_ref().unwrap().target.clone();
@@ -2192,7 +2193,7 @@ fn b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical
             other.source_reference = "synthetic/b3-other-reference.md".into();
             other.source_sha256 = [74; 32];
             assert!(view.complete_writing_reference_import(&wrong, "B3 separately retained", &other, &DocumentConversionSettings::default(), window, cx));
-            assert!(view.notice.contains("retained in its original scope; no reference was attached"));
+            assert!(view.notice.text().contains("retained in its original scope; no reference was attached"));
             assert!(view.workspace.writing_setup(&f.b.id, None).unwrap().references.is_empty());
             assert_eq!(view.workspace.writing_setup(&f.a.id, None).unwrap().references, setup.references);
             assert_eq!(view.workspace.notes().unwrap().iter().filter(|r| matches!(&r.data, RecordData::Note(n) if n.title == "B3 separately retained")).count(), 1);
@@ -2245,7 +2246,7 @@ fn b3_import_completion_refuses_stale_setup_and_revoked_working_context(cx: &mut
             let newer = WritingSetup { note: f.a.id.clone(), chat: None, brief: Some("Newer setup remains exact".into()), references: vec![] };
             view.workspace.set_writing_setup("b3-import-competing-setup", None, &newer).unwrap();
             assert!(view.complete_writing_reference_import(&intent, "B3 stale retained", &b3_converted_reference(), &DocumentConversionSettings::default(), window, cx));
-            assert!(view.notice.contains("no reference was attached"));
+            assert!(view.notice.text().contains("no reference was attached"));
             let RecordData::WritingSetup(saved) = view.workspace.writing_setup(&f.a.id, None).unwrap().record.unwrap().data else { panic!("setup") };
             assert_eq!(saved, newer);
             assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
@@ -2259,7 +2260,7 @@ fn b3_import_completion_refuses_stale_setup_and_revoked_working_context(cx: &mut
             let intent = ReferenceImportIntent { target: view.writing.setup.as_ref().unwrap().target.clone(), purpose: WritingPurpose::Evidence, key: "b3-revoked-import".into() };
             view.workspace.project_command("b3-import-revoke", ProjectCommand::UnlinkDocument { project: project.clone(), note: f.a.id.clone() }).unwrap();
             assert!(view.complete_writing_reference_import(&intent, "B3 project-retained import", &b3_converted_reference(), &DocumentConversionSettings::default(), window, cx));
-            assert!(view.notice.contains("no reference was attached"));
+            assert!(view.notice.text().contains("no reference was attached"));
             assert!(view.workspace.writing_setup(&f.a.id, Some(&project)).is_err());
             // The explicitly requested scoped import remains legitimate; no general/other setup fallback occurs.
             let imported = view.workspace.records().unwrap().into_iter().find(|r| matches!(&r.data, RecordData::Note(n) if n.title == "B3 project-retained import")).unwrap();
@@ -2581,7 +2582,9 @@ fn b3_configured_requirements_run_uses_real_shared_start_and_recorded_read_ledge
                 assert!(view.worker.is_none());
                 let record = view
                     .latest_note_writing_request(&f.a.id)
-                    .unwrap_or_else(|| panic!("configured request missing: {}", view.notice));
+                    .unwrap_or_else(|| {
+                        panic!("configured request missing: {}", view.notice.text())
+                    });
                 let snapshot = view.workspace.writing_request(&record.id).unwrap();
                 assert_eq!(
                     snapshot.setup.as_ref().unwrap().brief.as_deref(),
@@ -2808,6 +2811,7 @@ fn b3_exhaustive_check_refuses_unavailable_requirements_before_new_saved_request
             view.rewrite_with_setup(true, cx);
             assert!(
                 view.notice
+                    .text()
                     .contains("Requirements reference is no longer available here")
             );
             assert!(view.worker.is_none());
@@ -2971,7 +2975,7 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
             view.poll_worker(window, cx);
             assert!(view.worker.is_none());
             assert!(view.reference_import.is_none());
-            assert!(view.notice.contains("stopped before saving"));
+            assert!(view.notice.text().contains("stopped before saving"));
             assert_eq!(relevant(&view.workspace), before);
             assert!(
                 view.workspace
@@ -3154,7 +3158,7 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
             ));
             assert_eq!(view.progress, "Starting…");
             assert!(view.stream.is_empty());
-            assert!(view.notice.is_empty());
+            assert!(view.notice.text().is_empty());
             assert_eq!(view.workspace.settings().unwrap(), settings);
             assert!(view.workspace.messages(&identity.thread).unwrap().iter().any(
                 |record| matches!(&record.data, RecordData::Message(message) if message.role == "owner" && message.text == brn_threads_app::SOURCE_INTAKE_INSTRUCTION)
@@ -3264,8 +3268,8 @@ fn b3_reimport_same_bytes_attaches_existing_canonical_note_without_a_duplicate(
             let missing = ReferenceImportIntent { target: view.writing.setup.as_ref().unwrap().target.clone(), purpose: WritingPurpose::Evidence, key: intent.key.clone() };
             let saved = view.workspace.writing_setup(&f.a.id, None).unwrap().record;
             assert!(view.complete_writing_reference_import(&missing, "B3 preexisting canonical reference", &converted, &DocumentConversionSettings::default(), window, cx));
-            assert!(view.notice.contains("No eligible canonical full Note was resolved"));
-            assert!(!view.notice.contains("Imported Note retained"));
+            assert!(view.notice.text().contains("No eligible canonical full Note was resolved"));
+            assert!(!view.notice.text().contains("Imported Note retained"));
             assert_eq!(view.workspace.writing_setup(&f.a.id, None).unwrap().record, saved);
             let archived = view.workspace.store.note(&note.id).unwrap().unwrap();
             view.workspace.owner_change("b3-observation-restore", &ChangeRequest { reason: "Synthetic restore".into(), writes: vec![Put { id: archived.id.clone(), expected_version: Some(archived.version), archived: false, data: archived.data }], inputs: vec![] }).unwrap();
@@ -3273,8 +3277,8 @@ fn b3_reimport_same_bytes_attaches_existing_canonical_note_without_a_duplicate(
             view.load_writing_setup(window, cx);
             let self_reference = ReferenceImportIntent { target: view.writing.setup.as_ref().unwrap().target.clone(), purpose: WritingPurpose::Evidence, key: "b3-observation-self-reference".into() };
             assert!(view.complete_writing_reference_import(&self_reference, "B3 preexisting canonical reference", &converted, &DocumentConversionSettings::default(), window, cx));
-            assert!(view.notice.contains("cannot be its own reference"));
-            assert!(!view.notice.contains("Target, saved Note, setup or access changed"));
+            assert!(view.notice.text().contains("cannot be its own reference"));
+            assert!(!view.notice.text().contains("Target, saved Note, setup or access changed"));
             assert!(view.workspace.writing_setup(&note.id, None).unwrap().record.is_none());
         });
     }).unwrap();
@@ -3442,7 +3446,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
             assert!(view.workspace.notes().unwrap().iter().any(
                 |r| matches!(&r.data, RecordData::Note(n) if n.title == "B3 dirty canonical import")
             ));
-            assert!(view.notice.to_lowercase().contains("unsaved"));
+            assert!(view.notice.text().to_lowercase().contains("unsaved"));
             view.workspace
                 .post_message(&f.chat_b, "Unrelated canonical write while dirty")
                 .unwrap();
@@ -3618,7 +3622,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
             "Owner typed this brief during conversion"
         );
         assert_eq!(view.writing.setup.as_ref().unwrap().references, pending);
-        assert!(view.notice.to_lowercase().contains("discard"));
+        assert!(view.notice.text().to_lowercase().contains("discard"));
     });
     // Recheck exposes the retained form, never permission to overwrite a newer setup.
     let newer = cx
@@ -3681,7 +3685,7 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
                 .unwrap(),
             newer.writes[0].after
         );
-        assert!(view.notice.contains("changed"));
+        assert!(view.notice.text().contains("changed"));
     });
 }
 
@@ -3954,13 +3958,13 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
             assert!(view.workspace.notes().unwrap().iter().any(|r| {
                 matches!(&r.data, RecordData::Note(n) if n.title == "A conversion retained without attaching")
             }));
-            assert!(view.notice.contains("no reference was attached"));
+            assert!(view.notice.text().contains("no reference was attached"));
             for private in [
                 "Note B",
                 "Private B brief typed during A conversion",
                 "Hidden B pending reference",
             ] {
-                assert!(!view.notice.contains(private));
+                assert!(!view.notice.text().contains(private));
             }
             cx.notify();
         });

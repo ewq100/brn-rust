@@ -219,7 +219,7 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
             );
             assert_eq!(ui.chat, ChatTarget::Thread(f.other.clone()));
             assert_eq!(ui.composer.read(cx).value().as_ref(), "New B draft");
-            assert!(ui.notice.contains("Choose a provider"));
+            assert!(ui.notice.text().contains("Choose a provider"));
             ui.open_thread(&f.thread, window, cx);
             assert_eq!(ui.composer.read(cx).value().as_ref(), "");
             assert_eq!(ui.queue_state().queue[0].text, "Later A draft");
@@ -282,7 +282,7 @@ fn pending_disconnect_retains_instruction_and_offers_continue_after_reopen(
         f.view.update(cx, |ui, cx| {
             ui.poll_worker(window, cx);
             assert!(ui.worker.is_none() && ui.pending_send.is_none());
-            assert!(ui.notice.contains("unexpectedly"));
+            assert!(ui.notice.text().contains("unexpectedly"));
             assert!(ui.stream.is_empty());
         })
     })
@@ -317,14 +317,14 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             assert!(ui.pending_send.is_none());
-            assert!(ui.notice.contains("Automatic continuation stopped"));
+            assert!(ui.notice.text().contains("Automatic continuation stopped"));
             f.sender
                 .send(WorkerEvent::Finished(Ok("Interrupted".into())))
                 .unwrap();
             ui.poll_worker(window, cx);
             assert!(ui.worker.is_none());
             assert!(
-                !ui.notice.contains("Choose a provider"),
+                !ui.notice.text().contains("Choose a provider"),
                 "Stop suppresses dispatch"
             );
         })
@@ -347,7 +347,7 @@ fn failed_steering_persistence_retains_text_worker_and_controls(cx: &mut TestApp
             assert!(ui.pending_send.is_none());
             assert!(!f.cancel.is_cancelled());
             assert!(ui.worker.is_some() && ui.can_stop_and_send());
-            assert!(ui.notice.contains("Could not send"));
+            assert!(ui.notice.text().contains("Could not send"));
             assert_eq!(ui.workspace.messages(&f.thread).unwrap().len(), 1);
         })
     })
@@ -420,7 +420,7 @@ fn no_run_continue_requires_saved_owner_message_and_dispatches_offline(cx: &mut 
     cx.read(|cx| {
         let ui = f.view.read(cx);
         assert!(ui.worker.is_none());
-        assert!(ui.notice.contains("Choose a provider"));
+        assert!(ui.notice.text().contains("Choose a provider"));
         assert_eq!(ui.workspace.messages(&f.other).unwrap().len(), 1);
     });
 }
@@ -629,7 +629,11 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                 !ui.run_activity_labels.is_empty(),
                 "latest activity remains inspectable after the answer ends"
             );
-            assert!(ui.notice.contains("Synthetic failure remains visible"));
+            assert!(
+                ui.notice
+                    .text()
+                    .contains("Synthetic failure remains visible")
+            );
         });
     })
     .unwrap();
@@ -732,7 +736,7 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
             // the claimed message remains saved and explicitly paused for retry.
             assert!(ui.queue_state().pending.is_some());
             assert!(ui.queue_state().paused);
-            assert!(ui.notice.contains("Choose a provider"));
+            assert!(ui.notice.text().contains("Choose a provider"));
             assert!(ui.records.iter().any(
                 |r| matches!(&r.data,RecordData::Note(n) if n.chat.as_ref()==Some(&f.thread))
             ));
@@ -813,7 +817,7 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
             // An explicit nonexistent fixture path prevents any real credential access.
             settings.auth_file = Some(f.data.join("no-credentials.json").display().to_string());
             ui.workspace.configure(settings).unwrap();
-            ui.notice = "Work stopped: Interrupted. The queue is paused; Resume when ready.".into();
+            ui.warn("Work stopped: Interrupted. The queue is paused; Resume when ready.");
             ui.start_run(
                 "Replacement instruction".into(),
                 f.thread.clone(),
@@ -824,7 +828,7 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
             assert!(ui.worker.is_some());
             assert_eq!(ui.progress, "Starting…");
             assert!(
-                ui.notice.is_empty(),
+                ui.notice.text().is_empty(),
                 "old interruption must not describe new work"
             );
         });
@@ -865,7 +869,7 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
         assert!(window.try_find("effort-pill").is_none());
     })
     .unwrap();
-    let original = cx.read(|cx| f.view.read(cx).notice.clone());
+    let original = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(original.contains("Work in Active destination · Finished"));
     for _ in 0..2 {
         cx.update_window(f.window, |_, window, cx| window.click("dismiss-notice", cx))
@@ -908,17 +912,32 @@ fn restoring_old_work_status_preserves_newer_errors_and_active_work(cx: &mut Tes
     let f = fixture(cx, RunState::Working);
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.last_work_notice = Some((Tone::Success, "Previous work finished".into()));
+            ui.notice
+                .complete_work(Tone::Success, "Previous work finished");
             ui.notice.clear();
             ui.show_last_work_notice(cx);
             assert!(
-                ui.notice.is_empty(),
+                ui.notice.text().is_empty(),
                 "active work cannot display an old completion"
             );
             ui.worker = None;
-            ui.notice = "New error needs attention".into();
+            ui.fail("New error needs attention");
             ui.show_last_work_notice(cx);
-            assert_eq!(ui.notice, "New error needs attention");
+            assert_eq!(ui.notice.text(), "New error needs attention");
+            ui.inform("Previous work finished");
+            ui.show_last_work_notice(cx);
+            assert_eq!(ui.notice.text(), "Previous work finished");
+            assert_eq!(ui.notice_tone(), Tone::Info);
+            assert!(
+                !ui.notice.is_work_status(),
+                "equal ordinary text is a newer notice"
+            );
+            assert!(!ui.notice.can_restore(false));
+            ui.notice.clear();
+            ui.show_last_work_notice(cx);
+            assert_eq!(ui.notice.text(), "Previous work finished");
+            assert_eq!(ui.notice_tone(), Tone::Success);
+            assert!(ui.notice.is_work_status());
         });
     })
     .unwrap();
@@ -1064,7 +1083,7 @@ fn run_template(ui: &ThreadsUi, state: RunState) -> Run {
 fn a_failed_finish_is_an_error_banner_and_restores_as_an_error(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Working);
     finish(cx, &f, Err("Synthetic failure remains visible".into()));
-    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    let shown = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(
         shown.contains("Synthetic failure remains visible"),
         "{shown}"
@@ -1128,8 +1147,11 @@ fn a_finish_takes_its_tone_from_its_own_recorded_run(cx: &mut TestAppContext) {
             Ok("Finished. The answer and saved changes are in this chat.".into()),
         );
         assert_eq!(banner_tone(cx, &f).as_deref(), Some(tone), "{state:?}");
-        let last = cx.read(|cx| f.view.read(cx).last_work_notice.clone());
-        assert_eq!(last.map(|(tone, _)| tone.word()), Some(tone), "{state:?}");
+        cx.read(|cx| {
+            let ui = f.view.read(cx);
+            assert!(ui.notice.is_work_status());
+            assert_eq!(ui.notice.tone().word(), tone, "{state:?}");
+        });
     }
     // Work without a run (export, backup, import, connect) that finishes is a success.
     let f = fixture(cx, RunState::Completed);
@@ -1223,19 +1245,22 @@ fn a_failed_or_interrupted_finish_shows_the_recorded_terminal_text(cx: &mut Test
         let f = fixture(cx, state.clone());
         record_terminal(cx, &f, recorded);
         finish(cx, &f, Err("raw provider display text".into()));
-        let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+        let shown = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
         assert_eq!(shown, format!("Work in Active destination · {recorded}"));
         assert!(!shown.contains("raw provider"), "{shown}");
         assert!(!shown.contains("Synthetic agent progress"), "{shown}");
         assert!(!shown.contains("older run"), "{shown}");
         assert_eq!(banner_tone(cx, &f).as_deref(), Some(tone), "{state:?}");
-        let last = cx.read(|cx| f.view.read(cx).last_work_notice.clone());
-        assert_eq!(last.map(|(tone, _)| tone.word()), Some(tone));
+        cx.read(|cx| {
+            let ui = f.view.read(cx);
+            assert!(ui.notice.is_work_status());
+            assert_eq!(ui.notice.tone().word(), tone);
+        });
     }
     // No recorded notice for this run: the error text, never the progress.
     let f = fixture(cx, RunState::Failed);
     finish(cx, &f, Err("Synthetic provider error".into()));
-    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    let shown = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert_eq!(
         shown,
         "Work in Active destination · Work stopped: Synthetic provider error"
@@ -1247,14 +1272,14 @@ fn a_failed_or_interrupted_finish_shows_the_recorded_terminal_text(cx: &mut Test
     record_terminal(cx, &f, recorded);
     f.cancel.cancel();
     finish(cx, &f, Err("stopped by the owner".into()));
-    let shown = cx.read(|cx| f.view.read(cx).notice.clone());
+    let shown = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(shown.contains("Work stopped:"), "{shown}");
     assert!(!shown.contains(recorded), "{shown}");
     assert_eq!(banner_tone(cx, &f).as_deref(), Some("Warning"));
 }
 
 #[gpui_kit::test]
-fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut TestAppContext) {
+fn outcome_notices_keep_their_expected_tones(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);
     let receipt = |ui: &mut ThreadsUi, needs_refresh: Vec<String>| Receipt {
         operation: ui
@@ -1271,7 +1296,7 @@ fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut Tes
         needs_refresh,
     };
     type Case = Box<dyn Fn(&mut ThreadsUi)>;
-    let cases: [(&str, Case); 6] = [
+    let cases: [(&str, Case); 5] = [
         (
             "Warning",
             Box::new(|ui| {
@@ -1287,9 +1312,10 @@ fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut Tes
                 ui.report_outcome(&ApplyOutcome::Applied(receipt));
                 assert!(
                     ui.notice
+                        .text()
                         .contains("2 related items may need refresh. Open Changes"),
                     "{}",
-                    ui.notice
+                    ui.notice.text()
                 );
             }),
         ),
@@ -1309,13 +1335,6 @@ fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut Tes
             }),
         ),
         ("Error", Box::new(|ui| ui.fail("Synthetic error"))),
-        (
-            "Info",
-            Box::new(|ui| {
-                ui.fail("Synthetic error");
-                ui.notice = "A later direct notice".into();
-            }),
-        ),
     ];
     for (expected, case) in cases {
         cx.update_window(f.window, |_, _, cx| {
@@ -1325,7 +1344,7 @@ fn outcome_tones_and_a_direct_overwrite_never_inherit_an_older_tone(cx: &mut Tes
             })
         })
         .unwrap();
-        let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+        let notice = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
         assert_eq!(banner_tone(cx, &f).as_deref(), Some(expected), "{notice}");
     }
 }
@@ -1342,7 +1361,7 @@ fn a_refused_undo_renders_as_an_error_banner(cx: &mut TestAppContext) {
         })
     })
     .unwrap();
-    let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+    let notice = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(!notice.is_empty());
     assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"), "{notice}");
 }
@@ -1374,7 +1393,7 @@ fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
         .unwrap();
-    let notice = cx.read(|cx| f.view.read(cx).notice.clone());
+    let notice = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(!notice.is_empty());
     assert_eq!(banner_tone(cx, &f).as_deref(), Some("Error"), "{notice}");
     assert!(
