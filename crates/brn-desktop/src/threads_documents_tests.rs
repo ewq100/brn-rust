@@ -541,9 +541,10 @@ fn useful_navigation(cx: &mut TestAppContext, from_project: bool, to_project: bo
             assert!(
                 view.read(cx)
                     .notice
+                    .text()
                     .contains("Choose an active project for this source"),
                 "{}",
-                view.read(cx).notice
+                view.read(cx).notice.text()
             )
         })
         .unwrap();

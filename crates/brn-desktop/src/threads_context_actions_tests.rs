@@ -120,7 +120,7 @@ fn note_edit_is_contextual_exact_and_keeps_the_chat_draft(cx: &mut TestAppContex
         assert_eq!(messages.len(), 2);
         assert!(matches!(&messages[1].data, RecordData::Message(m) if m.role == "owner" && m.text == "Tighten this route plan · õun"));
         assert_eq!(ui.composer.read(cx).value(), "Unsent chat draft");
-        assert!(ui.notice.contains("Choose a provider"));
+        assert!(ui.notice.text().contains("Choose a provider"));
         assert_eq!(ui.workspace.store.record(&f.note.id).unwrap().unwrap(), f.note);
     });
 }
@@ -358,7 +358,7 @@ fn save_as_decision_dialog_ignores_enter_in_the_title_and_saves_on_cmd_enter(
         let notes = view.workspace.notes().unwrap();
         assert!(notes.iter().any(|r| matches!(&r.data, RecordData::Note(n) if n.title == "Route decision" && n.markdown == "Choose Alpha · õun" && n.protected)), "{notes:?}");
         assert_eq!(view.notice_tone(), Tone::Success);
-        assert!(view.notice.contains("Undo is in Changes"), "{}", view.notice);
+        assert!(view.notice.text().contains("Undo is in Changes"), "{}", view.notice.text());
     });
 }
 

@@ -258,7 +258,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("search-empty").visible());
         assert!(f.view.read(cx).hits.is_empty());
-        assert!(f.view.read(cx).notice.is_empty());
+        assert!(f.view.read(cx).notice.text().is_empty());
     })
     .unwrap();
     query(cx, &f, "harborneedle");
@@ -277,7 +277,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
         assert!(window.find("notes-list").visible());
         let view = f.view.read(cx);
         assert_eq!(view.open_note_id(), Some(note.id.as_str()));
-        assert!(view.hits.is_empty() && view.notice.is_empty());
+        assert!(view.hits.is_empty() && view.notice.text().is_empty());
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             "Unsaved scratchneedle"
@@ -647,8 +647,8 @@ fn copilot_run_with_unoffered_model_does_not_start(cx: &mut TestAppContext) {
         view.copilot_models = vec!["synthetic-copilot-model".into()];
         view.start_run("hello".into(), "synthetic-thread".into(), vec![], None, cx);
         assert!(view.worker.is_none());
-        assert!(view.notice.contains("not offered by GitHub Copilot"));
-        assert!(view.notice.contains("synthetic-copilot-model"));
+        assert!(view.notice.text().contains("not offered by GitHub Copilot"));
+        assert!(view.notice.text().contains("synthetic-copilot-model"));
     });
 }
 
