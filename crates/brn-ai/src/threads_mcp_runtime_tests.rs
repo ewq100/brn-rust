@@ -961,9 +961,10 @@ async fn eligible_local_argument_correction_skips_external_sibling_without_spend
             "skipped siblings are not traced as real dispatches"
         );
         assert_eq!(trace.calls[0].tool, name);
-        let events = events.lock().unwrap();
-        assert_eq!(events.iter().filter(|event| matches!(event,AiEvent::Activity(s) if s.starts_with("External MCP read:"))).count(),2,"only the actual request and success get external activity");
-        drop(events);
+        {
+            let events = events.lock().unwrap();
+            assert_eq!(events.iter().filter(|event| matches!(event,AiEvent::Activity(s) if s.starts_with("External MCP read:"))).count(),2,"only the actual request and success get external activity");
+        }
         mcp_runtime::cleanup(&scope).await;
         server.stop().await;
     }
