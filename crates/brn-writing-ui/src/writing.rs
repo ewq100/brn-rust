@@ -1424,10 +1424,16 @@ impl<T: 'static> WritingView<'_, T> {
                         if selected { "Selected" } else { "With Apply" },
                     )
                     .selected(selected)
+                    .toggled(selected)
                     .when(selected, |button| button.icon(IconName::Check))
                     .disabled(self.review.is_editing())
                     .accessibility_label(format!(
-                        "Mark captured comment addressed with Apply: {}. Passage: {}",
+                        "{}Mark captured comment addressed with Apply: {}. Passage: {}",
+                        if model_suggested {
+                            "Model suggests addressed. "
+                        } else {
+                            ""
+                        },
                         captured.body, captured.quote
                     ))
                     .tooltip(format!(
