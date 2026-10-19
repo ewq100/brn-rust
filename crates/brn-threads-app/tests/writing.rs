@@ -836,9 +836,7 @@ fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement()
                 &request,
                 &HostAuthority::owner("exact review"),
             )
-            .expect_err(&format!(
-                "forgery {forged} must fail the checked evidence boundary"
-            ));
+            .expect_err("forged replacement must fail the checked evidence boundary");
         assert!(
             error
                 .to_string()
