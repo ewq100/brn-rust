@@ -783,7 +783,7 @@ fn seed_native_fixture(data: &Path) -> Value {
     let captured_request = app.writing_request(&snapshot.request_message).unwrap();
     assert_eq!(captured_request.thread, thread);
     let setup = captured_request.setup.as_ref().expect("v2 setup binding");
-    assert_eq!(setup.chat.as_deref(), Some(thread.as_str()));
+    assert_eq!(setup.chat, None, "general writing setup has no chat scope");
     assert!(setup.brief.is_none());
     assert!(setup.references.is_empty());
     assert!(!setup.requirements.exhaustive && setup.requirements.must_be_current.is_empty());
@@ -920,7 +920,8 @@ fn native_suggestion_fixture_parent() {
         "writing_request_binding": {
             "version": seed["writing_request_version"],
             "default_setup": true,
-            "setup_chat": seed["thread"],
+            "setup_chat": seed["writing_setup_binding"]["chat"],
+            "selected_conversation": seed["thread"],
             "setup_input_record": seed["writing_setup_binding"]["input_record"],
             "setup_input_version": seed["writing_setup_binding"]["input_version"],
             "candidate_request_hash": report["candidate_request_hash"]
@@ -1042,10 +1043,7 @@ async fn native_suggestion_fixture_child() {
     let captured_request = app.writing_request(request_message).unwrap();
     assert_eq!(seed["writing_request_version"], 2);
     let setup = captured_request.setup.as_ref().expect("checked v2 request");
-    assert_eq!(
-        setup.chat.as_deref(),
-        Some(seed["thread"].as_str().unwrap())
-    );
+    assert_eq!(setup.chat, None, "general writing setup has no chat scope");
     assert!(setup.brief.is_none());
     assert!(setup.references.is_empty());
     assert!(!setup.requirements.exhaustive && setup.requirements.must_be_current.is_empty());
