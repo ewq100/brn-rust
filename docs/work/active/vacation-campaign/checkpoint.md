@@ -131,3 +131,16 @@ current user authority.
 
 
 19October12:16UTC update: PR172 all four required resulting-main checks passed. PR173 merged normally as `33a62aae1b358f1de9475040eb180c63e0651f4f` after independent source review and all four exact-head checks; resulting-main run39250500661 remains pending. Two bounded existing-Codex-account Luna-low command-line probes completed: natural request failed after an omitted ID suffix; explicit exact-ID/read_note diagnostic passed. Both preserved canonical Note bytes and created no candidate. See [the live-test receipt](evidence/codex-ai-smoke-qualification.json). Actual Mac interaction/AI observation remains pending.
+
+
+Current continuation: PR173 normal merge33a62aae is in actual main, required main
+run39250500661 still pending. Test-only PR174 is frozen at e56b4dbd on
+codex/native-suggestion-qualification; source review and local qualification passed,
+required hosted checks running. Do not push the lead's later work to that branch.
+The lead remains codex/agent-first-followthrough. A separate narrow metadata
+clarification is being authored on codex/exact-note-read-guidance in notice-state:
+only read_records/read_note JSON-schema descriptions, no exact-ID behavior change.
+No author build/account run is authorized; lead owns the released single build slot.
+Two account attempts used in current session and Tallinn day; retain third session
+slot only for a justified source-matched natural-request probe after review/checks.
+Quota last92% used/8% remaining. Native account session later shares six/day ledger.
