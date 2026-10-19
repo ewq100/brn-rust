@@ -167,3 +167,20 @@ A diagnostic-only issue was observed in the third trace: read_records truncation
 uses field presence, so a false flag appears true. This does not invalidate exact-ID
 or semantic/no-effects results, but it cannot establish coverage. Preserve the raw
 trace and correct the reporter separately with a distinguishing false/true test.
+
+
+PR175 is published and attached, frozen at68f14668 on
+codex/exact-note-read-guidance; production source equals reviewed/qualified9229085.
+Do not push further changes to that branch. PR174 remains frozen e56b4dbd.
+The next diagnostic-only candidate a8fc814 is independently source-approved;
+lead currently includes its test-first6a348 source only (eaba7ff8), intentionally
+retaining the old field-presence expression to establish the expected failed
+regression. The sole build is the focused old-expression witness, recorded under
+sibling read-trace-truncation-evidence with a process-group disk/deadline guard.
+After it fails on false-vs-true as expected, cherry-pick a8fc814 and rerun focused
+trace checks/lint/format. No account calls; this session is closed at3.
+
+A second cache receipt records27 older duplicate generated static archives removed
+while keeping newest per crate; no executable/.dylib/helper/source/data/evidence
+or credential removed. Free space rose to3.40GB before the focused build. Do not
+start concurrent builds; the monitor stops owned build groups below1GiB.
