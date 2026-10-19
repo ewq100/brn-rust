@@ -1,0 +1,14 @@
+{
+  "candidate": "7e41da520e610c56ac18f8b4ffe7ded305855077",
+  "qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
+  "actual_main": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
+  "auditor": "suggestion_receipt_audit; independent Luna medium read-only",
+  "result": "passed; no inconsistencies",
+  "archives_verified": 43,
+  "source_sha256": "b14e8bc921bba0e7f21da9403a11f6f925e305b3ac9aa8c711cd5900b932ffe8",
+  "binary_sha256": "3da60732fdc29d03e9d0b67a15cf0619ed61a36312af28ba78bfe4193c472ce9",
+  "binary_bytes": 165763056,
+  "checks": "all compressed/raw hashes and sizes; complete source-review patches/source pins; final immutable executable; both qualified helpers; actual failed/incomplete and passed command logs/counts",
+  "native_claims": "observed synthetic AX off/on/off and on/off/on only; no new Apply/AI; Notes/comments/Runs unchanged; no addressed proof",
+  "limits": "No screenshot file; CUA observations transcribed from this conversation. Read-only audit does not independently replay UI, establish VoiceOver/IME/owner acceptance, or satisfy hosted/main gates."
+}
