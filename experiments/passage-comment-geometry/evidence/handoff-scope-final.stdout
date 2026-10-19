@@ -1,0 +1,34 @@
+{
+  "original_z1_commit_unchanged": "b9bd1a14862fe2efe246790e887797c949f13c50",
+  "followup_initial_prototype_commit": "26b029756e3f20a3d9f0a7273230ab6cecee756f",
+  "followup_baseline": "7e9d0376d677ed2a46bdbcd8933f55f9e1746a02",
+  "fetched_main_for_handoff": "8bef439b133e91ad68b0b76792bcd155d3d06237",
+  "origin_main_at_check": "8bef439b133e91ad68b0b76792bcd155d3d06237",
+  "main_changes_since_baseline": [
+    "docs/status.md",
+    "docs/work/active/quality-simplify/evidence.md"
+  ],
+  "identical_production_and_guidance_objects": {
+    "AGENTS.md": "5a1e25a5004cd92092ede97bdc079cbb2ba6a70f",
+    "Cargo.toml": "3c349df83d373488bcd79c64a63cdcaffd6d44c7",
+    "Cargo.lock": "cb2882bc29a65831cbca4859a488e7cc133ee2ae",
+    "rust-toolchain.toml": "e63004962e17190630f40b06399238fcb1bb5517",
+    "crates/brn-desktop": "29ac1660c20d9547d5669e9b3f7d8320bde0b934",
+    "crates/brn-threads-core": "74f981baca947d1c10a6c8cd228bdd9d1240e806",
+    "crates/brn-threads-app": "a07c9d4f94201eefa6ffdfb25918569d610565bc",
+    "docs/work/active/modular-foundation": "652cf127ff4caa0aa56d4eca6087ce9b22cdd952",
+    "docs/work/active/writing-polish": "25481eca640ac30de6ce713bcd2f716c7eb96b9b"
+  },
+  "toolkit_patch_sha256": "9bca1efb86ea0ba263fec58cad59a7ae39b43772cfa79259fa374f14dd83ff9f",
+  "qualified_toolkit_source_hashes_unchanged": {
+    "src/text/range_highlight.rs": "d053c24a56557ab031ba93d237947f22a78337f26cf3160ac056a4cf9e603b64",
+    "src/text/inline.rs": "4ab9e17d839ce4a8b9d3d525aa769071a1efcb8d6f12aea4706ed786952d01f7",
+    "src/text/state.rs": "01b50b757a79459ce6faf2e82c146103ab146022fd4919dd3829f624611b7a3e",
+    "src/text/text_view.rs": "55eb5fa90214802c209de6ef1d2bafdd324ec832e11c40bc951833503ed2e25c"
+  },
+  "tracked_vendor_files": [],
+  "new_root_dependency_changes": [],
+  "c0_active_plan_present": false,
+  "reconciliation": "production code/pins unchanged; no rebase or production integration performed",
+  "scope": "experiment only"
+}

@@ -1,0 +1,34 @@
+{
+  "branch": "work/passage-comment-geometry",
+  "baseline": "7e9d0376d677ed2a46bdbcd8933f55f9e1746a02",
+  "origin_main": "7e9d0376d677ed2a46bdbcd8933f55f9e1746a02",
+  "remote": "https://github.com/ewq100/brn-rust.git",
+  "versions": {
+    "gpui-kit": [
+      "0.7.3"
+    ],
+    "gpui-base": [
+      "0.7.3"
+    ],
+    "gpui-pre": [
+      "0.3.9"
+    ],
+    "markdown": [
+      "1.0.0"
+    ],
+    "ropey": [
+      "2.0.0-beta.1"
+    ]
+  },
+  "new_external_crates": [],
+  "new_local_package": [
+    [
+      "brn-passage-comment-geometry",
+      "0.1.0"
+    ]
+  ],
+  "gpui_base_source": "isolated path copy with reviewable patch",
+  "patch_sha256": "9bca1efb86ea0ba263fec58cad59a7ae39b43772cfa79259fa374f14dd83ff9f",
+  "production_changes": [],
+  "scope_check": "passed"
+}

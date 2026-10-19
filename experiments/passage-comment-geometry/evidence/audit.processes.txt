@@ -1,0 +1,12 @@
+94553       00:12 /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo-clippy
+94554       00:12 /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo
+94963       00:02 rustc
+94983       00:01 rustc
+94988       00:01 rustc
+94991       00:01 rustc
+94993       00:01 rustc
+94995       00:01 rustc
+95003       00:01 (rustc)
+95007       00:00 rustc
+95008       00:00 rustc
+95009       00:00 rustc

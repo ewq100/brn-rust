@@ -1,0 +1,51 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 11 tests
+BRN fixture: source="## Café 🦀\n\nA **formatted** paragraph."; rendered="Café 🦀\nA formatted paragraph.\n"
+test silent_programmatic_editor_edit_invalidates_without_faking_draft_event ... FAILED
+exact 17..32 "Same paragraph.": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 9.6px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 9.6px × 26px } }
+nested/block/table source 42..46: first=Bounds { origin: Point { x: 90.1px, y: 102px }, size: Size { 9.599998px × 26px } }; second=Bounds { origin: Point { x: 99.7px, y: 143px }, size: Size { 9.599998px × 26px } }
+BRN fixture: source="é🦀 same — **é🦀 same**"; rendered="é🦀 same — é🦀 same\n"
+real synthetic Store unchanged by display; stale generation Save refused; explicit Save maps second occurrence 6..10 -> 13..17; overlapping Save marks unresolved
+test checked_store_save_and_comment_mapping_remain_existing_core_behavior ... ok
+empty/separator ranges rejected; hard newline reports None, not nearest glyph/caret
+test nontext_empty_and_newline_probe_never_borrow_neighbor_geometry ... ok
+exact 24..46 "**õun ÕÄÖÜ šž**": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 9.6px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 9.6px × 26px } }
+BRN fixture: source="Intro with <span>inline</span> HTML.\n\n<div>literal block</div>\n\nAfter **formatted** text."; rendered="Intro with <span>inline</span> HTML.\n<div>literal block</div>\nAfter formatted text.\n"
+test brn_read_fixtures_and_literal_html_policy_still_use_one_parser ... ok
+comment clicks: first=Bounds { origin: Point { x: 35.2px, y: 56px }, size: Size { 9.600002px × 26px } }, second=Bounds { origin: Point { x: 35.2px, y: 268px }, size: Size { 9.600002px × 26px } }; list offsets (0, 0px) -> (22, 56px) -> (1, 0px)
+test passive_offscreen_none_then_comment_click_reveals_second_without_text_change ... ok
+nested/block/table source 29..33: first=Bounds { origin: Point { x: 96.1px, y: 56px }, size: Size { 9.599998px × 26px } }; second=Bounds { origin: Point { x: 105.7px, y: 86px }, size: Size { 9.599998px × 26px } }
+exact 8..11 "a\u{308}": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 9.6px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 9.6px × 26px } }
+wrong note, version, quote, unresolved and source-only Markdown delimiters -> explicit unavailable; no quote search
+test invalid_identity_quote_version_and_unmapped_syntax_never_search ... ok
+nested/block/table source 26..30: first=Bounds { origin: Point { x: 79.8px, y: 85px }, size: Size { 7.7999954px × 21px } }; second=Bounds { origin: Point { x: 87.6px, y: 106px }, size: Size { 7.7999954px × 21px } }
+wide=Bounds { origin: Point { x: 83.2px, y: 227px }, size: Size { 9.599998px × 26px } }; narrow=Bounds { origin: Point { x: 83.2px, y: 435px }, size: Size { 9.599998px × 26px } }; larger=Bounds { origin: Point { x: 112.600006px, y: 737px }, size: Size { 13.800003px × 37px } }; revealed=Bounds { origin: Point { x: 112.600006px, y: 247px }, size: Size { 13.800003px × 37px } }; scrolled offscreen=None
+test resize_rewrap_font_scroll_and_coordinate_conversion_use_current_frame ... ok
+exact 22..42 "👩🏽\u{200d}💻 🦀": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 19.2px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 19.2px × 26px } }
+exact 20..30 "Same õun.": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 9.6px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 9.6px × 26px } }
+nested/block/table source 38..42: first=Bounds { origin: Point { x: 29px, y: 103px }, size: Size { 8.959999px × 24px } }; second=Bounds { origin: Point { x: 327px, y: 103px }, size: Size { 8.959991px × 24px } }
+test current_viewer_nested_blocks_table_and_code_use_same_geometry_path ... ok
+source reparse, revert and real current-editor input invalidate; dirty text refused
+test source_change_invalidates_even_when_viewer_remaps_highlights ... ok
+current editor: pristine Undo stays empty; typing Undo/Redo survives viewer/comment operations; only input changes generation
+test positioning_and_reveal_do_not_modify_current_editor_undo ... ok
+exact 33..64 "[õun](https://example.invalid)": first=Bounds { origin: Point { x: 16px, y: 56px }, size: Size { 9.6px × 26px } }; second=Bounds { origin: Point { x: 16px, y: 97px }, size: Size { 9.6px × 26px } }
+exact 8..14 "`õun`": first=Bounds { origin: Point { x: 20px, y: 58.6px }, size: Size { 8.4px × 23.5px } }; second=Bounds { origin: Point { x: 20px, y: 99.6px }, size: Size { 8.4px × 23.5px } }
+test exact_second_occurrence_unicode_formatting_and_crlf ... ok
+
+failures:
+
+failures:
+    silent_programmatic_editor_edit_invalidates_without_faking_draft_event
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s

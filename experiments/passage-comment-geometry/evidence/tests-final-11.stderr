@@ -1,0 +1,14 @@
+   Compiling brn-passage-comment-geometry v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/experiments/passage-comment-geometry)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.62s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/lib.rs (/private/tmp/brn-passage-geometry-target/debug/deps/brn_passage_comment_geometry-a8ef92a0494f1892)
+     Running unittests src/main.rs (/private/tmp/brn-passage-geometry-target/debug/deps/brn_passage_comment_geometry-1ed396bd3ca3a54d)
+     Running tests/geometry.rs (/private/tmp/brn-passage-geometry-target/debug/deps/geometry-0172b738b3c7f915)
+
+thread 'silent_programmatic_editor_edit_invalidates_without_faking_draft_event' (11927846) panicked at tests/geometry.rs:621:5:
+assertion `left == right` failed: programmatic notification is not a user Change event
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test geometry`

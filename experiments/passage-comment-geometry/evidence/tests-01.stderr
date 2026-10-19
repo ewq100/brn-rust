@@ -1,0 +1,130 @@
+   Compiling rustix v1.1.5
+   Compiling thiserror v1.0.69
+   Compiling convert_case v0.11.0
+   Compiling thiserror-impl v1.0.69
+   Compiling wait-timeout v0.2.1
+   Compiling fnv v1.0.7
+   Compiling quick-error v1.2.3
+   Compiling bit-vec v0.8.0
+   Compiling gpui-pre v0.3.9
+   Compiling rand_xorshift v0.4.0
+   Compiling crossbeam-queue v0.3.14
+   Compiling fixedbitset v0.5.7
+   Compiling unarray v0.1.4
+   Compiling static_assertions v1.1.0
+   Compiling bit-set v0.8.0
+   Compiling atomic v0.5.3
+   Compiling proptest-macro v0.5.0
+   Compiling pollster v0.2.5
+   Compiling gpui-pre-collections v0.3.9
+   Compiling futures-concurrency v7.7.1
+   Compiling gpui-pre-http-client v0.3.9
+   Compiling tempfile v3.27.0
+   Compiling gpui-component v0.7.3
+   Compiling cbindgen v0.28.0
+   Compiling postage v0.5.0
+   Compiling polling v3.11.0
+   Compiling async-io v2.6.0
+   Compiling rusty-fork v0.3.1
+   Compiling proptest v1.11.0
+   Compiling async-signal v0.2.14
+   Compiling async-net v2.0.0
+   Compiling async-process v2.5.0
+   Compiling smol v2.0.2
+   Compiling gpui-pre-apple v0.3.9
+   Compiling gpui-kit-assets v0.7.3
+   Compiling gpui-base v0.7.3 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/experiments/passage-comment-geometry/.vendor/gpui-base)
+   Compiling gpui-pre-macos v0.3.9
+   Compiling gpui-pre-platform v0.3.9
+   Compiling gpui-kit v0.7.3
+   Compiling brn-passage-comment-geometry v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/experiments/passage-comment-geometry)
+error[E0107]: type alias takes 1 generic argument but 2 generic arguments were supplied
+  --> tests/geometry.rs:30:78
+   |
+30 |     fn select(&self, index: usize, reveal: bool, cx: &mut TestAppContext) -> Result<(), Unavailable> {
+   |                                                                              ^^^^^^   ------------- help: remove the unnecessary generic argument
+   |                                                                              |
+   |                                                                              expected 1 generic argument
+   |
+note: type alias defined here, with 1 generic parameter: `T`
+  --> /Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/crates/brn-threads-core/src/lib.rs:47:10
+   |
+47 | pub type Result<T> = std::result::Result<T, Error>;
+   |          ^^^^^^ -
+
+error[E0308]: mismatched types
+  --> tests/geometry.rs:34:9
+   |
+30 |     fn select(&self, index: usize, reveal: bool, cx: &mut TestAppContext) -> Result<(), Unavailable> {
+   |                                                                              ----------------------- expected `std::result::Result<(), brn_threads_core::Error>` because of return type
+...
+34 |         result
+   |         ^^^^^^ expected `Result<(), Error>`, found `Result<(), Unavailable>`
+   |
+   = note: expected enum `std::result::Result<_, brn_threads_core::Error>`
+              found enum `std::result::Result<_, brn_passage_comment_geometry::Unavailable>`
+
+error[E0369]: binary operation `==` cannot be applied to type `std::result::Result<(), brn_threads_core::Error>`
+   --> tests/geometry.rs:145:5
+    |
+145 |     assert_eq!(f.select(5,false,cx),Err(Unavailable::Unmapped));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     |
+    |     std::result::Result<(), brn_threads_core::Error>
+    |     std::result::Result<_, brn_passage_comment_geometry::Unavailable>
+    |
+note: `std::result::Result<(), brn_threads_core::Error>` does not implement `PartialEq<std::result::Result<_, brn_passage_comment_geometry::Unavailable>>`
+   --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/result.rs:557:0
+    |
+    = note: `std::result::Result<(), brn_threads_core::Error>` is defined in another crate
+
+error[E0369]: binary operation `==` cannot be applied to type `std::result::Result<(), brn_threads_core::Error>`
+   --> tests/geometry.rs:167:5
+    |
+167 |     assert_eq!(f.select(0,false,cx),Err(Unavailable::DirtyDocument));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     |
+    |     std::result::Result<(), brn_threads_core::Error>
+    |     std::result::Result<_, brn_passage_comment_geometry::Unavailable>
+    |
+note: `std::result::Result<(), brn_threads_core::Error>` does not implement `PartialEq<std::result::Result<_, brn_passage_comment_geometry::Unavailable>>`
+   --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/result.rs:557:0
+    |
+    = note: `std::result::Result<(), brn_threads_core::Error>` is defined in another crate
+
+error[E0061]: this method takes 3 arguments but 2 arguments were supplied
+   --> tests/geometry.rs:217:11
+    |
+217 |        store.prepare_owner(&op,ChangeRequest{reason:"Synthetic geometry test".into(),inputs:vec![],writes:vec![
+    |  ____________^^^^^^^^^^^^^-____-
+    | | ________________________|
+    | ||
+218 | ||         Put{id:note.clone(),expected_version:None,archived:false,data:RecordData::Note(Note::working("Synthetic",source))},
+219 | ||         Put{id:comment.clone(),expected_version:None,archived:false,data:RecordData::Comment(anchor.clone())}
+220 | ||     ]}).unwrap();
+    | ||______-- argument #3 of type `&brn_threads_core::HostAuthority` is missing
+    | |_______|
+    |         expected `&ChangeRequest`, found `ChangeRequest`
+    |
+note: method defined here
+   --> /Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/crates/brn-threads-core/src/store.rs:215:12
+    |
+215 |     pub fn prepare_owner(
+    |            ^^^^^^^^^^^^^
+help: consider borrowing here
+    |
+217 |     store.prepare_owner(&op,&ChangeRequest{reason:"Synthetic geometry test".into(),inputs:vec![],writes:vec![
+    |                             +
+help: provide the argument
+    |
+217 -     store.prepare_owner(&op,ChangeRequest{reason:"Synthetic geometry test".into(),inputs:vec![],writes:vec![
+218 -         Put{id:note.clone(),expected_version:None,archived:false,data:RecordData::Note(Note::working("Synthetic",source))},
+219 -         Put{id:comment.clone(),expected_version:None,archived:false,data:RecordData::Comment(anchor.clone())}
+220 -     ]}).unwrap();
+217 +     store.prepare_owner(&op, /* &brn_threads_core::ChangeRequest */, /* &brn_threads_core::HostAuthority */).unwrap();
+    |
+
+Some errors have detailed explanations: E0061, E0107, E0308, E0369.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `brn-passage-comment-geometry` (test "geometry") due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,24 @@
+   Compiling brn-passage-comment-geometry v0.1.0 (/Users/evokessler/Documents/Codex/brn-rust/.worktrees/passage-comment-geometry/experiments/passage-comment-geometry)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.89s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running tests/geometry.rs (/private/tmp/brn-passage-geometry-target/debug/deps/geometry-0172b738b3c7f915)
+
+thread 'clearing_before_first_reveal_frame_cancels_scroll_in_identical_document' (12010572) panicked at tests/geometry.rs:993:5:
+assertion `left == right` failed: a cancelled comment's pending reveal must not scroll the new document
+  left: (22, 56px)
+ right: (0, 0px)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'clean_read_write_read_round_trip_clears_selected_anchor' (12010571) panicked at tests/geometry.rs:1028:5:
+returning to Read requires a new explicit selection
+
+thread 'hard_newline_plus_text_uses_first_covered_glyph_only' (12010577) panicked at tests/geometry.rs:109:29:
+visible passage-start glyph measured
+
+thread 'selected_comment_removal_reorder_and_resolution_are_identity_bound' (12010584) panicked at tests/geometry.rs:970:5:
+removed selected record cannot borrow another record's passage
+
+thread 'large_async_source_change_revert_cannot_revive_probe' (12010579) panicked at tests/geometry.rs:1014:5:
+transient mutation invalidates synchronously before any background parse commits
+error: test failed, to rerun pass `--test geometry`

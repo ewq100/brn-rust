@@ -1,0 +1,1199 @@
+{
+  "checked_utc": "2026-10-15T18:00:58.161468+00:00",
+  "tested_head": "32008c10fd7a636de56a2e3fc87fc6d846a1a7a9",
+  "tested_tree": "4d06c5fbe8d6c04e5f207596b3456fc106a869d7",
+  "publication_base": "8bef439b133e91ad68b0b76792bcd155d3d06237",
+  "reviewed_reference": "c20bda2dda16257164f7c584f0c5fc20a301075f",
+  "handoff_reference": "1fa01165d2d567d0cfc26257eded29207a8d0f69",
+  "full_inherited_diff_files": 192,
+  "implementation_paths_byte_identical_to_review": [
+    "experiments/passage-comment-geometry/.gitignore",
+    "experiments/passage-comment-geometry/Cargo.lock",
+    "experiments/passage-comment-geometry/Cargo.toml",
+    "experiments/passage-comment-geometry/LICENSE-TOOLKIT-APACHE",
+    "experiments/passage-comment-geometry/audit.py",
+    "experiments/passage-comment-geometry/handoff-audit.py",
+    "experiments/passage-comment-geometry/integration-audit.py",
+    "experiments/passage-comment-geometry/patches/brn-prototype-source.patch",
+    "experiments/passage-comment-geometry/patches/brn-review-prototype-source.patch",
+    "experiments/passage-comment-geometry/patches/gpui-base-0.7.3-range-start.patch",
+    "experiments/passage-comment-geometry/prepare-toolkit.py",
+    "experiments/passage-comment-geometry/run.py",
+    "experiments/passage-comment-geometry/src/lib.rs",
+    "experiments/passage-comment-geometry/src/main.rs",
+    "experiments/passage-comment-geometry/tests/geometry.rs"
+  ],
+  "all_inherited_files_identical_to_handoff": true,
+  "production_diff": [],
+  "root_dependency_diff": [],
+  "tracked_vendor_or_build_outputs": [],
+  "credential_pattern_findings": [],
+  "data_origin": "source, synthetic fixtures, compiler/test output and development command metadata; no user documents or provider payloads",
+  "toolkit_patch_sha256": "de6dcb320028f4d1848a44c3b2141fc87cd8edd7d23adb930500e4f40839b6d4",
+  "patch_reconstruction_matches_tested_sources": true,
+  "versions": {
+    "gpui-kit": "0.7.3",
+    "gpui-base": "0.7.3",
+    "gpui-pre": "0.3.9"
+  },
+  "console_session_flags": [
+    {
+      "CGSSessionScreenIsLocked": true
+    }
+  ],
+  "publication_scope": "experiment only; no production adoption or C-role assignment",
+  "inventory": [
+    {
+      "path": "experiments/passage-comment-geometry/.gitignore",
+      "bytes": 10,
+      "sha256": "370d55a7b70eedac1c093cb57411421b1833185aa6258b1bcde2917f3797b092",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/CHANGED-FILES.txt",
+      "bytes": 9636,
+      "sha256": "1ef9e7f2e18e65191d7e00754567fcfbb652f30c096fba9075b15f04aaa14958",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/Cargo.lock",
+      "bytes": 219010,
+      "sha256": "0749ff5d7224232c976856106d15a7a21de77fb5a6471161ab2c5edef9f6fb72",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/Cargo.toml",
+      "bytes": 445,
+      "sha256": "50a67e4edab09a5629765426711494431f1989a0f1519effc76a58118d25f766",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/HANDOFF.md",
+      "bytes": 14920,
+      "sha256": "12724a180416da01e2d7b694eff423b5df287d611335c15f4efa522443639ad6",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/INTEGRATION-REVIEW.md",
+      "bytes": 12239,
+      "sha256": "3367f986147614bff54ca3f35e2be4c7b311bbe4a423e84f9ee77403bbee5aaf",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/LICENSE-TOOLKIT-APACHE",
+      "bytes": 10305,
+      "sha256": "d1b0449e5478c574ba4f686c2656df7fe77d66821a61f8b6ed3378a58ed9a811",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/OWNER-HANDOFF.md",
+      "bytes": 3340,
+      "sha256": "f19aa6ca5b987fa363af260a0eac814e99a82cd620822181e103cf050fa434e9",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/PROPOSED-INTEGRATION.md",
+      "bytes": 7794,
+      "sha256": "4f3ae8a349699de6e3d6412bb061279d827ea43f03e7cc00c080bc5b58c392ff",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/README.md",
+      "bytes": 3238,
+      "sha256": "c861a58f0a0090d710526db0f13406af4bc95825062a98fcb1ffe1628a816d02",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/REPORT.md",
+      "bytes": 16967,
+      "sha256": "7a4d1623210bf23a7d3e09848b79d7242570ebe5008ce7d9a1a4fc5625143826",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/UPSTREAM.md",
+      "bytes": 1928,
+      "sha256": "aaf67b811b362ecf1635caee5dd97958642b3f45d6ca2a76e751e26f0bc7649b",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/audit.py",
+      "bytes": 1889,
+      "sha256": "e485cd206cef17be284e5f1c41b2832b80418c6d205fef34114bb91ff01fcd3f",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit-final.stdout",
+      "bytes": 771,
+      "sha256": "a293da7423dafee4a47e76cdbb9a92d02f607bb18fbc50a4dfbd6a8fd6b1745b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit.processes.txt",
+      "bytes": 435,
+      "sha256": "4433c8204b915f16d318d9ee749a0d417ee35ba4a4b6993456b8b44acd1b1161",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/audit.stdout",
+      "bytes": 771,
+      "sha256": "a293da7423dafee4a47e76cdbb9a92d02f607bb18fbc50a4dfbd6a8fd6b1745b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-final.stderr",
+      "bytes": 713,
+      "sha256": "162651539dcc47da32f16d9d1bc7019b1d3f4b56746a82fd76cd18b02d2188d6",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-host.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-host.stderr",
+      "bytes": 482,
+      "sha256": "e1acce58f0d5392ba66b8a7182c702b9f09827a02a32b4c8c7181fa6a0795024",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build-host.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build.stderr",
+      "bytes": 17392,
+      "sha256": "e0f68bb050297dd340c8766d22781c2fb3a3436acd5ae34a402e359bf5594ee7",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/build.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/cargo-version.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/cargo-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/cargo-version.stdout",
+      "bytes": 36,
+      "sha256": "9950bbb2d5c3417b1a068f0e81f6d3cac991a363193bdf2a22d447f5acf8b503",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy-final.stderr",
+      "bytes": 482,
+      "sha256": "948c894f672f32e9344e1daccceb61dc7aab31ca068f6494eec9afe087591feb",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy.stderr",
+      "bytes": 12841,
+      "sha256": "ecf05729c18cf5bf43eb3ddff9a722918b00e8ebc2ee7de3caf278dd2d3da30c",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/clippy.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/commands.jsonl",
+      "bytes": 79796,
+      "sha256": "562eb4ed76864feff3ee348afc80fe52901da3ac17c6f27131f48bdf14130a4f",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/fmt.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/gpui-graph.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/gpui-graph.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/gpui-graph.stdout",
+      "bytes": 1097,
+      "sha256": "f95219b7eeb472ecf1d8f4701d3144ee212dfb054f5b619dc74d016a5e2f3aeb",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-baseline.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-baseline.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-baseline.stdout",
+      "bytes": 1954,
+      "sha256": "16803b70f145f81b2deef08eb3a8b2705f5088a3061bcf0fd1e237b6cb887bb7",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-build.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-build.stderr",
+      "bytes": 713,
+      "sha256": "21b8d8f056e36f904b76a195c4ef3c219c507fbc6cd14c7d6eec710303c934b3",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-build.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-clippy.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-clippy.stderr",
+      "bytes": 712,
+      "sha256": "8f4305c711d64a8d13a748f36cfc1de6f583021fb5e2d0d4152f6ac778f32ac3",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-clippy.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-fmt.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-fmt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-fmt.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-headless-01.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-headless-01.stderr",
+      "bytes": 1136,
+      "sha256": "691785252a72787909cf1d7e9988dfb99e5736465308b1c8df3a71ce063418ee",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-headless-01.stdout",
+      "bytes": 6353,
+      "sha256": "717499738b6d5a486dd1fed69c3ca58cc162202a00c2b215fd6af19a77bf8ce8",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links-final.stdout",
+      "bytes": 102,
+      "sha256": "1aa7705421f096af93be7ed170cbf320a9a58f00175c2eec0f1d67fba8012864",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-links.stdout",
+      "bytes": 102,
+      "sha256": "947467248679c3de78a24f46354441919c4c9fb7be9a0532eac5f2658e0e6c7b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-review-patch.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-review-patch.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-review-patch.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-scope-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-scope-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-scope-final.stdout",
+      "bytes": 1954,
+      "sha256": "16803b70f145f81b2deef08eb3a8b2705f5088a3061bcf0fd1e237b6cb887bb7",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-toolkit-patch-check.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-toolkit-patch-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/handoff-toolkit-patch-check.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links-final.stdout",
+      "bytes": 102,
+      "sha256": "0a0fedb91e0140dcf6ded85a9461018c04c3a53aadc30eeae0c781fb4e0e284b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/links.stdout",
+      "bytes": 102,
+      "sha256": "c2f8d93b4858131f1e3372fc2d269e1de188f18d822f50e8e32864f5af45278b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/patch-check.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/patch-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/patch-check.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare-final.stdout",
+      "bytes": 336,
+      "sha256": "77f91eb63c3243a9b1d2515b422471bc3bac5c8a258eab15b9636b55eb1d6806",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/prepare.stdout",
+      "bytes": 336,
+      "sha256": "65a9b19fb7c6620351282d136f877ebc519bc0f6f943df40c6a955755e6498f4",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/qualified-toolkit-sources.json",
+      "bytes": 382,
+      "sha256": "4d1e60663091f01fd83e86b75b2db3f7db7e0ffe4088f4a617dcd761f53231a2",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/reproduced-sources.txt",
+      "bytes": 96,
+      "sha256": "b73d4d4160babef23bbac3e14ba5e1fd59c5e2a64b93d3fe5f327039eeb81fb6",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-build-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-build-final.stderr",
+      "bytes": 713,
+      "sha256": "e48477289f882a8c6d74b41392015e0b4740fccae0bda6155c0bd86a79f647a4",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-build-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-clippy-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-clippy-final.stderr",
+      "bytes": 712,
+      "sha256": "b2bda0d67516b5050ee328eb3619fc2703f643498162a8bff1bbce6ca3110c09",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-clippy-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-doc-links.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-doc-links.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-doc-links.stdout",
+      "bytes": 102,
+      "sha256": "741b2ef7e950e418ba75b7b466f5043e88b6386d6941cd4b5d4694d67eeab9ba",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-desktop.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-desktop.stderr",
+      "bytes": 17979,
+      "sha256": "7577c3234fcff18dfc5cd3932cb0f8b7bf9ee2a2f7a6d430f0c02185622e3dc5",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-desktop.stdout",
+      "bytes": 15412,
+      "sha256": "3166d472c488c8865ea8e3786865c382602f896420c022d1f7282bd9335b4d77",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-document.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-document.stderr",
+      "bytes": 391,
+      "sha256": "e2cc99e114e81139aa26dd742bc2f9b28066f9922c6aafb9b74f62e3bdfc45c9",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-document.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper-online.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper-online.stderr",
+      "bytes": 5880,
+      "sha256": "73e874705bb773bc1ea99117c6892fbb4deae37fd0988e0962402e894611d98b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper-online.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper.stderr",
+      "bytes": 391,
+      "sha256": "e2cc99e114e81139aa26dd742bc2f9b28066f9922c6aafb9b74f62e3bdfc45c9",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fallback-helper.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-audit.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-audit.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-audit.stdout",
+      "bytes": 1581,
+      "sha256": "c2b23315827ed5dc4ce7950c16e21088f0a1e9a8b6f7d69dfcc51bd4ffdcd8fb",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-links.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-links.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-final-links.stdout",
+      "bytes": 102,
+      "sha256": "e8bd8bcdb1543b987a5d55c45ca2456ab7464dd251597a71a55fd50b6aa2cdca",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt-final.processes.txt",
+      "bytes": 352,
+      "sha256": "2339041fd37b29dce28dd271845a3efac2c839a01fbac41a38d8b6ae43f0fb5f",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt-final.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fix-fmt.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fmt-check.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fmt-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-fmt-check.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-headless-final.processes.txt",
+      "bytes": 420,
+      "sha256": "77768f8ba19ad4021e34da4a02dab36e95bad72c49d81732dcb1ee51b299b416",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-headless-final.stderr",
+      "bytes": 879,
+      "sha256": "70a650cb21912dc514cff074b5226e0cb92a4934fd77f224211368aee01aadf4",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-headless-final.stdout",
+      "bytes": 6514,
+      "sha256": "2cca4e8c75a1f7bc8ec09e6b4e5855fc30ae96b21ef4595151f8bbd5ecb6343e",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-integration-audit.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-integration-audit.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-integration-audit.stdout",
+      "bytes": 1581,
+      "sha256": "d11cf29e4e92129b494260d86af001e6942a18ef22b987742a93c92927d69ecd",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-after.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-after.stderr",
+      "bytes": 825,
+      "sha256": "ba517a4bf947666b723bb5093be68619718ae621c44038443061c88708fceb53",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-after.stdout",
+      "bytes": 6375,
+      "sha256": "4a099de6b7f66b0a9b7f2c18acf9f317208c0c28b609ec4506c8548780fb0b7e",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-before.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-before.stderr",
+      "bytes": 1691,
+      "sha256": "e6ea41641702d0c80c19ba6492ab2b560ae508b4c6e3ef633ceb4d0f8f54ba1b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-regressions-before.stdout",
+      "bytes": 6742,
+      "sha256": "c4592be6a7bae22e32aab9da58cfe292f856d17870c8c84d7c2ffb5189b602c1",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-scope-versions.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-scope-versions.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-scope-versions.stdout",
+      "bytes": 771,
+      "sha256": "7d383b7d3607638c125ae8282dd8dc579ac8150efaaf29af29b062be520aad4c",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/review-toolkit-sources.json",
+      "bytes": 382,
+      "sha256": "250b0c97304acf12289ba52ab272cd37741be87bd17bff9b2e1cd093d9643503",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/rustc-version.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/rustc-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/rustc-version.stdout",
+      "bytes": 192,
+      "sha256": "e2211d4c0760a2a3b03eab88e42f8848952b7aa2ed649277a8fdbf3ce1838fd4",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/scope-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/scope-final.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/scope-final.stdout",
+      "bytes": 771,
+      "sha256": "8ae1e533c51440aeb479f1b2847638d1b153468eefa7cd9b704f0fdaa221d182",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-01.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-01.stderr",
+      "bytes": 6645,
+      "sha256": "cf18c0bf0dd2714e445af84763afbe4c46652532a2a099c13c861f481f769f06",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-01.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-02.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-02.stderr",
+      "bytes": 2160,
+      "sha256": "2be5a8d491a50a410d12903d7f945b9ea1c04ff26d90a230675aefcfbffd294b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-02.stdout",
+      "bytes": 1611,
+      "sha256": "2284f7b6f3d3a2cb4a6d04bf390fb0a4dab7177b59ea4e9d3ecd1610585e3df9",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-03.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-03.stderr",
+      "bytes": 1207,
+      "sha256": "b8a9657b257575a6695b6ffd1d09f726299d9868b50d0d6e058e5644d9a73dda",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-03.stdout",
+      "bytes": 3518,
+      "sha256": "363e55dfa18ea12e2256fba6ad31cbe2ab11ba7dd3090c493af4d3b3e0f7f132",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-04.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-04.stderr",
+      "bytes": 1227,
+      "sha256": "a60b780ce63cfd53f998a4ce46407c6840b7352954ea5fb4068ecada01a3b182",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-04.stdout",
+      "bytes": 4961,
+      "sha256": "0883b68577ef4e85533e0d32b20535696cf394a106b76fbd10795785da22ee22",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-05.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-05.stderr",
+      "bytes": 905,
+      "sha256": "d082c4780bef2067b0ddd8a2e382e83e42651c5aec20d32ef1c00dfd1fb82a48",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-05.stdout",
+      "bytes": 5134,
+      "sha256": "c78fe942d3f8e56432f20281cf97ba25e3fa7dfb5dd28b1d31849afdc4f52119",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-11.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-11.stderr",
+      "bytes": 1229,
+      "sha256": "b5e284a06152682d288745a2947c57d945497d1b95336e4d88276536350fbe6f",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-11.stdout",
+      "bytes": 5209,
+      "sha256": "c87a0bd0a01ae96d5941f2f8b4e8db3edf4fe529195154fd2167956730605752",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-12.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-12.stderr",
+      "bytes": 905,
+      "sha256": "d8bdc0c72b467e852e5e46d5f9ab1910fff68dc0fd81ef9e920907e20a322439",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final-12.stdout",
+      "bytes": 5321,
+      "sha256": "b16f035a762c1508646c92d3bdde49e07793f90671783e1f93123c73b6ec169d",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final.stderr",
+      "bytes": 1136,
+      "sha256": "064c8bb3bb0d8c01bcafb29d32ea74bcd66ec9662698f82306c2e4c49c2fa6c7",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/tests-final.stdout",
+      "bytes": 5134,
+      "sha256": "eed26f7529a4ac96c2ac19a8519eb3b3fd340f381b5bea2f0dee98bcd0bcf5de",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/whitespace.processes.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/whitespace.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/evidence/whitespace.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "category": "evidence"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/handoff-audit.py",
+      "bytes": 2590,
+      "sha256": "6cd56155696e8c2c5f840fcda20cbc7339d96ca0488690a82e1c74d85c1ee312",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/integration-audit.py",
+      "bytes": 3692,
+      "sha256": "81d9e432dec5933e95473a28d3f13508ea89d75f639c080df8107cc69c1476e5",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/patches/brn-prototype-source.patch",
+      "bytes": 52724,
+      "sha256": "8205e08d27f9d8fbbd1f369adcf49ffaa3d749421f6623263d312e6fb1acbb49",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/patches/brn-review-prototype-source.patch",
+      "bytes": 61310,
+      "sha256": "bd62b0c757312333bb0dc280386f9b9e0bd8c94e1509bc64a1fddb8d99bebe17",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/patches/gpui-base-0.7.3-range-start.patch",
+      "bytes": 12969,
+      "sha256": "de6dcb320028f4d1848a44c3b2141fc87cd8edd7d23adb930500e4f40839b6d4",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/prepare-toolkit.py",
+      "bytes": 1844,
+      "sha256": "4a4bebf98a332b1d9a238ee04d825c481b999d9fcd11f4dd8d407945c584d7e4",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/review/CHANGED-FILES.txt",
+      "bytes": 4347,
+      "sha256": "240f8e2d80f59c926de425a403267b77fdb2a0c85cc6de8604fe4b2b9a1fef08",
+      "category": "review-artifact"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/review/independent-corrected.md",
+      "bytes": 3525,
+      "sha256": "6eb04ff6429cc4a0d8563efd22c4330e3af754eb03d1d754ac967046742d8b53",
+      "category": "review-artifact"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/review/independent-initial.md",
+      "bytes": 4896,
+      "sha256": "89c3d1a784903f32b0068e62ee5301ccb0be371693908a773ad14390c9476c49",
+      "category": "review-artifact"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/run.py",
+      "bytes": 1957,
+      "sha256": "80765d8b371aeceeda537a05817549c64aff8e2d5188d03c994be6a9925849e0",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/src/lib.rs",
+      "bytes": 16783,
+      "sha256": "8ed3e799a276223dd88eda1f6c436a612df683d66ad1b95995756024ced44a66",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/src/main.rs",
+      "bytes": 442,
+      "sha256": "e1d333a905661aeb35e2c4cd04693ff2700cd80f9d1a942de48716f351210d01",
+      "category": "experiment"
+    },
+    {
+      "path": "experiments/passage-comment-geometry/tests/geometry.rs",
+      "bytes": 40994,
+      "sha256": "de1aedc852f75c26ebe1a9b1e81dc760e92ee2cadc8d9fc4a633ee473daa3b1e",
+      "category": "experiment"
+    }
+  ]
+}
