@@ -186,6 +186,7 @@ fn hold_worker(
         CancellationToken::new(),
         thread.into(),
         run.into(),
+        None,
     ));
     (sender, lease)
 }

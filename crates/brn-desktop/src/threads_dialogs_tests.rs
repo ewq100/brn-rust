@@ -602,6 +602,7 @@ fn working_run(
             cancel.clone(),
             thread.into(),
             run.clone(),
+            None,
         ));
         let lease = brn_ai::run_lease::RunLease::acquire(
             &view.workspace.store.derived_directory().unwrap(),

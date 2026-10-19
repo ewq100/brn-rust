@@ -87,7 +87,7 @@ use state::{
     save_message,
 };
 use theme::{ThemeId, pal};
-use worker::{Worker, WorkerBatchEnd, WorkerEvent};
+use worker::{EditNoteTarget, Worker, WorkerBatchEnd, WorkerEvent};
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_context_actions_tests.rs"]
@@ -417,7 +417,6 @@ struct ThreadsUi {
     progress: String,
     run_activity_labels: Vec<String>,
     run_activity_chat: Option<String>,
-    context_edit_note: Option<(String, String, u64)>,
     run_activity_status: String,
     run_activity_scroll: gpui_kit::ScrollHandle,
     notice: NoticeState,
@@ -691,7 +690,6 @@ impl ThreadsUi {
             progress: String::new(),
             run_activity_labels: vec![],
             run_activity_chat: None,
-            context_edit_note: None,
             run_activity_status: String::new(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: NoticeState::default(),
@@ -1808,10 +1806,11 @@ impl ThreadsUi {
             .queue_state()
             .pending
             .filter(|q| q.thread == thread && q.text == prompt && q.run.is_none());
-        let context_edit_note = match &owner_request {
-            Some(brn_ai::threads::OwnerRequest::EditNote { id, version }) => {
-                Some((id.clone(), *version))
-            }
+        let edit_note_target = match &owner_request {
+            Some(brn_ai::threads::OwnerRequest::EditNote { id, version }) => Some(EditNoteTarget {
+                note_id: id.clone(),
+                version: *version,
+            }),
             _ => None,
         };
         let queue_match = queued.is_some();
@@ -1829,7 +1828,7 @@ impl ThreadsUi {
         self.start_request(
             request,
             queue_match,
-            context_edit_note,
+            edit_note_target,
             "Continue from the chat",
             "Finished. The answer and saved changes are in this chat.",
             cx,
@@ -1841,7 +1840,7 @@ impl ThreadsUi {
         &mut self,
         request: ThreadRunStart,
         queued: bool,
-        context_edit_note: Option<(String, u64)>,
+        edit_note_target: Option<EditNoteTarget>,
         continuation: &'static str,
         completed: &'static str,
         cx: &mut Context<Self>,
@@ -1968,11 +1967,15 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        self.context_edit_note =
-            context_edit_note.map(|(note, version)| (run_id.clone(), note, version));
         self.run_activity_chat = Some(thread.clone());
         self.run_activity_status.clear();
-        self.worker = Some(Worker::run(receiver, cancel, thread, run_id));
+        self.worker = Some(Worker::run(
+            receiver,
+            cancel,
+            thread,
+            run_id,
+            edit_note_target,
+        ));
         self.stream.clear();
         self.run_activity_labels.clear();
         self.progress = "Starting…".into();
@@ -2662,9 +2665,11 @@ impl ThreadsUi {
                 WorkerEvent::Finished(result) => {
                     let kind = self.worker.as_ref().map(|w| w.kind());
                     let identity = self.worker.as_ref().and_then(Worker::run_identity);
-                    let context_edit = self.context_edit_note.take().filter(|(run, _, _)| {
-                        identity.is_some_and(|identity| identity.run_id == *run)
-                    });
+                    let edit_note_target = self
+                        .worker
+                        .as_ref()
+                        .and_then(Worker::edit_note_target)
+                        .cloned();
                     // The tone reads this worker's own run, never the chat's latest.
                     let stopped = self
                         .worker
@@ -2755,8 +2760,8 @@ impl ThreadsUi {
                         _ => {}
                     }
                     self.refresh();
-                    if let Some((_, note, version)) = context_edit {
-                        self.refresh_context_edit(&note, version, window, cx);
+                    if let Some(target) = edit_note_target {
+                        self.refresh_context_edit(&target.note_id, target.version, window, cx);
                     }
                 }
                 WorkerEvent::Converted {
@@ -2874,15 +2879,13 @@ impl ThreadsUi {
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
         self.pause_failed_worker();
-        if let Some(identity) = self.worker.as_ref().and_then(Worker::run_identity) {
+        if self
+            .worker
+            .as_ref()
+            .and_then(Worker::run_identity)
+            .is_some()
+        {
             self.run_activity_status = "Disconnected".into();
-            if self
-                .context_edit_note
-                .as_ref()
-                .is_some_and(|(run, _, _)| identity.run_id == *run)
-            {
-                self.context_edit_note = None;
-            }
         }
         self.reference_import = None;
         self.worker = None;

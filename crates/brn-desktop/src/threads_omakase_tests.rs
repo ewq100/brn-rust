@@ -536,6 +536,7 @@ fn finish_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
             CancellationToken::new(),
             thread.into(),
             run,
+            None,
         ));
         sender
             .send(WorkerEvent::Finished(Ok("Finished.".into())))

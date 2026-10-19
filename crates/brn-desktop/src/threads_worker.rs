@@ -48,8 +48,17 @@ pub(super) struct RunIdentity {
     pub(super) run_id: String,
 }
 
+#[derive(Clone)]
+pub(super) struct EditNoteTarget {
+    pub(super) note_id: String,
+    pub(super) version: u64,
+}
+
 enum WorkerOperation {
-    Run(RunIdentity),
+    Run {
+        identity: RunIdentity,
+        edit_note_target: Option<EditNoteTarget>,
+    },
     Import,
     Export,
     Backup,
@@ -81,12 +90,16 @@ impl Worker {
         cancel: CancellationToken,
         thread: String,
         run_id: String,
+        edit_note_target: Option<EditNoteTarget>,
     ) -> Self {
         Self {
             receiver,
             cancel,
             conversion_cancel: Arc::new(AtomicBool::new(false)),
-            operation: WorkerOperation::Run(RunIdentity { thread, run_id }),
+            operation: WorkerOperation::Run {
+                identity: RunIdentity { thread, run_id },
+                edit_note_target,
+            },
         }
     }
 
@@ -127,14 +140,23 @@ impl Worker {
 
     pub(super) fn run_identity(&self) -> Option<&RunIdentity> {
         match &self.operation {
-            WorkerOperation::Run(identity) => Some(identity),
+            WorkerOperation::Run { identity, .. } => Some(identity),
+            _ => None,
+        }
+    }
+
+    pub(super) fn edit_note_target(&self) -> Option<&EditNoteTarget> {
+        match &self.operation {
+            WorkerOperation::Run {
+                edit_note_target, ..
+            } => edit_note_target.as_ref(),
             _ => None,
         }
     }
 
     pub(super) fn kind(&self) -> WorkerKind {
         match self.operation {
-            WorkerOperation::Run(_) => WorkerKind::Run,
+            WorkerOperation::Run { .. } => WorkerKind::Run,
             WorkerOperation::Import => WorkerKind::Import,
             WorkerOperation::Export => WorkerKind::Export,
             WorkerOperation::Backup => WorkerKind::Backup,
@@ -193,6 +215,7 @@ mod tests {
                 CancellationToken::new(),
                 "original-chat".into(),
                 "original-run".into(),
+                None,
             ),
         )
     }
@@ -326,6 +349,7 @@ mod tests {
             CancellationToken::new(),
             "original-chat".into(),
             "original-run".into(),
+            None,
         );
         for index in 0..before_terminal {
             sender
@@ -375,6 +399,7 @@ mod tests {
             CancellationToken::new(),
             "original-chat".into(),
             "original-run".into(),
+            None,
         );
         for index in 0..MAX_EVENTS_PER_DRAIN - 1 {
             sender
@@ -415,6 +440,7 @@ mod tests {
             CancellationToken::new(),
             "original-chat".into(),
             "original-run".into(),
+            None,
         );
         for index in 0..(MAX_EVENTS_PER_DRAIN + 1) {
             sender
