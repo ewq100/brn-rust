@@ -200,3 +200,60 @@ fn an_owner_edit_grant_still_needs_the_note_read() {
     let result = replace(&scope, &note, 1, "Owner-directed rewrite");
     assert!(result.get("operation").is_some(), "{result}");
 }
+
+#[test]
+fn refresh_cannot_replace_unread_markdown_after_a_metadata_only_preparation() {
+    let (_root, request, note) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let original = prepare(
+        &scope,
+        PrepareArgs {
+            writing: None,
+            request_key: "metadata-only".into(),
+            request: ChangeRequest {
+                reason: "Title only; Markdown unchanged".into(),
+                writes: vec![Put {
+                    id: note.clone(),
+                    expected_version: Some(1),
+                    archived: false,
+                    data: RecordData::Note(Note::working("Changed title", "Monday")),
+                }],
+                inputs: vec![],
+            },
+        },
+    )
+    .unwrap();
+    assert!(original.get("operation").is_some());
+    assert!(!scope.reads.lock().unwrap().knows(&note, 1));
+    let replacement = refresh_candidate(
+        &scope,
+        RefreshArgs {
+            operation: original["operation"].as_str().unwrap().into(),
+            request_key: "whole-unread-refresh".into(),
+            request: ChangeRequest {
+                reason: "Replace all unseen Markdown".into(),
+                writes: vec![Put {
+                    id: note.clone(),
+                    expected_version: Some(1),
+                    archived: false,
+                    data: RecordData::Note(Note::working("Decision", "Unseen content dropped")),
+                }],
+                inputs: vec![],
+            },
+        },
+    )
+    .unwrap();
+    assert_eq!(replacement["outcome"], "Invalid");
+    assert!(replacement.get("operation").is_none());
+    assert_eq!(
+        scope
+            .store
+            .lock()
+            .unwrap()
+            .record(&note)
+            .unwrap()
+            .unwrap()
+            .version,
+        1
+    );
+}
