@@ -17,15 +17,18 @@ unattended executions remain unobserved.
 Note/Review pilots, worker terminal admission and coherent worker Run identity are
 merged. PR163's final source matches its independent review and all four required
 final-head and resulting-main required checks passed. PR164's required head checks
-passed before its normal merge; its resulting-main run39212874814 is pending.
+passed before its normal merge; all four required resulting-main jobs in run39212874814 passed.
 PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
 Next: finish PR165's required head/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.
-A separate late-refresh/newer-typing test-only qualification is being prepared;
-the source audit found no supported production defect.
+The separate [late-refresh/newer-typing witness](work/active/vacation-campaign/late-refresh.md)
+passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation and
+byte-exact restoration. Independent Sol effectiveness review approved the exact test. Luna also
+implements a reviewed Run-bound edit-refresh ownership plan on a separate branch;
+no current production defect is claimed.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

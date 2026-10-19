@@ -17,7 +17,8 @@ PR164 continuation/native-batch policy is reconciled with that main and passed
 updated independent review at67d7671e. All four required final-head37c87985 contexts,
 documentation and Ubuntu native passed in run39209590789; optional Windows Core
 failed. Normal exact-head merge completed as348959b7 at06:56:46UTC19October.
-Resulting-main run39212874814 remains pending. Initial PR164 run39208310470 was deliberately
+All four required resulting-main jobs passed in run39212874814; optional Windows
+failed; documentation and Ubuntu native/retrieval also passed. Initial PR164 run39208310470 was deliberately
 cancelled as superseded when PR163 advanced main; its documentation passed and
 optional Windows failure remain historical. No failed check was hidden or weakened.
 Both local heartbeats are registered ACTIVE, but their first unattended executions
@@ -33,7 +34,14 @@ interaction gates remain pending. The notice worker released the single build sl
 then passed actual before/after protocol tests, full desktop320/0/1, strict lint and
 production build. Independent review approved integrated2bf8eb08;
 [drain qualification](drain-fairness.md) retains the newer evidence and binary.
-It awaits required hosted/integration gates; no local build or source writer is active.
+PR165 remains fixed at exactheada961a75a with required run39213694797 in progress.
+The later branch adds the [late-refresh witness](late-refresh.md), locally qualified
+at original335ce1c/integrateda631371d with a diagnostic mutant failure and restored
+321/0/1 desktop pass. Independent Sol test-effectiveness review approved a631371d without findings.
+Sol approved the Run-bound edit-refresh plan59c0592c; Luna implements it on a new
+branch in the reused notice checkout and owns the single shared build slot.
+The current quota snapshot remains72% used/28% remaining, above the approximate5%
+remaining floor. None of these local results establishes native OS qualification.
 
 ## 19 October 2026: baseline and assignment
 

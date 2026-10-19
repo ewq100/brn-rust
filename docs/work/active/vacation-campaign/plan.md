@@ -319,3 +319,60 @@ not already supplied the protection. Luna owns the test/mutation in reused manag
 drain checkout on a new `codex/late-refresh-test` branch. Production mutation must
 be restored byte-for-byte before final checks/commit; final effectiveness review
 and qualification remain outstanding.
+
+## Next ownership candidate: Run-bound edit refresh target
+
+Luna source inspection found no reproduced defect: the current run-id filter is
+correct. It nevertheless repeats the current Run id in an independent UI tuple
+`(run_id,note_id,version)`, then coordinates assignment, terminal filtering and
+disconnect cleanup beside the already typed Run worker. The optional edit-refresh
+target belongs to that one invocation and need not exist independently.
+
+Adapt the existing private `WorkerOperation::Run` variant to hold `RunIdentity` and
+an optional typed `{note_id, version}` edit target. Keep identity itself about
+thread/run ids, because queue/stop consumers do not need Note presentation metadata.
+Use one private Run constructor with an explicit optional typed target; ordinary
+Run/Rewrite callers pass None and the existing EditNote capture passes Some. This
+adds small fixture arguments but avoids a second constructor/late-mutation API.
+Expose a read-only target accessor. Non-Run variants cannot carry an edit target.
+Do not add another owner, framework, general builder, setting or dependency.
+
+Remove the UI tuple and its duplicated run-id filter/cleanup together. Capture the
+exact approved note id/version as today; attach it only after successful preparation
+and spawn. On Finished, copy the current worker's target before retiring it, then
+use the existing `refresh_context_edit` gate unchanged. Disconnect drops the intent
+with the worker and does not refresh; a successor cannot inherit old intent.
+Do not change provider request/authorization, queue/lease/terminal policy, dirty
+guard, or hidden-Note/version/clean-buffer refresh conditions.
+
+Retain actual contextual-button exact-note/version and draft/queue/dirty/stale
+refusal tests; migrate the existing clean/typed/hidden completion fixture from
+direct tuple assignment into the supported Run constructor. Retain disconnect,
+Stop/Steer, partial persistence and successor journeys. Prefer those behavior seams
+and Rust variant/visibility proof over trivial getter-mirroring tests. Record the
+existing limitation: successful provider EditNote-to-refresh is not qualified by
+the offline refusal plus injected completion fixtures, and no live call is added.
+
+Independent Sol plan review must approve this source-backed ownership move before
+implementation. Then a Luna medium worker can edit statically in the idle managed
+notice-state checkout on a fresh branch; preserve its older source-bound binaries,
+helpers and evidence. It must wait for the recovery worker to release the shared
+build slot. Lead owns docs/integration and a complete combined candidate review;
+final relevant native tests, strict lint/format and production build remain gates.
+Reassess after two failed approaches or an authority/ordering ambiguity. Keep remote
+PR165 fixed while preparing this later coherent edit-refresh batch.
+
+Independent Sol approved the source-backed ownership plan at SHA-256
+`59c0592c57971d294c760777711c67804bb18268adebd3fe9d4faca9a8f240e7`
+against lead a43a3ef6. Luna now owns the isolated new
+`codex/run-edit-refresh-owner` branch in the reused notice-state checkout, starting
+at a631371d including the late-refresh test. The recovery worker restored its
+controlled mutation byte-for-byte and released the shared build slot. The new
+worker has that one slot; older source-bound helper/binary/evidence paths remain.
+Implementation and final independent review are still pending.
+
+The late-refresh witness is now independently approved at integrated a631371d;
+[its durable receipt](late-refresh.md) records focused1/0, restored321/0/1, strict
+lint/format, exact restoration and the separately retained mutant failure. A later
+reconstructed single-call deletion matches the recorded mutant hash; it is labeled
+as reconstructed and no rerun is implied. This adds qualification, not a defect fix.

@@ -4,25 +4,36 @@
 
 Latest fetched main is348959b7138de6230cb77852f860b910155c64d4 (PR164), merged
 normally after all four required exact-head checks passed in run39209590789.
-Resulting-main run39212874814 is pending. PR163/b5f01b07 required main checks
+Resulting-main run39212874814 passed all four required jobs; optional Windows
+failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5f01b07 required main checks
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/late-refresh-hardening`, with notice36bf2718 and Luna drain1e89f4e8 locally
 integrated. Complete source review approved2bf8eb08; current crate bytes match1e.
-Final protocol7/0, desktop320/0/1, strict native lint/format and production native-ui
-build pass. [Notice](notice-state.md) and [drain](drain-fairness.md) receipts retain
-commands, original failures, raw hashes and ignored/qualification limits. No local
-build or source writer is active. PR165 is published from remote
-`codex/notice-hardening` at exactheada961a75a; run39213694797 is in progress.
-Follow actual required exact-head gates, merge normally and inspect relevant main checks.
+Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
+production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
+receipts retain exact source qualification. PR165 remains fixed at remote
+`codex/notice-hardening` exactheada961a75a; required run39213694797 is in progress.
+Follow actual required exact-head gates, merge normally and inspect main checks.
 Always list all open PRs and inspect actual source/jobs before dispatching a slice.
 
-The lead's separate later branch prepares the test-only late-refresh/newer-typing
-qualification at the end of the plan; Luna plan-readiness is pending. No production
-defect is claimed. Reuse the idle managed drain worktree only after checking it is
-clean and starting a new branch at the current source. Do not push later-batch work
-onto PR165's checked head or replace its immutable artifact evidence.
+The later lead branch includes the test-only late-refresh/newer-typing witness at
+a631371d (worker original335ce1c). It passed the focused healthy run; temporarily
+bypassing only refresh sampling failed at the visible-text preservation assertion.
+The production file was restored byte-for-byte, with matching SHA256
+19b84f2ae2402a9615c4792e18bf2831a5a2f81762e785044ae5ae166d7d52de.
+Restored final desktop321/0/1, strict native lint and format pass. Independent Sol
+test-effectiveness review approved a631371d; [durable receipts](late-refresh.md) are imported. No production
+defect or native interaction is claimed.
+
+Sol approved the source-backed Run-bound edit-refresh ownership plan SHA256
+59c0592c57971d294c760777711c67804bb18268adebd3fe9d4faca9a8f240e7.
+Luna implements it on `codex/run-edit-refresh-owner` in the reused notice-state
+checkout at a631371d. That worker is the only local writer/build-slot owner.
+It replaces the duplicated UI tuple with an optional typed Run target while
+preserving existing refresh gates. Final source review/checks/build are pending.
+Do not push later work onto PR165's checked head or replace older immutable artifacts.
 
 Continue useful authorized batches inside the active session. The two-hour
 `brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily
