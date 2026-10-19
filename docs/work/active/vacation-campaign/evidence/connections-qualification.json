@@ -1,0 +1,103 @@
+{
+  "baseline": "92fdfbaa57d6e0eea883460fe2cbe0688f3079d2",
+  "source_commit": "d98374f4dc4eea5af1f6096703b37768b5a42709",
+  "integrated_commit": "98188942780295c6b4dc76900790db968164739e",
+  "baseline_production_sha256": "1a6975d6c55c92617a4c0ca857e64ed61475506beb77534a5331a9ec168f7270",
+  "all_tracked_rust_manifests_and_root_lock_toolchain_match": true,
+  "test_only_baseline": {
+    "patch": "connections-test-only-baseline.patch",
+    "sha256": "6dfc6274561ca02acd1c7acee22ecdabf2e9b8a65ad8bbae90d84f5557542a2b",
+    "isolated_index_applied_to_exact_baseline": true,
+    "only_changed_file": "crates/brn-desktop/src/threads_tiled_tests.rs",
+    "failed_assertion": "changing depth must hide the previous result and show pending",
+    "initial_failure_retained": "Earlier immediate frame used find on absent pending element; original patch/log retained separately, then an explicit semantic assertion retained.",
+    "initial_patch": "connections-test-only-initial.patch",
+    "initial_patch_sha256": "1b32b875645a6d2e36a21054e355447491dcf3b65c38e224556f813508b361b0"
+  },
+  "focused": {
+    "passed": 1,
+    "failed": 0
+  },
+  "full_desktop": {
+    "passed": 321,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 17.32,
+    "ignored_test": "threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left"
+  },
+  "strict_clippy": "passed",
+  "format_and_diff_check": "passed",
+  "production_build": {
+    "features": "native-ui",
+    "native_test_support": false,
+    "passed": true,
+    "immutable_path": "/Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-native-ui-d98374f4dc4eea5af1f6096703b37768b5a42709",
+    "sha256": "30aaca3e669c75e31a4a60459025efbf78cb0ebf97f0126ba9267690a6881da7"
+  },
+  "review": {
+    "result": "Independent Sol approved complete98188942 without source/design findings.",
+    "connections_diff_sha256": "d40cc174b84ce502aa212b98fccceaeb1312a22b129a4398d191d5c0f27c96a6",
+    "complete_diff_against_main_f475_sha256": "fc027c208698d1939adf69558ad9d57a2c8aba2ded88eef1bf7760a2166f0f73"
+  },
+  "commands": "connections-commands.txt",
+  "commands_sha256": "e55eb81e0751022e7a93ba11d8ab5e6039a5fb07ec9d3c7ce4a485de11aa1026",
+  "logs": [
+    {
+      "path": "connections-test-only-initial-missing-pending.log.gz",
+      "raw_sha256": "b6a6cf82d2f8eb8ca81fc7bbbfd893c39cc92fb492710d16f6f11312a0aa68f3",
+      "gzip_sha256": "fb163bbd204aafd97187bad217d32dc236c7d4777c6c465adc293e7bc46c7659",
+      "raw_bytes": 30849
+    },
+    {
+      "path": "connections-test-only-baseline-expected-failure.log.gz",
+      "raw_sha256": "91b3cd81b096f0f671cf3923ba02751460692b9b86e7c41a71fda93b9ccfb852",
+      "gzip_sha256": "17800549b45e8c915886a56bc6ab04962ccb8ee122962b5629af6fe379a38386",
+      "raw_bytes": 1418
+    },
+    {
+      "path": "connections-focused-final.log.gz",
+      "raw_sha256": "bb2dfbb57bad08b25d5332db23d20deadf2cea51e42c06c1f7f52b81d1de8d0b",
+      "gzip_sha256": "7b1c2ce89fd4f30f91348ebd145f505916d5cab83df1fbcfa9390d2e067058c7",
+      "raw_bytes": 787
+    },
+    {
+      "path": "connections-final-desktop-suite.log.gz",
+      "raw_sha256": "a094bac79bdd40a02b2971547af2280f1fbb4bfb9dcaded11192cf88a3a49607",
+      "gzip_sha256": "ecb017bd781dd0eaaad0d4bdd485d8860994b2430850f10257a552e4b94c6a54",
+      "raw_bytes": 33263
+    },
+    {
+      "path": "connections-final-clippy.log.gz",
+      "raw_sha256": "a1029a0495bda4e89b0cd6cc0da2c953556108b1ab76571e96f8ec5f2b48654e",
+      "gzip_sha256": "11cf65215cd5e1a32dd2711277c861bb602037b642523e7207523a6cd2508abb",
+      "raw_bytes": 420
+    },
+    {
+      "path": "connections-final-format.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "connections-final-diff-check.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "connections-production-native-ui-build.log.gz",
+      "raw_sha256": "6095403eb46c7178f5537f5d9f662d90d1ef337f0527aa920b00c1822e4db398",
+      "gzip_sha256": "fe951ff2563323ad3da76c76da05c7b5c24271d35825a9397be16f7912adc42c",
+      "raw_bytes": 543
+    }
+  ],
+  "limits": [
+    "Real toolkit-control and immediate rendered-frame witness, not native OS input.",
+    "No live provider/model/private data.",
+    "Existing generation cancellation, service query behavior and Knowledge checks unchanged.",
+    "One extended existing test; total test count unchanged.",
+    "External shared CLI fixture remains ignored, not self-skipped as success.",
+    "Hosted final-head and resulting-main checks remain pending."
+  ],
+  "final_docs_audit": "Independent Luna validated all 8 raw/gzip hashes, baseline patches, immutable binary, source/lock/toolchain equality, CI timing and byte-preserved historical bodies. One stale notice-only pending clause corrected in current evidence before publication; no source changes."
+}

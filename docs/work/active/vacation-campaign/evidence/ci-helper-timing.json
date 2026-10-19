@@ -1,0 +1,71 @@
+{
+  "run": 39213694797,
+  "head": "a961a75a7191d80d6b717e99c90db415f8b882b2",
+  "overall_conclusion": "failure",
+  "required_contexts_all_passed": true,
+  "rows": [
+    {
+      "job": "Core and CLI (ubuntu-24.04)",
+      "job_seconds": 1447.0,
+      "helper_prepare_seconds": 511.0,
+      "step": {
+        "completedAt": "2026-10-19T07:13:49Z",
+        "conclusion": "success",
+        "name": "Prepare both locked document helper graphs",
+        "number": 6,
+        "startedAt": "2026-10-19T07:05:18Z",
+        "status": "completed"
+      },
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39213694797/job/117932562790"
+    },
+    {
+      "job": "Native retrieval and combined build (macos-15)",
+      "job_seconds": 725.0,
+      "helper_prepare_seconds": 348.0,
+      "step": {
+        "completedAt": "2026-10-19T07:11:59Z",
+        "conclusion": "success",
+        "name": "Prepare both locked document helper graphs",
+        "number": 4,
+        "startedAt": "2026-10-19T07:06:11Z",
+        "status": "completed"
+      },
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39213694797/job/117932563061"
+    },
+    {
+      "job": "Native UI build and state (macos-15)",
+      "job_seconds": 722.0,
+      "helper_prepare_seconds": 381.0,
+      "step": {
+        "completedAt": "2026-10-19T07:15:45Z",
+        "conclusion": "success",
+        "name": "Prepare both locked document helper graphs",
+        "number": 4,
+        "startedAt": "2026-10-19T07:09:24Z",
+        "status": "completed"
+      },
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39213694797/job/117932563064"
+    },
+    {
+      "job": "Core and CLI (macos-15)",
+      "job_seconds": 1219.0,
+      "helper_prepare_seconds": 343.0,
+      "step": {
+        "completedAt": "2026-10-19T07:11:30Z",
+        "conclusion": "success",
+        "name": "Prepare both locked document helper graphs",
+        "number": 6,
+        "startedAt": "2026-10-19T07:05:47Z",
+        "status": "completed"
+      },
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39213694797/job/117932563192"
+    }
+  ],
+  "inspected_files_sha256": {
+    ".github/workflows/ci.yml": "06a111adfe3fcdb49a7fcb3ecd7fdbdc13223730d30b5b107d01318819a13030",
+    ".github/actions/setup-rust/action.yml": "98a6e641ad3f9cd21d1b9fc0d69b305e455d8260bca1542bc7ea20010b1acfc3",
+    "scripts/build-document-helpers.sh": "0abe63a0c0c11a1a31fbfc376330ab3e957ed56c28f4df7d4008ff78d7d516d2",
+    "scripts/prepare-xberg-adapted.py": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5"
+  },
+  "qualification": "Measured completed job/step timestamps. Cache-hit/helper recompile observations were separate read-only log inspection; no workflow change or artifact-sharing speedup qualified."
+}

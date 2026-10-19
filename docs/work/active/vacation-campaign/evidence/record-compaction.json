@@ -1,0 +1,32 @@
+{
+  "purpose": "Keep current resume rules/state concise; preserve original record bodies byte-for-byte at same-directory history paths so relative link targets do not change.",
+  "entries": [
+    {
+      "current": "plan.md",
+      "history": "planning-history-through-2026-10-19.md",
+      "original_utf8_sha256": "26451dbcb7a1e8392a812a0309a12b7377390889d9df207563f99e3a84cd1a02",
+      "history_prefix_utf8_bytes": 343,
+      "preserved_body_utf8_sha256": "26451dbcb7a1e8392a812a0309a12b7377390889d9df207563f99e3a84cd1a02",
+      "original_lines": 424,
+      "current_lines": 179
+    },
+    {
+      "current": "checkpoint.md",
+      "history": "checkpoint-history-through-2026-10-19.md",
+      "original_utf8_sha256": "1009c8014907415ed53ad51a4cea78959aedd4af97eae598333c98caac399864",
+      "history_prefix_utf8_bytes": 349,
+      "preserved_body_utf8_sha256": "1009c8014907415ed53ad51a4cea78959aedd4af97eae598333c98caac399864",
+      "original_lines": 140,
+      "current_lines": 86
+    },
+    {
+      "current": "evidence.md",
+      "history": "continuation-history-through-2026-10-19.md",
+      "original_utf8_sha256": "df293f828b15129c084d14c96ec1ae0adc557243a94d18421ed86f73ab8ac1bf",
+      "history_prefix_utf8_bytes": 347,
+      "preserved_body_utf8_sha256": "df293f828b15129c084d14c96ec1ae0adc557243a94d18421ed86f73ab8ac1bf",
+      "original_lines": 392,
+      "current_lines": 58
+    }
+  ]
+}

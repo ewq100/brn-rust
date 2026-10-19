@@ -1,0 +1,32 @@
+Repository: /Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust
+Baseline: 92fdfbaa57d6e0eea883460fe2cbe0688f3079d2
+Candidate: d98374f4dc4eea5af1f6096703b37768b5a42709
+Toolchain: Rust 1.98.1-aarch64-apple-darwin
+Shared target: /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+Helpers:
+  BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+  BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+Build settings: CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0; --locked --offline --jobs 1
+
+Expected-failure witness against unchanged production source:
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop connections_tile_lists_visible_links_filters_relations_and_recenters --locked --offline --jobs 1
+Result: failed at `changing depth must hide the previous result and show pending`; production `threads_connections.rs` SHA-256 recorded in production-before-test.sha256.
+
+Focused test after fix:
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop connections_tile_lists_visible_links_filters_relations_and_recenters --locked --offline --jobs 1
+Result: passed 1/1.
+
+Final full native desktop suite:
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop --locked --offline --jobs 1
+
+Final strict all-target lint:
+cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+
+Final formatting and diff checks:
+cargo fmt --all -- --check
+git diff --check
+
+Production-feature build without test support:
+cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
+
+Binary copied to /Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-native-ui-d98374f4dc4eea5af1f6096703b37768b5a42709; artifact SHA-256 is in production-binary.sha256.

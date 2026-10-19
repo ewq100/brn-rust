@@ -31,7 +31,10 @@ passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation
 byte-exact restoration. Independent Sol effectiveness review approved the exact test. The later Run-bound edit-refresh ownership candidate is implemented and independently
 approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
 passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
-while publication and hosted gates remain pending. No original production defect
+while publication and hosted gates remain pending. The same later candidate98188942
+also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
+with a failing old-source witness and final321/0/1, lint/format/production build passing.
+Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect
 is claimed.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
