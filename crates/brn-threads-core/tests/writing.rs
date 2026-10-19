@@ -309,3 +309,28 @@ fn legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape
                 && input.expectation == InputExpectation::Current)
     );
 }
+
+#[test]
+fn frozen_b873_evidence_bytes_and_request_hash_survive_optional_suggestions() {
+    use sha2::{Digest, Sha256};
+    // Hand-checked against b8735ea1 WritingCandidateEvidence/Message/Put/ChangeRequest
+    // field order. This is a serialization fixture; valid snapshot binding is
+    // exercised by the persisted evidence/application tests.
+    let old = include_str!("fixtures/writing-evidence-v1-b873.json");
+    let evidence: WritingCandidateEvidence = serde_json::from_str(old).unwrap();
+    assert!(evidence.proposed_addressed_comment_ids.is_empty());
+    assert_eq!(serde_json::to_string(&evidence).unwrap(), old);
+    let request_bytes = include_str!("fixtures/writing-request-v1-b873.json");
+    let mut request: ChangeRequest = serde_json::from_str(request_bytes).unwrap();
+    let RecordData::Message(message) = &mut request.writes[0].data else {
+        panic!()
+    };
+    assert_eq!(message.text, old);
+    message.text = serde_json::to_string(&evidence).unwrap();
+    let actual = serde_json::to_vec(&request).unwrap();
+    assert_eq!(actual, request_bytes.as_bytes());
+    assert_eq!(
+        format!("{:x}", Sha256::digest(&actual)),
+        "8642ed2880111a138e5f310311278ddfe4bd5771cd72382e33dd1b689ab7ddcc"
+    );
+}

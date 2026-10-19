@@ -65,3 +65,34 @@ integration and the single build slot. No database schema, dependency, CLI-resul
 or live-provider change is selected. Source review, deterministic usefulness,
 hosted/main and actual native observation stay separate. Stop and reassess an
 unresolved compatibility or authority question before expanding this design.
+
+
+## Candidate review and current gate
+
+Initiale5a34684 was not accepted: independent review found that core owner
+replacement could retain nonempty model reports for changed text, despite the
+app path clearing them. Corrected productiona82db5b9 requires exact clearing;
+old-empty and runtime-refresh equality remain unchanged. Frozen historical JSON
+and hash fixtures, plus literal actual SDK wire assertions, replace self-derived
+expectations. Final source4e81fcba is independently approved; its full diff against
+b8735ea1 has SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
+Subsequent test-only changes fix replacement creation IDs and assert the intended
+guard reason, with no production change aftera82.
+
+The first original-guard witness survived because a later unrelated creation-ID
+check masked the defect; it is retained as ineffective evidence. The corrected
+compatible harness12167d52 with the exact originale5 store module compiles and
+fails semantically when that guard accepts retained reports. Restored final4e81
+passes the same focused test. This is an original-module witness, not a complete
+old-baseline build. Final4e81 passes core215/0/1, runtime522/0/2, app65/0,
+rendered writing39/0, full native333/0/1, writing UI44 plus development-host12,
+CLI43/0, strict six-package all-target lint, workspace format and ordinary
+production-native build. [Qualification](../vacation-campaign/evidence/proposed-feedback-qualification.json)
+retains72 lossless raw archives, immutable guide17 executables and exact source
+transfer to leadc671b036 (all16 files and production tree identical). The inherited
+/var temp symlink failure is retained alongside same-binary canonical-TMPDIR
+confirmation and the final full core result. No guard was relaxed.
+
+M4b is locally integrated on the lead continuation, not in PR172/current main.
+Hosted/main and actual Mac gates remain. The [source review receipt](../vacation-campaign/evidence/proposed-feedback-source-review.json)
+and [native fixture task](native-suggestion-fixture.md) keep those gates separate.

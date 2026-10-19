@@ -146,6 +146,7 @@ fn actual_ranges_and_quotes_are_persisted_not_declared_inputs_and_prepare_retry_
         expectation: InputExpectation::Current,
     }];
     model.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![],
         quotations: vec![WritingQuotation {
             id: reference.clone(),
             version: 1,
@@ -179,6 +180,7 @@ fn actual_ranges_and_quotes_are_persisted_not_declared_inputs_and_prepare_retry_
     read(&scope, &reference, 1, 0, 1024);
     let mut retry = args(&snapshot);
     retry.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![],
         quotations: proof.quotations,
         requirements_reported: proof.requirements_reported,
     });
@@ -196,6 +198,7 @@ fn fabricated_or_unread_quotations_are_rejected_before_a_candidate_exists() {
         }
         let mut model = args(&snapshot);
         model.writing = Some(WritingEvidenceArgs {
+            proposed_addressed_comment_ids: vec![],
             quotations: vec![WritingQuotation {
                 id: reference,
                 version: 1,
@@ -540,6 +543,7 @@ async fn v2_model_prepare_preserves_nonempty_evidence_and_exact_retry() {
         .unwrap();
     let mut model_args = args(&snapshot);
     model_args.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![],
         quotations: vec![WritingQuotation {
             id: reference.clone(),
             version: 1,
@@ -628,4 +632,176 @@ async fn v2_model_prepare_preserves_nonempty_evidence_and_exact_retry() {
     let store = scope.store.lock().unwrap();
     assert_eq!(store.record(&snapshot.note.id).unwrap().unwrap(), original);
     assert!(store.receipt(&observed[0].operation).unwrap().is_none());
+}
+
+#[test]
+fn proposed_comments_bind_immutable_retry_and_old_evidence_bytes() {
+    let (_root, request, snapshot, _) = fixture("Requirement", WritingReadRequirements::default());
+    let (scope, _) = begin(&request).unwrap();
+    let ids = vec![snapshot.comments[0].id.clone()];
+    let mut model = args(&snapshot);
+    model.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: ids.clone(),
+        ..Default::default()
+    });
+    let first: Prepared = serde_json::from_value(prepare(&scope, model).unwrap()).unwrap();
+    assert_eq!(evidence(&first).proposed_addressed_comment_ids, ids);
+    let mut retry = args(&snapshot);
+    retry.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: ids,
+        ..Default::default()
+    });
+    assert_eq!(
+        first,
+        serde_json::from_value::<Prepared>(prepare(&scope, retry).unwrap()).unwrap()
+    );
+    assert!(
+        prepare(&scope, args(&snapshot)).is_err(),
+        "changed suggestions cannot reuse the request key"
+    );
+    drop(scope);
+    let store = Store::open(&request.data_dir).unwrap();
+    assert_eq!(store.prepared(&first.operation).unwrap(), first);
+    // Missing and explicit-empty decode the same; omitted old bytes stay exact.
+    let mut old = serde_json::to_value(evidence(&first)).unwrap();
+    old.as_object_mut()
+        .unwrap()
+        .remove("proposed_addressed_comment_ids");
+    let old: WritingCandidateEvidence = serde_json::from_value(old).unwrap();
+    let bytes = serde_json::to_string(&old).unwrap();
+    assert!(!bytes.contains("proposed_addressed_comment_ids"));
+    let mut explicit: Value = serde_json::from_str(&bytes).unwrap();
+    explicit["proposed_addressed_comment_ids"] = json!([]);
+    let explicit: WritingCandidateEvidence = serde_json::from_value(explicit).unwrap();
+    assert_eq!(serde_json::to_string(&explicit).unwrap(), bytes);
+    assert_eq!(explicit, old);
+}
+
+#[test]
+fn proposed_comments_invalid_direct_prepare_has_no_allocation_or_run_effect() {
+    for invalid in 0..4 {
+        let (_root, request, snapshot, reference) =
+            fixture("Requirement", WritingReadRequirements::default());
+        let (scope, _) = begin(&request).unwrap();
+        let id = snapshot.comments[0].id.clone();
+        let ids = match invalid {
+            0 => vec!["unknown".into()],
+            1 => vec![id.clone(), id.clone()],
+            2 => vec![reference],
+            _ => vec![id; 129],
+        };
+        let before = scope.store.lock().unwrap().records().unwrap();
+        let mut model = args(&snapshot);
+        model.writing = Some(WritingEvidenceArgs {
+            proposed_addressed_comment_ids: ids,
+            ..Default::default()
+        });
+        assert!(prepare(&scope, model).is_err());
+        let mut store = scope.store.lock().unwrap();
+        assert_eq!(store.records().unwrap(), before);
+        assert!(store.candidates().unwrap().is_empty());
+        // A previous unbound allocation would make this bound-key probe refuse.
+        store
+            .allocate_bound_operation(
+                &format!("{}:proposal:cw2-proposal", scope.run),
+                &"a".repeat(64),
+            )
+            .expect("invalid arguments must not allocate the proposal identity");
+    }
+}
+
+#[tokio::test]
+async fn proposed_comments_invalid_mixed_batch_skips_every_sibling_and_offers_correction() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    for progress_first in [false, true] {
+        let (_root, request, snapshot, _) =
+            fixture("Requirement", WritingReadRequirements::default());
+        let (scope, input) = begin(&request).unwrap();
+        let change = json!({"request_key":"invalid-suggestions", "request":snapshot.change_request("Tuesday").unwrap(), "writing":{"quotations":[],"requirements_reported":[],"proposed_addressed_comment_ids":["not-captured"]}});
+        let bad = MockStreamEvent::tool_call("bad", "prepare_changes", change);
+        let progress = MockStreamEvent::tool_call(
+            "progress",
+            "retain_progress",
+            json!({"summary":"MUST_NOT_PERSIST"}),
+        );
+        let mut batch = if progress_first {
+            vec![progress, bad]
+        } else {
+            vec![bad, progress]
+        };
+        batch.push(MockStreamEvent::final_response_with_total_tokens(1));
+        let model = MockCompletionModel::from_stream_turns([
+            batch,
+            vec![MockStreamEvent::final_response_with_total_tokens(1)],
+        ]);
+        let _ = run_model(
+            model.clone(),
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert_eq!(
+            model.request_count(),
+            2,
+            "eligible membership error gets existing correction opportunity"
+        );
+        let mut store = scope.store.lock().unwrap();
+        let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+            panic!()
+        };
+        assert!(run.progress.is_empty());
+        assert!(run.operations.is_empty());
+        assert!(store.candidates().unwrap().is_empty());
+        store
+            .allocate_bound_operation(
+                &format!("{}:proposal:invalid-suggestions", scope.run),
+                &"a".repeat(64),
+            )
+            .unwrap();
+    }
+}
+
+#[test]
+fn runtime_refresh_cannot_use_owner_suggestion_clearing_exception() {
+    let (_root, request, snapshot, _) = fixture("Requirement", WritingReadRequirements::default());
+    let (scope, _) = begin(&request).unwrap();
+    let mut model = args(&snapshot);
+    model.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![snapshot.comments[0].id.clone()],
+        ..Default::default()
+    });
+    let original: Prepared = serde_json::from_value(prepare(&scope, model).unwrap()).unwrap();
+    let mut store = scope.store.lock().unwrap();
+    let replacement = store
+        .allocate_operation("runtime-suggestion-clearing")
+        .unwrap();
+    update_run(&scope, &mut store, |run| {
+        run.operations.push(replacement.clone())
+    })
+    .unwrap();
+    let mut cleared = original.request.clone();
+    let write = cleared.writes.iter_mut().find(|write| matches!(&write.data,RecordData::Message(message) if message.role==WRITING_EVIDENCE_ROLE)).unwrap();
+    write.id = replacement.creation_id(0);
+    let RecordData::Message(message) = &mut write.data else {
+        panic!()
+    };
+    let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).unwrap();
+    evidence.proposed_addressed_comment_ids.clear();
+    message.text = serde_json::to_string(&evidence).unwrap();
+    let authority = bind(&scope, HostAuthority::runtime("Threads host", &scope.run));
+    let error = store
+        .refresh_candidate(&original.operation, &replacement, &cleared, &authority)
+        .unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("evidence and input bindings must survive replacement"),
+        "{error}"
+    );
+    assert_eq!(store.prepared(&original.operation).unwrap(), original);
 }

@@ -476,12 +476,16 @@ impl Store {
                     .iter()
                     .filter(|w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE))
                     .any(|evidence| {
-                        !request
-                            .writes
-                            .iter()
-                            .any(|w| w.data == evidence.data
-                                && w.archived == evidence.archived
-                                && w.expected_version == evidence.expected_version)
+                        // A model report belongs to the original text. Every
+                        // owner replacement must clear it; runtime refresh has
+                        // no evidence-editing exception.
+                        let cleared = (!runtime_refresh)
+                            .then(|| crate::writing::evidence_without_suggestions(&evidence.data))
+                            .flatten();
+                        let expected = cleared.as_ref().unwrap_or(&evidence.data);
+                        !request.writes.iter().any(|w| &w.data == expected
+                            && w.archived == evidence.archived
+                            && w.expected_version == evidence.expected_version)
                     }))
         {
             return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));

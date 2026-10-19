@@ -20,4 +20,11 @@ remain in [qualification](../vacation-campaign/evidence/skill-reapproval-qualifi
 The fixture uses checked owner policy writes and the real current builtin digest;
 it is not a historical executable or native observation. No unchanged-old-source
 semantic execution is claimed. Root19efe contains the exact approved source;
-combined desktop327/runtime505/CLI15/app journeys8, strict native lint/format and production build passed; see the [combined receipt](../vacation-campaign/evidence/agent-first-combined-qualification.json). Normal hosted/main gates remain. Actual Mac/owner acceptance remains separate.
+combined desktop327/runtime505/CLI15/app journeys8, strict native lint/format and production build passed; see the [combined receipt](../vacation-campaign/evidence/agent-first-combined-qualification.json). All four required PR171 head and resulting-main checks passed; optional Windows failures remain explicit. Actual Mac/owner acceptance remains separate.
+
+
+Integration: PR171 merged normally as9a6feab2 from exact7a9867a8 after all four
+required head checks passed. All four required resulting-main39240783382 checks
+passed; optional Windows Core/UI/retrieval failed. [Integration receipt](../vacation-campaign/evidence/pr171-integration.json)
+retains the actual separate gates. Live-model usefulness, actual native observation
+and owner acceptance remain separate; no release qualification is claimed.

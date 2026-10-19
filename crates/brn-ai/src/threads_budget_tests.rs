@@ -1730,6 +1730,7 @@ async fn bounded_reference_delivery_cannot_validate_an_undelivered_writing_quota
             request_key: "reject-undelivered-quotation".into(),
             request: snapshot.change_request("Tuesday").unwrap(),
             writing: Some(WritingEvidenceArgs {
+                proposed_addressed_comment_ids: vec![],
                 quotations: vec![WritingQuotation {
                     id: reference.clone(),
                     version: 1,

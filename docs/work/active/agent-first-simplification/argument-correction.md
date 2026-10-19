@@ -46,3 +46,10 @@ or merge is implied by these local results.
 Lead retains shared documentation/integration. Requested Sol high implemented and
 independently reviewed consequential validation changes; the single local build
 slot and campaign quota/expiry rules remain unchanged.
+
+
+Integration: PR171 merged normally as9a6feab2 from exact7a9867a8 after all four
+required head checks passed. All four required resulting-main39240783382 checks
+passed; optional Windows Core/UI/retrieval failed. [Integration receipt](../vacation-campaign/evidence/pr171-integration.json)
+retains the actual separate gates. Live-model usefulness, actual native observation
+and owner acceptance remain separate; no release qualification is claimed.

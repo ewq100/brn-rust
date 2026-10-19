@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-10-19T11:14:20.800292+00:00",
+  "observed_at_utc": "2026-10-19T11:17:48.726051+00:00",
   "pr": 171,
   "url": "https://github.com/ewq100/brn-rust/pull/171",
   "head": "7a9867a871fbf584804277d3fe877ee8e260f4c4",
@@ -87,9 +87,9 @@
   ],
   "main_run": 39240783382,
   "main_head": "9a6feab2234efb7732feac7fb3cbe7230ea36348",
-  "main_status": "in_progress",
-  "main_overall_conclusion": "",
-  "main_required_checks_passed": false,
+  "main_status": "completed",
+  "main_overall_conclusion": "failure",
+  "main_required_checks_passed": true,
   "main_jobs": [
     {
       "completedAt": "2026-10-19T10:54:49Z",
@@ -1033,12 +1033,12 @@
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39240783382/job/118020792533"
     },
     {
-      "completedAt": "0001-01-01T00:00:00Z",
-      "conclusion": "",
+      "completedAt": "2026-10-19T11:14:36Z",
+      "conclusion": "success",
       "databaseId": 118020792535,
       "name": "Core and CLI (macos-15)",
       "startedAt": "2026-10-19T10:54:29Z",
-      "status": "in_progress",
+      "status": "completed",
       "steps": [
         {
           "completedAt": "2026-10-19T10:54:30Z",
@@ -1145,52 +1145,60 @@
           "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:25Z",
+          "conclusion": "success",
           "name": "Lint provider capability fixtures",
           "number": 14,
           "startedAt": "2026-10-19T11:14:12Z",
-          "status": "in_progress"
+          "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:25Z",
+          "conclusion": "success",
           "name": "Check CLI help on Unix",
           "number": 15,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-10-19T11:14:25Z",
+          "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:25Z",
+          "conclusion": "skipped",
           "name": "Check CLI help on Windows",
           "number": 16,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-10-19T11:14:25Z",
+          "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:28Z",
+          "conclusion": "success",
           "name": "Run offline end-to-end fixtures",
           "number": 17,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-10-19T11:14:25Z",
+          "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:29Z",
+          "conclusion": "success",
           "name": "Post Run ./.github/actions/setup-rust",
           "number": 33,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-10-19T11:14:28Z",
+          "status": "completed"
         },
         {
-          "completedAt": "0001-01-01T00:00:00Z",
-          "conclusion": "",
+          "completedAt": "2026-10-19T11:14:29Z",
+          "conclusion": "success",
           "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
           "number": 34,
-          "startedAt": "0001-01-01T00:00:00Z",
-          "status": "pending"
+          "startedAt": "2026-10-19T11:14:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-19T11:14:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 35,
+          "startedAt": "2026-10-19T11:14:29Z",
+          "status": "completed"
         }
       ],
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39240783382/job/118020792535"

@@ -1328,6 +1328,14 @@ impl<T: 'static> WritingView<'_, T> {
                     RecordData::Comment(comment) => Some(comment),
                     _ => None,
                 });
+            let model_suggested = captured.is_some()
+                && self.review.as_ref().is_some_and(|review| {
+                    self.writing_reviews
+                        .get(review.candidate.operation.as_str())
+                        .is_some_and(|evidence| {
+                            evidence.proposed_addressed_comment_ids.contains(&id)
+                        })
+                });
             let shown = captured.unwrap_or(comment);
             let changed_feedback = captured.is_some_and(|captured| {
                 captured.note != comment.note
@@ -1490,6 +1498,12 @@ impl<T: 'static> WritingView<'_, T> {
                     ))
                 })
                 .child(div().text_size(UI_TEXT).child(shown.body.clone()))
+                .when(model_suggested, |card| {
+                    card.child(div().id(format!("comment-model-suggestion-{id}"))
+                        .text_size(SMALL_TEXT).text_color(rgb(p.muted))
+                        .aria_label("Model suggests addressed; select With Apply to mark it addressed after Apply")
+                        .child("Model suggests addressed").test_support())
+                })
                 .when(!status.is_empty(), |card| {
                     card.child(
                         div()

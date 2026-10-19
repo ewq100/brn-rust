@@ -452,3 +452,42 @@ was independently reviewed after narrowing the core replacement exception and
 clarifying captured membership. It selects optional untrusted model reports,
 never automatic owner selection. Implementation follows publication of this
 checked candidate; no new provider permission is required or granted.
+
+
+## Remaining model suggestions source-approved
+
+[Final4e81 source review](evidence/proposed-feedback-source-review.json) resolves
+initiale5 retained-report/core replacement finding and weak old-byte/wire tests.
+Productiona82 is unchanged in later test fixes. The first original-guard witness
+survived an unrelated invalid-ID rejection; a corrected compatible harness with
+exact originale5 module compiles and exposes the defect. Restored4e81 passes.
+Final broad checks remain running in the worker's sole build slot, with original
+failure logs preserved. The unchanged core temp fixture refused inherited /var
+symlink; same binary passes with invocation-local canonical TMPDIR. No guard or
+fixture source changed. Current allowance89% used/11% remaining; expiry unchanged.
+
+
+## Passage edit and selected feedback merged
+
+PR172 merged normally as689ab234 from exact checkedb8735ea1 after all four
+required head jobs passed. Fresh strict protection and exact head were verified
+before the match-head normal merge. [Receipt](evidence/pr172-integration.json)
+retains every head job, including optional Windows Core failure. Resulting-main
+checks are a separate pending gate. Lead merged the actual main history while
+preserving continuation documentation; M4b remains a separately reviewed candidate.
+
+
+## M4b exact-source local qualification
+
+[Final qualification](evidence/proposed-feedback-qualification.json) binds4e81 and
+all16 byte-exact integrated leadc671 source files. Core215/0/1, runtime522/0/2,
+app65/0, rendered writing39/0, native333/0/1, writing UI56, CLI43/0, strict affected
+all-target lint, full format and ordinary production-native build pass. Root
+verified every command exit/test count, source pin and immutable executable SHA
+with sole guide17. Seventy-two lossless archives retain first failures, ineffective
+initial witness, effective original-module semantic red/restored green and exact
+canonical-temp diagnosis. Independent Luna receipt audit passed with no inconsistencies. No hosted,
+actual Mac, model-usefulness or owner-acceptance completion follows.
+
+The source worker released the single build slot to the bounded Luna runtime
+fixture task; no duplicate target/helper rebuild or production switch is selected.

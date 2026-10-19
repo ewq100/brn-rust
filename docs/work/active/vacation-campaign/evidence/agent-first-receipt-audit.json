@@ -1,0 +1,30 @@
+{
+  "observed_at_utc": "2026-10-19T11:20:26.297703+00:00",
+  "audited_revision": "ef5b53b8dedd276c230b89dbff65a095cd235d50",
+  "auditor": "combined_receipt_audit",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "medium",
+  "scope": [
+    "writing-review-qualification.json",
+    "native-writing-fixture-qualification.json",
+    "agent-first-final-qualification.json"
+  ],
+  "result": "passed; no receipt inconsistency",
+  "archives_verified": {
+    "writing_review": 67,
+    "native_fixture": 18,
+    "final_combined": 46,
+    "total": 131
+  },
+  "verified": [
+    "All archive hashes, decompressed hashes and byte sizes match",
+    "M4 reviewed15 source pins match integratedb290; final27 source pins match7a970",
+    "Production source is identical7a970 to frozen PR172headb873",
+    "Green commands/log counts, retained real failures and source/byte-equivalence transfers agree",
+    "Native/live/owner/hosted integration claims remain separate"
+  ],
+  "limits": [
+    "Read-only receipt/source audit; no builds/provider/native interaction performed",
+    "M4b suggestion implementation is outside this audit"
+  ]
+}

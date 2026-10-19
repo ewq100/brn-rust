@@ -102,6 +102,9 @@ pub struct WritingCandidateEvidence {
     pub reads: Vec<WritingRead>,
     pub quotations: Vec<WritingQuotation>,
     pub requirements_reported: Vec<WritingRequirementsClaim>,
+    /// Untrusted model suggestions, never comment-resolution authority.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub proposed_addressed_comment_ids: Vec<String>,
     #[serde(default)]
     pub explanation: String,
 }
@@ -187,6 +190,19 @@ pub fn scoped_writing_request(record: &Record) -> bool {
         && serde_json::from_str::<serde_json::Value>(&m.text).ok().is_some_and(|v| v["version"] == 2))
 }
 impl WritingSnapshot {
+    /// Only the immutable captured subset is eligible for a model suggestion.
+    pub fn validate_proposed_addressed_comment_ids(&self, ids: &[String]) -> Result<()> {
+        let mut seen = BTreeSet::new();
+        if ids.len() > 128
+            || ids.iter().any(|id| {
+                !seen.insert(id) || !self.comments.iter().any(|comment| comment.id == *id)
+            })
+        {
+            return Err(Error::Invalid("Propose at most 128 unique IDs from the saved request's captured comments, or omit the suggestions".into()));
+        }
+        Ok(())
+    }
+
     fn validate(&self) -> Result<()> {
         let RecordData::Note(note) = &self.note.data else {
             return Err(Error::Invalid("Writing context requires a note".into()));
@@ -533,6 +549,8 @@ pub(crate) fn validate_candidate_evidence(
         let saved = revision(&marker.record, marker.version)?.ok_or_else(invalid)?;
         let snapshot = WritingSnapshot::from_message(&saved)?;
         let setup = snapshot.setup.as_ref().ok_or_else(invalid)?;
+        snapshot
+            .validate_proposed_addressed_comment_ids(&evidence.proposed_addressed_comment_ids)?;
         if snapshot.thread != evidence.thread
             || setup.chat != evidence.chat
             || !snapshot
@@ -601,4 +619,23 @@ pub(crate) fn validate_candidate_evidence(
         }
     }
     Ok(())
+}
+
+/// Owner replacement may drop only suggestions the model made for the old text.
+/// The original immutable Message remains untouched.
+pub(crate) fn evidence_without_suggestions(data: &RecordData) -> Option<RecordData> {
+    let RecordData::Message(message) = data else {
+        return None;
+    };
+    if message.role != WRITING_EVIDENCE_ROLE {
+        return None;
+    }
+    let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).ok()?;
+    if evidence.proposed_addressed_comment_ids.is_empty() {
+        return None;
+    }
+    evidence.proposed_addressed_comment_ids.clear();
+    let mut cleared = message.clone();
+    cleared.text = serde_json::to_string(&evidence).ok()?;
+    Some(RecordData::Message(cleared))
 }
