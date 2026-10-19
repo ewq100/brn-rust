@@ -10,7 +10,7 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, history535b04e1/source8431e70b, matching all
+branch `codex/hardening-next`, history535b04e1/source8431e70b, matching all
 qualified worker a960 Rust/manifests/root lock/toolchain. Latest main9116ad78 is
 PR167, merged normally from exact checked40879f71 after all four required contexts
 passed in run39220781564. Main run39224642627 is running; inspect actual results.
@@ -40,13 +40,17 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 ## Active job and next gate
 
 No local source writer/builder is active. Final independent Luna search-receipt audit passed. Complete candidate whitespace
-and link checks pass; publish this coherent later candidate. Main history535 adds no source
+and link checks pass. PR168 is published at fixed7c21713b on
+`codex/hardening-continuation`, required run39225335901 queued/running. Preserve
+that checked head; continue later work on the lead branch above. Main history535 adds no source
 delta from reviewed843. Keep actual hosted-head/merge/main/native gates separate.
+Three bounded parallel Luna read-only audits now inspect project dialogs, other
+path pickers and MCP delayed-result lifecycle; no edits/builds are dispatched.
 See campaign.json for snapshot ownership and reconcile agents/Git/processes after
 restart before dispatch. Preserve all source-bound artifacts.
 
 Current allowance was
-75% used/25% remaining in the applicable seven-day window, reset1792874447. Recheck
+76% used/24% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour
 `brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains

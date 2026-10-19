@@ -105,3 +105,9 @@ First iteration and its artifact-name limitation remain historical. Final indepe
 hashes match. Stored patch context whitespace is resolved by lossless gzip, with
 raw patch hashes retained. Complete staged candidate whitespace and links pass;
 publication/hosted gates remain, with no local builder active.
+
+The reviewed/local-qualified complete candidate is now PR168 at fixed7c21713b,
+run39225335901. New work uses codex/hardening-next; no checked-head mutation is
+planned. Three bounded Luna read-only audits inspect remaining project-dialog,
+picker and MCP coordination routes; no source writer/build is active. Latest quota
+snapshot76% used/24% remaining, above the approximate5% floor.

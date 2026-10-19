@@ -3,7 +3,7 @@
 Updated 19 October2026. Current main9116ad78 is PR167; its required checked-head
 contexts passed before normal merge. Resulting-main run39224642627 is running.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, history merge535b04e1/source8431e70b.
+branch `codex/hardening-next`, history merge535b04e1/source8431e70b.
 All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
 adds no source delta. Preserve unrelated work and source-bound artifacts.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
@@ -179,7 +179,8 @@ Source/hash/log receipts retain their limits; no old-source export or OS transpo
 failure is claimed. No local writer/builder is active.
 
 Final independent Luna receipt audit passed, and complete staged candidate whitespace
-check passed. Publish the coherent later candidate. Preserve checked heads and follow
+check passed. The coherent candidate is published as PR168 at fixed7c21713b,
+run39225335901; keep that checked head unchanged. Preserve checked heads and follow
 actual required-head, normal merge and resulting-main checks separately. No bypass.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
@@ -194,3 +195,8 @@ Select further work from concrete behavior and maintenance evidence. Continue us
 work while allowance permits; the recovery heartbeat is not batch pacing.
 [Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
 snapshots. Current owner/resource/gate rules remain at this stable path for restarts.
+
+Three bounded parallel Luna source audits now inspect project-dialog refusal/input
+retention, remaining picker error handling, and MCP desktop delayed-result lifecycle.
+They authorize no edits/builds or policy changes. Reconcile actual findings before
+selecting further work; no local builder/writer is active.

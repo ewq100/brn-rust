@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/hardening-continuation",
+  "branch": "codex/hardening-next",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -18,13 +18,32 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:45:49.499519+00:00",
-  "current_session_jobs": [],
+  "last_checkpoint_at_utc": "2026-10-19T08:49:47.015580+00:00",
+  "current_session_jobs": [
+    {
+      "agent": "/root/recovery_boundary_audit",
+      "role": "read-only project-dialog refusal/input-retention audit",
+      "source": "7c21713b (reviewed843/a960 Rust)",
+      "build_slot": "none; no edits/builds authorized"
+    },
+    {
+      "agent": "/root/qualification_audit",
+      "role": "read-only remaining path-picker result-handling audit",
+      "source": "7c21713b (reviewed843/a960 Rust)",
+      "build_slot": "none; no edits/builds authorized"
+    },
+    {
+      "agent": "/root/worker_next_slice",
+      "role": "read-only MCP desktop async-lifecycle audit",
+      "source": "7c21713b (reviewed843/a960 Rust)",
+      "build_slot": "none; no edits/builds authorized"
+    }
+  ],
   "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. Main39224642627 running. Lead historymerge535b04e1 source843 unchanged.",
-  "next_eligible_work": "Publish coherent export+fixturehelper+search candidate with fixedhead, follow actualrequiredchecks and PR167main. Native18:00Tallinn queued. Select further justified existingjourney hardening after publication.",
+  "next_eligible_work": "Follow PR168 actualrequiredhead checks and PR167main; normalmerge onlyafteractualrequiredsuccess. Disposition bounded audit evidence and select only justified existingjourney fix. Native18:00Tallinn queue remains; continuousactiveworkabovefloor.",
   "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
   "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "Complete source843/a960 independentlyapproved, native322/0/1 +provider4/7/12 and strictchecks pass. Luna export/helper/search receipts audits pass. Search V3 exact retainedpatch failsoldUIthenpassesrestoredsource. Mainhistory535 no Rustdelta. Whole stagedcandidate whitespace and links pass; no localwriter/builder. Ready for publication, PR167main39224642627 running.",
+  "active_work": "PR168 published/frozen7c21713b (source843/a960) on codex/hardening-continuation, CI39225335901 queued/running. All source/local/receipt/wholecandidate checks pass. Lead nowcodex/hardening-next. Three bounded parallel Luna read-only audits; no localwriter/builder. PR167main39224642627 running.",
   "continuation_baseline": "9116ad780de2d827811ef342168997e2df5d1a9c",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -37,7 +56,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot75% used /25% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "quota": "Latest native snapshot76% used /24% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
