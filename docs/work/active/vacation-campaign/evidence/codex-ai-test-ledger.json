@@ -13,7 +13,7 @@
       "session": "2026-10-19-codex-smoke-01",
       "tallinn_date": "2026-10-19",
       "reserved_at_utc": "2026-10-19T12:08:00.425981+00:00",
-      "status": "reserved",
+      "status": "failed",
       "scenario": "Read one short synthetic Note; return its codeword and exact integer total, no writes",
       "provider": "Codex existing account",
       "model": "gpt-6-luna",
@@ -28,7 +28,42 @@
       "binary_sha256": "e321553bc2c2abca6824d8c0e231e16bf43bdc07e2a58ff83650692fe33df6e6",
       "binary_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
       "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-01",
-      "native_observed": false
+      "native_observed": false,
+      "started_at_utc": "2026-10-19T12:09:06.491792+00:00",
+      "finished_at_utc": "2026-10-19T12:09:12.500271+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-01/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": false,
+      "note_unchanged": true,
+      "no_candidates": true,
+      "diagnosis": "Model read_records ID omitted the literal :0 suffix present in prompt and canonical Note ID. Trace ID helper preserves full strings; this was not trace shortening.",
+      "usage": {
+        "input": 24308,
+        "output": 181,
+        "cached_input": 11776
+      }
+    },
+    {
+      "session": "2026-10-19-codex-smoke-01",
+      "tallinn_date": "2026-10-19",
+      "provider": "Codex existing account",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "binary_sha256": "e321553bc2c2abca6824d8c0e231e16bf43bdc07e2a58ff83650692fe33df6e6",
+      "binary_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+      "native_observed": false,
+      "id": "c19c2cf8-399c-451d-8f43-5dbe6f6f79d5",
+      "reserved_at_utc": "2026-10-19T12:14:33.801170+00:00",
+      "status": "reserved",
+      "scenario": "Diagnose exact opaque Note ID and read_note parameter guidance; same Luna low, no writes",
+      "desktop_allowance_before": {
+        "used_percent": 92,
+        "remaining_percent": 8,
+        "reset_unix": 1792874447
+      },
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-02"
     }
   ]
 }
