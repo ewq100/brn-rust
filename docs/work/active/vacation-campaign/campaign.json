@@ -18,10 +18,10 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T12:15:16.112817+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T12:33:25.171836+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163-172 all four required head/main checks passed. PR173 normally merged33a62aae after all four exact-head required checks passed; resulting-main39250500661 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Publish reviewed/qualified exact-ID schema clarification without changing frozen PR174. Follow PR173main/PR174head. Native Mac batch18:00 still pending; no more account calls in current session. Generated metadata reclaimed; avoid another broad compile without headroom.",
+  "next_eligible_work": "Complete distinguishing old-expression trace regression, then final focused tests/lint/format. Merge174 normally only when all exact-head checks and preceding main gates pass. Combine related read-guidance and trace-report correction in PR175 and reconcile actual main before fresh CI to avoid a separate tiny PR. Native Mac observation stays queued; account session closed at3/3, day3/6. No concurrent builds.",
   "last_qualified_source": "9229085a9683a1c988a1cb12d647f52df18115f6",
   "source_delta_after_qualification": "All production source/manifests/locks/toolchain equal reviewed and locally qualified9229085; only separately qualified test support and campaign docs differ.",
   "active_work": "PR173 merged33a62aae after all four head checks; main39250500661 pending. Frozen test-support PR174 e56b4dbd hosted checks running. Exact-ID schema clarification9229085 independently approved, runtime522/0/2, strict all-target lint/format/ordinary CLI pass; same-model natural-request probe passed. Three live attempts/session and day used, current account session closed; actual native observation pending.",
@@ -97,5 +97,19 @@
     "current_session_attempts_used": 3,
     "current_session_closed": true,
     "tallinn_day_attempts_used": 3
-  }
+  },
+  "checked_prs": [
+    {
+      "number": 174,
+      "head": "e56b4dbdb14394afd1abeb58712153344b3d3106",
+      "branch": "codex/native-suggestion-qualification",
+      "status": "3/4 required head checks passed; Mac Core/CLI running; not merged"
+    },
+    {
+      "number": 175,
+      "head": "68f14668",
+      "branch": "codex/exact-note-read-guidance",
+      "status": "published reviewed schema source; will combine independently reviewed trace reporter correction after focused qualification and reconcile actual main before fresh required CI"
+    }
+  ]
 }
