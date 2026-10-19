@@ -1,0 +1,12 @@
+# MCP discovery freshness receipt
+
+Candidate commit: `274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351` on `codex/mcp-discovery-freshness`.
+Production source is unchanged from the passing build at `0f317e5edba6fd5446f62a625c60b6cdd456fa24`; the final amend only corrected a test comment. Source SHA-256: `threads_mcp.rs` ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d; `threads_mcp_tests.rs` e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f.
+
+Behavior: discovery completion now binds to both the captured context stamp and the canonical current endpoint. A completion for a prior endpoint cannot populate visible discovery/error state. Render and approval use the same endpoint freshness check. Status errors remain independent. The policy/grant and runtime authority paths were not altered. Existing exact destination labels remain visible. Endpoint edits are exercised through click/select-all/input in the actual GPUI widget, without test-side owner notification. A no-op-subscription mutation passed that render witness, so the explicit endpoint subscription was redundant and was removed.
+
+Checks at the same production source and test logic (a later amended comment did not change executable code): focused MCP tests 14 passed; full native desktop suite 326 passed, 1 ignored; strict all-target native Clippy passed; formatting passed; production-only native UI build passed. Exact commands/logs/exits are in `commands.txt` and `frozen-*` files.
+
+Immutable production binary: `artifacts/brn-desktop-0f317e5e`, SHA-256 8bc98bf6fff189d8a7a09182dab51c475d0ce985d4c42d521989541a1b2da92a. Built with `native-ui` only, no `native-test-support`.
+
+Limits: completion seam tests establish owner-state freshness but do not exercise actual asynchronous network transport. No live MCP endpoint/provider, native OS interaction, or Linux behavior was tested. Existing baseline failure is retained as a raw execution log; the standalone baseline patch and applied test file are reconstructed from the retained test block, not captured byte-for-byte at its original run. Earlier failed attempts and their honest labels are retained in the directory; `baseline-ui-tests` is a misfiltered zero-test invocation, not a pass. The first candidate focused test log is an assertion failure; strict Clippy's first candidate failure was fixed by borrowing the endpoint input. No dependencies changed.

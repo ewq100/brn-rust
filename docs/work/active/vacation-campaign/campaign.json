@@ -18,31 +18,13 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:15:26.808607+00:00",
-  "current_session_jobs": [
-    {
-      "agent": "/root/worker_next_slice",
-      "role": "bounded MCP endpoint/discovery freshness implementation",
-      "checkout": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust",
-      "branch": "codex/mcp-discovery-freshness",
-      "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
-      "build_slot": "exclusive: actual typed-input witness passes; no-opsubscription diagnostic also passes, redundant subscription being removed before revised finalfreeze/gates/build",
-      "frozen_candidate": "dd1b50c9103fd3fd653c993c9684cf13e92b2088 production; test correction underway"
-    },
-    {
-      "agent": "/root/mcp_independent_review",
-      "role": "independent complete MCP review finished with no production finding and valid P3 test-evidence finding; reconcile revised immutable candidate when ready",
-      "requested_model": "gpt-6.1-sol high; fresh context",
-      "candidate": "4ab19c474676e81feaa6f244f11425350331b41a",
-      "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
-      "build_slot": "none; no edits/builds/network"
-    }
-  ],
+  "last_checkpoint_at_utc": "2026-10-19T09:25:52.102514+00:00",
+  "current_session_jobs": [],
   "integration_status": "PR163\u2013168 required exact-head checks pass before normal merges. PR163\u2013167 required resulting-main pass; optional Windows failures retained. PR168 checked7c normalmergee583a177ad44b0536be9140b5c845a5dd8a8aa75 at09:06:55UTC, requiredhead39225335901 all4pass. Main39227629739 running. Lead history8f2ccb52 adds no source delta.",
-  "next_eligible_work": "Follow PR168main39227629739; finish MCP final checks and independent Sol review, then publish coherent next PR from codex/hardening-next. Native18Tallinn separate; continue above quota floor.",
-  "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
-  "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "PR168main39227629739 running. MCP P3 correction uses actual widgettyping. Disabling subscription notify still passes, so redundant subscription field/call being removed. Revised immutable source/fullfinalgates/reviewerreconciliation pending. Prior dd production reviewfoundnocorrectnessissue; oldset_value subscriptioncoverage claim explicitly corrected. No asyncnetwork/OSproof.",
+  "next_eligible_work": "Publish MCP coherentcandidate on codex/hardening-next, attachPR and freezecheckedhead, then use newbranch forlaterwork. FollowPR168main and nextPR requiredhead checks; normalexactheadmerge and resulting-mainverification. Native18Tallinn separate.",
+  "last_qualified_source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
+  "source_delta_after_qualification": "Worker274 and integrateda593 match all Rust/manifests/rootlock/toolchain; compared with qualified0f only one test comment differs. Production artifact0f unchanged. Independent Sol approvedcomplete0f; lead checked mechanicalcommentdelta. No actualnetwork/OSacceptance.",
+  "active_work": "MCP sourcea59315a1/worker274 qualified and independentlyreviewed (0f source plus verifiedonecommentdelta). Final14/326/strictlint/fmt/prodbuild; exactv2baseline2semanticfail101 then restored14pass. All65records+2correctedmetadata copies independentlyaudited; no blockers. No localwriter/builderactive. Publicationnext, whilePR168main39227629739 MacCorepending; other3requiredpass.",
   "continuation_baseline": "e583a177ad44b0536be9140b5c845a5dd8a8aa75",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -85,7 +67,7 @@
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
-    "review": "Independent Sol approved complete843; Luna all3receipt audits pass. Local native322/0/1 and provider4/7/12 plus strictchecks pass; hosted/main/native acceptance remain separate.",
+    "review": "Independent Sol approvedcomplete0f, leadverifiedonecommentdelta274/a593. Independent Luna auditedall65records+2metadata corrections. Local14/326 andstrictlint/fmt/prodbuild pass; hosted/main/nativeacceptance separate.",
     "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",

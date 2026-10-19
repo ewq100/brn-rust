@@ -3,8 +3,8 @@
 Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
 contexts passed before normal merge. Resulting-main39227629739 is running. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, history merge8f2ccb52/source8431e70b.
-All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
+branch `codex/hardening-next`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
+The current main Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
 adds no source delta. Preserve unrelated work and source-bound artifacts.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
 
@@ -197,14 +197,13 @@ work while allowance permits; the recovery heartbeat is not batch pacing.
 [Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
 snapshots. Current owner/resource/gate rules remain at this stable path for restarts.
 
-Project-dialog refusal/input retention and remaining picker audits found no justified
-change. MCP endpoint-edit/discovery freshness is selected as a bounded usability
-improvement; the real destination is already labelled and approval binds that destination,
-so no authority bypass is claimed. A Luna medium writer owns only its desktop module
-and tests in the notice checkout, starting4aba2e81; canonical policy and input grants
-remain unchanged. The proposed canonical-endpoint/completion seam is accepted and the single build
-slot admitted. Action/Undo and comment refusal/input-retention inspections found no justified
-change; their existing distinct witnesses remain. Up to three helpers plus lead use current
-runtime capacity for isolated implementation and parallel source inspection; no
-extra builds or speculative refactors. Reassess if the fix needs product-policy changes
-or a generic framework; independent Sol reviews any meaningful final source.
+Project-dialog, remaining-picker, Action/Undo and comment audits found no justified
+further change; distinct existing witnesses remain. The bounded [MCP freshness
+fix](mcp-discovery.md) is independently reviewed and locally qualified at0f/274,
+integrateda593. Canonical policy and runtime grants remain authoritative; no grant
+bypass is claimed. Final focused14/14, native326/0/1, strict lint/format and production
+build pass. The valid P3 witness finding is fixed; redundant subscription state was
+removed after a diagnostic survivor. Exact baseline v2 failure and restored14 pass
+are recorded. Independent Luna audited65 raw/archive records and the explicit
+metadata correction; no receipt blocker remains. Publish the coherent next PR,
+then freeze its checked head. No source writer or local builder is active.

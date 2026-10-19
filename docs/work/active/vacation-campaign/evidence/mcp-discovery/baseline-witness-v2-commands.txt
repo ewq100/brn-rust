@@ -1,0 +1,17 @@
+Baseline identity: 4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa
+Final identity restored: 274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351
+Isolated-index procedure:
+  GIT_INDEX_FILE=$TMPD/index git read-tree 4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa
+  GIT_INDEX_FILE=$TMPD/index git apply --cached baseline-witness.patch
+  GIT_INDEX_FILE=$TMPD/index git diff --cached --name-only 4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa
+  GIT_INDEX_FILE=$TMPD/index git show :crates/brn-desktop/src/threads_mcp_tests.rs > baseline-witness-v2-applied-from-index.rs
+Outcome: only crates/brn-desktop/src/threads_mcp_tests.rs changed; resulting file byte-equal to baseline-witness-applied-tests.rs, SHA-256 2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c.
+Baseline production module was retrieved byte-exactly using `git show 4aba...:crates/brn-desktop/src/threads_mcp.rs`; SHA-256 60b25a78af861f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db.
+Temporarily substituted that production module and the verified applied tests in the worktree, with shell EXIT/HUP/INT/TERM restoration trap and byte-exact backups. Executed:
+rustup run 1.98.1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::mcp_tests::mcp_discovery_for_previous_endpoint --locked --offline --jobs 1
+Environment: PATH=/opt/homebrew/opt/rustup/bin:$PATH; CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target; CARGO_INCREMENTAL=0; CARGO_PROFILE_DEV_DEBUG=0; CARGO_PROFILE_TEST_DEBUG=0; RUST_TEST_THREADS=1; BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper; BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn.
+Outcome: compiled and ran exactly 2 tests; both FAILED on the expected stale approval render and wrong-policy replacement assertions; exit 101. This is a semantic red witness, not a compile failure or zero-test run. Log/exit: baseline-witness-v2-replay.log / baseline-witness-v2-replay.exit.
+Restoration verification: checkout production source SHA-256 ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d and tests SHA-256 e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f match saved restoration copies and commit 274dc9eb.
+Post-restoration command:
+rustup run 1.98.1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::mcp_tests:: --locked --offline --jobs 1
+Outcome: 14 passed, 0 failed, 0 ignored; exit 0. Log/exit: final-focused-after-baseline-replay.log / .exit.

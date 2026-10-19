@@ -34,8 +34,12 @@ Native UI/retrieval also passed. PR166's same four required exact-head checks,
 documentation and Ubuntu Native UI passed. PR166 resulting-main run39220505231 passed all four required jobs, documentation
 and Ubuntu UI/retrieval; optional Windows Core/UI/retrieval failed, as recorded in
 the [integration receipt](evidence/pr166-integration.json). The
-current local desktop result is321 passed/0 failed/1 ignored; the ignored shared
-CLI/desktop fixture was separately executed and passed1. Current writing-owner/host
+PR166 local desktop result was321 passed/0 failed/1 ignored; the ignored shared
+CLI/desktop fixture was separately executed and passed1 at that earlier source.
+The later [MCP candidate](mcp-discovery.md) passed326/0/1 at exact0f317e5e, with
+focused14/14 and matching strict lint/format/production build. Its four new cases
+cover render, canonical-policy and completion consequences; none was retired. The
+shared CLI fixture remains ignored and was not separately executed for this slice. Current writing-owner/host
 results remain 44 and 12 passed. Neither widget tests nor headless startup qualify a
 real Linux window. The production X11 Note input/recovery/Save/close/reopen journey
 passed on committed material with exactv3 text and empty recovery. The 25-domain inventory remains

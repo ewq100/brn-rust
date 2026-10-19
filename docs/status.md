@@ -37,10 +37,12 @@ is running; [its receipt](work/active/vacation-campaign/evidence/pr168-integrati
 keeps that gate separate. Receipts distinguish
 original-source failures, diagnostic mutations and transport qualification limits.
 
-A further bounded MCP discovery freshness improvement is being implemented in an
-isolated checkout: endpoint edits must hide/refuse old discovery metadata and stale
+A further bounded [MCP discovery freshness improvement](work/active/vacation-campaign/mcp-discovery.md)
+is locally qualified and source-reviewed: endpoint edits must hide/refuse old discovery metadata and stale
 completion. Existing metadata labels and exact approval destination remain authoritative;
-no grant bypass is claimed. It has not passed final checks or independent review.
+no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
+at0f; later274/integrateda593 differs only in one test comment. Final receipt
+verification and publication remain pending.
 Project-dialog, remaining-picker, Action/Undo and comment source audits found no
 justified further change; existing distinct tests remain.
 

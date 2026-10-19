@@ -1,0 +1,4 @@
+Output preservation status:
+- Retained failed attempts include baseline-stale-endpoint-tests.log, final-witness-baseline.log, focused-mcp-tests.log, and final-native-clippy.log with matching exit files. Distinguish baseline-ui-tests.log as an incorrect filter with zero tests.
+- During earlier iteration, the first focused log filename was reused before the lead flagged the stale-exit hazard. The current retained file is the latest named run; the earlier transient output is not available as a raw shell log. No exact error text is reconstructed here. Later focused failure output is retained separately in focused-mcp-tests.log and its exit file.
+- Current frozen run logs use unique frozen-* names and matching exit files.

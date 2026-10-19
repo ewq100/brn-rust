@@ -10,8 +10,9 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, history8f2ccb52/source8431e70b, matching all
-qualified worker a960 Rust/manifests/root lock/toolchain. Latest maine583a177 is
+branch `codex/hardening-next`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
+Qualified0f differs only in one later test comment; its production artifact is
+unchanged. Current main still matches the earlier qualified a960 source. Latest maine583a177 is
 PR168, merged normally from exact checked7c21713b after all four required contexts
 passed in run39225335901. Its resulting-main39227629739 is running. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
@@ -39,32 +40,35 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-Final independent Luna search-receipt audit passed. Complete candidate whitespace
-and link checks pass. PR168 merged normally as e583a177 at09:06:55UTC; exact head7c21713b required
-run39225335901 passed all four jobs. Main39227629739 is running; inspect actual
-results before calling resulting-main verified. Lead history8f2ccb52 adds no source
-delta from reviewed843/a960. Continue later work on the lead branch above. Keep actual hosted-head/merge/main/native gates separate.
-Completed project-dialog and remaining-picker audits found no justified change.
-The MCP audit found an endpoint-edit/discovery freshness issue, with actual destination
-label and canonical approval binding preserved; no authority bypass is claimed.
-Luna now owns a bounded fix in the clean notice checkout on
-`codex/mcp-discovery-freshness` from4aba2e81, only `threads_mcp.rs` and its tests.
-MCP production source dd1b50c9103fd3fd653c993c9684cf13e92b2088 passed focused14/14,
-strict lint/format and production build. Full326/0/1 at4ab is reusable for the
-mechanical borrow-only lint cleanup. Independent Sol found no production defect;
-a valid P3 test-evidence finding is being fixed before publication. Exact baseline-compatible UI witnesses fail for visible stale approval and
-actual replacement of active endpoint-B policy by stale A. The earlier claim that set_value emits InputEvent::Change was incorrect: pinned
-toolkit suppresses it. The render witness remains valid; subscription wiring is not
-established. The actual widget focus/select/type witness passes. A no-op subscription
-diagnostic also passes, demonstrating that the toolkit already invalidates the
-view; the redundant subscription field/call is now being removed. Final identity/affected
-checks/review remain pending. Actual async transport and OS interaction remain unqualified. Action/Undo audit found no justified change;
-comment refusal/input-retention audit also found no justified change.
-Both saved automation prompts were freshly checked against current owner rules;
-see evidence/policy-persistence-20261019.json. Configuration is persisted; actual
-unattended execution is still unobserved.
-See campaign.json for snapshot ownership and reconcile agents/Git/processes after
-restart before dispatch. Preserve all source-bound artifacts.
+No local writer/builder is active. PR168 merged normally as e583a177 from exact
+checked7c after all four required39225335901 jobs passed. Main39227629739 still
+has Mac Core pending; its other three required jobs passed. Keep these gates separate.
+
+[MCP freshness](mcp-discovery.md) sourcea59315a1 matches worker274; qualified0f
+only differs by one later test comment. Focused14/14, full native326/0/1, strict
+lint/format and frozen production build pass. Independent Sol approved complete0f;
+lead checked the comment-only delta. Valid P3 finding is fixed: actual widget typing
+replaced the non-emitting setter, and a surviving no-op subscription diagnostic
+justified removing redundant wiring. No runtime grant/policy boundary changed.
+
+The exact v2 baseline replay bound the reconstructed compatible test subset and
+byte-exact old module to two intended semantic failures, exit101; restoring274
+hashes then passed focused14/14. Independent Luna verified all65 original raw/archive
+records, source/binary hashes, replay and two explicit corrected metadata copies.
+One copied hash suffix was wrong in the original metadata; corrected receipts and
+originals are preserved. One earlier transient output is unrecoverable and is not
+passing qualification. See evidence/mcp-discovery-qualification.json.
+
+Next publish the coherent candidate from codex/hardening-next, attach its PR, freeze
+that checked head and continue later work on another branch. Follow actual required
+head checks, normal exact-head merge and resulting-main checks separately.
+Actual async network transport and OS usability remain unqualified.
+
+Project-dialog, remaining-picker, Action/Undo and comment audits found no justified
+further change. Both saved automation prompts match current owner rules; see
+[the persistence receipt](evidence/policy-persistence-20261019.json). Configuration
+is persisted; actual unattended execution remains unobserved. Reconcile actual
+Git/agents/processes after restart before dispatch and preserve source-bound artifacts.
 
 Current allowance was
 77% used/23% remaining in the applicable seven-day window, reset1792874447. Recheck

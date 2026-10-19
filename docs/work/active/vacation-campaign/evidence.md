@@ -211,3 +211,25 @@ is a meaningful survivor showing redundant wiring, not mutation detection succes
 The toolkit already invalidates the owner view. Lead accepted removal of the added
 subscription field/call; the same typed-input journey stays. Revised immutable
 source, final affected gates/build and independent reconciliation remain pending.
+
+
+## MCP source and reproducible receipts ready for publication
+
+Independent Sol approved complete0f317e5e after valid P3 correction; later274 and
+integrateda593 only add one test-comment wording change, checked by lead. Frozen
+focused14/14, native326/0/1, strict lint/format and production-only build pass.
+Immutable artifact SHA8bc98bf6fff189d8a7a09182dab51c475d0ce985d4c42d521989541a1b2da92a
+is source-valid for the unchanged production module. Exact baseline v2 patch/index
+application changed only tests, then compiled two intended semantic failures101;
+byte-exact274 restoration passed focused14/14.
+
+Independent Luna verified all65 original records (23gziplogs/2gzippatches/11gzip
+source snapshots/remainder plain), raw/archive hashes, original sibling equality,
+source/binary identity, actual commands/counts/exits and replay/restoration. The
+original copied baseline-module hash suffix was wrong; direct Git/retained-byte
+comparison corrected it explicitly in two SHA-bound metadata copies while keeping
+originals. No code/command/log/exit changed for that correction. An earlier transient
+output is unrecoverable and not passing qualification; original no-op patch remains
+reconstructed historical illustration. [Qualification](evidence/mcp-discovery-qualification.json)
+and [result/limits](mcp-discovery.md) retain these distinctions. No substantive
+receipt blocker remains; no local writer/builder active. Hosted/native gates separate.
