@@ -1,7 +1,7 @@
 # Mac vacation hardening continuation
 
 Updated 19 October2026. Current main9116ad78 is PR167; its required checked-head
-contexts passed before normal merge. Resulting-main run39224642627 is running.
+contexts passed before normal merge. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-next`, history merge535b04e1/source8431e70b.
 All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
@@ -164,7 +164,7 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 
 PR163–166 required head/main checks passed; optional Windows failures remain explicit.
 PR167 reference ownership merged normally as9116ad78 from checked40879f71 after all
-four required contexts passed in run39220781564. Main run39224642627 is running;
+four required contexts passed in run39220781564. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed;
 [the integration receipt](evidence/pr167-integration.json) owns exact check identities.
 
 The later source8431e70b combines [export feedback](export-picker.md),

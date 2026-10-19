@@ -13,7 +13,7 @@ Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-next`, history535b04e1/source8431e70b, matching all
 qualified worker a960 Rust/manifests/root lock/toolchain. Latest main9116ad78 is
 PR167, merged normally from exact checked40879f71 after all four required contexts
-passed in run39220781564. Main run39224642627 is running; inspect actual results.
+passed in run39220781564. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
 explicit. Don't redo merged source work or bypass strict protection.
 

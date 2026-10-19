@@ -151,3 +151,13 @@ expiry. [Persistence receipt](evidence/policy-persistence-20261019.json) retains
 hashes and explicit checks. Both remain ACTIVE in the same chat; this is persisted
 configuration proof, not an observed wake or native success. Native quota reread
 remains76% used/24% remaining; no credit/reset purchase.
+
+
+## PR167 required resulting-main verification complete
+
+Main9116ad780de2d827811ef342168997e2df5d1a9c run39224642627 completed with all four
+actual required jobs passing, plus docs and Ubuntu UI/retrieval. Optional Windows
+Core/UI/retrieval failed, so the overall workflow is failed; no all-platform pass
+is claimed. [Final integration receipt](evidence/pr167-integration.json) records
+job identities/timing/conclusions separately from the earlier checked-head merge.
+PR168 still has Mac Core running; its other three required jobs passed.

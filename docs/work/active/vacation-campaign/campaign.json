@@ -18,7 +18,7 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:56:10.951957+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T09:05:34.711459+00:00",
   "current_session_jobs": [
     {
       "agent": "/root/worker_next_slice",
@@ -29,11 +29,11 @@
       "build_slot": "exclusively admitted for focused baseline/candidate MCP checks and final native suite/lint/format/frozen production build"
     }
   ],
-  "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. Main39224642627 running. Lead historymerge535b04e1 source843 unchanged.",
+  "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. All4required main39224642627 pass; optionalWindowsCore/UI/retrieval fail. Lead historymerge535b04e1 source843 unchanged.",
   "next_eligible_work": "Follow PR168 required exact-head checks/normal merge and PR167main. Verify MCP selected improvement through smallest deterministic UI seam, then final source checks and independent Sol review. Disposition bounded Action/comment audits only if concrete issues. Continue above quota floor; native18Tallinn separate.",
   "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
   "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "PR168 fixed7c21713b CI39225335901 running; PR167main39224642627 running. One Luna MCP UI freshness writer in prepared notice checkout with exclusive build slot, comment and Action/Undo audits finished with no justified change. Existing canonical policy/grants unchanged; no native success claimed.",
+  "active_work": "PR168 fixed7c21713b CI39225335901 running; PR167main39224642627 completed: all4required pass, optionalWindowsCore/UI/retrieval fail. One Luna MCP UI freshness writer in prepared notice checkout with exclusive build slot, comment and Action/Undo audits finished with no justified change. Existing canonical policy/grants unchanged; no native success claimed.",
   "continuation_baseline": "9116ad780de2d827811ef342168997e2df5d1a9c",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",

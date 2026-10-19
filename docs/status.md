@@ -21,9 +21,10 @@ optional Windows failures remain explicit. These checks establish their recorded
 source behavior, not full native usability or owner acceptance.
 
 [Reference-import intent ownership](work/active/vacation-campaign/reference-import.md)
-merged normally in PR167 after all four required head checks passed. Its resulting-main
-run39224642627 is still running; inspect the [integration receipt](work/active/vacation-campaign/evidence/pr167-integration.json)
-and actual jobs before calling that gate complete.
+merged normally in PR167 after all four required head checks passed. All four required resulting-main
+run39224642627 jobs passed; optional Windows Core/UI/retrieval failed. The
+[integration receipt](work/active/vacation-campaign/evidence/pr167-integration.json)
+retains exact identities and actual results.
 
 PR168 is published at fixed head7c21713b, source8431e70b. It combines
 [export-picker feedback](work/active/vacation-campaign/export-picker.md),
