@@ -9,7 +9,7 @@ Preserve unrelated original checkout/trials and all immutable artifacts. One lea
 owns shared documentation/integration; one shared local build slot.
 
 Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-`codex/hardening-maintenance`. Integrated source67d62aec contains reviewed M0,
+`codex/agent-first-next`. Frozen PR171 branch codex/hardening-maintenance stays at7a9867a8. Integrated source67d62aec contains reviewed M0,
 schema-upgrade witness repair, M2 and exact M1 source7b3cf356. Current main is
 PR170 merge d7f48e6c, from exact9000 after all four required head checks passed;
 resulting-main remains pending. PR169 main39232087600 passed all four required
@@ -45,7 +45,7 @@ match exact checked head, then record resulting-main independently. No bypass.
 - M4 uses the existing shared OwnerRequest path and selected exact review/comment composition spec; Sol source author is isolated in worker-drain-budget, no build until grant. M5 remains conditional permitted
   synthetic/interface proof; no live/executable permission expansion follows.
 
-First follow PR170 main gate and publish the reviewed M0/schema/M1/M2+skill UI candidate; combined checks passed at19efe. Do not duplicate PR170 or attach unrelated PRs.
+PR171 publishes the reviewed M0/schema/M1/M2+skill UI at fixed7a9867a8; follow its actual four required checks, fresh protection/head and normal merge, then resulting-main. Combined checks passed at19efe. Continue on codex/agent-first-next; do not push further changes onto the checked PR branch. Also follow PR170 main39236565242 separately. Do not duplicate PR170 or attach unrelated PRs.
 Keep checked head fixed while later work continues separately. Current source changes invalidate old0f for this candidate. Frozen production19efe binary is source-bound in agent-first-combined-evidence with SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Neither headless
 state tests nor source review establish actual Mac usability.
 

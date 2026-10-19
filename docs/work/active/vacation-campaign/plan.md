@@ -5,9 +5,9 @@ checked9000 after all four required head checks passed; resulting-main is pendin
 PR169 main39232087600 and earlier required head/main checks passed; optional
 Windows failures remain explicit. Lead checkout:
 `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/hardening-maintenance`. M0/schema/M1/M2 source is locally reviewed/qualified
-with combined and hosted gates still pending; old production0f cannot qualify this
-new source. [Current checkpoint](checkpoint.md) owns active jobs and next action.
+`codex/agent-first-next`. PR171 fixes reviewed M0/schema/M1/M2+skill UI at7a9867a8 on
+codex/hardening-maintenance; combined19efe checks and production build passed, hosted
+gates remain. Old production0f cannot qualify this new source. [Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
 
