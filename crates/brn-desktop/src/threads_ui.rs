@@ -3950,27 +3950,35 @@ impl ThreadsUi {
             return;
         }
         self.reference_search_cancel = None;
-        // One concrete reply path: no global-Chat rebinding, stale names or stale counts.
-        if !self.writing_setup_form_current()
-            || self
-                .writing
-                .setup
-                .as_ref()
-                .is_none_or(|draft| draft.target != target || draft.observed != observed)
-        {
+        // Retire this request only on the exact draft it captured, even if
+        // that draft is hidden by navigation. Only a displayed draft may show
+        // the page; navigation never rebinds a reply to another setup.
+        let same_draft = self
+            .writing
+            .setup
+            .as_ref()
+            .is_some_and(|draft| draft.target == target && draft.observed == observed);
+        if !same_draft {
             cx.notify();
             return;
         }
-        if let Some(draft) = &mut self.writing.setup {
-            draft.search_pending = false;
-            match answer {
-                Ok(page) => {
-                    draft.matches = page.matches;
-                    draft.next = page.next;
-                    draft.match_total = page.total;
-                }
-                Err(error) => self.warn(format!("Reference search unavailable: {error}")),
+        let displayed = self.writing_setup_form_current();
+        let Some(draft) = &mut self.writing.setup else {
+            cx.notify();
+            return;
+        };
+        draft.search_pending = false;
+        if !displayed {
+            cx.notify();
+            return;
+        }
+        match answer {
+            Ok(page) => {
+                draft.matches = page.matches;
+                draft.next = page.next;
+                draft.match_total = page.total;
             }
+            Err(error) => self.warn(format!("Reference search unavailable: {error}")),
         }
         cx.notify();
     }
