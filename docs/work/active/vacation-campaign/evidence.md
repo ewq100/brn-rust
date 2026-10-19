@@ -268,3 +268,32 @@ helper/test steps, IDs, conditions and platform/context settings stay unchanged.
 Existing retirement check +5existing negative-control tests and Ruby Psych YAML
 parse passed. No new test/framework/dependency/pin, passing-run timing saving or
 Rust requalification is claimed. Independent review and hosted integration remain.
+
+
+## PR169 normal merge and native-prep independent review
+
+All four actual required exact-head39230048849 jobs passed on fixed63b0b0eb. Fresh
+strict protection/head were checked immediately before normal matching-head merge
+as e1c0ddaf. Optional Windows Core failed. Resulting-main39232087600 remains pending;
+[the receipt](evidence/pr169-integration.json) preserves separate gates. Lead merged
+main history, with all Rust/manifests/root lock/toolchain matching worker274.
+
+Independent fresh Sol high reviewed the complete clean97f native-prep candidate
+against merge-base63b, full diff SHA0fcdb8836920e0f52161b57b194d78c3eafe0b2404272d0c5bb2fc1dcf780a18,
+and found no actionable issue. [Review receipt](evidence/native-prep-review.json)
+records source/fixture/readonly-checker and unchanged CI failure-path boundaries.
+No new app-source qualification or native success is inferred. Two bounded Luna
+medium read-only audits now inspect command-launcher and composer-destination
+preservation while hosted checks run; no shared builder/source writer is active.
+
+
+## Launcher/composer bounded source audits
+
+Two requested Luna medium read-only audits at leadcc147df2 found no justified
+change. Lead inspected the actual launcher checked result lookup/current-query
+selection and set_chat destination draft save/restore, plus picker closure capturing
+attachment_chat before asynchronous completion and its busy/refusal path. Existing
+omakase/dialog/focus/chat/writing witnesses retain distinct boundaries. No test
+retirement, generalized reducer or source change was selected. Actual OS picker
+navigation remains unobserved; no native transport qualification is inferred.
+Fresh allowance78% used/22% remaining, reset1792874447; no purchase/reset.

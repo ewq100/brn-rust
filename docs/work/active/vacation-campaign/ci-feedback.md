@@ -75,6 +75,7 @@ move, not a new CI framework or qualification shortcut.
 Local retirement check and all5 existing retirement tooling tests passed, including
 negative controls for legacy paths/dependencies and workflow fetch/generator ordering.
 Ruby Psych parsed workflow YAML; no parser dependency was installed. Application
-Rust/manifests/locks/toolchain are unchanged from qualified MCP production. Fresh
-independent review and actual hosted gates remain next; no new Rust suite is
-needed merely for this configuration/docs change.
+Rust/manifests/locks/toolchain are unchanged from qualified MCP production. Independent Sol review of complete97f against63b found no actionable issues;
+[the receipt](evidence/native-prep-review.json) binds the exact complete diff.
+Actual hosted gates remain next; no new Rust suite is needed merely for this
+configuration/docs change.

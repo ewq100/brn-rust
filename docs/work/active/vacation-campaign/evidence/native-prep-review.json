@@ -1,0 +1,16 @@
+{
+  "candidate": "97f3f57c8554262101e0ec4de66e04fc36f7603b",
+  "baseline": "63b0b0ebbd4e994e78520b4206256240a441e0e9",
+  "complete_binary_diff_sha256": "0fcdb8836920e0f52161b57b194d78c3eafe0b2404272d0c5bb2fc1dcf780a18",
+  "reviewer": "Independent ci_native_prep_review; requested gpt-6.1-sol high, fresh bounded context; effective settings not independently exposed",
+  "result": "No actionable findings",
+  "scope": "Complete candidate: tiny existing CI guard step move, native fixtures/read-only checker documentation, current campaign receipts/status. Clean candidate, merge-base verified. No Rust/manifests/lock/toolchain changes.",
+  "findings": [],
+  "validated_boundaries": [
+    "Only exact existing intake-retirement step moved before helper prep; all other commands/IDs/conditions/matrix/pins/permissions/required names unchanged.",
+    "Fixture bytes/counts/SHA/final LF match manifest; actual serde/schema and recovery lifecycle match checker.",
+    "Parameterized SQLite URI mode=ro/query-only/short transaction; closes before OS close; no writable CLI bootstrap.",
+    "Meaningful existing retirement negative controls retained; broader CI restructuring deferred."
+  ],
+  "limitations": "Read-only source/record review, no edits/build/test/network/native interaction. Actual hosted integration/native observation remain separate."
+}

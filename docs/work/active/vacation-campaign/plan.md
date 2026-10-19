@@ -1,11 +1,13 @@
 # Mac vacation hardening continuation
 
-Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
-contexts passed before normal merge. Resulting-main39227629739 passed all four required jobs; optional Windows failures remain. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
-Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-native-prep`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
-The current main Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
-adds no source delta. Preserve unrelated work and source-bound artifacts.
+Updated 19 October2026. Current maine1c0ddaf is PR169, merged normally after all
+four required exact-head checks passed. Its resulting-main39232087600 checks remain
+pending. PR168 and earlier required head/main checks passed; optional Windows
+failures remain explicit. Lead checkout:
+`/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
+`codex/hardening-native-prep`, app sourcea59315a1 matching worker274.
+Main matches that qualified app source; qualified0f differs only in one test comment.
+Its immutable production artifact remains source-valid. Preserve unrelated work.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
