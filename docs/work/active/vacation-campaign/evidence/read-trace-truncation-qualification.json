@@ -1,0 +1,514 @@
+{
+  "observed_at_utc": "2026-10-19T12:46:06.200970+00:00",
+  "source_candidate": "a8fc8144716884f6aa78aa1de91702cfddaf8718",
+  "test_first_candidate": "6a348353e7f78ff8962ae9ad861e8fd2c9258b75",
+  "integrated_production_source": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+  "source_file_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+  "full_source_diff_sha256": "b80cac627d5596ca0f3ba2865b75df0fd53136245cc0d431ac0df5813eac9496",
+  "source_review": "read-trace-truncation-source-review.json",
+  "checks": [
+    {
+      "name": "baseline",
+      "head": "eaba7ff811f3ef995893f8274e07bbeba7ee8d83",
+      "source_sha256": "b4bc4f2a76fc1dca98ee077b67a7b96e2feef5f6c6ea4c98cdd21c396baaca0c",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "threads::trace::tests::read_records_trace_reports_only_actual_truncation",
+        "--",
+        "--exact"
+      ],
+      "exit": 101,
+      "expected_exit": 101,
+      "elapsed_seconds": 297.48322608391754,
+      "lowest_free_bytes": 3177013248,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "test_counts": {
+        "passed": 0,
+        "failed": 1,
+        "ignored": 0
+      }
+    },
+    {
+      "name": "candidate",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "threads::trace::tests::read_records_trace_reports_only_actual_truncation",
+        "--",
+        "--exact"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 92.67798399995081,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 3130159104,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "test_counts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "name": "search",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "threads::search_tests::"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0079547089990228,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 3163492352,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "test_counts": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "name": "catalogue",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "threads::tests::production_catalog_tools_report_activity_and_tool_loop_saves_only_final_once",
+        "--",
+        "--exact"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0077500001061708,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 3163131904,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "test_counts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "name": "heading",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-ai",
+        "--lib",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "threads::budget_tests::large_heading_note_record_is_delivered_with_exact_partial_coverage_in_model_loop",
+        "--",
+        "--exact"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0076913328375667,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 3163074560,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      },
+      "test_counts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "name": "lint",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-ai",
+        "--all-targets",
+        "--features",
+        "scripted-runs",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 76.27694062516093,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 2648182784,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "format",
+      "head": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+      "source_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 2.0094464998692274,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Same already-rebuilt dependency graph; only trace source differs. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 2648084480,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    }
+  ],
+  "archives": [
+    {
+      "name": "baseline-binary.json",
+      "archive": "read-trace-truncation-raw/baseline-binary.json.gz",
+      "raw_sha256": "345a78974c4754928c8bd9ff8a86bd6e4c66d213afd808b2c64c2b605a942de6",
+      "raw_bytes": 282,
+      "archive_sha256": "62f16c90c7b1fe993af36a1ee32826358fb7cec3dbda99e2302e81ea39737b7b",
+      "archive_bytes": 224
+    },
+    {
+      "name": "baseline-source.rs",
+      "archive": "read-trace-truncation-raw/baseline-source.rs.gz",
+      "raw_sha256": "b4bc4f2a76fc1dca98ee077b67a7b96e2feef5f6c6ea4c98cdd21c396baaca0c",
+      "raw_bytes": 20093,
+      "archive_sha256": "3f1e97475d8639385782994823ca6b30078ef87f9b903027f7ce62f74e74486c",
+      "archive_bytes": 5264
+    },
+    {
+      "name": "baseline.json",
+      "archive": "read-trace-truncation-raw/baseline.json.gz",
+      "raw_sha256": "83fb7bcb77d64e01c2411ede0ac1c37d0b3dfc58859fd38ab8abb6559071f53d",
+      "raw_bytes": 1285,
+      "archive_sha256": "c02598ffd7fa3ba9935886f71cb969d5e92da8752acb07a5fc622dfff7ac8f22",
+      "archive_bytes": 680
+    },
+    {
+      "name": "baseline.log",
+      "archive": "read-trace-truncation-raw/baseline.log.gz",
+      "raw_sha256": "0e77765e1aeb1ccdfc82c3dc7e550a5b97e7cc63e5440e9f1b9f2d218b874766",
+      "raw_bytes": 4998,
+      "archive_sha256": "fbcc401094974a8afaf1bae3c8cdbec113c3102d11cb176dc08df99194e45387",
+      "archive_bytes": 1605
+    },
+    {
+      "name": "candidate-source.rs",
+      "archive": "read-trace-truncation-raw/candidate-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "candidate.json",
+      "archive": "read-trace-truncation-raw/candidate.json.gz",
+      "raw_sha256": "db5660e74dde24363a66d7b944c75ddfc04b6a36267604f1a116b08eff21d221",
+      "raw_bytes": 1442,
+      "archive_sha256": "5c983c1f0fcc3472ca8ed9700ed03410251d4803db7e5c73e35583d3fe0e78ca",
+      "archive_bytes": 777
+    },
+    {
+      "name": "candidate.log",
+      "archive": "read-trace-truncation-raw/candidate.log.gz",
+      "raw_sha256": "e67daa08160e88aff2283b19aed75a89860b0c94ecf36b050f956b6573fa7ec2",
+      "raw_bytes": 443,
+      "archive_sha256": "9001844792de5d2532706112ec9c39266879d895852132d682b698575bfe42ce",
+      "archive_bytes": 315
+    },
+    {
+      "name": "catalogue-source.rs",
+      "archive": "read-trace-truncation-raw/catalogue-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "catalogue.json",
+      "archive": "read-trace-truncation-raw/catalogue.json.gz",
+      "raw_sha256": "0ea7be872b9b8fcabe70906412d98d49320de7bdda8d30a386853a1fd89f5c3c",
+      "raw_bytes": 1463,
+      "archive_sha256": "00657b2517af3ae05fd9919d572a0a88d7b10484d54cf95d7c00d3939f8946cb",
+      "archive_bytes": 792
+    },
+    {
+      "name": "catalogue.log",
+      "archive": "read-trace-truncation-raw/catalogue.log.gz",
+      "raw_sha256": "e0da7de2fb5271517469da46f5f3b6e1456d03db0ec1c9c0247b6f5b6e89fb1e",
+      "raw_bytes": 356,
+      "archive_sha256": "40ada2227fcc0bc50011008dcd56bc76a18f20e99773478acc10af9e3df302df",
+      "archive_bytes": 263
+    },
+    {
+      "name": "format-source.rs",
+      "archive": "read-trace-truncation-raw/format-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "format.json",
+      "archive": "read-trace-truncation-raw/format.json.gz",
+      "raw_sha256": "2a859421863ac0fc5162430d0c70c49ce06e8fef14b8b24292fac405614a12ce",
+      "raw_bytes": 1240,
+      "archive_sha256": "98994be88df26f5847c40f4d5af1a14785e6fa61157cc419abdb3983137716e3",
+      "archive_bytes": 684
+    },
+    {
+      "name": "format.log",
+      "archive": "read-trace-truncation-raw/format.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "name": "heading-source.rs",
+      "archive": "read-trace-truncation-raw/heading-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "heading.json",
+      "archive": "read-trace-truncation-raw/heading.json.gz",
+      "raw_sha256": "484d7b4b7358924de25299150eed73a8bb9660d1a381a11ccfe0d2ce389ed633",
+      "raw_bytes": 1472,
+      "archive_sha256": "f88d174a13ef5925b63a7f8c9244b1d08f1495141659471ac5836c7e632dbcc1",
+      "archive_bytes": 796
+    },
+    {
+      "name": "heading.log",
+      "archive": "read-trace-truncation-raw/heading.log.gz",
+      "raw_sha256": "7246a49ea3b34642b41c8d1b9eaaec7cf8cb96267258b632e73f26a90a473df7",
+      "raw_bytes": 367,
+      "archive_sha256": "7e0e4ba3db469758eda2009f0041b251a58c0a47d778433d22b18a42f4a135a6",
+      "archive_bytes": 270
+    },
+    {
+      "name": "lint-source.rs",
+      "archive": "read-trace-truncation-raw/lint-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "lint.json",
+      "archive": "read-trace-truncation-raw/lint.json.gz",
+      "raw_sha256": "d3a924a6c70968dda7eb8c7cc826f25cdefae4c45b555a5a11c3532f23c0805b",
+      "raw_bytes": 1378,
+      "archive_sha256": "b5a0604a7157e2caa070fc49e4c1175fd6cf65ebc2484c03783d3238eb4c7e80",
+      "archive_bytes": 740
+    },
+    {
+      "name": "lint.log",
+      "archive": "read-trace-truncation-raw/lint.log.gz",
+      "raw_sha256": "8999e5712a170bc532bbdead154b66f7420b6a76b915169bd9bb1f2738372be9",
+      "raw_bytes": 2982,
+      "archive_sha256": "816ff9a0ecf2cdd2c67f8b00575482e436d35716a31e3fc140574bf92191207c",
+      "archive_bytes": 923
+    },
+    {
+      "name": "run-candidate-check.py",
+      "archive": "read-trace-truncation-raw/run-candidate-check.py.gz",
+      "raw_sha256": "dac4ef9ff90eb0544927403c106fec9ef10e1096c2a5a6134bc38fe7acf75fe9",
+      "raw_bytes": 2855,
+      "archive_sha256": "3bfa299826840d8dcffd21bb187bb123cf772b40286cf5bbdb0d3c9ac35679d1",
+      "archive_bytes": 1435
+    },
+    {
+      "name": "run-check.py",
+      "archive": "read-trace-truncation-raw/run-check.py.gz",
+      "raw_sha256": "0b0d7404e16b1bb8a14decee2726c49ae0a43497954e034c0c66966b1291e519",
+      "raw_bytes": 2708,
+      "archive_sha256": "306680bce9d3fde0c554058ee0d0c812b01204e3d462c6f32ee8d1e022296095",
+      "archive_bytes": 1355
+    },
+    {
+      "name": "search-source.rs",
+      "archive": "read-trace-truncation-raw/search-source.rs.gz",
+      "raw_sha256": "ff3b900c5491c7ae720b1e4dd9683466da4f245919929bf32bf07645934ee5e4",
+      "raw_bytes": 20122,
+      "archive_sha256": "671d9cc5d4b2d9415f6485bc0c6312dcb6382f4c7ba869757abb6f3b42686fb8",
+      "archive_bytes": 5273
+    },
+    {
+      "name": "search.json",
+      "archive": "read-trace-truncation-raw/search.json.gz",
+      "raw_sha256": "8b974dcac6854a844a11d04d3497473decbd4cd7acae71f538c87243fe56be5d",
+      "raw_bytes": 1366,
+      "archive_sha256": "7f91efd6c9ad10a4858e37f0e0741628a18466646c6de30ddd87d31ca59f520e",
+      "archive_bytes": 739
+    },
+    {
+      "name": "search.log",
+      "archive": "read-trace-truncation-raw/search.log.gz",
+      "raw_sha256": "86c614de769dbbced2837cc8b79525ee249e01b89d3bcf601814f7b9c9a3f1f0",
+      "raw_bytes": 1051,
+      "archive_sha256": "7854e840644cf60d0762b6c8b00cc550896070f1008cdee116fce5e43893a4ec",
+      "archive_bytes": 488
+    },
+    {
+      "name": "source.patch",
+      "archive": "read-trace-truncation-raw/source.patch.gz",
+      "raw_sha256": "b80cac627d5596ca0f3ba2865b75df0fd53136245cc0d431ac0df5813eac9496",
+      "raw_bytes": 2000,
+      "archive_sha256": "e765df91164f8f2fae9df90b25a902fa9ec07d060cd8727dac501a20ac9c6abc",
+      "archive_bytes": 634
+    }
+  ],
+  "conclusion": "Original unchanged field-presence expression fails the actual new unit test on false vs true; one-line boolean-value correction passes. Existing search9, catalogue1 and heading/partial-read1 pass, strict all-target lint and format pass.",
+  "limits": [
+    "No additional account or native UI calls used to test the trace fix.",
+    "No repeated full runtime suite selected after the metadata-only flag correction; meaningful trace/call/coverage consumers and strict lint checked.",
+    "Cache reclamation caused dependency graph regeneration; guarded process-group monitor stayed above recorded disk floor and used pinned locked/offline toolchain.",
+    "Baseline test binary is retained locally with SHA in baseline-binary.json; no binary committed.",
+    "Candidate trace source exactly matches revieweda8; lead also contains separately reviewed922 schema descriptions and qualified test support.",
+    "Hosted/integration/main remain pending for the combined reading change."
+  ]
+}

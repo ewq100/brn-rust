@@ -644,11 +644,17 @@ fn schema(name: &str) -> Value {
         "refresh_candidate" => history::refresh_schema(),
         "prepare_note_edit" => note_edit::schema(),
         "read_records" => object(
-            json!({"ids":{"type":"array","items":{"type":"string"}},"query":{"type":["string","null"]}}),
+            json!({"ids":{"type":"array","items":{"type":"string","description":"Copy the complete opaque record ID verbatim from supplied or observed output, including any suffix such as :0; never shorten or reconstruct it."}},"query":{"type":["string","null"]}}),
             json!(["ids", "query"]),
         ),
         "read_note" => object(
-            json!({"id":{"type":"string"},"version":{"type":"integer","minimum":1},"start":{"type":"integer","minimum":0},"max_bytes":{"type":"integer","minimum":1,"maximum":131072},"section":{"type":"boolean"}}),
+            json!({
+                "id":{"type":"string","description":"Copy the complete opaque Note ID verbatim from supplied or observed output, including any suffix such as :0; never shorten or reconstruct it."},
+                "version":{"type":"integer","minimum":1,"description":"Use the version from the observed record; do not guess."},
+                "start":{"type":"integer","minimum":0,"description":"Exact UTF-8 byte offset: use 0 for the first read, an advertised heading start with section=true, or the returned next_start to continue."},
+                "max_bytes":{"type":"integer","minimum":1,"maximum":131072,"description":"Positive byte count for this bounded read, from 1 through 131072."},
+                "section":{"type":"boolean","description":"Use true to read an advertised heading section; use false for an ordinary bounded read."}
+            }),
             json!(["id", "version", "start", "max_bytes", "section"]),
         ),
         "search_notes" => note_search::search_schema(),

@@ -1,5 +1,17 @@
 # M6 outcome comparison and retirement
 
+Current19October follow-through: PR172/173 all four required head/main checks
+passed; PR174 merged7fb5 after all four head checks, resulting-main39254538056
+pending. [Actual Mac review](../vacation-campaign/evidence/native-mac-review-qualification.json)
+passed visible suggestion/unchecked selection/Apply/Undo/reopen and exposed an
+open AX selected-state defect now selected for repair. Three bounded existing
+Codex-account CLI probes completed: natural request failure from omitted ID
+suffix, explicit-ID success, revised-schema natural-request success. All preserved
+Note bytes/no candidate. Native AI and broader semantic/owner journeys remain
+pending. [Current checkpoint](../vacation-campaign/checkpoint.md) supersedes older
+pending snapshots below; they remain dated implementation history.
+
+
 This is the current comparison record for the selected owner plan, not a claim
 that all of its journeys are accepted. The Mac campaign remains the execution
 authority. Deterministic fixtures establish mechanical behavior; they cannot
