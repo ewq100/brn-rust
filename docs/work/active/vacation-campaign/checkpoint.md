@@ -10,7 +10,8 @@ One lead owns shared documentation/integration; one local build slot.
 
 Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
 `codex/agent-first-followthrough`. Frozen PR172 branch
-`codex/agent-first-next` stays atb8735ea1. Combined source7a9706fd contains exact independently
+`codex/agent-first-next` stays atb8735ea1. PR173 fixes
+`codex/agent-first-suggestions` atcf7e4f2e; do not push to that checked branch. Combined source7a9706fd contains exact independently
 approved M3e227, M4 component3b3 and native-fixturec055. The15 M4 and10 M3 files
 match their source receipts; the fixture matches its reviewed source. No schema,
 new dependency or provider permission was added.
@@ -34,8 +35,8 @@ resulting-main separately. Never bypass a required check.
    writing UI44 plus development-host12, CLI43, strict six-package all-target
    lint, format and ordinary production build pass. No redundant lead rebuild.
    [Qualification](evidence/proposed-feedback-qualification.json) retains72 raw
-   archives and immutable ordinary guide17 executables. Luna receipt audit passed (72 archives,16 source pins,11 commands). Publish/freeze a separate PR after audit; required exact-head/main
-   gates remain. Current main has M4a, not these suggestions.
+   archives and immutable ordinary guide17 executables. Luna receipt audit passed (72 archives,16 source pins,11 commands). PR173 is published/attached at fixedcf7e4f2e; run39246843605 actual required
+   exact-head checks are queued/running. Follow normal merge then main; no bypass. Current main has M4a, not these suggestions.
 3. Preserve original first witness survivor (invalid replacement ID masked guard),
    effective compatible12167 harness/exact originale5 store semantic failure and
    restored4e green. Inherited /var temp symlink failure and same-binary canonical
