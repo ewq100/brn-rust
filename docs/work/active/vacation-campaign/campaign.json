@@ -14,20 +14,21 @@
   "unattended_status": "INACTIVE",
   "admission_state": "TELEMETRY_UNAVAILABLE",
   "continuation_blockers": [
-    "No native goal, quota-read or durable wake/hosting tool exposed in this session.",
-    "codex-cli 0.159.2 cloud list returns HTTP 401; remote-task reconciliation unavailable."
+    "codex-cli0.159.2 Cloud list returnsHTTP401 token parse failure; remote-task reconciliation unavailable.",
+    "No verified native Cloud goal, quota snapshot or durable quota-aware automatic resume. Installed app-server exits before initialize because its SQLite state directory is read-only. Reminder automations do not establish Cloud resume/hosting."
   ],
   "remote_jobs_launched": [],
   "next_wake": null,
-  "last_checkpoint_at_utc": "2026-10-19T04:09:04.532019+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T04:53:48.322451+00:00",
   "current_session_jobs": [],
   "capability_observations": {
     "cli": "codex-cli0.159.2",
-    "cloud_list": "Fresh19Oct read again returnsHTTP401 token parse failure; no remote dispatch",
-    "protocol": "installed experimental schemas include thread goals and account/rateLimits/read; current stdio initialize probe failed, no actual quota snapshot obtained",
+    "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
+    "protocol": "Installed experimental schemas contain goals and account/rateLimits/read; fresh stdio app-server exits1 before initialize because SQLite state runtime under /run/codex-environment/codex-home is read-only. No quota snapshot.",
     "app_thread": "current app thread hostId durable, status active; read response exposes no goal/model/quota or wake/expiry guarantee",
-    "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee",
-    "environment_status": "Current managed environment reports enforced unrestricted network and no configured capabilities; no quota/goal/wake tool found"
+    "unattended": "INACTIVE; no verified Cloud resume, quota-aware admission, native goal activation or durable14day host guarantee. Existing unrelated automations preserved.",
+    "environment_status": "Connected/running, observations_current true, no configured capabilities. Desired unrestricted network state is unknown; enforcement readiness unestablished. API/fetch succeeded through inherited proxy with permitted network.",
+    "receipt": "evidence/continuation-capabilities-20261019.json"
   },
   "model_policy": {
     "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
@@ -37,9 +38,10 @@
     "effective_model_verification": "Tools accept requested model/reasoning but list_agents exposes status only; effective runtime model/effort and speed not independently observable",
     "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
   },
-  "integration_status": "PR162 first head41423230 hosted Mac/Linux gates passed. Worker code c24da6af is locally qualified; its new pushed head still requires separately observed hosted CI. No default-branch merge.",
-  "next_eligible_work": "Observe new-head PR CI; reconcile remaining OS routes; next Run/worker ownership candidates are kind/thread/run identity and scattered preview/context fields, preserving checked service authority.",
-  "last_qualified_source": "c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3",
-  "source_delta_after_qualification": "Documentation/evidence updates only after the worker code checkpoint.",
-  "active_work": "Worker code checkpointc24da6af independently approved and locally qualified315/0/1 plus explicit CLI/desktop1/0, strict lint, production build and format; maintain draft PR and exact-head hosted CI."
+  "integration_status": "PR162 exact aebfa12b hosted required Mac/Linux contexts, Ubuntu native UI and docs passed; optional Windows default build fails on unchanged Unix authentication. Owner merged PR162 at bd42c1d9 on19Oct04:38:18Z; this continuation performed no merge. Main-commit CI observed separately.",
+  "next_eligible_work": "Observe new draft PR exact-head CI; inspect remaining Run/worker stream/progress/activity and context/reference state, reconcile actual OS/callback routes, then choose next bounded owner while preserving checked service authority.",
+  "last_qualified_source": "823a154497ff1ff3f4abb05b75eebf6473d45c70",
+  "source_delta_after_qualification": "Documentation/evidence only after independently reviewed and locally qualified typed worker identity source823a1544.",
+  "active_work": "Reviewed source823a1544 locally qualified315/0/1 plus offline CLI/desktop1/0, strict all-target lint, production build and formatting. New campaign draft PR is discoverable by stable branch; reconcile remote head and hosted CI before further integration.",
+  "integration_base": "bd42c1d99bfb41607c7218addbb52dc99bc340c3"
 }

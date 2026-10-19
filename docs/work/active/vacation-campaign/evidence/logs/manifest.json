@@ -254,5 +254,85 @@
     "file": "vacation-resume-cloud-list.log.gz",
     "uncompressed_bytes": 369,
     "uncompressed_sha256": "58c0e9a4e9e7a91d074467accb052e8442623a587e3fdd138df81be0ec60fff2"
+  },
+  {
+    "file": "vacation-resume-worker-linux-ci.log.gz",
+    "uncompressed_bytes": 289608,
+    "uncompressed_sha256": "53da76f33b9c554c4e9a1e40679b172b82aa96aa5435772db7b8c9ba281ce0cc"
+  },
+  {
+    "file": "vacation-resume-worker-mac-ci.log.gz",
+    "uncompressed_bytes": 231814,
+    "uncompressed_sha256": "07ae5b81a201ba7b305b0776030db3fcc94f82f4fcabaf5ad005cd5f154d62a9"
+  },
+  {
+    "file": "vacation-resume-worker-windows-ci.log.gz",
+    "uncompressed_bytes": 38208,
+    "uncompressed_sha256": "a5cf549952cf8a348dd9471db7ffd1ec390fdc8cea197b910e58237be9dd7ac9"
+  },
+  {
+    "file": "vacation-identity-focused-initial.log.gz",
+    "uncompressed_bytes": 453,
+    "uncompressed_sha256": "073ba1382cecb6ae53d14a83df324fc7556eb31eab59bdd9e4f545d75c7bc1f6"
+  },
+  {
+    "file": "vacation-identity-desktop-full.log.gz",
+    "uncompressed_bytes": 34343,
+    "uncompressed_sha256": "801f24a376a286ce92d37c086c656ec6f011bf60abee0981fd5010965e81d604"
+  },
+  {
+    "file": "vacation-identity-mcp-repair1.log.gz",
+    "uncompressed_bytes": 446,
+    "uncompressed_sha256": "aaee1adb7aac4b47852208889882ae4e391035246be46b7e1eff07a3daa40840"
+  },
+  {
+    "file": "vacation-identity-desktop-final.log.gz",
+    "uncompressed_bytes": 32278,
+    "uncompressed_sha256": "2c6d765fb0fd44bb63a87f6a8850d5e29d95241d0509ac07d9c8b1f3763682a1"
+  },
+  {
+    "file": "vacation-identity-cli-fixture.log.gz",
+    "uncompressed_bytes": 373,
+    "uncompressed_sha256": "376ca403666ff150e4f075126063e550625e45b807f535b9c08b6576122ece56"
+  },
+  {
+    "file": "vacation-identity-cli-fixture-final.log.gz",
+    "uncompressed_bytes": 926,
+    "uncompressed_sha256": "81db6aa54369c23d40174773dd399ed6f8282bc056f329ac0b475a0a44b9921b"
+  },
+  {
+    "file": "vacation-identity-cli-fixture-qualified.log.gz",
+    "uncompressed_bytes": 355,
+    "uncompressed_sha256": "b8e42d4f986271240a6629df1e196ee35d7c840827c0660b89483d6b255e7fdb"
+  },
+  {
+    "file": "vacation-identity-cli-desktop.log.gz",
+    "uncompressed_bytes": 380,
+    "uncompressed_sha256": "ccf69e170323821a2c121ea2d834fd961378843794efb4e2a8f2302f0482f01a"
+  },
+  {
+    "file": "vacation-identity-clippy.log.gz",
+    "uncompressed_bytes": 133,
+    "uncompressed_sha256": "1b5567bc511714703ba09523fd7ab7d3e8ff74c6deefeb4a9ed70dae655a95c9"
+  },
+  {
+    "file": "vacation-identity-production-build.log.gz",
+    "uncompressed_bytes": 134,
+    "uncompressed_sha256": "fbf798cb46129b1f70de27d597c10040fad12ee60575c041cb043ed9fe5646d1"
+  },
+  {
+    "file": "vacation-identity-fmt.log.gz",
+    "uncompressed_bytes": 17,
+    "uncompressed_sha256": "1a1873eea12bc49e4c371dcd9c90f53eb429da6c4500e67d2e4c468f32609617"
+  },
+  {
+    "file": "vacation-identity-diff-check.log.gz",
+    "uncompressed_bytes": 24,
+    "uncompressed_sha256": "8c83a0dcfebc4bf532bca09474cc581378ddfd5f8589b4f2abf8dcc91ec9e6e7"
+  },
+  {
+    "file": "vacation-identity-default.log.gz",
+    "uncompressed_bytes": 1338,
+    "uncompressed_sha256": "70299b2593224743d793858fe943aa741fde414535d78734cd17564d0f4a3647"
   }
 ]

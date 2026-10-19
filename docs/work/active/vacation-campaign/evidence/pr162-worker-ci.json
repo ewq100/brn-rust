@@ -1,0 +1,140 @@
+{
+  "observed_at_utc": "2026-10-19T04:44:44.864179+00:00",
+  "pr": {
+    "headRefName": "vacation-campaign-20261018",
+    "headRefOid": "aebfa12b0d5da5f5bd91163f82f9cbc07a8edb3a",
+    "isDraft": false,
+    "mergeCommit": {
+      "oid": "bd42c1d99bfb41607c7218addbb52dc99bc340c3"
+    },
+    "mergedAt": "2026-10-19T04:38:18Z",
+    "mergedBy": {
+      "id": "U_kgDOED6V_g",
+      "is_bot": false,
+      "login": "ewq100",
+      "name": ""
+    },
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:11:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470462",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-19T04:11:22Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:23:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470360",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-19T04:11:22Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:12:58Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470426",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-19T04:11:22Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:31:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470415",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-19T04:11:29Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:19:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470540",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-19T04:11:22Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:22:54Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470464",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-19T04:11:29Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T04:22:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39198208918/job/117885470538",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-19T04:11:26Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "url": "https://github.com/ewq100/brn-rust/pull/162"
+  },
+  "required_contexts": [
+    "Core and CLI (ubuntu-24.04)",
+    "Core and CLI (macos-15)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "native_ui_counts_each_platform": {
+    "writing_library": 44,
+    "independent_writing_host": 12,
+    "native_state": 59,
+    "widgets": {
+      "passed": 312,
+      "failed": 0,
+      "ignored": 1,
+      "filtered": 3
+    }
+  },
+  "limitations": [
+    "Hosted CI qualifies exact aebfa12b head, including worker source c24da6af; it does not qualify later changes.",
+    "Overall run failed because optional Windows Core/CLI failed on Unix authentication code unchanged by the campaign.",
+    "PR162 was merged by ewq100; this continuation performed no merge.",
+    "Merge-commit main CI was still running when first observed; PR-head success is separate from main."
+  ],
+  "logs": [
+    {
+      "path": "logs/vacation-resume-worker-linux-ci.log.gz",
+      "uncompressed_sha256": "53da76f33b9c554c4e9a1e40679b172b82aa96aa5435772db7b8c9ba281ce0cc",
+      "uncompressed_bytes": 289608
+    },
+    {
+      "path": "logs/vacation-resume-worker-mac-ci.log.gz",
+      "uncompressed_sha256": "07ae5b81a201ba7b305b0776030db3fcc94f82f4fcabaf5ad005cd5f154d62a9",
+      "uncompressed_bytes": 231814
+    },
+    {
+      "path": "logs/vacation-resume-worker-windows-ci.log.gz",
+      "uncompressed_sha256": "a5cf549952cf8a348dd9471db7ffd1ec390fdc8cea197b910e58237be9dd7ac9",
+      "uncompressed_bytes": 38208
+    }
+  ],
+  "optional_windows_source_comparison": {
+    "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
+    "head": "aebfa12b0d5da5f5bd91163f82f9cbc07a8edb3a",
+    "unchanged_failure_paths": [
+      "crates/brn-ai/src/auth.rs",
+      "crates/brn-ai/src/codex_auth.rs"
+    ]
+  }
+}
