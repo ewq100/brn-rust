@@ -1,0 +1,12 @@
+Baseline commit: e2f7ce60f0162feebb4d0b954c0744037ad1ec77 (source paths inspected unchanged from reviewed 945a0a7aa205d9de96df37246f1e2a908787d3c5)
+Branch: codex/reference-search-retirement
+Worktree: /Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust
+Final source remains uncommitted; exactly two modified source files, no other worktree changes:
+- crates/brn-desktop/src/threads_ui.rs SHA256 a65af3501231fbdd5658399357aa2e0ae5321b5fa99446cdc8320556fbfcdcc2
+- crates/brn-desktop/src/threads_writing_tests.rs SHA256 6418b0c60ce1f1e728718aa2ba63ce8ab71394e2a5dfc0d924194fdebd033139
+Final source diff patch SHA256 b5c44abb94f9b5f5514c241f9c3aef109ce17a076efbd2e87772f14932123ae2
+Baseline old-production reproduction patch SHA256 907bc4463205d1a46795839e0a2733d11757affe5bb8d3c06aaf9a0c9090411a
+Immutable production build: brn-desktop-reference-search-e2f7ce60
+Binary SHA256 347b357f394baa15d105b49e61e94c16dead2623de5c56e6acc4eee969b34c25
+Build excludes native-test-support; test-only callback counter is cfg(test, native-test-support).
+Rust 1.98.1; offline; jobs=1; shared target /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target.

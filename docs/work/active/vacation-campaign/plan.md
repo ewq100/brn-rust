@@ -1,12 +1,12 @@
 # Mac vacation hardening continuation
 
-Updated 19 October 2026. Current main is
-`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
-is source `14d7c43e`, matching qualified worker `ed859aa4`.
+Updated 19 October2026. Current main9116ad78 is PR167; its required checked-head
+contexts passed before normal merge. Resulting-main run39224642627 is running.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-followup`. PR166 merged normally from
-`codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
-artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
+branch `codex/hardening-continuation`, history merge535b04e1/source8431e70b.
+All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
+adds no source delta. Preserve unrelated work and source-bound artifacts.
+[Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
 
@@ -162,30 +162,35 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 
 ## Current candidate and next action
 
-PR165 notice/drain is merged and its resulting-main run39216341691 passed all four
-required jobs; optional Windows failures remain explicit. PR166 at exact head73780065
-contains the [late-refresh witness](late-refresh.md), [Run-bound edit target](run-edit-refresh.md)
-and [Connections loading fix](connections-pending.md). Independent Sol approved its
-source98188942 and local321/0/1, lint/format/production checks pass. All four required
-contexts passed in run39217700176; normal exact-head merge completed at08:07:12UTC
-asb4a5deeb. Resulting-main run39220505231 is running; retain optional Windows failures.
+PR163–166 required head/main checks passed; optional Windows failures remain explicit.
+PR167 reference ownership merged normally as9116ad78 from checked40879f71 after all
+four required contexts passed in run39220781564. Main run39224642627 is running;
+[the integration receipt](evidence/pr167-integration.json) owns exact check identities.
 
-The current follow-up [reference-import owner](reference-import-plan.md) is source
-ed859aa4/integrated14d7c43e, independently approved without findings. Final321/0/1,
-strict lint/format and a production-only build pass; [receipts](reference-import.md)
-retain exact evidence and native/live limits. No local writer/build is active.
-The lead reconciled merged main as2bd890ef with no crate/root manifest/lock/toolchain
-delta from reviewed14d7. Independent Luna receipt audit passed; publish this later
-coherent candidate and follow PR166 resulting-main checks separately.
+The later source8431e70b combines [export feedback](export-picker.md),
+[test-only fixture helper sharing](provider-fixture-helpers.md) and
+[hidden reference-search retirement](reference-search.md). Independent Sol approved
+the complete source without findings. Final native322/0/1, strict native lint/format
+and production-only build pass; provider helper families4/7/12 and strict package
+capability-spike lint/format pass. Export's candidate-only mutation fails its intended
+status assertion. Reference search additionally has an exact retained test replay
+failing on byte-exact old production, then passing after exact frozen restoration.
+Source/hash/log receipts retain their limits; no old-source export or OS transport
+failure is claimed. No local writer/builder is active.
+
+Final independent Luna receipt audit passed, and complete staged candidate whitespace
+check passed. Publish the coherent later candidate. Preserve checked heads and follow
+actual required-head, normal merge and resulting-main checks separately. No bypass.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
-MAC-04 for already-durable unsaved-edit close/relaunch. No crash/unprocessed-input
-durability or native success is claimed. [CI timing research](ci-feedback.md) identifies
-repeated helper preparation, but workflow implementation is deferred pending a
-bounded qualification plan; no saving is established.
+already-durable unsaved close/relaunch. No crash/unprocessed-input durability or
+native success is claimed. [CI timing research](ci-feedback.md) remains deferred;
+no workflow change or saving is established. Recent bounded source audits found no
+justified preview/activity/context refactor or worker/notice/reference test reduction.
+Recheck already invalidates reference searches; no extra guard is needed. Empty
+Copilot catalogue semantics remain unspecified and no provider policy change is selected.
 
-Select further work from concrete behavior, maintenance evidence and the priority
-queue above. Continue useful work while allowance permits; the recovery heartbeat
-is not batch pacing. [Preserved planning history](planning-history-through-2026-10-19.md)
-retains earlier detailed plans, review hashes, failures and superseded snapshots.
-Current owner/resource/gate rules remain at this stable path for restarts.
+Select further work from concrete behavior and maintenance evidence. Continue useful
+work while allowance permits; the recovery heartbeat is not batch pacing.
+[Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
+snapshots. Current owner/resource/gate rules remain at this stable path for restarts.

@@ -3183,13 +3183,76 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
 }
 
 #[gpui_kit::test]
-fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form(
+async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form(
     cx: &mut TestAppContext,
 ) {
+    use gpui_kit::test::TestAppContextExt;
+
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
             view.open_note(&f.a.id, None, window, cx);
+            view.load_writing_setup(window, cx);
+            view.writing.reference_query.update(cx, |input, cx| {
+                input.set_value("Second saved paragraph", window, cx)
+            });
+            view.search_writing_references(None, window, cx);
+            assert!(view.writing.setup.as_ref().unwrap().search_pending);
+            assert!(view.reference_search_cancel.is_some());
+            assert_eq!(
+                view.writing.setup.as_ref().unwrap().search_query.as_deref(),
+                Some("Second saved paragraph")
+            );
+            // Keep the admitted form in memory; switching notes must not
+            // reload or replace it before the real async reply arrives.
+            view.open_note(&f.b.id, None, window, cx);
+            assert_eq!(view.writing.setup.as_ref().unwrap().target.note, f.a.id);
+        });
+    })
+    .unwrap();
+    cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
+        f.view.read(cx).reference_search_cancel.is_none()
+    })
+    .await;
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(f.b.id.as_str()));
+        assert!(view.writing.setup.as_ref().unwrap().matches.is_empty());
+        assert_eq!(view.writing.setup.as_ref().unwrap().match_total, 0);
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            assert!(view.writing_setup_form_current());
+            let draft = view.writing.setup.as_ref().unwrap();
+            assert!(draft.matches.is_empty());
+            assert_eq!(draft.match_total, 0);
+            assert!(
+                !draft.search_pending,
+                "a retired reply must clear pending for its retained setup"
+            );
+        });
+    })
+    .unwrap();
+    b3_reveal_setup_control(cx, &f, "find-writing-reference");
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("find-writing-reference", cx)
+    })
+    .unwrap();
+    cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
+        !f.view
+            .read(cx)
+            .writing
+            .setup
+            .as_ref()
+            .unwrap()
+            .search_pending
+    })
+    .await;
+
+    // Preserve the replaced-form and stale-canonical-result witnesses below.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
             view.load_writing_setup(window, cx);
             let target = view.writing.setup.as_ref().unwrap().target.clone();
             let observed = view.writing.setup.as_ref().unwrap().observed.clone();
@@ -3205,9 +3268,26 @@ fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_f
             assert!(!page.matches.is_empty());
             view.open_note(&f.b.id, None, window, cx);
             view.load_writing_setup(window, cx);
+            view.writing.reference_query.update(cx, |input, cx| {
+                input.set_value("Second saved paragraph", window, cx)
+            });
+            view.search_writing_references(None, window, cx);
+            assert!(view.writing.setup.as_ref().unwrap().search_pending);
+            let replacement_query = view.writing.setup.as_ref().unwrap().search_query.clone();
             view.finish_reference_search(generation, target, observed, Ok(page), cx);
             assert!(view.writing.setup.as_ref().unwrap().matches.is_empty());
             assert_eq!(view.writing.setup.as_ref().unwrap().match_total, 0);
+            assert!(
+                view.writing.setup.as_ref().unwrap().search_pending,
+                "a reply from an older generation cannot retire a replacement search"
+            );
+            assert_eq!(
+                view.writing.setup.as_ref().unwrap().search_query,
+                replacement_query
+            );
+            // Retire the live replacement request before continuing this
+            // synchronous witness; Reload bumps generation and cancels it.
+            view.replace_writing_setup(window, cx);
 
             // Same target/generation, but canonical visibility/configuration changed before reply delivery.
             view.open_note(&f.a.id, None, window, cx);

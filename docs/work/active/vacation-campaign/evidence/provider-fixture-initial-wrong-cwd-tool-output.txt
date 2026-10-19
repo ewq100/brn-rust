@@ -1,0 +1,6 @@
+Copied exact tool result from the initial command invocation run outside the assigned package workspace (not a captured shell log):
+
+error: cannot specify features for packages outside of workspace
+
+help: a workspace member with a similar name exists: `brn`
+exit_code=101

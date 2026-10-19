@@ -3195,16 +3195,33 @@ impl ThreadsUi {
             prompt: Some("Choose a folder for a new Markdown export".into()),
         });
         cx.spawn_in(window, async move |this, cx| {
-            let result = receiver.await;
+            let result = receiver
+                .await
+                .map_err(|error| error.to_string())
+                .and_then(|result| result.map_err(|error| error.to_string()));
             let _ = this.update_in(cx, |this, _, cx| {
-                if let Ok(Ok(Some(paths))) = result
-                    && let Some(parent) = paths.first()
-                {
-                    this.output(Some(parent.clone()), cx);
-                }
+                this.export_folder_chosen(result, cx);
             });
         })
         .detach();
+    }
+    fn export_folder_chosen(
+        &mut self,
+        result: Result<Option<Vec<PathBuf>>, String>,
+        cx: &mut Context<Self>,
+    ) {
+        match result {
+            Ok(Some(paths)) => {
+                if let Some(parent) = paths.first() {
+                    self.output(Some(parent.clone()), cx);
+                }
+            }
+            Ok(None) => {}
+            Err(error) => {
+                self.export_status = format!("Could not choose an export folder: {error}");
+                cx.notify();
+            }
+        }
     }
     fn choose_backup_folder(
         &mut self,
@@ -3933,27 +3950,35 @@ impl ThreadsUi {
             return;
         }
         self.reference_search_cancel = None;
-        // One concrete reply path: no global-Chat rebinding, stale names or stale counts.
-        if !self.writing_setup_form_current()
-            || self
-                .writing
-                .setup
-                .as_ref()
-                .is_none_or(|draft| draft.target != target || draft.observed != observed)
-        {
+        // Retire this request only on the exact draft it captured, even if
+        // that draft is hidden by navigation. Only a displayed draft may show
+        // the page; navigation never rebinds a reply to another setup.
+        let same_draft = self
+            .writing
+            .setup
+            .as_ref()
+            .is_some_and(|draft| draft.target == target && draft.observed == observed);
+        if !same_draft {
             cx.notify();
             return;
         }
-        if let Some(draft) = &mut self.writing.setup {
-            draft.search_pending = false;
-            match answer {
-                Ok(page) => {
-                    draft.matches = page.matches;
-                    draft.next = page.next;
-                    draft.match_total = page.total;
-                }
-                Err(error) => self.warn(format!("Reference search unavailable: {error}")),
+        let displayed = self.writing_setup_form_current();
+        let Some(draft) = &mut self.writing.setup else {
+            cx.notify();
+            return;
+        };
+        draft.search_pending = false;
+        if !displayed {
+            cx.notify();
+            return;
+        }
+        match answer {
+            Ok(page) => {
+                draft.matches = page.matches;
+                draft.next = page.next;
+                draft.match_total = page.total;
             }
+            Err(error) => self.warn(format!("Reference search unavailable: {error}")),
         }
         cx.notify();
     }

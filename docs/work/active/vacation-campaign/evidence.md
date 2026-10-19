@@ -51,10 +51,10 @@ gates remain separate. The later [Connections correction](connections-pending.md
 independently approved in complete98188942. An expanded existing real-control
 witness fails against unchanged production and passes after the one-line fix;
 final321/0/1, strict lint/format and production build pass. PR166 merged normally at checked head73780065 after all four required contexts
-passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 is running;
-native gates remain pending. [CI timing research](ci-feedback.md) records
+passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 passed all four required jobs, docs and Ubuntu UI/retrieval;
+optional Windows Core/UI/retrieval failed. Native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
-is74% used/26% remaining, above the approximate5% remaining floor.
+is75% used/25% remaining, above the approximate5% remaining floor.
 
 [Preserved continuation history](continuation-history-through-2026-10-19.md) retains
 the original setup sequence, policy changes, earlier failures and superseded snapshots.
@@ -63,7 +63,7 @@ Current rules and active work remain in the stable plan/checkpoint above.
 The later [reference-import owner](reference-import.md) is implemented as
 ed859aa4/integrated14d7c43e, independently approved without findings and locally
 qualified321/0/1 plus strict lint/format and production build. Independent Luna final
-receipt audit passed. Hosted integration remains pending; no local writer/build is active.
+receipt audit passed. Hosted integration remains pending; the reference worker released its build slot.
 Lead history merge2bd890ef contains no crate/root manifest/lock/toolchain delta
 from reviewed14d7c43e.
 No CI helper-sharing workflow change is selected yet; measured costs and feasibility
@@ -74,3 +74,34 @@ refactor: live state belongs to the current Run, durable stopped partials belong
 Workspace, and chat-bound activity intentionally survives worker retirement. Existing
 navigation/stop/activity witnesses cover the inspected boundaries; no new code or
 passing-test claim follows from that source audit.
+
+The selected [export-picker repair](export-picker.md), original98035888/integrated945,
+passed focused1 +related6, final322/0/1, strict lint/format and production build.
+A candidate-only error-report mutation failed at the intended status assertion;
+production bytes were restored exactly. Independent Sol approved complete945, also
+covering the separate test-only helper consolidation22d5/54eb. The [helper qualification](provider-fixture-helpers.md) now records its affected
+4/7/12 passing families plus strict capability-spike package lint/format; no tests
+were added or retired. The clean unmanaged checkout was removed after preserving
+source branch/patch and sibling evidence. No old-source failing run or actual OS transport error is claimed.
+
+A bounded settings source audit found no delayed catalogue crossing a selectable
+provider/config through the UI. A successful empty Copilot catalogue currently
+retains generic/manual selection behavior, still on Copilot. No requirement was
+found specifying empty-versus-unknown policy, so no behavior change is selected;
+define that policy before any future change. No live provider or runtime check ran.
+
+PR167 reference ownership merged normally as9116ad78 at08:42:06UTC after all four
+required checked408 contexts passed in run39220781564; docs/Ubuntu UI passed and
+optional Windows Core failed. [Main run39224642627](evidence/pr167-integration.json)
+is running. Its crate/manifest/lock/toolchain tree matches qualifieded859aa4.
+Lead history merge535b04e1 has no source delta from approved843.
+
+The [hidden scoped-search fix](reference-search.md) is sourcea960/integrated843,
+independently approved; focused1/0, related16/0, full322/0/1, strict lint/format
+and frozen-source production-only build pass. The exact retained test patch fails
+on byte-exact old UI source, then passes after exact final restoration. Hash labels
+distinguish patch bytes from replayed file bytes. No test-only counter remains.
+First iteration and its artifact-name limitation remain historical. Final independent Luna receipt audit passed; all20 logs/5 patches/source/artifact
+hashes match. Stored patch context whitespace is resolved by lossless gzip, with
+raw patch hashes retained. Complete staged candidate whitespace and links pass;
+publication/hosted gates remain, with no local builder active.

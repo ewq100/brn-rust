@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166).
+`9116ad780de2d827811ef342168997e2df5d1a9c` (PR167).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -33,15 +33,24 @@ byte-exact restoration. Independent Sol effectiveness review approved the exact 
 approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
 passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
 in PR166 at exact head73780065. All four required head checks passed in
-run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 is running. The same later candidate98188942
+run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 passed all four required jobs, docs and Ubuntu
+UI/retrieval; optional Windows Core/UI/retrieval failed. The same later candidate98188942
 also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
 with a failing old-source witness and final321/0/1, lint/format/production build passing.
 Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect
 is claimed.
 The later [reference-import owner](work/active/vacation-campaign/reference-import.md)
 also passed independent review and321/0/1, lint/format/production build at14d7c43e;
-its separate hosted integration is being prepared after PR166. Native recovery
+PR167 merged normally from checked408 after all four required head checks passed;
+resulting-main run39224642627 is running. Native recovery
 across normal close/relaunch is queued, with no crash/race guarantee claimed.
+The later [export picker feedback](work/active/vacation-campaign/export-picker.md)
+and [test-only helper consolidation](work/active/vacation-campaign/provider-fixture-helpers.md)
+are source-reviewed at945, with desktop322/0/1 and affected provider4/7/12 plus
+strict matching checks passing. They are not merged. The [scoped-search retirement fix](work/active/vacation-campaign/reference-search.md)
+is also independently approved at843, with an exact old-production failing witness
+and final322/0/1, lint/format/production build passing. These later changes await
+publication/hosted integration; native qualification remains separate.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

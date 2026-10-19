@@ -64,7 +64,7 @@ fn finish_worker(f: &Fixture, cx: &mut TestAppContext) {
         }
         std::thread::sleep(Duration::from_millis(10));
     }
-    panic!("backup worker did not finish");
+    panic!("output worker did not finish");
 }
 fn saved_folder(f: &Fixture) -> Option<String> {
     Workspace::open(&f.data)
@@ -72,6 +72,95 @@ fn saved_folder(f: &Fixture) -> Option<String> {
         .settings()
         .unwrap()
         .backup_directory
+}
+
+#[gpui_kit::test]
+fn export_picker_error_is_visible_cancel_is_quiet_and_retry_exports_to_fresh_destination(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let export_parent = f._root.path().join("exports");
+    std::fs::create_dir(&export_parent).unwrap();
+
+    // Exercise the real action and supported system-picker simulation for cancellation.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, _| {
+            ui.export_status = "Previous export result".into();
+        });
+        window.click("export-now", cx);
+    })
+    .unwrap();
+    assert!(cx.did_prompt_for_paths());
+    cx.simulate_path_prompt_response(|_| None);
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let ui = f.view.read(cx);
+        assert_eq!(ui.export_status, "Previous export result");
+        assert!(ui.worker.is_none());
+    });
+    assert_eq!(std::fs::read_dir(&export_parent).unwrap().count(), 0);
+
+    // The platform test API cannot inject a picker transport error, so exercise the
+    // same post-picker result handler directly at its failure boundary.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.export_folder_chosen(Err("Synthetic picker failure".into()), cx);
+            assert_eq!(
+                ui.export_status,
+                "Could not choose an export folder: Synthetic picker failure"
+            );
+            assert!(ui.worker.is_none());
+        });
+        assert!(window.find("export-now").visible());
+    })
+    .unwrap();
+    assert_eq!(std::fs::read_dir(&export_parent).unwrap().count(), 0);
+
+    cx.update_window(f.window, |_, window, cx| window.click("export-now", cx))
+        .unwrap();
+    cx.simulate_path_prompt_response({
+        let export_parent = export_parent.clone();
+        move |_| Some(vec![export_parent])
+    });
+    cx.run_until_parked();
+    finish_worker(&f, cx);
+    let exports = std::fs::read_dir(&export_parent)
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .collect::<Vec<_>>();
+    assert_eq!(exports.len(), 1);
+    assert!(exports[0].is_dir());
+    cx.read(|cx| {
+        let ui = f.view.read(cx);
+        assert!(
+            ui.export_status
+                .starts_with("Markdown snapshot created at ")
+        );
+        assert!(ui.export_status.contains("BRN-export-"));
+        assert!(ui.worker.is_none());
+    });
+
+    // A picker result that arrives while another operation owns the UI is still
+    // rejected by output's existing admission check.
+    let (_sender, receiver) = mpsc::sync_channel(4);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.worker = Some(Worker::import(
+                receiver,
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+                None,
+            ));
+            ui.export_folder_chosen(Ok(Some(vec![export_parent.clone()])), cx);
+            assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Import);
+            assert_eq!(
+                ui.export_status,
+                "Markdown snapshot created at ".to_owned() + exports[0].to_str().unwrap()
+            );
+        })
+    })
+    .unwrap();
+    assert_eq!(std::fs::read_dir(&export_parent).unwrap().count(), 1);
 }
 
 #[gpui_kit::test]

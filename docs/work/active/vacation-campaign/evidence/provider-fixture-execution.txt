@@ -1,0 +1,18 @@
+Working directory: /Users/evokessler/.codex/worktrees/provider-fixture-helpers/brn-rust
+Environment for Rust checks:
+PATH=/opt/homebrew/opt/rustup/bin:$PATH
+CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+CARGO_INCREMENTAL=0
+CARGO_PROFILE_DEV_DEBUG=0
+CARGO_PROFILE_TEST_DEBUG=0
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+RUST_TEST_THREADS=1 (test commands only)
+
+Commands (all passed):
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::action_proposal_tool_tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::knowledge_proposal_tool_tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-ai --features capability-spike --all-targets provider_formats_tests::conflict_tool_tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo clippy -p brn-ai --features capability-spike --all-targets --locked --offline --jobs 1 -- -D warnings
+rustup run 1.98.1 cargo fmt -p brn-ai -- --check
+git diff --check 40879f71..HEAD

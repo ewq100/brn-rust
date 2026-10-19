@@ -1,0 +1,112 @@
+{
+  "source_commit": "980358889a231b497c1a409113e079d890b4b8d3",
+  "integrated_commit": "945a0a7aa205d9de96df37246f1e2a908787d3c5",
+  "observed_at_utc": "2026-10-19T08:19:59.442725+00:00",
+  "source_difference_at_integrated_head": "Only provider_formats_tests.rs test-helper consolidation; cfg(test) module is not compiled into desktop dependency/production build. Desktop files and manifests/rootlock/toolchain match qualified source.",
+  "focused_new": {
+    "passed": 1,
+    "failed": 0
+  },
+  "focused_backup_family": {
+    "passed": 6,
+    "failed": 0
+  },
+  "final_desktop": {
+    "passed": 322,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 16.84
+  },
+  "clippy_format_whitespace": "passed; worker completion and retained output corroborate",
+  "production_build": {
+    "features": "native-ui",
+    "native_test_support": false,
+    "artifact": "/Users/evokessler/.codex/worktrees/worker-drain-budget/export-picker-evidence/brn-desktop-980358889a231b497c1a409113e079d890b4b8d3",
+    "sha256": "ac74162d2c0c619a4510365247fb1a7fa3d9d894e2c79cef96ccde681a955a49"
+  },
+  "mutation": {
+    "kind": "candidate-only suppress Err status and notify",
+    "result": "expected assertion failure: Previous export result versus explicit synthetic picker error",
+    "exit_code": 101,
+    "production_before_and_after_sha256": "d357a87cb03eebfef0d2dfd32b47ea3465c1a212b19fe4d33a879ab431fa1342",
+    "unchanged_old_source_failure_claimed": false,
+    "mutant_source_hash_recorded": false
+  },
+  "commands": "export-picker-commands.txt",
+  "commands_sha256": "dc75edf0e9e94c96b0446245c319725f136709631bd2c4ccc068550ee8770aee",
+  "logs": [
+    {
+      "path": "export-picker-clippy.log.gz",
+      "raw_sha256": "f03df552100dc4a5b37c219ca0ade1fdb8ee8fcc1984adc1609de06e379480ec",
+      "gzip_sha256": "ea2ab03ee76f4e314c9ba0407e5feccbf521f8dcfdc2159eec76eb06704d790e",
+      "raw_bytes": 420
+    },
+    {
+      "path": "export-picker-final-clippy.log.gz",
+      "raw_sha256": "e289873e13cc3d3432835117575d442ff49989a5d68daac8a47aa4b323aa6441",
+      "gzip_sha256": "c121b0915e0b9117fa6bbe5b3abfa5b58f9549396f61dd8fa46d9a319969c1b8",
+      "raw_bytes": 420
+    },
+    {
+      "path": "export-picker-final-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "export-picker-final-native-tests.log.gz",
+      "raw_sha256": "59037993bcad2d4ae9ac8b002b6c1feaaa6b3d4be8de28038f7b7a6d4b9cc726",
+      "gzip_sha256": "97d43f4985d5dbcc5bda421e076a965c19c2911d34430ae41587a251cf91c1d5",
+      "raw_bytes": 33387
+    },
+    {
+      "path": "export-picker-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "export-picker-focused-related.log.gz",
+      "raw_sha256": "b13b170e5086e51ecfcf4888b3d382586aef1d82a285df41d9c6ba25e1f8edeb",
+      "gzip_sha256": "ba89fe916eedecc16f29dda96036280e47cf91ea81fc7eb280b4a94068514f1c",
+      "raw_bytes": 1381
+    },
+    {
+      "path": "export-picker-focused.log.gz",
+      "raw_sha256": "2c17ee319527822df3c109946fdf9fc25f756fbe7a4bf0436b6a5a81557b6c07",
+      "gzip_sha256": "fd802ca29f9a780383591aea1e28f9c905ccbec6ef7516fde999d840256649c5",
+      "raw_bytes": 805
+    },
+    {
+      "path": "export-picker-full-native-tests.log.gz",
+      "raw_sha256": "6bbaa48f523524d95e730d5bffa8287ea211c716efdbdd97ca0032b27400c38b",
+      "gzip_sha256": "abfa2b91ff1d846dd59b3c7d6a064f6690bdf7e147c266f8a5b22ba60c65d289",
+      "raw_bytes": 33269
+    },
+    {
+      "path": "export-picker-mutant-expected-failure.log.gz",
+      "raw_sha256": "171f4607effd31179ee3d4eba873f82b904c5de0038bc2ce9d91793c098e009d",
+      "gzip_sha256": "94dd619d3d347d5f4ed3af5d2e52957d0afd2cadcf7c88a931154e5a943dfa67",
+      "raw_bytes": 1565
+    },
+    {
+      "path": "export-picker-native-ui-build.log.gz",
+      "raw_sha256": "260d51e602cc114a02590b96ee6247e57b4fa45489df6e8dee62c58c7a5b3760",
+      "gzip_sha256": "a66b91bdb340f7c374c8811f7b69e9b381b95ae18f0d945d8879948b0358c293",
+      "raw_bytes": 420
+    }
+  ],
+  "limits": [
+    "GPUI supports simulated cancel/success through real export action; transport failure injected directly at the result handler. No actual OS or error-transport qualification.",
+    "One pre-existing external CLI fixture ignored.",
+    "No provider/model/external retrieval/private-data actions.",
+    "Existing block0.1.6 future-incompatibility notice remains.",
+    "Provider-helper local checks, evidence reconciliation and hosted integration gates pending."
+  ],
+  "review": {
+    "result": "Independent Sol approved complete945a0a7a without actionable correctness/design findings.",
+    "new_source_diff_against40879f71_sha256": "a1c283d15f9d5582ee5f2589583caf9b122cec9fa6823190d16825d0a3d2efa4",
+    "complete_committed_diff_against_main_b4a5deeb_sha256": "e2f4e1b2d16c11d3b1dcc43e75f6b444101b67d48d653b7f35d90756baa2f2bf"
+  },
+  "receipt_audit": "Independent Luna verified all10 compressed/raw logs against originals and JSON hashes, command/source/artifact/restoration hashes,1+6 focused, final322/0/1 and evidence scope. No source or receipt findings."
+}

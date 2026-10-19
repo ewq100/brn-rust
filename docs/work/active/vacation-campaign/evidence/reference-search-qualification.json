@@ -1,0 +1,232 @@
+{
+  "source_commit": "a9600e641c18598e52340df5366918a1df7ce242",
+  "integrated_commit": "8431e70bd05625a1bbda3585164f33c55be67772",
+  "baseline": "e2f7ce60f0162feebb4d0b954c0744037ad1ec77",
+  "all_rust_crate_manifests_root_manifest_lock_toolchain_match": true,
+  "baseline_reproduction": {
+    "patch": "reference-search-v2-baseline-test-only.patch.gz",
+    "patch_raw_sha256": "b064e4fd0d6e876bc2ebdd605f7928e7a343f2ea3a44eccedb7722f4de24efd9",
+    "only_changed_file": "crates/brn-desktop/src/threads_writing_tests.rs",
+    "production_file_sha256": "d357a87cb03eebfef0d2dfd32b47ea3465c1a212b19fe4d33a879ab431fa1342",
+    "patched_test_file_sha256": "8944005d02403c94dd510031a4efe5c4df31af8b0f4ee782e6b14a8e29f48ae7",
+    "isolated_index_replay": "passed; changes only test file, original production remains exact, resulting test equals committed final test",
+    "result": "V3 definitive replay compiled and failed intended retained-setup pending assertion, exit101, then frozen source restored exactly and focused test passed1/0.",
+    "test_only_instrumentation": false,
+    "restored_ui_sha256": "ceb7d5b11588d76fc393192a8bbd859aed221f57f5062fa5e63efe539e451fb3",
+    "receipt": "reference-search-v3-evidence-receipt.txt"
+  },
+  "final_focused": {
+    "passed": 1,
+    "failed": 0
+  },
+  "related_b3_writing": {
+    "passed": 16,
+    "failed": 0
+  },
+  "final_desktop": {
+    "passed": 322,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 16.95
+  },
+  "strict_native_all_target_clippy_format_whitespace": "passed",
+  "production_build": {
+    "features": "native-ui",
+    "native_test_support": false,
+    "after_frozen_commit": true,
+    "artifact": "/Users/evokessler/.codex/worktrees/worker-drain-budget/reference-search-evidence/brn-desktop-a9600e641c18598e",
+    "sha256": "9e9b22289e4d76f44898a351943b53783cd3639d37a51204863dc260cfc61128"
+  },
+  "review": {
+    "result": "Independent Sol approved complete843 without correctness/design findings.",
+    "new_source_diff_against945_sha256": "7051a655ee706e9cc26f0bf1eedf2ba38ac8797d6e924d56459bcd9f4df93600",
+    "complete_committed_diff_against_b4a5deeb_sha256": "590ce4bce7a9ce84265c3d85d5236dd2b3f7e189b1630b664bbeb2338ac93b80",
+    "publication_format_finding": "Resolved by deterministic lossless patch compression; complete staged candidate whitespace check against origin/main passed."
+  },
+  "logs": [
+    {
+      "path": "reference-search-baseline-assertion-failure.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "20abc4ee33182eb925d1040368009133b73bf8410a1cb7ca192a79a6c489681e",
+      "gzip_sha256": "d0ea1057c5e50b5335a4964225b86cd72c0f7757b22a01983be1a7ad55edc442",
+      "raw_bytes": 1473
+    },
+    {
+      "path": "reference-search-clippy.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "5d3adf5e7004d57dd0c981dd6739cdc31542e98cba6ec7a574abe902af4015c3",
+      "gzip_sha256": "430c307049370468c3f35acbcdc7371fc7e40c23c4cbafb100467d5b060c4765",
+      "raw_bytes": 420
+    },
+    {
+      "path": "reference-search-diff-check.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "reference-search-fmt.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "487efb91bf001585316f5f5d584433f110106224da38f377291c42343f98a81d",
+      "gzip_sha256": "9d84ad715f031078c4deef7d2955fd1cdd4382d70e44584604b6fa8c76c1287e",
+      "raw_bytes": 2084
+    },
+    {
+      "path": "reference-search-focused-search.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "79fe67cf98778680d20abfa196185c552b892623cafae1f9b3af5227b4611a77",
+      "gzip_sha256": "73ef48868fa16d242fefd360ce16f0fac7d713d7e72ff6282f4f7e869d115bc1",
+      "raw_bytes": 801
+    },
+    {
+      "path": "reference-search-full-native-tests.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "8980f8be360ba0eacebcdcd9fc1ab59eec3b0399fb996725423053b1499b6f27",
+      "gzip_sha256": "5a247ddcadbe27e58128aab6c55637cc404af3350db7f92fba22175d618a25a9",
+      "raw_bytes": 33269
+    },
+    {
+      "path": "reference-search-initial-test-harness-compile-failure.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "80b139074613e44c0f4a1936491caaf882567ce6a8c1526ea4011dca3290cf7f",
+      "gzip_sha256": "a1c2ab3f9dd4b76a549f599c4c0515123357bcb590f80054532e472988ff7c54",
+      "raw_bytes": 2308
+    },
+    {
+      "path": "reference-search-production-native-ui-build.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "aa104d583445ecd85add6f260cf54256e50469ca2998483ee9f47ee163e39354",
+      "gzip_sha256": "d2039a11f80678be177a5bb38264159e928ebbe326ef05f23c1b5ffdd76cef0e",
+      "raw_bytes": 420
+    },
+    {
+      "path": "reference-search-related-writing.log.gz",
+      "iteration": "first_iteration_historical",
+      "raw_sha256": "e539559f090c0005f34d742b46c2d58f87a2c33369027e43187fd39e2b29c0a1",
+      "gzip_sha256": "91219b23b0252426c277415540a846c021c78a7f154f460323dff7402d2e08fc",
+      "raw_bytes": 2401
+    },
+    {
+      "path": "reference-search-v2-baseline-assertion-failure.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "c69f4c6b14a6cc44377a741747c5079a4545e74ed2cb1bb2ea9e31cdf3865006",
+      "gzip_sha256": "918cc6f386794ba83e8944ef7efe2eb51572ad496692006d42954deb3c4e0d67",
+      "raw_bytes": 1473
+    },
+    {
+      "path": "reference-search-v2-clippy.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "3a3535f2cd5fde3b08dfc7be513be81c12f1c042d7d57a9c56045299d84bbe70",
+      "gzip_sha256": "dc3a8669fe160eb541c6570cf9d11e0ddd83f7f259c71fb684a25d7a5c6d1c94",
+      "raw_bytes": 420
+    },
+    {
+      "path": "reference-search-v2-diff-check.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "reference-search-v2-final-production-native-ui-build.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "08f9036aaf276c5805b741b845b1c1d92e202924b8183f2c62a30dc9d95cb8bd",
+      "gzip_sha256": "f4fc424f091cb694d64920905ce535fa6af1c0e3a4a4d1405a72e36ec515e679",
+      "raw_bytes": 303
+    },
+    {
+      "path": "reference-search-v2-fmt.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "reference-search-v2-focused-search.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "c983f7570abaa8bb02883e3b0bc92bf8e28ff8e53a53df2d77611532786f288e",
+      "gzip_sha256": "70dc96852d1a7d17625b0277bb0ce050a64e35ebcf325e75a9de75723980b9ab",
+      "raw_bytes": 801
+    },
+    {
+      "path": "reference-search-v2-full-native-tests.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "bf6b817a9a89368a4aac4df47dcf88762d1aa77c7b6e67288e95a729ca1f1b4a",
+      "gzip_sha256": "51c00f077358cc9246de0eadd48648eacbf40ece1158ac956aa8e04e490c82a0",
+      "raw_bytes": 33269
+    },
+    {
+      "path": "reference-search-v2-production-native-ui-build.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "4a3c8b3c4972b195ed6a705368b497d8e3ab694df11ef3700d1101a3a13861e2",
+      "gzip_sha256": "1210b1370d7c98f1dcb882ff343b2742988b4dd8fde093c5cbb7953b96f0c29d",
+      "raw_bytes": 420
+    },
+    {
+      "path": "reference-search-v2-related-writing.log.gz",
+      "iteration": "final_v2",
+      "raw_sha256": "6820101e51cf0b90680a20d4221c567f0f67e58ba0198a7a53a6c78529bdcfd1",
+      "gzip_sha256": "d8b24a07d05a0ab3f167c7704b96e08e044f486651626a93e5fe2573d1082c69",
+      "raw_bytes": 2401
+    },
+    {
+      "path": "reference-search-v3-baseline-failure.log.gz",
+      "iteration": "definitive_v3",
+      "raw_sha256": "b4691611193a8ca6733e3dc859473537078db74eb55d53c53b95a0cb6a67f217",
+      "gzip_sha256": "a1e85f6a3c5e4ace163ceed189904db1f1917e1d0d1f00b36da5e09f3afa80cc",
+      "raw_bytes": 1473
+    },
+    {
+      "path": "reference-search-v3-final-focused.log.gz",
+      "iteration": "definitive_v3",
+      "raw_sha256": "7ab20ab45d907a89949b514ec35231373719861c144d075e04804461d10e99dd",
+      "gzip_sha256": "fabfe25fa6bf0b0676e4893813e0888904680ac7471a2214f733d3e65b253abd",
+      "raw_bytes": 801
+    }
+  ],
+  "patches": [
+    {
+      "path": "reference-search-baseline-reproduction.patch.gz",
+      "raw_sha256": "907bc4463205d1a46795839e0a2733d11757affe5bb8d3c06aaf9a0c9090411a",
+      "gzip_sha256": "3ebd27cd0c7a550046c0b32a205bcdae9ea7a2803a7e5eed49775752364a6e55",
+      "raw_bytes": 5073
+    },
+    {
+      "path": "reference-search-final.patch.gz",
+      "raw_sha256": "b5c44abb94f9b5f5514c241f9c3aef109ce17a076efbd2e87772f14932123ae2",
+      "gzip_sha256": "d19150611068a1865dc6da01c7f8e50b8376b6fdcbfbbd74634493393bcc2ec0",
+      "raw_bytes": 8410
+    },
+    {
+      "path": "reference-search-v2-baseline-test-only.patch.gz",
+      "raw_sha256": "b064e4fd0d6e876bc2ebdd605f7928e7a343f2ea3a44eccedb7722f4de24efd9",
+      "gzip_sha256": "729f0297d2ccd9448a30e587d346379853ff171abf642c5a5a97a5787e434914",
+      "raw_bytes": 5098
+    },
+    {
+      "path": "reference-search-v2-final.patch.gz",
+      "raw_sha256": "7051a655ee706e9cc26f0bf1eedf2ba38ac8797d6e924d56459bcd9f4df93600",
+      "gzip_sha256": "e2d6da708d1a227cd00aae3589bc5c88b4b0496fd005026cada05cde7f267f14",
+      "raw_bytes": 7310
+    },
+    {
+      "path": "reference-search-v2-production-fix.patch.gz",
+      "raw_sha256": "aeb565fb7eb4f4f5d42c8945f853d0640d40c6e0f77f5afe66694d1d17460529",
+      "gzip_sha256": "5e8985b8357a8608e13b8189248d285489915078106a99cda1cc40ec2b061932",
+      "raw_bytes": 2212
+    }
+  ],
+  "commands": "reference-search-final-commands.txt",
+  "worker_results": "reference-search-final-results.txt",
+  "limits": [
+    "Patch SHA b064... and replayed test-file SHA8944... identify different byte objects; final V3 explicitly verifies both. No inferred missing/preformat test identity is claimed.",
+    "First iteration added a cfg(test) reply counter; its source/artifact records are historical. Final v2 removes that instrumentation.",
+    "Initial test-harness compile failure retained, nonqualifying.",
+    "Earlier e2f-named binary came from dirty pre-freeze tree, not exact baseline; explicit artifact note retained. Use only a960-named final artifact for frozen source.",
+    "Existing external CLI fixture ignored; block0.1.6 future-incompatibility warning retained.",
+    "No OS input/live provider/model/external retrieval/private-data qualification.",
+    "Hosted/main integration and native acceptance remain separate."
+  ],
+  "receipt_audit": "Independent Luna verified all20 log archives and5 patch archives against JSON hashes/bytes and sibling originals, baseline patch/file identity, V3 failure/exit/restoration/healthy pass, source/manifests/lock/toolchain equality and immutable production binary. No source/receipt findings."
+}

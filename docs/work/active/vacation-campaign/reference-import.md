@@ -35,3 +35,8 @@ private data or actual OS input was used. Hosted exact-head checks, normal merge
 verification and native qualification remain separate. PR166 merged from its checked
 73780065 head asb4a5deeb. Lead merge2bd890ef adds only that main history, with no
 crate/root manifest/lock/toolchain delta from reviewed14d7c43e.
+
+PR167 subsequently merged normally as9116ad78 after all four required exact-head
+408 checks passed. [Integration receipt](evidence/pr167-integration.json) tracks
+resulting-main run39224642627, currently running. Its crate/manifest/lock/toolchain
+tree matches qualifieded859aa4. Native qualification remains separate.

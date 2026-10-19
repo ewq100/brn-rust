@@ -1,0 +1,5 @@
+commit=22d5cd5f3761ed38800c7b934f88b52107e82726
+branch=codex/provider-fixture-helpers
+base=40879f71
+source=crates/brn-ai/src/provider_formats_tests.rs
+source_sha256=d2fd422d2ae3316f58a66f53c4e98c9896fb80d9b93533505f9b0b78479d1b8f
