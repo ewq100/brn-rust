@@ -49,8 +49,16 @@ The MCP audit found an endpoint-edit/discovery freshness issue, with actual dest
 label and canonical approval binding preserved; no authority bypass is claimed.
 Luna now owns a bounded fix in the clean notice checkout on
 `codex/mcp-discovery-freshness` from4aba2e81, only `threads_mcp.rs` and its tests.
-The small canonical-endpoint freshness/completion design is accepted; the writer
-now exclusively owns the build slot. Action/Undo audit found no justified change;
+MCP production source dd1b50c9103fd3fd653c993c9684cf13e92b2088 passed focused14/14,
+strict lint/format and production build. Full326/0/1 at4ab is reusable for the
+mechanical borrow-only lint cleanup. Independent Sol found no production defect;
+a valid P3 test-evidence finding is being fixed before publication. Exact baseline-compatible UI witnesses fail for visible stale approval and
+actual replacement of active endpoint-B policy by stale A. The earlier claim that set_value emits InputEvent::Change was incorrect: pinned
+toolkit suppresses it. The render witness remains valid; subscription wiring is not
+established. The actual widget focus/select/type witness passes. A no-op subscription
+diagnostic also passes, demonstrating that the toolkit already invalidates the
+view; the redundant subscription field/call is now being removed. Final identity/affected
+checks/review remain pending. Actual async transport and OS interaction remain unqualified. Action/Undo audit found no justified change;
 comment refusal/input-retention audit also found no justified change.
 Both saved automation prompts were freshly checked against current owner rules;
 see evidence/policy-persistence-20261019.json. Configuration is persisted; actual
@@ -59,7 +67,7 @@ See campaign.json for snapshot ownership and reconcile agents/Git/processes afte
 restart before dispatch. Preserve all source-bound artifacts.
 
 Current allowance was
-76% used/24% remaining in the applicable seven-day window, reset1792874447. Recheck
+77% used/23% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour
 `brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains

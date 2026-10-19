@@ -173,3 +173,41 @@ lead history8f2ccb52 adds no source delta. [Integration receipt](evidence/pr168-
 records head/protection and resulting-main39227629739, currently running. This does not
 establish native acceptance. MCP remains isolated; no source rebase/rebuild is
 needed solely for this history merge.
+
+
+## MCP candidate frozen for parallel final checks and independent review
+
+Source4ab19c474676e81feaa6f244f11425350331b41a, only desktop MCP module/tests, is
+clean in the notice checkout. Focused14/14 pass. Exact original-source-compatible
+UI witnesses fail with stale controls visible and active endpoint-B policy replaced
+by A; final test patch/source receipts are being retained. Candidate watches real
+InputState Change and stores status-vs-discovery errors in one private typed value.
+Luna owns final native/lint/format/frozen production checks; fresh Sol high independently
+reviews the complete source. No new generic framework/dependency, runtime grant
+change, live endpoint/provider, actual async-transport or OS success is claimed.
+
+
+## Independent MCP review and valid P3 witness correction
+
+Independent Sol reviewed clean dd1b50c9103fd3fd653c993c9684cf13e92b2088, complete
+diff SHA2564f5e1e59a9e36fd2f964a8e28b48080b5f2146816c94a04bd485195153998f0a,
+with no production correctness findings. The change from4ab only borrows the input
+instead of copying it; focused14/14, strict lint/format and production build passed
+atdd, with full326/0/1 reused from4ab for that mechanical cleanup.
+
+P3 finding valid/fixpending: contrary to the earlier description, test set_value
+suppresses InputEvent::Change in pinned gpui-base0.7.3. The render/baseline/policy
+witnesses remain meaningful, but they do not qualify the new Change subscription.
+Lead selected a correction to the existing witness using actual emitting input,
+plus a bounded subscription-disable diagnostic to distinguish necessary wiring
+from redundant state. Final test/source identity and affected checks/review remain
+pending; no actual event/async-network/OS qualification is claimed from the old test.
+Fresh native allowance77% used/23% remaining, reset1792874447; no purchase/reset.
+
+The corrected witness focuses the actual endpoint widget, selects all with the
+platform key and types through window.input. It passes without a test-side owner
+notify. A bounded no-op substitution for the subscription notify also passes: this
+is a meaningful survivor showing redundant wiring, not mutation detection success.
+The toolkit already invalidates the owner view. Lead accepted removal of the added
+subscription field/call; the same typed-input journey stays. Revised immutable
+source, final affected gates/build and independent reconciliation remain pending.

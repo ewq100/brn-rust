@@ -18,7 +18,7 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:07:45.771972+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T09:15:26.808607+00:00",
   "current_session_jobs": [
     {
       "agent": "/root/worker_next_slice",
@@ -26,14 +26,23 @@
       "checkout": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust",
       "branch": "codex/mcp-discovery-freshness",
       "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
-      "build_slot": "exclusively admitted for focused baseline/candidate MCP checks and final native suite/lint/format/frozen production build"
+      "build_slot": "exclusive: actual typed-input witness passes; no-opsubscription diagnostic also passes, redundant subscription being removed before revised finalfreeze/gates/build",
+      "frozen_candidate": "dd1b50c9103fd3fd653c993c9684cf13e92b2088 production; test correction underway"
+    },
+    {
+      "agent": "/root/mcp_independent_review",
+      "role": "independent complete MCP review finished with no production finding and valid P3 test-evidence finding; reconcile revised immutable candidate when ready",
+      "requested_model": "gpt-6.1-sol high; fresh context",
+      "candidate": "4ab19c474676e81feaa6f244f11425350331b41a",
+      "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
+      "build_slot": "none; no edits/builds/network"
     }
   ],
   "integration_status": "PR163\u2013168 required exact-head checks pass before normal merges. PR163\u2013167 required resulting-main pass; optional Windows failures retained. PR168 checked7c normalmergee583a177ad44b0536be9140b5c845a5dd8a8aa75 at09:06:55UTC, requiredhead39225335901 all4pass. Main39227629739 running. Lead history8f2ccb52 adds no source delta.",
   "next_eligible_work": "Follow PR168main39227629739; finish MCP final checks and independent Sol review, then publish coherent next PR from codex/hardening-next. Native18Tallinn separate; continue above quota floor.",
   "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
   "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "PR168 merged normallye583a177; all4required head39225335901 pass, resulting-main39227629739 running. One Luna MCP freshness source writer/build slot in notice checkout, final gates pending. Other bounded audits done with no further change.",
+  "active_work": "PR168main39227629739 running. MCP P3 correction uses actual widgettyping. Disabling subscription notify still passes, so redundant subscription field/call being removed. Revised immutable source/fullfinalgates/reviewerreconciliation pending. Prior dd production reviewfoundnocorrectnessissue; oldset_value subscriptioncoverage claim explicitly corrected. No asyncnetwork/OSproof.",
   "continuation_baseline": "e583a177ad44b0536be9140b5c845a5dd8a8aa75",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -46,7 +55,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot76% used /24% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchases/reset credits.",
+    "quota": "Fresh native snapshot77% used /23% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
