@@ -49,8 +49,8 @@ and [test-only helper consolidation](work/active/vacation-campaign/provider-fixt
 are source-reviewed at945, with desktop322/0/1 and affected provider4/7/12 plus
 strict matching checks passing. They are not merged. The [scoped-search retirement fix](work/active/vacation-campaign/reference-search.md)
 is also independently approved at843, with an exact old-production failing witness
-and final322/0/1, lint/format/production build passing. These later changes await
-publication/hosted integration; native qualification remains separate.
+and final322/0/1, lint/format/production build passing. These later changes are published as PR168 at fixed7c21713b, with required run39225335901
+running; native qualification remains separate.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

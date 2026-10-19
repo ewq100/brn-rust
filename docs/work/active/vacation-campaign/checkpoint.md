@@ -39,13 +39,19 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local source writer/builder is active. Final independent Luna search-receipt audit passed. Complete candidate whitespace
+Final independent Luna search-receipt audit passed. Complete candidate whitespace
 and link checks pass. PR168 is published at fixed7c21713b on
 `codex/hardening-continuation`, required run39225335901 queued/running. Preserve
 that checked head; continue later work on the lead branch above. Main history535 adds no source
 delta from reviewed843. Keep actual hosted-head/merge/main/native gates separate.
-Three bounded parallel Luna read-only audits now inspect project dialogs, other
-path pickers and MCP delayed-result lifecycle; no edits/builds are dispatched.
+Completed project-dialog and remaining-picker audits found no justified change.
+The MCP audit found an endpoint-edit/discovery freshness issue, with actual destination
+label and canonical approval binding preserved; no authority bypass is claimed.
+Luna now owns a bounded fix in the clean notice checkout on
+`codex/mcp-discovery-freshness` from4aba2e81, only `threads_mcp.rs` and its tests.
+The small canonical-endpoint freshness/completion design is accepted; the writer
+now exclusively owns the build slot. Action/Undo audit found no justified change;
+the separate comment refusal/input-retention audit is still running.
 See campaign.json for snapshot ownership and reconcile agents/Git/processes after
 restart before dispatch. Preserve all source-bound artifacts.
 

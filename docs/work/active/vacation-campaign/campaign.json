@@ -18,32 +18,28 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:49:47.015580+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T08:55:18.876612+00:00",
   "current_session_jobs": [
     {
-      "agent": "/root/recovery_boundary_audit",
-      "role": "read-only project-dialog refusal/input-retention audit",
-      "source": "7c21713b (reviewed843/a960 Rust)",
-      "build_slot": "none; no edits/builds authorized"
+      "agent": "/root/worker_next_slice",
+      "role": "bounded MCP endpoint/discovery freshness implementation",
+      "checkout": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust",
+      "branch": "codex/mcp-discovery-freshness",
+      "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
+      "build_slot": "exclusively admitted for focused baseline/candidate MCP checks and final native suite/lint/format/frozen production build"
     },
     {
       "agent": "/root/qualification_audit",
-      "role": "read-only remaining path-picker result-handling audit",
-      "source": "7c21713b (reviewed843/a960 Rust)",
-      "build_slot": "none; no edits/builds authorized"
-    },
-    {
-      "agent": "/root/worker_next_slice",
-      "role": "read-only MCP desktop async-lifecycle audit",
-      "source": "7c21713b (reviewed843/a960 Rust)",
-      "build_slot": "none; no edits/builds authorized"
+      "role": "read-only comment input/anchor refusal audit",
+      "source": "4aba2e81",
+      "build_slot": "none"
     }
   ],
   "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. Main39224642627 running. Lead historymerge535b04e1 source843 unchanged.",
-  "next_eligible_work": "Follow PR168 actualrequiredhead checks and PR167main; normalmerge onlyafteractualrequiredsuccess. Disposition bounded audit evidence and select only justified existingjourney fix. Native18:00Tallinn queue remains; continuousactiveworkabovefloor.",
+  "next_eligible_work": "Follow PR168 required exact-head checks/normal merge and PR167main. Verify MCP selected improvement through smallest deterministic UI seam, then final source checks and independent Sol review. Disposition bounded Action/comment audits only if concrete issues. Continue above quota floor; native18Tallinn separate.",
   "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
   "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "PR168 published/frozen7c21713b (source843/a960) on codex/hardening-continuation, CI39225335901 queued/running. All source/local/receipt/wholecandidate checks pass. Lead nowcodex/hardening-next. Three bounded parallel Luna read-only audits; no localwriter/builder. PR167main39224642627 running.",
+  "active_work": "PR168 fixed7c21713b CI39225335901 running; PR167main39224642627 running. One Luna MCP UI freshness writer in prepared notice checkout with exclusive build slot, one separate read-only comment audit; Action/Undo audit finished with no justified change. Existing canonical policy/grants unchanged; no native success claimed.",
   "continuation_baseline": "9116ad780de2d827811ef342168997e2df5d1a9c",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",

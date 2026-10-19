@@ -196,7 +196,14 @@ work while allowance permits; the recovery heartbeat is not batch pacing.
 [Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
 snapshots. Current owner/resource/gate rules remain at this stable path for restarts.
 
-Three bounded parallel Luna source audits now inspect project-dialog refusal/input
-retention, remaining picker error handling, and MCP desktop delayed-result lifecycle.
-They authorize no edits/builds or policy changes. Reconcile actual findings before
-selecting further work; no local builder/writer is active.
+Project-dialog refusal/input retention and remaining picker audits found no justified
+change. MCP endpoint-edit/discovery freshness is selected as a bounded usability
+improvement; the real destination is already labelled and approval binds that destination,
+so no authority bypass is claimed. A Luna medium writer owns only its desktop module
+and tests in the notice checkout, starting4aba2e81; canonical policy and input grants
+remain unchanged. The proposed canonical-endpoint/completion seam is accepted and the single build
+slot admitted. Action/Undo inspection found no justified change; one Luna medium
+read-only audit continues comment refusal/input retention. Up to three helpers plus lead use current
+runtime capacity for isolated implementation and parallel source inspection; no
+extra builds or speculative refactors. Reassess if the fix needs product-policy changes
+or a generic framework; independent Sol reviews any meaningful final source.

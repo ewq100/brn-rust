@@ -111,3 +111,31 @@ run39225335901. New work uses codex/hardening-next; no checked-head mutation is
 planned. Three bounded Luna read-only audits inspect remaining project-dialog,
 picker and MCP coordination routes; no source writer/build is active. Latest quota
 snapshot76% used/24% remaining, above the approximate5% floor.
+
+
+## Bounded follow-up audits and selected MCP freshness slice —19October
+
+Project settings/delete/Trash callbacks retain captured IDs/version/preview and
+input on checked refusal; no source-supported defect or new test selected. Remaining
+import/skill pickers surface both error layers and preserve captured import scope;
+credentials paths are typed inputs, not pickers. Actual OS transport remains unqualified.
+MCP discovery captures endpoint A while its input remains editable. Context stamps
+do not include that input, allowing A metadata to coexist with edited B. Metadata
+labels A and approval configures A, so this is a UI freshness improvement, not a
+canonical grant bypass. Selected scope: retire stale display/approval/completion
+when endpoint changes, retain same-endpoint success and current authority contracts.
+One Luna medium writer in prepared notice checkout owns only MCP module/tests;
+two parallel Luna medium read-only audits cover Action/Undo and comments. Shared
+build slot is not yet admitted; lead validates proposed seam first. Independent
+Sol review remains required for meaningful final source. This uses the current
+three-helper runtime allowance without changing the owner-authorized broader cap.
+
+The selected design canonicalizes the typed endpoint at request capture and checks
+it with the captured context stamp in the actual completion path. Rendering and
+approval share the endpoint freshness rule; active configured policy/input grants
+remain independent. The private deterministic completion seam will be recorded
+separately from any actual network callback proof. Prefer a standalone stale-approval
+journey using existing APIs for the original-source failure witness. Lead accepted
+the design and admitted the one shared build slot. Action/Undo source audit found
+exact captured Action versions/receipt IDs and truthful checked errors; no fix or
+extra test selected. Comment audit remains separate.
