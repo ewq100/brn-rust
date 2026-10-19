@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "vacation-campaign-20261018",
+  "branch": "codex/vacation-hardening",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -10,18 +10,23 @@
     "BRN-Codex-Cloud-Vacation-Prompt.txt": "ad1a5d88759ce9f3e270e8863618c7caa71e97697d00ab5af1f16f570aec7d50",
     "BRN-Vacation-Roadmap.txt": "37e2111ea79c14f8406258b1335e4a3634791a243ed0d0cacb5b4c8cfd5d8fd3"
   },
-  "authority": "User pasted request adopts preserved charter/roadmap; campaign branch commits, pushes and draft PR allowed; no default-branch merge, publication, deployment, new spending, paid API workers, private data or messaging.",
-  "unattended_status": "INACTIVE",
-  "admission_state": "TELEMETRY_UNAVAILABLE",
+  "authority": "19 October local owner continuation: independent hardening and in-scope feature improvements, commits, pushes, PRs and normal merges after review/required checks authorized. Mac first; further Linux improvements deferred. Local Mac/Codex heartbeat authorized. Work admission floor about 5% remaining in applicable quota windows. No release/publication/deployment, purchases, new paid API/infrastructure, private data or messaging. Fixed original expiry unchanged. See plan.md.",
+  "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
+  "admission_state": "CAPACITY_AVAILABLE_AT_SETUP",
   "continuation_blockers": [
-    "No native goal, quota-read or durable wake/hosting tool exposed in this session.",
-    "codex-cli 0.159.2 cloud list returns HTTP 401; remote-task reconciliation unavailable."
+    "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
-  "next_wake": null,
-  "last_checkpoint_at_utc": "2026-10-19T04:09:04.532019+00:00",
+  "next_wake": "Managed by active two-hour local heartbeat brn-mac-vacation-hardening; exact scheduler next-fire time not exposed.",
+  "last_checkpoint_at_utc": "2026-10-19T06:07:57.434150+00:00",
   "current_session_jobs": [],
-  "capability_observations": {
+  "integration_status": "PR162 final aebfa12b merged as bd42c1d9 on 19 October. Final PR and resulting-main run39200470515 passed all four required contexts and documentation; optional Windows failures remain. Current documentation continuation candidate not yet integrated.",
+  "next_eligible_work": "Complete local continuation setup/CI/merge; then typed worker task/chat/run identity with Mac native-feature behavioral checks. Linux improvements deferred.",
+  "last_qualified_source": "c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3",
+  "source_delta_after_qualification": "No production delta beyond merged PR162; current local continuation edits are documentation/execution records.",
+  "active_work": "Local continuation policy/plan and stale status reconciliation; no new production changes yet.",
+  "continuation_baseline": "bd42c1d99bfb41607c7218addbb52dc99bc340c3",
+  "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct read again returnsHTTP401 token parse failure; no remote dispatch",
     "protocol": "installed experimental schemas include thread goals and account/rateLimits/read; current stdio initialize probe failed, no actual quota snapshot obtained",
@@ -29,7 +34,23 @@
     "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee",
     "environment_status": "Current managed environment reports enforced unrestricted network and no configured capabilities; no quota/goal/wake tool found"
   },
-  "model_policy": {
+  "capability_observations": {
+    "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
+    "quota": "Native get_usage_limits succeeds; setup snapshot 68% used in seven-day account window. Recheck before new substantial work.",
+    "wake": "Heartbeat brn-mac-vacation-hardening created ACTIVE, viewed successfully and verified in persisted local TOML, targeting current chat. Two-hour interval through original expiry. First unattended wake unobserved.",
+    "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
+  },
+  "local_continuation": {
+    "plan": "plan.md",
+    "evidence": "evidence.md",
+    "cadence": "Every two hours through the original expiry; back off near a constraining quota reset.",
+    "quota_floor_remaining_percent": 5,
+    "mac_priority": true,
+    "merge_authorized_after_review_and_checks": true,
+    "automation_id": "brn-mac-vacation-hardening",
+    "target_thread_id": "01a152c1-758c-77d3-96b3-a9d1f8bb73e3"
+  },
+  "previous_cloud_model_policy": {
     "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
     "implementations": "Requested gpt-6.1-sol high via supported spawn override, fork none",
     "bounded_inventory_and_install_review": "Requested gpt-6-luna high",
@@ -37,9 +58,12 @@
     "effective_model_verification": "Tools accept requested model/reasoning but list_agents exposes status only; effective runtime model/effort and speed not independently observable",
     "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
   },
-  "integration_status": "PR162 first head41423230 hosted Mac/Linux gates passed. Worker code c24da6af is locally qualified; its new pushed head still requires separately observed hosted CI. No default-branch merge.",
-  "next_eligible_work": "Observe new-head PR CI; reconcile remaining OS routes; next Run/worker ownership candidates are kind/thread/run identity and scattered preview/context fields, preserving checked service authority.",
-  "last_qualified_source": "c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3",
-  "source_delta_after_qualification": "Documentation/evidence updates only after the worker code checkpoint.",
-  "active_work": "Worker code checkpointc24da6af independently approved and locally qualified315/0/1 plus explicit CLI/desktop1/0, strict lint, production build and format; maintain draft PR and exact-head hosted CI."
+  "model_policy": {
+    "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
+    "inspection": "One fresh bounded gpt-6-luna medium read-only inspection completed.",
+    "review": "One fresh gpt-6.1-sol high independent continuation-plan review requested.",
+    "concurrency": "At most one active helper, sequential review; no recursive delegation or automatic Astra.",
+    "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
+    "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical."
+  }
 }

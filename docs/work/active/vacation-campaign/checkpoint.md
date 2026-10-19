@@ -1,5 +1,31 @@
 # Vacation campaign checkpoint
 
+## Current local continuation — 19 October 2026
+
+The owner selected this Mac for continued work, authorized normal merges after
+review/required checks, moved further Linux work behind Mac hardening, and permitted
+work down to about 5% remaining allowance. [Current plan](plan.md) and
+[evidence/next action](evidence.md) supersede conflicting local/cloud, merge and
+quota rules below. The fixed expiry in campaign.json is unchanged.
+
+Fresh GitHub inspection confirms PR162's final head `aebfa12b` merged into main as
+`bd42c1d9`. Final PR and resulting-main run39200470515 passed all four required
+contexts and documentation; optional Windows failures remain visible. The earlier
+statements that worker CI/merge were pending describe the historical handoff only.
+
+Current branch: `codex/vacation-hardening`, isolated from the owner's old checkout.
+First continuation batch reconciles this record and registers supported local
+heartbeat `brn-mac-vacation-hardening` (ACTIVE, every two hours through expiry). Next code slice is typed worker task/chat/run identity, retaining the
+checked service and existing real-control/recovery tests. Independent candidate
+review passed with no findings; required-check integration and the first unattended
+wake remain pending. No new native or owner acceptance.
+
+## Historical cloud handoff (before PR162 merge)
+
+The remaining text preserves the earlier source-bound implementation evidence and
+then-current limitations. Its no-merge/cloud-only/telemetry/wake statements do not
+control the owner's newer local continuation assignment above.
+
 **19 October continuation:** source `c24da6af` fixes a reproduced lost-chat-scope bug after a reference-import worker disconnects. A private worker batch owner now admits only its first terminal; one shared disconnect effect retires stale intent while preserving old Run progress and checked queue policy. Final local desktop315/0/1, strict all-target Clippy, formatting and production build passed after independent Sol review. [Worker slice and source-bound evidence](worker-lifecycle.md) distinguishes this partial protocol owner from remaining Run/worker UI state.
 
 Hosted PR162 CI on earlier exact `41423230` passed Core/CLI Ubuntu+Mac, NativeUI Ubuntu+Mac, Mac retrieval and documentation. Both platforms actually ran306 widget tests, writing44 and host12; the new worker commit still needs its own hosted CI. Optional Windows fails on unchanged Unix auth code.
