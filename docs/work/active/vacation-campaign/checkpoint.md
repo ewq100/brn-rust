@@ -104,4 +104,6 @@ On capacity return: fresh quota/Git/CI first, then finish175 main and176 exact-h
 checks, normal match-head merge and its resulting-main checks. Continue ready
 Save/reopen, backup and unsaved recovery Mac journeys in a consolidated job. Group
 Include/Omit has separate source-level missing boolean metadata; preparation only,
-no unreviewed fix integrated. Preserve this pending case and any worker recipe.
+no unreviewed fix integrated. [Preparation recipe](review-group-native-preparation.md)
+records why the current fixture is insufficient and the smallest reusable public
+service path. No fixture or source fix was started at the reserve.
