@@ -7,9 +7,9 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::{fs, io::Write, path::PathBuf};
 
-const ORIGINAL: &str = "tere tere õun\n\nThis is a synthetic writing fixture.";
-const UNRELATED: &str = "UNRELATED synthetic note — unchanged.";
-const REVISED: &str = "tere tere õun\n\nThis synthetic writing fixture is clearer.";
+const ORIGINAL: &str = "tere tere õun\n\nThis is a synthetic writing fixture.\n";
+const UNRELATED: &str = "UNRELATED synthetic note — unchanged.\n";
+const REVISED: &str = "tere tere õun\n\nThis synthetic writing fixture is clearer.\n";
 
 fn usage() -> &'static str {
     "Usage: native_writing_fixture --output /absolute/new-root"
