@@ -10,7 +10,7 @@ pub(super) struct SkillView {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub rows: Vec<SkillStatus>,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
-    inventory: Vec<PackageInfo>,
+    pub(super) inventory: Vec<SkillPackageInfo>,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub inspection: Option<String>,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -103,7 +103,7 @@ impl ThreadsUi {
         };
     }
     #[cfg(any(target_os = "macos", target_os = "linux"))]
-    fn force_refresh_skills(&mut self) {
+    pub(super) fn force_refresh_skills(&mut self) {
         self.skill_view.stamp = None;
         self.refresh_skills();
     }
@@ -144,7 +144,7 @@ impl ThreadsUi {
             SkillAction::Remove => self.workspace.remove_skill(id.strip_prefix("installed:").unwrap_or(id),digest).map(|_|()),
             SkillAction::Inspect => self.workspace.inspect_skill(id.strip_prefix("installed:").unwrap_or(id)).and_then(|p| {
                 if p.info.digest != digest {
-                    return Err(crate::AppError::Invalid(
+                    return Err(brn_threads_app::AppError::Invalid(
                         "Current skill package changed since this view was rendered. Refresh and inspect again.".into(),
                     ));
                 }

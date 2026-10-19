@@ -287,14 +287,14 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
         .store
         .change_skill_policy(
             &op,
-            &brn_threads_core::SkillPolicyChange::Set(brn_threads_core::SkillBinding {
+            &brn_threads_app::SkillPolicyChange::Set(brn_threads_app::SkillBinding {
                 id: current.id.clone(),
                 digest: stale_digest.into(),
                 project: None,
                 enabled: true,
                 selected: true,
             }),
-            &brn_threads_core::HostAuthority::owner("synthetic stale skill policy fixture"),
+            &brn_threads_app::HostAuthority::owner("synthetic stale skill policy fixture"),
         )
         .unwrap();
     let project = workspace
@@ -373,8 +373,8 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
     .unwrap();
     cx.run_until_parked();
 
-    cx.update_window(window, |_, _, cx| {
-        view.update(cx, |ui, _| {
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, entity_cx| {
             let inspection = ui.skill_view.inspection.as_ref().unwrap();
             assert!(inspection.contains(&current.digest));
             assert!(inspection.contains("Reviewing a mechanical knowledge check"));
@@ -389,7 +389,7 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
                 &current.id,
                 &current.digest,
                 None,
-                cx,
+                entity_cx,
             );
             assert_eq!(ui.workspace.settings().unwrap().skills, before);
 
@@ -400,7 +400,7 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
                 &current.id,
                 stale_digest,
                 None,
-                cx,
+                entity_cx,
             );
             assert_eq!(ui.workspace.settings().unwrap().skills, before);
         });
