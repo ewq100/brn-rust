@@ -9,7 +9,8 @@ Preserve the unrelated original checkout/trials and all qualified artifacts.
 One lead owns shared documentation/integration; one local build slot.
 
 Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/agent-first-next`. Combined source7a9706fd contains exact independently
+`codex/agent-first-followthrough`. Frozen PR172 branch
+`codex/agent-first-next` stays atb8735ea1. Combined source7a9706fd contains exact independently
 approved M3e227, M4 component3b3 and native-fixturec055. The15 M4 and10 M3 files
 match their source receipts; the fixture matches its reviewed source. No schema,
 new dependency or provider permission was added.
@@ -24,7 +25,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Current work and next unsatisfied gates
 
-1. Lead has finished and released the build slot; inspect actual processes before
+1. Lead has finished and released the build slot to the next source worker; inspect actual processes before
    starting anything else. Combined runtime518/0/2 and desktop332/0/1 pass.
    Shared-result2, CLI43, strict affected lint and format pass; production native
    build passes at7a970. A cached default agent library initially retained
@@ -37,18 +38,21 @@ resulting-main separately. Never bypass a required check.
    Old19efe/0f executables cannot qualify M3/M4. Do not rerun fixture creation on
    its existing qualified root; that refusal is expected.
 3. Follow PR171 resulting-main39240783382 and update its integration receipt.
-   After final combined qualification, publish one reviewed M3/M4/fixture PR,
-   attach it, freeze its head, follow actual required checks and merge normally.
-   Do not duplicate PR171 or push new source to its historical checked branch.
+   PR172 is published/attached at fixedb8735ea1; actual required head checks
+   are running. Follow them, fresh protection/head and normal merge, then
+   resulting-main. Do not duplicate either PR or push onto the checked branches.
 4. M4 still has one explicit owner-plan item: model-proposed captured-comment
    suggestions. Current source supports unchecked owner selection only. Bounded
    Luna audit identifies the existing writing-evidence/review seam; Sol worker
    `writing_review_design` completed the v1/v2/serde/replay audit; the independent
    reviewer approved [the next specification](../agent-first-simplification/proposed-feedback.md)
    after narrowing the core replacement exception.
-   No implementation/build grant has been given for that next item. Select a
-   complete compatible design before edits; do not infer checkbox selection or
-   resolution authority from model suggestions.
+   Sol worker now owns implementation in worker-drain-budget on
+   codex/proposed-writing-feedback, basedb8735ea1, and may hold the single build
+   slot after an initial immutable source pin (notify lead). Preserve old3b3
+   branch/untracked evidence. Root owns docs/integration. One bounded nested Luna
+   inspection helper is allowed within four actual slots. Independent source
+   review remains required. Suggestions never infer owner selection or authority.
 5. Actual Mac qualification remains queued for18:00Tallinn; native input, IME,
    accessibility and owner acceptance are pending. Continue useful headless work
    while allowance remains; the recovery schedule is not batch pacing.

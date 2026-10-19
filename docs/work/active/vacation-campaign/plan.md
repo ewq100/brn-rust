@@ -6,9 +6,10 @@ run39240783382 is running; optional Windows Core failed at the PR head. PR170
 main39236565242, PR169 main39232087600 and earlier required head/main checks
 passed; optional Windows failures remain explicit. Lead checkout:
 `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/agent-first-next`. PR171 contains reviewed M0/schema/M1/M2+skill UI;
-combined19efe checks and production build passed. M3/M4 continue separately and
-need a new combined artifact. [Current checkpoint](checkpoint.md) owns active
+`codex/agent-first-followthrough`. PR171 contains reviewed M0/schema/M1/M2+skill UI;
+combined19efe checks and production build passed. M3/M4 are combined-qualified at7a970 with an immutable production artifact;
+PR172 fixes checkedb8735ea1 while the lead continues separately. Model-proposed
+comment suggestions remain the selected next item. [Current checkpoint](checkpoint.md) owns active
 jobs and next action.
 
 ## Current owner authorization
