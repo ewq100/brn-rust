@@ -1,6 +1,6 @@
 # BRN Threads behavior and runtime guidance
 
-**Status:** Accepted behavior design with production runtime integration, 11 October 2026. Current implementation/evidence qualifications are recorded below; unverified native or later-scope behavior is not implicitly accepted. The [canonical target](threads-target.md) owns product requirements and integrity guarantees. The [active cleanup plan](../work/active/pre-release-cleanup/plan.md) owns the current assignment. This document makes the thread interaction and runtime instructions concrete without creating another product specification.
+**Status:** Accepted behavior design with production runtime integration, 11 October 2026. Current implementation/evidence qualifications are recorded below; unverified native or later-scope behavior is not implicitly accepted. The [canonical target](threads-target.md) owns product requirements and integrity guarantees. The [Mac campaign](../work/active/vacation-campaign/plan.md) and its selected agent-first workstream own the current assignment. This document makes the thread interaction and runtime instructions concrete without creating another product specification.
 
 ## One thread follows one goal
 
@@ -9,6 +9,24 @@ A thread is the continuing context for a question, decision, or piece of work. I
 Notes remain independently readable knowledge. Actions retain their own progress and completion evidence. A thread does not have to contain every fact about its subject, and the conversation is not the authoritative representation of an Action's due date or a note's current text. Opening a thread loads current linked records and identifies historical revisions when discussing earlier work.
 
 The accepted writing workbench presents the full selected linked thread beside the current note. Passage comments accumulate independently of AI dispatch. **Rewrite with AI** freezes the current saved note, selected pending comments and posted chat as an inspectable request, then proposes a complete note revision for exact review. Chat additions during the run belong to the next request. No text-selection gesture grants write authority, and this command cannot become an automatic maintenance write on Continue. Explicit addressed confirmation follows a successful Apply receipt; generation and dismissal retain pending feedback. [Implementation scope and qualification](../work/active/tiled-writing-workbench/spec.md).
+
+The current [M4 candidate](../work/active/agent-first-simplification/writing-review.md)
+composes exact revision Apply with an owner-selected subset of captured comments.
+The existing comment cards show the immutable captured instructions and quotes;
+checkboxes start unchecked and belong only to that exact note/candidate. Reopening
+the same candidate preserves selection; replacement, dismissal and completion
+clear it. Current next-Rewrite inclusion remains a separate choice. Changed
+captured feedback cannot silently resolve through an older proposal. Generation
+and Apply alone never mark every comment addressed. Candidate-proposed comment
+IDs remain a separate pending item; this slice implements explicit owner choice.
+
+The shared review result preserves an actual Apply receipt even if later attention
+cleanup or selected-comment confirmation fails. The UI reloads committed content,
+keeps Undo available and reports the remaining status update. CLI ordinary success
+shape stays compatible; a partial cleanup outcome can include attention_error.
+Resolution uses a stable identity bound to request, operation and exact selected
+IDs. Replay cannot revive an undone proof. Source review and deterministic checks
+are recorded separately from hosted integration and actual Mac observation.
 
 The owner-selected [writing polish](../work/active/writing-polish/spec.md) keeps feedback in the Note tile and chat in its own tile. Read presents formatted text from the current buffer; Write edits that same Markdown source with formatting controls. Rendered passage selection must map exactly to the source being displayed; source changes clear prior selections. Save and comment saves through the checked version/generation boundary and revalidates the captured quote before opening the existing composer. Failed Save preserves the edit and draft; Add comment remains a separate replayable action. Read result changes only candidate presentation and focuses the displayed view; Apply still binds the exact candidate. Passage and overall-feedback drafts retain window-local per-note navigation preservation. Rewrite captures overall feedback in its immutable bounded request with no separate chat Send, including it in agent context and replay identity. Writing proposals and retry/progress/Stop appear in the Note tile; writing request rows and writing continuation controls do not occupy chat. Writing works with Chat closed. If the exact terminal writing run responds without a pending proposal, its same-receipt saved reply/question is readable in the Note tile; overall feedback plus a new Rewrite answers it. Ordinary chat keeps its own interactions and history. Saved rewrite feedback survives restart through the request; unsent writing drafts have no new restart guarantee.
 
