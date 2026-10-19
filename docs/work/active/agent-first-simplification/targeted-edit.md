@@ -40,19 +40,32 @@ prepared-output limits, attention and exact review. A host read does not update
 the model full-read tracker; ordinary model-authored replacement still reaches
 unread_replacement. No helper receives write tools.
 
-Check the actual first-call/replay ordering before implementation: identical
-requests must reuse their existing candidate/receipt after a lost response; changed
-content under a conflicting request identity must refuse. A new stale-base request
-must not silently rebuild against later text. Reuse existing operation/request
-hashing rather than persisting a second patch log. Scope/access remain checked
-on replay; previous visibility is not a grant to current private context.
+Use existing allocate_bound_operation with a Run/tool-specific key and a
+deterministic hash of the exact edit arguments, including reason. After live and
+current-access checks, resolve/bind the operation first: changed arguments conflict.
+If already prepared, recheck current scope and return the immutable preparation
+without rebuilding it from later canonical text or comparing that text to the old
+base. Otherwise require the active current Note at the supplied version, validate
+range/expected bytes, construct the replacement, track the operation and share the
+existing checked preparation/output tail. Existing Apply supplies receipt replay.
+A fresh Continue has a new Run namespace; recover predecessor operations/receipts
+through current continuation rather than implying cross-Run request-key replay.
+
+Apply currently promotes every resulting Note version to complete model-read
+coverage because the model authored its whole result. That assumption no longer
+holds for a host-constructed local edit. Use existing Receipt.writes.before to
+promote only when the complete prior version was actually known (or the model
+authored a complete new Note); otherwise preserve incomplete coverage through
+Apply and receipt replay. No new persisted provenance/patch log is needed.
 
 Existing Apply decides maintenance, scoped protected edit, review-first, dirty
 deferral and stale outcomes. The new operation only prepares; it cannot grant
 protected access or bypass review. Whole-document Rewrite remains available and
-proposal-only through retry/Continue/replacement. Do not let the new tool bypass
-its frozen writing request/evidence contract; determine offering/host adaptation
-from the existing writing context, never from a model flag.
+proposal-only through retry/Continue/replacement. Exclude the new tool from writing_snapshot runs in this first slice, with a
+defensive handler refusal. Keep actual registration, offered schemas, validation
+and budget definitions consistent. Frozen Rewrite keeps writing_request, captured
+inputs/evidence/attention and durable proposal-only checks. Supporting local edits
+inside that mode needs a later explicit host adaptation; no model flag selects it.
 
 ## Required evidence and readiness
 
@@ -70,14 +83,18 @@ meaningful old-behavior limitation where practical. No giant parallel suite.
   scoped instruction or exact review. Selected text alone grants nothing.
 - Dirty owner writing defers Apply with buffer intact; a later edit makes the
   candidate stale. Review binds its exact result; existing Undo restores eligible
-  content and preserves subsequent/conflicting work.
+  content and preserves subsequent/conflicting work. Partial read → local edit →
+  Apply and replayed Apply must still leave an ordinary whole replacement Invalid
+  until an actual full read, including fresh Continue/recovered receipts.
 - Identical prepare/Apply replay, lost-response continuation and conflicting key
   reuse behave through existing identities/receipts; no duplicate write.
 - Explicit Rewrite remains proposal-only and its evidence/continuation contracts
   remain intact. Tool/schema/guidance and actual provider-history DTOs agree.
 
-Implementation remains gated on the current M1 interface freeze and a concise
-review of construction/replay/Rewrite seams. Existing campaign authority permits
+Independent Sol source/design review of lead69ceec10 identified and resolved
+these three construction/replay/Rewrite specifications, including the post-Apply
+read-ledger assumption. No source was changed or checks run by that reviewer.
+Implementation remains gated on current M1 interface freeze and reconciliation. Existing campaign authority permits
 this in-scope next slice; no owner decision is currently missing. Deterministic
 checks, real-model usefulness, native interaction, owner acceptance and required
 head/resulting-main verification remain separate. Broader live/provider activation

@@ -53,7 +53,10 @@ Lead owns shared docs/interfaces/integration; the single build slot is now reser
 by the isolated M1 Sol writer in notice checkout, branchcodex/pre-effect-tool-correction.
 The existing builtin digest/reapproval GUI gap is documented separately, with no
 automatic policy rebinding. M3 exact-range UTF-8/replay/private-scope reuse map is
-complete; no M3 implementation is selected until its current interface is reconciled.
+complete. Independent Sol design review resolved bound-operation replay ordering,
+excluded frozen Rewrite for the first exact-edit operation, and identified the
+post-Apply read-ledger promotion that must be constrained. See targeted-edit.md;
+M3 waits for the M1-owned interface to freeze.
 
 The actual historical schema5 CLI was built offline from fb1b2100. All four
 optional upgrade witnesses genuinely failed current schema10 versus stale9
