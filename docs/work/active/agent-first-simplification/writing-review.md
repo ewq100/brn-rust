@@ -75,3 +75,22 @@ no provider/private-data/live/native/merge/release grants follow. Reassess after
 repeated failed approaches or a consequential unresolved invariant. Source review,
 deterministic qualification, real-model usefulness, native observation, owner
 acceptance and hosted/main integration remain separate gates.
+
+
+## Current implementation and separate remaining item
+
+Source3b3f9135 is independently approved and matches the integrated lead's15
+changed files. Shared-result fault2, affected app52/0/1, native332/0/1, writing
+UI44 plus development-host12 and CLI43/0 pass; strict affected lint and workspace
+format pass. The old compatible rendered selector witness fails, and its candidate
+counterpart passes. Original small-window, import-order and missing-installed-helper
+failures are retained in the [qualification receipt](../vacation-campaign/evidence/writing-review-qualification.json).
+Combined7a970 runtime518/native332/CLI43, strict affected lint/format and production build also pass; see the [final receipt](../vacation-campaign/evidence/agent-first-final-qualification.json). Hosted/main and actual Mac gates remain separate.
+
+The owner plan's model-proposed addressed-comment subset is still pending. Current
+source implements explicit owner selection, with no automatic proposal indication.
+The independently reviewed [next specification](proposed-feedback.md) targets the existing writing-evidence payload and review
+DTO rather than a classifier or new workflow. Model suggestions must never
+initialize owner selection or create resolution authority. Preserve ordinary v1
+writing, old saved evidence, request/candidate replay binding and changed-feedback
+refusal. Do not declare all M4 scope complete before this item is accounted for.

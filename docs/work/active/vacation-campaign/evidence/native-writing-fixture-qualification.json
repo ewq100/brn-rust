@@ -1,0 +1,189 @@
+{
+  "observed_at_utc": "2026-10-19T11:05:36.183181+00:00",
+  "reviewed_source": "e4e437bad080948634a99006417c7a9aa6834827",
+  "integrated_source": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+  "source_sha256": "f047a82957e6bab2ee5e78e2fe7166c1f8a20b5e5774e25bf5447271a26414f7",
+  "diff_sha256": "385826a5f79f23d8109182ac60658a286e2cd2bcc206648da44327c7b61c7ae7",
+  "independent_source_review": "native_fixture_review, requested gpt-6-sol/high, no remaining findings after no-default-credentials and Result-qualification corrections",
+  "runtime": {
+    "source": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+    "binary": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_writing_fixture",
+    "binary_sha256": "9f2054ff3c5ac23d5c10b453a957b5ef4436455fc77e000ae7d918d4dab8628e",
+    "manifest_sha256": "3a03258aaaa43bdb6215ac7376f5173f413e75ed43f7eac2c77aa1250f371cf6",
+    "checks": [
+      {
+        "label": "fixture-fresh",
+        "command": [
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_writing_fixture",
+          "--output",
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-final-evidence/native-fixture"
+        ],
+        "exit_code": 0,
+        "expected_success": true
+      },
+      {
+        "label": "fixture-existing-directory",
+        "command": [
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_writing_fixture",
+          "--output",
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-final-evidence/native-fixture"
+        ],
+        "exit_code": 1,
+        "expected_success": false
+      },
+      {
+        "label": "fixture-existing-file",
+        "command": [
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_writing_fixture",
+          "--output",
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-final-evidence/existing-fixture-sentinel.txt"
+        ],
+        "exit_code": 1,
+        "expected_success": false
+      },
+      {
+        "label": "fixture-relative",
+        "command": [
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_writing_fixture",
+          "--output",
+          "must-not-create-relative-fixture"
+        ],
+        "exit_code": 1,
+        "expected_success": false
+      }
+    ],
+    "independent_observations": [
+      "exact original/unrelated canonical bytes",
+      "exact replacement remains prepared without receipt",
+      "exact UTF8 comment anchors",
+      "all settings history excludes auth and credential paths",
+      "existing directory/file unchanged",
+      "relative root refused without creation"
+    ],
+    "native_interaction": false,
+    "v2_evidence_qualification": false
+  },
+  "retained_failures": [
+    "first example compilation fails imported one-parameter Result alias; corrected explicit std::result::Result",
+    "source review caught initial auth path persisted before configure; corrected open_without_default_credentials before any fixture run"
+  ],
+  "limits": [
+    "synthetic fresh data only",
+    "v1 ordinary captured request, no v2 evidence",
+    "no native interaction, provider/model call, owner acceptance or Apply in fixture construction"
+  ],
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-build-fixed.json.gz",
+      "raw_sha256": "6299ed115f361ec2b858743d7df1161ae9159e9d7b09d4d7fde4d4d6472e1f74",
+      "archive_sha256": "4b70f0ba2633835a16fe37521184fbb7f0dc21cea2bb48cc4b39536d3d6081ad",
+      "raw_bytes": 2319
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-build-fixed.log.gz",
+      "raw_sha256": "67d2ef3df6006b1ea7bd212756cbd9719a48144950f7a2ba3778bf546d9209ef",
+      "archive_sha256": "202776f151e68378946d82e66979071f6dd347b2540b769f07a53682fb42be63",
+      "raw_bytes": 184
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-build.json.gz",
+      "raw_sha256": "42cbe7d978ddcb48873013f332dfe1bf376b0a58a48d87aec1ab1cc950c5a9ac",
+      "archive_sha256": "cf129c36e7a87a3d7b5b7659f6431f4b3d32bd1223602eac6162fc5eb637dbbc",
+      "raw_bytes": 2053
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-build.log.gz",
+      "raw_sha256": "fcceaf6e13e8f9343f31e5cfd5207dd924cb591263f28cb4536e5bc64cfa1d0b",
+      "archive_sha256": "172cce5f9aef4a5e04df6888bbe5748dd1a50e428f27667c6aa4169247295343",
+      "raw_bytes": 28293
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-existing-directory.stderr.gz",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "archive_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_bytes": 68
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-existing-directory.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-existing-file.stderr.gz",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "archive_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_bytes": 68
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-existing-file.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-fresh.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-fresh.stdout.gz",
+      "raw_sha256": "8baf0a3970ec15b764d833e1c7b4bf6b95130f4100d2d34456e5e45271189202",
+      "archive_sha256": "3a298ad84ddc57944746e9e0e4fb9e4266999ec87dc2ffee796346f669942bb6",
+      "raw_bytes": 128
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-manifest.json.gz",
+      "raw_sha256": "3a03258aaaa43bdb6215ac7376f5173f413e75ed43f7eac2c77aa1250f371cf6",
+      "archive_sha256": "bd16795b185aa7671c6af5c1d2b2255e8415c317647be0b1e1b450fb4de016aa",
+      "raw_bytes": 4574
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-qualification.json.gz",
+      "raw_sha256": "cf72476205601f857bac34696cc25391203b4303ec6b157646c9a4e1530e6cb6",
+      "archive_sha256": "51584844c36f707a8a5a0178da6cde6f3153080a05e19b3fc52f704a9c5db3da",
+      "raw_bytes": 2234
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-relative.stderr.gz",
+      "raw_sha256": "09debea8eb0da04ad7b04b176ad4fb957dea175ffcaf8e906c59051168f6fb8e",
+      "archive_sha256": "188c1c60cd839f698acce0177b2b127e9e44a92519512bbeba41f4081afe91e5",
+      "raw_bytes": 58
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-relative.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-reviewed-source.patch.gz",
+      "raw_sha256": "385826a5f79f23d8109182ac60658a286e2cd2bcc206648da44327c7b61c7ae7",
+      "archive_sha256": "91031886038b5407ae5f1d34b3172e03e5625afd89be93428680779b6c4dd501",
+      "raw_bytes": 8717
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-state.json.gz",
+      "raw_sha256": "1c00a3b7eaebbb5b4936a32a4782ae3cf82de701a9bfc5a95439409ec2b8c3a9",
+      "archive_sha256": "45497313520b264c70e37f870b23b2c831fe1f19be310b39a1b9c14003517cc9",
+      "raw_bytes": 2229
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/fixture-state.log.gz",
+      "raw_sha256": "7024ef71ee31b0da27ba6d07523e87ddde6c2f9c87cec19a6f3706bf26788399",
+      "archive_sha256": "81fcaedadb0f0f63108c52d49d568121d2734468b5b7b4b294f4da0112d4191a",
+      "raw_bytes": 91
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/native-writing-fixture/qualify_fixture.py.gz",
+      "raw_sha256": "93d2ad39bd30097b0d52b7211638dabe34430dd5d1530c2fbd4db861491b0dc2",
+      "archive_sha256": "e6366e905cabb4ca7e4cda45c1049e087cefd33a9fadfc79e188cfde8282a5cb",
+      "raw_bytes": 4247
+    }
+  ],
+  "tested_reviewed_source": "e4e437bad080948634a99006417c7a9aa6834827",
+  "final_reviewed_source": "c05571d2c67f2d017a302f93ad94529d85d3045a",
+  "final_source_sha256": "30d586b7dc896df7c9e7bf566e0347031361c0b780c249bf8cd6c1ac9f49939a",
+  "qualification_transfer": "Only3 str.as_bytes().len -> str.len, byte lengths equivalent; independently reviewed final diff686c42e02bfb24e96227ad816cac7a9c9e1cf08ef78c8fbb45a0d75f346e6c1b. Final alltarget strict Clippy passes; runtime manifest/SQL/refusal evidence retained at e4e."
+}

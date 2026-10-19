@@ -1,73 +1,118 @@
 # Vacation campaign checkpoint
 
-## Resume here —19 October2026
+## Resume here — 19 October 2026
 
-Read [current authorization/resource/gate rules](plan.md), the selected
+Read [authorization/resource/gate rules](plan.md), the selected
 [agent-first reconciliation](../agent-first-simplification/reconciliation.md),
-actual Git/agents/processes and source-bound receipts before dispatch/builds.
-Preserve unrelated original checkout/trials and all immutable artifacts. One lead
-owns shared documentation/integration; one shared local build slot.
+actual Git/agents/processes and source-bound receipts before dispatch or builds.
+Preserve the unrelated original checkout/trials and all qualified artifacts.
+One lead owns shared documentation/integration; one local build slot.
 
-Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-`codex/agent-first-next`. Frozen PR171 branch codex/hardening-maintenance stays at7a9867a8. Integrated source67d62aec contains reviewed M0,
-schema-upgrade witness repair, M2 and exact M1 source7b3cf356. Current main is PR171 merge9a6feab2, from exact7a9867a8 after all four required head checks passed; resulting-main39240783382 checks are running. PR170
-all four required resulting-main39236565242 jobs passed; optional Windows jobs failed. PR169 main39232087600 passed all four required
-checks; optional Windows Core/UI/retrieval failed. PR163–168 required head/main
-checks passed. Normal reviewed merges are authorized; inspect actual protection,
-match exact checked head, then record resulting-main independently. No bypass.
+Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
+`codex/agent-first-next`. Combined source7a9706fd contains exact independently
+approved M3e227, M4 component3b3 and native-fixturec055. The15 M4 and10 M3 files
+match their source receipts; the fixture matches its reviewed source. No schema,
+new dependency or provider permission was added.
+
+Current main is PR171 merge9a6feab2, normally merged from fixed7a9867a8 after all
+four required head checks passed; resulting-main39240783382 is running. Optional
+Windows Core failed at its PR head. PR170 main39236565242 and PR169
+main39232087600 passed all four required jobs; optional Windows jobs failed.
+Earlier PR163–168 required head/main checks passed. Normal reviewed merges remain
+authorized: inspect actual protection/head, match the checked head, then record
+resulting-main separately. Never bypass a required check.
 
 ## Current work and next unsatisfied gates
 
-- M0 selected responsibility/reuse rules and existing25-domain disposition map
-  independently approved at527; owner42199-byte source/hash remains exact.
-- Genuine historical schema5 CLI fixtures first failed stale9 expectations; five
-  expectation/comment repairs passed all4 tests against schema10, strict lint and
-  format. Exact old binary/lock/backup/refusal/restore evidence is retained in
-  `evidence/schema-upgrade-qualification.json`; no schema/production change.
-- M2 candidate333 independently approved. Factual/scoped checks remain, generic
-  repair policy moves to maintain-notes. Topics11/journeys8/keyed11 and strict
-  lint/format pass. First real assertion failure is preserved. Exact old skill
-  binding remains fail closed; no implicit new-byte adoption.
-- [M1](../agent-first-simplification/argument-correction.md) candidate7b3 source
-  approved; lead's twelve changed files match exactly. Final scripted runtime505/0/2,
-  strict all-target lint/full format pass; review boundary findings and all failures
-  retained in `evidence/argument-correction-qualification.json`. Combined19efe runtime505/desktop327/CLI15/app journeys8 and native strict lint/format/production pass; see agent-first-combined-qualification.json.
-- Skill current-version reapproval: requested Luna medium owns only desktop
-  threads_skills.rs/tests on `codex/skill-reapproval-ui` in worker-drain-budget.
-  Final5cf8 independently approved; first actual compile failure retained. Focused1, strict native lint/format and combined native327 pass. Root19efe matches exact two source files; no OS/historical migration proof.
-- [M3 exact local edit](../agent-first-simplification/targeted-edit.md): requested
-  Sol high owns brn-ai/agent tool source in notice checkout,
-  `codex/targeted-note-edit`, based67d62aec. Finale227 independently source-approved and verified:518/0/2, strict scripted lint/format, CLI guide1/1. Ten source files match lead88b exactly;43 archived raw records and exact original-module red/green linkage in targeted-edit-qualification.json. Old19efe binary cannot qualify this source. Preserve
-  exact range/bytes/metadata, host-only construction, replay-before-reconstruction,
-  partial-read ledger after Apply/replay/Continue, full-range guard, and frozen
-  Rewrite exclusion. Existing refresh whole-read seam is included with a witness.
-- M4 reuses OwnerRequest/ReviewLifecycle. Source throughd235 is independently approved; two unchanged small-window failures were retained, then the duplicate list was retired in favor of existing comment cards and the original bounds check passed. Sol author in worker-drain-budget owns build slot. Exact old19efe UI baseline compiled/fails missing selector; candidate shared-result2/app52/nativewriting37 pass, one test-only strict-lint correction retained; final native332/0/1 passes, including unchanged small-window bounds; final lint/CLI/host checks running.
-- M5 bundled ReportLab/Decimal synthetic calculation/SVG/report proof and fresh reproduction pass; production activation explicitly deferred. See artifact-capability.md/evidence, no containment/agent/native/permission claim.
-- Small native fixture example: Luna source-only author owns exactly new brn-threads-app/examples/native_writing_fixture.rs in notice checkout branchcodex/native-writing-fixture. Reuses checked synthetic workspace/comment/snapshot/prepare APIs, offline provider, fresh-root refusal; no Cargo until grant. Needed to exercise production writing review without live provider.
+1. Lead has finished and released the build slot; inspect actual processes before
+   starting anything else. Combined runtime518/0/2 and desktop332/0/1 pass.
+   Shared-result2, CLI43, strict affected lint and format pass; production native
+   build passes at7a970. A cached default agent library initially retained
+   guide15; embedded identity exposed it, byte-identical crate-root touch forced
+   a current rebuild and CLI43 passed with guide16. Original failure is retained. Source7a970 differs from runtime-start4a204 only in the fixture's qualified
+   Result return type and equivalent byte-length expressions. No library behavior changed.
+2. Final source-bound commands/log hashes and immutable production executable
+   are in `evidence/agent-first-final-qualification.json` (46 raw archives),
+   alongside component receipts. Native queue is updated; hosted gates remain.
+   Old19efe/0f executables cannot qualify M3/M4. Do not rerun fixture creation on
+   its existing qualified root; that refusal is expected.
+3. Follow PR171 resulting-main39240783382 and update its integration receipt.
+   After final combined qualification, publish one reviewed M3/M4/fixture PR,
+   attach it, freeze its head, follow actual required checks and merge normally.
+   Do not duplicate PR171 or push new source to its historical checked branch.
+4. M4 still has one explicit owner-plan item: model-proposed captured-comment
+   suggestions. Current source supports unchecked owner selection only. Bounded
+   Luna audit identifies the existing writing-evidence/review seam; Sol worker
+   `writing_review_design` completed the v1/v2/serde/replay audit; the independent
+   reviewer approved [the next specification](../agent-first-simplification/proposed-feedback.md)
+   after narrowing the core replacement exception.
+   No implementation/build grant has been given for that next item. Select a
+   complete compatible design before edits; do not infer checkbox selection or
+   resolution authority from model suggestions.
+5. Actual Mac qualification remains queued for18:00Tallinn; native input, IME,
+   accessibility and owner acceptance are pending. Continue useful headless work
+   while allowance remains; the recovery schedule is not batch pacing.
 
-PR171 merged the reviewed M0/schema/M1/M2+skill UI normally from fixed7a9867a8 after all four required head checks passed. Main9a6feab2 is merged into the lead continuation; follow resulting-main39240783382 separately. Optional Windows Core failed at the PR head; see pr171-integration.json. Combined checks passed at19efe. Continue on codex/agent-first-next; do not push further changes onto the checked PR branch. PR170 required resulting-main checks are complete. Do not duplicate PR170 or attach unrelated PRs.
-Keep checked head fixed while later work continues separately. Current source changes invalidate old0f for this candidate. Frozen production19efe binary is source-bound in agent-first-combined-evidence with SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Neither headless
-state tests nor source review establish actual Mac usability.
+## Qualified components and preserved evidence
 
-## Capacity, native queue and continuation
+- M0 rules, genuine historical schema5→current10 witnesses, M1 correction,
+  M2 structural findings/skill guidance and explicit current-skill reapproval
+  merged in PR171. Combined19efe runtime505/desktop327/CLI15/journeys8 plus
+  strict lint/format/production passed. Exact source and original errors are in
+  the existing component/combined receipts; no native/live acceptance follows.
+- [M3](../agent-first-simplification/targeted-edit.md) finale227 independently
+  approved: runtime518/0/2, strict scripted lint/format and CLI guide pass.
+  Preserve exact range/bytes/metadata, host-only construction, replay before
+  reconstruction, partial-read ledger after Apply/replay/Continue, full-range
+  guard and frozen Rewrite exclusion. The original compatible refresh module
+  exposes a real whole-read boundary defect; candidate guards pass. See
+  `evidence/targeted-edit-qualification.json` and43 raw archives.
+- [M4](../agent-first-simplification/writing-review.md) final3b3 independently
+  approved: fault2, app52/0/1, native332/0/1, writingUI44 plus host12, CLI43/0,
+  affected strict lint and workspace format pass. The original compatible
+  rendered selector fails. Two small-window failures led to retiring duplicate
+  feedback rendering; original bounds now pass. CLI intake first failed because
+  child tests remove BRN overrides; unchanged qualified helper bytes installed
+  beside the CLI, exactly as CI, restore the full family. Import-order and other
+  original failures remain. See `evidence/writing-review-qualification.json`
+  and67 raw archives.
+- Native fixturee4e independently approved and qualified: fresh exact Unicode
+  notes/comments and prepared unapplied v1 candidate; all settings history has
+  no auth/credential paths; existing directory/file preserved and relative root
+  refused. Initial source review caught transient durable auth-path discovery;
+  initial build caught the imported Result alias; strict lint caught three redundant
+  byte-length conversions. All are corrected and retained
+  in `evidence/native-writing-fixture-qualification.json`. The synthetic workspace
+  is sibling `agent-first-final-evidence/native-fixture/workspace`; manifest and
+  expected bytes are separate. No v2 evidence, model or actual Mac claim.
+- [M5](../agent-first-simplification/artifact-capability.md) ReportLab/Decimal
+  synthetic calculation/SVG/report proof and fresh reproduction pass. Production
+  activation is explicitly deferred with concrete output/packaging/containment/
+  cancellation/review gaps. No universal execution permission follows.
+- [M6 comparison](../agent-first-simplification/outcome-comparison.md) records
+  actual retirement and semantic/live/native/owner/main gaps. Mandatory scope
+  is still in progress; no whole-plan completion is declared.
 
-Last native quota reading86% used/14% remaining, seven-day reset1792874447.
-Check at meaningful batch boundaries. Continue useful work down to about5%; then
-checkpoint/back off near the verified reset without purchases or reset credits.
-Runtime exposes four active slots including lead; owner permits more helpers and
-nested Luna where actual capacity/ownership support it. No artificial three-helper
-project cap. Requested settings are recorded, not claimed measured savings.
+## Capacity, schedules and continuation
 
-Two saved ACTIVE heartbeats target this same lead: every-two-hour recovery and
-separate18:00Tallinn batched native interaction. First unattended execution remains
-unobserved; Mac/Codex availability is required. Fixed expiry remains
-2026-11-01T21:41:51Z. The heartbeat is recovery/resumption, not batch pacing.
-[Native queue](native-queue.md) and exact fixtures/read-only checker are prepared;
-no actual OS input/IME/accessibility or owner acceptance has run. Native artifacts,
-qualified stock/adapted helpers and evidence siblings must be preserved.
+Last native quota reading87% used/13% remaining, seven-day reset1792874447.
+Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
+and back off near the verified constraining reset without purchases/reset credits.
+Runtime has four active slots including lead. Owner permits more/nested helpers
+when capacity and ownership support them; no artificial three-helper cap. Luna
+handles bounded research/small specified work; consequential changes/review use
+Sol. Requested settings do not establish measured savings.
+
+Two ACTIVE heartbeats target this lead: every-two-hour recovery and separate
+18:00Tallinn batched native interaction. First unattended execution remains
+unobserved; Mac/Codex availability is required. Original expiry remains
+2026-11-01T21:41:51Z. Read absolute lead-worktree entries on restart; no new clock,
+lead, duplicate schedule or daemon. Preserve qualified helpers and sibling data.
+Disk was about2.3GiB before the final native build; no new target/helper rebuilds,
+and stop a compile below1GiB.
 
 No live provider/model acquisition/private data, release/deployment, new billing,
 credential changes or external messaging is authorized. Linux improvements stay
-lower priority; retain existing required gates. Earlier detailed snapshots remain
-in [history](checkpoint-history-through-2026-10-19.md). Dated observations do not
-assign new work or replace current user authority.
+lower priority; retain existing gates. [History](checkpoint-history-through-2026-10-19.md)
+keeps earlier snapshots; dated observations do not assign new work or override
+current user authority.

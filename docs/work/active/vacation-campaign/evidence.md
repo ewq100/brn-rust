@@ -427,3 +427,28 @@ runtime qualification and actual Mac review remain pending.
 [M6 comparison](../agent-first-simplification/outcome-comparison.md) records actual
 retirement and remaining evidence. No semantic/live/native equivalence or
 whole-plan completion is inferred from scripted checks.
+
+
+## Exact edit and selected review combined-qualified
+
+[Final combined receipt](evidence/agent-first-final-qualification.json) binds
+source7a970, exact reviewed component files, runtime518/0/2, native332/0/1,
+shared-result2, CLI43/0, strict affected all-target lint, full format and production
+native-ui-only build. The immutable executable and exact SHA are in that receipt
+and the native queue. No actual native/live/owner acceptance follows.
+
+The combined CLI first exposed a stale default agent library retained in the
+shared target after switching source checkouts: executable guide15 disagreed with
+current guide16. Baseline overrides were absent. The old binary SHA/embedded guide
+and failed test are retained; byte-identical crate-root touch forced rebuild and
+all43 CLI tests passed. Strict lint separately found three equivalent fixture
+byte-length conversions. No guard/assertion was weakened. The
+[fixture receipt](evidence/native-writing-fixture-qualification.json) retains fresh
+state and existing-file/directory/relative refusal checks, plus no credential
+paths in settings history. Its v1 scope is explicit.
+
+The remaining [M4 suggestion specification](../agent-first-simplification/proposed-feedback.md)
+was independently reviewed after narrowing the core replacement exception and
+clarifying captured membership. It selects optional untrusted model reports,
+never automatic owner selection. Implementation follows publication of this
+checked candidate; no new provider permission is required or granted.

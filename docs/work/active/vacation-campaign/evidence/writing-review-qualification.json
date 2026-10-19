@@ -1,0 +1,505 @@
+{
+  "observed_at_utc": "2026-10-19T11:01:54.016983+00:00",
+  "reviewed_source": "3b3f9135c318a4a7959e591f2c0774b8177f9266",
+  "integrated_source": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+  "source_sha256": {
+    "crates/brn-desktop/src/threads_ui.rs": "3415f196d517d3806da86d8f3081f783be5a320cb67b16a10f065b58f775d004",
+    "crates/brn-desktop/src/threads_writing_tests.rs": "c52b63865a5982d7d033ad8eb117f83cfe829323292984ca4a4b6874badcdaa1",
+    "crates/brn-threads-app/src/lib.rs": "a06f731d87e65b76b25b07704bcb682ae27638996f313870034c608a67815d9f",
+    "crates/brn-threads-app/src/review.rs": "f2fc1db8b4a27195e1d59c709fe5b1e4b2f09de33db07385b60bb1db98952399",
+    "crates/brn-threads-app/tests/cw2_review.rs": "9690a3d32245665daab7b1e837b9c27ffb18aef10255cebe6205dc5b540f6fce",
+    "crates/brn-threads-app/tests/daily_workflow_eval.rs": "17c7a83ea340de1b9e25a4cd7a52671017b031230a8e50b52036e8a8fbd42ef7",
+    "crates/brn-threads-app/tests/int_d.rs": "c28c3856c115b752cf927bc543089d64556c919adac66e7b907b5ca6c20c3722",
+    "crates/brn-threads-app/tests/killed_run_candidate.rs": "4ed0116d94ba08448336ebb558c10af92206e2d4d49a90ec10baabcf6783436a",
+    "crates/brn-threads-app/tests/product.rs": "0c6ef2fd03ce3f0e91856cfad8302d48b045f7b0b5ce6c28ac810d5db785511f",
+    "crates/brn-threads-app/tests/writing.rs": "af2c5622e583dba56ad2d9e473e1f7051daafdbdeed10298393cff79b2c07f5c",
+    "crates/brn-writing-ui/examples/writing_host/host.rs": "39795bc2eb1233f70f5041e84b98b8ffe5f8aaf7c6f3e72579332bacf8365d6d",
+    "crates/brn-writing-ui/src/native.rs": "5f3ab9d39635500f0c5a9c47dc01e42a068b9f6db13e941d2ae07ce17b805f04",
+    "crates/brn-writing-ui/src/review.rs": "2086e9ad40a8148dafd6c25490f788a18ba5cf8fb1e02bc3a074c381ac5dd6b6",
+    "crates/brn-writing-ui/src/writing.rs": "d801174ce0f9f1cfd21c79721a5299f3aa9313f285bc2c6d65c71ba8b2368662",
+    "crates/brn/src/main.rs": "10ce42027147dd4f906480de2b0adc3cdd74c9f7c8a756ea19d1c6c5db63055b"
+  },
+  "qualification": {
+    "source": "3b3f9135c318a4a7959e591f2c0774b8177f9266",
+    "evidence_root": "/Users/evokessler/.codex/worktrees/worker-drain-budget/writing-review-evidence",
+    "app_integration": {
+      "passed": 52,
+      "failed": 0,
+      "ignored": 1,
+      "source": "13b3a3d4",
+      "log": "candidate-app-integration.log"
+    },
+    "shared_result_fault_tests": {
+      "passed": 2,
+      "failed": 0,
+      "source": "9e5e6a05",
+      "log": "final-app-status.log"
+    },
+    "native_full": {
+      "passed": 332,
+      "failed": 0,
+      "ignored": 1,
+      "source": "d23574a9",
+      "log": "reused-cards-native-full.log"
+    },
+    "writing_ui": {
+      "library_passed": 44,
+      "development_host_passed": 12,
+      "failed": 0,
+      "source": "d23574a9",
+      "log": "qualified-writing-ui-tests.log"
+    },
+    "cli_family": {
+      "authority_passed": 5,
+      "contract_passed": 23,
+      "runs_passed": 15,
+      "failed": 0,
+      "source": "3b3f9135c318a4a7959e591f2c0774b8177f9266",
+      "log": "installed-cli-family.log"
+    },
+    "strict_lint": {
+      "app": "final-app-clippy.log",
+      "native": "qualified-native-clippy.log",
+      "writing_ui": "qualified-writing-ui-clippy.log",
+      "cli": "installed-cli-clippy.log"
+    },
+    "format": "installed-final-fmt.log",
+    "baseline_expected_control_failure": "baseline-selector.log",
+    "corrected_failures": [
+      "candidate-app-clippy.log",
+      "final-native-full.log",
+      "layout-fixed-focused.log",
+      "qualified-cli-contract.log",
+      "qualified-fmt.log"
+    ],
+    "limits": [
+      "actual Mac interaction pending",
+      "no live model/provider usefulness claim",
+      "no merge or hosted/resulting-main qualification by worker",
+      "existing block0.1.6 future-incompatibility warning retained"
+    ],
+    "diff_sha256": "333c1acb05bcd46423f4b37fda652386ae4ff50de3e7be257254d33fbe43afe4"
+  },
+  "independent_review": {
+    "disposition": "no remaining source findings",
+    "reviewer": "writing_review_review",
+    "requested_model": "gpt-6-sol",
+    "requested_effort": "high",
+    "full_binary_diff_sha256": "333c1acb05bcd46423f4b37fda652386ae4ff50de3e7be257254d33fbe43afe4"
+  },
+  "root_audit": "All15 authored files match integrated source; independent full diff hash matches; named successful receipts exit0, baseline selector exit nonzero; all raw original failures and exact command/environment records archived.",
+  "qualification_transfer": "App production source unchanged after13b3;9e5e changes only one cfg(test) borrowed slice; d235\u21923b3 only CLI import order. Native/UI gates atd235; CLI family/lint/fmt at3b3.",
+  "gates": {
+    "source_review": "satisfied",
+    "deterministic_component_checks": "satisfied",
+    "combined_M3_M4": "running",
+    "actual_native_interaction": "pending",
+    "owner_acceptance": "pending",
+    "live_model_usefulness": "not authorized",
+    "hosted_and_resulting_main": "pending"
+  },
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-compatible-ui-witness.rs.gz",
+      "raw_sha256": "f51eaefc14891fd0efb16d6ce3ca313a6af112e93e7330a68ed97a8279815c12",
+      "archive_sha256": "686ecae3ca3359e09347b232f071b7bded9beb1bf58a5bb7ae2e8f66a62bf1b7",
+      "raw_bytes": 3574
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-linkage.json.gz",
+      "raw_sha256": "529c8b97e2c7c89a179061796539f1611eebadfbfab9993f3bf75c797a769a3f",
+      "archive_sha256": "b153a64b2263dde5d18b79587847d306470caac56a81fb247a43f5237f8cc54a",
+      "raw_bytes": 816
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-selector.json.gz",
+      "raw_sha256": "8a961bab7192cbc475214a476456cb92c0edf4ea9cfba9bf4a87a06a5e2f7732",
+      "archive_sha256": "b9f0cf22a761e3278ff339883b39733507df49fbe53fb8a1a90c13a04d6cb0a2",
+      "raw_bytes": 2869
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-selector.log.gz",
+      "raw_sha256": "547016baf775841d0734519f006d6fffb8e42bf2b846d86cf1d95d8e40e0e31c",
+      "archive_sha256": "8ba018444c7cc7ba945e2f0e8eb3b5ad6f2935c57a2f1f32ada855e4dcd3668d",
+      "raw_bytes": 33872
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-source.json.gz",
+      "raw_sha256": "f2b58285acf3afc4bde7f4aaedf2594118b9d34228bd1900c778fbb8a902b206",
+      "archive_sha256": "7cab562eb450a2f8c90e8c1aceb93b07cb106a1534fe28b270742e2d415e528a",
+      "raw_bytes": 486
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/baseline-witness.patch.gz",
+      "raw_sha256": "5c0640e952f678769147192d6adaa2eab0d1ae06d3529c60ac03d796bdf7cf3a",
+      "archive_sha256": "d62f9697c22161ed16c9ed7ff888aac501e6fee97b699a60fea4346eb0656986",
+      "raw_bytes": 4037
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-clippy.json.gz",
+      "raw_sha256": "c4ba1af55394e7f833cbbe3cd4dde44bd45b798d50a54fba1667fbb943783ff4",
+      "archive_sha256": "e56b41c7c3a5850ecadb1d481cd97650b0367d7d7e5471810bb1809a6da4b05a",
+      "raw_bytes": 2134
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-clippy.log.gz",
+      "raw_sha256": "7a6405c4780cfefeb5002d4cf03642245d4dfbb2e74bc6b49a59e1a4542233b3",
+      "archive_sha256": "63b399ac0ca3e1c3a17732659453dbded5e4dabd875888a246be8ad6c3f3cf64",
+      "raw_bytes": 866
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-integration.json.gz",
+      "raw_sha256": "258b16f21220724d7073c7fe42786dff4c6f9f994fb7a41422ee1701edad4e0b",
+      "archive_sha256": "4b74ada6a9ff99aab5cfafcd5a0b94fa9b05eb0bf0c315a8cff9bdf6ce41c337",
+      "raw_bytes": 2273
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-integration.log.gz",
+      "raw_sha256": "5009303ea1bb6fb8835e8ca80711dbd49e0c15aaa1e20892ab2d11797ecde817",
+      "archive_sha256": "999bf1f191d6c539919daf60be98fc76d4099b90aa0fbc90a4c47db248d4310c",
+      "raw_bytes": 6248
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-status.json.gz",
+      "raw_sha256": "85363cbc6a801f438e6f8d2e5cf19399b62c5f658d9a8d3c163c93818a669e89",
+      "archive_sha256": "2dcd25a0492f57f97c4c56669818fbe28a2fcc83b9751497243b8999b5adf297",
+      "raw_bytes": 2112
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-app-status.log.gz",
+      "raw_sha256": "30182414512a9c8ea304dc6e9e327e0b5ffafcca732a6883e8224c25810e6774",
+      "archive_sha256": "420d600ae427287e1403bf14b36340b1cc32b08973aefe51acddbba10797939a",
+      "raw_bytes": 772
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-native-writing.json.gz",
+      "raw_sha256": "ab9c270fe7a58610fd1227327275a0fd637f6bcd2c59ba2202fe0c561d97a42d",
+      "archive_sha256": "773553e78acf903a88010a4c409c3cb730a825708763480252676273f6f897a2",
+      "raw_bytes": 2157
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/candidate-native-writing.log.gz",
+      "raw_sha256": "5ecd3977b05da7597d9430c008134a5b54d27b733622aab4ac18f226c904778d",
+      "archive_sha256": "f508927463a54e8763bc63b1afe81755b5a8258b2cb84ca27cb10d9e03ad7039",
+      "raw_bytes": 5106
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/ci-helper-installation.json.gz",
+      "raw_sha256": "86b2ae5d03ca8930396c8f0a6e7ea1b94134a310ff8f9fa3c0b8b14c8c3d733c",
+      "archive_sha256": "0bacc4eb603fc9eead25a2a3868374199461bb8a7f11aa6690aa5e6691df9e84",
+      "raw_bytes": 2965
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/diff-check-source.txt.gz",
+      "raw_sha256": "3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "archive_sha256": "1458d71c19c308aca4a0516b6eee2982b8753c47a26c5f7109eb75b0f38d5a84",
+      "raw_bytes": 8
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-app-clippy.json.gz",
+      "raw_sha256": "3b846dbd114948467f7c047b10c4c01960d5b311326b11114fc531636633c504",
+      "archive_sha256": "daa1071f80a73fd0505edae7a251210f0719d59665eb179cb7f32c35c8912354",
+      "raw_bytes": 2133
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-app-clippy.log.gz",
+      "raw_sha256": "3e750316425b52b98ea2ef70541e87e89c756f71fa1d7e8cc21080efa819bf2d",
+      "archive_sha256": "cc059620daaf822241bed1e40f9d2f22c018251912368d33cb436d3ee80a20bb",
+      "raw_bytes": 185
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-app-status.json.gz",
+      "raw_sha256": "9eb1ddb1890105907060150f9873e790ecf136a96b61fa9c5bb5fec86246de94",
+      "archive_sha256": "d214eb22b7cce52d8d792d6c53d9badaf374e346eaf3c4b8098688b3a69eddce",
+      "raw_bytes": 2112
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-app-status.log.gz",
+      "raw_sha256": "b106a2029d97837a712a0c04481e463646b8dbdbfee04e94b08553c8afd0fdb8",
+      "archive_sha256": "2e3740e16bb512383edb313e505bad034559704ae8be2b2637d3bb206ed5a7e6",
+      "raw_bytes": 664
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-cli-clippy.json.gz",
+      "raw_sha256": "e169a3b86fb5d729f24c03f9453c319570aa1029b66c844529b7454cd5c06086",
+      "archive_sha256": "d02d6927402e5ba339527602f0486a295a79d617632d7d02938ae1ba262136f3",
+      "raw_bytes": 2120
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-cli-clippy.log.gz",
+      "raw_sha256": "c1888c1b4bad4c3766757ab5238939a94cb51b1988020a3b352c14e1a7059159",
+      "archive_sha256": "975fcb16fea9f2fbb87b6f0d33b8878048ce5b8f4e4de35429801b76d40baf5d",
+      "raw_bytes": 393
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-native-clippy.json.gz",
+      "raw_sha256": "1acc6c8c0b5ad6b0acaecc6d6a859f04e1175a95fd1dc7bee47b5f56b61e9fd1",
+      "archive_sha256": "06cdf38f96ce5de0a928776b255d7e0d9e69802e0d7d82f8debf51bcda1b4667",
+      "raw_bytes": 2184
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-native-clippy.log.gz",
+      "raw_sha256": "5a680a2655d691756847d3189c777ee2db2ee8db417d513fd73ccf069e30a39a",
+      "archive_sha256": "0a1aff780103c0bf5bab6486976c549c25fba63aa9dd049626b47a0cacc7ad6b",
+      "raw_bytes": 775
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-native-full.json.gz",
+      "raw_sha256": "2915be85ee740850f514e22f460974cc5f13974526f69c1aee94886e6a3a3268",
+      "archive_sha256": "0ffad51e8c1bf45d2b4794b5b8fe17145408c93ab96dbc07ebc3dca38e027f35",
+      "raw_bytes": 2126
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-native-full.log.gz",
+      "raw_sha256": "0866a8a343b60742aa7b5d42ff105fed6d8aefc67b70487db63e5bd829191a67",
+      "archive_sha256": "320159849e89804b117cbfae67ccf69f2895ea6f0f7dc59ce6e63651b2d89e18",
+      "raw_bytes": 35293
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-reviewed-source.patch.gz",
+      "raw_sha256": "333c1acb05bcd46423f4b37fda652386ae4ff50de3e7be257254d33fbe43afe4",
+      "archive_sha256": "c9f79e983b1f661933dc07862349b7bda999b0e699ef98453192801ab471bccb",
+      "raw_bytes": 66518
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-source.json.gz",
+      "raw_sha256": "f376039905925ead133962c8099e774f161d2375b4634d8bb2c8452101797cbd",
+      "archive_sha256": "cbe87de76db5c6ea2733a5c9c6fb265a4e39328704b85ba40f08f55edb700ab9",
+      "raw_bytes": 2787
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-source.patch.gz",
+      "raw_sha256": "333c1acb05bcd46423f4b37fda652386ae4ff50de3e7be257254d33fbe43afe4",
+      "archive_sha256": "c9f79e983b1f661933dc07862349b7bda999b0e699ef98453192801ab471bccb",
+      "raw_bytes": 66518
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-writing-ui-clippy.json.gz",
+      "raw_sha256": "d998fe2b2b447552f4cbe1dcbe0626aa37f41b94dd886f35f483a3e1f24226ec",
+      "archive_sha256": "96e90da7651fc5d20bd2764e8721d3331cb96d6902f0040d550f4cfe05df980e",
+      "raw_bytes": 2187
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-writing-ui-clippy.log.gz",
+      "raw_sha256": "21301473a3a875041dfc24af0ca7bcf19b39ea310ead40ad99ff18fab2b1cdaa",
+      "archive_sha256": "6ada04d23f53e5f552300fd477321a0b877daddce3c6fad3af14573f0d19ac22",
+      "raw_bytes": 426
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-writing-ui-tests.json.gz",
+      "raw_sha256": "0b90fbd5ce879bb86a3200a4723f52368d249013f7e8cdfbf80c8dd634c529ea",
+      "archive_sha256": "50631c14261ecdd7a61976a83e6f3624013a96c9059883d8280bfdbe8537f3c7",
+      "raw_bytes": 2127
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final-writing-ui-tests.log.gz",
+      "raw_sha256": "f264054c3ad2bdff973707ba5d078faf08f27fda8c19aba22c35f688b0780345",
+      "archive_sha256": "3f9ca56b949c1b6e3b0b71935c49ef99acca022a9a429590a89df142a0b5dcc3",
+      "raw_bytes": 5905
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final_remaining.py.gz",
+      "raw_sha256": "a24e109d4efb102eaee7be4a4c7e3d9b568e50fc7d8585c9130dc800f8dba291",
+      "archive_sha256": "aa24ec4abb0f3683b2736a9aa78201849ae84cebb74c1f7a5184688ddcc73cf1",
+      "raw_bytes": 936
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/final_suite.py.gz",
+      "raw_sha256": "daf4471a9b8858d3f42c4c71b2e6a137d753588adb352e8917196ad483ab5105",
+      "archive_sha256": "595ea9a913ccb2f75156726e72500e5d0c51f71c230e39d5b71fa38a5f3b4225",
+      "raw_bytes": 1308
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-cli-clippy.json.gz",
+      "raw_sha256": "822d88159d57b62c22e4a3f5aae970faf1da5026bc581539a649a30622d92ddf",
+      "archive_sha256": "89c9945601b2250ad88d08a290b85ca2e53db800d46ed5d7676b38fe67605162",
+      "raw_bytes": 2120
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-cli-clippy.log.gz",
+      "raw_sha256": "f4fe16cd20d83ab6686d9ee9956c5313f12b00a2da8cc716eb4c63e5bbaf0ad8",
+      "archive_sha256": "5a69dae572d475119a83f9699672758084e4afe46f31165c0f106feb991435e5",
+      "raw_bytes": 161
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-cli-family.json.gz",
+      "raw_sha256": "1c92e90dffd1bcbc7a599156e973fb325428ecf138ae1c271b6641900507bcd5",
+      "archive_sha256": "50d781ef3277a02d760ed771b3e50382ed5cb0864c5cba91795215d62e98025b",
+      "raw_bytes": 2166
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-cli-family.log.gz",
+      "raw_sha256": "1093207a8cca1bd45fe4bf0d23414c0f332a6be8bda19d3cf6e3af58d88a732a",
+      "archive_sha256": "389021129322876af18cbe20de7ef424fe034b7eecc0dfd49f42a935bc2c597e",
+      "raw_bytes": 3763
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-final-fmt.json.gz",
+      "raw_sha256": "72f7b3cf0a512a058be7948ee08a931a7c70226598c76bac19a5201edf3cb2be",
+      "archive_sha256": "7fd056635ad4e7493e7f130d9c2a3105950b9513b9ec1f6fcb8e6bcb5c72fe12",
+      "raw_bytes": 2022
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/installed-final-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/layout-fixed-focused.json.gz",
+      "raw_sha256": "6eb0467a3374636158290b20aa4578931a8f4da5706e6fabc71049f201d6fcd6",
+      "archive_sha256": "3eea6c044d50482ca73076cff1f6dfda1ddd0a92aec33900742ed485c5af5670",
+      "raw_bytes": 2214
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/layout-fixed-focused.log.gz",
+      "raw_sha256": "39679dbdda18c5f29ecd534cbc032fae0e51b31fc712d941efb815aa50083381",
+      "archive_sha256": "6c0cef7833884674fb7818f9305bbfc3ada50f50e6d53661acfd799a270a1766",
+      "raw_bytes": 1746
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualification-plan.txt.gz",
+      "raw_sha256": "254b8e73e885cd752998625474d2ae6495ecb5faaabc96d65423ef80d98b3db5",
+      "archive_sha256": "c3a2986e30620a2cc91945a197ae2a93d27405c417a63f467f80243434980644",
+      "raw_bytes": 1315
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualification-summary.json.gz",
+      "raw_sha256": "4ca7c5c8efb4161585aa63b7977b95f44c6927dfe452d6bc3761137a4487b28d",
+      "archive_sha256": "a1fe0b9fef9beeee845cc188e3050be94fda4c029d1bb013228f09a402f28e5e",
+      "raw_bytes": 1771
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-cli-contract.json.gz",
+      "raw_sha256": "510d4258dc22d1f8e407b37565a0386b2116e5ef8af50c162fa5e4264d496c80",
+      "archive_sha256": "18a44d078a17bdd0466d0a97dadb3bcb398f271f2753a0e90ee28fc34372e0ce",
+      "raw_bytes": 2168
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-cli-contract.log.gz",
+      "raw_sha256": "f6016bd5ddd918aa0008e185e489a612496cc18ce220ac5323df91db824250fa",
+      "archive_sha256": "792eba6538046b89bd0923d65135a96ac121330382fba4c24cd71dea093bdfc4",
+      "raw_bytes": 4395
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-cli-runs.json.gz",
+      "raw_sha256": "df5139a50106aa400d151e3e433ebb1716ce86ffe361d845dc7da3a953ef0b5b",
+      "archive_sha256": "df35d0235e811fdff29e4099ffccbb341eb42c88a98f1c82a61f83e2b4f6b5c2",
+      "raw_bytes": 2093
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-cli-runs.log.gz",
+      "raw_sha256": "da034b9be762cf09af3cd99973b0048b880fffcc9f0560e8a39e88a0e4562425",
+      "archive_sha256": "d6dddd20e49bf105bbe7fefd0bd04628888091bb0ab2c1a99246838db34fece1",
+      "raw_bytes": 1226
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-fmt.json.gz",
+      "raw_sha256": "326706954f73880280f848188220c1698f5c44093b4669856228a92d7cf6c1e1",
+      "archive_sha256": "9e817029bf3721bcedbf6eb05f79903558494e478c70c6e144b8d9d2d49ea9aa",
+      "raw_bytes": 2021
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-fmt.log.gz",
+      "raw_sha256": "d5e426f5f2da09a4a8a3f666db0cc15b64ed854a524633a7de7eba31341f2f19",
+      "archive_sha256": "69a9bcc0fe6f7cc64da329d80b2e229d018d88472b0da97b5b0283ef2d4c85e0",
+      "raw_bytes": 608
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-native-clippy.json.gz",
+      "raw_sha256": "7c8e6da2c53e99c3fe52106f1a63363fba5e558ceb1972119a2f5b1e927a2d9f",
+      "archive_sha256": "151b6e32d645c0c721784f3d56cd7c63330f4c09246e0a16efe35cf09729d2c5",
+      "raw_bytes": 2183
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-native-clippy.log.gz",
+      "raw_sha256": "0444f9633f5e26161b8b3dd89cfd241343e988deceb1dea2446b23866b771c80",
+      "archive_sha256": "07c738aeb9db72480526d9c072a0812b489686ca33765f5aa2227009fc80d129",
+      "raw_bytes": 543
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-writing-ui-clippy.json.gz",
+      "raw_sha256": "b3ce4d528aa9c0c35c71618e6ec192d3ef4637d1643848fa3b19e8e85780c5df",
+      "archive_sha256": "ad444c8c8e7c94f7c5eb121d1b69740c5a034a5e8392587be5663f1344b4174b",
+      "raw_bytes": 2186
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-writing-ui-clippy.log.gz",
+      "raw_sha256": "294f116f2c4bed1852f09c76a4dac586b2f46a67e24f686f359d3f7f84ff92ca",
+      "archive_sha256": "46fb9d18a988229d3109ea138164da297d2255fcfd932a7177893f8cb0d30739",
+      "raw_bytes": 426
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-writing-ui-tests.json.gz",
+      "raw_sha256": "0068f46b82ddc6335b345c0c9378f72f3810cccca9b111eb384b226ca0869825",
+      "archive_sha256": "94013b66c545f9ee0e263dee0c78ce692ff24a8c1a186b1dea0042184a319d18",
+      "raw_bytes": 2128
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/qualified-writing-ui-tests.log.gz",
+      "raw_sha256": "eab68eda829fa607755de4e1d10688005d0e0cb488a8b0bc6294c718e65cedb5",
+      "archive_sha256": "f73d2d71d1f3f7551c71c9261502ea2b355292b6fe69db2deeac9d82b8a5b77f",
+      "raw_bytes": 5780
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/reused-cards-layout.json.gz",
+      "raw_sha256": "1fd8f8b8d5ce2b4d877808d6c2599f406573b061352f99192324fba209a7e409",
+      "archive_sha256": "8187869c81dffc97505e66b2d7ca7a7f0eac37713de2f7e11b1b9f2b753d411e",
+      "raw_bytes": 2212
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/reused-cards-layout.log.gz",
+      "raw_sha256": "18117a7131032b554b40acbb3dccc1b5243a7103379f64ede0ae6e31006c2949",
+      "archive_sha256": "a3004f919c77d9b1bbbdb5a8d1b71c801f01ad243c1e88dc95f90422a25ae6a0",
+      "raw_bytes": 922
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/reused-cards-native-full.json.gz",
+      "raw_sha256": "59817b27b6a9b399da93dab0c18a5f0c0524467f9b447d3b264fa8d165100338",
+      "archive_sha256": "b64efa20498964b70d0d3e197864d58ad9b6606b0ddcd2dd0f0fa6c742bab1cb",
+      "raw_bytes": 2124
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/reused-cards-native-full.log.gz",
+      "raw_sha256": "63637bbb13722e90edd5dc22d6dc089e09290698a22c1b397807f029fdee7afc",
+      "archive_sha256": "30598e12c13b7fbc1ca75b2fcaaec5de7e99034848c0cfe28f7687c109e5d419",
+      "raw_bytes": 34585
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/run_check.py.gz",
+      "raw_sha256": "5833628a13c8a440348a60da955c978a5a37f7dea447d88b6eb7810e5fbf74f7",
+      "archive_sha256": "71164a0958fa8ae462b213dddcc7110c38f65bede197a0f4d77462c676a0ec3a",
+      "raw_bytes": 2295
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/rustfmt-source.txt.gz",
+      "raw_sha256": "3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "archive_sha256": "1458d71c19c308aca4a0516b6eee2982b8753c47a26c5f7109eb75b0f38d5a84",
+      "raw_bytes": 8
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/source-files.txt.gz",
+      "raw_sha256": "4685534f6ae8e1fb4376abd37d67dca4504d83601cd6cde85caaf82cc5139ae2",
+      "archive_sha256": "f0fa517d7ed3559b0ceb842697d14cb92bb3593e832c827ec23ddbcdfb57337e",
+      "raw_bytes": 606
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/source.patch.gz",
+      "raw_sha256": "ac21c8c6345ffdf8be27ce3bc8dc8a4110af769447a4c2073b46c965f7e6a7d5",
+      "archive_sha256": "2b3bc8ec4da0bd5f425be07989d5aa361c3824a3722349e0c70d8b2aceb327a8",
+      "raw_bytes": 59878
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/workspace-style-correction.json.gz",
+      "raw_sha256": "04c047726ebb561d90c934ea670c818e61e36b112545888ecfd8926f97a1ed8c",
+      "archive_sha256": "8ef55d9feb449d20517cbcc54604cbc63266fabdf5345f27b20c742d0e13570b",
+      "raw_bytes": 1997
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-review/workspace-style-correction.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    }
+  ]
+}
