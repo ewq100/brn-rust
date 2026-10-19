@@ -11,7 +11,7 @@ failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/late-refresh-hardening`, current source98188942 matching qualified
+branch `codex/hardening-followup`, current source98188942 matching qualified
 worker d98374f4. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
 The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
 production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
@@ -45,8 +45,9 @@ The expanded existing test fails on unchanged production at the pending assertio
 then passes with one result-invalidation line. Final desktop321/0/1, strict native
 lint/format and production-only native-ui build pass. [Connections receipts](connections-pending.md)
 retain baseline patch/failure, final logs, source and immutable artifact identity.
-No local writer/build is active. Prepare one coherent later PR; its exact-head and
-resulting-main/native gates remain pending. [CI timing research](ci-feedback.md)
+No local writer/build is active. PR166 is published from `codex/late-refresh-hardening`
+at exact head73780065; required run39217700176 is running. Keep that checked head
+fixed while preparing further work here. Its resulting-main/native gates remain pending. [CI timing research](ci-feedback.md)
 is observation and a future qualification idea, not an implemented workflow change.
 
 Continue useful authorized batches inside the active session. The two-hour
@@ -84,3 +85,10 @@ do not restore/publish that patch or redo merged PR163.
 
 [Preserved checkpoint history](checkpoint-history-through-2026-10-19.md) retains
 the original cloud handoff and earlier local snapshots without changing their text.
+
+The bounded main-search audit found no supported production defect: query identity,
+old-row hiding and failures are already handled. A pending-frame test extension is
+only a future qualification opportunity; no change is selected. A Luna feasibility
+study evaluates CI helper sharing without editing workflows or weakening checks.
+Both app automation views still render successfully; they do not establish an
+observed unattended execution. Native Mac qualification remains queued.

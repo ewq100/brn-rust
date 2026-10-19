@@ -48,8 +48,8 @@ strict native lint/format and production-only build passed. The [durable receipt
 gates remain separate. The later [Connections correction](connections-pending.md) is implemented and
 independently approved in complete98188942. An expanded existing real-control
 witness fails against unchanged production and passes after the one-line fix;
-final321/0/1, strict lint/format and production build pass. Hosted later-head and
-main/native gates remain pending. [CI timing research](ci-feedback.md) records
+final321/0/1, strict lint/format and production build pass. PR166 is published at exact head73780065 with required run39217700176 running;
+its main/native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
 is73% used/27% remaining, above the approximate5% remaining floor.
 

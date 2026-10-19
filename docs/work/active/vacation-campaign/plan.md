@@ -4,7 +4,8 @@ Updated 19 October 2026. Current main is
 `f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165). The later reviewed candidate
 is source `98188942`, matching qualified worker `d98374f4`.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/late-refresh-hardening`. Preserve unrelated changes and all source-bound
+branch `codex/hardening-followup`. The published PR166 remains fixed on
+`codex/late-refresh-hardening` at73780065. Preserve unrelated changes and all source-bound
 artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
 
 ## Current owner authorization
@@ -166,7 +167,8 @@ run39216341691 remains pending. The later candidate contains the [late-refresh w
 [Run-bound edit-refresh target](run-edit-refresh.md) and [Connections loading fix](connections-pending.md).
 Independent Sol approved complete source98188942. Final desktop321/0/1, strict native
 lint/format and a production-only build passed; exact receipts preserve limits.
-Publish one coherent PR, then follow its actual required-head and resulting-main checks.
+PR166 is published at exact head73780065; required run39217700176 is running.
+Follow its actual required-head and resulting-main checks; keep its checked head fixed.
 Native OS qualification remains in [the daily Mac queue](native-queue.md).
 
 [CI timing research](ci-feedback.md) identifies repeated helper preparation; no
