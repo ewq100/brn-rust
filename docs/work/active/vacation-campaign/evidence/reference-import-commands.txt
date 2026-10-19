@@ -1,0 +1,25 @@
+Repository: /Users/evokessler/.codex/worktrees/notice-state/brn-rust
+Baseline: 1395c92c264506da11281cf4fae79871cd396b38
+Plan SHA-256: ae463e3e447ab01e314a583d8ee5286998950de5c896f481faa0dc76e83bd1ad
+Toolchain: Rust 1.98.1-aarch64-apple-darwin
+Shared target: /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+Build environment: CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0; --locked --offline --jobs 1
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+
+Focused effects (each raw log is saved under this directory):
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent --locked --offline --jobs 1
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_reference_disconnect_clears_intent_before_the_next_chat_attachment --locked --offline --jobs 1
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical_result --locked --offline --jobs 1
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_import_completion --locked --offline --jobs 1
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting --locked --offline --jobs 1
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_effects --locked --offline --jobs 1
+
+Final checks:
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop --locked --offline --jobs 1
+cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+cargo fmt --all -- --check
+git diff --check
+cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
+Candidate: ed859aa466d0b5fc6d0eae57f6277f5ad245aafc
+Candidate tree: bf3b3e57fed04d1aae04e58f0a9aa579521a24bc

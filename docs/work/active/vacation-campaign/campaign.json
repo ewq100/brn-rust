@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/late-refresh-hardening",
+  "branch": "codex/hardening-followup",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -18,14 +18,14 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T07:37:34.068290+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T08:09:20.190301+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163 and PR164 required head/main checks pass, optional Windows fail. PR165 normal mergef4753e99 at07:29:42UTC after all four exactheada961 checks39213694797 passed; docs/UbuntuUI passed, optionalWindowsCore failed. Resulting-main39216341691 pending.",
-  "next_eligible_work": "Final docs/evidence reconciliation, publish cohesive candidate for required exacthead CI. Follow PR165 main39216341691; continue useful hardening/qualified CI-feedback research above quota floor.",
-  "last_qualified_source": "d98374f4dc4eea5af1f6096703b37768b5a42709",
-  "source_delta_after_qualification": "Lead98188942 Rust/crate manifests/root lock/toolchain match qualified workerd98374f4. Independent full candidate review approved981; later changes import/reconcile docs/evidence only. Native OS and hosted head/merge/main checks remain separate.",
-  "active_work": "Combined later candidate98188942 approved, final321/0/1 strictlintfmt and productionnativeui build pass. Run-bound target and Connections stale-loading fix receipts imported. No local writer/build active. Prepare one coherent PR. PR165 resulting-main39216341691 pending; optional Windows failures explicit.",
-  "continuation_baseline": "f4753e99baa9a2a70047a54d10c0bdc0bbd96dad",
+  "integration_status": "PR163/164/165 required head/main checks pass; optional Windows failures retained. PR166 normal exact73780065 merge b4a5deeb at08:07:12UTC after all four required head checks39217700176 passed. Resulting-main39220505231 running.",
+  "next_eligible_work": "Publish reviewed reference owner after passing final receipts/docs checks; follow PR166 main39220505231. Bounded backup/export/restore source audit active. Further CI workflow changes deferred; native18:00Tallinn queue ready for exact-current-main artifact verification.",
+  "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
+  "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
+  "active_work": "Reference owner implementeded859aa4/integrated14d7c43e, Solapproved; full321/0/1 strictlintfmt/prod pass and Luna final receipts audit passed. Lead history-only main merge2bd890ef. No sourcewriter/build. Next preview/activity/context audit found no justified refactor. Backup/export/restore source audit active.",
+  "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot73% used /27% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "quota": "Latest native snapshot74% used /26% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -67,7 +67,7 @@
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
-    "review": "Independent Sol approved complete98188942 without source/design findings. Final Luna docs/evidence audit passed after correcting one stale notice-only pending clause; original record bodies preserved with hashes.",
+    "review": "Independent Sol approved reference14d7c43e without findings; final321/0/1 lintfmt/prod pass. Luna final source/hash/log/receipt audit passed. Later history-merge2bd890ef has no source delta.",
     "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",

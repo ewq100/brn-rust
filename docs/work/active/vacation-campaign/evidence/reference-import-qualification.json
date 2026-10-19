@@ -1,0 +1,158 @@
+{
+  "source_commit": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
+  "integrated_commit": "14d7c43e38ee1b623bcdaf3fb763d02aa6d09765",
+  "baseline": "1395c92c264506da11281cf4fae79871cd396b38",
+  "approved_plan_sha256": "ae463e3e447ab01e314a583d8ee5286998950de5c896f481faa0dc76e83bd1ad",
+  "all_tracked_rust_manifests_and_root_lock_toolchain_match": true,
+  "review": {
+    "result": "Independent Sol approved clean14d7c43e without correctness/design findings.",
+    "source_diff_against_d731_sha256": "6ac8760ac9490e556b10b998bf085685e39d775c737ba720fe0b13505fdcc0b8",
+    "complete_diff_against_main_f475_sha256": "f8892a61593a94b219acce0fe16d3641ddf080926a0f31879390c405de0f728d",
+    "complete_diff_against_pr166_737_sha256": "11e9503d006d09cbedc72c35433c1b217b33a0bffa26c08e0a46617d456b16f1"
+  },
+  "focused_filters": 6,
+  "focused_test_executions": 7,
+  "full_desktop": {
+    "passed": 321,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 16.62,
+    "ignored_test": "threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left"
+  },
+  "strict_all_target_clippy": "passed",
+  "format_and_diff_check": "passed",
+  "production_build": {
+    "features": "native-ui",
+    "native_test_support": false,
+    "passed": true,
+    "immutable_path": "/Users/evokessler/.codex/worktrees/notice-state/reference-import-evidence/artifacts/brn-desktop-native-ui-ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
+    "sha256": "31f586356adbc4bc78682268e56bb067560dd5785b014b6997653483f77799cb"
+  },
+  "commands": "reference-import-commands.txt",
+  "commands_sha256": "13a0cc5c5b01cda62f3b8fbc7054fdc7250e71eb4dc2272aee99a2cd51039b8c",
+  "logs": [
+    {
+      "path": "reference-import-final-clippy.log.gz",
+      "raw_sha256": "f41e152a1f45e2089c90c1b1533f135029c9d72e739e881418e38048209dc547",
+      "gzip_sha256": "5aaa51afec3ad89c00a17695a07d6c2b2044daae5b220add0e96af305bd63b6f",
+      "raw_bytes": 413
+    },
+    {
+      "path": "reference-import-final-diff-check.log.gz",
+      "raw_sha256": "fa1a6799191e639e9efe18aebbf75daed5bffcbd23f52a604a5676bcb7ae2e64",
+      "gzip_sha256": "a7042bd078e646fa4e9391b75a36143409d737b84c966d63d957a4535077f616",
+      "raw_bytes": 50
+    },
+    {
+      "path": "reference-import-final-format.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "path": "reference-import-final-native-suite.log.gz",
+      "raw_sha256": "4c5a1cef565f72951fc8844be87736277f9484c5091d2cb035eeb12b636dcb1e",
+      "gzip_sha256": "b247cec2fe9ef6fda0feeaaeb0c48800e94c3044cdbe0af26b05a3f01d67d6fd",
+      "raw_bytes": 33145
+    },
+    {
+      "path": "reference-import-focused-b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent.log.gz",
+      "raw_sha256": "c2912d96af988bf53f241a827dd4240b0fd6208e09a0203e765bb0ba674a4c65",
+      "gzip_sha256": "4cee01269a244df2830ad2f7e001ae83ec8153a3b89583ce883b4b0edfec627f",
+      "raw_bytes": 791,
+      "result": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-focused-b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting.log.gz",
+      "raw_sha256": "752b24525ed0f3269b177a3777cb4aa0b6f348cbf96bb7d31678f0aec829b98e",
+      "gzip_sha256": "b533bbdcbb9e5898175e1c3b029456974ac6bc56b5b3e30c77ef2637707cb877",
+      "raw_bytes": 680,
+      "result": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-focused-b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical_result.log.gz",
+      "raw_sha256": "671892189955f00acd65fea39b98c3fb2ce9f2603f253d50bb5540a12d8e997d",
+      "gzip_sha256": "9b358b7b7d391ac04d9f74e1cee438315818c7b28b43f3bb1f02a58529f745cc",
+      "raw_bytes": 687,
+      "result": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-focused-b3_import_completion.log.gz",
+      "raw_sha256": "c06b94cd9801c34a86d2180802e08451008b71b54a3dbf5828333dfedde28f65",
+      "gzip_sha256": "26b8fd6756d557e161283de9e3a4f47cce979d245d1678309f1422f4acb14a9c",
+      "raw_bytes": 771,
+      "result": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-focused-b3_reference_disconnect_clears_intent_before_the_next_chat_attachment.log.gz",
+      "raw_sha256": "7b314ddf1f4e8948fc9c995f5a9dc4906354bc07eee5074055aeb69a7aff1795",
+      "gzip_sha256": "96410ee9c5c47e682adcf693edf4daff24679c214b085845a948c0758f63ff45",
+      "raw_bytes": 672,
+      "result": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-focused-useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_effects.log.gz",
+      "raw_sha256": "e38e450598a7e0405571f0097d7bc05a8e6d5a4a9cd69860431f32fa09748203",
+      "gzip_sha256": "ac83e029382920424fd71792100cb8f6932965c1be526793da6ffb9d267db9de",
+      "raw_bytes": 678,
+      "result": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "reference-import-incomplete-payload-name-compile.log.gz",
+      "raw_sha256": "3d18e282fd142ddb01c32b8a3c4290b080303566468cdda495afdf759ac3658f",
+      "gzip_sha256": "9ef45f941db1d60bb6930d3f60338224d6173f83e05aa52cb8af94bb1756c1d3",
+      "raw_bytes": 1133
+    },
+    {
+      "path": "reference-import-initial-incomplete-callers-compile.log.gz",
+      "raw_sha256": "98d3189d0f303a5dbbef79142eeaa0f44d256cb066375d9c9bfcdeb88bb90975",
+      "gzip_sha256": "3a90b12c4185b1b2425b9d5087dcf06f75f0f532c92783c3e218208ccb500419",
+      "raw_bytes": 10038
+    },
+    {
+      "path": "reference-import-production-native-ui-build.log.gz",
+      "raw_sha256": "1bb48be849f08951c8e0a7a77bd764a64dd23aa592ae7cb6b0ec44dd41828cac",
+      "gzip_sha256": "960ab79f209870d531271db215d9165542b68551f88917233d7b532b71d14d13",
+      "raw_bytes": 413
+    }
+  ],
+  "limits": [
+    "Initial incomplete-caller and local-name compile errors are retained, corrected before passing focused/final checks. No original production bug claimed.",
+    "Existing effect tests retained; removed independent intent-cleared assertions are structurally redundant with worker retirement.",
+    "No live provider/model/external-retrieval/private-data or OS input qualification; deterministic local retrieval fixtures run as applicable.",
+    "Shared external CLI fixture remains ignored.",
+    "Existing block0.1.6 future-incompatibility notice retained.",
+    "Hosted head/merge/main verification remains pending."
+  ],
+  "source_files_receipt": "reference-import-source-files.sha256",
+  "receipt_audit": "Independent Luna confirmed all13 compressed/raw hashes, commands, eight changed source-file receipts, immutable production binary, seven focused executions,321/0/1 and source patch digest. Native queue refreshed for newer merged main.",
+  "history_merge": {
+    "commit": "2bd890ef5a22eaf62900d204e931927d9493db76",
+    "main": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
+    "crate_root_manifest_lock_toolchain_delta_from_reviewed14d7": "none"
+  }
+}

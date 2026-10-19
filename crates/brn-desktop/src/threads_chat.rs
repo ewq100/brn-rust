@@ -772,7 +772,7 @@ impl ThreadsUi {
                 self.composer
                     .update(cx, |e, cx| e.set_value(text, window, cx));
                 self.convert_file(
-                    self.data_dir.clone(),
+                    None,
                     paths[0].clone(),
                     ImportIntent::FullNote,
                     Some(chat),

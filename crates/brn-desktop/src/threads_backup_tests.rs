@@ -173,6 +173,7 @@ fn picker_return_and_backup_click_refuse_busy_without_changing_folder(cx: &mut T
                 receiver,
                 CancellationToken::new(),
                 Arc::new(AtomicBool::new(false)),
+                None,
             ));
             ui.backup_folder_chosen(Ok(Some(vec![f.folder.clone()])), true, cx);
             assert!(ui.workspace.settings().unwrap().backup_directory.is_none());

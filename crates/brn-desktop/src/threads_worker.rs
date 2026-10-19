@@ -3,7 +3,7 @@
 //! This boundary admits one old-worker batch through its first terminal event.
 //! The host still owns presentation and consumes that terminal before replacing
 //! the worker; the existing checked service owns durable Run and queue effects.
-use super::{ConversionResult, DocumentConversionSettings, WorkerKind};
+use super::{ConversionResult, DocumentConversionSettings, ReferenceImportIntent, WorkerKind};
 use std::sync::{Arc, atomic::AtomicBool, mpsc::Receiver};
 use tokio_util::sync::CancellationToken;
 
@@ -59,7 +59,9 @@ enum WorkerOperation {
         identity: RunIdentity,
         edit_note_target: Option<EditNoteTarget>,
     },
-    Import,
+    Import {
+        reference: Option<ReferenceImportIntent>,
+    },
     Export,
     Backup,
     Connect,
@@ -107,12 +109,13 @@ impl Worker {
         receiver: Receiver<WorkerEvent>,
         cancel: CancellationToken,
         conversion_cancel: Arc<AtomicBool>,
+        reference: Option<ReferenceImportIntent>,
     ) -> Self {
         Self {
             receiver,
             cancel,
             conversion_cancel,
-            operation: WorkerOperation::Import,
+            operation: WorkerOperation::Import { reference },
         }
     }
 
@@ -154,10 +157,17 @@ impl Worker {
         }
     }
 
+    pub(super) fn reference_import(&self) -> Option<&ReferenceImportIntent> {
+        match &self.operation {
+            WorkerOperation::Import { reference } => reference.as_ref(),
+            _ => None,
+        }
+    }
+
     pub(super) fn kind(&self) -> WorkerKind {
-        match self.operation {
+        match &self.operation {
             WorkerOperation::Run { .. } => WorkerKind::Run,
-            WorkerOperation::Import => WorkerKind::Import,
+            WorkerOperation::Import { .. } => WorkerKind::Import,
             WorkerOperation::Export => WorkerKind::Export,
             WorkerOperation::Backup => WorkerKind::Backup,
             WorkerOperation::Connect => WorkerKind::Connect,

@@ -67,5 +67,15 @@
     "scripts/build-document-helpers.sh": "0abe63a0c0c11a1a31fbfc376330ab3e957ed56c28f4df7d4008ff78d7d516d2",
     "scripts/prepare-xberg-adapted.py": "711bfc29c1e2572812b3302710efbd1682c690f494a98b03d533a3446fcf9ce5"
   },
-  "qualification": "Measured completed job/step timestamps. Cache-hit/helper recompile observations were separate read-only log inspection; no workflow change or artifact-sharing speedup qualified."
+  "qualification": "Measured completed job/step timestamps. Cache-hit/helper recompile observations were separate read-only log inspection; no workflow change or artifact-sharing speedup qualified.",
+  "core_mac_helper_qualification_step": {
+    "completedAt": "2026-10-19T07:22:23Z",
+    "conclusion": "success",
+    "name": "Both document helpers normal API and restrictions",
+    "number": 11,
+    "startedAt": "2026-10-19T07:17:06Z",
+    "status": "completed"
+  },
+  "core_mac_helper_qualification_seconds": 317.0,
+  "feasibility_disposition": "Not selected for workflow implementation. A later isolated prototype must preserve required context names and ensure producer failure causes explicit required-consumer failure, not skipped success. No speedup qualified."
 }
