@@ -18,21 +18,22 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Managed by active two-hour local heartbeat brn-mac-vacation-hardening; exact scheduler next-fire time not exposed.",
-  "last_checkpoint_at_utc": "2026-10-19T06:21:35.062869+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T06:22:57.106532+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163 merged as b5f01b07 after final-head four required contexts/documentation/Ubuntu native passed in run39201810419; optional Windows Core failed. Source digest matches retained independent review. Resulting-main checks pending; PR164 continuation policy is being reconciled with this main.",
   "next_eligible_work": "Observe PR163 resulting-main checks; finish reviewed PR164 continuation/native-batch policy integration. Do not reimplement typed worker identity. Then reconcile remaining preview/context transitions and choose one evidence-backed Mac slice.",
   "last_qualified_source": "823a154497ff1ff3f4abb05b75eebf6473d45c70",
   "source_delta_after_qualification": "No production delta from independently reviewed source823a1544; continuation edits are documentation/execution records.",
-  "active_work": "Reconcile PR164 against merged PR163 and current native batching authority. Duplicate local implementation stopped unpublished; no other writer/build remains.",
+  "active_work": "PR164 continuation/native-batch candidate independently approved at67d7671e; required CI/main verification pending. No implementation or local build running.",
   "continuation_baseline": "b5f01b07301dcc94d3d4e273a472d487f569bbc7",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
-    "cloud_list": "Fresh19Oct read again returnsHTTP401 token parse failure; no remote dispatch",
-    "protocol": "installed experimental schemas include thread goals and account/rateLimits/read; current stdio initialize probe failed, no actual quota snapshot obtained",
+    "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
+    "protocol": "Installed experimental schemas contain goals and account/rateLimits/read; fresh stdio app-server exits1 before initialize because SQLite state runtime under /run/codex-environment/codex-home is read-only. No quota snapshot.",
     "app_thread": "current app thread hostId durable, status active; read response exposes no goal/model/quota or wake/expiry guarantee",
-    "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee",
-    "environment_status": "Current managed environment reports enforced unrestricted network and no configured capabilities; no quota/goal/wake tool found"
+    "unattended": "INACTIVE; no verified Cloud resume, quota-aware admission, native goal activation or durable14day host guarantee. Existing unrelated automations preserved.",
+    "environment_status": "Connected/running, observations_current true, no configured capabilities. Desired unrestricted network state is unknown; enforcement readiness unestablished. API/fetch succeeded through inherited proxy with permitted network.",
+    "receipt": "evidence/continuation-capabilities-20261019.json"
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
@@ -52,7 +53,7 @@
     "native_automation_id": "brn-batched-mac-interaction-checks",
     "native_cadence": "Daily at 18:00 Europe/Tallinn, one consolidated ready-scenario session; same fixed expiry/quota floor.",
     "native_queue": "native-queue.md",
-    "abandoned_duplicate": "The task-owned duplicate worker checkout was stopped without test verdict or publication, cache moved to campaign target, and managed archival requested. No duplicate source adopted."
+    "abandoned_duplicate": "Managed archival confirmed for /Users/evokessler/.codex/worktrees/worker-task-identity/brn-rust, preserving unpublished patch. Stopped task cache moved to campaign target; no active duplicate build/writer."
   },
   "previous_cloud_model_policy": {
     "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
@@ -69,5 +70,6 @@
     "concurrency": "At most one active helper, sequential review; no recursive delegation or automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical."
-  }
+  },
+  "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json"
 }

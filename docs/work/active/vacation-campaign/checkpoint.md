@@ -22,12 +22,12 @@ completed identity slice. Main heartbeat `brn-mac-vacation-hardening` is ACTIVE
 every two hours; `brn-batched-mac-interaction-checks` is ACTIVE at18:00Tallinn for
 [queued native checks](native-queue.md), both through the fixed expiry. First
 unattended wakes/native sessions remain unobserved. The original policy candidate
-passed independent review; the later native/merge reconciliation needs its own
-updated candidate review and required-check integration.
+passed independent review; the later native/merge reconciliation passed updated independent review at
+`67d7671e`; required-check integration remains pending.
 
 The lead initially missed the open PR163 and started a duplicate local slice.
 That writer/build is stopped with no tests or publication; its task-owned cache
-was retained for future Mac builds and managed archival requested for its patch.
+was retained for future Mac builds and managed archival confirmed for its patch.
 No duplicate production code is being adopted. Check all open PRs before selecting
 future work, not just main/branch names and the previous checkpoint.
 

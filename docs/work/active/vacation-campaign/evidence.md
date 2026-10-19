@@ -12,8 +12,8 @@ docs/evidence only. The normal merge used the exact checked head `c86e6d50` afte
 marking the existing draft ready under the owner's new merge authorization.
 Resulting-main checks are pending, not implicitly passed.
 
-PR164 continuation/native-batch policy is being reconciled with that main and
-needs updated review/required CI. Initial PR164 run39208310470 was deliberately
+PR164 continuation/native-batch policy is reconciled with that main and passed
+updated independent review at67d7671e; required CI/integration remain pending. Initial PR164 run39208310470 was deliberately
 cancelled as superseded when PR163 advanced main; its documentation passed and
 optional Windows failure remain historical. No failed check was hidden or weakened.
 Both local heartbeats are registered ACTIVE, but their first unattended executions
@@ -179,3 +179,28 @@ historical checkpoint. An intermediate pre-merge link check failed because the
 upstream worker-identity document was not yet present; this is retained separately
 from the complete merged-tree link result. Required CI will run on the reconciled
 candidate, not be borrowed from either earlier head.
+
+## Updated review and durable next gate
+
+Freshly continued Sol-high review approved the complete six-file candidate
+`67d7671ec61f9fe6fbf4398a6a4bd2790a742cc3` against main `b5f01b07`, diff SHA256
+`b55101169b179407e1a765f6b771f31b6dec19dde9134972722231fc67a9a9cd`,
+with no blocking findings. The sole advisory precision point is **valid/fixed**:
+restore upstream's exact historical cloud capability observations and its receipt
+link rather than older generic network-enforcement wording. JSON equality against
+that upstream field was checked; this does not alter local authority or behavior.
+Later edits record that disposition, approval and archived-state confirmation only.
+
+Managed archival of the duplicate checkout is confirmed in this chat's attachments;
+its stopped cache is retained at this campaign checkout's `target`. No helper or
+production UI binary was built locally. A future local build can use the compact
+flags `CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0`;
+cache reuse after the move is unqualified. Do not restore/publish the duplicate.
+
+Actual main run39209331228 on `b5f01b07` is in progress. PR164 is published and its
+reconciled exact head needs all four required contexts plus relevant documentation;
+normal agent merge follows, since repository auto-merge is unavailable. Then inspect
+the resulting main and relevant checks. The active engineering heartbeat resumes
+that gate, not the already-merged identity task. First unattended engineering and
+18:00Tallinn native executions remain pending. No human response is needed for
+these already-authorized gates; continue independently within the recorded scope.
