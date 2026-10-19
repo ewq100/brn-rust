@@ -1,0 +1,12 @@
+{
+  "observed_at_utc": "2026-10-19T12:46:06.200970+00:00",
+  "source_candidate": "a8fc8144716884f6aa78aa1de91702cfddaf8718",
+  "base": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "full_diff_sha256": "b80cac627d5596ca0f3ba2865b75df0fd53136245cc0d431ac0df5813eac9496",
+  "reviewer": "writing_review_review",
+  "requested_model": "gpt-6.1-sol",
+  "requested_effort": "high",
+  "result": "approved final complete trace candidate; no actionable findings",
+  "preserved": "Trace privacy, row/ID summaries, dispatch, reads, coverage accounting; boolean true only determines reported summary flag",
+  "limits": "Source review only; trace flag is diagnostic and not full read-coverage proof"
+}
