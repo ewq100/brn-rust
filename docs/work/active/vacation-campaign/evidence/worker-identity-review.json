@@ -1,0 +1,22 @@
+{
+  "observed_at_utc": "2026-10-19T04:50:09.714031+00:00",
+  "base_head": "aebfa12b0d5da5f5bd91163f82f9cbc07a8edb3a",
+  "requested_reviewer_model": "gpt-6.1-sol",
+  "requested_reasoning": "high",
+  "effective_runtime_settings": "Not independently observable; tool accepted requested settings",
+  "scope": "Current desktop source diff, actual callers and migrated fixtures; read-only independent review",
+  "initial_diff_sha256": "0284ff034c744460e1dfbbffbcba18891a3e9d660c0dfb1f5bc0b48389a65d92",
+  "final_diff_sha256": "e346235c98c26e9ce1922bfbf92ba6f32d4bd42dcc2c674567cab992ea9e2f88",
+  "findings": [],
+  "disposition": "No actionable findings; MCP fixture ordering correction separately approved",
+  "reviewed": [
+    "Private operation owner and constructors remove optional stored identity/independent mutable kind",
+    "Run-only callers obtain paired identity; existing WorkerKind display/cancel policy retained",
+    "Preview/navigation, Stop-and-send, archive, settings and project interruption",
+    "Terminal/disconnect and conversion successor behavior; checked Workspace authority unchanged",
+    "Real Run and lease fixture semantics; no tests removed or assertions weakened",
+    "MCP review captured after seeded Run+refresh; busy/pending/unchanged records and history/final consumption assertions retained"
+  ],
+  "limits": "Source review and git diff --check only; implementation/lead execution is separately attributed. No reviewer builds/tests/native interaction.",
+  "source_commit": "823a154497ff1ff3f4abb05b75eebf6473d45c70"
+}

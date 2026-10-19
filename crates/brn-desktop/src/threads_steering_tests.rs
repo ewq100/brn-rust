@@ -83,14 +83,12 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                 cx.new(|cx| {
                     let mut ui = ThreadsUi::new(workspace, data.clone(), window, cx);
                     ui.poll = None;
-                    ui.worker = Some(Worker {
+                    ui.worker = Some(Worker::run(
                         receiver,
-                        cancel: cancel.clone(),
-                        conversion_cancel: Arc::new(AtomicBool::new(false)),
-                        kind: WorkerKind::Run,
-                        thread: Some(thread.clone()),
-                        run_id: Some(run.clone()),
-                    });
+                        cancel.clone(),
+                        thread.clone(),
+                        run.clone(),
+                    ));
                     ui.open_thread(&thread, window, cx);
                     ui.composer.update(cx, |editor, cx| {
                         editor.set_value("New exact instruction · õun", window, cx)
@@ -184,7 +182,11 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 "New exact instruction · õun"
             );
             assert_eq!(
-                ui.worker.as_ref().unwrap().run_id.as_deref(),
+                ui.worker
+                    .as_ref()
+                    .unwrap()
+                    .run_identity()
+                    .map(|run| run.run_id.as_str()),
                 Some(f.run.as_str())
             );
             f.sender
@@ -454,7 +456,14 @@ fn quiet_display_keeps_stream_and_stop_and_saved_drafts_survive_reopening(cx: &m
             ui.workspace.choose_quiet("quiet-fixture", true).unwrap();
             ui.stream = "Readable streaming answer".into();
             ui.progress = "Detailed tool activity".into();
-            let before = ui.worker.as_ref().unwrap().run_id.clone();
+            let before = ui
+                .worker
+                .as_ref()
+                .unwrap()
+                .run_identity()
+                .unwrap()
+                .run_id
+                .clone();
             ui.open_thread(&f.other, window, cx);
             ui.composer
                 .update(cx, |e, cx| e.set_value("Other unsent õun", window, cx));
@@ -463,7 +472,10 @@ fn quiet_display_keeps_stream_and_stop_and_saved_drafts_survive_reopening(cx: &m
                 ui.composer.read(cx).value().as_ref(),
                 "New exact instruction · õun"
             );
-            assert_eq!(ui.worker.as_ref().unwrap().run_id, before);
+            assert_eq!(
+                ui.worker.as_ref().unwrap().run_identity().unwrap().run_id,
+                before
+            );
             assert_eq!(ui.stream_for(&f.thread), Some("Readable streaming answer"));
         });
     })
@@ -579,7 +591,11 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
         f.view.update(cx, |ui, _| {
             assert_eq!(ui.stream_for(&f.thread), Some("The answer keeps streaming"));
             assert_eq!(
-                ui.worker.as_ref().unwrap().run_id.as_deref(),
+                ui.worker
+                    .as_ref()
+                    .unwrap()
+                    .run_identity()
+                    .map(|run| run.run_id.as_str()),
                 Some(f.run.as_str())
             );
             assert!(!ui.worker.as_ref().unwrap().cancel.is_cancelled());
@@ -633,14 +649,11 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
         );
         f.view.update(cx, |ui, cx| {
             let (_, receiver) = mpsc::sync_channel(16);
-            ui.worker = Some(Worker {
+            ui.worker = Some(Worker::import(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: Some(f.other.clone()),
-                run_id: None,
-            });
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+            ));
             ui.progress = "Unrelated conversion".into();
             cx.notify();
         });
@@ -683,7 +696,12 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
     let f = fixture(cx, RunState::Completed);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.worker.as_mut().unwrap().kind = WorkerKind::Import;
+            let old = ui.worker.take().unwrap();
+            ui.worker = Some(Worker::import(
+                old.receiver,
+                old.cancel,
+                old.conversion_cancel,
+            ));
             ui.ask(window, cx);
             assert_eq!(ui.queue_state().queue.len(), 1);
             let converted = ConversionResult {
@@ -1118,14 +1136,7 @@ fn a_finish_takes_its_tone_from_its_own_recorded_run(cx: &mut TestAppContext) {
     let (sender, receiver) = mpsc::sync_channel(4);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.worker = Some(Worker {
-                receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Backup,
-                thread: None,
-                run_id: None,
-            });
+            ui.worker = Some(Worker::output(receiver, true));
             sender
                 .send(WorkerEvent::Finished(Ok(
                     "Full backup created at /private/tmp/brn-synthetic".into(),
@@ -1354,7 +1365,8 @@ fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
                     ..template
                 },
             );
-            ui.worker.as_mut().unwrap().run_id = Some(run);
+            let old = ui.worker.take().unwrap();
+            ui.worker = Some(Worker::run(old.receiver, old.cancel, f.thread.clone(), run));
             cx.notify();
         })
     })

@@ -163,16 +163,18 @@ impl ThreadsUi {
             }
         };
         let activity = self.chat_thread().and_then(|id| {
-            if self
+            if let Some(run) = self
                 .worker
                 .as_ref()
-                .is_some_and(|w| w.thread.as_deref() == Some(id))
+                .and_then(Worker::run_identity)
+                .filter(|run| run.thread == id)
             {
                 if self
-                    .worker
-                    .as_ref()
-                    .and_then(|w| w.run_id.as_ref())
-                    .and_then(|id| self.workspace.store.record(id).ok().flatten())
+                    .workspace
+                    .store
+                    .record(&run.run_id)
+                    .ok()
+                    .flatten()
                     .and_then(|r| match r.data {
                         RecordData::Run(run) => run.instruction,
                         _ => None,
@@ -277,7 +279,7 @@ impl ThreadsUi {
                                 "response-{}",
                                 self.worker
                                     .as_ref()
-                                    .and_then(|w| w.run_id.as_deref())
+                                    .and_then(Worker::run_identity).map(|run| run.run_id.as_str())
                                     .unwrap_or(id)
                             ),
                         stream.into(),
@@ -367,7 +369,11 @@ impl ThreadsUi {
     /// the recovery card offers Stop….
     fn saved_run_to_stop(&self, thread: &str) -> Option<String> {
         let latest = latest_run(&self.records, &self.history, thread)?;
-        let local = self.worker.as_ref().and_then(|w| w.run_id.as_deref());
+        let local = self
+            .worker
+            .as_ref()
+            .and_then(Worker::run_identity)
+            .map(|run| run.run_id.as_str());
         (matches!(&latest.data, RecordData::Run(run) if run.state == RunState::Working)
             && local != Some(latest.id.as_str()))
         .then(|| latest.id.clone())

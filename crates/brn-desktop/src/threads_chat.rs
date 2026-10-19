@@ -21,7 +21,11 @@ impl ThreadsUi {
             return;
         }
         if self.run_activity_chat.is_none() {
-            self.run_activity_chat = self.worker.as_ref().and_then(|w| w.thread.clone());
+            self.run_activity_chat = self
+                .worker
+                .as_ref()
+                .and_then(Worker::run_identity)
+                .map(|run| run.thread.clone());
         }
         self.run_activity_labels
             .push(text.chars().take(8192).collect());
@@ -31,14 +35,14 @@ impl ThreadsUi {
         self.run_activity_scroll.scroll_to_bottom();
     }
     pub(super) fn worker_status(&self, worker: &Worker) -> String {
-        if worker.kind == WorkerKind::Run && self.queue_state().quiet {
+        if worker.kind() == WorkerKind::Run && self.queue_state().quiet {
             if worker.cancel.is_cancelled() {
                 "Stopping…".into()
             } else {
                 "Working quietly…".into()
             }
         } else {
-            worker.kind.status(&self.progress)
+            worker.kind().status(&self.progress)
         }
     }
     pub(super) fn live_activity(
@@ -80,7 +84,7 @@ impl ThreadsUi {
                 )
             })
             .test_support();
-        if self.queue_state().quiet || worker.is_some_and(|w| w.kind != WorkerKind::Run) {
+        if self.queue_state().quiet || worker.is_some_and(|w| w.kind() != WorkerKind::Run) {
             return line.into_any_element();
         }
         let mut steps = div()
@@ -205,10 +209,10 @@ impl ThreadsUi {
     }
     pub(super) fn pause_failed_worker(&mut self) {
         let key = format!("worker-failure:{}", uuid::Uuid::new_v4());
-        let result = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.as_deref()) {
+        let result = if let Some(run) = self.worker.as_ref().and_then(Worker::run_identity) {
             self.workspace.interrupt_chat_run(
                 &key,
-                run,
+                &run.run_id,
                 (!self.stream.is_empty()).then_some(self.stream.as_str()),
             )
         } else {
@@ -381,7 +385,11 @@ impl ThreadsUi {
         success: bool,
     ) -> bool {
         let pending = self.queue_state().pending;
-        let local_run = self.worker.as_ref().and_then(|w| w.run_id.as_ref());
+        let local_run = self
+            .worker
+            .as_ref()
+            .and_then(Worker::run_identity)
+            .map(|run| &run.run_id);
         if let Some(q) = &pending
             && q.run.as_ref() != local_run
         {
@@ -545,7 +553,11 @@ impl ThreadsUi {
                 let remove = q.id.clone();
                 let move_id = q.id.clone();
                 let active = q.run.as_ref().is_some_and(|id| {
-                    self.worker.as_ref().and_then(|w| w.run_id.as_ref()) == Some(id)
+                    self.worker
+                        .as_ref()
+                        .and_then(Worker::run_identity)
+                        .map(|run| &run.run_id)
+                        == Some(id)
                 });
                 let before = c
                     .queue

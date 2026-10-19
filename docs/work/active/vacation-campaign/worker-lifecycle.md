@@ -1,5 +1,7 @@
 # Worker terminal-admission slice — 19 October 2026
 
+**Later hosted/integration observation:** exact final PR162 head `aebfa12b` passed all required contexts, Ubuntu Native UI and documentation. Each UI platform executed312 widgets,59 state tests, writing44 and host12; optional Windows failed on unchanged Unix authentication. The owner merged PR162 at `bd42c1d9`; this continuation performed no merge. [Final-head receipt](evidence/pr162-worker-ci.json). The earlier pending-CI/main statements below describe the original local checkpoint.
+
 Code checkpoint `c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3`, based on `41423230b539ba6ac6aad2e241af4baf74fbb4d5`; main remains `1b7625a8`. Fixed campaign clock in campaign.json remains authoritative. This is a partial ownership improvement within inventory15, not a completed migration of all Run/worker UI state.
 
 ## Concrete failure

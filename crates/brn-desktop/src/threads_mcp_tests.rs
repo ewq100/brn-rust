@@ -213,7 +213,7 @@ fn nf1_exact_chat_start_attaches_then_spawns_exactly_one_run(cx: &mut TestAppCon
                 .worker
                 .as_ref()
                 .expect("matching review reaches synchronous spawn");
-            let run = worker.run_id.as_ref().unwrap();
+            let run = worker.run_identity().map(|run| &run.run_id).unwrap();
             assert!(!ui.notice.contains("MCP input review no longer matches"));
             assert!(!ui.notice.contains("MCP input authorization refused"));
             assert!(ui.mcp_view.pending.is_none());
@@ -251,18 +251,25 @@ fn nf1_busy_chat_and_retry_leave_exact_review_available(cx: &mut TestAppContext)
                     "Captured feedback",
                 )
                 .unwrap();
+            let run = chat_tests::record_run(
+                &mut ui.workspace,
+                &f.chat,
+                RunState::Working,
+                "Synthetic busy run",
+            );
+            // Review the current Run before exercising busy starts; creating a
+            // newer Run after review must invalidate the exact input stamp.
+            ui.refresh();
             review_start(ui, "Exact after busy", window, cx);
             let records = ui.workspace.records().unwrap();
             let receipts = ui.workspace.history().unwrap();
             let (_sender, receiver) = mpsc::sync_channel(1);
-            ui.worker = Some(Worker {
+            ui.worker = Some(Worker::run(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Run,
-                thread: Some(f.chat.clone()),
-                run_id: None,
-            });
+                CancellationToken::new(),
+                f.chat.clone(),
+                run,
+            ));
             ui.start_run("Exact after busy".into(), f.chat.clone(), vec![], None, cx);
             assert_eq!(ui.notice, WorkerKind::Run.busy_notice());
             assert!(ui.mcp_view.pending.is_some());

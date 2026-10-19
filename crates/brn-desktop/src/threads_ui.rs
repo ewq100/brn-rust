@@ -1676,7 +1676,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -1804,7 +1804,7 @@ impl ThreadsUi {
     /// a chat queue claim or dispatching the panel's exact saved request.
     fn begin_run_start(&mut self, cx: &mut Context<Self>) -> bool {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return false;
         }
@@ -1990,14 +1990,7 @@ impl ThreadsUi {
             context_edit_note.map(|(note, version)| (run_id.clone(), note, version));
         self.run_activity_chat = Some(thread.clone());
         self.run_activity_status.clear();
-        self.worker = Some(Worker {
-            receiver,
-            cancel,
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: WorkerKind::Run,
-            thread: Some(thread),
-            run_id: Some(run_id),
-        });
+        self.worker = Some(Worker::run(receiver, cancel, thread, run_id));
         self.stream.clear();
         self.run_activity_labels.clear();
         self.progress = "Starting…".into();
@@ -2006,11 +1999,13 @@ impl ThreadsUi {
     }
     fn can_stop_and_send(&self) -> bool {
         self.pending_send.is_none()
-            && self.worker.as_ref().is_some_and(|worker| {
-                worker.kind == WorkerKind::Run
-                    && worker.run_id.is_some()
-                    && matches!(&self.chat, ChatTarget::Thread(thread) if worker.thread.as_ref() == Some(thread))
-            })
+            && self
+                .worker
+                .as_ref()
+                .and_then(Worker::run_identity)
+                .is_some_and(
+                    |run| matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread),
+                )
     }
     fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.can_stop_and_send() {
@@ -2021,12 +2016,12 @@ impl ThreadsUi {
             return;
         }
         let worker = self.worker.as_ref().expect("available worker");
-        let thread = worker.thread.clone().expect("run chat");
-        let run_id = worker.run_id.as_ref().expect("prepared run");
+        let run = worker.run_identity().expect("available Run");
+        let thread = run.thread.clone();
         let cancellation = worker.cancel.clone();
         match self.workspace.stop_and_post_with_partial(
             &format!("stop-and-send:{}", uuid::Uuid::new_v4()),
-            run_id,
+            &run.run_id,
             &thread,
             &prompt,
             (!self.stream.is_empty()).then_some(self.stream.as_str()),
@@ -2068,7 +2063,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -2116,11 +2111,11 @@ impl ThreadsUi {
         let result = if let Some(run) = self
             .worker
             .as_ref()
-            .filter(|w| w.thread.as_deref() == Some(thread))
-            .and_then(|w| w.run_id.as_deref())
+            .and_then(Worker::run_identity)
+            .filter(|run| run.thread == thread)
         {
             self.workspace
-                .archive_chat_progress(&key, thread, run, &self.stream)
+                .archive_chat_progress(&key, thread, &run.run_id, &self.stream)
         } else {
             self.workspace.archive_chat(&key, thread)
         };
@@ -2130,7 +2125,9 @@ impl ThreadsUi {
                     "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.",
                 );
                 if let Some(worker) = &self.worker
-                    && worker.thread.as_deref() == Some(thread)
+                    && worker
+                        .run_identity()
+                        .is_some_and(|run| run.thread == thread)
                 {
                     worker.cancel.cancel();
                 }
@@ -2173,7 +2170,7 @@ impl ThreadsUi {
         if self
             .worker
             .as_ref()
-            .is_some_and(|worker| worker.kind == WorkerKind::Run)
+            .is_some_and(|worker| worker.kind() == WorkerKind::Run)
         {
             // The theme already applies; only saving waits, so this is not a warning.
             self.inform(format!(
@@ -2220,7 +2217,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -2562,10 +2559,10 @@ impl ThreadsUi {
         if self.pending_send.take().is_some() {
             self.warn("Automatic continuation stopped. Your saved instruction remains in the chat; Continue when ready.");
         }
-        let stopped = if let Some(run) = self.worker.as_ref().and_then(|w| w.run_id.clone()) {
+        let stopped = if let Some(run) = self.worker.as_ref().and_then(Worker::run_identity) {
             self.workspace.stop_chat_run(
                 &format!("stop:{}", uuid::Uuid::new_v4()),
-                &run,
+                &run.run_id,
                 (!self.stream.is_empty()).then_some(self.stream.as_str()),
             )
         } else {
@@ -2578,7 +2575,7 @@ impl ThreadsUi {
             return;
         }
         if let Some(worker) = &self.worker
-            && worker.kind.can_cancel()
+            && worker.kind().can_cancel()
         {
             worker.cancel.cancel();
             worker
@@ -2591,7 +2588,8 @@ impl ThreadsUi {
     fn stream_for(&self, thread: &str) -> Option<&str> {
         self.worker
             .as_ref()
-            .filter(|worker| worker.thread.as_deref() == Some(thread))
+            .and_then(Worker::run_identity)
+            .filter(|run| run.thread == thread)
             .filter(|_| !self.stream.is_empty())
             .map(|_| self.stream.as_str())
     }
@@ -2637,7 +2635,7 @@ impl ThreadsUi {
                     if self
                         .worker
                         .as_ref()
-                        .is_some_and(|w| w.kind == WorkerKind::Run && !w.cancel.is_cancelled())
+                        .is_some_and(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
                     {
                         self.record_activity(&text);
                     }
@@ -2653,7 +2651,7 @@ impl ThreadsUi {
                     if self
                         .worker
                         .as_ref()
-                        .is_some_and(|w| w.kind == WorkerKind::Run && !w.cancel.is_cancelled())
+                        .is_some_and(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
                     {
                         self.record_activity(&text);
                     }
@@ -2680,65 +2678,64 @@ impl ThreadsUi {
                     }
                 }
                 WorkerEvent::Finished(result) => {
-                    let kind = self.worker.as_ref().map(|w| w.kind);
+                    let kind = self.worker.as_ref().map(|w| w.kind());
+                    let identity = self.worker.as_ref().and_then(Worker::run_identity);
                     let context_edit = self.context_edit_note.take().filter(|(run, _, _)| {
-                        self.worker.as_ref().and_then(|w| w.run_id.as_deref()) == Some(run.as_str())
+                        identity.is_some_and(|identity| identity.run_id == *run)
                     });
                     // The tone reads this worker's own run, never the chat's latest.
-                    let has_run = self.worker.as_ref().is_some_and(|w| w.run_id.is_some());
                     let stopped = self
                         .worker
                         .as_ref()
                         .is_some_and(|w| w.cancel.is_cancelled());
-                    let run_id = self.worker.as_ref().and_then(|w| w.run_id.clone());
-                    let run = run_id
-                        .as_deref()
-                        .and_then(|id| self.workspace.store.record(id).ok().flatten())
+                    let run = identity
+                        .and_then(|identity| {
+                            self.workspace.store.record(&identity.run_id).ok().flatten()
+                        })
                         .and_then(|r| match r.data {
                             RecordData::Run(run) => Some(run),
                             _ => None,
                         });
                     let run_state = run.as_ref().map(|run| run.state.clone());
-                    let mut tone =
-                        finish_tone(result.is_ok(), stopped, has_run, run_state.as_ref());
+                    let mut tone = finish_tone(
+                        result.is_ok(),
+                        stopped,
+                        identity.is_some(),
+                        run_state.as_ref(),
+                    );
                     // A run that ended Failed or Interrupted reads as the
                     // chat's recorded notice for it (the Needs you text), in
                     // that state's tone, not the raw error. The owner's own
                     // Stop keeps its short warning, and without a recorded
                     // notice the error text stays.
-                    let terminal = run
-                        .as_ref()
-                        .zip(run_id.as_deref())
-                        .filter(|_| kind == Some(WorkerKind::Run) && !stopped)
-                        .and_then(|(run, id)| {
+                    let terminal = run.as_ref().zip(identity).filter(|_| !stopped).and_then(
+                        |(run, identity)| {
                             let chat = self.workspace.store.record(&run.thread).ok().flatten()?;
                             let RecordData::Thread(chat) = chat.data else {
                                 return None;
                             };
-                            terminal_notice(run, id, &chat.attention)
-                        });
+                            terminal_notice(run, &identity.run_id, &chat.attention)
+                        },
+                    );
                     if let Some((terminal_tone, _)) = &terminal {
                         tone = *terminal_tone;
                     }
                     let ok = result.is_ok();
-                    if kind == Some(WorkerKind::Run) {
+                    if identity.is_some() {
                         self.run_activity_status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
                             Some(state) => format!("{state:?}"),
                             None => "Work ended".into(),
                         };
                     }
-                    if kind != Some(WorkerKind::Run) {
+                    let thread = identity.map(|run| run.thread.clone());
+                    if identity.is_none() {
                         allow_dispatch = result.is_ok();
                         if result.is_err() {
                             self.pause_failed_worker();
                         }
                     }
 
-                    let thread = self
-                        .worker
-                        .as_ref()
-                        .and_then(|worker| worker.thread.clone());
                     self.worker = None;
                     self.stream.clear();
                     self.progress.clear();
@@ -2896,14 +2893,12 @@ impl ThreadsUi {
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
         self.pause_failed_worker();
-        if let Some(worker) = &self.worker
-            && worker.kind == WorkerKind::Run
-        {
+        if let Some(identity) = self.worker.as_ref().and_then(Worker::run_identity) {
             self.run_activity_status = "Disconnected".into();
             if self
                 .context_edit_note
                 .as_ref()
-                .is_some_and(|(run, _, _)| worker.run_id.as_deref() == Some(run.as_str()))
+                .is_some_and(|(run, _, _)| identity.run_id == *run)
             {
                 self.context_edit_note = None;
             }
@@ -2995,7 +2990,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3019,7 +3014,7 @@ impl ThreadsUi {
                         if let Some(worker) = &this.worker {
                             this.warn(format!(
                                 "{} Then choose this file again.",
-                                worker.kind.busy_notice()
+                                worker.kind().busy_notice()
                             ));
                             cx.notify();
                             return;
@@ -3042,7 +3037,7 @@ impl ThreadsUi {
                         if this
                             .worker
                             .as_ref()
-                            .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                            .is_some_and(|worker| worker.kind() == WorkerKind::Import)
                         {
                             this.reference_import = reference;
                         }
@@ -3068,7 +3063,7 @@ impl ThreadsUi {
         if let Some(worker) = &self.worker {
             self.warn(format!(
                 "{} Then choose this file again.",
-                worker.kind.busy_notice()
+                worker.kind().busy_notice()
             ));
             cx.notify();
             return;
@@ -3181,14 +3176,7 @@ impl ThreadsUi {
                 useful_project,
             });
         });
-        self.worker = Some(Worker {
-            receiver,
-            cancel,
-            conversion_cancel: cancel_flag,
-            kind: WorkerKind::Import,
-            thread: None,
-            run_id: None,
-        });
+        self.worker = Some(Worker::import(receiver, cancel, cancel_flag));
         self.progress = if intent == ImportIntent::FullNote {
             "Reading the full document…"
         } else {
@@ -3199,7 +3187,7 @@ impl ThreadsUi {
     }
     fn choose_output(&mut self, backup: bool, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3246,7 +3234,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3275,7 +3263,7 @@ impl ThreadsUi {
     ) {
         // A different operation may have started while the system picker was open.
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3307,7 +3295,7 @@ impl ThreadsUi {
     // None dispatches a backup using the current persisted preference on the worker.
     fn output(&mut self, export_parent: Option<PathBuf>, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3350,18 +3338,7 @@ impl ThreadsUi {
                 destination_label.expect("export has a destination")
             );
         }
-        self.worker = Some(Worker {
-            receiver,
-            cancel: CancellationToken::new(),
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: if backup {
-                WorkerKind::Backup
-            } else {
-                WorkerKind::Export
-            },
-            thread: None,
-            run_id: None,
-        });
+        self.worker = Some(Worker::output(receiver, backup));
         self.progress = "Saving portable workspace data…".into();
         cx.notify();
     }
@@ -3387,7 +3364,7 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
-            self.warn(worker.kind.busy_notice());
+            self.warn(worker.kind().busy_notice());
             cx.notify();
             return;
         }
@@ -3484,14 +3461,7 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        self.worker = Some(Worker {
-            receiver,
-            cancel,
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: WorkerKind::Connect,
-            thread: None,
-            run_id: None,
-        });
+        self.worker = Some(Worker::connect(receiver, cancel));
         self.progress = if connect {
             "Starting GitHub sign-in…"
         } else {
@@ -4221,7 +4191,7 @@ impl ThreadsUi {
             reference_importing: self
                 .worker
                 .as_ref()
-                .is_some_and(|worker| worker.kind == WorkerKind::Import)
+                .is_some_and(|worker| worker.kind() == WorkerKind::Import)
                 && self.reference_import.as_ref().is_some_and(|intent| {
                     self.open_note_id() == Some(intent.target.note.as_str())
                         && self.note_writing_scope == intent.target.scope
@@ -4236,7 +4206,7 @@ impl ThreadsUi {
             writing_reviews: &self.writing_reviews,
             writing_requests: &self.writing_requests,
             worker: self.worker.as_ref().map(|worker| WritingWorker {
-                run_id: worker.run_id.as_deref(),
+                run_id: worker.run_identity().map(|run| run.run_id.as_str()),
             }),
             progress: &self.progress,
             centered: self.layout.maximized() == Some(TileKind::Note),

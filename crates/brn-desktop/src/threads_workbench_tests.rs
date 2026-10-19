@@ -464,14 +464,12 @@ fn run_fixture(
                 let (sender, receiver) = mpsc::sync_channel(16);
                 drop(sender);
                 let cancel = CancellationToken::new();
-                view.worker = Some(Worker {
+                view.worker = Some(Worker::run(
                     receiver,
-                    cancel: cancel.clone(),
-                    conversion_cancel: Arc::new(std::sync::atomic::AtomicBool::new(false)),
-                    kind: WorkerKind::Run,
-                    thread: Some(thread.clone()),
-                    run_id: Some(run.clone()),
-                });
+                    cancel.clone(),
+                    thread.clone(),
+                    run.clone(),
+                ));
                 view.progress = "Synthetic rewrite in progress".into();
                 (
                     thread,
@@ -545,7 +543,7 @@ fn exact_writing_run_shows_note_stop_and_cancel_keeps_saved_request(cx: &mut Tes
     cx.read(|cx| {
         f.view.read_with(cx, |view, _| {
             assert!(!view.layout.contains(TileKind::Chat));
-            let run_id = view.worker.as_ref().unwrap().run_id.as_ref().unwrap();
+            let run_id = &view.worker.as_ref().unwrap().run_identity().unwrap().run_id;
             let RecordData::Run(run) = &view.workspace.store.record(run_id).unwrap().unwrap().data
             else {
                 panic!("expected synthetic run")
