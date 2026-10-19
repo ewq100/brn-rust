@@ -21,8 +21,14 @@
     "broad_checks": "running; not complete"
   },
   "limits": [
-    "No M4b source integrated or merged",
+    "M4b source locally integrated byte-for-byte; not merged to main",
     "No actual native/live-provider/owner acceptance",
     "Source review itself performed no builds"
-  ]
+  ],
+  "lead_integration": {
+    "head": "c671b03625c76881614290bf10cfe8e1b3d33ce9",
+    "all_changed_files_exact": 16,
+    "entire_production_tree_equivalent": true,
+    "scope": "local lead continuation; not merged to main"
+  }
 }

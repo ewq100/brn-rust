@@ -15,7 +15,7 @@ Keep owner files and credentials outside these scenarios; no live provider is ne
 
 | ID | Scenario and independently expected outcome | Readiness / evidence |
 |---|---|---|
-| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending: verify then-current main against the complete source of its immutable production artifact. Main9a6feab2 (PR171) supersedes the older MCP/reference artifacts. See the current candidate section below; M3/M4 require a new combined production artifact, now being qualified. The shared target can be overwritten by another build: use a recorded immutable executable and verify its source/hash at session start. Confirm actual native access; hosted/toolkit results do not satisfy this Mac session. |
+| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending: verify then-current main against the complete source of its immutable production artifact. Main689ab234 (PR172) supersedes the older artifacts. Combined7a970 is locally qualified and source-equivalent to PR172; wait for required resulting-main checks and verify exact source before the session. M4b requires its separately qualified later artifact. The shared target can be overwritten by another build: use a recorded immutable executable and verify its source/hash at session start. Confirm actual native access; hosted/toolkit results do not satisfy this Mac session. |
 | MAC-02 | Collect changed control/navigation/recovery scenarios from each reviewed slice, then exercise them together. A completion remains attached to its original target; later typing and current navigation survive; unavailable/conflict states explain the next action. | Add source-bound cases only when a change or concrete remaining risk warrants them. The typed worker identity slice retains existing GPUI integration tests; it has not yet produced a new OS-specific failure to reproduce. |
 | MAC-03 | Using MAC-01's synthetic workspace and a separate explicit backup destination, create a full backup through Settings → Data. After the actual completion, dismiss its banner and restore it from Layout → Last work status twice. The same success text/severity returns, no second backup starts, and the completed backup remains readable. | Ready for the batched Mac session on the then-current qualified main; notice source review and native-feature checks passed. GPUI tests separately cover active-worker/newer-error refusal and equal-text ordinary-notice provenance; those do not establish OS interaction. |
 | MAC-04 | After MAC-01/03, leave a fresh exact Unicode/multiline edit unsaved. Before closing, supported read-only inspection must confirm canonical text/version remains unchanged and the exact recovery buffer/base is already durable. Close the actual window normally, relaunch the same explicit data root, and open the Note through normal controls (use Recover if offered). The exact draft and original base/session remain available, while canonical text is unchanged and no implicit Save occurred. | Queued: [source/adjacent-witness audit](native-close-audit.md) finds this route distinct from Save-before-close. This qualifies relaunch of an already durable edit, not a race with an unprocessed Change event or crash/power-loss durability. |
@@ -47,7 +47,7 @@ canonical/recovery data in one short SQLite URI mode=ro transaction. It is
 source-qualified preparation; actual observation remains pending.
 
 
-## Next reviewed agent-first candidate
+## Earlier reviewed agent-first candidate19efe
 
 Combined source19efe has passed runtime505/desktop327/CLI15/app journeys8, native
 strict lint/format and production-native-ui-only build. Immutable binary:
@@ -68,9 +68,9 @@ the first comment, Apply the exact revision, verify only that comment addressed
 and the unrelated note unchanged. Use the Note tile’s applied-rewrite Undo (the control with tooltip “Undo the applied rewrite; Changes keeps it”), bound to the manifest’s candidate operation; verify original canonical bytes and both comments pending. A history action that only undoes the separate comment proof has a different outcome and does not establish revision Undo.
 The fixture is v1 ordinary captured-request review, not v2 evidence qualification.
 Use the source-bound fixture manifest and exact expected bytes. Its construction
-must not discover owner credentials or run a provider. Sourcee4e is independently
-approved; first example compilation failed on an imported Result alias and the
-one-line correction is under runtime qualification. No actual Mac observation
+must not discover owner credentials or run a provider. Final sourcec055 is independently approved and qualified through the documented
+e4e runtime-to-equivalent-byte-length-source transfer. Original imported Result
+alias and strict-lint failures are retained. No actual Mac observation
 has occurred. Promote readiness only after the new combined source and artifact
 pass; old19efe cannot qualify these changed controls.
 
@@ -88,3 +88,15 @@ Use only matching then-current source after hosted/main verification. No Mac use
 has occurred. MAC-06 fixture construction and independent exact-state/refusal
 checks pass; use its source-bound manifest under sibling
 `agent-first-final-evidence/native-fixture`. Its v1 scope remains explicit.
+
+
+## Model-suggestion scenario preparation
+
+M4b4e81 source is independently approved; final broad qualification and its later
+production executable/hosted integration are pending. The [bounded fixture task](../agent-first-simplification/native-suggestion-fixture.md)
+reuses the existing loopback transport and actual public runtime read/prepare path
+to produce checked v2 evidence in fresh synthetic durable data. Luna owns source
+only in notice-state until the single build slot is released. No host evidence is
+fabricated and no actual Mac action has occurred. The later session must inspect
+“Model suggests addressed” with owner selection unchecked, then use exact selected
+Apply and revision Undo. The earlier v1 fixture cannot establish this label.

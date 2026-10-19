@@ -1,0 +1,19 @@
+{
+  "observed_at_utc": "2026-10-19T11:39:50.912103+00:00",
+  "audited_revision": "0e346cc8",
+  "auditor": "native_suggestion_fixture_reuse",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "medium",
+  "scope": "Preserved owner plan mandatory M0-M4 and applicable M6 vs reconciliation/current records",
+  "result": "No omitted consequential mandatory slice or owner-decision conflict",
+  "findings": [
+    "M4b and actual Mac review explicitly pending; not whole-plan complete",
+    "M6 records semantic/live/native/owner/main gaps",
+    "Conditional M5 explicitly deferred with concrete evidence",
+    "Stale selected-next/not-implemented status wording corrected to source-approved/in-progress/not-current-main"
+  ],
+  "limits": [
+    "Read-only documentation audit, no build or native/live-provider execution",
+    "Not a product acceptance result"
+  ]
+}

@@ -48,7 +48,8 @@ resulting-main separately. Never bypass a required check.
    after narrowing the core replacement exception.
    Sol worker owns implementation and the active build slot in worker-drain-budget
    on codex/proposed-writing-feedback, basedb8735ea1. Final4e81fcba is independently
-   source-approved, full diff SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
+   source-approved, integrated byte-for-byte as leadc671b036 (all16 source files
+   and entire production tree match), full diff SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
    Initiale5 core retained-report defect is fixed; exact old bytes/hash and actual
    SDK wire assertions are added. A first original-guard witness survived due to
    an unrelated invalid replacement ID; corrected compatible harness12167 with
@@ -58,7 +59,10 @@ resulting-main separately. Never bypass a required check.
    original failure and sibling proposed-writing-feedback-evidence. Root owns
    docs/integration; worker retains the sole build slot. Source review is not
    broad qualification or hosted/native acceptance. Suggestions never infer owner
-   selection or authority.
+   selection or authority. Luna native_suggestion_fixture_reuse now owns source-only
+   ignored runtime fixture support in notice-state/codex/native-suggestion-fixture
+   based4e81; no builds while M4b worker holds slot. Public runtime + existing
+   loopback stub only; [spec](../agent-first-simplification/native-suggestion-fixture.md).
 5. Actual Mac qualification remains queued for18:00Tallinn; native input, IME,
    accessibility and owner acceptance are pending. Continue useful headless work
    while allowance remains; the recovery schedule is not batch pacing.
