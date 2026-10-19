@@ -25,44 +25,30 @@ resulting-main separately. Never bypass a required check.
 
 ## Current work and next unsatisfied gates
 
-1. Lead has finished and released the build slot to the next source worker; inspect actual processes before
-   starting anything else. Combined runtime518/0/2 and desktop332/0/1 pass.
-   Shared-result2, CLI43, strict affected lint and format pass; production native
-   build passes at7a970. A cached default agent library initially retained
-   guide15; embedded identity exposed it, byte-identical crate-root touch forced
-   a current rebuild and CLI43 passed with guide16. Original failure is retained. Source7a970 differs from runtime-start4a204 only in the fixture's qualified
-   Result return type and equivalent byte-length expressions. No library behavior changed.
-2. Final source-bound commands/log hashes and immutable production executable
-   are in `evidence/agent-first-final-qualification.json` (46 raw archives),
-   alongside component receipts. Native queue is updated; hosted gates remain.
-   Old19efe/0f executables cannot qualify M3/M4. Do not rerun fixture creation on
-   its existing qualified root; that refusal is expected.
-3. PR171 resulting-main39240783382 passed all four required jobs; receipt is current.
-   PR172 merged normally as689ab234 from fixedb8735ea1 after all four required
-   head checks passed. Follow resulting-main; its receipt retains actual jobs. Do not duplicate either PR or push onto the checked branches.
-4. M4 still has one explicit owner-plan item: model-proposed captured-comment
-   suggestions. Current source supports unchecked owner selection only. Bounded
-   Luna audit identifies the existing writing-evidence/review seam; Sol worker
-   `writing_review_design` completed the v1/v2/serde/replay audit; the independent
-   reviewer approved [the next specification](../agent-first-simplification/proposed-feedback.md)
-   after narrowing the core replacement exception.
-   Sol worker owns implementation and the active build slot in worker-drain-budget
-   on codex/proposed-writing-feedback, basedb8735ea1. Final4e81fcba is independently
-   source-approved, integrated byte-for-byte as leadc671b036 (all16 source files
-   and entire production tree match), full diff SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
-   Initiale5 core retained-report defect is fixed; exact old bytes/hash and actual
-   SDK wire assertions are added. A first original-guard witness survived due to
-   an unrelated invalid replacement ID; corrected compatible harness12167 with
-   exact originale5 core now fails semantically. Restored4e passes. Final broad
-   checks run under recorded canonical TMPDIR after an unchanged core fixture
-   refused the inherited /var symlink; no guard was relaxed. Preserve every
-   original failure and sibling proposed-writing-feedback-evidence. Root owns
-   docs/integration; worker retains the sole build slot. Source review is not
-   broad qualification or hosted/native acceptance. Suggestions never infer owner
-   selection or authority. Luna native_suggestion_fixture_reuse now owns source-only
-   ignored runtime fixture support in notice-state/codex/native-suggestion-fixture
-   based4e81; no builds while M4b worker holds slot. Public runtime + existing
-   loopback stub only; [spec](../agent-first-simplification/native-suggestion-fixture.md).
+1. PR171 main39240783382 passed all four required jobs. PR172 merged normally
+   as689ab234 from fixedb8735ea1 after all four required head checks passed;
+   resulting-main39246001617 is running. Preserve frozen branches/receipts.
+2. M4b final4e81fcba is independently source-approved and locally integrated as
+   leadc671b036; all16 changed files and entire production tree match exactly.
+   Core215/0/1, runtime522/0/2, app65/0, rendered writing39, full native333/0/1,
+   writing UI44 plus development-host12, CLI43, strict six-package all-target
+   lint, format and ordinary production build pass. No redundant lead rebuild.
+   [Qualification](evidence/proposed-feedback-qualification.json) retains72 raw
+   archives and immutable ordinary guide17 executables. Luna receipt audit passed (72 archives,16 source pins,11 commands). Publish/freeze a separate PR after audit; required exact-head/main
+   gates remain. Current main has M4a, not these suggestions.
+3. Preserve original first witness survivor (invalid replacement ID masked guard),
+   effective compatible12167 harness/exact originale5 store semantic failure and
+   restored4e green. Inherited /var temp symlink failure and same-binary canonical
+   confirmation/full core pass remain. No source guard was relaxed. Original
+   retained-report P2 is fixed; frozen old byte/hash and actual SDK wire assertions
+   are verified. Suggestions never infer owner selection or authority.
+4. M4b worker explicitly released the build slot; Luna native_suggestion_fixture_reuse
+   now owns the single slot and source in notice-state/codex/native-suggestion-fixture
+   based4e81. Only ignored agent_runs/support test fixture source is assigned.
+   Public runtime + existing loopback stub, isolated child process, fresh synthetic
+   output root, no fabricated evidence or new production switch. [Spec](../agent-first-simplification/native-suggestion-fixture.md)
+   is independently approved; source review/execution remain. Preserve old untracked
+   evidence and immutable binaries. Strict1GiB disk floor, shared target only.
 5. Actual Mac qualification remains queued for18:00Tallinn; native input, IME,
    accessibility and owner acceptance are pending. Continue useful headless work
    while allowance remains; the recovery schedule is not batch pacing.
@@ -122,7 +108,7 @@ Two ACTIVE heartbeats target this lead: every-two-hour recovery and separate
 unobserved; Mac/Codex availability is required. Original expiry remains
 2026-11-01T21:41:51Z. Read absolute lead-worktree entries on restart; no new clock,
 lead, duplicate schedule or daemon. Preserve qualified helpers and sibling data.
-Disk was about1.8GiB during M4b qualification; no new target/helper rebuilds,
+Disk was about1.58GiB after M4b immutable executable copies; no new target/helper rebuilds,
 and stop a compile below1GiB.
 
 No live provider/model acquisition/private data, release/deployment, new billing,

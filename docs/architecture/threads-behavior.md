@@ -10,15 +10,25 @@ Notes remain independently readable knowledge. Actions retain their own progress
 
 The accepted writing workbench presents the full selected linked thread beside the current note. Passage comments accumulate independently of AI dispatch. **Rewrite with AI** freezes the current saved note, selected pending comments and posted chat as an inspectable request, then proposes a complete note revision for exact review. Chat additions during the run belong to the next request. No text-selection gesture grants write authority, and this command cannot become an automatic maintenance write on Continue. Explicit addressed confirmation follows a successful Apply receipt; generation and dismissal retain pending feedback. [Implementation scope and qualification](../work/active/tiled-writing-workbench/spec.md).
 
-The current [M4 candidate](../work/active/agent-first-simplification/writing-review.md)
+The [M4 review flow](../work/active/agent-first-simplification/writing-review.md)
 composes exact revision Apply with an owner-selected subset of captured comments.
 The existing comment cards show the immutable captured instructions and quotes;
 checkboxes start unchecked and belong only to that exact note/candidate. Reopening
 the same candidate preserves selection; replacement, dismissal and completion
 clear it. Current next-Rewrite inclusion remains a separate choice. Changed
 captured feedback cannot silently resolve through an older proposal. Generation
-and Apply alone never mark every comment addressed. Candidate-proposed comment
-IDs remain a separate pending item; this slice implements explicit owner choice.
+and Apply alone never mark every comment addressed.
+
+The [M4b candidate](../work/active/agent-first-simplification/proposed-feedback.md)
+adds optional `proposed_addressed_comment_ids` to v2 writing evidence: at most128
+unique IDs from the immutable captured subset. The cards label them “Model suggests
+addressed”; accessible text explains the separate owner action. They never select
+checkboxes, create proof or grant authority. Checked owner replacements clear
+reports for the old text, preserving original evidence and all other bindings;
+runtime refresh has no evidence-editing exception. Omitted/empty fields preserve
+old evidence bytes/hashes without migration; older source may refuse a new
+nonempty field. Ordinary/v1 runs keep their existing evidence boundary. Source
+review and deterministic checks pass; hosted/main and actual Mac gates remain.
 
 The shared review result preserves an actual Apply receipt even if later attention
 cleanup or selected-comment confirmation fails. The UI reloads committed content,

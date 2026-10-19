@@ -92,11 +92,16 @@ checks pass; use its source-bound manifest under sibling
 
 ## Model-suggestion scenario preparation
 
-M4b4e81 source is independently approved; final broad qualification and its later
-production executable/hosted integration are pending. The [bounded fixture task](../agent-first-simplification/native-suggestion-fixture.md)
+M4b4e81 source is independently approved and locally qualified: core215,
+runtime522, app65, native333, CLI43 and strict lint/format/production pass.
+Immutable ordinary executable:
+`/Users/evokessler/.codex/worktrees/worker-drain-budget/proposed-writing-feedback-artifacts/brn-desktop-4e81fcba-89fcbc9c05a70518`,
+SHA89fcbc9c05a705180c20bd5ffaa44d14ea23dc3f00fdeead43b9df64250a45f2,
+sole embedded guide17. Hosted/main integration remains pending; use only after
+matching then-current source and applicable gates. The [bounded fixture task](../agent-first-simplification/native-suggestion-fixture.md)
 reuses the existing loopback transport and actual public runtime read/prepare path
-to produce checked v2 evidence in fresh synthetic durable data. Luna owns source
-only in notice-state until the single build slot is released. No host evidence is
+to produce checked v2 evidence in fresh synthetic durable data. Luna owns source and the released single build slot
+in notice-state. No host evidence is
 fabricated and no actual Mac action has occurred. The later session must inspect
 “Model suggests addressed” with owner selection unchecked, then use exact selected
 Apply and revision Undo. The earlier v1 fixture cannot establish this label.

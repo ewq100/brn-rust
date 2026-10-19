@@ -475,3 +475,19 @@ before the match-head normal merge. [Receipt](evidence/pr172-integration.json)
 retains every head job, including optional Windows Core failure. Resulting-main
 checks are a separate pending gate. Lead merged the actual main history while
 preserving continuation documentation; M4b remains a separately reviewed candidate.
+
+
+## M4b exact-source local qualification
+
+[Final qualification](evidence/proposed-feedback-qualification.json) binds4e81 and
+all16 byte-exact integrated leadc671 source files. Core215/0/1, runtime522/0/2,
+app65/0, rendered writing39/0, native333/0/1, writing UI56, CLI43/0, strict affected
+all-target lint, full format and ordinary production-native build pass. Root
+verified every command exit/test count, source pin and immutable executable SHA
+with sole guide17. Seventy-two lossless archives retain first failures, ineffective
+initial witness, effective original-module semantic red/restored green and exact
+canonical-temp diagnosis. Independent Luna receipt audit passed with no inconsistencies. No hosted,
+actual Mac, model-usefulness or owner-acceptance completion follows.
+
+The source worker released the single build slot to the bounded Luna runtime
+fixture task; no duplicate target/helper rebuild or production switch is selected.

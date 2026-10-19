@@ -84,5 +84,15 @@ check masked the defect; it is retained as ineffective evidence. The corrected
 compatible harness12167d52 with the exact originale5 store module compiles and
 fails semantically when that guard accepts retained reports. Restored final4e81
 passes the same focused test. This is an original-module witness, not a complete
-old-baseline build. Final broad checks are running; no M4b source is yet integrated
-into PR172 or current main. See the [source review receipt](../vacation-campaign/evidence/proposed-feedback-source-review.json).
+old-baseline build. Final4e81 passes core215/0/1, runtime522/0/2, app65/0,
+rendered writing39/0, full native333/0/1, writing UI44 plus development-host12,
+CLI43/0, strict six-package all-target lint, workspace format and ordinary
+production-native build. [Qualification](../vacation-campaign/evidence/proposed-feedback-qualification.json)
+retains72 lossless raw archives, immutable guide17 executables and exact source
+transfer to leadc671b036 (all16 files and production tree identical). The inherited
+/var temp symlink failure is retained alongside same-binary canonical-TMPDIR
+confirmation and the final full core result. No guard was relaxed.
+
+M4b is locally integrated on the lead continuation, not in PR172/current main.
+Hosted/main and actual Mac gates remain. The [source review receipt](../vacation-campaign/evidence/proposed-feedback-source-review.json)
+and [native fixture task](native-suggestion-fixture.md) keep those gates separate.

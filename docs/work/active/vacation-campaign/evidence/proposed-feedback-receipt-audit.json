@@ -1,0 +1,24 @@
+{
+  "observed_at_utc": "2026-10-19T11:44:34.262436+00:00",
+  "audited_revision": "9241d3c0",
+  "qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "auditor": "suggestion_receipt_audit",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "medium",
+  "result": "passed; no artifact-integrity inconsistencies",
+  "archives_verified": 72,
+  "source_files_verified": 16,
+  "qualified_check_commands_verified": 11,
+  "verified": [
+    "Archive/decompressed hashes and byte counts",
+    "Frozen source SHA/blob pins and source-equivalent integrated production tree",
+    "Actual check commands/exits and logged test totals",
+    "Ineffective first witness distinct from effective original-module semantic red and restored green",
+    "Inherited symlink failure distinct from same-binary canonical temp recovery",
+    "Both immutable ordinary executables exact SHA/size and guide17"
+  ],
+  "limits": [
+    "Read-only artifact audit; no builds or execution",
+    "No live usefulness, actual native, owner or hosted/main completion"
+  ]
+}
