@@ -1,0 +1,450 @@
+{
+  "observed_at_utc": "2026-10-19T12:15:16.112817+00:00",
+  "authorization": "Owner19October explicit existing Codex-account AI/native test permission; codex-ai-testing.md",
+  "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "binary_sha256": "e321553bc2c2abca6824d8c0e231e16bf43bdc07e2a58ff83650692fe33df6e6",
+  "native_observed": false,
+  "results": [
+    {
+      "attempt_id": "ce3d5028-64c2-43e1-8d5d-559884f60a66",
+      "status": "failed",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "task_passed": false,
+      "account_transport_succeeded": true,
+      "note_unchanged": true,
+      "no_candidates": true,
+      "auth_source_metadata_unchanged": true,
+      "answer": "I couldn’t access that note, so I can’t determine the codeword or the total.",
+      "trace": {
+        "format": 1,
+        "level": "summary",
+        "guide": "brn-threads-guidance-17:b47c24e31327bcc1ef98d5ced398cb9090ca3588d7608a2a4ce2c8948e800a09",
+        "search": true,
+        "rounds": 3,
+        "max_rounds": 4,
+        "model_turns": 4,
+        "stopped": null,
+        "usage": {
+          "input": 24308,
+          "output": 181,
+          "cached_input": 11776
+        },
+        "turn_usage": [
+          {
+            "input": 5910,
+            "output": 59,
+            "cached_input": 0
+          },
+          {
+            "input": 6058,
+            "output": 46,
+            "cached_input": 5760
+          },
+          {
+            "input": 6128,
+            "output": 53,
+            "cached_input": 0
+          },
+          {
+            "input": 6212,
+            "output": 23,
+            "cached_input": 6016
+          }
+        ],
+        "elapsed_ms": 5956,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 2,
+            "tool": "read_records",
+            "args": {
+              "id_count": 1,
+              "ids": [
+                "f11db5c0-cc5b-4567-97a7-265854e21d22"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 47,
+            "ms": 0,
+            "result": {
+              "rows": 0,
+              "ids": [],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 2,
+            "round": 3,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "8f8b808b743f",
+              "words": 1,
+              "limit": 20,
+              "mode": "keyword",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 66,
+            "ms": 14,
+            "result": {
+              "total": 0,
+              "shown": 0,
+              "ids": [],
+              "semantic": "none"
+            }
+          }
+        ],
+        "dropped_calls": 0
+      }
+    },
+    {
+      "attempt_id": "c19c2cf8-399c-451d-8f43-5dbe6f6f79d5",
+      "status": "passed",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "task_passed": true,
+      "account_transport_succeeded": true,
+      "note_unchanged": true,
+      "no_candidates": true,
+      "auth_source_metadata_unchanged": true,
+      "answer": "CODEWORD=rannatuli-õun-17; TOTAL=9",
+      "trace": {
+        "format": 1,
+        "level": "summary",
+        "guide": "brn-threads-guidance-17:b47c24e31327bcc1ef98d5ced398cb9090ca3588d7608a2a4ce2c8948e800a09",
+        "search": true,
+        "rounds": 1,
+        "max_rounds": 4,
+        "model_turns": 2,
+        "stopped": null,
+        "usage": {
+          "input": 12136,
+          "output": 81,
+          "cached_input": 5888
+        },
+        "turn_usage": [
+          {
+            "input": 5977,
+            "output": 62,
+            "cached_input": 0
+          },
+          {
+            "input": 6159,
+            "output": 19,
+            "cached_input": 5888
+          }
+        ],
+        "elapsed_ms": 3967,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "read_note",
+            "args": {
+              "id": "0e6c2874-0514-48d6-a11c-26ea3de8b3bb:0",
+              "version": 1,
+              "start": 0,
+              "section": false,
+              "max_bytes": 4096
+            },
+            "outcome": "success",
+            "bytes": 314,
+            "ms": 0,
+            "result": {
+              "outcome": "Read",
+              "returned_bytes": 89,
+              "next_start": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      }
+    }
+  ],
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/ask.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/ask.stdout.json.gz",
+      "raw_sha256": "5b83639cd5e38e9e6f8cb582c522807af96c9888b1a50ac2dc24b18a057c110e",
+      "raw_bytes": 1452,
+      "archive_sha256": "dde86a80349c331c0c466ae8cf7b38842bc5e97c4042852e4db23b46bbdc567c",
+      "archive_bytes": 767
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/attempt-reservation.json.gz",
+      "raw_sha256": "37fc5ca123d0636fe753d8f36367fdfdf4613a04b13eb0b6cf0e5747092d8bea",
+      "raw_bytes": 900,
+      "archive_sha256": "09a26f7a1d7b225e2ca4bbf7173784edfc0ae52a59ab2209456161842e2a4083",
+      "archive_bytes": 556
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/candidates-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/candidates-after.stdout.json.gz",
+      "raw_sha256": "f9156d1f7791db41d1c28cf9bed5f40da218c7633bc710e9d253b938195bfba8",
+      "raw_bytes": 398,
+      "archive_sha256": "93cd9b611c79b0bf401142f9a7824636ab53fd397135659d0cff96a5b3a30d0b",
+      "archive_bytes": 229
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/configure.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/configure.stdout.json.gz",
+      "raw_sha256": "ff6cef101231be8f77744a69e7ee54330b71151c0339d7294c8fc7d0b5da5ceb",
+      "raw_bytes": 1337,
+      "archive_sha256": "bcaf45d6b730fe79980c1be6664f22d879d2ca7af0d288dc5c650a4e98b3f918",
+      "archive_bytes": 633
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/init.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/init.stdout.json.gz",
+      "raw_sha256": "036cbf2ec195a58649a36bcaabc6db7657fbc1d1e34aac3c28e0c0bc159db727",
+      "raw_bytes": 671,
+      "archive_sha256": "280dfecaca0ac8ec0b91131eea02b808df86b375a859ddcade1487ac49055b01",
+      "archive_bytes": 403
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/note-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/note-after.stdout.json.gz",
+      "raw_sha256": "a350f0008dca02c30965e33bf042ce4c27758c50062417a2ee35e34b7b7a386b",
+      "raw_bytes": 598,
+      "archive_sha256": "f1d2da58b7fda79455c638564dbfe5cdfac9f1438ea1ea235f415540ba25c37b",
+      "archive_bytes": 379
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/note.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/note.stdout.json.gz",
+      "raw_sha256": "a4de25f59227730fb8bc79ae54d75fb81474d129d2a3376b61f5891e1131edb8",
+      "raw_bytes": 754,
+      "archive_sha256": "b5c94acbcc50849100a799879c2af6d63853ff997d4cbebd10e7b752725f5a3f",
+      "archive_bytes": 420
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/prompt.txt.gz",
+      "raw_sha256": "9ba0d70c27ffaf466895fe4c08b7b67c4cd4156b1f282d2328fa80e30ca2edcb",
+      "raw_bytes": 253,
+      "archive_sha256": "893f4dd0d7d86fb03423aff71a983027a550d29fb619d09584869d1c3602fa95",
+      "archive_bytes": 212
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/result.json.gz",
+      "raw_sha256": "ac75298c1633e6a8ca3fd58eed5c2877ea0dd7b7507c611b2c93efa4695e9ebb",
+      "raw_bytes": 7170,
+      "archive_sha256": "036b9efbb96d01373a18eb5a07dbbf04492e8480494cdb06edb4aff97d5e43c0",
+      "archive_bytes": 1689
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/run-smoke.py.gz",
+      "raw_sha256": "f5ad99b9d10b8de1d3d2c51da1452ff0695fd9148c6f305278109e2545d77ce1",
+      "raw_bytes": 4590,
+      "archive_sha256": "df30c7c158b3f2d9b63033b9f49df55250256c2a6ee81fa48bf281eeb93a5e22",
+      "archive_bytes": 2115
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/runs-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/runs-after.stdout.json.gz",
+      "raw_sha256": "01acfd741853ba3017b5beb0cd61dd94397fc66ef50c866aabd8bee97cf246fb",
+      "raw_bytes": 863,
+      "archive_sha256": "8d14a7c6f19b6b08d88dcc79b0c67b4d745f514a17ce778197b626f25e750890",
+      "archive_bytes": 500
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/thread.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-01/thread.stdout.json.gz",
+      "raw_sha256": "8bc825c4ae2819cf61b697252db2afa6b9ff764871dffcba5b266a9bb91ecc5e",
+      "raw_bytes": 610,
+      "archive_sha256": "cdeac147ee7cdd3fe7b8b23e0227a991a9637c2bdeed8c669224f06bb9381841",
+      "archive_bytes": 338
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/ask.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/ask.stdout.json.gz",
+      "raw_sha256": "e7f6beeccf85d17ba46be7eb73f4ef43fe16dbe36d561a447b246b5bd39309e7",
+      "raw_bytes": 1128,
+      "archive_sha256": "9dc94fe9edf15edd31f97cafcc402deaa4b3bf1f28d0c669df025ea9da0880a9",
+      "archive_bytes": 657
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/attempt-reservation.json.gz",
+      "raw_sha256": "72dc92e3fb38b4ea03a0ef5695f235424d305d3890b123c24a5507ff5bf1bc7e",
+      "raw_bytes": 903,
+      "archive_sha256": "571d04fa70e85e0be6ac5ffdd7cc48690ba6def5e3d4d4f2174faf05db9e7e04",
+      "archive_bytes": 563
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/candidates-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/candidates-after.stdout.json.gz",
+      "raw_sha256": "f9156d1f7791db41d1c28cf9bed5f40da218c7633bc710e9d253b938195bfba8",
+      "raw_bytes": 398,
+      "archive_sha256": "93cd9b611c79b0bf401142f9a7824636ab53fd397135659d0cff96a5b3a30d0b",
+      "archive_bytes": 229
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/configure.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/configure.stdout.json.gz",
+      "raw_sha256": "3e80362d875feeb383f0c2c2cffdca17eaa1961bb9374d4c9bf564619ce3456f",
+      "raw_bytes": 1337,
+      "archive_sha256": "0d18da07db7764ae7e8f7883b2b903a12d9843cf65a3a1add79d9462fc8ab386",
+      "archive_bytes": 632
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/init.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/init.stdout.json.gz",
+      "raw_sha256": "c7a38fd28f9e44ed72e88e2fd6c3e40118a2054edb15e39f241118a93b6e475e",
+      "raw_bytes": 671,
+      "archive_sha256": "f2e88e748756d9b57057236a7356c409d8400e77cd5ddd462845415be8dbe74e",
+      "archive_bytes": 404
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/note-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/note-after.stdout.json.gz",
+      "raw_sha256": "d25bfdbdf9eda3e59326e38df6cc702334c1de540e2182dfa59e456dea1e067c",
+      "raw_bytes": 598,
+      "archive_sha256": "54909e089a6b7af2cde95055d4668ee8d6e3639b278d3d28472cfb1c72848666",
+      "archive_bytes": 379
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/note.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/note.stdout.json.gz",
+      "raw_sha256": "4b78209dc2e821ba8a702480828bbaee80777bb3cc7199446bccd652b407b4ed",
+      "raw_bytes": 754,
+      "archive_sha256": "2b758f4ca3701c32ea26758f8d23634ea91b2935e3f67b08bd6f6b2bebdfbd01",
+      "archive_bytes": 419
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/prompt.txt.gz",
+      "raw_sha256": "ea7fe03fdc95efb214a7ed2a65533d97ce56b74ae520936ee5ab8cb5525286c0",
+      "raw_bytes": 443,
+      "archive_sha256": "9edba0cccf4c198423a5a1f23ed58c01c069683313226367008966212c6c0113",
+      "archive_bytes": 318
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/result.json.gz",
+      "raw_sha256": "dd79d8b95a801e88012c9053544f8b8aa5224bfc5341c91abe0db54ad0c66aad",
+      "raw_bytes": 6891,
+      "archive_sha256": "eff5a5e394354c2fe6e16c26a8d3b08a1c29169c7a057020f7327df4e7afcbb5",
+      "archive_bytes": 1543
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/run-smoke.py.gz",
+      "raw_sha256": "c4342906b7301c50534b4d0a40a846eeaace5a67e72c6634297ef7017c5ff3fd",
+      "raw_bytes": 4981,
+      "archive_sha256": "7edd58113cc0130249d7555ddffa0aae849795ed780900e9e977e978ba011ebb",
+      "archive_bytes": 2252
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/runs-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/runs-after.stdout.json.gz",
+      "raw_sha256": "beaa50da51111f4a592b325d75c253d883910f30aca5bfd9ef81682ba4e70eba",
+      "raw_bytes": 863,
+      "archive_sha256": "ce66c1f3bdd8f52537a3b0dc466d702368b7bd0b3a6f7191e6f29e5937acb606",
+      "archive_bytes": 499
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/thread.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-raw/2026-10-19-codex-smoke-01-attempt-02/thread.stdout.json.gz",
+      "raw_sha256": "234cd4c6b889222d97c8b5a6cd50bd0ff1c95c339c4425a0b05c132035f4c248",
+      "raw_bytes": 610,
+      "archive_sha256": "303f0c326966e3885075213dcdea58d4eca7a9bb696a9c42054cd7d86fda636c",
+      "archive_bytes": 342
+    }
+  ],
+  "conclusion": "Account transport works. Natural request failed when model omitted :0 ID suffix; explicit exact-ID/read_note diagnostic passed using same Luna low. Not a production guidance fix or broad quality qualification. Both notes and owner auth metadata unchanged; no candidates.",
+  "next_action": "Assess current tool/skill guidance for exact opaque IDs and required read parameters. Preserve host exact-ID semantics; never guess an anchor. Actual native AI/writing test remains pending."
+}

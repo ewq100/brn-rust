@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/agent-first-next",
+  "branch": "codex/agent-first-followthrough",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -10,33 +10,22 @@
     "BRN-Codex-Cloud-Vacation-Prompt.txt": "ad1a5d88759ce9f3e270e8863618c7caa71e97697d00ab5af1f16f570aec7d50",
     "BRN-Vacation-Roadmap.txt": "37e2111ea79c14f8406258b1335e4a3634791a243ed0d0cacb5b4c8cfd5d8fd3"
   },
-  "authority": "19 October local owner continuation: independent hardening and in-scope feature improvements, commits, pushes, PRs and normal merges after review/required checks authorized. Mac first; further Linux improvements deferred. Local Mac/Codex heartbeat authorized. Work admission floor about 5% remaining in applicable quota windows. No release/publication/deployment, purchases, new paid API/infrastructure, private data or messaging. Fixed original expiry unchanged. See plan.md.",
+  "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
   "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_AVAILABLE_AT_SETUP",
+  "admission_state": "CAPACITY_AVAILABLE_8_PERCENT_REMAINING",
   "continuation_blockers": [
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T10:48:20.485974+00:00",
-  "current_session_jobs": [
-    {
-      "agent": "writing_review_design",
-      "task": "M4 baseline/candidate checks; single builder",
-      "model_requested": "gpt-6.1-sol high"
-    },
-    {
-      "agent": "native_writing_fixture",
-      "task": "one offline synthetic fixture example source only; no Cargo",
-      "model_requested": "gpt-6-luna medium"
-    }
-  ],
-  "integration_status": "PR163–170 all four required exact-head/resulting-main checks passed. Optional Windows failures retained. PR171 frozen7a9867a8 actual required head checks running; no merge yet.",
-  "next_eligible_work": "Follow frozen PR171 required head→normalmatchheadmerge→resulting-main. Finish M4 exactfinal qualification/review and integrate with M3 on codex/agent-first-next, qualify combined runtime/native/CLI and freeze new production artifact. Small offline nativefixture prep after buildslot grant; native18 separate.",
-  "last_qualified_source": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
-  "source_delta_after_qualification": "Combined source19efe qualified runtime505/desktop327/CLI15/app journeys8/strict native lint/format/production build; frozen binarySHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Later lead changes docs/evidence only; verify exact source comparison before reuse. M3/M4 source not yet integrated.",
-  "active_work": "M3 e227 independently approved and locally qualified518/0/2/lint/fmt/CLI1; exact tenfiles in lead88b. M4 final9e5e source-approved, baselineUI missing-controlred, app2+52/nativewriting37 pass, broaderchecks active. M5 synthetic SVG/reproduction passed; production deferred. Native fixture small example source-only.",
-  "continuation_baseline": "d7f48e6caa3c200fba931ef75df0012171cd0ed3",
+  "last_checkpoint_at_utc": "2026-10-19T12:15:16.112817+00:00",
+  "current_session_jobs": [],
+  "integration_status": "PR163-172 all four required head/main checks passed. PR173 normally merged33a62aae after all four exact-head required checks passed; resulting-main39250500661 pending. Optional Windows failures retained.",
+  "next_eligible_work": "Finish nativefixture receipts/test-support PR; inspect exact-ID reading guidance exposed by first live probe; follow PR173main. Native Mac observation queued18:00.",
+  "last_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "source_delta_after_qualification": "All production source/manifests/lock/toolchain identical to qualified4e81. Later changes are docs/evidence plus independently qualified two-file ignored runtime fixture f819 and one-line canonical temp test repaird9 (focused1/1 under inherited /var environment). No redundant broad rebuild selected.",
+  "active_work": "M4b core215/runtime522/app65/native333/UI56/CLI43 strictlint/format/ordinaryproduction pass, independent Solsource and Luna72archive audit passed. Runtime-created synthetic v2 fixturef819 parent1/existingCLI15(2ignored)/strictlint/format and occupieddir/file/relative refusals pass; source exact lead e615. Actual native observation pending. Two authorized Codex Luna-low probes completed: natural request failed after dropped ID suffix; explicit read_note diagnostic passed. No Note changes/candidates; no actual native observation.",
+  "continuation_baseline": "33a62aae1b358f1de9475040eb180c63e0651f4f",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -48,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot85% used/15% remaining in seven-day window; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot92% used/8% remaining; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -79,7 +68,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Independent Sol approved complete M0, M2 and final M1 source. UI first source review does not replace compilation/final re-review. Source/hash receipts retain exact coverage; live/native/owner/hosted integration gates separate.",
-    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
@@ -89,11 +78,21 @@
   "agent_first_plan": "../agent-first-simplification/plan.md",
   "agent_first_reconciliation": "../agent-first-simplification/reconciliation.md",
   "checked_pr": {
-    "number": 171,
-    "head": "7a9867a871fbf584804277d3fe877ee8e260f4c4",
-    "branch": "codex/hardening-maintenance",
-    "url": "https://github.com/ewq100/brn-rust/pull/171",
-    "required_head_checks": "running",
-    "resulting_main": "not merged"
+    "number": 173,
+    "head": "cf7e4f2e60f30c95f9d5bbdbc9996e2a63f29826",
+    "branch": "codex/agent-first-suggestions",
+    "url": "https://github.com/ewq100/brn-rust/pull/173",
+    "required_head_checks": "all four passed",
+    "resulting_main": "33a62aae1b358f1de9475040eb180c63e0651f4f; run39250500661 pending"
+  },
+  "codex_ai_testing": {
+    "policy": "codex-ai-testing.md",
+    "ledger": "evidence/codex-ai-test-ledger.json",
+    "authorized": true,
+    "provider": "existing Codex account only",
+    "max_attempts_per_session": 3,
+    "max_attempts_per_tallinn_day": 6,
+    "client_deadline_seconds": 180,
+    "actual_live_attempts": 2
   }
 }

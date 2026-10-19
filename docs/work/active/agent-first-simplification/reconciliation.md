@@ -37,7 +37,7 @@ synthetic fixtures. Baseline/corrected results remain separate.
 | M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; normally merged PR171, all four required resulting-main checks passed. |
 | M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Normally merged PR171; all four required resulting-main checks passed, live/native gates separate. |
 | M3 targeted edit | [Candidatee227](targeted-edit.md) independently approved; runtime518/0/2, strict lint/format and affected CLI guide test pass. Whole-read/refresh and partial-coverage guards preserved; combined7a970 runtime518/native332/CLI43/lint/format/production pass; hosted/native gates remain. |
-| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source3b3 independently approved and component-qualified; a real small-window regression was repaired by reusing existing cards. Combined runtime518/native332/CLI43 and strict lint pass; production build and format pass at7a970. Owner selection is explicit. [Model suggestions](proposed-feedback.md) final4e81 source is independently approved and integrated byte-for-byte on the lead continuation; core215/runtime522/app65/native333/CLI43, strict lint/format/production passed; separate hosted/main gates remain. [The synthetic native fixture](native-suggestion-fixture.md) is in source-only implementation; actual Mac review remains pending. |
+| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source3b3 independently approved and component-qualified; a real small-window regression was repaired by reusing existing cards. Combined runtime518/native332/CLI43 and strict lint pass; production build and format pass at7a970. Owner selection is explicit. [Model suggestions](proposed-feedback.md) final4e81 source is independently approved and integrated byte-for-byte on the lead continuation; core215/runtime522/app65/native333/CLI43, strict lint/format/production passed; PR173 freezescf7e4f2e, actual required head checks running; hosted/main gates remain. [The synthetic native fixture](native-suggestion-fixture.md) is in source-only implementation; actual Mac review remains pending. |
 | M5 broader artifact capability | [Synthetic calculation/SVG proof](artifact-capability.md) and fresh reproduction pass through existing bundled libraries. Production activation deferred with concrete packaging/output/containment/review gaps; no permission expansion. |
 | M6 outcome comparison/retirement | [Comparison/retirement record](outcome-comparison.md) accounts for changed callers and explicit semantic/live/native/owner/main gaps. |
 
@@ -50,9 +50,12 @@ priority over speculative broad UI state conversion. Preserve objective checks
 and measured cheap processing, including intake prefetch, until relevant evidence
 justifies replacement. Existing successful/source-qualified behavior is retained.
 
-No new live provider/API workload, private-data use, release/deployment, billing,
-credential change, external send or broad executable permission follows from this
-plan. M5 must finish permitted synthetic/interface work and record any precise
+The plan alone grants no account access. The owner's later19October instruction
+explicitly authorizes bounded tests through their existing Codex account under
+[the campaign policy](../vacation-campaign/codex-ai-testing.md); no live result is
+claimed yet. Other provider/API workloads, private-data use, release/deployment,
+billing, credential change, external send and broad executable permission remain
+excluded. M5 must finish permitted synthetic/interface work and record any precise
 activation decision. The Mac18:00 native batch, continuous useful work, about5%
 allowance floor, normal reviewed merges/four required checks/resulting-main gates,
 actual runtime helper capacity and fixed2026-11-01T21:41:51Z expiry remain unchanged.
@@ -63,3 +66,6 @@ its live priority replacement is this reconciliation and the linked campaign pla
 Do not edit that historical source to make old assumptions appear current. Runtime
 guides and observable contracts change with their corresponding implementation;
 new development rules alone do not establish new tool behavior or owner acceptance.
+
+
+19October12:16UTC update: PR172 all four required resulting-main checks passed. PR173 merged normally as `33a62aae1b358f1de9475040eb180c63e0651f4f` after independent source review and all four exact-head checks; resulting-main run39250500661 remains pending. Two bounded existing-Codex-account Luna-low command-line probes completed: natural request failed after an omitted ID suffix; explicit exact-ID/read_note diagnostic passed. Both preserved canonical Note bytes and created no candidate. See [the live-test receipt](../vacation-campaign/evidence/codex-ai-smoke-qualification.json). Actual Mac interaction/AI observation remains pending.

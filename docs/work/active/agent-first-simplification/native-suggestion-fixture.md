@@ -59,3 +59,17 @@ only agent_runs/support source on codex/native-suggestion-fixture in notice-stat
 based on frozen M4b4e81. Source-only until the current worker explicitly releases
 the build slot. Independent Sol source review, exact commands and meaningful
 fixture/refusal checks precede integration; all required hosted/main gates remain.
+
+
+## Recorded candidate
+
+Final f819 source was independently approved after its review findings were fixed.
+Parent fixture1/0/0, existing agent_runs15/0/2, strict lint/format and all three
+fresh-output refusal cases passed. Source and read-only semantic audit are
+[recorded separately](../vacation-campaign/evidence/native-suggestion-fixture-qualification.json).
+The original request-hash field compile failure is preserved as a diagnostic
+excerpt rather than a full source-pinned raw baseline; do not overstate it.
+No builder is active. Actual Mac label/selection/Apply/Undo observation remains
+pending in [the native queue](../vacation-campaign/native-queue.md). This test-only
+candidate and the reviewed one-line canonical-temp test repair await their own
+hosted integration; production source is already merged via PR173.

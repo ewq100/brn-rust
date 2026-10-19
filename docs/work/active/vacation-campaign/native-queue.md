@@ -11,7 +11,10 @@ active jobs, account quota and available native controls. Do not compete with an
 active desktop session or writer. Below about 5% remaining capacity, wait for a
 verified reset. No desktop session is needed when no consequential scenario is ready.
 Use one current qualified production build and fresh explicit synthetic data.
-Keep owner files and credentials outside these scenarios; no live provider is needed.
+Keep owner files outside these scenarios. Most checks need no provider; the owner
+now permits bounded existing-Codex-account tests under [the policy](codex-ai-testing.md).
+Only those tests may read the existing auth source; never copy/log it. Reserve the
+attempt ledger before dispatch and retain the ordinary synthetic-only checks.
 
 | ID | Scenario and independently expected outcome | Readiness / evidence |
 |---|---|---|
@@ -92,16 +95,39 @@ checks pass; use its source-bound manifest under sibling
 
 ## Model-suggestion scenario preparation
 
-M4b4e81 source is independently approved and locally qualified: core215,
-runtime522, app65, native333, CLI43 and strict lint/format/production pass.
-Immutable ordinary executable:
+PR173 merged model-suggestion production source normally as
+`33a62aae1b358f1de9475040eb180c63e0651f4f`; all four exact-head checks passed,
+resulting-main run39250500661 remains pending. Source4e81 is independently reviewed
+and locally qualified: core215, runtime522, app65, native333, CLI43 and strict
+lint/format/production pass. The ordinary immutable desktop is
 `/Users/evokessler/.codex/worktrees/worker-drain-budget/proposed-writing-feedback-artifacts/brn-desktop-4e81fcba-89fcbc9c05a70518`,
 SHA89fcbc9c05a705180c20bd5ffaa44d14ea23dc3f00fdeead43b9df64250a45f2,
-sole embedded guide17. Hosted/main integration remains pending; use only after
-matching then-current source and applicable gates. The [bounded fixture task](../agent-first-simplification/native-suggestion-fixture.md)
-reuses the existing loopback transport and actual public runtime read/prepare path
-to produce checked v2 evidence in fresh synthetic durable data. Luna owns source and the released single build slot
-in notice-state. No host evidence is
-fabricated and no actual Mac action has occurred. The later session must inspect
-“Model suggests addressed” with owner selection unchecked, then use exact selected
-Apply and revision Undo. The earlier v1 fixture cannot establish this label.
+sole embedded guide17. Compare actual production source before use; finish the
+applicable resulting-main gate first.
+
+The [v2 fixture](../agent-first-simplification/native-suggestion-fixture.md) is
+source-reviewed and runtime-qualified at f819. Parent1/0/0, existing CLI15/0/2,
+strict lint/format, and existing-directory/file/relative refusals passed. An
+independent read-only audit checked canonical bytes, complete host read evidence,
+only the captured suggestion, pending comments, no Apply receipt/Working Run,
+Settings history and refusal snapshots. [Qualification](evidence/native-suggestion-fixture-qualification.json)
+and [audit](evidence/native-suggestion-fixture-receipt-audit.json) preserve exact
+source, executable/manifest hashes, failures and limitations. No build is active.
+
+Use the fresh data directory
+`/Users/evokessler/.codex/worktrees/notice-state/native-suggestion-fixture-evidence/workspace-1/data`
+and its sibling manifest, SHA003667a774597ee07d1cb4ae5fa2693c9e178d7d97c2888513407258e810063a.
+Check “Model suggests addressed” is visible and owner selection initially unchecked.
+Then explicitly select only the captured comment, Apply, verify exact proposed
+UTF-8 bytes plus correct addressed proof, preserve the excluded comment/unrelated
+Note, and use the Note's applied-rewrite Undo to restore the original revision.
+The original/proposed/unrelated byte hashes are in the qualification receipt.
+Record actual observed outcomes; the expected initial selection in the manifest
+is not an observation. Preserve failures. The earlier v1 fixture cannot qualify
+this label. No actual Mac interaction has occurred.
+
+Two authorized Codex Luna-low command-line probes used separate fresh data:
+natural request failed when the model dropped the ID suffix; explicit exact-ID
+read_note diagnostic passed. Both Notes stayed unchanged; no candidate. They do
+not qualify native AI/writing behavior. Use [Codex test limits](codex-ai-testing.md)
+and reserve the shared attempt ledger before any actual native account run.

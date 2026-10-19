@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`689ab234bfe388423a7fd1f2a35fd6ea21115a11` (PR172; all four required head checks passed; resulting-main checks pending).
+`33a62aae1b358f1de9475040eb180c63e0651f4f` (PR173; all four required head checks passed; resulting-main run39250500661 pending). PR172 passed all four required resulting-main checks; optional Windows failures remain visible.
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -81,3 +81,5 @@ native333/CLI43 plus strict lint/format/production pass. Hosted/main and actual
 Mac gates remain; a bounded synthetic runtime fixture is in preparation. Broader
 artifact production activation is deferred with evidence. No new live/private-data or
 release authority follows, and no native usability or owner acceptance is claimed.
+
+Two owner-authorized Codex-account Luna-low command-line probes completed on synthetic data: one failed after the model omitted an ID suffix; an explicit exact-ID/read_note diagnostic passed. Both preserved the Note and created no candidate. [Evidence and limits](work/active/vacation-campaign/evidence/codex-ai-smoke-qualification.json) retain this distinction; actual native AI/usability remains pending.

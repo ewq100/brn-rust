@@ -1,0 +1,80 @@
+{
+  "head": "7b696fab3c1c258be3ebf5294e2e9f37be38f5d6",
+  "source_candidate": "d9b56d8a063f33dc3def7d1b9a7866a86a2bc025",
+  "tree": "210dcd96041cf18fbdb80c095cb4b841f41e1be0",
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-threads-core",
+    "--test",
+    "mcp_format",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "cwd": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+  "TMPDIR": "/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/",
+  "canonical_tempdir": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "RUST_TEST_THREADS": "1",
+    "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib"
+  },
+  "exit": 0,
+  "elapsed_seconds": 13.108252000063658,
+  "fixture_sha256": "576ccdccde8564288e5e3e0ae7b75704dc9ef18bb0cc8abb670ec70a1309082d",
+  "observed_at_utc": "2026-10-19T11:54:35.599121+00:00",
+  "counts": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "independent_review": "writing_review_review approved sole one-line test change",
+  "diff_sha256": "e5d37b3b16b601037d746f619ccfa05dbb2b8ec596b526f9466fb605f43f65da",
+  "baseline": "Original unchanged4e fixture failure and same-binary canonical-environment diagnosis retained in proposed-feedback-qualification.json",
+  "archives": [
+    {
+      "source_name": "candidate.json",
+      "archive": "canonical-temp-fixture-raw/candidate.json.gz",
+      "raw_bytes": 1092,
+      "raw_sha256": "79d25af627a9999efaf326e30c338ba363a4bcf6c483d20ab691851263471f9a",
+      "archive_bytes": 619,
+      "archive_sha256": "43108c4889584cf765d788a8ae82d3a145c7f46168c3413e9f568ec985cff2a3"
+    },
+    {
+      "source_name": "candidate.log",
+      "archive": "canonical-temp-fixture-raw/candidate.log.gz",
+      "raw_bytes": 455,
+      "raw_sha256": "411ca9934f9513e260467ff86b30d042c98a6118be7acbbc6470eb44a50af829",
+      "archive_bytes": 317,
+      "archive_sha256": "6a11f94aca0eae041e2b4638b5cc267c7e68cdf888ad6785d0d87e0ab954b7e8"
+    },
+    {
+      "source_name": "source.patch",
+      "archive": "canonical-temp-fixture-raw/source.patch.gz",
+      "raw_bytes": 757,
+      "raw_sha256": "e5d37b3b16b601037d746f619ccfa05dbb2b8ec596b526f9466fb605f43f65da",
+      "archive_bytes": 422,
+      "archive_sha256": "21a0756faeb78068259f38e4f4929e35367c7d6ed42d4525edd113cc38948e55"
+    },
+    {
+      "source_name": "source.rs",
+      "archive": "canonical-temp-fixture-raw/source.rs.gz",
+      "raw_bytes": 2241,
+      "raw_sha256": "576ccdccde8564288e5e3e0ae7b75704dc9ef18bb0cc8abb670ec70a1309082d",
+      "archive_bytes": 977,
+      "archive_sha256": "05cb3e549fd000edcf612f90ccafc0cebb0582ef107c09f6c40f2d4e0e9974e1"
+    }
+  ],
+  "limits": [
+    "Test-only repair; storage guards and all assertions unchanged",
+    "No broad suite repetition selected; frozen PR173 unchanged",
+    "No product behavior, native observation or merge claimed"
+  ]
+}

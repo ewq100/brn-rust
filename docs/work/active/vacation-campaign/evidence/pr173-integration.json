@@ -1,0 +1,104 @@
+{
+  "headRefName": "codex/agent-first-suggestions",
+  "headRefOid": "cf7e4f2e60f30c95f9d5bbdbc9996e2a63f29826",
+  "state": "MERGED",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:45:14Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040724362",
+      "name": "Documentation and tooling",
+      "startedAt": "2026-10-19T11:44:44Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:59:48Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040723291",
+      "name": "Core and CLI (ubuntu-24.04)",
+      "startedAt": "2026-10-19T11:44:45Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:46:23Z",
+      "conclusion": "FAILURE",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040723196",
+      "name": "Core and CLI (windows-2025)",
+      "startedAt": "2026-10-19T11:44:44Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T12:12:07Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040724006",
+      "name": "Core and CLI (macos-15)",
+      "startedAt": "2026-10-19T11:52:06Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:52:58Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040723339",
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "startedAt": "2026-10-19T11:44:44Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:55:11Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040723141",
+      "name": "Native UI build and state (macos-15)",
+      "startedAt": "2026-10-19T11:44:49Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-19T11:55:14Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39246843605/job/118040722705",
+      "name": "Native retrieval and combined build (macos-15)",
+      "startedAt": "2026-10-19T11:44:48Z",
+      "status": "COMPLETED",
+      "workflowName": "BRN CI"
+    }
+  ],
+  "url": "https://github.com/ewq100/brn-rust/pull/173",
+  "observed_at_utc": "2026-10-19T12:15:16.112817+00:00",
+  "production_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "source_equivalence": "All16 changed files and entire crates/agent/manifests/toolchain/lock/.cargo tree match qualified4e81; only documentation/evidence/history differ",
+  "required_checks": [
+    "Core and CLI (ubuntu-24.04)",
+    "Core and CLI (macos-15)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "strict": true,
+  "head_required_checks_passed": true,
+  "integration": "merged normally after all four exact-head required checks passed",
+  "main_status": "pending",
+  "combined_receipt": "proposed-feedback-qualification.json",
+  "independent_review": "writing_review_review approved4e81",
+  "receipt_audit": "suggestion_receipt_audit passed72 archives/16 source pins/11 commands",
+  "merge": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "merged_at": "2026-10-19T12:14:20Z",
+  "normal_exact_head_merge": true,
+  "main_head": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "main_required_checks_passed": false,
+  "main_verification": {
+    "run": 39250500661,
+    "headSha": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+    "status": "in_progress"
+  }
+}

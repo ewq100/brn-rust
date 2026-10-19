@@ -5,7 +5,7 @@ use serde_json::json;
 /// evidence. Schema8 silently discarded this authority-bearing configuration.
 #[test]
 fn checked_settings_and_backup_retain_explicit_disabled_mcp_policy() {
-    let root = tempfile::tempdir().unwrap();
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut store = Store::open(root.path().join("data")).unwrap();
     let policy =
         json!({"endpoint":"http://127.0.0.1:8077/mcp","enabled":false,"tools":[],"access":[]});
