@@ -1,5 +1,17 @@
 # Agent-first workstream reconciliation
 
+Current19October follow-through: PR172/173 all four required head/main checks
+passed; PR174 merged7fb5 after all four head checks, resulting-main39254538056
+pending. [Actual Mac review](../vacation-campaign/evidence/native-mac-review-qualification.json)
+passed visible suggestion/unchecked selection/Apply/Undo/reopen and exposed an
+open AX selected-state defect now selected for repair. Three bounded existing
+Codex-account CLI probes completed: natural request failure from omitted ID
+suffix, explicit-ID success, revised-schema natural-request success. All preserved
+Note bytes/no candidate. Native AI and broader semantic/owner journeys remain
+pending. [Current checkpoint](../vacation-campaign/checkpoint.md) supersedes older
+pending snapshots below; they remain dated implementation history.
+
+
 Owner selected this workstream on19October2026 by asking the lead to integrate
 the supplied plan into the active development workflow. [The supplied plan](plan.md)
 is preserved byte-for-byte; its dated references are historical evidence, not

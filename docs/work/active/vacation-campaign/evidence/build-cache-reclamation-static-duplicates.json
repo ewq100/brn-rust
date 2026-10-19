@@ -1,0 +1,145 @@
+{
+  "observed_at_utc": "2026-10-19T12:28:19.716431+00:00",
+  "scope": "Disposable older generated .rlib archive variants in campaign target/debug/deps only, keeping newest artifact per crate basename. Future builds may regenerate these cache artifacts. No executable, .dylib, helper, source, fixture data, evidence or credential removed.",
+  "reason": "Provide headroom for focused diagnostic regression checks after prior low-disk observation.",
+  "logical_bytes_removed": 1154566592,
+  "free_before_bytes": 2248531968,
+  "free_after_bytes": 3402956800,
+  "files": [
+    {
+      "path": "target/debug/deps/libobjc2_app_kit-9823dbcc8990c0d5.rlib",
+      "bytes": 152507616,
+      "sha256": "617c1958269cbfcd341f9cf402f62b4b06af43d77b17c69c6fa194874f365683"
+    },
+    {
+      "path": "target/debug/deps/libobjc2_app_kit-dd728dad8096f85f.rlib",
+      "bytes": 126129096,
+      "sha256": "d8ce1b630c9b212d72c89b53717d980f24b15a6912a638b6e0a4ce5d1e20ed30"
+    },
+    {
+      "path": "target/debug/deps/libobjc2_foundation-2d9ef9efd45ea266.rlib",
+      "bytes": 69730592,
+      "sha256": "19ecc04ab4777e59f6d840b9a66dcd7c1f178f40ac5a63270ec6c78c6129c14a"
+    },
+    {
+      "path": "target/debug/deps/librig_core-fffbaba63914ea17.rlib",
+      "bytes": 57036864,
+      "sha256": "99c34836b5c76677b971f204756515f323de20f0317a2dc2bb6bba9aa3afce89"
+    },
+    {
+      "path": "target/debug/deps/libobjc2_foundation-b7d7fcb8c6012582.rlib",
+      "bytes": 52858984,
+      "sha256": "68e72a2c6c95f0edcbd37264a747e9b80e25e531f13053aaa932d975dfb9ea1c"
+    },
+    {
+      "path": "target/debug/deps/librig_core-8a35abe3812eaa5f.rlib",
+      "bytes": 52452632,
+      "sha256": "2897721548935c2ad4eb0215b569833282b5e53ea9005295caa0e9edd22eeca1"
+    },
+    {
+      "path": "target/debug/deps/librig_core-5d86e9bdb0bfe675.rlib",
+      "bytes": 52448664,
+      "sha256": "03f78fdf9c6f36f806b16c481c5285de72b595abd120dcd4f8e8bd8bd196b73a"
+    },
+    {
+      "path": "target/debug/deps/libgpui_component-7466ebaa587b3809.rlib",
+      "bytes": 46519088,
+      "sha256": "cef8095eeb7bb886ffb1f3fb2ff24a602e88122146c42eed8c57a6472a31a616"
+    },
+    {
+      "path": "target/debug/deps/librig_core-296473b6d3875c78.rlib",
+      "bytes": 40842032,
+      "sha256": "ce72c52c173c2f19566951ce1cb105300472e80fe905014cc9a8b65fc2d0a754"
+    },
+    {
+      "path": "target/debug/deps/librig_core-e433bbff48bedbfc.rlib",
+      "bytes": 40840752,
+      "sha256": "7cfb66684da0ce600c859160eca6b24419c9d41482611fd50a87ca2f454e2c53"
+    },
+    {
+      "path": "target/debug/deps/librig_core-025915ee3c30542f.rlib",
+      "bytes": 40840056,
+      "sha256": "610b35220fc889059b0ba078d4915a9689acd5d0e06d74ede5a9fa87d41a26cb"
+    },
+    {
+      "path": "target/debug/deps/librig_core-e258e1cd9b2e3d8d.rlib",
+      "bytes": 37805712,
+      "sha256": "2a908770e8923cadc79aca3bb338b96fe083cd58e639868aab889a3288b627b9"
+    },
+    {
+      "path": "target/debug/deps/libgpui-4931a8e0853dc82a.rlib",
+      "bytes": 37461048,
+      "sha256": "16b901200a95fdc948bbdce5308f18baf86ac9288bca4db4a5aa59dc3182c47f"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-5569ed3ab5fb96eb.rlib",
+      "bytes": 33419656,
+      "sha256": "a328db1b270c3180f7c872baa258134e4bde7137da6d6197d11533e60bae82b0"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-32b9a1f9b7f70de9.rlib",
+      "bytes": 33367168,
+      "sha256": "e26bd5da5f65bffadd50a7ca4e0bdec545ede343af811e03aebe2c7bf2dd9df2"
+    },
+    {
+      "path": "target/debug/deps/libgpui_base-10ed8dc2074fbddb.rlib",
+      "bytes": 32137240,
+      "sha256": "3a6c79671ad9e0dc686cac9130fda153eb259d1c36136a1dcb10a0875a659165"
+    },
+    {
+      "path": "target/debug/deps/librmcp-897fcedc659ea278.rlib",
+      "bytes": 28681480,
+      "sha256": "97fdc77d9ed83f91bd2a96a0f1325782ed16e6d3fdbcc1d338bf7a1081fc9442"
+    },
+    {
+      "path": "target/debug/deps/librmcp-fff7e1028a54cb81.rlib",
+      "bytes": 28671112,
+      "sha256": "c38fb1b0fd736d2b70453327d10edfbba4e9b7e14b2301429850d442eb3d5ea6"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-f288283672e1a3d2.rlib",
+      "bytes": 25136592,
+      "sha256": "bd2de3dd717673841535ba5a0f48e09bf97e95421315d5b5bda788f2e6bf6751"
+    },
+    {
+      "path": "target/debug/deps/librmcp-a4308d285a285612.rlib",
+      "bytes": 22571624,
+      "sha256": "4b352576964eda9a5a505531919742759ea3f9cef301477901a6ded9c4c1b256"
+    },
+    {
+      "path": "target/debug/deps/librmcp-e5a70435d81a2e57.rlib",
+      "bytes": 22570504,
+      "sha256": "ca214b42fee051c9428c57d3c3120015a2ba213ec1a5cc806357b0e6e0beaf8c"
+    },
+    {
+      "path": "target/debug/deps/librmcp-38498e90997ad3d4.rlib",
+      "bytes": 20992120,
+      "sha256": "fb77a735091d5c32cd2214b79e00fe4baa10355725461c2d3a8b86830a1a77a0"
+    },
+    {
+      "path": "target/debug/deps/librmcp-0f3db97da995f001.rlib",
+      "bytes": 20990808,
+      "sha256": "88a6064b7eed0a53b796797e1459b9705fbd77f2964da6489cfd0ad5cdf4808c"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-2de441473374c5bd.rlib",
+      "bytes": 20790736,
+      "sha256": "542d96681315d728ac1327b4a07b8843977b8233e989e892e27d44b54c2c4347"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-a755a7d2901fd4ec.rlib",
+      "bytes": 20789456,
+      "sha256": "9ba65f94d68ffe9fa9dd699a9984da144904a44c707b2049af0628d319fcc1bd"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-42a40184e2d62bdf.rlib",
+      "bytes": 20557688,
+      "sha256": "950c3542f589bea26420673693b7b493bbd2d7dfd7ee8a1f7a7e4249d7d21758"
+    },
+    {
+      "path": "target/debug/deps/libbrn_ai-2fa727f84f3f5539.rlib",
+      "bytes": 16417272,
+      "sha256": "67c6ee0caf64143549fa9e96b277a28fafccdec21fd3aa58be79b8bec19faad1"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "observed_at_utc": "2026-10-19T12:44:46.657055+00:00",
+  "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "binary_sha256": "89fcbc9c05a705180c20bd5ffaa44d14ea23dc3f00fdeead43b9df64250a45f2",
+  "native_observed": true,
+  "native_ai": false,
+  "account_calls": 0,
+  "functional_result": "PASS for visible suggestion, unchecked initial selection, exact captured selection Apply, exact-byte revision Undo and durable reopen on synthetic data",
+  "accessibility_result": "FAIL: owner selection not exposed as toggle state; follow-up open",
+  "after_apply": {
+    "observed": "after actual CUA captured selection and Apply",
+    "canonical_note_version": 2,
+    "canonical_note_utf8": "Rannatuli põleb selgelt. Teine lause jääb alles.\n",
+    "canonical_note_sha256": "2cb46e42b350336e695cac00870b88e6abb5b1191c6c307f6629c0a757df845b",
+    "unrelated_note_unchanged": true,
+    "comment_records_unchanged": true,
+    "proofs": [
+      {
+        "id": "6330cfb5-1fb9-4f2e-853e-df196a9b8708:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "8984efc5-b5ee-47f2-8ae3-b9a495880c29:0",
+            "role": "writing-addressed",
+            "text": "{\"version\":1,\"request_message\":\"c003ad98-1715-4444-93df-0fe06d366f07:0\",\"applied_operation\":\"1fcfd8d7-853c-47bc-85e7-c023c490ec69\",\"comments\":[{\"id\":\"36c28d8d-c318-478d-b0e5-20f0bf8e3953:0\",\"version\":1,\"archived\":false,\"data\":{\"Comment\":{\"note\":\"8ab39d80-14a1-47a2-bd8f-977642442568:0\",\"base_version\":1,\"quote\":\"Rannatuli\",\"range\":[0,9],\"mapped_version\":null,\"mapped_range\":null,\"body\":\"Clarify the first sentence.\",\"unresolved\":false}}}]}"
+          }
+        }
+      }
+    ],
+    "native_observed": true,
+    "account_calls": 0
+  },
+  "after_undo": {
+    "observed": "after actual CUA Note applied-rewrite Undo",
+    "note": {
+      "id": "8ab39d80-14a1-47a2-bd8f-977642442568:0",
+      "version": 3,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Synthetic writing suggestion",
+          "markdown": "Rannatuli põleb vaikselt. Teine lause jääb alles.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "note_sha256": "a8fb0671ecdb321e09e1035bfa41e1463a5e3a4785070c9e13798bcddba4925e",
+    "unrelated_note_unchanged": true,
+    "comment_records_unchanged": true,
+    "visible_comment_count": 2,
+    "visible_comments_addressed": 0,
+    "compensation_operations": [
+      [
+        "b4ee7f2d-b8f0-406b-8170-ab9a255f40a6",
+        "1fcfd8d7-853c-47bc-85e7-c023c490ec69",
+        0
+      ]
+    ],
+    "native_observed": true,
+    "account_calls": 0
+  },
+  "observations": {
+    "method": "Actual macOS CUA through isolated app package; screenshot and AX observations retained in conversation tool results. No screenshot image file was exported.",
+    "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+    "binary_sha256": "89fcbc9c05a705180c20bd5ffaa44d14ea23dc3f00fdeead43b9df64250a45f2",
+    "actual_main": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+    "production_source_equals_actual_main": true,
+    "native_observed": true,
+    "native_ai_call": false,
+    "account_calls": 0,
+    "observed_steps": [
+      {
+        "step": "Open review",
+        "ax": "button Mark captured comment addressed with Apply: Clarify the first sentence.. Passage: Rannatuli",
+        "visible": "Model suggests addressed; With Apply without checkmark; owner selection initially clear."
+      },
+      {
+        "step": "Select captured first comment",
+        "visible": "checkmark Selected; footer Apply also marks1 captured comment addressed.",
+        "ax": "No tree change; same button name and no toggle boolean exposed.",
+        "result": "functional selection passed; accessibility state failed"
+      },
+      {
+        "step": "Apply2changes",
+        "ax_note": "Rannatuli põleb selgelt. Teine lause jääb alles.\n",
+        "visible": "Workingv2; Appliedv2 ·1comment addressed; excluded comment pending; addressed first history kept.",
+        "db_readback": "after-apply.json"
+      },
+      {
+        "step": "Note applied-rewrite Undo",
+        "ax_note": "Rannatuli põleb vaikselt. Teine lause jääb alles.\n",
+        "visible": "Workingv3; Comments2; neither addressed; old anchors explicitly tied to v1 and not guessed atv3.",
+        "db_readback": "after-undo.json"
+      },
+      {
+        "step": "Quit/reopen then open same Note",
+        "ax_note": "Rannatuli põleb vaikselt. Teine lause jääb alles.\n",
+        "visible": "Workingv3, Comments2, both pending/unlocated; same original text after restart."
+      },
+      {
+        "step": "Quit test app",
+        "result": "CUA App quit response expected; no test window left running."
+      }
+    ],
+    "findings": [
+      {
+        "id": "MAC-SUGGESTION-AX-1",
+        "status": "open",
+        "severity": "P2",
+        "observation": "Owner selection changes visibly but control accessibility role/name/value does not. Model-suggestion text visible on card is absent from control accessible name.",
+        "source_diagnosis": "writing.rs comment action uses selected styling but omits gpui-component Button.toggled(selected). Maintain owner-only state and reuse toolkit toggled metadata; add suggestion context to accessible name only when model_suggested.",
+        "limits": "No VoiceOver user session tested; raw AX behavior is observed."
+      },
+      {
+        "id": "MAC-SYNTHETIC-MODEL-REFRESH",
+        "status": "fixture limitation; diagnosis pending",
+        "observation": "Startup/reopen displays Work stopped: Network request failed with intentionally dead synthetic loopback provider endpoint.",
+        "limits": "No language-model Run was created; do not classify as provider generation or account failure without source diagnosis."
+      }
+    ],
+    "limits": [
+      "This one flow does not qualify all native journeys, small windows, IME, keyboard-only operation, VoiceOver usability, native AI or owner acceptance.",
+      "The original synthetic fixture remains separate from the modified fresh copy.",
+      "A successful functional path does not close the observed AX defect.",
+      "No raw screenshot PNG exported; actual screenshot/AX tool observations are in this conversation, written report transcribes observed states."
+    ]
+  },
+  "archives": [
+    {
+      "name": "after-apply.json",
+      "archive": "native-mac-review-raw/after-apply.json.gz",
+      "raw_bytes": 1188,
+      "raw_sha256": "8eac1de4c28f18b173088533da78093b51e8fe00e2ae5916d8c522d10a940758",
+      "archive_bytes": 673,
+      "archive_sha256": "f295ab677b590029bad13d6416b87a68b2b67cc7d7ad6c368b916b4cd501ac5a"
+    },
+    {
+      "name": "after-undo.json",
+      "archive": "native-mac-review-raw/after-undo.json.gz",
+      "raw_bytes": 874,
+      "raw_sha256": "2339738c65a7af89822ce7961fdca2f932dce45f3f4eb81592512151ca7b9bba",
+      "archive_bytes": 511,
+      "archive_sha256": "ff834f2f52a4527eb6663aad8675cf8e65bd8c431f57b00214dfb627306571a7"
+    },
+    {
+      "name": "cua-observations.json",
+      "archive": "native-mac-review-raw/cua-observations.json.gz",
+      "raw_bytes": 3542,
+      "raw_sha256": "413f627e4b04a8923aa02276f3f06c193204a643e351e98c76f8f6b533ab24f9",
+      "archive_bytes": 1613,
+      "archive_sha256": "1ad5904567089679f9a719e64ed27590cf900c489ccb5b8e5ab1d92259bdef4a"
+    },
+    {
+      "name": "desktop.log",
+      "archive": "native-mac-review-raw/desktop.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "name": "launch.json",
+      "archive": "native-mac-review-raw/launch.json.gz",
+      "raw_bytes": 1079,
+      "raw_sha256": "f09c2a0a50bb48598d648ecf71814550e7926b9df2fe63aff9883e7883a44a8d",
+      "archive_bytes": 670,
+      "archive_sha256": "be5f63120a6028bbc743235258a08951b269ee793eece804b84655b03e200e24"
+    },
+    {
+      "name": "packaging.json",
+      "archive": "native-mac-review-raw/packaging.json.gz",
+      "raw_bytes": 1064,
+      "raw_sha256": "80f696d9ff97c8a7404467a84301db9b371c3e053168db5a9e467102cc070437",
+      "archive_bytes": 477,
+      "archive_sha256": "b48ced6f0adacdc4bdde2d85d3ac5d7c543467ec6e50c36e01ba4a90a6ab3e7b"
+    }
+  ],
+  "remaining_gate": "Fix actual AX state and reobserve matching native binary; other native journeys/provider usefulness/owner acceptance remain pending"
+}
