@@ -349,7 +349,7 @@ fn protected_local_edit_needs_exact_review_or_scoped_owner_instruction_and_undo_
             ));
         }
         assert!(
-            matches!(store.record(&note).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Tuesday" && n.protected && !n.confirmed)
+            matches!(store.record(&note).unwrap().unwrap().data, RecordData::Note(n) if n.markdown == "Tuesday" && n.protected && n.confirmed != direct)
         );
         let undo = store.allocate_operation("undo-local").unwrap();
         assert!(matches!(
