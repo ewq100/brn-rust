@@ -4657,3 +4657,96 @@ fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut
     })
     .unwrap();
 }
+
+#[gpui_kit::test]
+fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_apply(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let mut id = String::new();
+    let mut operation = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(
+                view,
+                &f.a,
+                "tere",
+                0..4,
+                "Original captured instruction",
+                window,
+                cx,
+            );
+            let captured = view
+                .workspace
+                .writing_comments(&f.a.id)
+                .unwrap()
+                .remove(0)
+                .record;
+            id = captured.id.clone();
+            let (_, candidate) = proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                std::slice::from_ref(&id),
+                "Must not be applied",
+                "changed-feedback-card",
+            );
+            operation = candidate.operation.as_str().into();
+            view.open_review(candidate, window, cx);
+            let mut newer = captured.data;
+            if let RecordData::Comment(comment) = &mut newer {
+                comment.body = "New owner instruction".into();
+            }
+            view.workspace
+                .owner_change(
+                    "change-feedback-before-review-apply",
+                    &ChangeRequest {
+                        reason: "Owner updated feedback in another view".into(),
+                        writes: vec![Put {
+                            id: id.clone(),
+                            expected_version: Some(captured.version),
+                            archived: false,
+                            data: newer,
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap();
+            view.refresh();
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert_eq!(
+            window.find(format!("comment-card-{id}")).label(),
+            Some("Captured passage: “tere”. Instruction: Original captured instruction")
+        );
+        assert!(
+            window
+                .find(format!("comment-status-{id}"))
+                .label()
+                .unwrap()
+                .contains("changed since")
+        );
+        window.click(format!("review-address-comment-{id}"), cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("apply-final", cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, _| {
+            let operation = view.workspace.store.operation(&operation).unwrap();
+            assert!(view.workspace.store.receipt(&operation).unwrap().is_none());
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            assert!(view.writing.review.is_some());
+            assert!(view.workspace.writing_comments(&f.a.id).unwrap().iter().all(|comment| !comment.addressed));
+            assert!(matches!(view.workspace.store.record(&id).unwrap().unwrap().data, RecordData::Comment(comment) if comment.body == "New owner instruction"));
+        });
+    }).unwrap();
+}

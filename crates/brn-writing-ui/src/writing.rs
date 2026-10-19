@@ -1483,6 +1483,12 @@ impl<T: 'static> WritingView<'_, T> {
                 .border_l_2()
                 .border_color(rgb(p.border))
                 .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
+                .when_some(captured, |card, captured| {
+                    card.aria_label(format!(
+                        "Captured passage: “{}”. Instruction: {}",
+                        captured.quote, captured.body
+                    ))
+                })
                 .child(div().text_size(UI_TEXT).child(shown.body.clone()))
                 .when(!status.is_empty(), |card| {
                     card.child(
