@@ -74,14 +74,11 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
     let (sender, receiver) = mpsc::sync_channel(4);
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
-            view.worker = Some(Worker {
+            view.worker = Some(Worker::import(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: None,
-                run_id: None,
-            });
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+            ));
             sender
                 .send(WorkerEvent::Converted {
                     result: Box::new(Ok(ConversionResult {
@@ -431,45 +428,68 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
         ),
     ] {
         let (_sender, receiver) = mpsc::sync_channel(4);
-        let cancel = CancellationToken::new();
-        let conversion_cancel = Arc::new(AtomicBool::new(false));
-        cx.update_window(window, |_, window, cx| {
-            view.update(cx, |view, cx| {
-                view.worker = Some(Worker {
-                    receiver,
-                    cancel: cancel.clone(),
-                    conversion_cancel: conversion_cancel.clone(),
-                    kind,
-                    thread: (kind == WorkerKind::Run).then(|| thread.id.clone()),
-                    run_id: None,
-                });
-                view.progress = "Synthetic progress".into();
-                view.composer.update(cx, |editor, cx| {
-                    editor.set_value("Home waiting draft", window, cx)
-                });
-                view.open_thread(&thread.id, window, cx);
-                assert_eq!(view.composer.read(cx).value().as_ref(), "");
-                view.composer.update(cx, |editor, cx| {
-                    editor.set_value("Chat waiting draft", window, cx)
-                });
-                view.ask(window, cx);
-                // The queue notice says when it runs ("Queued; runs after …").
-                assert!(view.notice.starts_with("Queued"), "{}", view.notice);
-                assert_eq!(view.composer.read(cx).value().as_ref(), "");
-                assert!(
-                    view.queue_state()
-                        .queue
-                        .iter()
-                        .any(|q| q.text == "Chat waiting draft")
-                );
-                view.new_thread(window, cx);
-                assert_eq!(
-                    view.composer.read(cx).value().as_ref(),
-                    "Home waiting draft"
-                );
-            });
-        })
-        .unwrap();
+        let (cancel, conversion_cancel, _lease) = cx
+            .update_window(window, |_, window, cx| {
+                view.update(cx, |view, cx| {
+                    let mut lease = None;
+                    let worker = match kind {
+                        WorkerKind::Run => {
+                            let run = chat_tests::record_run(
+                                &mut view.workspace,
+                                &thread.id,
+                                RunState::Working,
+                                "Synthetic progress",
+                            );
+                            lease = Some(
+                                brn_ai::run_lease::RunLease::acquire(
+                                    &view.workspace.store.derived_directory().unwrap(),
+                                    &run,
+                                )
+                                .unwrap(),
+                            );
+                            Worker::run(receiver, CancellationToken::new(), thread.id.clone(), run)
+                        }
+                        WorkerKind::Import => Worker::import(
+                            receiver,
+                            CancellationToken::new(),
+                            Arc::new(AtomicBool::new(false)),
+                        ),
+                        WorkerKind::Export | WorkerKind::Backup => {
+                            Worker::output(receiver, kind == WorkerKind::Backup)
+                        }
+                        WorkerKind::Connect => Worker::connect(receiver, CancellationToken::new()),
+                    };
+                    let cancel = worker.cancel.clone();
+                    let conversion_cancel = worker.conversion_cancel.clone();
+                    view.worker = Some(worker);
+                    view.progress = "Synthetic progress".into();
+                    view.composer.update(cx, |editor, cx| {
+                        editor.set_value("Home waiting draft", window, cx)
+                    });
+                    view.open_thread(&thread.id, window, cx);
+                    assert_eq!(view.composer.read(cx).value().as_ref(), "");
+                    view.composer.update(cx, |editor, cx| {
+                        editor.set_value("Chat waiting draft", window, cx)
+                    });
+                    view.ask(window, cx);
+                    // The queue notice says when it runs ("Queued; runs after …").
+                    assert!(view.notice.starts_with("Queued"), "{}", view.notice);
+                    assert_eq!(view.composer.read(cx).value().as_ref(), "");
+                    assert!(
+                        view.queue_state()
+                            .queue
+                            .iter()
+                            .any(|q| q.text == "Chat waiting draft")
+                    );
+                    view.new_thread(window, cx);
+                    assert_eq!(
+                        view.composer.read(cx).value().as_ref(),
+                        "Home waiting draft"
+                    );
+                    (cancel, conversion_cancel, lease)
+                })
+            })
+            .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| {
             assert_eq!(window.try_find("stop-work").is_some(), cancellable);
@@ -1136,6 +1156,15 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
     configure_offline_fixture(&mut workspace);
     let a = workspace.new_thread("Working chat A").unwrap();
     let b = workspace.new_thread("Unrelated chat B").unwrap();
+    let run = chat_tests::record_run(
+        &mut workspace,
+        &a.id,
+        RunState::Working,
+        "Synthetic progress",
+    );
+    let _lease =
+        brn_ai::run_lease::RunLease::acquire(&workspace.store.derived_directory().unwrap(), &run)
+            .unwrap();
     cx.update(gpui_kit::init);
     let (window, view) = cx.update(|cx| {
         gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
@@ -1151,14 +1180,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
     let cancel = CancellationToken::new();
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
-            view.worker = Some(Worker {
-                receiver,
-                cancel: cancel.clone(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Run,
-                thread: Some(a.id.clone()),
-                run_id: None,
-            });
+            view.worker = Some(Worker::run(receiver, cancel.clone(), a.id.clone(), run.clone()));
             view.open_thread(&b.id, window, cx);
             sender
                 .send(WorkerEvent::Text("Only A's synthetic answer".into()))
@@ -1175,8 +1197,8 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
             view.resolve_thread(&b.id, cx);
             assert!(!cancel.is_cancelled(), "resolving B must not cancel A");
             assert_eq!(
-                view.worker.as_ref().unwrap().thread.as_deref(),
-                Some(a.id.as_str())
+                view.worker.as_ref().unwrap().run_identity().unwrap().thread,
+                a.id
             );
             let RecordData::Thread(a_state) =
                 view.workspace.store.record(&a.id).unwrap().unwrap().data
@@ -1205,6 +1227,10 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
                 cancel.is_cancelled(),
                 "resolving the worker's A must cancel A"
             );
+            let RecordData::Run(stopped) = view.workspace.store.record(&run).unwrap().unwrap().data else { panic!("expected Run") };
+            assert_eq!(stopped.state, RunState::Interrupted);
+            assert!(view.workspace.messages(&a.id).unwrap().iter().any(|record| matches!(&record.data, RecordData::Message(message) if message.role == "assistant-partial" && message.text == "Authoritative A")));
+            assert!(view.workspace.messages(&b.id).unwrap().is_empty());
         });
     })
     .unwrap();

@@ -13,6 +13,8 @@ its four required checks and documentation passed. Its source `823a1544` matches
 the retained independent-review digest; the earlier source-bound local evidence
 is in [worker identity](worker-identity.md). Resulting-main checks remain separate.
 PR162's required/main evidence is retained in the current evidence record.
+The [pre-local PR163 checkpoint](https://github.com/ewq100/brn-rust/blob/c86e6d501ca6f7837d86cf9863367f6fb2bd35f0/docs/work/active/vacation-campaign/checkpoint.md)
+retains its original cloud-era continuation observations.
 
 Current branch: `codex/vacation-hardening`, isolated from the owner's old checkout.
 PR164 carries continuation policy; reconcile it with PR163 rather than redo the

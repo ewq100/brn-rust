@@ -1,0 +1,17 @@
+{
+  "cli": "codex-cli 0.159.2",
+  "login_status": "Logged in using ChatGPT; this is local credential presence, not verified Cloud authorization",
+  "cloud_list": "HTTP 401 Unauthorized: Could not parse your authentication token. Please try signing in again.",
+  "app_server_probe": "codex app-server --stdio exited1 before initialize: failed to initialize sqlite state runtime under /run/codex-environment/codex-home (read-only state directory); no quota snapshot",
+  "exposed_tools": "Reminder automation CRUD is available; no native Cloud goal, account quota read, durable host guarantee or quota-aware Cloud resume tool is exposed",
+  "automation_lookup": "No existing campaign continuation automation found; unrelated automations preserved",
+  "environment_status": "Connected/running; observations_current true; no configured capabilities/secrets/runtime variables/outbound identities. Desired unrestricted HTTP policy has observed state unknown, so enforcement readiness is not established. Local startup policy version1 unrestricted; vpn_configured false.",
+  "github": "Read-only PR/run API and fetch succeeded through inherited proxy with network access enabled",
+  "remote_jobs_launched": [],
+  "next_wake": null,
+  "unattended_status": "INACTIVE",
+  "admission_state": "TELEMETRY_UNAVAILABLE",
+  "expiry_utc": "2026-11-01T21:41:51+00:00",
+  "limits": "No login recreation, credential edits, paid API workers, new supervisor, goal activation or automatic-resume claim",
+  "observed_at_utc": "2026-10-19T04:44:45.118647+00:00"
+}

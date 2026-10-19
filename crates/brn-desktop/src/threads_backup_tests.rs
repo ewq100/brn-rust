@@ -91,7 +91,7 @@ fn first_picker_saves_then_backs_up_and_saved_click_reloads_folder_and_uses_fres
         assert!(window.find("backup-change-folder").visible());
         f.view.update(cx, |ui, cx| {
             ui.backup_folder_chosen(Ok(Some(vec![f.folder.clone()])), true, cx);
-            assert_eq!(ui.worker.as_ref().unwrap().kind, WorkerKind::Backup);
+            assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Backup);
             assert_eq!(
                 ui.workspace.settings().unwrap().backup_directory.as_deref(),
                 f.folder.to_str()
@@ -172,21 +172,18 @@ fn picker_return_and_backup_click_refuse_busy_without_changing_folder(cx: &mut T
     let (_sender, receiver) = mpsc::sync_channel(4);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            ui.worker = Some(Worker {
+            ui.worker = Some(Worker::import(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: None,
-                run_id: None,
-            });
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+            ));
             ui.backup_folder_chosen(Ok(Some(vec![f.folder.clone()])), true, cx);
             assert!(ui.workspace.settings().unwrap().backup_directory.is_none());
-            assert_eq!(ui.worker.as_ref().unwrap().kind, WorkerKind::Import);
+            assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Import);
             assert_eq!(ui.notice, WorkerKind::Import.busy_notice());
             ui.choose_output(true, window, cx);
             ui.choose_backup_folder(false, window, cx);
-            assert_eq!(ui.worker.as_ref().unwrap().kind, WorkerKind::Import);
+            assert_eq!(ui.worker.as_ref().unwrap().kind(), WorkerKind::Import);
             assert_eq!(ui.backup_status, "No backup created in this session.");
         })
     })

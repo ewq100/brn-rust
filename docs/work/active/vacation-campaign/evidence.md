@@ -171,3 +171,11 @@ operation plus explicit constructors, coherent identity reads and qualified fixt
 Future selection must list open PRs, inspect the actual campaign branch tip and
 compare existing candidates before dispatching a worker. The lead will reuse valid
 source/review/CI evidence and preserve the existing independent findings/failures.
+
+The upstream merge produced conflicts only in current status, campaign state and
+checkpoint. Resolution retains the newer owner-authorized local/Mac/merge/quota
+policy, carries all PR163 source/evidence files unchanged and links its exact
+historical checkpoint. An intermediate pre-merge link check failed because the
+upstream worker-identity document was not yet present; this is retained separately
+from the complete merged-tree link result. Required CI will run on the reconciled
+candidate, not be borrowed from either earlier head.

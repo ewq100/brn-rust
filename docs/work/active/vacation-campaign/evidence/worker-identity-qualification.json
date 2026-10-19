@@ -1,0 +1,151 @@
+{
+  "source_commit": "823a154497ff1ff3f4abb05b75eebf6473d45c70",
+  "source_diff_sha256_against_aebfa12b": "e346235c98c26e9ce1922bfbf92ba6f32d4bd42dcc2c674567cab992ea9e2f88",
+  "preamble": [
+    "source /workspace/brn-environment/activate-current.sh",
+    "export TMPDIR=/tmp/brn-campaign-identity"
+  ],
+  "working_directory": "/workspace/brn-rust",
+  "toolchain": "repository pin Rust1.98.1; lockfile unchanged; locked/offline",
+  "cli_reused_sha256": "492a6ef0547225938eac78190744002aae8d968771e0a80be651ade17978400b",
+  "limits": [
+    "Headless GPUI/Workspace integration; no new native OS interaction",
+    "No provider access; synthetic fixtures only",
+    "MCP busy fixture tests immutable real Run admission, not Run liveness",
+    "No bug reproduction claimed for this structural slice"
+  ],
+  "commands": [
+    {
+      "command": "cargo test -p brn-desktop --features native-test-support --bin brn-desktop native_stream_and_resolution_keep_the_worker_thread_owner --locked --offline",
+      "log": "vacation-identity-focused-initial.log",
+      "exit": 0,
+      "result": "1 passed; 315 filtered",
+      "log_sha256": "073ba1382cecb6ae53d14a83df324fc7556eb31eab59bdd9e4f545d75c7bc1f6",
+      "qualification": "Before MCP busy fixture ordering correction; production source identical to reviewed final material.",
+      "retained_log": "logs/vacation-identity-focused-initial.log.gz"
+    },
+    {
+      "command": "cargo test -p brn-desktop --features native-test-support --bin brn-desktop --locked --offline",
+      "log": "vacation-identity-desktop-full.log",
+      "exit": 101,
+      "result": "314 passed; 1 failed; 1 ignored",
+      "qualification": "Before MCP busy fixture ordering correction. Seeding a Run after review correctly invalidated its MCP stamp.",
+      "log_sha256": "801f24a376a286ce92d37c086c656ec6f011bf60abee0981fd5010965e81d604",
+      "retained_log": "logs/vacation-identity-desktop-full.log.gz"
+    },
+    {
+      "command": "cargo test -p brn-desktop --features native-test-support --bin brn-desktop nf1_busy_chat_and_retry_leave_exact_review_available --locked --offline",
+      "log": "vacation-identity-mcp-repair1.log",
+      "exit": 0,
+      "result": "1 passed; 315 filtered",
+      "log_sha256": "aaee1adb7aac4b47852208889882ae4e391035246be46b7e1eff07a3daa40840",
+      "retained_log": "logs/vacation-identity-mcp-repair1.log.gz"
+    },
+    {
+      "command": "cargo test -p brn-desktop --features native-test-support --bin brn-desktop --locked --offline",
+      "log": "vacation-identity-desktop-final.log",
+      "exit": 0,
+      "result": "315 passed; 0 failed; 1 ignored",
+      "log_sha256": "2c6d765fb0fd44bb63a87f6a8850d5e29d95241d0509ac07d9c8b1f3763682a1",
+      "retained_log": "logs/vacation-identity-desktop-final.log.gz"
+    },
+    {
+      "command": "python3 /tmp/vacation-identity-cli-fixture.py",
+      "log": "vacation-identity-cli-fixture.log",
+      "exit": 1,
+      "result": "Fixture harness assertion refused normal CLI stderr progress line. Product intake exited expected7; no provider contact.",
+      "log_sha256": "376ca403666ff150e4f075126063e550625e45b807f535b9c08b6576122ece56",
+      "script_revision": "Initial temporary script asserted empty stderr; root=/tmp/brn-campaign-identity/cli-desktop.",
+      "retained_log": "logs/vacation-identity-cli-fixture.log.gz"
+    },
+    {
+      "command": "python3 /tmp/vacation-identity-cli-fixture.py",
+      "log": "vacation-identity-cli-fixture-final.log",
+      "exit": 1,
+      "result": "Fixture harness expected ReconnectNeeded but /tmp-based auth path was refused as UnsafeCredentials; no provider contact.",
+      "log_sha256": "81db6aa54369c23d40174773dd399ed6f8282bc056f329ac0b475a0a44b9921b",
+      "script_revision": "Second temporary script accepts normal progress stderr; root=/tmp/brn-campaign-identity/cli-desktop-final; explicit missing auth file under same /tmp root.",
+      "retained_log": "logs/vacation-identity-cli-fixture-final.log.gz"
+    },
+    {
+      "command": "python3 /tmp/vacation-identity-cli-fixture.py",
+      "log": "vacation-identity-cli-fixture-qualified.log",
+      "exit": 0,
+      "result": "Fresh purpose=test fixture initialized/configured; useful intake exited7 with Failed:ReconnectNeeded, explicitly missing /var/tmp auth file. Final script copy retained beside logs.",
+      "log_sha256": "b8e42d4f986271240a6629df1e196ee35d7c840827c0660b89483d6b255e7fdb",
+      "script_revision": "Final script retained as vacation-identity-cli-fixture.py; root=/tmp/brn-campaign-identity/cli-desktop-qualified; explicitly missing auth path under /var/tmp.",
+      "retained_log": "logs/vacation-identity-cli-fixture-qualified.log.gz"
+    },
+    {
+      "command": "cargo test -p brn-desktop --features native-test-support --bin brn-desktop a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left --locked --offline -- --ignored --exact threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left",
+      "log": "vacation-identity-cli-desktop.log",
+      "exit": 0,
+      "result": "1 passed; 315 filtered",
+      "env": {
+        "BRN_DWR_SHARED_DATA": "/tmp/brn-campaign-identity/cli-desktop-qualified/data",
+        "BRN_DWR_SHARED_SOURCE": "/tmp/brn-campaign-identity/cli-desktop-qualified/synthetic-source.md",
+        "BRN_DWR_SHARED_CHAT": "9a0833a4-4e96-41f5-b620-31ba0893e4d3:0"
+      },
+      "log_sha256": "ccf69e170323821a2c121ea2d834fd961378843794efb4e2a8f2302f0482f01a",
+      "retained_log": "logs/vacation-identity-cli-desktop.log.gz"
+    },
+    {
+      "command": "cargo clippy -p brn-desktop --features native-test-support --all-targets --locked --offline -- -D warnings",
+      "log": "vacation-identity-clippy.log",
+      "exit": 0,
+      "result": "Passed",
+      "log_sha256": "1b5567bc511714703ba09523fd7ab7d3e8ff74c6deefeb4a9ed70dae655a95c9",
+      "retained_log": "logs/vacation-identity-clippy.log.gz"
+    },
+    {
+      "command": "cargo build -p brn-desktop --features native-ui --bin brn-desktop --locked --offline",
+      "log": "vacation-identity-production-build.log",
+      "exit": 0,
+      "result": "Passed",
+      "log_sha256": "fbf798cb46129b1f70de27d597c10040fad12ee60575c041cb043ed9fe5646d1",
+      "retained_log": "logs/vacation-identity-production-build.log.gz"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "log": "vacation-identity-fmt.log",
+      "exit": 0,
+      "result": "Passed",
+      "log_sha256": "1a1873eea12bc49e4c371dcd9c90f53eb429da6c4500e67d2e4c468f32609617",
+      "retained_log": "logs/vacation-identity-fmt.log.gz"
+    },
+    {
+      "command": "git diff --check",
+      "log": "vacation-identity-diff-check.log",
+      "exit": 0,
+      "result": "Passed",
+      "log_sha256": "8c83a0dcfebc4bf532bca09474cc581378ddfd5f8589b4f2abf8dcc91ec9e6e7",
+      "retained_log": "logs/vacation-identity-diff-check.log.gz"
+    },
+    {
+      "command": "cargo test -p brn-desktop --bin brn-desktop --locked --offline",
+      "log": "vacation-identity-default.log",
+      "exit": 130,
+      "result": "UNCOMPLETED: interrupted by lead direction during dependency compilation; no tests executed; not passing evidence. WorkerKind source unchanged and full native suite already passed.",
+      "log_sha256": "70299b2593224743d793858fe943aa741fde414535d78734cd17564d0f4a3647",
+      "retained_log": "logs/vacation-identity-default.log.gz"
+    }
+  ],
+  "observed_at_utc": "2026-10-19T04:53:48.320837+00:00",
+  "results": {
+    "full_desktop": {
+      "passed": 315,
+      "failed": 0,
+      "ignored": 1
+    },
+    "explicit_ignored_cli_desktop": {
+      "passed": 1,
+      "failed": 0,
+      "filtered": 315
+    },
+    "strict_all_target_clippy": "PASS",
+    "production_native_ui_build": "PASS",
+    "format_check": "PASS"
+  },
+  "hosted_ci": "Pending new draft PR; prior PR162 receipts do not qualify this source",
+  "source_crates_tree": "5aa403ca02b05513ccda7fa5825b021d88031ad7"
+}

@@ -1166,7 +1166,7 @@ impl ThreadsUi {
             .border_color(rgb(p.hairline));
         if let Some(worker) = &self.worker {
             let status = self.worker_status(worker);
-            let thread = worker.thread.clone();
+            let thread = worker.run_identity().map(|run| run.thread.clone());
             let progress = thread.as_ref().map_or_else(
                 || status.clone(),
                 |thread| {
@@ -1211,7 +1211,7 @@ impl ThreadsUi {
                     }))
                     .test_support(),
             );
-            if worker.kind.can_cancel() {
+            if worker.kind().can_cancel() {
                 bar = bar.child(
                     pill("stop-work", "Stop")
                         .h(tokens::ICON_CONTROL)
