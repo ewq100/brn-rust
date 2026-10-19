@@ -356,7 +356,7 @@ fn themes_switch_from_settings_and_launcher_and_wait_for_running_work(cx: &mut T
             view.workspace.settings().unwrap().theme.as_deref(),
             Some("virmalised")
         );
-        assert!(view.notice.contains("once no work is running"));
+        assert!(view.notice.text().contains("once no work is running"));
         assert!(matches!(
             view.workspace.store.record(&run).unwrap().unwrap().data,
             RecordData::Run(Run {
@@ -480,7 +480,7 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
                 .unwrap()
                 .archived
         );
-        assert!(view.notice.contains("Unarchive"));
+        assert!(view.notice.text().contains("Unarchive"));
     });
     click(cx, &f, "reopen-thread");
     cx.read(|cx| {
@@ -760,7 +760,7 @@ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContex
             view.writing.comment_anchor.is_none(),
             "no anchor on unsaved text"
         );
-        assert!(view.notice.contains("anchor to the saved version"));
+        assert!(view.notice.text().contains("anchor to the saved version"));
         assert!(
             view.workspace
                 .writing_comments(&note.id)
@@ -970,7 +970,7 @@ fn review_in_place_applies_exact_candidate_then_marks_addressed_and_undoes(
             view.writing.review.is_edited(),
             "card actions keep edited text"
         );
-        assert!(view.notice.contains("editing this proposal"));
+        assert!(view.notice.text().contains("editing this proposal"));
         assert!(view.candidates.iter().any(|c| c.operation.as_str() == op));
         let RecordData::Note(saved) = view.workspace.store.note(&note.id).unwrap().unwrap().data
         else {
@@ -1649,7 +1649,7 @@ fn a_focused_overflow_menu_opens_and_runs_an_item_from_the_keyboard(cx: &mut Tes
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert!(open.session().is_none(), "the chosen item ran: {}", view.notice);
+        assert!(open.session().is_none(), "the chosen item ran: {}", view.notice.text());
         assert!(matches!(&open.record().data, RecordData::Note(n) if n.markdown == "Saved from the keyboard"));
     });
 }
@@ -1832,7 +1832,7 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert!(open.session().is_none(), "clicking saves: {}", view.notice);
+        assert!(open.session().is_none(), "clicking saves: {}", view.notice.text());
         assert!(
             matches!(&open.record().data, RecordData::Note(n) if n.markdown == "Unsaved status text")
         );

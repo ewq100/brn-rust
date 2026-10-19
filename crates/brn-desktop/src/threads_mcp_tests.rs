@@ -113,7 +113,7 @@ fn nf1_retry_consumes_mismatch_before_prepare_and_second_retry_progresses(cx: &m
         assert!(ui.worker.is_none());
         assert!(ui.mcp_view.pending.is_none());
         assert!(ui.mcp_view.query.is_none());
-        assert_eq!(ui.notice, format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
+        assert_eq!(ui.notice.text(), format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
         assert_eq!(ui.notice_tone(), Tone::Warning);
         assert_eq!(ui.workspace.records().unwrap(), records);
         assert_eq!(ui.workspace.history().unwrap(), receipts);
@@ -121,7 +121,7 @@ fn nf1_retry_consumes_mismatch_before_prepare_and_second_retry_progresses(cx: &m
         assert_eq!(ui.writing.general_feedback.read(cx).value().as_ref(), "Unsent next feedback");
         ui.retry_rewrite(saved.request_message.clone(), cx);
         assert!(ui.worker.is_none());
-        assert_eq!(ui.notice, "Rewrite request saved; AI has not started. Choose a provider and model in Settings before asking BRN. Retry rewrite uses these same saved inputs.");
+        assert_eq!(ui.notice.text(), "Rewrite request saved; AI has not started. Choose a provider and model in Settings before asking BRN. Retry rewrite uses these same saved inputs.");
         assert_eq!(ui.workspace.records().unwrap(), records);
         assert_eq!(ui.workspace.history().unwrap(), receipts);
         assert_eq!(ui.workspace.writing_request(&saved.request_message).unwrap(), saved);
@@ -138,7 +138,7 @@ fn nf1_chat_mismatch_refuses_without_a_run(cx: &mut TestAppContext) {
             let records = ui.workspace.records().unwrap();
             let receipts = ui.workspace.history().unwrap();
             ui.start_run("Different prompt".into(), f.chat.clone(), vec![], None, cx);
-            assert_eq!(ui.notice, NF1_REFUSAL);
+            assert_eq!(ui.notice.text(), NF1_REFUSAL);
             assert_eq!(ui.notice_tone(), Tone::Warning);
             assert!(ui.worker.is_none());
             assert!(ui.mcp_view.pending.is_none());
@@ -168,10 +168,10 @@ fn queued_start_refuses(cx: &mut TestAppContext, resume: bool, rewrite: bool) {
         let receipts = ui.workspace.history().unwrap();
         if let Some(saved) = saved {
             ui.retry_rewrite(saved.request_message, cx);
-            assert_eq!(ui.notice, format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
+            assert_eq!(ui.notice.text(), format!("Rewrite request saved; AI has not started. {NF1_REFUSAL} Retry rewrite uses these same saved inputs."));
         } else {
             ui.start_run(prompt.into(), f.chat.clone(), vec![], None, cx);
-            assert_eq!(ui.notice, NF1_REFUSAL);
+            assert_eq!(ui.notice.text(), NF1_REFUSAL);
         }
         assert!(ui.worker.is_none());
         assert!(ui.mcp_view.pending.is_none());
@@ -214,8 +214,12 @@ fn nf1_exact_chat_start_attaches_then_spawns_exactly_one_run(cx: &mut TestAppCon
                 .as_ref()
                 .expect("matching review reaches synchronous spawn");
             let run = worker.run_identity().map(|run| &run.run_id).unwrap();
-            assert!(!ui.notice.contains("MCP input review no longer matches"));
-            assert!(!ui.notice.contains("MCP input authorization refused"));
+            assert!(
+                !ui.notice
+                    .text()
+                    .contains("MCP input review no longer matches")
+            );
+            assert!(!ui.notice.text().contains("MCP input authorization refused"));
             assert!(ui.mcp_view.pending.is_none());
             assert!(ui.mcp_view.query.is_none());
             let new_runs: Vec<_> = ui
@@ -271,11 +275,11 @@ fn nf1_busy_chat_and_retry_leave_exact_review_available(cx: &mut TestAppContext)
                 run,
             ));
             ui.start_run("Exact after busy".into(), f.chat.clone(), vec![], None, cx);
-            assert_eq!(ui.notice, WorkerKind::Run.busy_notice());
+            assert_eq!(ui.notice.text(), WorkerKind::Run.busy_notice());
             assert!(ui.mcp_view.pending.is_some());
             assert!(ui.mcp_view.query.is_some());
             ui.retry_rewrite(saved.request_message, cx);
-            assert_eq!(ui.notice, WorkerKind::Run.busy_notice());
+            assert_eq!(ui.notice.text(), WorkerKind::Run.busy_notice());
             assert!(ui.mcp_view.pending.is_some());
             assert!(ui.mcp_view.query.is_some());
             assert_eq!(ui.workspace.records().unwrap(), records);

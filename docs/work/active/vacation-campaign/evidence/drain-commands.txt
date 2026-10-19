@@ -1,0 +1,14 @@
+Source1e89f4e86435c75bfc320d741eed84abfacb496a, baseline7bbd7d6e145a08bae7eaead089514c33cf88c941.
+PATH=/opt/homebrew/opt/rustup/bin:$PATH
+CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+cargo +1.98.1 test -p brn-desktop --features native-test-support --bin brn-desktop worker::tests --locked --offline --jobs 1
+cargo +1.98.1 test -p brn-desktop --features native-test-support --bin brn-desktop --locked --offline --jobs 1
+cargo +1.98.1 clippy -p brn-desktop --features native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+rustup run 1.98.1 cargo fmt --all -- --check
+git diff --check
+cargo +1.98.1 build -p brn-desktop --features native-ui --locked --offline --jobs 1
+Baseline witness: checkout baseline7bbd7d6e and apply drain-baseline-test-only.patch before focused test. The patch is reconstructed from frozen before/after source: unchanged old drain plus expected-budget constant and three tests. Original raw baseline log is retained; no new baseline rerun is claimed.
+Initial wrong module filter selected0 tests; not a passing gate or baseline evidence. Corrected worker::tests produced3 meaningful failures before the fix.

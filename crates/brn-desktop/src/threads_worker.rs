@@ -7,6 +7,8 @@ use super::{ConversionResult, DocumentConversionSettings, WorkerKind};
 use std::sync::{Arc, atomic::AtomicBool, mpsc::Receiver};
 use tokio_util::sync::CancellationToken;
 
+const MAX_EVENTS_PER_DRAIN: usize = 128;
+
 pub(super) enum WorkerEvent {
     AnswerFinalized(String),
     Progress(String),
@@ -140,30 +142,29 @@ impl Worker {
         }
     }
 
-    /// Drain currently available events from this receiver only. The first
-    /// terminal wins even if the producer then sends more events or disconnects.
-    /// The host must retire this worker after consuming a terminal batch, before
-    /// dispatching another invocation; no old events can reach its successor.
+    /// Drain at most 128 events from this receiver. The first terminal wins even
+    /// if the producer then sends more events or disconnects. The host must retire
+    /// this worker after consuming a terminal batch, before dispatching another
+    /// invocation; no old events can reach its successor.
     pub(super) fn drain(&self) -> WorkerBatch {
         let mut batch = WorkerBatch {
             events: Vec::new(),
             end: WorkerBatchEnd::Pending,
         };
-        loop {
+        while batch.events.len() < MAX_EVENTS_PER_DRAIN {
             match self.receiver.try_recv() {
                 Ok(event) => {
-                    if batch.end == WorkerBatchEnd::Finished {
-                        continue;
-                    }
-                    if matches!(
+                    let terminal = matches!(
                         event,
                         WorkerEvent::Finished(_)
                             | WorkerEvent::RunFinished { .. }
                             | WorkerEvent::Converted { .. }
-                    ) {
-                        batch.end = WorkerBatchEnd::Finished;
-                    }
+                    );
                     batch.events.push(event);
+                    if terminal {
+                        batch.end = WorkerBatchEnd::Finished;
+                        break;
+                    }
                 }
                 Err(std::sync::mpsc::TryRecvError::Empty) => break,
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
@@ -314,5 +315,122 @@ mod tests {
         assert!(
             matches!(batch.events.as_slice(), [WorkerEvent::Finished(Ok(text))] if text == "Done")
         );
+    }
+
+    #[test]
+    fn a_large_backlog_is_drained_in_fifo_batches_through_its_terminal() {
+        let before_terminal = MAX_EVENTS_PER_DRAIN * 2;
+        let (sender, receiver) = mpsc::sync_channel(before_terminal + 2);
+        let worker = Worker::run(
+            receiver,
+            CancellationToken::new(),
+            "original-chat".into(),
+            "original-run".into(),
+        );
+        for index in 0..before_terminal {
+            sender
+                .send(WorkerEvent::Text(format!("event-{index}")))
+                .unwrap();
+        }
+        sender
+            .send(WorkerEvent::Finished(Ok("Original completion".into())))
+            .unwrap();
+        sender
+            .send(WorkerEvent::Text("After terminal".into()))
+            .unwrap();
+
+        let mut observed = Vec::new();
+        for _ in 0..2 {
+            let (events, end) = worker.drain().into_parts();
+            assert_eq!(events.len(), MAX_EVENTS_PER_DRAIN);
+            assert_eq!(end, WorkerBatchEnd::Pending);
+            observed.extend(events.into_iter().map(|event| match event {
+                WorkerEvent::Text(text) => text,
+                _ => panic!("expected preterminal text"),
+            }));
+        }
+        let (events, end) = worker.drain().into_parts();
+        assert_eq!(end, WorkerBatchEnd::Finished);
+        assert!(matches!(
+            events.as_slice(),
+            [WorkerEvent::Finished(Ok(text))] if text == "Original completion"
+        ));
+        assert_eq!(
+            observed,
+            (0..before_terminal)
+                .map(|index| format!("event-{index}"))
+                .collect::<Vec<_>>()
+        );
+        assert!(matches!(
+            worker.receiver.try_recv(),
+            Ok(WorkerEvent::Text(text)) if text == "After terminal"
+        ));
+    }
+
+    #[test]
+    fn terminal_at_the_budget_edge_wins_and_leaves_the_tail_unread() {
+        let (sender, receiver) = mpsc::sync_channel(MAX_EVENTS_PER_DRAIN + 1);
+        let worker = Worker::run(
+            receiver,
+            CancellationToken::new(),
+            "original-chat".into(),
+            "original-run".into(),
+        );
+        for index in 0..MAX_EVENTS_PER_DRAIN - 1 {
+            sender
+                .send(WorkerEvent::Text(format!("before-{index}")))
+                .unwrap();
+        }
+        sender
+            .send(WorkerEvent::RunFinished {
+                result: Err("Original failure".into()),
+                terminal: Some(("original-run".into(), 7)),
+            })
+            .unwrap();
+        sender
+            .send(WorkerEvent::Text("After terminal".into()))
+            .unwrap();
+
+        let (events, end) = worker.drain().into_parts();
+        assert_eq!(events.len(), MAX_EVENTS_PER_DRAIN);
+        assert_eq!(end, WorkerBatchEnd::Finished);
+        assert!(matches!(
+            events.last(),
+            Some(WorkerEvent::RunFinished {
+                result: Err(error),
+                terminal: Some((run, 7)),
+            }) if error == "Original failure" && run == "original-run"
+        ));
+        assert!(matches!(
+            worker.receiver.try_recv(),
+            Ok(WorkerEvent::Text(text)) if text == "After terminal"
+        ));
+    }
+
+    #[test]
+    fn a_closed_channel_reports_disconnect_after_its_remainder_is_drained() {
+        let (sender, receiver) = mpsc::sync_channel(MAX_EVENTS_PER_DRAIN + 1);
+        let worker = Worker::run(
+            receiver,
+            CancellationToken::new(),
+            "original-chat".into(),
+            "original-run".into(),
+        );
+        for index in 0..(MAX_EVENTS_PER_DRAIN + 1) {
+            sender
+                .send(WorkerEvent::Progress(format!("step-{index}")))
+                .unwrap();
+        }
+        drop(sender);
+
+        let (first, end) = worker.drain().into_parts();
+        assert_eq!(first.len(), MAX_EVENTS_PER_DRAIN);
+        assert_eq!(end, WorkerBatchEnd::Pending);
+        let (remainder, end) = worker.drain().into_parts();
+        assert_eq!(end, WorkerBatchEnd::Disconnected);
+        assert!(matches!(
+            remainder.as_slice(),
+            [WorkerEvent::Progress(text)] if text == "step-128"
+        ));
     }
 }

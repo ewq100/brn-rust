@@ -1,0 +1,35 @@
+Checkout: /Users/evokessler/.codex/worktrees/notice-state/brn-rust
+Source: 36bf2718c22f7838a3e82963cec7e01a53c32f52
+Tree: 999bc1d881c3412746b82358301113aa26255c83
+Common build environment:
+PATH=/opt/homebrew/opt/rustup/bin:$PATH
+CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+CARGO_INCREMENTAL=0
+CARGO_PROFILE_DEV_DEBUG=0
+CARGO_PROFILE_TEST_DEBUG=0
+
+cargo +1.98.1 fmt --all --check
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --jobs 1 notice::tests
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 dismissed_completion_banner_can_be_restored_from_layout_menu
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 restoring_old_work_status_preserves_newer_errors_and_active_work
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 starting_a_replacement_run_clears_the_old_paused_notice
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 a_failed_finish_is_an_error_banner_and_restores_as_an_error
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 a_finish_takes_its_tone_from_its_own_recorded_run
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 a_failed_or_interrupted_finish_shows_the_recorded_terminal_text
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1 outcome_notices_keep_their_expected_tones
+
+python3 scripts/prepare-xberg-adapted.py --repo /Users/evokessler/.codex/worktrees/notice-state/brn-rust --archive /Users/evokessler/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate
+cargo +1.98.1 fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml
+cargo +1.98.1 fetch --locked --manifest-path target/xberg-adapted/workspace/Cargo.toml
+bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root /Users/evokessler/.codex/worktrees/notice-state/document-helpers
+
+Final gates use both helper paths:
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+cargo +1.98.1 test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1
+cargo +1.98.1 clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+cargo +1.98.1 fmt --all --check
+git diff --check
+
+Production Mac binary (native-ui only, no native-test-support):
+cargo +1.98.1 build -p brn-desktop --features native-ui --locked --offline --jobs 1

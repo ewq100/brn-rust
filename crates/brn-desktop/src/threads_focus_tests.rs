@@ -105,7 +105,7 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
             view.cancel(cx);
             view.poll_worker(window, cx);
             assert!(view.worker.is_none());
-            assert!(view.notice.contains("stopped before saving"));
+            assert!(view.notice.text().contains("stopped before saving"));
             let after: Vec<_> = view
                 .workspace
                 .records()
@@ -236,7 +236,7 @@ fn first_use_choices_preserve_manual_work_and_persist_explicit_policy(cx: &mut T
             assert!(window.try_find("delegation-pending").is_none());
             view.update(cx, |view, cx| {
                 assert!(view.worker.is_none());
-                assert!(view.notice.starts_with("Saved."));
+                assert!(view.notice.text().starts_with("Saved."));
                 solo(view, TileKind::Overview, cx);
             });
         })
@@ -375,7 +375,7 @@ fn composer_drafts_follow_home_and_each_thread(cx: &mut TestAppContext) {
             view.composer.update(cx, |editor, cx| editor.set_value("Preserve failed send", window, cx));
             view.ask(window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
-            assert!(view.notice.contains("missing reference"), "{}", view.notice);
+            assert!(view.notice.text().contains("missing reference"), "{}", view.notice.text());
             view.new_thread(window, cx);
             view.open_thread("missing-thread", window, cx);
             assert_eq!(view.composer.read(cx).value().as_ref(), "Preserve failed send");
@@ -473,7 +473,11 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                     });
                     view.ask(window, cx);
                     // The queue notice says when it runs ("Queued; runs after …").
-                    assert!(view.notice.starts_with("Queued"), "{}", view.notice);
+                    assert!(
+                        view.notice.text().starts_with("Queued"),
+                        "{}",
+                        view.notice.text()
+                    );
                     assert_eq!(view.composer.read(cx).value().as_ref(), "");
                     assert!(
                         view.queue_state()

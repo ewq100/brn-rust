@@ -1273,12 +1273,8 @@ impl ThreadsUi {
         };
         let layout_this = this.clone();
         let layout = self.layout.clone();
-        let work_status_visible = self
-            .last_work_notice
-            .as_ref()
-            .is_some_and(|(_, last)| last == &self.notice);
-        let can_show_work_status =
-            self.last_work_notice.is_some() && self.notice.is_empty() && self.worker.is_none();
+        let work_status_visible = self.notice.is_work_status();
+        let can_show_work_status = self.notice.can_restore(self.worker.is_some());
         // Theme lives in Settings → General and ⌘K only (owner decision), so
         // the status bar and its Layout menu carry no theme control.
         bar.child(div().flex_1())
@@ -1336,13 +1332,10 @@ impl ThreadsUi {
             .into_any_element()
     }
     fn notice_line(&self, cx: &mut Context<Self>) -> Option<gpui_kit::AnyElement> {
-        if self.notice.is_empty() {
+        if self.notice.text().is_empty() {
             return None;
         }
-        let restorable = self
-            .last_work_notice
-            .as_ref()
-            .is_some_and(|(_, last)| last == &self.notice);
+        let restorable = self.notice.is_work_status();
         let dismiss = components::icon_button("dismiss-notice", IconName::Close, "Dismiss")
             .tooltip(if restorable {
                 "Hide status · restore from Layout → Last work status"
@@ -1357,7 +1350,7 @@ impl ThreadsUi {
             components::banner(
                 "workspace-notice",
                 self.notice_tone(),
-                self.notice.clone(),
+                self.notice.text().to_owned(),
                 vec![],
                 Some(dismiss),
             )

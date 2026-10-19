@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/vacation-hardening",
+  "branch": "codex/notice-hardening",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -17,15 +17,15 @@
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
-  "next_wake": "Managed by active two-hour local heartbeat brn-mac-vacation-hardening; exact scheduler next-fire time not exposed.",
-  "last_checkpoint_at_utc": "2026-10-19T06:22:57.106532+00:00",
+  "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
+  "last_checkpoint_at_utc": "2026-10-19T07:01:27.732248+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163 merged as b5f01b07 after final-head four required contexts/documentation/Ubuntu native passed in run39201810419; optional Windows Core failed. Source digest matches retained independent review. Resulting-main checks pending; PR164 continuation policy is being reconciled with this main.",
-  "next_eligible_work": "Observe PR163 resulting-main checks; finish reviewed PR164 continuation/native-batch policy integration. Do not reimplement typed worker identity. Then reconcile remaining preview/context transitions and choose one evidence-backed Mac slice.",
-  "last_qualified_source": "823a154497ff1ff3f4abb05b75eebf6473d45c70",
-  "source_delta_after_qualification": "No production delta from independently reviewed source823a1544; continuation edits are documentation/execution records.",
-  "active_work": "PR164 continuation/native-batch candidate independently approved at67d7671e; required CI/main verification pending. No implementation or local build running.",
-  "continuation_baseline": "b5f01b07301dcc94d3d4e273a472d487f569bbc7",
+  "integration_status": "PR163 b5f01b07 required main checks passed run39209331228; optional Windows failures retained. PR164 merged348959b7 after all four required exacthead37 checks passed run39209590789; resulting-main run39212874814 pending. Notice/drain source locally checked/reviewed, next PR pending.",
+  "next_eligible_work": "Publish reviewed notice/drain PR from codex/notice-hardening; follow exact required head and main checks, normal merge only after gates. Continue independent bounded reliability/state-ownership research while checks run. Native Mac batch remains18:00Tallinn.",
+  "last_qualified_source": "1e89f4e86435c75bfc320d741eed84abfacb496a",
+  "source_delta_after_qualification": "Lead crate bytes match reviewed and locally qualified1e89f4e8, including notice and drain. Later edits are policy, evidence and main-history reconciliation only. Native OS qualification and hosted/merge/main gates remain separate.",
+  "active_work": "Notice and Luna drain are locally integrated/reviewed; final desktop320/0/1, strict lint/format and production native-ui build pass. No source writer/local build active. Lead finalizes evidence and publishes next PR. PR164 main run39212874814 pending.",
+  "continuation_baseline": "348959b7138de6230cb77852f860b910155c64d4",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,14 +37,14 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Native get_usage_limits succeeds; setup snapshot 68% used in seven-day account window. Recheck before new substantial work.",
-    "wake": "Heartbeat brn-mac-vacation-hardening created ACTIVE, viewed successfully and verified in persisted local TOML, targeting current chat. Two-hour interval through original expiry. First unattended wake unobserved.",
+    "quota": "Latest native snapshot72% used /28% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
     "plan": "plan.md",
     "evidence": "evidence.md",
-    "cadence": "Every two hours through the original expiry; back off near a constraining quota reset.",
+    "cadence": "Continuous successive useful batches during active sessions; two-hour heartbeat only recovery/resumption fallback after pauses/interruption. Back off near a constraining reset and verify capacity before resuming.",
     "quota_floor_remaining_percent": 5,
     "mac_priority": true,
     "merge_authorized_after_review_and_checks": true,
@@ -53,7 +53,8 @@
     "native_automation_id": "brn-batched-mac-interaction-checks",
     "native_cadence": "Daily at 18:00 Europe/Tallinn, one consolidated ready-scenario session; same fixed expiry/quota floor.",
     "native_queue": "native-queue.md",
-    "abandoned_duplicate": "Managed archival confirmed for /Users/evokessler/.codex/worktrees/worker-task-identity/brn-rust, preserving unpublished patch. Stopped task cache moved to campaign target; no active duplicate build/writer."
+    "abandoned_duplicate": "Managed archival confirmed for /Users/evokessler/.codex/worktrees/worker-task-identity/brn-rust, preserving unpublished patch. Stopped task cache moved to campaign target; no active duplicate build/writer.",
+    "active_execution_policy": "Do not stop or wait between useful batches while authorized work and credits remain. Continue until about5% remaining, fixed expiry, explicit pause, or no eligible useful work."
   },
   "previous_cloud_model_policy": {
     "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
@@ -65,11 +66,12 @@
   },
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
-    "inspection": "One fresh bounded gpt-6-luna medium read-only inspection completed.",
-    "review": "One fresh gpt-6.1-sol high independent continuation-plan review requested.",
-    "concurrency": "At most one active helper, sequential review; no recursive delegation or automatic Astra.",
+    "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
+    "review": "Independent Sol high continuation candidate and notice plan reviews approved; complete notice/source/docs candidate review remains pending.",
+    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
-    "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical."
+    "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
+    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json"
 }

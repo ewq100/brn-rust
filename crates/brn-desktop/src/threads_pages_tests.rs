@@ -294,7 +294,7 @@ fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestA
         cx.read(|cx| {
             let view = f.view.read(cx);
             (
-                view.notice.clone(),
+                view.notice.text().to_owned(),
                 view.history
                     .iter()
                     .map(|r| r.reason.clone())
