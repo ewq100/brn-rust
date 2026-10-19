@@ -97,9 +97,17 @@ reviewer after the candidate is ready. No recursive delegation or automatic Astr
 escalation. Record requested model/effort and whether the runtime exposes the effective
 configuration; do not claim measured savings without usage evidence.
 
-The local heartbeat should wake this chat every two hours through the fixed expiry.
-Each run resumes the existing slice, or selects one useful eligible next slice. It
-must reconcile Git and other active work before writing; never create a competing
+The owner clarified on19October: **continue actively through successive useful
+batches while authorized work and credits remain**. Completing a batch does not
+cause a two-hour wait or voluntary handoff. Keep implementation, review, checks and
+integration moving, then select the next useful eligible slice. Renew context from
+the durable checkpoint instead of treating one context/batch as the programme limit.
+The two-hour heartbeat is a recovery/resumption fallback after actual pauses,
+interruptions, capacity stops or resets, not the pace of work. When a constraining
+reset is known, use supported scheduling near it and recheck capacity. End active
+work only at the quota floor, fixed deadline, explicit owner pause, or when no useful
+authorized independent work remains. The lead must reconcile Git and other active
+work before writing; never create a competing
 writer, duplicate a PR or dispatch after an uncertain launch. Read actual account
 quota at entry and before a substantial new worker/batch. At approximately 5% or an
 explicit capacity stop, leave a short checkpoint and use the supported schedule to
@@ -141,3 +149,54 @@ Use normal merges and inspect relevant main checks before calling a batch comple
 [Evidence and next action](evidence.md) own the current candidate/check/scheduler
 state. The original charter and roadmap remain preserved historical authority;
 the dated corrections here own the changed local/merge/Mac/quota policy.
+
+## Selected next slice: notice state ownership
+
+Baseline source is merged PR163; open PRs were reconciled before selection and
+none already implements this slice. The current UI stores notice text, Tone,
+`notice_tone_for` and last-work tuple separately; shell and UI repeat restoration
+and text-equality rules. Adapt the existing native UI boundary using a small private
+Rust owner and the existing Tone type. Preserve the public product behavior and
+the current `ThreadsUi` inform/confirm/warn/fail/report routes. No external framework,
+new crate, persistent state, worker policy, label or new control.
+
+Files: the notice owner beside `threads_state.rs`/`threads_worker.rs`, its native
+module wiring in `threads_ui.rs`, rendering/controls in `threads_shell.rs`, and
+actual fixture consumers. Lead owns shared documentation; implementation owns only
+desktop source/test consumers. Retire independent notice/tone/guard/last-work fields,
+the string-guard fallback and duplicate restore coordination in the same slice.
+
+Acceptance:
+
+1. Text and Tone are one payload; unsupported direct writes cannot bypass the owner.
+2. Ordinary notices leave the latest completed work available. Work completion
+   records and displays the same payload atomically. Dismiss/clear hides current
+   text without deleting the latest work status.
+3. Restore requires an empty current notice, no active worker and a remembered work
+   status; it neither restarts work nor replaces a newer notice/error.
+4. The owner records whether current presentation is the remembered work status;
+   identical text in an ordinary later notice does not establish work identity.
+   This follows the existing newer-status preservation contract; no production
+   bug reproduction is claimed at selection.
+5. Keep five real outcome-tone cases (Stale, refresh follow-up, Applied, NeedsReview,
+   failure), recorded-run/terminal severity, failed banner restore, repeated actual
+   Dismiss/Layout restore, active/newer-status refusal and new-run clear. Extend
+   an appropriate retained test for equal-text ordinary-notice provenance.
+6. Retire only the sixth direct-field-write fallback case in the old outcome-tone
+   test once private ownership makes that write unsupported; migrate other fixtures
+   to owner operations and retain their behavioral assertions. No blanket deletion.
+
+Use focused owner transition/sequence tests for these actual rules, retained GPUI
+control/service journeys, native-feature strict lint/format and the relevant final
+desktop suite. Qualify missing helper/build prerequisites separately; no zero-test
+run or source-only inspection satisfies a test gate. Independent plan and complete
+candidate review, required CI/normal merge/main verification remain separate gates.
+
+Plan gate: independent Sol high review approved the complete plan at SHA-256
+`e8bc9208e5ab6f87170213d9664c2d470f2cfdc2bde40656f1b96c559d2e8e17`
+against baseline `37c87985`, with no actionable findings. A fresh Sol medium worker
+owns desktop source/tests in the managed `notice-state` worktree, using the shared
+task-owned partial build cache with one build at a time. The lead owns docs and
+integration; normal allowance is one active helper. Stop and reassess after two
+failed approaches, a disk/capacity limit or a consequential scope ambiguity. No
+native, provider or owner-acceptance result follows from this plan approval.

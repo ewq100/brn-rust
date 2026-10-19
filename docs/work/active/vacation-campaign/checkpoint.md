@@ -16,10 +16,12 @@ PR162's required/main evidence is retained in the current evidence record.
 The [pre-local PR163 checkpoint](https://github.com/ewq100/brn-rust/blob/c86e6d501ca6f7837d86cf9863367f6fb2bd35f0/docs/work/active/vacation-campaign/checkpoint.md)
 retains its original cloud-era continuation observations.
 
-Current branch: `codex/vacation-hardening`, isolated from the owner's old checkout.
+Current lead branch: `codex/notice-hardening`, isolated from the owner's old checkout.
+Remote `codex/vacation-hardening` still carries PR164 at37c87985.
 PR164 carries continuation policy; reconcile it with PR163 rather than redo the
 completed identity slice. Main heartbeat `brn-mac-vacation-hardening` is ACTIVE
-every two hours; `brn-batched-mac-interaction-checks` is ACTIVE at18:00Tallinn for
+every two hours as recovery only: continue useful work inside the active session
+until a real pause, quota floor or expiry. `brn-batched-mac-interaction-checks` is ACTIVE at18:00Tallinn for
 [queued native checks](native-queue.md), both through the fixed expiry. First
 unattended wakes/native sessions remain unobserved. The original policy candidate
 passed independent review; the later native/merge reconciliation passed updated independent review at
@@ -30,6 +32,17 @@ That writer/build is stopped with no tests or publication; its task-owned cache
 was retained for future Mac builds and managed archival confirmed for its patch.
 No duplicate production code is being adopted. Check all open PRs before selecting
 future work, not just main/branch names and the previous checkpoint.
+
+The next notice-state plan passed independent Sol high review. One fresh Sol medium
+worker owns source/tests on `codex/notice-state` in
+`/Users/evokessler/.codex/worktrees/notice-state/brn-rust`, based on `37c87985`.
+One local native build uses this campaign worktree's partial `target`; no competing
+build. Tests, complete candidate review and integration remain pending. The lead
+owns the independently reviewed continuous-policy/status-maintenance documentation here.
+Do not push those amendments onto PR164's checked head while its gates are running.
+Observe run39209590789 for PR164 and run39209331228 for PR163's merged main;
+ordinary exact-head merge follows actual required checks. The older status body is
+preserved in [dated history](../../../archive/status-through-2026-10-18.md).
 
 ## Historical cloud handoff (before PR162 merge)
 

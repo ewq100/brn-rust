@@ -2,6 +2,12 @@
 
 Current requirements live in the [Threads target](../architecture/threads-target.md), current gates in [status](../status.md) and current authority in [AGENTS.md](../../AGENTS.md). Historical instructions, approvals and commands below describe completed work and do not assign new tasks.
 
+## Recent dated status
+
+[Status history through18October2026](status-through-2026-10-18.md) preserves the
+older status checkpoints, including superseded current snapshots. The maintained
+status page keeps only the latest assignment, progress, limits and next action.
+
 ## Fixed baseline provenance
 
 The complete pre-cleanup checkout is recoverable at commit **`3a3aa7ac6f2a70815ffc778a694663f729203a79`**, PR #120. Git preserves deleted files without keeping obsolete instructions and images in the maintained checkout.

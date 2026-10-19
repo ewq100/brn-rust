@@ -204,3 +204,48 @@ the resulting main and relevant checks. The active engineering heartbeat resumes
 that gate, not the already-merged identity task. First unattended engineering and
 18:00Tallinn native executions remain pending. No human response is needed for
 these already-authorized gates; continue independently within the recorded scope.
+
+## Continuous-work correction —19October
+
+The owner clarified that work should continue through successive useful batches
+while allowance is available, rather than returning after each batch and waiting
+two hours. The persisted engineering heartbeat prompt was updated accordingly:
+its recurrence is only recovery/resumption after a genuine pause, interruption or
+capacity reset. The active lead resumed outstanding CI/integration and a bounded
+next-slice inspection immediately. The quota floor, hard expiry, native daily batch,
+merge gates and all other authority limits are unchanged. No new scheduler/daemon
+or duplicate writer was created.
+
+## Notice plan and status maintenance —19October
+
+Independent Sol high plan review approved the actual notice-state plan at SHA-256
+`e8bc9208e5ab6f87170213d9664c2d470f2cfdc2bde40656f1b96c559d2e8e17`
+against `37c87985`, with no actionable findings. A fresh Sol medium implementation
+worker owns only desktop source/tests in the managed notice-state worktree. One
+active helper/build at a time; the lead owns documentation/integration. Candidate
+review and actual tests remain outstanding.
+
+The lead found two competing current-status headings plus older pending/authority
+wording in the status page. The historical section was moved into
+[dated status history](../../../archive/status-through-2026-10-18.md), with its
+prose retained and107 link destinations rebased. Its original body SHA-256 is
+`9fc36b0e02aea4885d5cecafa96d1f265dcbbec179e1a719d67957e77c5a15f4`.
+A one-off comparison against `37c87985:docs/status.md` confirmed unchanged prose,
+labels and resolved destinations; all83 local archive links checked with no failures.
+The only current inbound fragment was retargeted to the history. Current Markdown
+gate at final review:548 files,2412 local links,0 failures.
+This maintenance changes no runtime or historical qualification.
+
+For this disjoint documentation candidate, the temporary helper allowance is two:
+the implementation worker is compiling locally while the existing independent
+Sol high reviewer examines the complete dirty/untracked lead docs. This avoids
+holding review until a cold build finishes; no second build/writer or recursive
+delegation is allowed. Return to one active helper after that review.
+
+Independent documentation review approved the complete candidate at HEAD37c87985,
+tracked diff SHA-256 `64ca809c84e3055ebd94bdefcbdd68019132665b3fbb68c49fad5e771b1c5461`,
+untracked archive SHA-256 `1122f6d218eaf02940c7b451bdcc4b6fc2d343a742c34d049a0a440cc0ee5226`,
+with no actionable findings. Its fresh link gate was548/2412/0. The lead then
+recorded this approval, final count and branch receipt only. Lead continuation
+docs now use `codex/notice-hardening`; remote PR164 stays at checked head37c87985
+while gates finish. Normal allowance returns to one active implementation helper.
