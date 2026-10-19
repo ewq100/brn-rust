@@ -189,5 +189,70 @@
     "uncompressed_bytes": 0,
     "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "exit_status": 0
+  },
+  {
+    "file": "vacation-worker-reference-baseline.log.gz",
+    "uncompressed_bytes": 2667,
+    "uncompressed_sha256": "db2be294613157155fb598bae13aacc3c4e377ab5a137886578cfc92e08ccdaa"
+  },
+  {
+    "file": "vacation-worker-desktop-tests.log.gz",
+    "uncompressed_bytes": 32352,
+    "uncompressed_sha256": "d04c571930064a23437db7ab22e225ee20890a40c974daacb4395cbb861bb7f2"
+  },
+  {
+    "file": "vacation-worker-desktop-final.log.gz",
+    "uncompressed_bytes": 32352,
+    "uncompressed_sha256": "1f6083b0474eb44b0c5539b1f515880a5ac80f11d3b88cd0613cfc0b3ac43804"
+  },
+  {
+    "file": "vacation-worker-clippy.log.gz",
+    "uncompressed_bytes": 910,
+    "uncompressed_sha256": "20816295f7398774891bbfb55a6a81c5b82af6f200f781d89e444d224ee71e6e"
+  },
+  {
+    "file": "vacation-worker-clippy-final.log.gz",
+    "uncompressed_bytes": 134,
+    "uncompressed_sha256": "a163ce0d4de54f1c88d17882fd342335133f4c9dc8bb0a0fec811aa0e2b73586"
+  },
+  {
+    "file": "vacation-worker-production-build.log.gz",
+    "uncompressed_bytes": 134,
+    "uncompressed_sha256": "8e7693b15829f7055853b5dee6785e4e76764e6b1e8c32b4a288ada2d4085360"
+  },
+  {
+    "file": "vacation-worker-cli-build.log.gz",
+    "uncompressed_bytes": 2094,
+    "uncompressed_sha256": "73d043cfbb8e8d4ed22c4a45361467a195b9da039483e7ecdaa61bbd030df0bd"
+  },
+  {
+    "file": "vacation-worker-cli-desktop.log.gz",
+    "uncompressed_bytes": 380,
+    "uncompressed_sha256": "cb70c9d0d00a45eb0d3e95123f3eaf19b47a9f98fbe721cfe3f20fe8a4999fbe"
+  },
+  {
+    "file": "vacation-worker-fmt-final.log.gz",
+    "uncompressed_bytes": 0,
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "file": "vacation-ci-linux-native-job.log.gz",
+    "uncompressed_bytes": 201931,
+    "uncompressed_sha256": "f46ec68cd96022a7c2a9d357eaed447f02f1d40bd7dbbf7e5e3d8c9c805e9ae5"
+  },
+  {
+    "file": "vacation-ci-mac-native-job.log.gz",
+    "uncompressed_bytes": 135240,
+    "uncompressed_sha256": "000982ca9d8470f03e4e4dd41a6a49b25aeb386dd5cbfa2a4d42f9890aac813c"
+  },
+  {
+    "file": "vacation-ci-windows-job.log.gz",
+    "uncompressed_bytes": 55394,
+    "uncompressed_sha256": "3e34b05bcb7d1be41650e2ee3edb9876cc95ceb095875a783a320d024d91af0a"
+  },
+  {
+    "file": "vacation-resume-cloud-list.log.gz",
+    "uncompressed_bytes": 369,
+    "uncompressed_sha256": "58c0e9a4e9e7a91d074467accb052e8442623a587e3fdd138df81be0ec60fff2"
   }
 ]

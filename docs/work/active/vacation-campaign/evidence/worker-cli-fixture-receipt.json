@@ -1,0 +1,155 @@
+{
+  "init": {
+    "contract": 3,
+    "command": "init",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "refuse",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "ready": true,
+      "data": "/var/tmp/brn-rust-cloud-fixtures/vacation-worker-cli-desktop-20261019/data",
+      "settings": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "auth_file": null,
+        "credentials_dir": null,
+        "maintenance": false,
+        "review_first": false,
+        "delegation_chosen": false,
+        "document_conversion": {
+          "converter": "xberg",
+          "ai": false
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "configure": {
+    "contract": 3,
+    "command": "configure",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": "Applied",
+    "operation": "1a4abc89-e51d-4208-8cf0-2cd001ce3be2",
+    "key": null,
+    "retry": "converge",
+    "changed": [
+      {
+        "id": "51c6fa00-7c6a-4939-986c-23c797071ca5:0",
+        "kind": "Settings",
+        "version": 2,
+        "archived": false,
+        "created": false
+      }
+    ],
+    "conflict": null,
+    "result": {
+      "outcome": "Applied",
+      "receipt": {
+        "operation": "1a4abc89-e51d-4208-8cf0-2cd001ce3be2",
+        "request_hash": "96a0c4a00e7b5843ffcd99ca0f0eee88cc39c4a7e01c3fd27e41c44b2447802f",
+        "reason": "Owner configured workspace and stopped prior invocations",
+        "writes": [
+          {
+            "before": {
+              "id": "51c6fa00-7c6a-4939-986c-23c797071ca5:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "51c6fa00-7c6a-4939-986c-23c797071ca5:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": "/var/tmp/brn-rust-cloud-fixtures/vacation-worker-cli-desktop-20261019/explicitly-missing-auth.json",
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner configuration",
+        "committed_at": "2026-10-19T04:07:27.743Z",
+        "undo_of": null,
+        "needs_refresh": []
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "intake": {
+    "contract": 3,
+    "command": "intake",
+    "ok": false,
+    "status": "failed",
+    "exit": 7,
+    "outcome": "Failed",
+    "operation": null,
+    "key": null,
+    "retry": "duplicate",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "run": "7c95d5e0-ecfc-4f86-86bf-de0cd0c962f4:0",
+      "terminal": "Failed:ReconnectNeeded",
+      "answer": "",
+      "search": "available",
+      "notices": [],
+      "failure": {
+        "kind": "reconnect_needed",
+        "retry_after_seconds": null
+      },
+      "thread": "afccf052-4395-4530-a593-14ef2a9e9587:0",
+      "reused_chat": false
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  }
+}

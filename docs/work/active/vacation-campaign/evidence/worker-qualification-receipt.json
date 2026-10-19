@@ -1,0 +1,26 @@
+{
+  "code_checkpoint": "c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3",
+  "observed_at_utc": "2026-10-19T04:09:48.999932+00:00",
+  "platform": "Linux x86_64",
+  "toolchain": "repository-pinned1.98.1; locked/offline",
+  "results": {
+    "full_desktop": {
+      "passed": 315,
+      "failed": 0,
+      "ignored": 1
+    },
+    "explicit_ignored_cli_desktop": {
+      "passed": 1,
+      "failed": 0,
+      "filtered": 315
+    },
+    "strict_clippy": "PASS",
+    "format_check": "PASS",
+    "production_desktop_and_cli_build": "PASS"
+  },
+  "binaries_sha256": {
+    "brn-desktop": "70e94d4a042567e481a47cc0ac47861fe13edac7e2187f8996a615ba44433c12",
+    "brn": "492a6ef0547225938eac78190744002aae8d968771e0a80be651ade17978400b"
+  },
+  "limits": "Protocol/toolkit+Store integration only; no current native OS worker interaction or full Run-owner/release-candidate acceptance."
+}

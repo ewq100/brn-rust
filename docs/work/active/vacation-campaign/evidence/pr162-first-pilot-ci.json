@@ -1,0 +1,76 @@
+{
+  "observed_at_utc": "2026-10-19T03:52:56.259527+00:00",
+  "head": "41423230b539ba6ac6aad2e241af4baf74fbb4d5",
+  "run_url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977",
+  "jobs": [
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201098",
+      "failed_steps": []
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201216",
+      "failed_steps": []
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "conclusion": "failure",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201236",
+      "failed_steps": [
+        "Build the default workspace"
+      ]
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201239",
+      "failed_steps": []
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201259",
+      "failed_steps": []
+    },
+    {
+      "name": "Documentation and tooling",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201319",
+      "failed_steps": []
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39174138977/job/117813201320",
+      "failed_steps": []
+    }
+  ],
+  "interpretation": "All four configured required contexts and added Ubuntu NativeUI/docs passed on41423230; Windows default workspace build failed. This is CI qualification, not release/native-human acceptance.",
+  "native_counts": {
+    "ubuntu": {
+      "writing_library": 44,
+      "writing_host": 12,
+      "native_state": 55,
+      "widgets_passed": 306,
+      "widgets_ignored": 1,
+      "widgets_filtered": 3
+    },
+    "macos": {
+      "writing_library": 44,
+      "writing_host": 12,
+      "native_state": 55,
+      "widgets_passed": 306,
+      "widgets_ignored": 1,
+      "widgets_filtered": 3
+    }
+  },
+  "windows_detail": "Default build fails on std::os::unix and Unix libc constants in brn-ai auth.rs/codex_auth.rs; both files unchanged against main.",
+  "raw_log_sha256": {
+    "vacation-ci-linux-native-job.log": "f46ec68cd96022a7c2a9d357eaed447f02f1d40bd7dbbf7e5e3d8c9c805e9ae5",
+    "vacation-ci-mac-native-job.log": "000982ca9d8470f03e4e4dd41a6a49b25aeb386dd5cbfa2a4d42f9890aac813c",
+    "vacation-ci-windows-job.log": "3e34b05bcb7d1be41650e2ee3edb9876cc95ceb095875a783a320d024d91af0a"
+  }
+}

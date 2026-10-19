@@ -19,14 +19,15 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": null,
-  "last_checkpoint_at_utc": "2026-10-18T22:52:44.722444+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T04:09:04.532019+00:00",
   "current_session_jobs": [],
   "capability_observations": {
     "cli": "codex-cli0.159.2",
-    "cloud_list": "HTTP401 authentication parse failure; no new remote task launched",
+    "cloud_list": "Fresh19Oct read again returnsHTTP401 token parse failure; no remote dispatch",
     "protocol": "installed experimental schemas include thread goals and account/rateLimits/read; current stdio initialize probe failed, no actual quota snapshot obtained",
     "app_thread": "current app thread hostId durable, status active; read response exposes no goal/model/quota or wake/expiry guarantee",
-    "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee"
+    "unattended": "INACTIVE; no verified periodic wake, quota-aware admission, native goal activation or 14day host guarantee",
+    "environment_status": "Current managed environment reports enforced unrestricted network and no configured capabilities; no quota/goal/wake tool found"
   },
   "model_policy": {
     "lead": "Current lead model not surfaced by tools; no unsupported switch attempted",
@@ -36,8 +37,9 @@
     "effective_model_verification": "Tools accept requested model/reasoning but list_agents exposes status only; effective runtime model/effort and speed not independently observable",
     "remote_dispatch": "None; TELEMETRY_UNAVAILABLE prevents credit-aware remote admission"
   },
-  "integration_status": "Local pilot qualified; campaign draft PR is reconciled by branch vacation-campaign-20261018. Hosted exact-head CI and remaining campaign acceptance are open.",
-  "next_eligible_work": "Reconcile PR/configuration status, remaining OS routes, then inspect run/worker lifecycle inventory15 before selecting the next bounded owner slice.",
-  "last_qualified_source": "609af544545a159638d0f8c0a6523df55e7608e0",
-  "source_delta_after_qualification": "Only formatting in two CLI test files and documentation/evidence; production code and tested logic unchanged."
+  "integration_status": "PR162 first head41423230 hosted Mac/Linux gates passed. Worker code c24da6af is locally qualified; its new pushed head still requires separately observed hosted CI. No default-branch merge.",
+  "next_eligible_work": "Observe new-head PR CI; reconcile remaining OS routes; next Run/worker ownership candidates are kind/thread/run identity and scattered preview/context fields, preserving checked service authority.",
+  "last_qualified_source": "c24da6af40f50ba263c5f5ddb88cbf0420f3f7b3",
+  "source_delta_after_qualification": "Documentation/evidence updates only after the worker code checkpoint.",
+  "active_work": "Worker code checkpointc24da6af independently approved and locally qualified315/0/1 plus explicit CLI/desktop1/0, strict lint, production build and format; maintain draft PR and exact-head hosted CI."
 }
