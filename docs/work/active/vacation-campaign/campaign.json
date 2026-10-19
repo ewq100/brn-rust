@@ -18,14 +18,14 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T13:14:47.693134+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T13:22:49.657567+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163-174 all four required head/main checks passed. PR175 frozen0ff3360a has3/4 required head checks passed, Mac Core/CLI helper qualification running; optional Windows failure retained.",
-  "next_eligible_work": "Finish175 exact-head gate then normal match-head merge and follow resulting-main. Reconcile actual main before publishing AX-only PR to avoid redundant CI. Continue next useful headless or distinct queued Mac cases within allowance/batch limits; account CLI session remains closed3/3, day3/6.",
-  "last_qualified_source": "8cee96c91a700804af61b8cbc18266c6957682ea",
-  "source_delta_after_qualification": "Lead production equals reviewed922/a8 reading plus reviewed78 AX selector and independently verified rustfmt-only transfer; locally/native-qualified source8cee unchanged.",
-  "active_work": "AX correction fully locally qualified and actual Mac off/on/off verified; app closed, no account calls. Save receipts/docs then publish narrow UI candidate after frozen175 normally merges and reconcile actual main. No active build/helper.",
-  "continuation_baseline": "7fb5dff19fda418d2473e5a3fe007fdc8480704b",
+  "integration_status": "PR163-174 all four required head/main checks passed. PR175 normally merged9cecd00b after all four exact-head required checks; resulting-main39259077134 pending. Optional Windows failures retained.",
+  "next_eligible_work": "Freeze/publish reviewed native feedback candidate for four required checks, follow175 resulting-main separately. Next useful native case is candidate-bound Save/reopen, with fresh explicit synthetic root; no main/usability completion inferred. Account session closed3/3, day3/6. Stop/checkpoint near5% floor.",
+  "last_qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
+  "source_delta_after_qualification": "No production change since final source87. Entire production delta vs actual main9ce is12lines in writing.rs: owner-feedback toggle metadata and conditional model context. Both independently reviewed, targeted tests/lint/format/native build and actual Mac toggle states pass.",
+  "active_work": "Publish narrow feedback accessibility candidate after actual-main reconciliation9ce. Native captured off/on/off and ordinary inclusion on/off/on pass; Notes/comments/Runs unchanged, apps closed. No active build/helper/account calls.",
+  "continuation_baseline": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -109,17 +109,17 @@
       "number": 175,
       "head": "0ff3360af88d9f94e58e2a9593cce0243c3a0adc",
       "branch": "codex/exact-note-read-guidance",
-      "status": "final combined source independently approved; frozen published head0ff3360a required hosted checks running"
+      "status": "normally merged9cecd00b after all four exact-head checks passed; resulting-main39259077134 pending"
     }
   ],
   "native_observation": {
     "receipt": "evidence/native-mac-review-qualification.json",
     "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
     "functional": "PASS: suggestion visible, initially unchecked, explicit selection, exact Apply/Undo and reopen",
-    "accessibility": "Original FAIL preserved; reviewed source78/rustfmt8cee now actual Mac off/on/off and model context PASS, pre-merge",
+    "accessibility": "Final source87 actual captured off/on/off and ordinary inclusion on/off/on/model context PASS; pre-merge candidate",
     "native_ai": false,
     "account_calls": 0,
-    "correction_receipt": "evidence/feedback-accessibility-qualification.json"
+    "correction_receipt": "evidence/feedback-inclusion-qualification.json"
   },
   "resource_batch": "Lead retains selected configuration; completed bounded Luna medium source worker and independent Sol high reviews. No active helpers/build writers; lead owns one guarded build slot. Stop/reassess near5% allowance."
 }

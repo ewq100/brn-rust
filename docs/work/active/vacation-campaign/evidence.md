@@ -539,3 +539,5 @@ remaining; first unattended wake remains unobserved.
 
 - [AX correction source review](evidence/feedback-accessibility-source-review.json) and [qualification](evidence/feedback-accessibility-qualification.json): actual matching Mac off/on/off/model context pass; existing selector/Apply/Undo1/0, affected strict lint, final format and ordinary build pass,28 raw archives. Initial wrong target, disk stop and format failure preserved; no account call.
 - [Separate helper build-cache reclamation](evidence/helper-build-cache-reclamation.json): intermediate metadata/static caches only; exact qualified helper SHA values preserved. [Synthetic model-refresh diagnosis](evidence/native-fixture-model-refresh-diagnosis.json) explains the offline startup notice without claiming an AI run.
+
+- [Ordinary inclusion source review](evidence/feedback-inclusion-source-review.json) and [final qualification](evidence/feedback-inclusion-qualification.json): existing stacked-comments exclusion/capture1/0, strict affected lint/format/production build and actual final Mac inclusion on/off/on plus captured off/on/off pass;15 raw archives, no Note/comment/Run changes or account calls.

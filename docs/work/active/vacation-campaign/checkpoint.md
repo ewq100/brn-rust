@@ -11,12 +11,13 @@ these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) pre
 
 - Lead checkout `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
   branch `codex/agent-first-followthrough`. Original checkout and unrelated files
-  remain preserved. All PR163–173 required head/main gates passed.
+  remain preserved. All PR163–174 required head/main gates passed.
 - PR174 merged normally as7fb5dff19fda418d2473e5a3fe007fdc8480704b from exact checked
   e56b4dbd. All four required resulting-main39254538056 checks passed; [receipt](evidence/pr174-integration.json).
 - PR175 is published on `codex/exact-note-read-guidance`. Notice checkout now has
   actual main7fb5 plus schema922 and tracea8, independently combined-source-approved
-  and published/frozen at0ff3360a. Required exact-head checks are running. Only production changes vs main are
+  and published/frozen at0ff3360a. All four required head checks passed; normally merged9cecd00b,
+  resulting-main39259077134 pending. Only production changes vs main are
   threads.rs JSON-schema descriptions and threads_trace.rs boolean summary/test.
   Prior schema runtime522/0/2/lint/format/ordinary CLI and live natural request pass.
   Trace original-expression regression fails; corrected1/0 plus search9,
@@ -24,7 +25,11 @@ these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) pre
 - Independent Sol approved the complete combined2file reading source. Luna medium completed `codex/review-feedback-accessibility` in worker-drain-budget; source78a97, independently approved and lead-integrated b6026aac. Existing selector/Apply/Undo1/0 and strict affected lint passed; rustfmt-only
   transfer8cee independently verified, final format/ordinary native build pass.
   Actual Mac AX off/on/off/model context pass; no account call.
-  Lead must publish after175 merges/reconcile actual main, then required head/main gates.
+  Lead reconciled actual main9ce at87f1347b, plus independently reviewed ordinary
+  inclusion metadata f411. Both actual native toggle paths now pass on final87,
+  existing stacked-comments test1/0 and affected strict lint/format/production pass.
+  [Final qualification](evidence/feedback-inclusion-qualification.json); publish/freeze
+  the narrow UI candidate then required head/main gates.
   Maximum3 active agents including lead; no concurrent builds.
 
 ## Actual Mac observation and next batch
@@ -38,7 +43,7 @@ read-only SQLite assertions confirm byte hashes, subset proof and unrelated data
 Selection changes visually but no AX toggle state/name change: P2
 MAC-SUGGESTION-AX-1 original failure preserved; [correction qualification](evidence/feedback-accessibility-qualification.json)
 now verifies actual off/on/off and model context at8cee, unchanged Notes/comments/Runs.
-Fresh test app closed; integration remains. Original fixture untouched.
+Fresh test app closed; ordinary inclusion now on/off/on in final87; integration remains. Original fixture untouched.
 No native account run, IME/VoiceOver usability or general owner acceptance claim.
 Screenshots were actually viewed in CUA; no image file exported. Queued Save/backup/
 unsaved-recovery cases remain. Do not repeat unchanged passed work without reason.
