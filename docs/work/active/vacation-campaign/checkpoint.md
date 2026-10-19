@@ -8,14 +8,21 @@ Resulting-main run39212874814 is pending. PR163/b5f01b07 required main checks
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/notice-hardening`, with notice36bf2718 and Luna drain1e89f4e8 locally
+branch `codex/late-refresh-hardening`, with notice36bf2718 and Luna drain1e89f4e8 locally
 integrated. Complete source review approved2bf8eb08; current crate bytes match1e.
 Final protocol7/0, desktop320/0/1, strict native lint/format and production native-ui
 build pass. [Notice](notice-state.md) and [drain](drain-fairness.md) receipts retain
 commands, original failures, raw hashes and ignored/qualification limits. No local
-build or source writer is active. Next publish the reviewed candidate PR, follow
-actual required exact-head gates, merge normally and inspect relevant main checks.
+build or source writer is active. PR165 is published from remote
+`codex/notice-hardening` at exactheada961a75a; run39213694797 is in progress.
+Follow actual required exact-head gates, merge normally and inspect relevant main checks.
 Always list all open PRs and inspect actual source/jobs before dispatching a slice.
+
+The lead's separate later branch prepares the test-only late-refresh/newer-typing
+qualification at the end of the plan; Luna plan-readiness is pending. No production
+defect is claimed. Reuse the idle managed drain worktree only after checking it is
+clean and starting a new branch at the current source. Do not push later-batch work
+onto PR165's checked head or replace its immutable artifact evidence.
 
 Continue useful authorized batches inside the active session. The two-hour
 `brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily

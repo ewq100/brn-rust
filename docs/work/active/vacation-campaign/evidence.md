@@ -356,3 +356,16 @@ Note Save/refresh/recovery boundary for a justified next task, without edits/bui
 The dependency follow-up found latest published block0.1.6 and the flagged static
 still in upstream source; no verified released fix or maintainer migration
 recommendation, so defer without suppression or dependency churn.
+
+## Next test-only qualification selected —19October
+
+PR165 is published at exactheada961a75a, required run39213694797 in progress;
+PR164 resulting-main run39212874814 is separate. Lead moved later work to
+`codex/late-refresh-hardening` without changing remote165. Luna recovery audit found
+no supported source defect; it identified one completion/dirty-input sequence
+not joined in an existing desktop witness. The bounded test-only plan reuses the
+existing document fixture, retains the separate direct stale-Save test, and includes
+one controlled sampling-bypass mutation to establish effectiveness. No current
+production failure is claimed. Luna medium plan-readiness/implementation and final
+independent Sol effectiveness review are proportionate roles; one shared build slot,
+separate writers, reassess after two failed approaches. Plan gate pending.

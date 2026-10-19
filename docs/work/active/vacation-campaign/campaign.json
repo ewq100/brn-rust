@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/notice-hardening",
+  "branch": "codex/late-refresh-hardening",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -21,10 +21,10 @@
   "last_checkpoint_at_utc": "2026-10-19T07:01:27.732248+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163 b5f01b07 required main checks passed run39209331228; optional Windows failures retained. PR164 merged348959b7 after all four required exacthead37 checks passed run39209590789; resulting-main run39212874814 pending. Notice/drain source locally checked/reviewed, next PR pending.",
-  "next_eligible_work": "Publish reviewed notice/drain PR from codex/notice-hardening; follow exact required head and main checks, normal merge only after gates. Continue independent bounded reliability/state-ownership research while checks run. Native Mac batch remains18:00Tallinn.",
+  "next_eligible_work": "Follow PR165/main required gates without pushing later-batch docs onto its checked head. Validate and implement one late-refresh/newer-typing toolkit regression witness, with bounded sampling mutation proof and restored production bytes. Continue economical independent research only where useful.",
   "last_qualified_source": "1e89f4e86435c75bfc320d741eed84abfacb496a",
   "source_delta_after_qualification": "Lead crate bytes match reviewed and locally qualified1e89f4e8, including notice and drain. Later edits are policy, evidence and main-history reconciliation only. Native OS qualification and hosted/merge/main gates remain separate.",
-  "active_work": "Notice and Luna drain are locally integrated/reviewed; final desktop320/0/1, strict lint/format and production native-ui build pass. No source writer/local build active. Lead finalizes evidence and publishes next PR. PR164 main run39212874814 pending.",
+  "active_work": "PR165 exactheada961a75a is published and required run39213694797 is in progress; PR164 main39212874814 also in progress. Lead prepares a later test-only late-refresh qualification plan on a separate branch. No production source change/local build active; Luna plan-readiness pending.",
   "continuation_baseline": "348959b7138de6230cb77852f860b910155c64d4",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",

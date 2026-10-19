@@ -270,4 +270,52 @@ Plan review approved clean `7bbd7d6e`, plan SHA-256
 with no actionable findings. A Luna medium worker owns the implementation in the
 managed worker-drain-budget worktree. It may edit statically while the notice
 worker finishes production qualification; local tests wait for the lead to release
-the single shared build slot. Implementation review/checks are not yet satisfied.
+the single shared build slot. Subsequent implementation1e89f4e8, independent union
+review2bf8eb08 and final local checks are complete; [drain receipts](drain-fairness.md)
+retain320/0/1 and production qualification. Hosted PR165 gates remain separate.
+
+## Next qualification: late checked refresh after newer typing
+
+A bounded Luna audit found no supported production defect. The current owner
+samples visible editor input before checked refresh/navigation/Save and retains
+dirty/stale edits. Existing tests separately cover dirty navigation, direct stale
+Save, clean refresh and core generation/guard policy. Add one actual desktop
+regression sequence joining late checked refresh with newer typing, reusing the
+document-test fixture. Keep the existing direct stale-Save witness: refreshing
+first must not mask its independent comparison/view guarantee.
+
+Use a fresh synthetic Note, open clean v1, apply an external checked canonical v2,
+then set independently specified Unicode/multiline editor text based on v1. Deliver
+`reload_open_note` before manually preserving the text or draining its Change event.
+Assert exact editor/recovery text, original edit base and session/generation identity,
+canonical v2 unchanged, and stale Save retaining the buffer rather than publishing
+it. This is deterministic toolkit/service completion-boundary qualification, not
+actual OS input, a live worker or a reproduced old defect. No production redesign,
+new abstraction/dependency, label, persistent policy or broad test deletion.
+
+To establish that this crosses the intended boundary, after the healthy focused
+test passes, make one bounded temporary mutation bypassing only visible-input
+sampling in `WritingPanel::refresh_note`. Run the exact test and expect its real
+data-preservation assertion to fail. Restore production bytes immediately, verify
+no production delta, then run the final relevant desktop suite, strict native lint
+and format. Preserve mutant failure separately; it is not a failing original source
+or a bug repair. Reassess if the event ordering does not distinguish this guard or
+after two failed approaches; do not keep adding helpers/tests until something passes.
+
+Lead owns this plan/docs/integration. A Luna medium plan-readiness check can verify
+the defined fixture/guard/witness and retirement boundary; a Luna medium worker may
+implement only the selected test/evidence after that check. Final meaningful test
+effectiveness review uses independent Sol. Reuse the now-idle managed drain
+worktree at the current candidate source, preserving helper/binary artifacts and
+one shared build slot. PR165 stays at checked heada961a75a while this later batch
+is prepared on a separate lead branch. Independent gate and actual test outcomes
+must be recorded before calling the new qualification complete.
+
+Independent Luna readiness approved plan SHA-256
+`3ee9d043fa11b61bee9d4eb9724898fb89aaf16a499024793d8a425d09f90e4f`
+at baselinea961a75a. Include its precondition: the session remains absent after
+setting the editor and immediately before reload, proving the Change event has
+not already supplied the protection. Luna owns the test/mutation in reused managed
+drain checkout on a new `codex/late-refresh-test` branch. Production mutation must
+be restored byte-for-byte before final checks/commit; final effectiveness review
+and qualification remain outstanding.

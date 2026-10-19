@@ -21,10 +21,11 @@ passed before its normal merge; its resulting-main run39212874814 is pending.
 PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
-Next: publish the reviewed notice/drain hardening candidate and finish required
-PR/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
+Next: finish PR165's required head/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.
+A separate late-refresh/newer-typing test-only qualification is being prepared;
+the source audit found no supported production defect.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 
