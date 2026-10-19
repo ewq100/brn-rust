@@ -420,6 +420,115 @@ fn stale_save_and_comment_keeps_typed_source_and_comment_draft(cx: &mut TestAppC
 }
 
 #[gpui_kit::test]
+fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut TestAppContext) {
+    let initial = "Version one: saved text.";
+    let typed = "## Owner draft — Café 🦀\n\nFirst line with naïve details.\nSecond line keeps the exact wording.";
+    let f = fixture(cx, initial);
+    open_note(cx, &f);
+
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let current = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+            let RecordData::Note(mut changed) = current.data.clone() else {
+                panic!("expected a note");
+            };
+            changed.markdown = "Version two: checked external update.".into();
+            assert!(matches!(
+                view.workspace
+                    .owner_change(
+                        "late-refresh-external-v2",
+                        &ChangeRequest {
+                            reason: "Synthetic checked update before completion refresh".into(),
+                            writes: vec![Put {
+                                id: current.id.clone(),
+                                expected_version: Some(current.version),
+                                archived: current.archived,
+                                data: RecordData::Note(changed),
+                            }],
+                            inputs: vec![],
+                        },
+                    )
+                    .unwrap(),
+                ApplyOutcome::Applied(_)
+            ));
+            let external_v2 = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+
+            view.writing
+                .note_editor
+                .update(cx, |editor, cx| editor.set_value(typed, window, cx));
+            assert!(
+                view.writing.note.as_ref().unwrap().session().is_none(),
+                "the Change event must not have persisted an edit guard before refresh"
+            );
+
+            // This is the completion refresh boundary: do not preserve the input
+            // manually or yield to a queued Change event before delivering it.
+            view.reload_open_note(window, cx);
+
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                typed,
+                "late refresh must preserve the visible text"
+            );
+            let session = view
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session()
+                .expect("refresh must preserve the visible edit")
+                .clone();
+            assert_eq!(session.note, f.note.id);
+            assert_eq!(session.base_version, f.note.version);
+            assert_eq!(session.generation, 1);
+            assert_eq!(session.markdown, typed);
+            assert!(!session.closed);
+
+            let recovery = view
+                .workspace
+                .store
+                .recovery_buffers()
+                .unwrap()
+                .into_iter()
+                .find(|buffer| buffer.note == f.note.id)
+                .expect("the preserved edit must be durable");
+            assert_eq!(
+                recovery, session,
+                "UI and durable session identity/generation must agree"
+            );
+            assert_eq!(external_v2.version, f.note.version + 1);
+            assert!(matches!(
+                &external_v2.data,
+                RecordData::Note(note) if note.markdown == "Version two: checked external update."
+            ));
+
+            let outcome = view
+                .writing
+                .save_note(&mut view.workspace, window, cx)
+                .unwrap()
+                .unwrap();
+            let SaveOutcome::Stale(kept) = outcome else {
+                panic!("expected stale Save, got {outcome:?}");
+            };
+            assert_eq!(kept, session);
+            assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
+            assert_eq!(
+                view.workspace.store.recovery_buffers().unwrap(),
+                vec![session],
+                "stale Save must retain the same recovery session and generation"
+            );
+            assert_eq!(
+                view.workspace.store.note(&f.note.id).unwrap().unwrap(),
+                external_v2,
+                "stale Save must not replace checked canonical v2"
+            );
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
+#[gpui_kit::test]
 fn formatting_controls_refuse_read_recovery_and_review_states(cx: &mut TestAppContext) {
     let source = "Café and 🦀";
     let cafe_end = "Café".len();
