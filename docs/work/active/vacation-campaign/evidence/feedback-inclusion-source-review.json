@@ -1,0 +1,12 @@
+{
+  "candidate": "f411eb74a4e6043b1d36882f4d8c1547340cedcb",
+  "base": "5ce55f0c5856fdb5a0e81c8c97879f4d9420f773",
+  "integrated_source": "aef945fbb78dbf64cf4d33c31cf7bcc94c68a119",
+  "file_sha256": "b14e8bc921bba0e7f21da9403a11f6f925e305b3ac9aa8c711cd5900b932ffe8",
+  "patch_sha256": "cbc7f1123c4694d47251bd48f110fe850e4992dfc9db71a451c9a6f461db5dfa",
+  "reviewer": "writing_review_review; independent Sol high",
+  "result": "approved; no findings; complete actual source and pinned0.7.3 API verified",
+  "scope": "ordinary comment Include/Included gains actual boolean metadata; state/dispatch/disabled checks unchanged. Prior captured selector/source review retained.",
+  "checks": "Existing stacked_comments_keep_every_comment_capability1/0 proves unresolved exclusion and captured-request omission; native AX still pending",
+  "followup": "Review group Include/Omit has same source-level missing metadata, separate candidate-selection concern deferred until source-bound multi-group native scenario; navigation and one-shot actions remain distinct."
+}
