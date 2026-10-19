@@ -1245,7 +1245,7 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
             view.writing
                 .note
                 .as_ref()
-                .is_some_and(|open| open.session.is_some())
+                .is_some_and(|open| open.session().is_some())
         );
         assert_eq!(view.writing.note_editor.read(cx).value(), "Kept text");
     });

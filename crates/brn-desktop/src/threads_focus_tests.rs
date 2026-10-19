@@ -2,6 +2,18 @@
 use super::*;
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
+// Match the editor toolkit’s native bindings while exercising the same action.
+pub(super) const SELECT_ALL: &str = if cfg!(target_os = "macos") {
+    "cmd-a"
+} else {
+    "ctrl-a"
+};
+pub(super) const LINE_START: &str = if cfg!(target_os = "macos") {
+    "cmd-left"
+} else {
+    "home"
+};
+
 pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
     // Persist this before UI creation: navigation reloads the saved settings.
     // Every component fixture refuses provider startup without credential access.
@@ -963,7 +975,7 @@ fn native_refresh_controls_open_named_note_and_one_followup_without_changing_der
     cx.read(|cx| {
         let view = view.read(cx);
         assert_eq!(view.open_note_id(), Some(derived_id.as_str()));
-        assert_eq!(view.writing.note.as_ref().unwrap().record.id, derived_id);
+        assert_eq!(view.writing.note.as_ref().unwrap().record().id, derived_id);
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             "Derived wording stays preserved"

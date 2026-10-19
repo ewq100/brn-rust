@@ -932,6 +932,8 @@ fn start_change_attention(ui: &ThreadsUi, chat: &str, old: &str) -> Vec<String> 
 #[gpui_kit::test]
 fn the_owners_stop_of_a_killed_reply_adds_its_review_but_no_notice(cx: &mut TestAppContext) {
     let f = fixture(cx);
+    // This callback journey clicks resting dialog geometry; motion is a separate native check.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let (chat, run, operation) = update(cx, &f, |ui, window, cx| {
         ui.choose_delegation(DelegationChoice::MaintainOrdinaryNotes, cx);
         let killed = killed_intake_in(ui, &f.data);

@@ -94,7 +94,7 @@ fn query(cx: &mut TestAppContext, f: &Fixture, value: &str) {
             .search
             .clone()
             .update(cx, |input, cx| input.focus(window, cx));
-        window.press("cmd-a", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
         window.press("backspace", cx);
         if !value.is_empty() {
             window.input(value, cx);
@@ -233,7 +233,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
             view.composer.read(cx).value().as_ref(),
             "Standalone unsent draft"
         );
-        assert!(view.writing.note.as_ref().unwrap().session.is_some());
+        assert!(view.writing.note.as_ref().unwrap().session().is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
     });
     let reopened = Workspace::open(&f.data).unwrap();

@@ -22,10 +22,10 @@ impl<T: 'static> WritingView<'_, T> {
     /// borders, and 8 pt of slack. The full row's five 24 pt formatting
     /// buttons and their gaps (136 pt) replace Format ▾.
     pub fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return layout::NoteNeeds::WIDEST;
         };
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return layout::NoteNeeds::WIDEST;
         };
         let text = |label: &str, size| text_width(window, label, size);
@@ -34,8 +34,8 @@ impl<T: 'static> WritingView<'_, T> {
         } else {
             "Working"
         };
-        let chip = text(&format!("{kind} · v{}", open.record.version), SMALL_TEXT) + 38.;
-        let pending = self.pending_comments(&open.record.id);
+        let chip = text(&format!("{kind} · v{}", open.record().version), SMALL_TEXT) + 38.;
+        let pending = self.pending_comments(&open.record().id);
         let toggle = if pending > 0 {
             text(&pending.to_string(), UI_TEXT) + 40.
         } else {
@@ -68,10 +68,10 @@ impl<T: 'static> WritingView<'_, T> {
     /// left; the status chip, comments, Edit note and Connections on the
     /// right. `note_fit` folds controls into menus as the panel narrows.
     pub fn note_controls(&self, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return vec![];
         };
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return vec![];
         };
         // During review the review bar replaces the toolbar; its Proposal
@@ -88,7 +88,7 @@ impl<T: 'static> WritingView<'_, T> {
         } else {
             (None, IconName::FileText, "Working")
         };
-        let version = format!("v{}", open.record.version);
+        let version = format!("v{}", open.record().version);
         let status = format!("{kind} · {version}");
         controls.push(
             if fit.icons() {
@@ -132,16 +132,16 @@ impl<T: 'static> WritingView<'_, T> {
         &self,
         cx: &mut Context<T>,
     ) -> Option<Box<dyn Fn(PopupMenu) -> PopupMenu + 'static>> {
-        if let Some(review) = &self.review {
+        if let Some(review) = self.review.as_ref() {
             return Some(Box::new(self.review_menu_section(review, cx)));
         }
         let open = self.note.as_ref()?;
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return None;
         };
         let this = cx.entity().downgrade();
         let dispatch = self.dispatch;
-        let dirty = open.session.is_some();
+        let dirty = open.session().is_some();
         let busy = self.worker.is_some();
         let imported = note.import.is_some();
         let protected = note.protected;
@@ -303,8 +303,8 @@ impl<T: 'static> WritingView<'_, T> {
         let this = cx.entity().downgrade();
         let dispatch = self.dispatch;
         let note = review.note.is_some();
-        let editing = self.review_editing;
-        let inputs = self.review_inputs || !note;
+        let editing = self.review.is_editing();
+        let inputs = self.review.inputs_shown() || !note;
         let collapsed = self.review_fit.actions_in_menu();
         move |menu: PopupMenu| {
             let menu = menu
@@ -365,12 +365,12 @@ impl<T: 'static> WritingView<'_, T> {
     /// typed error's session is never used.
     pub fn open_edit_elsewhere(&self) -> Option<(EditSession, u64)> {
         let open = self.note.as_ref()?;
-        let (note, base) = self.edit_open.as_ref()?;
-        if *note != open.record.id || !self.recovery_blocked() {
+        let (note, base) = self.note.open_edit_elsewhere()?;
+        if note != open.record().id || !self.recovery_blocked() {
             return None;
         }
-        let buffer = self.buffers.iter().find(|s| s.note == *note)?;
-        Some((buffer.clone(), *base))
+        let buffer = self.buffers.iter().find(|s| s.note == note)?;
+        Some((buffer.clone(), base))
     }
 
     pub fn note_tile(&self, window: &mut Window, cx: &mut Context<T>) -> gpui_kit::AnyElement {
@@ -378,7 +378,7 @@ impl<T: 'static> WritingView<'_, T> {
             return self.review_body(cx);
         }
         let p = pal();
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return div()
                 .id("note-empty-state")
                 .size_full()
@@ -401,7 +401,7 @@ impl<T: 'static> WritingView<'_, T> {
                 .into_any_element();
         };
         let _ = window;
-        let dirty = open.session.is_some();
+        let dirty = open.session().is_some();
         let blocked = self.recovery_blocked();
         let mut content = div()
             .id("note-tile")
@@ -521,7 +521,7 @@ impl<T: 'static> WritingView<'_, T> {
             }
             content = content.child(strip.test_support());
         }
-        let editor = if self.note_reading {
+        let editor = if self.note.is_reading() {
             crate::document::readable_document(&self.note_read_view, self.note_assets())
                 .into_any_element()
         } else {
@@ -644,10 +644,10 @@ impl<T: 'static> WritingView<'_, T> {
                 components::banner(id, tone, text, actions, None).into_any_element()
             }
         };
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return banners;
         };
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return banners;
         };
         if let Some((buffer, base)) = self.open_edit_elsewhere() {
@@ -683,7 +683,7 @@ impl<T: 'static> WritingView<'_, T> {
                 ],
             ));
         } else if self.recovery_blocked()
-            && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record.id)
+            && let Some(buffer) = self.buffers.iter().find(|s| s.note == open.record().id)
         {
             let (buffer, id) = (buffer.clone(), buffer.note.clone());
             banners.push(banner(
@@ -711,7 +711,7 @@ impl<T: 'static> WritingView<'_, T> {
                 ],
             ));
         }
-        let id = open.record.id.clone();
+        let id = open.record().id.clone();
         let current = move |cx: &mut Context<T>| {
             let id = id.clone();
             banner_button("show-current-note", "Open current version")
@@ -777,7 +777,7 @@ impl<T: 'static> WritingView<'_, T> {
         } else if self
             .records
             .iter()
-            .any(|r| r.id == open.record.id && r.version != open.record.version)
+            .any(|r| r.id == open.record().id && r.version != open.record().version)
         {
             banners.push(banner(
                 banners.is_empty(),
@@ -897,8 +897,8 @@ impl<T: 'static> WritingView<'_, T> {
     /// review shows another note's text.
     fn comments_note(&self) -> Option<&OpenNote> {
         let open = self.note.as_ref()?;
-        match &self.review {
-            Some(review) if review.note.as_deref() != Some(open.record.id.as_str()) => None,
+        match self.review.as_ref() {
+            Some(review) if review.note.as_deref() != Some(open.record().id.as_str()) => None,
             _ => Some(open),
         }
     }
@@ -908,10 +908,10 @@ impl<T: 'static> WritingView<'_, T> {
         self.comments_note().is_some_and(|open| {
             self.comment_anchor
                 .as_ref()
-                .is_some_and(|(note, ..)| note == &open.record.id)
+                .is_some_and(|(note, ..)| note == &open.record().id)
                 || self
                     .workspace
-                    .writing_comments(&open.record.id)
+                    .writing_comments(&open.record().id)
                     .map_or(true, |comments| !comments.is_empty())
         })
     }
@@ -956,7 +956,7 @@ impl<T: 'static> WritingView<'_, T> {
     /// together.
     fn comments_toggle(&self, cx: &mut Context<T>) -> Option<gpui_kit::AnyElement> {
         let open = self.comments_note()?;
-        let pending = self.pending_comments(&open.record.id);
+        let pending = self.pending_comments(&open.record().id);
         let label = if pending > 0 {
             format!("Comments · {pending}")
         } else {
@@ -1054,7 +1054,7 @@ impl<T: 'static> WritingView<'_, T> {
             .py_2()
             .border_l_1()
             .border_color(rgb(pal().hairline))
-            .child(self.comments_label(&open.record.id))
+            .child(self.comments_label(&open.record().id))
             .children(self.comment_items(true, cx))
             .test_support()
             .into_any_element()
@@ -1093,7 +1093,7 @@ impl<T: 'static> WritingView<'_, T> {
                     .flex_shrink_0()
                     .px_3()
                     .py_1()
-                    .child(self.comments_label(&open.record.id))
+                    .child(self.comments_label(&open.record().id))
                     .test_support(),
             )
             .children(
@@ -1127,7 +1127,7 @@ impl<T: 'static> WritingView<'_, T> {
         let Some(open) = self.comments_note() else {
             return items;
         };
-        let note_id = open.record.id.clone();
+        let note_id = open.record().id.clone();
         let drafting = self.comment_drafting();
         if with_draft {
             items.extend(self.comment_draft(cx));
@@ -1149,11 +1149,11 @@ impl<T: 'static> WritingView<'_, T> {
     fn comment_draft(&self, cx: &mut Context<T>) -> Option<gpui_kit::AnyElement> {
         let p = pal();
         let open = self.comments_note()?;
-        let dirty = open.session.is_some();
+        let dirty = open.session().is_some();
         let (_, _, _, quote) = self
             .comment_anchor
             .as_ref()
-            .filter(|(anchor_note, ..)| anchor_note == &open.record.id)?;
+            .filter(|(anchor_note, ..)| anchor_note == &open.record().id)?;
         Some(
             div()
                 .id("comment-composer")
@@ -1233,7 +1233,7 @@ impl<T: 'static> WritingView<'_, T> {
         self.comments_note().is_some_and(|open| {
             self.comment_anchor
                 .as_ref()
-                .is_some_and(|(anchor_note, ..)| anchor_note == &open.record.id)
+                .is_some_and(|(anchor_note, ..)| anchor_note == &open.record().id)
         })
     }
 
@@ -1250,11 +1250,11 @@ impl<T: 'static> WritingView<'_, T> {
         let Some(open) = self.comments_note() else {
             return items;
         };
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return items;
         };
-        let note_id = open.record.id.clone();
-        let dirty = open.session.is_some();
+        let note_id = open.record().id.clone();
+        let dirty = open.session().is_some();
         let failed = feedback_error.is_some();
         if let Some(error) = feedback_error {
             items.push(
@@ -1265,7 +1265,7 @@ impl<T: 'static> WritingView<'_, T> {
         comments.sort_by_key(|entry| {
             let start = match &entry.record.data {
                 RecordData::Comment(comment) => {
-                    comment_location(comment, open.record.version, &note.markdown)
+                    comment_location(comment, open.record().version, &note.markdown)
                         .map_or(usize::MAX, |range| range.start)
                 }
                 _ => usize::MAX,
@@ -1299,11 +1299,11 @@ impl<T: 'static> WritingView<'_, T> {
                 continue;
             };
             let id = entry.record.id.clone();
-            let location = comment_location(comment, open.record.version, &note.markdown);
+            let location = comment_location(comment, open.record().version, &note.markdown);
             let checked = !entry.addressed && !self.excluded_comments.contains(&id);
             // An unlocated comment is kept as written; the owner excludes it
             // or comments on the passage again to reattach the feedback.
-            let unlocated = unlocated_reason(comment, open.record.version);
+            let unlocated = unlocated_reason(comment, open.record().version);
             let status = if entry.addressed {
                 "Addressed · history kept".to_owned()
             } else if location.is_none() {
@@ -1451,11 +1451,11 @@ impl<T: 'static> WritingView<'_, T> {
     /// The expanded saved inputs, when shown, then the writing bar.
     fn note_bar(&self, cx: &mut Context<T>) -> Vec<gpui_kit::AnyElement> {
         let p = pal();
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return vec![];
         };
-        let note_id = open.record.id.clone();
-        let dirty = open.session.is_some();
+        let note_id = open.record().id.clone();
+        let dirty = open.session().is_some();
         let mut bar = div()
             .id("note-bar")
             .flex()
@@ -1621,7 +1621,7 @@ impl<T: 'static> WritingView<'_, T> {
                     Some(IconName::CircleCheck),
                     format!(
                         "Applied · v{}{}",
-                        open.record.version,
+                        open.record().version,
                         if open_ids.is_empty() && !snapshot.comments.is_empty() {
                             format!(
                                 " · {} addressed",
@@ -1692,7 +1692,7 @@ impl<T: 'static> WritingView<'_, T> {
         } else {
             let mut included = 0;
             let mut unresolved_included = false;
-            if let RecordData::Note(note) = &open.record.data {
+            if let RecordData::Note(note) = &open.record().data {
                 for entry in &comments {
                     if let RecordData::Comment(comment) = &entry.record.data
                         && !entry.addressed
@@ -1700,7 +1700,7 @@ impl<T: 'static> WritingView<'_, T> {
                     {
                         included += 1;
                         unresolved_included |=
-                            comment_location(comment, open.record.version, &note.markdown)
+                            comment_location(comment, open.record().version, &note.markdown)
                                 .is_none();
                     }
                 }
@@ -1879,7 +1879,7 @@ impl<T: 'static> WritingView<'_, T> {
 
     fn review_body(&self, cx: &mut Context<T>) -> gpui_kit::AnyElement {
         let p = pal();
-        let Some(review) = &self.review else {
+        let Some(review) = self.review.as_ref() else {
             return div().into_any_element();
         };
         let has_evidence =
@@ -1924,8 +1924,8 @@ impl<T: 'static> WritingView<'_, T> {
             let tracked = diff::tracked(&current, &review.original);
             format!("+{} −{}", tracked.added, tracked.removed)
         });
-        let editing = self.review_editing;
-        let edited = editing || review.edited;
+        let editing = self.review.is_editing();
+        let edited = editing || self.review.is_edited();
         let grouped = review.groups.groups.len() > 1;
         let partial = review.selected.len() != review.groups.groups.len();
         let snapshot = review
@@ -2018,7 +2018,7 @@ impl<T: 'static> WritingView<'_, T> {
                 vec![
                     button("review-show-changes")
                         .label("Changes")
-                        .selected(!self.review_reading)
+                        .selected(!self.review.is_reading())
                         .disabled(edited)
                         .when_some(why, |segment, why| {
                             segment.accessibility_label(format!("Changes, unavailable: {why}"))
@@ -2027,7 +2027,7 @@ impl<T: 'static> WritingView<'_, T> {
                         .on_click(self.on(cx, WritingRequest::ReviewReading(false))),
                     button("review-read-result")
                         .label("Result")
-                        .selected(self.review_reading)
+                        .selected(self.review.is_reading())
                         .disabled(edited)
                         .when_some(why, |segment, why| {
                             segment.accessibility_label(format!("Result, unavailable: {why}"))
@@ -2152,13 +2152,13 @@ impl<T: 'static> WritingView<'_, T> {
                 .label("Use this text")
                 .compact()
                 .h(components::tokens::COMPACT_CONTROL)
-                .disabled(!review.edited)
-                .accessibility_label(if review.edited {
+                .disabled(!self.review.is_edited())
+                .accessibility_label(if self.review.is_edited() {
                     "Use this text"
                 } else {
                     "Use this text, unavailable: Edit the text first"
                 })
-                .tooltip(if review.edited {
+                .tooltip(if self.review.is_edited() {
                     "Review your text as a new proposal"
                 } else {
                     "Edit the text first"
@@ -2205,7 +2205,8 @@ impl<T: 'static> WritingView<'_, T> {
             .iter()
             .filter(|write| matches!(write.data, RecordData::Note(_)))
             .count();
-        let tall = self.review_inputs || review.note.is_none() || grouped || note_writes > 1;
+        let tall =
+            self.review.inputs_shown() || review.note.is_none() || grouped || note_writes > 1;
         let mut details = div()
             .id("review-details")
             .flex()
@@ -2258,7 +2259,7 @@ impl<T: 'static> WritingView<'_, T> {
                 .filter(|saved| self.writing_requests.get(&saved.request_message) == Some(*saved));
             details = details.child(self.sources_used(evidence, captured));
         }
-        if self.review_inputs || review.note.is_none() {
+        if self.review.inputs_shown() || review.note.is_none() {
             // The bar names the reason when the proposal has no note text.
             if review.note.is_some() {
                 details = details.child(review.candidate.request.reason.clone());
@@ -2399,12 +2400,12 @@ impl<T: 'static> WritingView<'_, T> {
         }
         let body = if review.note.is_none() {
             div().into_any_element()
-        } else if self.review_editing {
+        } else if self.review.is_editing() {
             prose_editor(&self.review_editor)
                 .h_full()
                 .aria_label("Final proposed note text")
                 .into_any_element()
-        } else if self.review_reading {
+        } else if self.review.is_reading() {
             crate::document::readable_document(&self.candidate_view, self.note_assets())
                 .into_any_element()
         } else {
@@ -2479,7 +2480,7 @@ impl<T: 'static> WritingView<'_, T> {
     }
 
     pub fn compare_tile(&self, _: &mut Context<T>) -> gpui_kit::AnyElement {
-        if let Some(review) = &self.review
+        if let Some(review) = self.review.as_ref()
             && review.candidate.request.writes.iter().any(
                 |w| matches!(&w.data, RecordData::Message(m) if m.role == WRITING_EVIDENCE_ROLE),
             )

@@ -1,9 +1,9 @@
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 use brn_threads_intake::*;
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 use std::sync::atomic::AtomicBool;
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 #[test]
 fn restart_expiry_removes_only_owned_old_runs_and_does_not_follow_links() {
     use std::os::unix::fs::symlink;

@@ -78,7 +78,7 @@ fn invalid_assets_are_refused() {
 }
 
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn shared_runtime_denies_file_and_network() {
     use std::process::Command;
     let path = std::env::temp_dir().join(format!("document-forbidden-{}", std::process::id()));
@@ -103,7 +103,7 @@ fn shared_runtime_denies_file_and_network() {
     );
 }
 #[test]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn shared_runtime_process_group_is_reaped() {
     use std::{
         io::{BufRead, BufReader},
@@ -179,7 +179,7 @@ fn checked_png_identity_dimensions_duplicates_and_request_pixel_budget() {
 }
 
 #[test]
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
 fn restricted_runtime_reports_platform_unavailable() {
     let output = std::process::Command::new(env!("CARGO_BIN_EXE_brn-xberg-helper"))
         .env_clear()
@@ -188,6 +188,6 @@ fn restricted_runtime_reports_platform_unavailable() {
     assert!(!output.status.success());
     assert_eq!(
         serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
-        serde_json::json!({"error":"native intake restrictions are qualified only on macOS; conversion refused"})
+        serde_json::json!({"error":"native intake restrictions require macOS or Linux x86_64; conversion refused"})
     );
 }

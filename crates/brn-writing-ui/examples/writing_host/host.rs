@@ -31,24 +31,30 @@ pub struct WritingHost {
     _root: tempfile::TempDir,
 }
 impl WritingHost {
-    pub fn new(f: fixture::Fixture, window: &mut Window, cx: &mut Context<Self>) -> Self {
+    pub fn new(mut f: fixture::Fixture, window: &mut Window, cx: &mut Context<Self>) -> Self {
         let mut panel = WritingPanel::new(window, cx);
-        panel.note = Some(OpenNote {
-            record: f.note.clone(),
-            session: None,
-        });
-        panel.note_editor.update(cx, |editor, cx| {
-            editor.set_value(fixture::ORIGINAL, window, cx)
-        });
+        panel
+            .open_note(&mut f.workspace, &f.note.id, None, window, cx)
+            .expect("Synthetic Note opens through shared lifecycle");
         panel.margin_mode = layout::MarginMode::Stacked;
         let subscriptions = vec![
+            cx.subscribe_in(
+                &panel.review_editor,
+                window,
+                |this, editor, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        this.panel
+                            .review
+                            .buffer_changed(editor.read(cx).value().as_ref());
+                        cx.notify();
+                    }
+                },
+            ),
             cx.subscribe_in(
                 &panel.note_editor,
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
-                    if matches!(event, InputEvent::Change)
-                        && this.panel.note_editor_visible(&this.buffers, true)
-                    {
+                    if matches!(event, InputEvent::Change) && this.panel.note_input_active(true) {
                         // This shared callback writes begin_edit/update_buffer synchronously,
                         // before any derived read, selection update or notify.
                         let text = editor.read(cx).value().to_string();
@@ -66,7 +72,7 @@ impl WritingHost {
                 cx.notify();
             }),
             cx.observe_in(&panel.note_read_view, window, |this, _, _, cx| {
-                if this.panel.note_reading {
+                if this.panel.note.is_reading() {
                     this.panel.track_selection(cx);
                     cx.notify();
                 }
@@ -125,7 +131,7 @@ impl WritingHost {
         self.candidates = self.workspace.candidates()?;
         self.buffers = self.workspace.store.recovery_buffers()?;
         let mut shown = self.candidates.clone();
-        if let Some(review) = &self.panel.review {
+        if let Some(review) = self.panel.review.as_ref() {
             shown.retain(|candidate| candidate.operation != review.candidate.operation);
             shown.push(review.candidate.clone());
         }
@@ -182,45 +188,16 @@ impl WritingHost {
     }
     fn reload(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AppResult<()> {
         self.context()?;
-        let record = self
-            .workspace
-            .store
-            .note(&self.note()?)?
-            .ok_or_else(|| AppError::Invalid("Saved document unavailable".into()))?;
-        let RecordData::Note(note) = &record.data else {
-            return Err(AppError::Invalid("Not a document".into()));
-        };
-        let text = note.markdown.clone();
-        self.panel.note = Some(OpenNote {
-            record,
-            session: None,
-        });
-        self.panel
-            .note_editor
-            .update(cx, |editor, cx| editor.set_value(text, window, cx));
-        self.panel.sync_read_text(cx);
-        Ok(())
+        self.panel.refresh_note(&mut self.workspace, window, cx)
     }
     fn save(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AppResult<()> {
         self.context()?;
-        let text = self.panel.note_editor.read(cx).value().to_string();
-        self.panel.note_changed(&mut self.workspace, text)?;
-        if let Some(session) = self
-            .panel
-            .note
-            .as_ref()
-            .and_then(|open| open.session.clone())
-        {
-            match self.workspace.store.save(&session.id, session.generation)? {
-                SaveOutcome::Saved(_) => self.reload(window, cx)?,
-                other => {
-                    return Err(AppError::Invalid(format!(
-                        "Save refused; edit retained: {other:?}"
-                    )));
-                }
-            }
+        match self.panel.save_note(&mut self.workspace, window, cx)? {
+            Some(SaveOutcome::Saved(_)) | None => Ok(()),
+            Some(other) => Err(AppError::Invalid(format!(
+                "Save refused; edit retained: {other:?}"
+            ))),
         }
-        Ok(())
     }
     fn comment(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AppResult<()> {
         let context = self.context()?;
@@ -234,7 +211,7 @@ impl WritingHost {
                 .panel
                 .note
                 .as_ref()
-                .is_none_or(|open| open.session.is_some())
+                .is_none_or(|open| open.session().is_some())
         {
             return Err(AppError::Invalid(
                 "Save before commenting; draft retained".into(),
@@ -271,10 +248,10 @@ impl WritingHost {
             .note
             .as_ref()
             .ok_or_else(|| AppError::Invalid("No document".into()))?;
-        if open.session.is_some() {
+        if open.session().is_some() {
             return Err(AppError::Invalid("Save before rewriting".into()));
         }
-        let version = open.record.version;
+        let version = open.record().version;
         let thread = context
             .conversation
             .ok_or_else(|| AppError::Invalid("No active writing conversation".into()))?;
@@ -340,45 +317,18 @@ impl WritingHost {
             ));
         }
         let note = self.note()?;
-        let proposed = candidate
+        if !candidate
             .request
             .writes
             .iter()
-            .find_map(|w| match &w.data {
-                RecordData::Note(n) if w.id == note => Some(n.markdown.clone()),
-                _ => None,
-            })
-            .ok_or_else(|| AppError::Invalid("Proposal has no matching document".into()))?;
-        let current = self
-            .workspace
-            .store
-            .note(&note)?
-            .ok_or_else(|| AppError::Invalid("Current document unavailable".into()))?;
-        let RecordData::Note(current) = current.data else {
-            return Err(AppError::Invalid("Not a Note".into()));
-        };
-        let groups = self.workspace.review_groups(candidate.operation.as_str())?;
-        let selected = groups.groups.iter().map(|g| g.id.clone()).collect();
-        self.panel.review = Some(Review {
-            candidate,
-            note: Some(note),
-            original: proposed.clone(),
-            edited: false,
-            groups,
-            selected,
-        });
-        self.panel.review_editing = false;
-        self.panel.review_inputs = false;
-        self.panel.review_editor.update(cx, |editor, cx| {
-            editor.set_value(proposed.clone(), window, cx)
-        });
+            .any(|write| write.id == note && matches!(write.data, RecordData::Note(_)))
+        {
+            return Err(AppError::Invalid(
+                "Proposal has no matching document".into(),
+            ));
+        }
         self.panel
-            .current_view
-            .update(cx, |view, cx| view.set_text(&current.markdown, cx));
-        self.panel
-            .candidate_view
-            .update(cx, |view, cx| view.set_text(&proposed, cx));
-        self.panel.sync_diff(&self.workspace, window, cx);
+            .open_review(&self.workspace, candidate, Some(note), window, cx)?;
         Ok(())
     }
     fn apply(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AppResult<()> {
@@ -396,12 +346,7 @@ impl WritingHost {
                 "Proposal is no longer visible in this document/context".into(),
             ));
         }
-        if review.edited || review.selected.len() != review.groups.groups.len() {
-            return Err(AppError::Invalid(
-                "This host applies only the exact full proposal".into(),
-            ));
-        }
-        let candidate = review.candidate.clone();
+        let candidate = self.panel.review.exact_candidate()?;
         // Fresh service validation; the display batch is never an Apply grant.
         self.workspace
             .writing_candidate_review(candidate.operation.as_str(), None)?;
@@ -416,7 +361,7 @@ impl WritingHost {
                         .applied_rewrite
                         .insert(note, (request.clone(), receipt.operation.as_str().into()));
                 }
-                self.panel.review = None;
+                self.panel.review.completed(candidate.operation.as_str());
                 self.reload(window, cx)?;
                 self.notice =
                     "Applied the exact reviewed proposal; durable Undo is available.".into();
@@ -444,13 +389,14 @@ impl WritingHost {
     ) -> AppResult<()> {
         match request {
             WritingRequest::Save => self.save(window, cx)?,
+            WritingRequest::Reload => { self.context()?; let note = self.note()?; self.panel.open_note(&mut self.workspace, &note, None, window, cx)?; },
             WritingRequest::TrackSelection => self.panel.track_selection(cx),
             WritingRequest::CommentSelection | WritingRequest::CommentOrSave => {
                 self.context()?;
-                if self.panel.note.as_ref().is_some_and(|open| open.session.is_some()) { return Err(AppError::Invalid("Save before selecting a saved passage".into())); }
+                if self.panel.note.as_ref().is_some_and(|open| open.session().is_some()) { return Err(AppError::Invalid("Save before selecting a saved passage".into())); }
                 self.panel.track_selection(cx);
                 let open = self.panel.note.as_ref().unwrap();
-                if let Some((range, quote)) = self.panel.selection.clone() { self.panel.comment_anchor = Some((open.record.id.clone(), open.record.version, range, quote)); }
+                if let Some((range, quote)) = self.panel.selection.clone() { self.panel.comment_anchor = Some((open.record().id.clone(), open.record().version, range, quote)); }
                 self.panel.toggle_comments(true);
                 self.panel.comment_input.read(cx).focus_handle(cx).focus(window, cx);
             }
@@ -461,11 +407,26 @@ impl WritingHost {
             WritingRequest::OpenReview(candidate) => self.review(candidate, window, cx)?,
             WritingRequest::ApplyReview => self.apply(window, cx)?,
             WritingRequest::DismissReview => {
-                if let Some(review) = &self.panel.review { self.workspace.review_dismiss(review.candidate.operation.as_str())?; }
-                self.panel.review = None;
+                if let Some(review) = self.panel.review.as_ref() {
+                    let operation = review.candidate.operation.as_str().to_owned();
+                    self.workspace.review_dismiss(&operation)?;
+                    self.panel.review.completed(&operation);
+                }
             }
             WritingRequest::CardDismiss(candidate) => self.workspace.review_dismiss(candidate.operation.as_str())?,
-            WritingRequest::KeepReview => self.panel.review = None,
+            WritingRequest::KeepReview => {
+                if self.panel.review.is_edited() { self.panel.prepare_review_edit(&mut self.workspace, window, cx)?; }
+                self.panel.review.keep()?;
+            }
+            WritingRequest::StartReviewEdit => {
+                if self.panel.review.begin_edit() {
+                    self.panel.review_editor.update(cx, |editor, cx| editor.focus(window, cx));
+                }
+            }
+            WritingRequest::CancelReviewEdit => self.panel.cancel_review_edit(window, cx),
+            WritingRequest::PrepareReviewEdit => self.panel.prepare_review_edit(&mut self.workspace, window, cx)?,
+            WritingRequest::PrepareReviewSelection => self.panel.prepare_review_selection(&mut self.workspace, window, cx)?,
+            WritingRequest::ToggleGroup(id) => self.panel.review.toggle_group(&id),
             WritingRequest::Undo(operation) => {
                 self.context()?;
                 match self.workspace.undo(&operation)? {
@@ -473,9 +434,9 @@ impl WritingHost {
                     other => self.notice = format!("Undo refused: {other:?}"),
                 }
             }
-            WritingRequest::NoteReading(read) => { self.panel.note_reading = read; self.panel.sync_read_text(cx); self.panel.sync_read_marks(&self.workspace, cx); }
-            WritingRequest::ReviewReading(read) => self.panel.review_reading = read,
-            WritingRequest::ToggleReviewInputs => self.panel.review_inputs = !self.panel.review_inputs,
+            WritingRequest::NoteReading(read) => { self.panel.set_note_reading(&mut self.workspace, read, cx)?; self.panel.sync_read_marks(&self.workspace, cx); }
+            WritingRequest::ReviewReading(read) => { self.panel.review.set_reading(read); },
+            WritingRequest::ToggleReviewInputs => self.panel.review.toggle_inputs(),
             WritingRequest::ToggleComments => { let show = !self.view().comments_open(); self.panel.toggle_comments(show); }
             WritingRequest::CollapseComments => self.panel.toggle_comments(false),
             WritingRequest::ToggleExcluded(id) => { if !self.panel.excluded_comments.remove(&id) { self.panel.excluded_comments.insert(id); } }
@@ -496,7 +457,7 @@ impl WritingHost {
             }
             WritingRequest::RecheckSetup => {
                 let fresh = setup::SetupDraft::load(&self.workspace, &self.note()?, None)?;
-                if self.panel.note.as_ref().is_none_or(|open| open.record.version != fresh.target.note_version) {
+                if self.panel.note.as_ref().is_none_or(|open| open.record().version != fresh.target.note_version) {
                     return Err(AppError::Invalid("Open the current saved document before rechecking".into()));
                 }
                 if let Some(draft) = &mut self.panel.setup { draft.keep_edits_after_recheck(fresh)?; }

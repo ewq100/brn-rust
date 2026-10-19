@@ -11,11 +11,13 @@ The builder consumes the cached, SHA-verified archive; normal CI fetches committ
 stock/adapted locks before offline builds. Install both `brn-xberg-helper` and
 `brn-xberg-helper-brn` beside the host. There is no third converter or fallback.
 
-The unchanged `src/helper_runtime.rs` is shared binary source. It owns empty-environment
-checking, deny-default macOS restriction, bounded pipes, process self-tests and
-resource limits. The new binary removes only macOS's startup-inserted CoreFoundation
-marker before that check. Non-Mac restricted execution remains unavailable.
-This is not a hard heap/RSS guarantee or full document-fidelity claim.
+`src/helper_runtime.rs` is shared binary source. It owns empty-environment
+checking, protocol bounds, process self-tests and resource limits. On macOS it installs
+a deny-default sandbox; on Linux x86_64 it installs a fail-closed seccomp-BPF policy
+for pipe-only helper work. Other operating systems and Linux architectures refuse
+conversion. The new binary removes only macOS's startup-inserted CoreFoundation
+marker before restriction setup. This is not a hard heap/RSS guarantee or full
+document-fidelity claim.
 
 `cargo test --locked --offline -p brn-intake` checks light DTO, retained-image and
 PNG/hash/codec safety. The standalone tools' own tests qualify normal API output,

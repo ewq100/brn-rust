@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("prepare", ROOT / "scripts/prepare-xberg-adapted.py")
 p = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(p)
-ARCHIVE = Path.home() / ".cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate"
+ARCHIVE = Path(os.environ.get("CARGO_HOME", Path.home() / ".cargo")) / "registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate"
 
 
 class PrepareTests(unittest.TestCase):

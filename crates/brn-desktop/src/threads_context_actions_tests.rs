@@ -185,11 +185,11 @@ fn save_decision_reviews_exact_text_cancels_without_writes_and_preserves_drafts(
     cx.read(|cx| assert_eq!(f.view.read(cx).workspace.notes().unwrap().len(), 1));
     click(cx, &f, &action);
     click(cx, &f, "decision-title");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, super::focus_tests::SELECT_ALL);
     cx.simulate_input(f.window, "Owner route decision");
     cx.run_until_parked();
     click(cx, &f, "decision-text");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, super::focus_tests::SELECT_ALL);
     cx.simulate_input(f.window, "Decision with ![missing](brn-asset://missing)");
     cx.run_until_parked();
     click(cx, &f, "decision-save");
@@ -205,7 +205,7 @@ fn save_decision_reviews_exact_text_cancels_without_writes_and_preserves_drafts(
     })
     .unwrap();
     click(cx, &f, "decision-text");
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, super::focus_tests::SELECT_ALL);
     cx.simulate_input(f.window, "We choose Gamma · õun");
     cx.run_until_parked();
     click(cx, &f, "decision-save");
@@ -344,7 +344,7 @@ fn save_as_decision_dialog_ignores_enter_in_the_title_and_saves_on_cmd_enter(
     let f = fixture(cx);
     click(cx, &f, format!("answer-decision-{}", f.reply.id));
     // The title has focus on open.
-    cx.simulate_keystrokes(f.window, "cmd-a");
+    cx.simulate_keystrokes(f.window, super::focus_tests::SELECT_ALL);
     cx.simulate_input(f.window, "Route decision");
     cx.simulate_keystrokes(f.window, "enter");
     cx.run_until_parked();

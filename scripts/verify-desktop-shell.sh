@@ -8,7 +8,7 @@ if [[ -n "${BRN_VERIFY_OUTPUT_DIR:-}" && -z "${_BRN_EVIDENCE_CHILD:-}" ]]; then
 fi
 if [[ $# -ne 0 ]]; then printf 'Usage: verify-desktop-shell.sh\n' >&2; exit 2; fi
 cd "$repo_root"
-if [[ "$(uname -s)" == Darwin ]]; then
+if [[ "$(uname -s)" == Darwin || ( "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ) ]]; then
   bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "${CARGO_TARGET_DIR:-$repo_root/target}/document-helpers"
   export BRN_XBERG_HELPER="${CARGO_TARGET_DIR:-$repo_root/target}/document-helpers/artifacts/brn-xberg-helper"
   export BRN_XBERG_HELPER_BRN="${CARGO_TARGET_DIR:-$repo_root/target}/document-helpers/artifacts/brn-xberg-helper-brn"

@@ -1,0 +1,33 @@
+{
+  "observed_at_utc": "2026-10-18T22:05:23.721623+00:00",
+  "platform": "Linux x86_64, Xvfb1280x900x24, Openbox, software Vulkan lavapipe",
+  "binary_sha256_receipt": [
+    "a58f8128d37ebd8050390177441ac3ddfc6111d45caf61aaa9adfdf080c03508  /workspace/brn-environment/target/debug/brn-desktop",
+    "854e25a84667e650172e9b127574d3fa3ae081036b0a89d619440d8468a1e654  /workspace/brn-environment/target/debug/brn"
+  ],
+  "source_material": "Writing review a9119a15 plus intake host-admission production material committed39312be9. Built on working tree; not an exact release-candidate qualification. Later Note changes require another journey.",
+  "data": "fresh synthetic test workspace outside Git; purpose test init only setup CLI write",
+  "actions": [
+    "Launch production brn-desktop --data-dir SYNTHETIC_DIRECTORY",
+    "New Note dialog; XTEST title input; Create note",
+    "XTEST pointer focus and ASCII body input to actual editor",
+    "Click actual Save button, observe saved v2",
+    "OS Alt-F4 close; production process exited0",
+    "Launch same binary/data; Notes list; open same Note",
+    "Observe exact persisted text; independent CLI notes and recovery reads only"
+  ],
+  "expected_markdown": "This paragraph was typed through X11 into the production BRN editor. Linux campaign witness 2026-10-18.",
+  "result": "PASS: matchingbody v2; recovery empty; saved/reopened screenshots",
+  "limits": [
+    "Not release readiness or Mac parity. No IME/Unicode, clipboard, accessibility, hardware GPU or animated interaction qualification.",
+    "Some initial captures preceded application frame completion; retained confirmed screenshots show settled state. Bare Xvfb missing window manager was corrected using Openbox.",
+    "Current application shortcuts expose Super/Command labels on Linux; conventional Ctrl shortcut adaptation remains open.",
+    "No provider invoked; no CLI or SQL repair of UI-created content."
+  ],
+  "artifact_sha256": {
+    "linux-window-saved.png": "b4a4305d3b2e42e952ee651097fa5f674e83bac5feb7bfb692b1c0788f18afbd",
+    "linux-window-independent-recovery.json": "af42ad81bc989c92795491a31e3d7eb9e31dfa79d4d92129c56b9c7505736984",
+    "linux-window-independent-read.json": "7d6907c5990877402473e4e493f98fbd4ff25732488e01b4a5c3ab3187fc9e8a",
+    "linux-window-reopened.png": "46a81e1346c0b2039016266bd17bcae492ef4fb13eddfb9cc5c962dc3c20186b"
+  }
+}

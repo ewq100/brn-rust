@@ -72,7 +72,7 @@ jobs:
         if: runner.os != 'Windows'
         run: python3 scripts/check-provider-retirement.py
       - name: Prepare both locked document helper graphs
-        if: runner.os == 'macOS'
+        if: runner.os != 'Windows'
         run: |
           host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
@@ -97,7 +97,7 @@ jobs:
         if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' }}
         run: cargo test --workspace --no-fail-fast --locked --offline
       - name: Both document helpers normal API and restrictions
-        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
           for mode in stock adapted; do
             manifest=tools/xberg-intake-helper/Cargo.toml
@@ -144,8 +144,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Qualify Mac native features on PRs; probe all targets on main/manual runs.
-        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+        # Qualify Linux and Mac widgets on PRs; probe Windows on main/manual runs.
+        runner: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-24.04","macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -155,7 +155,7 @@ jobs:
           lane: native-ui
           native: 'true'
       - name: Prepare both locked document helper graphs
-        if: runner.os == 'macOS'
+        if: runner.os != 'Windows'
         run: |
           host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
@@ -167,14 +167,14 @@ jobs:
           cp target/document-helpers/artifacts/brn-xberg-helper* target/debug/
           echo "BRN_XBERG_HELPER=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" >> "$GITHUB_ENV"
           echo "BRN_XBERG_HELPER_BRN=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" >> "$GITHUB_ENV"
-      - name: Build reusable writing UI on macOS
-        if: runner.os == 'macOS'
+      - name: Build reusable writing UI on Unix
+        if: runner.os != 'Windows'
         run: cargo build -p brn-writing-ui --features native-ui --locked --offline
-      - name: Lint reusable writing UI on macOS
-        if: runner.os == 'macOS'
+      - name: Lint reusable writing UI on Unix
+        if: runner.os != 'Windows'
         run: cargo clippy -p brn-writing-ui --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
-      - name: Test reusable writing UI on macOS
-        if: runner.os == 'macOS'
+      - name: Test reusable writing UI on Unix
+        if: runner.os != 'Windows'
         run: cargo test -p brn-writing-ui --features native-ui,native-test-support --locked --offline
       - name: Build the desktop with native UI
         run: cargo build -p brn-desktop --features native-ui --locked --offline
@@ -182,11 +182,11 @@ jobs:
         run: cargo clippy -p brn-desktop --features native-ui --all-targets --locked --offline -- -D warnings
       - name: Test native UI state
         run: cargo test -p brn-desktop --features native-ui --locked --offline
-      - name: Lint native macOS widgets
-        if: runner.os == 'macOS'
+      - name: Lint native Unix widgets
+        if: runner.os != 'Windows'
         run: cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings
-      - name: Test native macOS widgets
-        if: runner.os == 'macOS'
+      - name: Test native Unix widgets
+        if: runner.os != 'Windows'
         run: |
           cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui:: --locked --offline
       - name: Exercise the desktop headless driver on Unix
@@ -242,7 +242,7 @@ jobs:
           lane: native-ui-native-retrieval
           native: 'true'
       - name: Prepare both locked document helper graphs
-        if: runner.os == 'macOS'
+        if: runner.os != 'Windows'
         run: |
           host_target="$(rustc --version --verbose | sed -n 's/^host: //p')"
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"

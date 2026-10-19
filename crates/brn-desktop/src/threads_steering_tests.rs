@@ -966,7 +966,7 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                         "Human draft stays visible"
                     );
                 } else {
-                    assert_eq!(ui.writing.note.as_ref().unwrap().record.version, 2);
+                    assert_eq!(ui.writing.note.as_ref().unwrap().record().version, 2);
                     assert_eq!(ui.writing.note_editor.read(cx).value(), "After edit");
                 }
             })

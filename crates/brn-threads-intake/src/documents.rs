@@ -69,9 +69,13 @@ impl Converter {
         if !helper.is_absolute() {
             return Err(ConversionError::Unavailable);
         }
-        // The shared restricted helper runtime is qualified only on macOS.
+        // The shared helper runtime restricts macOS and Linux x86_64. Every
+        // other platform, including other Linux architectures, fails closed.
         // Refuse before cloning input, creating scratch, or dispatching a helper.
-        if !cfg!(target_os = "macos") {
+        if !cfg!(any(
+            target_os = "macos",
+            all(target_os = "linux", target_arch = "x86_64")
+        )) {
             return Err(ConversionError::Unavailable);
         }
         let input = DocumentRequest {

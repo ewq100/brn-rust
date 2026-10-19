@@ -296,8 +296,8 @@ impl ThreadsUi {
                 TileKind::Threads.label().into(),
                 TileKind::Threads.label().into(),
             ),
-            TileKind::Note => match (&self.writing.review, &self.writing.note) {
-                (_, Some(open)) => named(one_line(&title(&open.record))),
+            TileKind::Note => match (self.writing.review.as_ref(), self.writing.note.as_ref()) {
+                (_, Some(open)) => named(one_line(&title(open.record()))),
                 (Some(review), None) => named(format!(
                     "Review · {}",
                     one_line(&review.candidate.request.reason)
@@ -1246,9 +1246,9 @@ impl ThreadsUi {
         }
         // The open note's save state stays visible even when its panel is
         // hidden: unsaved saves on click, saved opens Changes.
-        if let Some(open) = &self.writing.note {
-            let name = one_line(&title(&open.record));
-            bar = bar.child(if open.session.is_some() {
+        if let Some(open) = self.writing.note.as_ref() {
+            let name = one_line(&title(open.record()));
+            bar = bar.child(if open.session().is_some() {
                 pill("status-save", "● Unsaved · ⌘S")
                     .h(tokens::ICON_CONTROL)
                     .text_color(rgb(p.warning))
@@ -1260,7 +1260,7 @@ impl ThreadsUi {
                     .text_color(rgb(p.muted))
                     .tooltip(format!(
                         "{name} v{} saved · Open Changes",
-                        open.record.version
+                        open.record().version
                     ))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.show_tile(TileKind::History, window, cx)
@@ -1682,12 +1682,7 @@ impl Render for ThreadsUi {
             .bg(rgb(p.paper))
             .text_color(rgb(p.ink))
             .on_action(cx.listener(|this, _: &Save, window, cx| {
-                if this
-                    .writing
-                    .review
-                    .as_ref()
-                    .is_some_and(|review| review.edited)
-                {
+                if this.writing.review.is_edited() {
                     this.prepare_review_edit(window, cx);
                 } else if this.writing.note.is_some() {
                     this.save(window, cx);

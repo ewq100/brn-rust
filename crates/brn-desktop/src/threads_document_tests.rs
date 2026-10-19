@@ -58,8 +58,8 @@ fn writing_read_switch_and_navigation_keep_the_same_recoverable_buffer(cx: &mut 
                 .update(cx, |editor, cx| editor.set_value(typed, window, cx));
             view.preserve_visible_note_input(cx);
             view.set_note_reading(true, window, cx);
-            assert!(view.writing.note_reading);
-            assert!(view.writing.note.as_ref().unwrap().session.is_some());
+            assert!(view.writing.note.is_reading());
+            assert!(view.writing.note.as_ref().unwrap().session().is_some());
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
             assert_eq!(
                 view.writing
@@ -78,7 +78,7 @@ fn writing_read_switch_and_navigation_keep_the_same_recoverable_buffer(cx: &mut 
             );
 
             view.set_note_reading(false, window, cx);
-            assert!(!view.writing.note_reading);
+            assert!(!view.writing.note.is_reading());
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
         });
     })
@@ -93,7 +93,7 @@ fn writing_read_switch_and_navigation_keep_the_same_recoverable_buffer(cx: &mut 
             view.open_note(&second.id, None, window, cx);
             view.open_note(&f.note.id, None, window, cx);
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
-            assert!(view.writing.note.as_ref().unwrap().session.is_some());
+            assert!(view.writing.note.as_ref().unwrap().session().is_some());
             view.set_note_reading(true, window, cx);
             assert_eq!(
                 view.writing
@@ -126,8 +126,10 @@ fn read_select_all_comments_the_exact_markdown_source_without_starting_ai(cx: &m
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(super::focus_tests::SELECT_ALL, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {
@@ -192,8 +194,10 @@ fn editing_after_read_selection_clears_old_range_before_comment_shortcut(cx: &mu
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-a", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(super::focus_tests::SELECT_ALL, cx)
+    })
+    .unwrap();
     cx.run_until_parked();
 
     cx.update_window(f.window, |_, window, cx| {
@@ -321,7 +325,7 @@ fn save_and_comment_saves_then_opens_exact_quote_without_posting(cx: &mut TestAp
                 panic!("expected a note");
             };
             assert_eq!(note.markdown, typed);
-            assert!(view.writing.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
             assert_eq!(
                 view.writing.comment_anchor,
                 Some((f.note.id.clone(), saved.version, range, quote.into()))
@@ -388,7 +392,7 @@ fn stale_save_and_comment_keeps_typed_source_and_comment_draft(cx: &mut TestAppC
             view.save_and_comment(window, cx);
 
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
-            assert!(view.writing.note.as_ref().unwrap().session.is_some());
+            assert!(view.writing.note.as_ref().unwrap().session().is_some());
             let RecordData::Note(latest) =
                 view.workspace.store.note(&f.note.id).unwrap().unwrap().data
             else {
@@ -658,11 +662,20 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
                 .value()
                 .starts_with("Owner edit. ")
         );
-        assert!(view.writing.note.as_ref().unwrap().session.is_some());
+        assert!(view.writing.note.as_ref().unwrap().session().is_some());
     });
     // Establish that this is the real editor's working local Undo path.
-    cx.update_window(f.window, |_, window, cx| window.press("cmd-z", cx))
-        .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.press(
+            if cfg!(target_os = "macos") {
+                "cmd-z"
+            } else {
+                "ctrl-z"
+            },
+            cx,
+        )
+    })
+    .unwrap();
     cx.run_until_parked();
     f.view.read_with(cx, |view, cx| {
         assert_eq!(
@@ -679,7 +692,7 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
         f.view.update(cx, |view, cx| {
             let note = view.workspace.store.note(&f.note.id).unwrap().unwrap();
             assert!(matches!(&note.data, RecordData::Note(note) if note.markdown.starts_with("Saved owner edit. ")));
-            assert!(view.writing.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
             let thread = view.workspace.new_thread("Local Undo witness").unwrap();
             view.workspace.link_writing_thread("local-undo-link", &note.id, note.version, &thread.id).unwrap();
             let snapshot = view.workspace.snapshot_writing_request("local-undo-request", &note.id, note.version, &thread.id, &[]).unwrap();
@@ -734,15 +747,24 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
         };
         let (saved, receipts) = f.view.read_with(cx, |view, cx| {
             assert!(view.writing.review.is_none());
-            assert!(view.writing.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), expected);
             (
                 view.workspace.store.note(&f.note.id).unwrap().unwrap(),
                 view.history.len(),
             )
         });
-        cx.update_window(f.window, |_, window, cx| window.press("cmd-z", cx))
-            .unwrap();
+        cx.update_window(f.window, |_, window, cx| {
+            window.press(
+                if cfg!(target_os = "macos") {
+                    "cmd-z"
+                } else {
+                    "ctrl-z"
+                },
+                cx,
+            )
+        })
+        .unwrap();
         cx.run_until_parked();
         f.view.read_with(cx, |view, cx| {
             assert_eq!(
@@ -751,7 +773,7 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
                 "local Undo must not restore text from before programmatic replacement"
             );
             assert!(
-                view.writing.note.as_ref().unwrap().session.is_none(),
+                view.writing.note.as_ref().unwrap().session().is_none(),
                 "programmatic replacement and local Undo must not create a dirty buffer"
             );
             assert_eq!(
@@ -764,7 +786,7 @@ fn local_editor_undo_after_apply_and_refresh_cannot_resurrect_or_save_stale_text
         cx.run_until_parked();
         f.view.read_with(cx, |view, cx| {
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), expected);
-            assert!(view.writing.note.as_ref().unwrap().session.is_none());
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
             assert_eq!(
                 view.workspace.store.note(&f.note.id).unwrap().unwrap(),
                 saved,

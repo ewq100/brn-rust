@@ -1,0 +1,12 @@
+{
+  "observed_at_utc": "2026-10-18T22:51:32.756182+00:00",
+  "source_code_checkpoint": "609af544545a159638d0f8c0a6523df55e7608e0",
+  "result": "PASS: complete setup and corrected complete repeat, including both helpers, production desktop/CLI and all-target native-test-support UI compile",
+  "install_script_sha256": "8b310bb0f3a3f81e1479442a1600520776871e3c2a2f30fc3ae45c539749393f",
+  "start_skill_sha256": "6a0f561cf6b4ab5982756b755e850e020cc95b29a1365503dac86e86913e48fa",
+  "native_activation_correction": "Existing native activation now loads once; new install still loads the newly generated activation. Prevents duplicate PKG_CONFIG_PATH tracked input; no measured speedup claimed.",
+  "limits": [
+    "No full default native ONNX retrieval build, publication or fresh-task restoration proof.",
+    "Environment draft persistence and exact repository pin are verified separately after campaign push."
+  ]
+}

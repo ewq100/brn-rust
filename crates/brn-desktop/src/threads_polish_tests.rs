@@ -194,7 +194,7 @@ pub(super) fn type_edit(cx: &mut TestAppContext, f: &Fixture, tail: &str) {
             .note
             .as_ref()
             .unwrap()
-            .session
+            .session()
             .is_some()
     }));
 }
@@ -509,8 +509,8 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert_ne!(open.record.id, f.note.id, "the text became a new note");
-        assert!(matches!(&open.record.data, RecordData::Note(n) if n.markdown == "Saved text and my words"));
+        assert_ne!(open.record().id, f.note.id, "the text became a new note");
+        assert!(matches!(&open.record().data, RecordData::Note(n) if n.markdown == "Saved text and my words"));
     });
 
     // Import summary: warning while coverage is partial, info when checked.
@@ -1021,6 +1021,8 @@ fn each_writing_state_has_one_primary_and_run_outcomes_show_their_full_reason(
 
 #[gpui_kit::test]
 fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
+    // Test the confirmation callbacks at rest; entrance motion is separate.
+    cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx, 1250., 860., "Saved text");
     cx.update(|cx| cx.bind_keys(bindings()));
     type_edit(cx, &f, " unsaved");
@@ -1050,7 +1052,7 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(
-            view.writing.note.as_ref().unwrap().session.is_some(),
+            view.writing.note.as_ref().unwrap().session().is_some(),
             "Cancel keeps the edit"
         );
         assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), unsaved);
@@ -1077,7 +1079,7 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
     cx.read(|cx| {
         let view = f.view.read(cx);
         let open = view.writing.note.as_ref().unwrap();
-        assert!(open.session.is_none());
+        assert!(open.session().is_none());
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             "Saved text"

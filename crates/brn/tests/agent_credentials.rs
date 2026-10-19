@@ -53,6 +53,18 @@ fn ask_without_credentials_is_refused_before_any_commit() {
 #[test]
 fn provider_intake_without_credentials_is_refused_before_conversion() {
     let root = Root::new();
+    #[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
+    let root = {
+        let mut root = root;
+        for name in ["BRN_XBERG_HELPER", "BRN_XBERG_HELPER_BRN"] {
+            root.env.push((
+                name.into(),
+                std::env::var(name)
+                    .expect("declared helper artifact required for native qualification"),
+            ));
+        }
+        root
+    };
     // creation semantics: B2 covers every workspace the CLI creates.
     let data = root.join("data");
     ok(&root, &data, &["init"]);
@@ -85,8 +97,9 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
         &data,
         &["document-conversion", "--converter", "xberg", "--ai", "off"],
     );
-    // AI Off needs no conversion provider; the converter host is macOS-only.
-    #[cfg(not(target_os = "macos"))]
+    // AI Off needs no conversion provider; native helpers are admitted on
+    // macOS and Linux x86_64.
+    #[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
     let before_off = (
         ok(&root, &data, &["records"]),
         ok(&root, &data, &["history"]),
@@ -96,9 +109,9 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
         &data,
         &["intake", "--source", &markdown, "--intent", "full"],
     );
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
     assert_eq!(full["outcome"], "Applied", "{full}");
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
     {
         assert_error(&full, "failed", "unavailable");
         assert_eq!(ok(&root, &data, &["records"]), before_off.0);
@@ -107,7 +120,7 @@ fn provider_intake_without_credentials_is_refused_before_conversion() {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))))]
 #[test]
 fn off_conversion_is_unavailable_without_effects_for_both_converters() {
     let root = Root::new();

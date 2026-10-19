@@ -96,19 +96,19 @@ impl<T: 'static> WritingView<'_, T> {
                 vec![
                     button("note-write")
                         .label("Write")
-                        .selected(!self.note_reading)
+                        .selected(!self.note.is_reading())
                         .tooltip("Edit the Markdown text")
                         .on_click(self.on(cx, WritingRequest::NoteReading(false))),
                     button("note-read")
                         .label("Read")
-                        .selected(self.note_reading)
+                        .selected(self.note.is_reading())
                         .tooltip("Read the formatted note; select text to comment")
                         .on_click(self.on(cx, WritingRequest::NoteReading(true))),
                 ],
             )
             .into_any_element(),
         ];
-        if !self.note_reading {
+        if !self.note.is_reading() {
             if fit.format_menu() {
                 let this = this.clone();
                 let trigger = if fit.icons() {
@@ -214,19 +214,19 @@ impl WritingPanel {
     pub fn sync_note_marks<T: 'static>(&mut self, workspace: &Workspace, cx: &mut Context<T>) {
         let p = pal();
         let mut ranges = Vec::new();
-        if let Some(open) = &self.note
-            && open.session.is_none()
-            && let RecordData::Note(note) = &open.record.data
+        if let Some(open) = self.note.as_ref()
+            && open.session().is_none()
+            && let RecordData::Note(note) = &open.record().data
         {
             for entry in workspace
-                .writing_comments(&open.record.id)
+                .writing_comments(&open.record().id)
                 .unwrap_or_default()
                 .into_iter()
                 .filter(|entry| !entry.addressed)
             {
                 if let RecordData::Comment(comment) = &entry.record.data
                     && let Some(range) =
-                        comment_location(comment, open.record.version, &note.markdown)
+                        comment_location(comment, open.record().version, &note.markdown)
                 {
                     ranges.push(
                         RangeDecoration::new(range)
@@ -236,8 +236,8 @@ impl WritingPanel {
                 }
             }
             if let Some((anchor, version, range, _)) = &self.comment_anchor
-                && anchor == &open.record.id
-                && *version == open.record.version
+                && anchor == &open.record().id
+                && *version == open.record().version
             {
                 ranges.push(
                     RangeDecoration::new(range.clone())
@@ -262,7 +262,7 @@ impl WritingPanel {
         cx: &mut Context<T>,
     ) {
         let p = pal();
-        let (text, decorations) = match &self.review {
+        let (text, decorations) = match self.review.as_ref() {
             Some(review) if review.note.is_some() => {
                 let current = review
                     .note
@@ -317,7 +317,7 @@ impl WritingPanel {
     }
     pub fn track_selection<T: 'static>(&mut self, cx: &mut Context<T>) {
         let editor = self.note_editor.read(cx);
-        let range = if self.note_reading {
+        let range = if self.note.is_reading() {
             let view = self.note_read_view.read(cx);
             if view.rendered_text().source() != editor.value().as_ref() {
                 None
@@ -353,13 +353,13 @@ impl WritingPanel {
         }
     }
     pub fn sync_read_marks<T: 'static>(&mut self, workspace: &Workspace, cx: &mut Context<T>) {
-        if !self.note_reading {
+        if !self.note.is_reading() {
             return;
         }
-        let Some(open) = &self.note else {
+        let Some(open) = self.note.as_ref() else {
             return;
         };
-        let RecordData::Note(note) = &open.record.data else {
+        let RecordData::Note(note) = &open.record().data else {
             return;
         };
         let rendered = self.note_read_view.read(cx).rendered_text();
@@ -367,23 +367,23 @@ impl WritingPanel {
             return;
         }
         let mut ranges = vec![];
-        if open.session.is_none() && self.read_source == note.markdown {
+        if open.session().is_none() && self.read_source == note.markdown {
             for entry in workspace
-                .writing_comments(&open.record.id)
+                .writing_comments(&open.record().id)
                 .unwrap_or_default()
             {
                 if !entry.addressed
                     && let RecordData::Comment(comment) = entry.record.data
                     && let Some(source) =
-                        comment_location(&comment, open.record.version, &note.markdown)
+                        comment_location(&comment, open.record().version, &note.markdown)
                     && let Some(range) = rendered.range_for_source(source)
                 {
                     ranges.push(range);
                 }
             }
             if let Some((id, version, source, _)) = &self.comment_anchor
-                && id == &open.record.id
-                && *version == open.record.version
+                && id == &open.record().id
+                && *version == open.record().version
                 && let Some(range) = rendered.range_for_source(source.clone())
             {
                 ranges.push(range);
@@ -391,8 +391,8 @@ impl WritingPanel {
         }
         let key = format!(
             "{}:{}:{}:{ranges:?}",
-            open.record.id,
-            open.record.version,
+            open.record().id,
+            open.record().version,
             pal().comment
         );
         if key != self.read_marks_key {
@@ -405,50 +405,6 @@ impl WritingPanel {
                 let _ = view.set_range_highlights(highlights, cx);
             });
         }
-    }
-    pub fn note_changed(
-        &mut self,
-        workspace: &mut Workspace,
-        text: String,
-    ) -> AppResult<Option<(Tone, &'static str)>> {
-        let Some(open) = &mut self.note else {
-            return Ok(None);
-        };
-        let RecordData::Note(note) = &open.record.data else {
-            return Ok(None);
-        };
-        if open.session.is_none() && text == note.markdown {
-            return Ok(None);
-        }
-        if open.session.is_none() {
-            open.session = Some(
-                workspace
-                    .store
-                    .begin_edit(&open.record.id, open.record.version)?,
-            );
-        }
-        let session = open.session.as_ref().unwrap();
-        if session.markdown == text {
-            return Ok(None);
-        }
-        Ok(Some(
-            match workspace
-                .store
-                .update_buffer(&session.id, session.generation + 1, &text)?
-            {
-                BufferOutcome::Updated(updated) => {
-                    open.session = Some(updated);
-                    (
-                        Tone::Info,
-                        "Your edit is recoverable. Save to update the note.",
-                    )
-                }
-                BufferOutcome::Ignored(_) => (
-                    Tone::Warning,
-                    "This recovery buffer changed elsewhere. Your visible text is retained; compare before saving.",
-                ),
-            },
-        ))
     }
 }
 
