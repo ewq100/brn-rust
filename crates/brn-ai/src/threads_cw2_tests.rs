@@ -765,3 +765,43 @@ async fn proposed_comments_invalid_mixed_batch_skips_every_sibling_and_offers_co
             .unwrap();
     }
 }
+
+#[test]
+fn runtime_refresh_cannot_use_owner_suggestion_clearing_exception() {
+    let (_root, request, snapshot, _) = fixture("Requirement", WritingReadRequirements::default());
+    let (scope, _) = begin(&request).unwrap();
+    let mut model = args(&snapshot);
+    model.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![snapshot.comments[0].id.clone()],
+        ..Default::default()
+    });
+    let original: Prepared = serde_json::from_value(prepare(&scope, model).unwrap()).unwrap();
+    let mut store = scope.store.lock().unwrap();
+    let replacement = store
+        .allocate_operation("runtime-suggestion-clearing")
+        .unwrap();
+    update_run(&scope, &mut store, |run| {
+        run.operations.push(replacement.clone())
+    })
+    .unwrap();
+    let mut cleared = original.request.clone();
+    let write = cleared.writes.iter_mut().find(|write| matches!(&write.data,RecordData::Message(message) if message.role==WRITING_EVIDENCE_ROLE)).unwrap();
+    write.id = replacement.creation_id(0);
+    let RecordData::Message(message) = &mut write.data else {
+        panic!()
+    };
+    let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).unwrap();
+    evidence.proposed_addressed_comment_ids.clear();
+    message.text = serde_json::to_string(&evidence).unwrap();
+    let authority = bind(&scope, HostAuthority::runtime("Threads host", &scope.run));
+    let error = store
+        .refresh_candidate(&original.operation, &replacement, &cleared, &authority)
+        .unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("evidence and input bindings must survive replacement"),
+        "{error}"
+    );
+    assert_eq!(store.prepared(&original.operation).unwrap(), original);
+}

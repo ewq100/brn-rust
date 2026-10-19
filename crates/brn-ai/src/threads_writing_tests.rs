@@ -1047,6 +1047,29 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                 .unwrap();
             assert_eq!(tool["strict"], copilot);
             if mode == "v2" {
+                // Independent contract checks, in addition to whole-schema equality.
+                let writing = &tool["parameters"]["properties"]["writing"];
+                let suggestion = &writing["properties"]["proposed_addressed_comment_ids"];
+                assert_eq!(suggestion["type"], "array");
+                assert_eq!(suggestion["items"]["type"], "string");
+                assert_eq!(suggestion["maxItems"], 128);
+                assert_eq!(writing["additionalProperties"], false);
+                let required = writing["required"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<std::collections::BTreeSet<_>>();
+                let expected = if copilot {
+                    vec![
+                        "quotations",
+                        "requirements_reported",
+                        "proposed_addressed_comment_ids",
+                    ]
+                } else {
+                    vec!["quotations", "requirements_reported"]
+                };
+                assert_eq!(required, expected.into_iter().collect());
                 let mut expected_writing =
                     schema("prepare_changes")["properties"]["writing"].clone();
                 if copilot {

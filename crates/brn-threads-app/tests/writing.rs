@@ -795,17 +795,23 @@ fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement()
         vec![first.id]
     );
     // Clearing suggestions never permits editing other evidence or its bindings.
-    for forged in 0..4 {
+    for forged in 0..5 {
         let replacement = app
             .store
             .allocate_operation(&format!("forged-replacement-{forged}"))
             .unwrap();
         let mut request = original.request.clone();
+        let RecordData::Note(note) = &mut request.writes[0].data else {
+            panic!()
+        };
+        note.markdown = "Owner changed the candidate".into();
         let RecordData::Message(message) = &mut request.writes[1].data else {
             panic!()
         };
         let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).unwrap();
-        evidence.proposed_addressed_comment_ids.clear();
+        if forged != 4 {
+            evidence.proposed_addressed_comment_ids.clear();
+        }
         match forged {
             0 => evidence.explanation.push_str(" forged"),
             1 => evidence.thread = "foreign".into(),
@@ -815,9 +821,10 @@ fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement()
                     claim: "forged".into(),
                     quotations: vec![],
                 }),
-            _ => {
+            3 => {
                 request.inputs.pop();
             }
+            _ => {}
         }
         message.text = serde_json::to_string(&evidence).unwrap();
         assert!(
