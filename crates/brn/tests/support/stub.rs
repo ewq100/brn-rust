@@ -114,8 +114,13 @@ impl Stub {
     /// A 0700 credentials folder whose 0600 `copilot.json` holds a synthetic,
     /// unexpired session token routed to this stub.
     pub fn credentials(&self, root: &Root) -> PathBuf {
+        self.credentials_in(&root.path)
+    }
+    /// As [`Self::credentials`], but place the synthetic cache under a caller-owned
+    /// durable fixture root instead of the short-lived test Root.
+    pub fn credentials_in(&self, root: &std::path::Path) -> PathBuf {
         use std::os::unix::fs::PermissionsExt;
-        let dir = root.join(&format!("copilot-{}", self.port));
+        let dir = root.join(format!("copilot-{}", self.port));
         std::fs::create_dir(&dir).unwrap();
         std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700)).unwrap();
         let record = json!({"token": "SYNTHETIC", "expires_at": 4102444800i64,

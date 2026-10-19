@@ -491,3 +491,35 @@ actual Mac, model-usefulness or owner-acceptance completion follows.
 
 The source worker released the single build slot to the bounded Luna runtime
 fixture task; no duplicate target/helper rebuild or production switch is selected.
+
+
+## Existing Mac fixture path repair
+
+[One-line canonical-temp repair](evidence/canonical-temp-fixture-qualification.json)
+is independently source-approved and passes the existing Settings/backup fixture
+1/1 under the exact inherited /var TMPDIR that caused the original unchanged
+fixture failure. Only disposable fixture creation changes; storage guards and
+every assertion remain. Four lossless archives retain actual command/environment,
+log and exact reviewed patch/source. No additional broad test run was selected.
+Frozen PR173 is unaffected; later test-support integration remains pending.
+
+
+## Owner authorized bounded Codex-account AI tests
+
+The owner explicitly permitted existing-account AI/native tests on19October.
+[Policy](codex-ai-testing.md) sets3 attempts/session,6/Tallinn day,180s client
+deadline, small synthetic input, existing guards and5% quota floor. Attempts must
+be reserved in the persistent ledger before dispatch. No live test has run yet.
+Both existing ACTIVE automation prompts were updated through the app tool to
+remove the earlier conflicting live-Codex exclusion and read this policy, preserving
+their schedule/chat/original expiry. [Authorization receipt](evidence/codex-ai-test-authorization.json)
+records saved hashes. Private data, credential edits/copy/logging, other providers,
+purchases and release remain outside scope. Latest actual allowance91% used/9%
+remaining; first unattended wake remains unobserved.
+
+
+### 19October Codex authorization and fixture follow-through
+
+- [Codex policy](codex-ai-testing.md), [attempt ledger](evidence/codex-ai-test-ledger.json) and [smoke qualification](evidence/codex-ai-smoke-qualification.json): two existing-account Luna-low runs, one natural-request failure and one explicit exact-ID read success;40 lossless raw archives. No Note change/candidate, actual native observation still pending.
+- [V2 native fixture qualification](evidence/native-suggestion-fixture-qualification.json) and [independent receipt audit](evidence/native-suggestion-fixture-receipt-audit.json): reviewed f819, successful parent/existing suite/lint and three preserved refusal probes;22 raw archives and exact byte/binary bindings. Synthetic loopback only.
+- [PR172](evidence/pr172-integration.json) all four resulting-main checks passed; [PR173](evidence/pr173-integration.json) normally merged after all four exact-head checks, its resulting-main run remains pending.

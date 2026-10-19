@@ -1,0 +1,142 @@
+{
+  "schema": "brn.native-suggestion-fixture-receipt-audit.v1",
+  "scope": "Independent read-only verification of existing synthetic fixture artifacts; no rebuild or rerun.",
+  "source": {
+    "qualified_revision": "f819329707d95b29389de50b6cddb3af17d5c11d",
+    "comparison_base": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+    "full_source_diff_sha256": "d0dc6ad93128ab9088b6d2e4d0aecf95551f800b2c154f78ede14f79411d42d6",
+    "integrated_lead_revision": "301b7e352ef2200517624934e90429ab8c21f195",
+    "identical_source_files_at_lead": [
+      "crates/brn/tests/agent_runs.rs",
+      "crates/brn/tests/support/stub.rs"
+    ],
+    "result": "Both pinned source files equal lead; source diff hash independently recomputed."
+  },
+  "fixture": {
+    "manifest": {
+      "path": "/Users/evokessler/.codex/worktrees/notice-state/native-suggestion-fixture-evidence/workspace-1/manifest.json",
+      "bytes": 6845,
+      "sha256": "003667a774597ee07d1cb4ae5fa2693c9e178d7d97c2888513407258e810063a"
+    },
+    "executables": [
+      {
+        "kind": "fixture_test_harness",
+        "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/agent_runs-e993701530a17423",
+        "bytes": 29865896,
+        "sha256": "771996c56e1cf7461d76c8bab6194dea706d9eb916fa6526060be30fd49ea13d"
+      },
+      {
+        "kind": "ordinary_cli",
+        "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "bytes": 33130008,
+        "sha256": "4001ec452dfcee939533bbd92acfc0a106d182691438205c3cf5815334b224a8"
+      }
+    ],
+    "database_access": "SQLite URI mode=ro, query_only enabled, one read transaction.",
+    "semantic_assertions": {
+      "seed_note": "Stored Note equals canonical v1 seed: Rannatuli põleb vaikselt. Teine lause jääb alles.\\n",
+      "unrelated_note": "Stored Note equals seed: Teine sünteetiline märkus jääb puutumata.\\n",
+      "request": "Writing request v2; default general scope; chat null.",
+      "candidate_request_sha256": "2ab73cef1bd0e154bc9a289c7089bd33f4d5a951d7800f8636c966d821fe7ae6",
+      "candidate_text": "Rannatuli põleb selgelt. Teine lause jääb alles.\\n",
+      "host_evidence": {
+        "complete_note_read": true,
+        "covered_retained_bytes": 53,
+        "total_retained_bytes": 53,
+        "suggested_captured_comment_ids_only": [
+          "36c28d8d-c318-478d-b0e5-20f0bf8e3953:0"
+        ],
+        "evidence_runtime_created": true,
+        "source_helper_fabricates_host_evidence": false
+      },
+      "comments": "Both comment records equal their seeds, remain pending, and are not addressed.",
+      "candidate_and_run": "No apply receipt; candidate remains unapplied. Persisted Run is Completed; no Working Run.",
+      "messages": "No committed writing-evidence Message; evidence Message exists only inside the unapplied candidate proposal.",
+      "settings_history": "Every Settings revision has null auth_file, helper, and MCP; credentials directory is null or the fixture synthetic workspace directory.",
+      "scope": "Workspace purpose Test; synthetic model and loopback endpoint; no real provider or credentials."
+    }
+  },
+  "commands": [
+    {
+      "command": "cargo test -p brn --no-default-features --test agent_runs --locked --offline --jobs 1 --no-run --message-format=short",
+      "log": "compile-no-run.log",
+      "result": "exit 0 per qualification record"
+    },
+    {
+      "command": "cargo test -p brn --no-default-features --test agent_runs --locked --offline --jobs 1 native_suggestion_fixture_parent -- --ignored --exact --nocapture",
+      "log": "fixture-parent.log",
+      "result": "exit 0; 1 passed, 0 failed, 0 ignored; 16 filtered"
+    },
+    {
+      "command": "cargo test -p brn --no-default-features --test agent_runs --locked --offline --jobs 1",
+      "log": "agent-runs-existing.log",
+      "result": "exit 0; 15 passed, 0 failed, 2 ignored"
+    },
+    {
+      "command": "cargo clippy -p brn --no-default-features --test agent_runs --locked --offline --jobs 1 -- -D warnings",
+      "log": "clippy-strict.log",
+      "result": "exit 0"
+    },
+    {
+      "command": "cargo fmt --all -- --check; git diff --check",
+      "log": "qualification-log.md",
+      "result": "passed per qualification record"
+    }
+  ],
+  "run_identity": {
+    "guide": "brn-threads-guidance-17:b47c24e31327bcc1ef98d5ced398cb9090ca3588d7608a2a4ce2c8948e800a09",
+    "readback": "Ordinary CLI reports persisted synthetic Run completed."
+  },
+  "refusal_checks": {
+    "harness_sha256_used": "771996c56e1cf7461d76c8bab6194dea706d9eb916fa6526060be30fd49ea13d",
+    "cases": [
+      {
+        "case": "reuse existing output directory",
+        "expected_exit": 101,
+        "log": "refusal-existing-output.log",
+        "reason": "exclusive output reservation / AlreadyExists"
+      },
+      {
+        "case": "occupied sentinel file as output root",
+        "expected_exit": 101,
+        "log": "refusal-sentinel-file.log",
+        "reason": "exclusive output reservation / AlreadyExists"
+      },
+      {
+        "case": "relative output path",
+        "expected_exit": 101,
+        "log": "refusal-relative-output.log",
+        "reason": "absolute-path assertion"
+      }
+    ],
+    "snapshot_checks": [
+      {
+        "before": "refusal-before.json",
+        "after": "refusal-after-existing.json",
+        "regular_files_equal": true,
+        "sentinel_equal": true
+      },
+      {
+        "before": "refusal-before-relative.json",
+        "after": "refusal-after-relative.json",
+        "regular_files_equal": true,
+        "sentinel_equal": true
+      },
+      {
+        "before": "refusal-before-sentinel-file.json",
+        "after": "refusal-after-sentinel-file.json",
+        "regular_files_equal": true,
+        "sentinel_equal": true
+      }
+    ],
+    "sentinel_bytes": 42,
+    "sentinel_sha256": "003f4fe77aca9ad508558e91f5ab8df7505f3594438ab53dd42a1742d7c1524e",
+    "relative_target_absent_before_and_after": true
+  },
+  "limits": [
+    "Earlier compile-failure diagnostic is only an excerpt in qualification-log.md; complete raw log for the exact source-pinned failing baseline was unavailable.",
+    "No actual native/UI observation or selection; manifest says native_observed=false and native_selection_observed=false.",
+    "Synthetic loopback qualification does not establish live-model usefulness, owner acceptance, or hosted/resulting-main qualification."
+  ],
+  "audit_actions": "Read-only inspection; no builds, provider/account/network calls."
+}
