@@ -110,8 +110,13 @@ export/backup/restore audit found a silent export folder-picker error path. Luna
 implements the bounded status/cancel/retry repair in reused drain checkout on
 `codex/export-picker-errors` at408, owning the sole shared build slot. Backup
 destination behavior is already covered; no desktop restore route is implied.
-Parallel Luna tasks own only test-families.md refresh and a read-only duplicate
-provider-fixture-helper audit. Keep PR167 checked head unchanged.
+Test-family refresh is done. A second Luna worker owns only
+`brn-ai/src/provider_formats_tests.rs` in the reused notice-state checkout on
+`codex/provider-fixture-helpers` at408: consolidate five repeated test helper
+definitions into two shared helpers, preserving every caller/assertion/test. It may
+edit now but waits for the export worker to release the single build slot before
+focused provider-fixture checks. See campaign.json for snapshot job ownership;
+reconcile actual agents/Git/processes after restart. Keep PR167 checked head unchanged.
 Current allowance74% used/26% remaining. All PR165 main required jobs passed;
 optional Windows failures remain explicit. MAC-04 is queued for actual already-durable
 unsaved close/relaunch, with canonical text unchanged; no race/crash guarantee.

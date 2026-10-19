@@ -197,3 +197,9 @@ keeping cancellation quiet and the existing output admission guard. A Luna worke
 uses the reused drain checkout at408 on `codex/export-picker-errors` with the sole
 shared build slot. This does not change backup or restore policy. Independent review,
 local effect checks and hosted/main gates remain required before integration.
+
+The verified provider-fixture duplication is also selected: replace three local
+preamble readers and two local tool-definition readers with two shared test helpers.
+All existing callers, assertions and cases remain. A separate Luna writer edits only
+that test file and waits for the export worker to release the shared build slot;
+focused fixture checks and independent review remain gates. No provider logic changes.

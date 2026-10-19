@@ -18,13 +18,37 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:11:45.111523+00:00",
-  "current_session_jobs": [],
+  "last_checkpoint_at_utc": "2026-10-19T08:13:35.615731+00:00",
+  "current_session_jobs": [
+    {
+      "agent": "/root/recovery_boundary_audit",
+      "role": "export-picker repair and qualification",
+      "checkout": "/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust",
+      "branch": "codex/export-picker-errors",
+      "baseline": "40879f71f5db03b67da6ec3b9822eb5f6f774169",
+      "scope": [
+        "crates/brn-desktop/src/threads_ui.rs",
+        "crates/brn-desktop/src/threads_backup_tests.rs"
+      ],
+      "build_slot": "exclusive until released"
+    },
+    {
+      "agent": "/root/worker_next_slice",
+      "role": "test-only fixture-helper consolidation",
+      "checkout": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust",
+      "branch": "codex/provider-fixture-helpers",
+      "baseline": "40879f71f5db03b67da6ec3b9822eb5f6f774169",
+      "scope": [
+        "crates/brn-ai/src/provider_formats_tests.rs"
+      ],
+      "build_slot": "wait for lead after export release"
+    }
+  ],
   "integration_status": "PR163/164/165 required head/main checks pass; optional Windows failures retained. PR166 normal exact73780065 merge b4a5deeb at08:07:12UTC after all four required head checks39217700176 passed. Resulting-main39220505231 running.",
   "next_eligible_work": "Follow PR166 main39220505231 and PR167 required checks; exacthead normal merge only after allrequiredpass. Complete export-picker fix/local gates, independent source review and receipts. Native18:00Tallinn queue pending; use exactcurrentmain artifact.",
   "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
   "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
-  "active_work": "PR167 published at fixed40879f71 (source14d7c43e), required run39220781564 queued/running. Reference source/receipt reviews pass. Export folder-picker silent-error gap selected; Luna implements in reused drain checkout codex/export-picker-errors at408, sole shared build slot. Two bounded Luna parallel docs/fixture-helper inspections. No lead source writer.",
+  "active_work": "PR167 fixed40879f71 required run39220781564; PR166 mergedmain39220505231 running. Two isolated Luna writers: export picker error repair owns buildslot; test-only fixture-helper consolidation edits only until slot released. Independent source review follows. Job records are restart snapshots: reconcile actual Git/processes before dispatch.",
   "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
