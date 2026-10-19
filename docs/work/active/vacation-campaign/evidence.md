@@ -139,3 +139,15 @@ journey using existing APIs for the original-source failure witness. Lead accept
 the design and admitted the one shared build slot. Action/Undo source audit found
 exact captured Action versions/receipt IDs and truthful checked errors; no fix or
 extra test selected. Comment audit remains separate.
+
+Comment/anchor inspection also found no justified change: exact note/version/range/quote
+and draft survive navigation and checked stale refusal; current service tests cover
+these boundaries. Source inspection adds no runtime/native qualification.
+
+Both saved heartbeat prompts were freshly read and checked against current owner
+rules, including more useful helpers, nested Luna, actual runtime capacity, the5%
+floor, reviewed normal merges, Mac priority, quiet non-actionable states and original
+expiry. [Persistence receipt](evidence/policy-persistence-20261019.json) retains prompt
+hashes and explicit checks. Both remain ACTIVE in the same chat; this is persisted
+configuration proof, not an observed wake or native success. Native quota reread
+remains76% used/24% remaining; no credit/reset purchase.

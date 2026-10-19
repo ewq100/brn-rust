@@ -51,7 +51,10 @@ Luna now owns a bounded fix in the clean notice checkout on
 `codex/mcp-discovery-freshness` from4aba2e81, only `threads_mcp.rs` and its tests.
 The small canonical-endpoint freshness/completion design is accepted; the writer
 now exclusively owns the build slot. Action/Undo audit found no justified change;
-the separate comment refusal/input-retention audit is still running.
+comment refusal/input-retention audit also found no justified change.
+Both saved automation prompts were freshly checked against current owner rules;
+see evidence/policy-persistence-20261019.json. Configuration is persisted; actual
+unattended execution is still unobserved.
 See campaign.json for snapshot ownership and reconcile agents/Git/processes after
 restart before dispatch. Preserve all source-bound artifacts.
 

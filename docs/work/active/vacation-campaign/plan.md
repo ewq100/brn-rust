@@ -202,8 +202,8 @@ improvement; the real destination is already labelled and approval binds that de
 so no authority bypass is claimed. A Luna medium writer owns only its desktop module
 and tests in the notice checkout, starting4aba2e81; canonical policy and input grants
 remain unchanged. The proposed canonical-endpoint/completion seam is accepted and the single build
-slot admitted. Action/Undo inspection found no justified change; one Luna medium
-read-only audit continues comment refusal/input retention. Up to three helpers plus lead use current
+slot admitted. Action/Undo and comment refusal/input-retention inspections found no justified
+change; their existing distinct witnesses remain. Up to three helpers plus lead use current
 runtime capacity for isolated implementation and parallel source inspection; no
 extra builds or speculative refactors. Reassess if the fix needs product-policy changes
 or a generic framework; independent Sol reviews any meaningful final source.
