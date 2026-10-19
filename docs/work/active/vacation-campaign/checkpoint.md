@@ -103,7 +103,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Capacity, schedules and continuation
 
-Last native quota reading91% used/9% remaining, seven-day reset1792874447.
+Last native quota reading92% used/8% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
 and back off near the verified constraining reset without purchases/reset credits.
 Runtime has four active slots including lead. Owner permits more/nested helpers
@@ -122,9 +122,12 @@ and stop a compile below1GiB.
 Owner updated authority: bounded existing-Codex-account AI/native tests are now
 authorized under [the policy](codex-ai-testing.md), max3 attempts/session and6/day,
 180s client deadline, synthetic input only, reserve ledger before dispatch and
-retain5% quota floor. No actual live call has run yet. Other live providers, model
+retain5% quota floor. Two command-line Codex probes ran: one natural-request failure from an omitted ID suffix and one explicit-ID read success; neither changed Notes or prepared a candidate. Actual native AI observation remains pending. Other live providers, model
 acquisition/private data, release/deployment, new billing, credential changes and
 external messaging remain excluded. Linux improvements stay
 lower priority; retain existing gates. [History](checkpoint-history-through-2026-10-19.md)
 keeps earlier snapshots; dated observations do not assign new work or override
 current user authority.
+
+
+19October12:16UTC update: PR172 all four required resulting-main checks passed. PR173 merged normally as `33a62aae1b358f1de9475040eb180c63e0651f4f` after independent source review and all four exact-head checks; resulting-main run39250500661 remains pending. Two bounded existing-Codex-account Luna-low command-line probes completed: natural request failed after an omitted ID suffix; explicit exact-ID/read_note diagnostic passed. Both preserved canonical Note bytes and created no candidate. See [the live-test receipt](evidence/codex-ai-smoke-qualification.json). Actual Mac interaction/AI observation remains pending.

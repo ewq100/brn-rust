@@ -3,8 +3,7 @@
 On19October2026 the owner explicitly authorized using their existing Codex account
 for AI tests, including native AI testing, with reasonable limits. This updates
 the earlier live-provider exclusion only for bounded Codex-account qualification.
-The [campaign](plan.md) remains the execution/expiry/merge authority. No live test
-has run under this permission yet.
+The [campaign](plan.md) remains the execution/expiry/merge authority. Two bounded command-line probes have now run; their [qualification receipt](evidence/codex-ai-smoke-qualification.json) preserves one failed natural request and one successful explicit-ID diagnostic. Actual native AI testing remains pending.
 
 ## Limits and execution
 

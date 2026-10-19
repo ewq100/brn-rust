@@ -12,20 +12,20 @@
   },
   "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
   "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_AVAILABLE_9_PERCENT_REMAINING",
+  "admission_state": "CAPACITY_AVAILABLE_8_PERCENT_REMAINING",
   "continuation_blockers": [
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T12:05:55.743257+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T12:15:16.112817+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163-171 all four required head/main jobs passed. PR172 merged689ab234 from checkedb873; main39246001617 three required pass/MacCore running. PR173 frozen cf7e4f2e, three required head pass/MacCore running; not merged. Optional Windows failures retained.",
-  "next_eligible_work": "Finish synthetic nativefixture receipt/independent check and later test-support PR; follow PR172main and PR173exacthead->normalmerge->main. Reserve first bounded Codex smoke attempt under new policy. Native Mac observation stays queued18:00.",
+  "integration_status": "PR163-172 all four required head/main checks passed. PR173 normally merged33a62aae after all four exact-head required checks passed; resulting-main39250500661 pending. Optional Windows failures retained.",
+  "next_eligible_work": "Finish nativefixture receipts/test-support PR; inspect exact-ID reading guidance exposed by first live probe; follow PR173main. Native Mac observation queued18:00.",
   "last_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
   "source_delta_after_qualification": "All production source/manifests/lock/toolchain identical to qualified4e81. Later changes are docs/evidence plus independently qualified two-file ignored runtime fixture f819 and one-line canonical temp test repaird9 (focused1/1 under inherited /var environment). No redundant broad rebuild selected.",
-  "active_work": "M4b core215/runtime522/app65/native333/UI56/CLI43 strictlint/format/ordinaryproduction pass, independent Solsource and Luna72archive audit passed. Runtime-created synthetic v2 fixturef819 parent1/existingCLI15(2ignored)/strictlint/format and occupieddir/file/relative refusals pass; source exact lead e615. Actual native observation pending. New Codex account testing authorized, zero attempts yet.",
-  "continuation_baseline": "689ab234bfe388423a7fd1f2a35fd6ea21115a11",
+  "active_work": "M4b core215/runtime522/app65/native333/UI56/CLI43 strictlint/format/ordinaryproduction pass, independent Solsource and Luna72archive audit passed. Runtime-created synthetic v2 fixturef819 parent1/existingCLI15(2ignored)/strictlint/format and occupieddir/file/relative refusals pass; source exact lead e615. Actual native observation pending. Two authorized Codex Luna-low probes completed: natural request failed after dropped ID suffix; explicit read_note diagnostic passed. No Note changes/candidates; no actual native observation.",
+  "continuation_baseline": "33a62aae1b358f1de9475040eb180c63e0651f4f",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot91% used/9% remaining; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot92% used/8% remaining; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -82,8 +82,8 @@
     "head": "cf7e4f2e60f30c95f9d5bbdbc9996e2a63f29826",
     "branch": "codex/agent-first-suggestions",
     "url": "https://github.com/ewq100/brn-rust/pull/173",
-    "required_head_checks": "three pass; MacCore/CLI running",
-    "resulting_main": "not merged"
+    "required_head_checks": "all four passed",
+    "resulting_main": "33a62aae1b358f1de9475040eb180c63e0651f4f; run39250500661 pending"
   },
   "codex_ai_testing": {
     "policy": "codex-ai-testing.md",
@@ -93,6 +93,6 @@
     "max_attempts_per_session": 3,
     "max_attempts_per_tallinn_day": 6,
     "client_deadline_seconds": 180,
-    "actual_live_attempts": 0
+    "actual_live_attempts": 2
   }
 }

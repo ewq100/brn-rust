@@ -516,3 +516,10 @@ their schedule/chat/original expiry. [Authorization receipt](evidence/codex-ai-t
 records saved hashes. Private data, credential edits/copy/logging, other providers,
 purchases and release remain outside scope. Latest actual allowance91% used/9%
 remaining; first unattended wake remains unobserved.
+
+
+### 19October Codex authorization and fixture follow-through
+
+- [Codex policy](codex-ai-testing.md), [attempt ledger](evidence/codex-ai-test-ledger.json) and [smoke qualification](evidence/codex-ai-smoke-qualification.json): two existing-account Luna-low runs, one natural-request failure and one explicit exact-ID read success;40 lossless raw archives. No Note change/candidate, actual native observation still pending.
+- [V2 native fixture qualification](evidence/native-suggestion-fixture-qualification.json) and [independent receipt audit](evidence/native-suggestion-fixture-receipt-audit.json): reviewed f819, successful parent/existing suite/lint and three preserved refusal probes;22 raw archives and exact byte/binary bindings. Synthetic loopback only.
+- [PR172](evidence/pr172-integration.json) all four resulting-main checks passed; [PR173](evidence/pr173-integration.json) normally merged after all four exact-head checks, its resulting-main run remains pending.

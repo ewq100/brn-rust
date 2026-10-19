@@ -56,14 +56,26 @@
       "native_observed": false,
       "id": "c19c2cf8-399c-451d-8f43-5dbe6f6f79d5",
       "reserved_at_utc": "2026-10-19T12:14:33.801170+00:00",
-      "status": "reserved",
+      "status": "passed",
       "scenario": "Diagnose exact opaque Note ID and read_note parameter guidance; same Luna low, no writes",
       "desktop_allowance_before": {
         "used_percent": 92,
         "remaining_percent": 8,
         "reset_unix": 1792874447
       },
-      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-02"
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-02",
+      "started_at_utc": "2026-10-19T12:14:39.540098+00:00",
+      "finished_at_utc": "2026-10-19T12:14:43.551088+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-02/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": true,
+      "note_unchanged": true,
+      "no_candidates": true,
+      "usage": {
+        "input": 12136,
+        "output": 81,
+        "cached_input": 5888
+      }
     }
   ]
 }

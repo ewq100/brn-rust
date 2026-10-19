@@ -1,0 +1,281 @@
+{
+  "observed_at_utc": "2026-10-19T12:15:41.209936+00:00",
+  "source_candidate": "f819329707d95b29389de50b6cddb3af17d5c11d",
+  "source_base": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "diff_sha256": "d0dc6ad93128ab9088b6d2e4d0aecf95551f800b2c154f78ede14f79411d42d6",
+  "source_files": [
+    {
+      "path": "crates/brn/tests/agent_runs.rs",
+      "sha256": "5736151b3546410046de822322a63bb3197ba70c0e650e2bead86cfda1422e40",
+      "bytes": 53012
+    },
+    {
+      "path": "crates/brn/tests/support/stub.rs",
+      "sha256": "ed4db4b94a770454863e811f0816843d4877b9432eb203a45865cc9b825170ed",
+      "bytes": 7700
+    }
+  ],
+  "binaries": [
+    {
+      "role": "fixture_test_harness",
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/agent_runs-e993701530a17423",
+      "sha256": "771996c56e1cf7461d76c8bab6194dea706d9eb916fa6526060be30fd49ea13d",
+      "bytes": 29865896
+    },
+    {
+      "role": "ordinary_cli",
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+      "sha256": "4001ec452dfcee939533bbd92acfc0a106d182691438205c3cf5815334b224a8",
+      "bytes": 33130008
+    }
+  ],
+  "manifest_sha256": "003667a774597ee07d1cb4ae5fa2693c9e178d7d97c2888513407258e810063a",
+  "manifest_source_binding": "Caller-supplied source pin independently matched to reviewed two-file source and executed harness; not a self-authenticating build pin.",
+  "source_review": "writing_review_review independently approved full f819 two-file candidate; all prior findings resolved.",
+  "checks": {
+    "fixture_parent": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "existing_agent_runs": {
+      "passed": 15,
+      "failed": 0,
+      "ignored": 2
+    },
+    "strict_clippy": "passed",
+    "format_diff": "passed",
+    "existing_directory_refusal": "exit101 AlreadyExists; full five-file workspace snapshot unchanged",
+    "relative_output_refusal": "exit101 absolute path assertion before setup; relative output absent",
+    "existing_sentinel_file_refusal": "exit101 AlreadyExists; sentinel bytes and full workspace snapshot unchanged"
+  },
+  "runtime": {
+    "endpoint": "http://127.0.0.1:60212",
+    "provider_requests": 3,
+    "completed": true,
+    "cli_readback": true,
+    "candidate_operation": "1fcfd8d7-853c-47bc-85e7-c023c490ec69",
+    "candidate_request_hash": "2ab73cef1bd0e154bc9a289c7089bd33f4d5a951d7800f8636c966d821fe7ae6",
+    "run_id": "79ae39c6-5cfa-48a8-b0d3-a6b87c7b300d:0",
+    "candidate_unapplied": true,
+    "captured_comments_pending": true,
+    "no_apply_receipt": true,
+    "no_working_run": true,
+    "unrelated_note_unchanged": true,
+    "runtime_trace_tools": [
+      {
+        "tool": "read_note",
+        "outcome": "success"
+      },
+      {
+        "tool": "prepare_changes",
+        "outcome": "success"
+      }
+    ]
+  },
+  "expected": {
+    "original_note": {
+      "utf8": "Rannatuli põleb vaikselt. Teine lause jääb alles.\n",
+      "bytes": 53,
+      "sha256": "a8fb0671ecdb321e09e1035bfa41e1463a5e3a4785070c9e13798bcddba4925e"
+    },
+    "proposed_note": {
+      "utf8": "Rannatuli põleb selgelt. Teine lause jääb alles.\n",
+      "bytes": 52,
+      "sha256": "2cb46e42b350336e695cac00870b88e6abb5b1191c6c307f6629c0a757df845b"
+    },
+    "unrelated_note": {
+      "utf8": "Teine sünteetiline märkus jääb puutumata.\n",
+      "bytes": 46,
+      "sha256": "fb125674c575ab390b83b10aeea69a29851850acaf3f2a4c3dadd98a9b76111a"
+    }
+  },
+  "archives": [
+    {
+      "source_name": "agent-runs-existing.log",
+      "archive": "native-suggestion-fixture-raw/agent-runs-existing.log.gz",
+      "raw_bytes": 1624,
+      "raw_sha256": "c09b6054833979936b537c6e73ef1507f07d991abe6cb99f206f1734b6924ad6",
+      "archive_bytes": 794,
+      "archive_sha256": "5488c7498d3d0dcd3cd1f756cd45eb7c2949d3fab982cd0cccce8fde1a39583c"
+    },
+    {
+      "source_name": "clippy-strict.log",
+      "archive": "native-suggestion-fixture-raw/clippy-strict.log.gz",
+      "raw_bytes": 838,
+      "raw_sha256": "e7e5a5b29390d25ec83c46034f83b314bbd6de6e2bb9e792b796f872c0092bcb",
+      "archive_bytes": 214,
+      "archive_sha256": "3b8b047f381a223516aba7123784cb32f6fd37db667f4154ddf379c4b31719fd"
+    },
+    {
+      "source_name": "compile-no-run.log",
+      "archive": "native-suggestion-fixture-raw/compile-no-run.log.gz",
+      "raw_bytes": 491,
+      "raw_sha256": "e06c3222d0b9b65cf3dca35728128a78b5fe5dcf5fb85e1fb17415541bbf68ff",
+      "archive_bytes": 312,
+      "archive_sha256": "974e9cfee0f92161ffb7e8cfaae14eb0528688cab5dec7011b0edac6417b4666"
+    },
+    {
+      "source_name": "executed-commands.txt",
+      "archive": "native-suggestion-fixture-raw/executed-commands.txt.gz",
+      "raw_bytes": 5118,
+      "raw_sha256": "455e093d7ddfc61676099f1ce7b3866ef40881cc8aa6bc087c214136cf772e56",
+      "archive_bytes": 1242,
+      "archive_sha256": "4b38cd91d5761f8b72d5891f2a37982a2a2ab09e2d103f76dc13454f04d56e65"
+    },
+    {
+      "source_name": "fixture-parent.log",
+      "archive": "native-suggestion-fixture-raw/fixture-parent.log.gz",
+      "raw_bytes": 677,
+      "raw_sha256": "a19c1afeb338a11ed590b58b8699906d3833ee559f7a56e39928bcaf663df734",
+      "archive_bytes": 412,
+      "archive_sha256": "ce12f7389550e1f72fc8af760b5a77738761349c99432d8549ad2c2c440a9d21"
+    },
+    {
+      "source_name": "ordinary-cli-runs.json",
+      "archive": "native-suggestion-fixture-raw/ordinary-cli-runs.json.gz",
+      "raw_bytes": 864,
+      "raw_sha256": "0b6478eec4bc2faa98299509ac4b0d1d1c02538ed191c61d977c1830933dc19b",
+      "archive_bytes": 500,
+      "archive_sha256": "d8cf17110452e78547e686c63e55aa10599e8b19d97f29622bf9a2641398af23"
+    },
+    {
+      "source_name": "qualification-log.md",
+      "archive": "native-suggestion-fixture-raw/qualification-log.md.gz",
+      "raw_bytes": 6692,
+      "raw_sha256": "b6b12ddbe95151735f2b80253a46bd4758441e4fbed1cc1b0ca7f914bd10bb21",
+      "archive_bytes": 2870,
+      "archive_sha256": "f3e055e37cb75b843eef5e86c0d7c0d08c4ce43677c18a2363bbd14f03930e85"
+    },
+    {
+      "source_name": "refusal-after-existing.json",
+      "archive": "native-suggestion-fixture-raw/refusal-after-existing.json.gz",
+      "raw_bytes": 1250,
+      "raw_sha256": "c6950519f8854775de325d1debdc0819865c013ec5df10af4c31e60021bf5e03",
+      "archive_bytes": 560,
+      "archive_sha256": "d4e1da0aa57234e189b30f8cd144025156227762926eb23546adab700f13e04d"
+    },
+    {
+      "source_name": "refusal-after-relative.json",
+      "archive": "native-suggestion-fixture-raw/refusal-after-relative.json.gz",
+      "raw_bytes": 1250,
+      "raw_sha256": "c6950519f8854775de325d1debdc0819865c013ec5df10af4c31e60021bf5e03",
+      "archive_bytes": 560,
+      "archive_sha256": "d4e1da0aa57234e189b30f8cd144025156227762926eb23546adab700f13e04d"
+    },
+    {
+      "source_name": "refusal-after-sentinel-file.json",
+      "archive": "native-suggestion-fixture-raw/refusal-after-sentinel-file.json.gz",
+      "raw_bytes": 1356,
+      "raw_sha256": "d8dd6757ba70aacab8034e862172c29f67cf0f2c0d23e16cc6388bdcc3bbd15d",
+      "archive_bytes": 614,
+      "archive_sha256": "cfdb681eb9aa499b9d922a38d34f51861f2f3a539545263c3e609ae57c73b277"
+    },
+    {
+      "source_name": "refusal-before-relative.json",
+      "archive": "native-suggestion-fixture-raw/refusal-before-relative.json.gz",
+      "raw_bytes": 1250,
+      "raw_sha256": "c6950519f8854775de325d1debdc0819865c013ec5df10af4c31e60021bf5e03",
+      "archive_bytes": 560,
+      "archive_sha256": "d4e1da0aa57234e189b30f8cd144025156227762926eb23546adab700f13e04d"
+    },
+    {
+      "source_name": "refusal-before-sentinel-file.json",
+      "archive": "native-suggestion-fixture-raw/refusal-before-sentinel-file.json.gz",
+      "raw_bytes": 1356,
+      "raw_sha256": "d8dd6757ba70aacab8034e862172c29f67cf0f2c0d23e16cc6388bdcc3bbd15d",
+      "archive_bytes": 614,
+      "archive_sha256": "cfdb681eb9aa499b9d922a38d34f51861f2f3a539545263c3e609ae57c73b277"
+    },
+    {
+      "source_name": "refusal-before.json",
+      "archive": "native-suggestion-fixture-raw/refusal-before.json.gz",
+      "raw_bytes": 1250,
+      "raw_sha256": "c6950519f8854775de325d1debdc0819865c013ec5df10af4c31e60021bf5e03",
+      "archive_bytes": 560,
+      "archive_sha256": "d4e1da0aa57234e189b30f8cd144025156227762926eb23546adab700f13e04d"
+    },
+    {
+      "source_name": "refusal-existing-output.log",
+      "archive": "native-suggestion-fixture-raw/refusal-existing-output.log.gz",
+      "raw_bytes": 531,
+      "raw_sha256": "d689d68d7162d2125554817834dec1df91f726032c435221212f10fdbc940c14",
+      "archive_bytes": 360,
+      "archive_sha256": "243501b68a2a6f2ba7414619a34522a214adb8d1a1f9bc0369476c4b5db68587"
+    },
+    {
+      "source_name": "refusal-probe-commands.txt",
+      "archive": "native-suggestion-fixture-raw/refusal-probe-commands.txt.gz",
+      "raw_bytes": 2814,
+      "raw_sha256": "645039455fa8cf41f4ba992dd86e650981f63613df29cf0ea0115021b2d60a11",
+      "archive_bytes": 804,
+      "archive_sha256": "e2498f021c4f76241825fa79c7d0d5fe7320a057aba0335883f656e0de162c31"
+    },
+    {
+      "source_name": "refusal-relative-output.log",
+      "archive": "native-suggestion-fixture-raw/refusal-relative-output.log.gz",
+      "raw_bytes": 444,
+      "raw_sha256": "ef3618cb0cfe8736f11a528f2efb89472a20472485163197f628b7e7822262ce",
+      "archive_bytes": 295,
+      "archive_sha256": "7518efb3b9b553e2eb974d6923066385a85b1c6bf18636a2cd2331f587c678b2"
+    },
+    {
+      "source_name": "refusal-sentinel-file.log",
+      "archive": "native-suggestion-fixture-raw/refusal-sentinel-file.log.gz",
+      "raw_bytes": 531,
+      "raw_sha256": "62fdedcc63e5353b68046149d96db0317f851eb288394a805dd1730e94d913df",
+      "archive_bytes": 359,
+      "archive_sha256": "c8b9443634a356ccbfe6cc9b60506ef04aa0838753f875a18247d64c924c0792"
+    },
+    {
+      "source_name": "refusal-sentinel.bin",
+      "archive": "native-suggestion-fixture-raw/refusal-sentinel.bin.gz",
+      "raw_bytes": 42,
+      "raw_sha256": "003f4fe77aca9ad508558e91f5ab8df7505f3594438ab53dd42a1742d7c1524e",
+      "archive_bytes": 62,
+      "archive_sha256": "dc833ae33ad5cd97d83a5da7dace7cfa3a7c63ae9876773bec01b6c8926a33de"
+    },
+    {
+      "source_name": "manifest.json",
+      "archive": "native-suggestion-fixture-raw/manifest.json.gz",
+      "raw_bytes": 6845,
+      "raw_sha256": "003667a774597ee07d1cb4ae5fa2693c9e178d7d97c2888513407258e810063a",
+      "archive_bytes": 2045,
+      "archive_sha256": "c3f53f02687e4d17d735cd62c48da13c0ae979eb4679e4e5a05eed88f303cb0b"
+    },
+    {
+      "source_name": "source.patch",
+      "archive": "native-suggestion-fixture-raw/source.patch.gz",
+      "raw_bytes": 28695,
+      "raw_sha256": "d0dc6ad93128ab9088b6d2e4d0aecf95551f800b2c154f78ede14f79411d42d6",
+      "archive_bytes": 7307,
+      "archive_sha256": "b6c319af5f906d9e4f3e3a4f7c200736bc51f765cc2622196ba9c2b5c5ba8182"
+    },
+    {
+      "source_name": "crates__brn__tests__agent_runs.rs",
+      "archive": "native-suggestion-fixture-raw/crates__brn__tests__agent_runs.rs.gz",
+      "raw_bytes": 53012,
+      "raw_sha256": "5736151b3546410046de822322a63bb3197ba70c0e650e2bead86cfda1422e40",
+      "archive_bytes": 12251,
+      "archive_sha256": "3d02818037bf51bcbb80297e755bbee50f2f9839fc2cc4cf541e0a50119b8415"
+    },
+    {
+      "source_name": "crates__brn__tests__support__stub.rs",
+      "archive": "native-suggestion-fixture-raw/crates__brn__tests__support__stub.rs.gz",
+      "raw_bytes": 7700,
+      "raw_sha256": "ed4db4b94a770454863e811f0816843d4877b9432eb203a45865cc9b825170ed",
+      "archive_bytes": 2874,
+      "archive_sha256": "0815791d272fe3af7e394ebf77fbef0e9e271c1264e26a34dc554dbaa163ba28"
+    }
+  ],
+  "independent_receipt_audit": "native-suggestion-fixture-receipt-audit.json",
+  "native_observed": false,
+  "live_provider": false,
+  "limits": [
+    "Synthetic literal-loopback transport only; no owner account/model call.",
+    "UI label, initial unchecked selection, Apply and revision Undo require actual native observation.",
+    "Initial candidate request_hash field compile failure has preserved diagnostic excerpt/command only, not full raw log or exact prior source pin.",
+    "Cargo succeeded with retained rust-objcopy strip SIGABRT diagnostic; no suppression.",
+    "Ordinary shared-target CLI hash differs from immutable 4e CLI; production source equivalence and actual guide17 checked, not byte equivalence."
+  ]
+}
