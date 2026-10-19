@@ -9,15 +9,15 @@ use brn_ai::{AiTerminal, Provider, ReasoningEffort};
 use brn_threads_app::*;
 use brn_threads_intake::*;
 use contract::{Annotations, CliError, Code};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
     ffi::OsString,
     path::{Path, PathBuf},
     process::ExitCode,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
 };
 use tokio_util::sync::CancellationToken;
