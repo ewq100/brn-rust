@@ -365,3 +365,16 @@ PR170 merged normally atd7f48e6c from checked9000 after all four required head c
 its resulting-main gate remains pending. Current checkpoint owns active UI author
 (build slot), M3 author (source only), review and exact next gates. Latest allowance
 82% used/18% remaining; fixed expiry and continuous-work rules unchanged.
+
+
+## Combined agent-first candidate19efe qualified
+
+[Combined receipt](evidence/agent-first-combined-qualification.json) verifies exact
+source/commands and lossless records for runtime505/0/2, desktop327/0/1, CLI15/0/0,
+app journeys8/0/0, strict native lint/full format and production native-ui-only build.
+Immutable binary19efe has SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a.
+Existing block0.1.6 warning remains. Independent Sol approved final skill UI5cf8;
+its synthetic stale-binding/first compile failure and two exact files are retained
+in [qualification](evidence/skill-reapproval-qualification.json). No OS/live/owner
+result follows. M3 now owns the build slot; M4 source work uses a separate checkout.
+Fresh quota83%used/17%remaining, same reset/floor/expiry.

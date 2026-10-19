@@ -1,0 +1,126 @@
+{
+  "observed_at_utc": "2026-10-19T10:26:11.866676+00:00",
+  "baseline": "14fb85927f6e472ac4cac8029dc4a405a6524d6e",
+  "author_candidate": "5cf8dba768c86b07ae6a094892d16a74250d8282",
+  "author_tree": "cb7f115e1a5f861c98dfe3a8acc84f8955c0774b",
+  "integrated_source_head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+  "full_diff_sha256": "5fdf330dfb66289ebe889e2f592e3160727d0512711320b9f2ed265ffa0e540a",
+  "source_files_match_exactly": [
+    "crates/brn-desktop/src/threads_skills.rs",
+    "crates/brn-desktop/src/threads_skills_tests.rs"
+  ],
+  "review": {
+    "status": "approved",
+    "reviewer": "independent Sol high ci_native_prep_review",
+    "candidate": "5cf8dba768c86b07ae6a094892d16a74250d8282",
+    "findings": "No actionable findings; compile alias/GPUI/visibility fixes retain assertions and fail-closed service."
+  },
+  "qualification": {
+    "focused_passed": 1,
+    "focused_failed": 0,
+    "strict_all_target_native_clippy": "passed",
+    "pinned_rustfmt": "passed",
+    "whole_native_suite": "Combined19efe 327/0/1 passed",
+    "production_build": "Combined19efe production native-ui-only passed"
+  },
+  "fixture": "Explicit synthetic stale builtin binding via checked Store::change_skill_policy(owner). Current package actual digest. Not historical binary/real migration proof.",
+  "limits": [
+    "No unchanged-old-source semantic run; original disabled Inspect/absent current-adoption behavior established by source, first compile failure is not semantic evidence.",
+    "Exact saved digest remains fail closed. Refresh never rebinds; explicit enable-current rechecks captured scope/digest and leaves unselected.",
+    "No native OS, live model, owner acceptance, merge or resulting-main result."
+  ],
+  "records": [
+    {
+      "source": "clippy.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/clippy.exit.gz",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "source": "clippy.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/clippy.log.gz",
+      "bytes": 775,
+      "sha256": "b8700e5aa2447688f1df45c561e5f2f921d876953f4fdfaccbddcbe98b2925a9",
+      "archive_sha256": "bae4c4c5b82770f065228ca562b49d25927aed223a854b3e7c51b65f0b16a52d"
+    },
+    {
+      "source": "commands.txt",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/commands.txt.gz",
+      "bytes": 4408,
+      "sha256": "6f0f54ed0ffd8a438a30ef553351ef97cd08c85a0ebb511088c4eb0cd69770c7",
+      "archive_sha256": "e122d5d8a5a17022bfc5b182d9ab4537ca60c94cd64b76a91e6e71c9d431e475"
+    },
+    {
+      "source": "fmt-final.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/fmt-final.exit.gz",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "source": "fmt-final.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/fmt-final.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "fmt.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/fmt.exit.gz",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "source": "fmt.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/fmt.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "focused-final.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused-final.exit.gz",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "source": "focused-final.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused-final.log.gz",
+      "bytes": 795,
+      "sha256": "557dd98bafc1dade68956fd47ea8ad0e3edca3eb3dc97153935d3cba95cd8087",
+      "archive_sha256": "5474917290101838ff88c86b844180b45fa975b90d1dedf53fdbef2e178336a1"
+    },
+    {
+      "source": "focused-r2.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused-r2.exit.gz",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    {
+      "source": "focused-r2.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused-r2.log.gz",
+      "bytes": 1306,
+      "sha256": "931ba60feaa8801f0657475e6bced4f567419dca766e42e41ef92e1e6ac32366",
+      "archive_sha256": "eab0148a671d0072512fee20045f7aed6ac5642c25f13422f82c779444727475"
+    },
+    {
+      "source": "focused.exit",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused.exit.gz",
+      "bytes": 4,
+      "sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "archive_sha256": "adfbb16b945bf35e46458de84de86dba6eede454a4abce1742bdc852af1004f9"
+    },
+    {
+      "source": "focused.log",
+      "path": "docs/work/active/vacation-campaign/evidence/skill-reapproval-ui/focused.log.gz",
+      "bytes": 5816,
+      "sha256": "aa628cf6fb1fa4a8c178b663a47e1365714313ede24138cd450cdcfa7baed074",
+      "archive_sha256": "5cdc180acd685ef6ae4e30f390896d5a388486606332ef7cdb968087ccd4971d"
+    }
+  ],
+  "combined_receipt": "agent-first-combined-qualification.json"
+}

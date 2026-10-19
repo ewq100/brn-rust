@@ -72,6 +72,6 @@ The owner selected [the supplied agent-first plan](work/active/agent-first-simpl
 inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
 records independently approved M0 rules and M1 bounded tool-argument correction
 independently source-approved and locally verified (runtime505/0/2, strict lint/format);
-combined and hosted gates remain. M2 structural findings/skill policy is independently reviewed
-and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. M3 exact local edit is under bounded implementation; M4 remains pending; broader artifact execution is conditional. No new live/private-data or
+combined19efe runtime505/desktop327/CLI15/journeys8, strict native lint/format and production build passed; hosted gates remain. M2 structural findings/skill policy is independently reviewed
+and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. Explicit skill version adoption is also reviewed and locally qualified. M3 exact local edit and M4 selected feedback review are under bounded implementation; broader artifact execution is conditional. No new live/private-data or
 release authority follows, and no native usability or owner acceptance is claimed.

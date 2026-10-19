@@ -45,3 +45,16 @@ The actor uses real controls; the checker records note/session identity and read
 without repair. The [read-only checker recipe](native-checker.md) avoids CLI bootstrap and reads
 canonical/recovery data in one short SQLite URI mode=ro transaction. It is
 source-qualified preparation; actual observation remains pending.
+
+
+## Next reviewed agent-first candidate
+
+Combined source19efe has passed runtime505/desktop327/CLI15/app journeys8, native
+strict lint/format and production-native-ui-only build. Immutable binary:
+`/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-combined-evidence/brn-desktop-19efe879`,
+SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a.
+It may qualify only matching source after exact-main verification; no native use
+has occurred. Add explicit unavailable-old-skill Inspect/current-version enable,
+then separate Select, to this candidate's ready controls. Preserve captured digest
+refusal/scope and synthetic policy fixture. M3/M4 require their own later binary
+if integrated before the actual session; do not use19efe for changed source.

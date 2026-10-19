@@ -18,29 +18,24 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T10:21:08.370853+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T10:30:12.899306+00:00",
   "current_session_jobs": [
     {
-      "agent": "skill_reapproval_ui",
-      "task": "two desktop files; fixing first focused compile; single builder",
-      "model_requested": "gpt-6-luna medium"
-    },
-    {
       "agent": "targeted_edit_impl",
-      "task": "M3 exact local edit; isolated brn-ai/agent source; no build until grant",
+      "task": "M3 exact local edit baseline/final qualification; single builder",
       "model_requested": "gpt-6.1-sol high"
     },
     {
-      "agent": "argument_correction_review",
-      "task": "M1/current workflow documentation review, read only",
+      "agent": "writing_review_design",
+      "task": "M4 explicit captured comment review composition; isolated source only",
       "model_requested": "gpt-6.1-sol high"
     }
   ],
   "integration_status": "PR163–169 required exact-head/resulting-main pass; optional Windows failures retained. PR170 normal merge d7f48e6c from checked9000 after all four required39232265037 success; resulting-main39236565242 pending.",
-  "next_eligible_work": "Finish UI focused correction and release build slot, run combined M1/M2 guide/context/CLI checks, publish reviewed M0/schema/M1/M2 candidate after PR170 history reconciliation. M3 source drafting active with exact-read/replay/Rewrite fences; native18 remains separate.",
-  "last_qualified_source": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
-  "source_delta_after_qualification": "Lead67d matches all twelve reviewed/qualified M1 files exactly, alongside separately qualified M2/schema/M0. Combined guide/context/CLI remains pending. Old0f production binary predates changed compiled guidance/runtime and cannot qualify this source.",
-  "active_work": "M0 approved527, M2 approved/qualified333, M1 approved/qualified7b3. UI reapproval first compile failed and is being corrected; no current final UI qualification. M3 selected source-only implementation. Exact old skill bindings remain fail closed.",
+  "next_eligible_work": "Publish reviewed combined candidate on checked PR after normal PR170 history reconciliation, follow actual required head/main gates. Continue M3 baseline/final qualification, then M4 reviews/checks; native18 remains separate.",
+  "last_qualified_source": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+  "source_delta_after_qualification": "Combined source19efe qualified runtime505/desktop327/CLI15/app journeys8/strict native lint/format/production build; frozen binarySHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Later lead changes docs/evidence only; verify exact source comparison before reuse. M3/M4 source not yet integrated.",
+  "active_work": "Combined19efe M0/schema/M1/M2+skill UI independently reviewed components; runtime505/desktop327/CLI15/journeys8 and native strict lint/fmt/prodbuild pass. M3 finalsource review and build qualification active, owns slot; M4 isolated source draft, no Cargo.",
   "continuation_baseline": "d7f48e6caa3c200fba931ef75df0012171cd0ed3",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -53,7 +48,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot82% used/18% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot83% used/17% remaining in seven-day window; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },

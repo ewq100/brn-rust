@@ -39,8 +39,7 @@ The first full candidate had498 passes and3 failures; revised witness assumption
 the genuine refusal defect, an intentionally interrupted run and a later Clippy
 failure remain preserved. Original objcopy warning and invocation-local installed
 LLVM library path are recorded without a global configuration change or suppression.
-The CLI bundle-prefix assertion changed but its CLI suite has not yet run. M1+M2
-combined guide/context/application checks, hosted exact-head/resulting-main gates,
+Combined19efe runtime505/0/2, desktop327/0/1, CLI agent_runs15/0/0 and app journeys8/0/0 passed, with strict native all-target lint/full format and a production native-ui-only build. [Combined receipt](../vacation-campaign/evidence/agent-first-combined-qualification.json) binds all source and artifacts. Hosted exact-head/resulting-main gates,
 real-model usefulness and native observation remain separate. No owner acceptance
 or merge is implied by these local results.
 

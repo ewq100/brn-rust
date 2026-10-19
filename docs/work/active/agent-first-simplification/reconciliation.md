@@ -35,10 +35,10 @@ synthetic fixtures. Baseline/corrected results remain separate.
 | Milestone | Current disposition and next gate |
 |---|---|
 | M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
-| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined guidance/CLI and hosted gates pending. |
+| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; hosted gates pending. |
 | M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
 | M3 targeted edit | [Bounded preparation](targeted-edit.md) selects exact UTF-8 range + expected text and existing checked candidate/write/Undo. M1 interface is frozen; bounded implementation is selected. Whole-read replacement guard remains. |
-| M4 instruction/review consistency | Pending current-caller reconciliation and bounded implementation; Rewrite remains proposal-only and comment selection remains explicit. |
+| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; selected implementation is source-only in isolated checkout. Rewrite stays proposal-only, comment selection explicit. |
 | M5 broader artifact capability | Conditional bounded reuse proof; production activation/live/provider/data permissions unchanged. Adopt or defer with evidence. |
 | M6 outcome comparison/retirement | Applied to actual changed callers; deterministic/live/native/owner/main outcomes recorded separately. |
 

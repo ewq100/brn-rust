@@ -196,3 +196,9 @@ An invocation offers at most one exact tool/input after a separate transient own
 Remote data remains untrusted and does not establish a complete source read or BRN write authority. The SDK owns sessions/deadlines/cancellation; bounded cleanup and late-result fences do not prove remote processing stopped or was undone. Canonical policy/digests survive SQLite backup, while reviewed arguments, active grants, sessions and raw tool transcripts are not automatically archived. A model-authored saved reply may legitimately quote received data under ordinary message behavior; raw-transcript exclusion does not promise otherwise. Native review is transient, scope/policy/run-bound and never an autosaved draft.
 
 Bundle `brn-threads-guidance-15` documents bounded pre-effect argument correction. It changes no receipt/replay, helper, protection or review authority.
+
+The desktop skill list can inspect validated current bytes for an unavailable old
+exact binding. Its explicit Enable current version action rechecks the captured
+current digest and scope through the checked service, then leaves selection off.
+Refresh never rebinds approved bytes. Missing/corrupt packages stay unavailable;
+see [reapproval qualification](../work/active/agent-first-simplification/skill-reapproval.md).

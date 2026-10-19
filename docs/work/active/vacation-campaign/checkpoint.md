@@ -32,32 +32,26 @@ match exact checked head, then record resulting-main independently. No bypass.
 - [M1](../agent-first-simplification/argument-correction.md) candidate7b3 source
   approved; lead's twelve changed files match exactly. Final scripted runtime505/0/2,
   strict all-target lint/full format pass; review boundary findings and all failures
-  retained in `evidence/argument-correction-qualification.json`. Combined M1+M2
-  guide/context and CLI agent_runs checks still need the build slot.
+  retained in `evidence/argument-correction-qualification.json`. Combined19efe runtime505/desktop327/CLI15/app journeys8 and native strict lint/format/production pass; see agent-first-combined-qualification.json.
 - Skill current-version reapproval: requested Luna medium owns only desktop
   threads_skills.rs/tests on `codex/skill-reapproval-ui` in worker-drain-budget.
-  Initialc8ea source independently approved, but first real focused build failed
-  on aliases/test GPUI access. Author is correcting only owned files and holds the
-  build slot; exact final candidate must be re-reviewed and actually qualified.
+  Final5cf8 independently approved; first actual compile failure retained. Focused1, strict native lint/format and combined native327 pass. Root19efe matches exact two source files; no OS/historical migration proof.
 - [M3 exact local edit](../agent-first-simplification/targeted-edit.md): requested
   Sol high owns brn-ai/agent tool source in notice checkout,
-  `codex/targeted-note-edit`, based67d62aec. No Cargo until slot grant. Preserve
+  `codex/targeted-note-edit`, based67d62aec. Final19af source independently approved (test-only final deltas under review); it now owns the build slot for baseline refresh red/green and focused/full runtime. Preserve
   exact range/bytes/metadata, host-only construction, replay-before-reconstruction,
   partial-read ledger after Apply/replay/Continue, full-range guard, and frozen
   Rewrite exclusion. Existing refresh whole-read seam is included with a witness.
-- M4 follows concrete instruction/review callers. M5 remains conditional permitted
+- M4 uses the existing shared OwnerRequest path and selected exact review/comment composition spec; Sol source author is isolated in worker-drain-budget, no build until grant. M5 remains conditional permitted
   synthetic/interface proof; no live/executable permission expansion follows.
 
-First finish/reconcile PR170 main gate and push the reviewed M0/schema/M1/M2
-candidate after combined checks. Do not duplicate PR170 or attach unrelated PRs.
-Keep checked head fixed while later work continues separately. Current source
-changes invalidate the old0f production artifact for native qualification; build
-and freeze an actual new production binary after source checks. Neither headless
+First follow PR170 main gate and publish the reviewed M0/schema/M1/M2+skill UI candidate; combined checks passed at19efe. Do not duplicate PR170 or attach unrelated PRs.
+Keep checked head fixed while later work continues separately. Current source changes invalidate old0f for this candidate. Frozen production19efe binary is source-bound in agent-first-combined-evidence with SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Neither headless
 state tests nor source review establish actual Mac usability.
 
 ## Capacity, native queue and continuation
 
-Last native quota reading82% used/18% remaining, seven-day reset1792874447.
+Last native quota reading83% used/17% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries. Continue useful work down to about5%; then
 checkpoint/back off near the verified reset without purchases or reset credits.
 Runtime exposes four active slots including lead; owner permits more helpers and
