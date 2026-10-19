@@ -1,0 +1,485 @@
+{
+  "observed_at_utc": "2026-10-19T12:25:10.338012+00:00",
+  "source_candidate": "9229085a9683a1c988a1cb12d647f52df18115f6",
+  "source_base": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "file_sha256": "42b59c2623da1c587104bd4f58637786c851c41d0e14f47d1173e1b72294a0a7",
+  "full_source_diff_sha256": "72ffc59758861cb695f8239807143eec808b0e0658ae77029d3b7958a7220eac",
+  "source_review": "exact-note-reading-source-review.json",
+  "production_delta": "read_records/read_note JSON-schema descriptions only; no types, required fields, bounds or host access/exact-ID behavior changes",
+  "checks": {
+    "pin": "9229085a9683a1c988a1cb12d647f52df18115f6",
+    "source_sha256": "42b59c2623da1c587104bd4f58637786c851c41d0e14f47d1173e1b72294a0a7",
+    "environment": {
+      "RUSTUP_TOOLCHAIN": "1.98.1",
+      "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "RUST_TEST_THREADS": "1",
+      "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+      "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+      "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+      "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+    },
+    "commands": [
+      {
+        "name": "helper-diagnostic",
+        "command": [
+          "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_ai-6600878fea862aee",
+          "document_refine::tests::",
+          "--nocapture"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.7137718750163913,
+        "log": "helper-diagnostic.log"
+      },
+      {
+        "name": "runtime-helpers",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "brn-ai",
+          "--lib",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 38.72375766700134,
+        "log": "runtime-helpers.log"
+      },
+      {
+        "name": "lint",
+        "command": [
+          "cargo",
+          "clippy",
+          "-p",
+          "brn-ai",
+          "--all-targets",
+          "--features",
+          "scripted-runs",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 8.752883624983951,
+        "log": "lint.log"
+      },
+      {
+        "name": "format",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 1.5500373339746147,
+        "log": "format.log"
+      },
+      {
+        "name": "ordinary-cli",
+        "command": [
+          "cargo",
+          "build",
+          "-p",
+          "brn",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 35.431691834004596,
+        "log": "ordinary-cli.log"
+      }
+    ]
+  },
+  "original_failed_environment": {
+    "runtime": {
+      "passed": 519,
+      "failed": 3,
+      "ignored": 2,
+      "exit": 101
+    },
+    "cause": "Lead omitted explicit document-helper paths, causing Intake Unavailable. No source/assertion change.",
+    "same_binary_diagnostic": {
+      "passed": 6,
+      "failed": 0,
+      "filtered_out": 518,
+      "exit": 0
+    },
+    "binding": "helper-diagnostic-binding.json"
+  },
+  "final_runtime": {
+    "passed": 522,
+    "failed": 0,
+    "ignored": 2
+  },
+  "binary": {
+    "source": "9229085a9683a1c988a1cb12d647f52df18115f6",
+    "path": "/Users/evokessler/.codex/worktrees/notice-state/exact-note-read-guidance-evidence/brn-9229085a",
+    "sha256": "c3f6fbce644d41d56e9076f41519ed0526b394b50ea95336f461fe32d2177909",
+    "bytes": 71394784,
+    "new_schema_string_present": true,
+    "native_observed": false
+  },
+  "live_probe": {
+    "attempt_id": "e9c7520b-f659-4ea4-a04b-2d65b218a92d",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "provider": "existing Codex account",
+    "initial_prompt": "Same original natural request structure as failed attempt1; fresh synthetic Note ID, no explicit tool/ID lesson",
+    "answer": "CODEWORD=rannatuli-õun-17; TOTAL=9",
+    "trace": {
+      "format": 1,
+      "level": "summary",
+      "guide": "brn-threads-guidance-17:b47c24e31327bcc1ef98d5ced398cb9090ca3588d7608a2a4ce2c8948e800a09",
+      "search": true,
+      "rounds": 1,
+      "max_rounds": 4,
+      "model_turns": 2,
+      "stopped": null,
+      "usage": {
+        "input": 12313,
+        "output": 65,
+        "cached_input": 0
+      },
+      "turn_usage": [
+        {
+          "input": 6053,
+          "output": 46,
+          "cached_input": 0
+        },
+        {
+          "input": 6260,
+          "output": 19,
+          "cached_input": 0
+        }
+      ],
+      "elapsed_ms": 3848,
+      "calls": [
+        {
+          "seq": 1,
+          "round": 1,
+          "tool": "read_records",
+          "args": {
+            "id_count": 1,
+            "ids": [
+              "920242ed-8597-4ccd-937f-52d7c52d0d31:0"
+            ],
+            "catalog": false
+          },
+          "outcome": "success",
+          "bytes": 473,
+          "ms": 1,
+          "result": {
+            "rows": 1,
+            "ids": [
+              "920242ed-8597-4ccd-937f-52d7c52d0d31:0"
+            ],
+            "truncated": true
+          }
+        }
+      ],
+      "dropped_calls": 0
+    },
+    "passed": true,
+    "note_unchanged": true,
+    "no_candidates": true,
+    "auth_source_metadata_unchanged": true
+  },
+  "archives": [
+    {
+      "source_name": "binary.json",
+      "archive": "exact-note-reading-raw/binary.json.gz",
+      "raw_sha256": "263a3e58310942968785384451a4594ad98ff360813523894e3bb25f182ac3c1",
+      "raw_bytes": 333,
+      "archive_sha256": "f2e214c6026ae4ff3bc413f7fbfc6c12ebf061569273d05e52d7296c457f538b",
+      "archive_bytes": 256
+    },
+    {
+      "source_name": "commands-repaired.json",
+      "archive": "exact-note-reading-raw/commands-repaired.json.gz",
+      "raw_sha256": "3b00eb23a8e70c3d56069c48089b66015050ecc7d620f95a04c1403df1baca87",
+      "raw_bytes": 2525,
+      "archive_sha256": "9d6b7eababeed24a3bb5d0b26983f080914c138ec72a3ad2608c7aedf036f2a3",
+      "archive_bytes": 850
+    },
+    {
+      "source_name": "commands.json",
+      "archive": "exact-note-reading-raw/commands.json.gz",
+      "raw_sha256": "16a760e4f7d4bca5f722041c8fcb97870844656676016c0a692b2143219665a3",
+      "raw_bytes": 978,
+      "archive_sha256": "fc1d52568f4bad540136ea23500e907ad11d886e29a22961728e5dd57e023efd",
+      "archive_bytes": 561
+    },
+    {
+      "source_name": "format.log",
+      "archive": "exact-note-reading-raw/format.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "helper-diagnostic-binding.json",
+      "archive": "exact-note-reading-raw/helper-diagnostic-binding.json.gz",
+      "raw_sha256": "b5bf86b7cc1bc28da65c76ac67f75489a10ba55eb17cc6edf07247d10ba7f2a9",
+      "raw_bytes": 769,
+      "archive_sha256": "5fcce9b886ab9e8a793256880f260087e50383a32b59ead41111fe0c8de1ee3e",
+      "archive_bytes": 449
+    },
+    {
+      "source_name": "helper-diagnostic.log",
+      "archive": "exact-note-reading-raw/helper-diagnostic.log.gz",
+      "raw_sha256": "d38a0ebe6e00673d88b793aa5bd4adf0e0e9998e157bce7a8f51fc2948d78d81",
+      "raw_bytes": 699,
+      "archive_sha256": "e56496627288a580066b8b78582623174d87609bd73b256bc301a3b6d7bdb516",
+      "archive_bytes": 335
+    },
+    {
+      "source_name": "lint.log",
+      "archive": "exact-note-reading-raw/lint.log.gz",
+      "raw_sha256": "0cfc450b8fb11da57cf7fee32dfbf2b5ecdf945041e2a4dcd6835ee233041ffe",
+      "raw_bytes": 160,
+      "archive_sha256": "d4296dbebf35ef77f7d0a9f6c1d953e6a49cb4a3f35914a574a346beb0798570",
+      "archive_bytes": 152
+    },
+    {
+      "source_name": "ordinary-cli.log",
+      "archive": "exact-note-reading-raw/ordinary-cli.log.gz",
+      "raw_sha256": "1ea654a8fdf167299a28fae7473fd7def6e0f8c3e3ca0596f54a61bc88ca6858",
+      "raw_bytes": 912,
+      "archive_sha256": "c015e49071bd8c5ab8038b10eab62c310a9644540f0a620f89840a9568cdce77",
+      "archive_bytes": 299
+    },
+    {
+      "source_name": "run-qualification-with-helpers.py",
+      "archive": "exact-note-reading-raw/run-qualification-with-helpers.py.gz",
+      "raw_sha256": "2ff34a594ed6916077f950fed38b62096dc83662d4ef3723651b15b8b04cacfd",
+      "raw_bytes": 4007,
+      "archive_sha256": "4c8bf128bb1a0d0c1a09ce51ee2fb2fbd306154c51d8b70044b11d0799a87163",
+      "archive_bytes": 1898
+    },
+    {
+      "source_name": "run-qualification.py",
+      "archive": "exact-note-reading-raw/run-qualification.py.gz",
+      "raw_sha256": "63324491fc98b6e7960cf255f83c27d0cc59a93b00456aedea63cc3e029010a0",
+      "raw_bytes": 2990,
+      "archive_sha256": "6c6cccd204dca1c0b15dd45dfc5a1e829c2dd12ccdad3f693ee8908722101967",
+      "archive_bytes": 1509
+    },
+    {
+      "source_name": "runtime-helpers.log",
+      "archive": "exact-note-reading-raw/runtime-helpers.log.gz",
+      "raw_sha256": "cad35f515119f607e4d455129bd23c62df930abf28d706a1d0ac9d87ed4c5c92",
+      "raw_bytes": 55077,
+      "archive_sha256": "8644ca9c69d40e5982ab5c68a14ce355e1a0974f083e5f0b0a1009ff8176a0f8",
+      "archive_bytes": 13815
+    },
+    {
+      "source_name": "runtime.log",
+      "archive": "exact-note-reading-raw/runtime.log.gz",
+      "raw_sha256": "618cb309de0d550b41b3f6cf93e3fed5aada2dfb9d6b03394d103bbc941cb743",
+      "raw_bytes": 56756,
+      "archive_sha256": "7c21d50c45c09f4aa913ad522b7113cbb987181d41aff0bbd84585c81c12e47c",
+      "archive_bytes": 14402
+    },
+    {
+      "source_name": "source.patch",
+      "archive": "exact-note-reading-raw/source.patch.gz",
+      "raw_sha256": "72ffc59758861cb695f8239807143eec808b0e0658ae77029d3b7958a7220eac",
+      "raw_bytes": 2078,
+      "archive_sha256": "1ff215329b37f413fc7558ca79d99b1c0ef4d8c0e0a6bcd62f8e17732e712476",
+      "archive_bytes": 734
+    },
+    {
+      "source_name": "source.rs",
+      "archive": "exact-note-reading-raw/source.rs.gz",
+      "raw_sha256": "42b59c2623da1c587104bd4f58637786c851c41d0e14f47d1173e1b72294a0a7",
+      "raw_bytes": 266921,
+      "archive_sha256": "c9225b106adc65234805969277602a1cdf2f01391d827969423f8e2fd0f571e2",
+      "archive_bytes": 57029
+    },
+    {
+      "source_name": "live-attempt-03/ask.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/ask.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/ask.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/ask.stdout.json.gz",
+      "raw_sha256": "dde05727a8ea8b3d0594f0996c3acb9da8b654487931edd6af7c789937882fdb",
+      "raw_bytes": 1121,
+      "archive_sha256": "eceb71827adc9a48167304f1ab0f6fabc37b0e86792a01ac7fcd9ab35c4ef41b",
+      "archive_bytes": 638
+    },
+    {
+      "source_name": "live-attempt-03/attempt-reservation.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/attempt-reservation.json.gz",
+      "raw_sha256": "b9cc57e111f538b17cb82f0ac631882b8bf1b2d72720fd75cc8a1fc1b3182b2b",
+      "raw_bytes": 950,
+      "archive_sha256": "77177081d811041e6410722c290e8a163589e241ad62d8c55b4db707eec94327",
+      "archive_bytes": 594
+    },
+    {
+      "source_name": "live-attempt-03/candidates-after.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/candidates-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/candidates-after.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/candidates-after.stdout.json.gz",
+      "raw_sha256": "f9156d1f7791db41d1c28cf9bed5f40da218c7633bc710e9d253b938195bfba8",
+      "raw_bytes": 398,
+      "archive_sha256": "93cd9b611c79b0bf401142f9a7824636ab53fd397135659d0cff96a5b3a30d0b",
+      "archive_bytes": 229
+    },
+    {
+      "source_name": "live-attempt-03/configure.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/configure.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/configure.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/configure.stdout.json.gz",
+      "raw_sha256": "3ec81aff80f0f29593311255cec29ca72a4065a290f4689d6ce7b33cb16dc904",
+      "raw_bytes": 1337,
+      "archive_sha256": "c5c7f7c5fd2aa11520b2420cca37a979522ff1e4861eb7022be189e08400bdde",
+      "archive_bytes": 635
+    },
+    {
+      "source_name": "live-attempt-03/init.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/init.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/init.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/init.stdout.json.gz",
+      "raw_sha256": "94f3115beefb236a92940cd21d351b7d0b94b7b33656f8e5296b1ad87e043e2b",
+      "raw_bytes": 671,
+      "archive_sha256": "e4426908aeec0781aea7a7d15900f49ee8b22c664b87ac2353693ae501569bf7",
+      "archive_bytes": 405
+    },
+    {
+      "source_name": "live-attempt-03/note-after.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/note-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/note-after.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/note-after.stdout.json.gz",
+      "raw_sha256": "aeacf86136b47949d20091ad29d55dbb4fea12810fe144ff96a5315eb23735ed",
+      "raw_bytes": 598,
+      "archive_sha256": "a7c0c6036e3ffb6fe7a7632bcf4e755ec505987861aa11688186e5cf20df0a4f",
+      "archive_bytes": 377
+    },
+    {
+      "source_name": "live-attempt-03/note.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/note.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/note.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/note.stdout.json.gz",
+      "raw_sha256": "dc687375e32f6332c9308ca373b5cd32b39c77576e584536e7247f70bbc3130c",
+      "raw_bytes": 754,
+      "archive_sha256": "c472441edf0f6e8c5d1601c698a4c799dfa97352add30cda6a2725dcfed19987",
+      "archive_bytes": 418
+    },
+    {
+      "source_name": "live-attempt-03/prompt.txt",
+      "archive": "exact-note-reading-raw/live-attempt-03/prompt.txt.gz",
+      "raw_sha256": "0c2b3199929a84063f2cbd03b0683a11e89e1400bf46a51886758f6938a9ce4b",
+      "raw_bytes": 253,
+      "archive_sha256": "89ddde93922deaf25205514b662ee2c8778a7ad9abb1d3e56ee5e1acfbbca91e",
+      "archive_bytes": 210
+    },
+    {
+      "source_name": "live-attempt-03/result.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/result.json.gz",
+      "raw_sha256": "9349f9a026692730b9d7d4b9d2e12cdb7430c5c626ea83e04a146c665af13b8a",
+      "raw_bytes": 6700,
+      "archive_sha256": "e565ddcf257e88e46b6f18ff29bc8904298bc2cd7b64243470bec039bea37e0e",
+      "archive_bytes": 1492
+    },
+    {
+      "source_name": "live-attempt-03/run-smoke.py",
+      "archive": "exact-note-reading-raw/live-attempt-03/run-smoke.py.gz",
+      "raw_sha256": "c82f71b89b130285a1b8ad69807ead50643f21b298c5cfddea9bc5a8b3b46a26",
+      "raw_bytes": 5018,
+      "archive_sha256": "ada5b0a5546e876a6c39d77d974ef134371396de91e474b6cdaccdd45a38b566",
+      "archive_bytes": 2233
+    },
+    {
+      "source_name": "live-attempt-03/runs-after.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/runs-after.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/runs-after.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/runs-after.stdout.json.gz",
+      "raw_sha256": "b23b56330e777e95747f7699d250b425cb142136636368b05c2337e1aac30aed",
+      "raw_bytes": 863,
+      "archive_sha256": "cda27f284afe91f91b9a16b8a140d2e8d75f9854b4b71ac85f34864b0b89248b",
+      "archive_bytes": 497
+    },
+    {
+      "source_name": "live-attempt-03/thread.stderr.log",
+      "archive": "exact-note-reading-raw/live-attempt-03/thread.stderr.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "archive_bytes": 20
+    },
+    {
+      "source_name": "live-attempt-03/thread.stdout.json",
+      "archive": "exact-note-reading-raw/live-attempt-03/thread.stdout.json.gz",
+      "raw_sha256": "1ae0a05d592874b334dee8d7c0e5ee3277ff7c8d5bff1a1affa588f5b3177fa7",
+      "raw_bytes": 610,
+      "archive_sha256": "3d7324b1bb46fc763f0c095dca9aba1d5b297a1b77a5646ae7a80e5c178ecdda",
+      "archive_bytes": 338
+    }
+  ],
+  "native_observed": false,
+  "limits": [
+    "One failed natural request, one explicit diagnostic and one successful clarified-schema natural request are not statistical model-quality evidence.",
+    "Packaged bundle17 identity remains unchanged because packaged text did not change; source and binary SHA bind schema descriptions.",
+    "CLI build completed before attempted low-disk interruption. No further compile admitted; generated metadata cache reclamation recorded separately.",
+    "No native desktop build or interaction performed for this candidate.",
+    "Required hosted/integration/resulting-main gates remain separate.",
+    "Third trace says truncated=true, but source trace helper uses field presence rather than boolean value. Preserve this raw diagnostic; it does not establish partial/full coverage. The tested semantic answer/exact-ID dispatch and no-effects observations remain valid. A separate diagnostic correction is warranted."
+  ]
+}

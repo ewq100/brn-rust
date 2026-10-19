@@ -144,3 +144,26 @@ No author build/account run is authorized; lead owns the released single build s
 Two account attempts used in current session and Tallinn day; retain third session
 slot only for a justified source-matched natural-request probe after review/checks.
 Quota last92% used/8% remaining. Native account session later shares six/day ledger.
+
+
+19October12:25UTC gate update: metadata-only9229085 is independently approved.
+Original verification environment omitted helpers:519/3/2 with Intake Unavailable.
+Same test binary plus qualified helper paths passes affected6/0; full522/0/2,
+strict all-target lint, format and ordinary CLI now pass. Immutable ordinary CLI
+is notice-state/exact-note-read-guidance-evidence/brn-9229085a,
+SHAc3f6fbce644d41d56e9076f41519ed0526b394b50ea95336f461fe32d2177909.
+Natural-request account probe3 passed with same Luna low and exact ID; Note
+unchanged/no candidate. Current session CLOSED at3 attempts; Tallinn day3/6.
+Account transport/pass does not establish native usability or broad quality.
+Source/qualification receipts and raw failures are committed in campaign evidence.
+
+No build active. CLI build completed before a low-space interrupt could find it.
+Only disposable generated .rmeta files in the campaign target were removed;
+reclamation receipt records exact254 paths/hashes, about1.8GB logical, free2.24GB.
+Preserve executables, helpers, source, all fixture data and evidence. Avoid another
+broad graph rebuild without headroom; stop compilation below1GiB.
+
+A diagnostic-only issue was observed in the third trace: read_records truncation
+uses field presence, so a false flag appears true. This does not invalidate exact-ID
+or semantic/no-effects results, but it cannot establish coverage. Preserve the raw
+trace and correct the reporter separately with a distinguishing false/true test.

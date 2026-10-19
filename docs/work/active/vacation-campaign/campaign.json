@@ -21,10 +21,10 @@
   "last_checkpoint_at_utc": "2026-10-19T12:15:16.112817+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163-172 all four required head/main checks passed. PR173 normally merged33a62aae after all four exact-head required checks passed; resulting-main39250500661 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Finish nativefixture receipts/test-support PR; inspect exact-ID reading guidance exposed by first live probe; follow PR173main. Native Mac observation queued18:00.",
-  "last_qualified_source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
-  "source_delta_after_qualification": "All production source/manifests/lock/toolchain identical to qualified4e81. Later changes are docs/evidence plus independently qualified two-file ignored runtime fixture f819 and one-line canonical temp test repaird9 (focused1/1 under inherited /var environment). No redundant broad rebuild selected.",
-  "active_work": "M4b core215/runtime522/app65/native333/UI56/CLI43 strictlint/format/ordinaryproduction pass, independent Solsource and Luna72archive audit passed. Runtime-created synthetic v2 fixturef819 parent1/existingCLI15(2ignored)/strictlint/format and occupieddir/file/relative refusals pass; source exact lead e615. Actual native observation pending. Two authorized Codex Luna-low probes completed: natural request failed after dropped ID suffix; explicit read_note diagnostic passed. No Note changes/candidates; no actual native observation.",
+  "next_eligible_work": "Publish reviewed/qualified exact-ID schema clarification without changing frozen PR174. Follow PR173main/PR174head. Native Mac batch18:00 still pending; no more account calls in current session. Generated metadata reclaimed; avoid another broad compile without headroom.",
+  "last_qualified_source": "9229085a9683a1c988a1cb12d647f52df18115f6",
+  "source_delta_after_qualification": "All production source/manifests/locks/toolchain equal reviewed and locally qualified9229085; only separately qualified test support and campaign docs differ.",
+  "active_work": "PR173 merged33a62aae after all four head checks; main39250500661 pending. Frozen test-support PR174 e56b4dbd hosted checks running. Exact-ID schema clarification9229085 independently approved, runtime522/0/2, strict all-target lint/format/ordinary CLI pass; same-model natural-request probe passed. Three live attempts/session and day used, current account session closed; actual native observation pending.",
   "continuation_baseline": "33a62aae1b358f1de9475040eb180c63e0651f4f",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -93,6 +93,9 @@
     "max_attempts_per_session": 3,
     "max_attempts_per_tallinn_day": 6,
     "client_deadline_seconds": 180,
-    "actual_live_attempts": 2
+    "actual_live_attempts": 3,
+    "current_session_attempts_used": 3,
+    "current_session_closed": true,
+    "tallinn_day_attempts_used": 3
   }
 }

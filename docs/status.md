@@ -42,13 +42,13 @@ separates actual progress and outstanding gates.
 - Test-only PR174 is frozen at e56b4dbd: a reviewed runtime-created synthetic v2 review fixture and the reviewed canonical-temp test repair. Parent1/0/0, existing CLI15/0/2, strict lint/format, three data-preserving refusal probes and the focused MCP fixture passed. Required hosted checks are running. [Qualification](work/active/vacation-campaign/evidence/native-suggestion-fixture-qualification.json) preserves failures and limits.
 - Broader artifact production activation is explicitly deferred with packaging, output, containment and review gaps recorded. No whole-plan completion is claimed.
 
-Two explicitly owner-authorized existing-Codex-account Luna-low probes used fresh
+Three explicitly owner-authorized existing-Codex-account Luna-low probes used fresh
 synthetic data. A natural request failed after the model omitted an ID suffix; an
-explicit exact-ID/read_note diagnostic passed. Both preserved Note bytes and
+explicit exact-ID/read_note diagnostic passed; a natural-request probe after the schema clarification also passed. All preserved Note bytes and
 created no candidate. [Test limits](work/active/vacation-campaign/codex-ai-testing.md)
 and [evidence](work/active/vacation-campaign/evidence/codex-ai-smoke-qualification.json)
 retain that distinction. A narrow tool-schema description clarification is
-independently source-reviewed at9229085; its execution qualification is running.
+independently source-reviewed and locally qualified at9229085: runtime522/0/2, strict lint/format/ordinary CLI and the natural-request probe passed. Publication/hosted checks remain.
 No host ID matching or access rule is changed.
 
 ## Native qualification and continuation

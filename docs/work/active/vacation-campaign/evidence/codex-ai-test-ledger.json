@@ -87,7 +87,7 @@
       "client_deadline_seconds": 180,
       "native_observed": false,
       "id": "e9c7520b-f659-4ea4-a04b-2d65b218a92d",
-      "status": "reserved",
+      "status": "passed",
       "reserved_at_utc": "2026-10-19T12:24:11.443970+00:00",
       "scenario": "Original natural read request on reviewed schema-description candidate; fresh Note, same Luna low; no explicit tool/ID lesson in prompt",
       "binary_sha256": "c3f6fbce644d41d56e9076f41519ed0526b394b50ea95336f461fe32d2177909",
@@ -97,7 +97,21 @@
         "used_percent": 92,
         "remaining_percent": 8,
         "reset_unix": 1792874447
-      }
+      },
+      "started_at_utc": "2026-10-19T12:24:20.739867+00:00",
+      "finished_at_utc": "2026-10-19T12:24:24.644961+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-ai-test-evidence/2026-10-19-codex-smoke-01-attempt-03/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": true,
+      "note_unchanged": true,
+      "no_candidates": true,
+      "auth_source_metadata_unchanged": true,
+      "usage": {
+        "input": 12313,
+        "output": 65,
+        "cached_input": 0
+      },
+      "qualification": "exact-note-reading-qualification.json"
     }
   ]
 }

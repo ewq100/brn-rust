@@ -523,3 +523,7 @@ remaining; first unattended wake remains unobserved.
 - [Codex policy](codex-ai-testing.md), [attempt ledger](evidence/codex-ai-test-ledger.json) and [smoke qualification](evidence/codex-ai-smoke-qualification.json): two existing-account Luna-low runs, one natural-request failure and one explicit exact-ID read success;40 lossless raw archives. No Note change/candidate, actual native observation still pending.
 - [V2 native fixture qualification](evidence/native-suggestion-fixture-qualification.json) and [independent receipt audit](evidence/native-suggestion-fixture-receipt-audit.json): reviewed f819, successful parent/existing suite/lint and three preserved refusal probes;22 raw archives and exact byte/binary bindings. Synthetic loopback only.
 - [PR172](evidence/pr172-integration.json) all four resulting-main checks passed; [PR173](evidence/pr173-integration.json) normally merged after all four exact-head checks, its resulting-main run remains pending.
+
+
+- [Exact-ID schema source review](evidence/exact-note-reading-source-review.json) and [qualification](evidence/exact-note-reading-qualification.json): reviewed metadata only, final runtime522/0/2, lint/format/ordinary CLI and third natural-request account probe pass; initial helper-environment failure retained. The live session is closed at3 attempts.
+- [Generated cache reclamation](evidence/build-cache-reclamation.json): exact removed metadata paths/hashes; qualified executables, helpers, data and evidence preserved. No active build.
