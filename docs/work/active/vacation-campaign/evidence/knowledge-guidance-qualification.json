@@ -1,0 +1,143 @@
+{
+  "baseline": "527d47679adef0c1cf2dfe83869eb14d590b1c39",
+  "first_candidate": "101b9048aafe38a0b89fb0f594eb6b318f0979a2",
+  "candidate": "333345fb2fdcd7c68c25b1ac026945ce0bbab277",
+  "worker": "bf12b4d12c0693837a422aa881443f1c03d907aa",
+  "complete_diff_sha256": "499809b97f864c57894c28733c63daa278b107025e822b56c4862aa5c12909b6",
+  "reviewer": "Independent ci_native_prep_review requested gpt-6.1-sol high; effective runtime setting not independently exposed",
+  "review_result": "Approved final333 with no remaining findings",
+  "first_review_finding": {
+    "severity": "P2",
+    "status": "valid/fixed",
+    "description": "Remaining bounds/omission test required retired Usual remedies prose; actual first run10pass1fail at that assertion. Final test retains behavior assertions and checks playbook handoff/clean-scan caveat."
+  },
+  "checks": {
+    "first_topics": {
+      "exit": 101,
+      "passed": 10,
+      "failed": 1
+    },
+    "final_topics": {
+      "exit": 0,
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.13
+    },
+    "final_journeys": {
+      "exit": 0,
+      "passed": 8,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 2.1
+    },
+    "final_keyed": {
+      "exit": 0,
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.05
+    },
+    "strict_app_all_targets_clippy": {
+      "exit": 0
+    },
+    "full_format": {
+      "exit": 0
+    }
+  },
+  "scope": "Four files only. Removed private generic remedy and seeded prescriptions; existing maintain-notes skill contains repair policy. Factual scan/public DTO/privacy/details/record identities/counts/bounds/omissions/keyed seed and actual one-group repair witnesses retained.",
+  "guidance_identity": "Existing catalogue hashes bind actual revised skill bytes. Unbound builtin defaults use current bytes; explicit prior-digest bindings remain unavailable and are never silently rebound. No base-guide or manual bundle version change in this M2 slice.",
+  "separate_follow_up": "Existing desktop recovery gap: unavailable pinned skill rows disable Inspect/Enable; Disable retains old digest. CLI inspection/current exact digest+explicit enable remains available. Future bounded UI repair should allow inspection and explicit adoption, preserving checked exact policy and current scope. This is not an automatic reapproval/migration.",
+  "records": [
+    {
+      "name": "clippy.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "clippy.log.gz",
+      "raw_bytes": 1316,
+      "raw_sha256": "6e0aefd41775c7aba353f75af8f2c0b7b3894b7fb470a5dbb36031308385218a",
+      "archive_sha256": "27ec2c2ad6f29c9d1335f13225dd708f0e819ad78e03d655ad3e3e69241e03c5"
+    },
+    {
+      "name": "commands.json",
+      "raw_bytes": 1296,
+      "raw_sha256": "6a15b42bf765057fe92b5ae41657053257de3d9251ddebf3b789e3da7355ed81",
+      "archive_sha256": "6a15b42bf765057fe92b5ae41657053257de3d9251ddebf3b789e3da7355ed81"
+    },
+    {
+      "name": "first-candidate-commands.json",
+      "raw_bytes": 1296,
+      "raw_sha256": "dc23bccda7ddab75df4ab1232df4a3314cdba6645c9906299a47a7711fe48a67",
+      "archive_sha256": "dc23bccda7ddab75df4ab1232df4a3314cdba6645c9906299a47a7711fe48a67"
+    },
+    {
+      "name": "first-candidate-topics.exit",
+      "raw_bytes": 4,
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "archive_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c"
+    },
+    {
+      "name": "first-candidate-topics.log.gz",
+      "raw_bytes": 2811,
+      "raw_sha256": "9ed800e98b2ec7b3bbd6e525281049b6e11a70e2694c4f1d40d3b785fc17ee7e",
+      "archive_sha256": "c2dca527b4777c1319f1c53f920012f69dacd135cc11bc586a43644be1e8dc14"
+    },
+    {
+      "name": "format.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "format.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "name": "journeys.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "journeys.log.gz",
+      "raw_bytes": 833,
+      "raw_sha256": "8ded8713c4037b9f5e2f4164e3ee6b1b88d529038c3e9c6e5b50f2605dcdf8b6",
+      "archive_sha256": "4df4c71a67d4d69d678cea532c3f6fa530df50d0cd8a61d1d81bfd34a5786934"
+    },
+    {
+      "name": "keyed.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "keyed.log.gz",
+      "raw_bytes": 1083,
+      "raw_sha256": "d6189b5a5b2e4b6516ef286c5fb779548721140e7c93c94f5ff7eabf178f849d",
+      "archive_sha256": "820a6a6c8bc100208b45c3fd7ca1cd3a78523834e2ff10e4751a7fb5de49ea6c"
+    },
+    {
+      "name": "topics.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "topics.log.gz",
+      "raw_bytes": 1136,
+      "raw_sha256": "2b4b38d2e79892a81ed311c2cec21289330f6b0a94c3c20e7eec635b747fd25b",
+      "archive_sha256": "43c6ccceb8d3ce6967e01739d110c527c77a3648facea424d9869b47b9e29852"
+    }
+  ],
+  "limits": [
+    "Deterministic source/application checks do not establish real-model repair quality, actual native controls or owner acceptance.",
+    "No new live/provider/private-data/executable permission.",
+    "Local production native artifact0f predates revised compiled skill bytes and cannot qualify a later main containing this slice; verify/build then-current source for native queue.",
+    "Hosted required and resulting-main checks remain separate."
+  ]
+}

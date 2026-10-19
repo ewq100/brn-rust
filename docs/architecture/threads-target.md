@@ -38,6 +38,27 @@ The selected architecture has six connected decisions:
 
 This deliberately changes the original “Git for your knowledge” framing. Keep understandable revisions and recovery. Branch trees, rebases, permanent keystroke histories, and multiple independently writable stores are unnecessary prerequisites for the product described here.
 
+### Accepted agent-first direction,19October2026
+
+The owner selected the [agent-first workstream](../work/active/agent-first-simplification/plan.md)
+within the existing Mac campaign; [current reconciliation](../work/active/agent-first-simplification/reconciliation.md)
+records implementation gates. Semantic organization, interpretation, planning,
+drafting and repair judgment normally use the existing agent and skills. Reusable
+tools/libraries perform exact processing, shared services own durable execution
+and authority, and UI makes real work understandable. Prefer ordinary artifacts
+for semantic outputs; freeze expansion into general project management, workflow
+designers or semantic graph platforms without a repeated concrete owner need.
+
+Selected capability work covers bounded correction of eligible pre-effect tool
+argument errors, factual knowledge checks with repair policy in skills, one exact
+version-bound local-edit operation, and consistent document instruction/review
+interaction. Whole-document Rewrite remains proposal-only; whole replacement
+retains its full-read guard. Selected text identifies a target, not permission.
+Protection, private scope, dirty writing, exact candidates, replay and Undo remain
+unchanged obligations. A broader reusable artifact capability is conditional on a
+bounded proof and existing executable/network authority. These are selected
+requirements, not implemented, live/native-observed or accepted outcomes.
+
 ### Owner assumptions already supplied
 
 Evo is not using the current app and does not need a gradual migration. Development is performed with AI assistance. Refactoring or rewriting as much as needed is acceptable, and the vision may be challenged to reduce complexity. Greater runtime AI autonomy should be considered where it removes unnecessary code and interruption. Original emails and files remain external; BRN does not need to store another copy of every imported item. For selected key documents, such as research papers and process descriptions, Evo must be able to read the complete substantive content as a BRN note. Later document, presentation, and HTML generation are part of the intended product.

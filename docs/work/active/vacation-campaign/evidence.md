@@ -297,3 +297,84 @@ omakase/dialog/focus/chat/writing witnesses retain distinct boundaries. No test
 retirement, generalized reducer or source change was selected. Actual OS picker
 navigation remains unobserved; no native transport qualification is inferred.
 Fresh allowance78% used/22% remaining, reset1792874447; no purchase/reset.
+
+
+## Selected supported-upgrade witness maintenance
+
+A bounded requested Luna medium audit identified stale current README schema
+claims. Lead verified current store schema10 and upgrade admission3–9; a related
+source pass found four optional agent_upgrade tests still explicitly expecting9.
+Selected scope: correct current docs and existing test expectations while retaining
+real historical schema5 CLI fixture creation and all byte-preservation, backup,
+restore, replay and rollback assertions. No production behavior/schema change.
+Lead retains integration/docs/build slot; one requested Luna medium worker owns
+only agent_upgrade.rs in the clean reusable notice checkout. Stop/reassess if the
+exact historical fb1b2100 lock/toolchain cannot build offline or the source reveals
+a real production regression. No downloads, installs, provider calls or owner data.
+The test's existing no-fixture early return is not passing executed old-data proof.
+
+
+## Genuine historical schema5 upgrade witnesses restored
+
+[Qualification receipt](evidence/schema-upgrade-qualification.json) binds the
+exact offline fb1b2100 historical CLI/lock, immutable binary, source/test commands
+and lossless logs. Four actual tests first failed their intended stale9 assertions
+against current10. Worker97b/lead936 correct only five expectation/comment sites;
+all four then passed (0.55s), with strict affected-test Clippy and full format.
+The real old CLI creates fixtures and restores the pre-upgrade snapshot; raw SQL
+fixture mutation and skipped-without-binary exits are not passing evidence.
+
+Current README schema3/5 claims were reconciled to supported3–9/current10 admission
+and backup-first restore/rollback rules. Explicit historical CLI contract notes
+remain history; no production storage or authority behavior changed.
+
+
+## Agent-first M0 review and M2 qualified candidate
+
+The supplied42199-byte owner plan remains exact; M0 candidate527 and complete
+diff are [independently approved](../agent-first-simplification/m0-review.json)
+after fixing the stale restart entry and missing existing-ID disposition map.
+The existing saved automation prompts read this campaign plan/checkpoint as current
+authority, so the linked workstream survives restart without another schedule.
+
+[M2 candidate333](../agent-first-simplification/knowledge-guidance.md) retains
+factual checks and moves generic repair policy into the existing skill. First
+source101 genuinely failed one retired-message assertion; final333 passed
+topics11/journeys8/keyed11 plus strict app all-target lint/full format. Independent
+Sol approved the corrected complete four-file diff. Exact digest bindings remain
+fail-closed; the separate existing native reapproval UI gap is recorded, not
+silently repaired by rebinding. No live/native/model-quality claim follows.
+
+Requested Sol high now implements M1 on its isolated notice branch and owns the
+single shared build slot; requested Luna medium completed read-only M3 reuse/risk
+mapping. No new general retry engine/dependency/schema/permission platform is selected.
+Fresh native quota79% used/21% remaining, reset1792874447; original expiry unchanged.
+
+
+## M1 independently reviewed candidate and next local edit
+
+[M1 source7b3](../agent-first-simplification/argument-correction.md) independently
+approved after three combined-fault hard-refusal findings and a strict-lint test
+lifetime fix. Final runtime505/0/2, strict scripted all-target lint/full format
+pass; twelve source files match lead67d exactly. [Receipt](evidence/argument-correction-qualification.json)
+verifies27 lossless archives, actual source/log hashes and final gates, retaining
+all earlier failures/interruption. Combined guide/context/CLI and hosted gates remain.
+
+PR169 main39232087600 passed all four required jobs; optional Windows jobs failed.
+PR170 merged normally atd7f48e6c from checked9000 after all four required head checks;
+its resulting-main gate remains pending. Current checkpoint owns active UI author
+(build slot), M3 author (source only), review and exact next gates. Latest allowance
+82% used/18% remaining; fixed expiry and continuous-work rules unchanged.
+
+
+## Combined agent-first candidate19efe qualified
+
+[Combined receipt](evidence/agent-first-combined-qualification.json) verifies exact
+source/commands and lossless records for runtime505/0/2, desktop327/0/1, CLI15/0/0,
+app journeys8/0/0, strict native lint/full format and production native-ui-only build.
+Immutable binary19efe has SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a.
+Existing block0.1.6 warning remains. Independent Sol approved final skill UI5cf8;
+its synthetic stale-binding/first compile failure and two exact files are retained
+in [qualification](evidence/skill-reapproval-qualification.json). No OS/live/owner
+result follows. M3 now owns the build slot; M4 source work uses a separate checkout.
+Fresh quota83%used/17%remaining, same reset/floor/expiry.

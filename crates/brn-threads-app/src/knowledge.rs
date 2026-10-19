@@ -140,35 +140,6 @@ impl Collector {
     }
 }
 
-/// A finding kind's usual mechanical fix, named in the seeded review. The
-/// agent still decides from evidence whether it applies.
-fn remedy(kind: FindingKind) -> Option<&'static str> {
-    Some(match kind {
-        FindingKind::BrokenLink => {
-            "BrokenLink: point the Link at the replacement (update it in place with its version as `expected_version`), or archive it when the note already links the replacement."
-        }
-        FindingKind::RelationVariant => {
-            "RelationVariant: update each listed Link in place to the recommended name: same ID, `from` and `to`, its version as `expected_version`. Without a recommended name, pick the most used name and say so."
-        }
-        FindingKind::Supersession => {
-            "Supersession: when the replacement is clear, set the older note's `superseded_by`; in the same change group re-point or archive the listed links from other notes (not recorded conflicts) and update page text naming the older note, or they become BrokenLink findings."
-        }
-        FindingKind::Orphan => {
-            "Orphan: link the note from its subject's page or a related note when the relationship is clear."
-        }
-        FindingKind::UnlistedTopic => {
-            "UnlistedTopic: link the page from the Topics note and add it to the Topics text."
-        }
-        FindingKind::DuplicateTitle | FindingKind::DuplicateContent => {
-            "Duplicates: merge only notes about the same subject, keeping differing facts with their dates and sources, and re-point or archive the retired note's links in the same change group; otherwise give them distinguishing titles. Ask about a real conflict instead of choosing."
-        }
-        FindingKind::StaleInput
-        | FindingKind::StaleCandidate
-        | FindingKind::CoverageGap
-        | FindingKind::Contradiction => return None,
-    })
-}
-
 impl Workspace {
     /// Runs the deterministic checks over current general knowledge.
     pub fn knowledge_check(&self) -> AppResult<KnowledgeCheck> {
@@ -566,26 +537,13 @@ pub(crate) fn review_seed(check: &KnowledgeCheck) -> (String, String) {
         text.push_str(&format!("- {kind:?}: {count}\n"));
     }
     text.push('\n');
-    let remedies: Vec<&str> = check
-        .counts
-        .keys()
-        .filter_map(|kind| remedy(*kind))
-        .collect();
     let mut tail = String::new();
-    if !remedies.is_empty() {
-        tail.push_str(
-            "\nUsual remedies for ordinary unprotected notes, when the evidence supports them. \
-             Protected or owner-written material goes through the conflict playbook, and never \
-             archive or re-point a `contradicts` link without an owner decision:\n",
-        );
-        for remedy in remedies {
-            tail.push_str(&format!("- {remedy}\n"));
-        }
-    }
     tail.push_str(
-        "\nReview these findings with the maintain-notes playbook within the run budget. \
-         Report what was inspected, corrected and left uncertain. A clean check is not proof \
-         of correctness.",
+        "\nReview these mechanical findings with the maintain-notes playbook within the run budget. \
+         They report recorded structure, versions and coverage; they do not establish truth or \
+         require a repair. Decide from the available evidence what, if anything, should change. \
+         Report what was inspected, corrected and left uncertain. A clean check is not proof of \
+         correctness.",
     );
     // Room for the omission line keeps the whole message within budget.
     let budget = REVIEW_MESSAGE_BYTES.saturating_sub(tail.len() + 128);

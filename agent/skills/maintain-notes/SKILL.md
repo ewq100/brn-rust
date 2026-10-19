@@ -33,6 +33,20 @@ When a question produces a useful new comparison or explanation, save it only if
 
 When asked to review knowledge, or given affected records after an input change, inspect those subjects and their directly linked context within the run budget. Look for duplicate subjects, unsupported claims, lost qualifications, contradictory evidence, missing useful links and recorded dependencies needing refresh. Report what was inspected, corrected and left uncertain. Hashes and versions show observed input changes; they do not establish world freshness. A bounded review does not certify the whole wiki or create an external-source monitor or recurring schedule.
 
+### Reviewing a mechanical knowledge check
+
+A knowledge check reports stored structure, recorded input versions and import coverage. Treat each item as a lead to inspect, not a semantic conclusion, truth judgment or required repair. Read the current records and relevant evidence before deciding whether to act. An orphan may be intentionally standalone; a similar title or exact duplicate text is not proof of the same subject. Preserve distinct facts, dates, sources and qualifications; clarify titles when subjects differ, and ask the owner about a real conflict rather than choosing a side. A topic-page hint is not a requirement to add a page to Topics.
+
+- **BrokenLink:** verify the endpoint and any current replacement, then follow the existing link and supersession rules in step 7. A broken `contradicts` link remains an owner conflict.
+- **RelationVariant:** confirm the links express the same relationship before using the in-place rename rule in step 5. A recommended name does not prove equivalent meaning.
+- **Supersession:** follow step 7; the finding does not establish that the replacement is correct or authorize changing recorded conflicts.
+- **StaleInput / StaleCandidate:** reread the current input or target and follow step 7. A newer input does not prove the note is wrong; never apply a stale proposal.
+- **CoverageGap:** inspect the available source and report what remains unsupported or unreadable. The recorded gap does not prove the retained note false.
+- **DuplicateTitle / DuplicateContent:** inspect the complete notes and sources, then follow the update/create choice in step 2. Similarity alone never proves a shared subject; preserve distinct facts and provenance.
+- **Orphan / UnlistedTopic:** add a useful relationship only when supported. Lack of links or a topic-page hint alone does not require one.
+
+Keep every repair within the existing checked change path: exact current records and input versions, applicable authority, dirty guards, immutable preparation, review, replay and Undo. A finding never authorizes a write. Protected or owner-written material follows the conflict playbook; preserve it when authority is missing or the evidence is unresolved.
+
 ## Examples
 
 Two project emails confirm a meeting and add a qualified delivery estimate. Update the existing project account, preserving both evidence references, dates and direct inputs. A subsequently ingested older planning note adds a contact but does not silently replace the newer estimate. Preserve a conflicting protected commitment and add one focused Conflict reason. Apply the supported ordinary update and report its actual receipt.

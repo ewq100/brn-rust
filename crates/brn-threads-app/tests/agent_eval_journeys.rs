@@ -410,18 +410,15 @@ async fn s2_review_names_the_links_one_change_group_resolves() {
         "Already linking the replacement with the same relation: “Bicycle coop” (`related`)"
     ));
     let inbound = link(inbound);
-    for text in [
-        rename.id.as_str(),
-        inbound.id.as_str(),
-        "RelationVariant: update each listed Link in place",
-        "re-point or archive the listed links",
-    ] {
+    for text in [rename.id.as_str(), inbound.id.as_str()] {
         assert!(
             message.text.contains(text),
             "{text:?} not in {}",
             message.text
         );
     }
+    assert!(message.text.contains("maintain-notes playbook"));
+    assert!(message.text.contains("do not establish truth"));
 
     let bicycle = case.id("bicycle").to_owned();
     let topics = workspace.settings().unwrap().topics_note.unwrap();

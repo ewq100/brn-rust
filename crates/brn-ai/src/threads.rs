@@ -25,6 +25,9 @@ use std::{
 use tokio_util::sync::CancellationToken;
 
 #[cfg(test)]
+#[path = "threads_argument_correction_tests.rs"]
+mod argument_correction_tests;
+#[cfg(test)]
 #[path = "threads_budget_tests.rs"]
 mod budget_tests;
 #[path = "threads_context_budget.rs"]
@@ -467,49 +470,145 @@ struct WithdrawArgs {
 struct ProgressArgs {
     summary: String,
 }
-fn parse_valid(name: &str, args: &Value) -> bool {
-    match name {
-        "read_message" => note_search::validate_message(args),
-        "read_history" => history::validate_history(args),
-        "refresh_candidate" => history::validate_refresh(args),
-        "read_records" => {
+/// Only argument-shape errors on offered tools may get pre-effect feedback.
+/// Policy refusals remain fatal even when another call needs correction.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ArgumentError {
+    Shape(&'static str),
+    Forbidden,
+}
+fn argument_shape(valid: bool, guidance: &'static str) -> std::result::Result<(), ArgumentError> {
+    valid.then_some(()).ok_or(ArgumentError::Shape(guidance))
+}
+fn forbidden_record(data: &RecordData) -> bool {
+    matches!(
+        data,
+        RecordData::Run(_)
+            | RecordData::Settings(_)
+            | RecordData::Asset(_)
+            | RecordData::Message(_)
+            | RecordData::ChatControl(_)
+            | RecordData::WritingSetup(_)
+    ) || matches!(data, RecordData::Thread(t) if t.state == ThreadState::Resolved)
+}
+fn validate_request_policy(request: &ChangeRequest) -> std::result::Result<(), ArgumentError> {
+    if request
+        .writes
+        .iter()
+        .any(|write| forbidden_record(&write.data))
+    {
+        Err(ArgumentError::Forbidden)
+    } else {
+        Ok(())
+    }
+}
+fn change_shape_error(args: &Value, guidance: &'static str) -> ArgumentError {
+    // A complete typed forbidden record remains identifiable even when a
+    // sibling, envelope, reason or input is malformed. Never infer authority
+    // from raw variant names or partial record fields.
+    if args["request"]["writes"].as_array().is_some_and(|writes| {
+        writes
+            .iter()
+            .filter_map(|write| serde_json::from_value::<RecordData>(write["data"].clone()).ok())
+            .any(|data| forbidden_record(&data))
+    }) {
+        ArgumentError::Forbidden
+    } else {
+        ArgumentError::Shape(guidance)
+    }
+}
+fn validate_change_arguments(
+    key: &str,
+    request: &ChangeRequest,
+    raw: &Value,
+) -> std::result::Result<(), ArgumentError> {
+    validate_request_policy(request)?;
+    argument_shape(
+        !key.is_empty() && key.len() <= 128,
+        "request_key must contain 1..128 UTF-8 bytes.",
+    )?;
+    argument_shape(
+        (1..=64).contains(&request.writes.len()),
+        "request.writes must contain 1..64 writes.",
+    )?;
+    argument_shape(
+        request_matches_args(request, raw),
+        "request must use the exact offered record fields and input format; extra fields are not accepted.",
+    )
+}
+fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), ArgumentError> {
+    let (valid, guidance) = match name {
+        "read_message" => (
+            note_search::validate_message(args),
+            "Use id (1..256 bytes), a positive version, nonnegative start and max_bytes in 1..8192; only offered fields are accepted.",
+        ),
+        "read_history" => (
+            history::validate_history(args),
+            "Supply id (1..256 bytes), version (positive integer or null), nonnegative start and max_bytes in 1..131072; only offered fields are accepted.",
+        ),
+        "refresh_candidate" => return history::validate_refresh_arguments(args),
+        "read_records" => (
             args.get("query").is_some()
                 && serde_json::from_value::<ReadArgs>(args.clone()).is_ok_and(|a| {
                     a.ids.len() <= 100 && a.query.as_ref().is_none_or(|q| q.len() <= 1024)
-                })
+                }),
+            "Supply ids as an array of at most 100 strings and query as a string of at most 1024 UTF-8 bytes or null; both fields are required and extra fields are not accepted.",
+        ),
+        "search_notes" => (
+            note_search::validate_search(args),
+            "Use the offered query, limit, cursor (string or null), and mode fields and their bounds; cursor is required and extra fields are not accepted.",
+        ),
+        "note_connections" => (
+            note_search::validate_connections(args),
+            "Use id, hops (1 or 2), and sources with the offered types; extra fields are not accepted.",
+        ),
+        "read_note" => (
+            serde_json::from_value::<ReadNoteArgs>(args.clone())
+                .is_ok_and(|a| a.version > 0 && (1..=MAX_NOTE_READ_BYTES).contains(&a.max_bytes)),
+            "Supply id, positive version, nonnegative start, max_bytes in 1..131072 and boolean section; extra fields are not accepted.",
+        ),
+        "read_source" => (
+            serde_json::from_value::<SourceArgs>(args.clone()).is_ok(),
+            "Supply reference as a string and optional nonnegative start; extra fields are not accepted.",
+        ),
+        "read_skill" => (
+            serde_json::from_value::<SkillArgs>(args.clone())
+                .is_ok_and(|a| brn_threads_core::skill_id_valid(&a.id) && a.path.len() <= 256),
+            "Supply an enabled skill id, optional path (at most 256 UTF-8 bytes) and nonnegative start; extra fields are not accepted.",
+        ),
+        "apply_changes" => (
+            serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
+            "Supply only operation as a string.",
+        ),
+        "withdraw_proposal" => (
+            serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
+            "Supply only operation as a string.",
+        ),
+        "retain_progress" => (
+            continuation::validate(args),
+            "Supply the offered progress fields; summary/report is limited to 4096 UTF-8 bytes, objective to 768, remaining_work to 8 entries, open_questions to 4 and operations to 16. Extra fields are not accepted.",
+        ),
+        "research" => (
+            research::validate_research(args),
+            "Supply 1..3 questions using the offered question, focus and known fields and their bounds; extra fields are not accepted.",
+        ),
+        "submit_findings" => (research::validate_findings(args), research::FINDINGS_LIMITS),
+        "prepare_changes" => {
+            let parsed = serde_json::from_value::<PrepareArgs>(args.clone()).map_err(|_| change_shape_error(args,
+                "Supply request_key, a typed request with reason/writes/inputs and optional writing evidence matching the offered schema; extra fields are not accepted.",
+            ))?;
+            return validate_change_arguments(
+                &parsed.request_key,
+                &parsed.request,
+                &args["request"],
+            );
         }
-        "search_notes" => note_search::validate_search(args),
-        "note_connections" => note_search::validate_connections(args),
-        "read_note" => serde_json::from_value::<ReadNoteArgs>(args.clone())
-            .is_ok_and(|a| a.version > 0 && (1..=MAX_NOTE_READ_BYTES).contains(&a.max_bytes)),
-        "read_source" => serde_json::from_value::<SourceArgs>(args.clone()).is_ok(),
-        "read_skill" => serde_json::from_value::<SkillArgs>(args.clone())
-            .is_ok_and(|a| brn_threads_core::skill_id_valid(&a.id) && a.path.len() <= 256),
-        "apply_changes" => serde_json::from_value::<ApplyArgs>(args.clone()).is_ok(),
-        "withdraw_proposal" => serde_json::from_value::<WithdrawArgs>(args.clone()).is_ok(),
-        "retain_progress" => continuation::validate(args),
-        "research" => research::validate_research(args),
-        "submit_findings" => research::validate_findings(args),
-        "prepare_changes" => serde_json::from_value::<PrepareArgs>(args.clone()).is_ok_and(|a| {
-            !a.request_key.is_empty()
-                && a.request_key.len() <= 128
-                && a.request.writes.len() <= 64
-                && !a.request.writes.is_empty()
-                && request_matches_args(&a.request, &args["request"])
-                && a.request.writes.iter().all(|w| {
-                    !matches!(
-                        w.data,
-                        RecordData::Run(_)
-                            | RecordData::Settings(_)
-                            | RecordData::Asset(_)
-                            | RecordData::Message(_)
-                            | RecordData::ChatControl(_)
-                            | RecordData::WritingSetup(_)
-                    ) && !matches!(&w.data,RecordData::Thread(t) if t.state==ThreadState::Resolved)
-                })
-        }),
-        _ => false,
-    }
+        _ => return Err(ArgumentError::Forbidden),
+    };
+    argument_shape(valid, guidance)
+}
+fn parse_valid(name: &str, args: &Value) -> bool {
+    validate_arguments(name, args).is_ok()
 }
 // Default Current is omitted from immutable request serialization, but both
 // omitted and explicit Current are valid model arguments. Preserve strict
@@ -2234,8 +2333,46 @@ struct BatchHook {
     tokens: Option<(Arc<AtomicU64>, u64)>,
     /// Tool calls dispatched in the current model turn.
     turn_calls: AtomicU16,
+    /// Invocation-total allowance; successful turns never replenish it.
+    corrections: AtomicU16,
+    /// One rejected batch: every sibling gets the same no-effect feedback.
+    rejected_batch: Mutex<Option<String>>,
 }
+const MAX_ARGUMENT_CORRECTIONS: u16 = 2;
 impl BatchHook {
+    fn rejected_feedback(&self, tool: Option<&str>) -> Option<String> {
+        tool?;
+        self.rejected_batch
+            .lock()
+            .map(|batch| batch.clone())
+            .unwrap_or_else(|_| Some("Skipped: tool batch unavailable; no call executed.".into()))
+    }
+    /// Check every independently typed access component before shape feedback.
+    /// Extra fields or a malformed other component cannot hide a known refusal.
+    fn skill_refused(&self, args: &Value) -> bool {
+        let Some(id) = args.get("id").and_then(Value::as_str) else {
+            return false;
+        };
+        let Some(skills) = &self.skills else {
+            return true;
+        };
+        if skills.file(id, "SKILL.md").is_none() {
+            return true;
+        }
+        let path = match args.get("path") {
+            None => "SKILL.md",
+            Some(Value::String(path)) => path,
+            Some(_) => return false,
+        };
+        let Some((text, _)) = skills.file(id, path) else {
+            return true;
+        };
+        let start = match args.get("start") {
+            None => Some(0),
+            Some(value) => value.as_u64().and_then(|n| usize::try_from(n).ok()),
+        };
+        start.is_some_and(|start| text.get(start..).is_none())
+    }
     /// A helper call the host skips with an instructive result, so one bad
     /// call or oversized batch never fails the whole sub-run.
     fn helper_denial(&self, name: &str, args: &Value) -> Option<String> {
@@ -2264,6 +2401,12 @@ impl BatchHook {
 }
 impl AgentHook for BatchHook {
     async fn on_dispatch(&self, _: &HookContext, event: DispatchEvent<'_>) -> DispatchAction {
+        if let Some(feedback) = self.rejected_feedback(event.tool_name()) {
+            return DispatchAction::Deny(rig::error::ErrorReport::new(
+                rig::error::ErrorKind::Denied,
+                feedback,
+            ));
+        }
         if let Some(name) = event
             .tool_name()
             .filter(|n| self.external.as_ref().is_some_and(|m| m.name() == *n))
@@ -2342,6 +2485,10 @@ impl AgentHook for BatchHook {
         DispatchAction::Proceed
     }
     async fn on_outcome(&self, _: &HookContext, event: OutcomeEvent<'_>) -> OutcomeAction {
+        if self.rejected_feedback(event.tool_name()).is_some() {
+            // A skipped sibling is not an executed local or external read.
+            return OutcomeAction::Proceed;
+        }
         if let Some(name) = event
             .tool_name()
             .filter(|n| self.external.as_ref().is_some_and(|m| m.name() == *n))
@@ -2413,48 +2560,47 @@ impl AgentHook for BatchHook {
         // instructive result; unparseable or foreign calls still end its run.
         let helper = self.allowed.is_some();
         self.turn_calls.store(0, Ordering::SeqCst);
-        let multiple_external = self
+        let mut batch = match self.rejected_batch.lock() {
+            Ok(batch) => batch,
+            Err(_) => {
+                self.invalid.store(true, Ordering::SeqCst);
+                return ModelTurnAction::Stop("tool batch unavailable".into());
+            }
+        };
+        *batch = None;
+        let mut correction = None;
+        let mut forbidden = self
             .external
             .as_ref()
             .is_some_and(|m| calls.iter().filter(|c| c.function.name == m.name()).count() > 1);
-        if multiple_external
-            || calls.iter().any(|call| {
-                call.function.invalid_arguments.is_some()
-                    || self
-                        .allowed
-                        .is_some_and(|allowed| !allowed.contains(&call.function.name.as_str()))
-                    || (!helper
-                        && !if self
-                            .external
-                            .as_ref()
-                            .is_some_and(|m| m.name() == call.function.name.as_str())
-                        {
-                            self.external.as_ref().is_some_and(|m| {
-                                m.valid_call(
-                                    &call.function.name,
-                                    &Value::Object(call.function.arguments.clone()),
-                                )
-                            })
-                        } else {
-                            let args = Value::Object(call.function.arguments.clone());
-                            parse_valid(&call.function.name, &args)
-                                && (call.function.name != PrepareChanges::NAME
-                                    || self.prepare.accepts_writing(&args))
-                        })
-                    || (!helper
-                        && call.function.name == "read_skill"
-                        && !self.skills.as_ref().is_some_and(|skills| {
-                            serde_json::from_value::<SkillArgs>(Value::Object(
-                                call.function.arguments.clone(),
-                            ))
-                            .is_ok_and(|a| {
-                                skills
-                                    .file(&a.id, &a.path)
-                                    .is_some_and(|(text, _)| text.get(a.start..).is_some())
-                            })
-                        }))
-            })
-        {
+        for call in &calls {
+            let name = call.function.name.as_str();
+            if call.function.invalid_arguments.is_some()
+                || self.allowed.is_some_and(|allowed| !allowed.contains(&name))
+            {
+                forbidden = true;
+                continue;
+            }
+            if helper {
+                continue;
+            }
+            let args = Value::Object(call.function.arguments.clone());
+            if let Some(external) = self.external.as_ref().filter(|m| m.name() == name) {
+                forbidden |= !external.valid_call(name, &args);
+                continue;
+            }
+            // Frozen-contract and availability refusals are never correction.
+            forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
+            forbidden |= name == "read_skill" && self.skill_refused(&args);
+            match validate_arguments(name, &args) {
+                Ok(()) => {}
+                Err(ArgumentError::Forbidden) => forbidden = true,
+                Err(ArgumentError::Shape(guidance)) => {
+                    correction.get_or_insert_with(|| format!("{name}: {guidance}"));
+                }
+            }
+        }
+        if forbidden {
             self.invalid.store(true, Ordering::SeqCst);
             if let Some(trace) = &self.trace {
                 trace.model_turn(&event.usage, self.rounds.load(Ordering::SeqCst));
@@ -2499,6 +2645,29 @@ impl AgentHook for BatchHook {
                 trace.stop("budget");
             }
             return ModelTurnAction::Stop("tool budget exhausted".into());
+        }
+        if let Some(guidance) = correction {
+            if self.corrections.load(Ordering::SeqCst) >= MAX_ARGUMENT_CORRECTIONS {
+                self.invalid.store(true, Ordering::SeqCst);
+                if let Some(trace) = &self.trace {
+                    trace.stop("invalid_batch");
+                }
+                (self.emit)(AiEvent::Activity(
+                    "Tool argument correction allowance exhausted; this batch executed no calls."
+                        .into(),
+                ));
+                return ModelTurnAction::Stop(
+                    "tool argument correction allowance exhausted".into(),
+                );
+            }
+            let used = self.corrections.fetch_add(1, Ordering::SeqCst) + 1;
+            let feedback = format!(
+                "Skipped: no tool in this batch executed. {guidance} Correct the arguments and resubmit any still-needed calls. This uses correction {used}/{MAX_ARGUMENT_CORRECTIONS} and the existing run budget. This says nothing about earlier batches; check receipts before repeating prior writes."
+            );
+            (self.emit)(AiEvent::Activity(format!(
+                "Tool arguments rejected before execution; correction {used}/{MAX_ARGUMENT_CORRECTIONS}. {guidance}"
+            )));
+            *batch = Some(feedback);
         }
         ModelTurnAction::Continue
     }
@@ -4110,6 +4279,8 @@ async fn run_model_budgeted(
             allowed: None,
             tokens: None,
             turn_calls: AtomicU16::new(0),
+            corrections: AtomicU16::new(0),
+            rejected_batch: Mutex::new(None),
         })
         .build();
     let stream = agent
@@ -5259,42 +5430,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn missing_required_nullable_argument_rejects_whole_batch() {
-        let (_root, request, _) = fixture();
-        let (scope, input) = begin(&request).unwrap();
-        let model = MockCompletionModel::from_stream_turns([vec![
-            MockStreamEvent::tool_call("bad", "read_records", json!({"ids":[]})),
-            MockStreamEvent::tool_call(
-                "valid",
-                "retain_progress",
-                json!({"summary":"not dispatched"}),
-            ),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ]]);
-        let answer = run_model(
-            model.clone(),
-            scope.clone(),
-            &input,
-            ReasoningEffort::Medium,
-            4,
-            true,
-            CancellationToken::new(),
-            Arc::new(|_| {}),
-        )
-        .await;
-        assert!(matches!(
-            answer.terminal,
-            AiTerminal::Failed(AiError {
-                kind: AiErrorKind::InvalidToolUse,
-                ..
-            })
-        ));
-        assert_eq!(model.request_count(), 1);
-        assert!(
-            matches!(scope.store.lock().unwrap().record(&scope.run).unwrap().unwrap().data,RecordData::Run(r) if r.progress.is_empty())
-        );
-    }
-    #[tokio::test]
     async fn credential_open_failure_finalizes_run_and_precancel_is_interrupted() {
         let (_root, mut request, _) = fixture();
         request.credentials_dir = Some(PathBuf::from("relative-refused"));
@@ -5688,51 +5823,6 @@ mod tests {
         }
     }
 
-    #[tokio::test]
-    async fn malformed_read_plus_valid_mutation_dispatches_nothing_and_makes_no_retry() {
-        let (_root, request, _) = fixture();
-        let (scope, input) = begin(&request).unwrap();
-        let model = MockCompletionModel::from_stream_turns([
-            vec![
-                MockStreamEvent::tool_call("bad", "read_records", json!({"ids":7,"query":null})),
-                MockStreamEvent::tool_call(
-                    "valid",
-                    "retain_progress",
-                    json!({"summary":"must never dispatch"}),
-                ),
-                MockStreamEvent::final_response_with_total_tokens(3),
-            ],
-            vec![
-                MockStreamEvent::text("must never request"),
-                MockStreamEvent::final_response_with_total_tokens(3),
-            ],
-        ]);
-        let answer = run_model(
-            model.clone(),
-            scope.clone(),
-            &input,
-            ReasoningEffort::Medium,
-            4,
-            true,
-            CancellationToken::new(),
-            Arc::new(|_| {}),
-        )
-        .await;
-        assert!(matches!(
-            answer.terminal,
-            AiTerminal::Failed(AiError {
-                kind: AiErrorKind::InvalidToolUse,
-                ..
-            })
-        ));
-        assert_eq!(model.request_count(), 1);
-        let store = scope.store.lock().unwrap();
-        let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
-            panic!()
-        };
-        assert!(run.progress.is_empty());
-        assert!(run.operations.is_empty());
-    }
     #[test]
     fn completed_fresh_run_clears_only_superseded_host_terminal_blockers_after_reopen() {
         for terminal in [
@@ -6434,7 +6524,7 @@ mod tests {
         assert!(matches!(answer.terminal, AiTerminal::Interrupted));
     }
     #[tokio::test]
-    async fn unsupported_writing_object_rejects_whole_batch_before_progress() {
+    async fn unsupported_writing_evidence_refuses_but_v2_shape_can_be_corrected() {
         use rig::test_utils::{MockCompletionModel, MockStreamEvent};
         for mode in ["ordinary", "v1", "v2"] {
             for progress_first in [false, true] {
@@ -6502,6 +6592,9 @@ mod tests {
                     }),
                 )
                 .await;
+                // v2 accepts evidence, so its extra field is eligible shape
+                // feedback. The following empty answer still fails Rewrite's
+                // existing requirement to prepare an actual writing proposal.
                 assert!(
                     matches!(
                         answer.terminal,
@@ -6513,7 +6606,7 @@ mod tests {
                     "{mode}/{progress_first}: {:?}",
                     answer.terminal
                 );
-                assert_eq!(model.request_count(), 1);
+                assert_eq!(model.request_count(), if mode == "v2" { 2 } else { 1 });
                 assert!(
                     !events.lock().unwrap().iter().any(|s| s.starts_with("> ")),
                     "whole batch must fail before dispatch"

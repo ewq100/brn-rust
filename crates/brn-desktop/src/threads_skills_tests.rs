@@ -262,3 +262,171 @@ fn native_inventory_can_enable_one_package_in_each_scope_without_copying_policy(
         cx.run_until_parked();
     }
 }
+
+#[gpui_kit::test]
+fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
+    cx: &mut TestAppContext,
+) {
+    cx.update(gpui_kit::init);
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("workspace");
+    let mut workspace = Workspace::open(&data).unwrap();
+    focus_tests::configure_offline_fixture(&mut workspace);
+    let current = workspace
+        .skills()
+        .unwrap()
+        .into_iter()
+        .find(|package| package.id == "maintain-notes")
+        .expect("the packaged maintenance skill is in the current inventory");
+    let stale_digest = "0000000000000000000000000000000000000000000000000000000000000001";
+    let op = workspace
+        .store
+        .allocate_operation("native-skill-stale-binding")
+        .unwrap();
+    workspace
+        .store
+        .change_skill_policy(
+            &op,
+            &brn_threads_app::SkillPolicyChange::Set(brn_threads_app::SkillBinding {
+                id: current.id.clone(),
+                digest: stale_digest.into(),
+                project: None,
+                enabled: true,
+                selected: true,
+            }),
+            &brn_threads_app::HostAuthority::owner("synthetic stale skill policy fixture"),
+        )
+        .unwrap();
+    let project = workspace
+        .project_command(
+            "native-stale-skill-project",
+            ProjectCommand::Create {
+                title: "Scope-change fixture".into(),
+            },
+        )
+        .unwrap()
+        .writes[0]
+        .after
+        .id
+        .clone();
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(
+            WindowOptions {
+                window_bounds: Some(WindowBounds::Windowed(Bounds::new(
+                    point(px(0.), px(0.)),
+                    size(px(1400.), px(1600.)),
+                ))),
+                ..Default::default()
+            },
+            cx,
+            |window, cx| {
+                cx.new(|cx| {
+                    let mut ui = ThreadsUi::new(workspace, data.clone(), window, cx);
+                    ui.poll = None;
+                    ui.layout.open(TileKind::Settings);
+                    ui.settings_section = SettingsSection::Skills;
+                    ui
+                })
+            },
+        )
+        .unwrap()
+    });
+    cx.run_until_parked();
+
+    cx.update_window(window, |_, window, cx| {
+        let inspect = window.find("skill-inspect-maintain-notes");
+        assert_ne!(inspect.disabled(), Some(true));
+        assert!(window.find("skill-adopt-current-maintain-notes").visible());
+        assert_eq!(
+            window.find("skill-enable-maintain-notes").label(),
+            Some("Disable"),
+            "the former Enable action cannot adopt a different digest"
+        );
+        view.update(cx, |ui, _| {
+            let row = ui
+                .skill_view
+                .rows
+                .iter()
+                .find(|row| row.id == current.id)
+                .unwrap();
+            assert!(!row.available && row.enabled && row.selected);
+            assert!(
+                ui.skill_view
+                    .inventory
+                    .iter()
+                    .any(|package| package.id == current.id && package.digest == current.digest)
+            );
+            assert_eq!(
+                ui.workspace
+                    .settings()
+                    .unwrap()
+                    .skills
+                    .into_iter()
+                    .find(|binding| binding.id == current.id && binding.project.is_none())
+                    .unwrap()
+                    .digest,
+                stale_digest
+            );
+        });
+        window.click("skill-inspect-maintain-notes", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, entity_cx| {
+            let inspection = ui.skill_view.inspection.as_ref().unwrap();
+            assert!(inspection.contains(&current.digest));
+            assert!(inspection.contains("Reviewing a mechanical knowledge check"));
+            let before = ui.workspace.settings().unwrap().skills;
+            ui.force_refresh_skills();
+            assert_eq!(ui.workspace.settings().unwrap().skills, before);
+
+            ui.selected_project = Some(project.clone());
+            ui.refresh_skills();
+            ui.skill_action(
+                skills_view::SkillAction::AdoptCurrent,
+                &current.id,
+                &current.digest,
+                None,
+                entity_cx,
+            );
+            assert_eq!(ui.workspace.settings().unwrap().skills, before);
+
+            ui.selected_project = None;
+            ui.refresh_skills();
+            ui.skill_action(
+                skills_view::SkillAction::AdoptCurrent,
+                &current.id,
+                stale_digest,
+                None,
+                entity_cx,
+            );
+            assert_eq!(ui.workspace.settings().unwrap().skills, before);
+        });
+        window.render_frame(cx);
+        window.click("skill-adopt-current-maintain-notes", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+
+    cx.update_window(window, |_, _, cx| {
+        view.update(cx, |ui, _| {
+            let binding = ui
+                .workspace
+                .settings()
+                .unwrap()
+                .skills
+                .into_iter()
+                .find(|binding| binding.id == current.id && binding.project.is_none())
+                .unwrap();
+            assert_eq!(binding.digest, current.digest);
+            assert!(binding.enabled);
+            assert!(
+                !binding.selected,
+                "enable does not select or load the skill"
+            );
+        });
+    })
+    .unwrap();
+}

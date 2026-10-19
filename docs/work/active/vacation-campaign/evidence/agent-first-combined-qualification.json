@@ -1,0 +1,328 @@
+{
+  "observed_at_utc": "2026-10-19T10:29:39.513622+00:00",
+  "source": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+  "tree": "53085dac80d44c313603b874efad64d581943e0c",
+  "purpose": "Combined M0/schema/M1/M2 plus explicit skill version UI, exact source matches independently approved component candidates.",
+  "results": {
+    "runtime": "505 passed/0 failed/2 ignored",
+    "native_state": "327 passed/0 failed/1 ignored",
+    "cli_agent_runs": "15 passed/0 failed/0 ignored",
+    "app_journeys": "8 passed/0 failed/0 ignored",
+    "strict_native_all_target_clippy": "passed",
+    "full_format": "passed",
+    "production_native_ui_only_build": "passed"
+  },
+  "checks": [
+    {
+      "name": "runtime",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1"
+      ],
+      "started": 1792405378.410298,
+      "finished": 1792405506.8590689,
+      "exit_code": 0,
+      "log_sha256": "28188829aff6149182e84d6f0a05f5a37cd93db94a4ac4d8274380c0fcc78c50",
+      "identity": "source.json"
+    },
+    {
+      "name": "native",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--bin",
+        "brn-desktop",
+        "--jobs",
+        "1"
+      ],
+      "started": 1792405506.877877,
+      "finished": 1792405576.436776,
+      "exit_code": 0,
+      "log_sha256": "ff5721de87ebc559ff23a227caf26dd1108426a26bebba284c63f609e8afa6fd",
+      "identity": "source.json"
+    },
+    {
+      "name": "cli-agent-runs",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "agent_runs",
+        "--jobs",
+        "1"
+      ],
+      "started": 1792405576.448405,
+      "finished": 1792405632.796911,
+      "exit_code": 0,
+      "log_sha256": "6d8b7fedce8926e9b2167494b77fd46dc9b25bb0391d4f8479130d1b262074ef",
+      "identity": "source.json"
+    },
+    {
+      "name": "app-journeys",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-threads-app",
+        "--test",
+        "agent_eval_journeys",
+        "--jobs",
+        "1"
+      ],
+      "started": 1792405632.806116,
+      "finished": 1792405678.706752,
+      "exit_code": 0,
+      "log_sha256": "6bb867d02a948e1b5c201bdbfc8c27a401d4cbc694bc7e913fbb22fb41f81879",
+      "identity": "source.json"
+    },
+    {
+      "name": "native-clippy",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--all-targets",
+        "--features",
+        "native-ui,native-test-support",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started": 1792405678.715976,
+      "finished": 1792405686.052465,
+      "exit_code": 0,
+      "log_sha256": "ccad11a94c2c6c44792c0710bf8f1b2aa3ffbeed89ca469dd92f0bd11aeb41bc",
+      "identity": "source.json"
+    },
+    {
+      "name": "format",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "started": 1792405686.062081,
+      "finished": 1792405687.506738,
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identity": "source.json"
+    },
+    {
+      "name": "production",
+      "head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+      "tree": "53085dac80d44c313603b874efad64d581943e0c",
+      "command": [
+        "rustup",
+        "run",
+        "1.98.1",
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui",
+        "--jobs",
+        "1"
+      ],
+      "started": 1792405687.515768,
+      "finished": 1792405701.647617,
+      "exit_code": 0,
+      "log_sha256": "b8f9996585c199676aa42eff17059b3be1b200d2ab8fd336d9139d4ee8987724",
+      "identity": "source.json"
+    }
+  ],
+  "artifact": {
+    "source_head": "19efe879a5c364e6b5fe144df66ce3aced85aef1",
+    "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/agent-first-combined-evidence/brn-desktop-19efe879",
+    "sha256": "a5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a",
+    "features": "native-ui only; production without native-test-support"
+  },
+  "records": [
+    {
+      "source": "app-journeys.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/app-journeys.json.gz",
+      "bytes": 520,
+      "sha256": "4465443eada67f669d5ef98f296d600f687b3b280221ed90f6d172d6fe043021",
+      "archive_sha256": "7a49cbe0a7abe085d664ecc60ee478ebf219330f50b31519121364b555fd37d5"
+    },
+    {
+      "source": "app-journeys.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/app-journeys.log.gz",
+      "bytes": 940,
+      "sha256": "6bb867d02a948e1b5c201bdbfc8c27a401d4cbc694bc7e913fbb22fb41f81879",
+      "archive_sha256": "42141afb2c3c62bc335399da2803c3f6bd730e4bd460252f014c3e4f1ae2c12d"
+    },
+    {
+      "source": "artifact.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/artifact.json.gz",
+      "bytes": 334,
+      "sha256": "f52f3c6242d8352a0a701005731356b2d70c0a486e6b16c3157a7b6bddd37111",
+      "archive_sha256": "38f3a7456177bcd4c5a980bc56021509b22dd827204e9f8749a6a7115138d939"
+    },
+    {
+      "source": "cli-agent-runs.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/cli-agent-runs.json.gz",
+      "bytes": 499,
+      "sha256": "afcee3b1cba6190d41d9f2d231c9a51ee2e4271ad75bc888b58d4c5f70da07b0",
+      "archive_sha256": "dac8b28c728ffeaac7b66e72d67d9cc2f613263253bc17dad5522a8ef12ee2c3"
+    },
+    {
+      "source": "cli-agent-runs.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/cli-agent-runs.log.gz",
+      "bytes": 1494,
+      "sha256": "6d8b7fedce8926e9b2167494b77fd46dc9b25bb0391d4f8479130d1b262074ef",
+      "archive_sha256": "5d79a1bc3bf0104cab44a5f0b8572a5490b6c26ff19712caa63b85ab8be3d5fa"
+    },
+    {
+      "source": "format.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/format.json.gz",
+      "bytes": 427,
+      "sha256": "b6a74788c7cb191728ff924a9112727b53d6e73228e3a31463ed4940004f4298",
+      "archive_sha256": "cfa21776d8cf872c0b972fbd13d1cdc0b41b119fb78f0e3443c939e42b993011"
+    },
+    {
+      "source": "format.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/format.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "native-clippy.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/native-clippy.json.gz",
+      "bytes": 589,
+      "sha256": "d9b700a7f79ade9bef5d2580cba8453729084e6079db0bc58e3720c218ba54cd",
+      "archive_sha256": "b36179e7471de3b7ef22541b78e132d221a4bb4eb3c47e000f775f2a840be254"
+    },
+    {
+      "source": "native-clippy.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/native-clippy.log.gz",
+      "bytes": 771,
+      "sha256": "ccad11a94c2c6c44792c0710bf8f1b2aa3ffbeed89ca469dd92f0bd11aeb41bc",
+      "archive_sha256": "e2b8092637f961fab565f4825cce4c934573d7ab0c974204f25f6ef14b189925"
+    },
+    {
+      "source": "native.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/native.json.gz",
+      "bytes": 562,
+      "sha256": "1f54e888e8dad46500c26659fefee8e19772aeabcf0f772af8b2d48adf83507e",
+      "archive_sha256": "f2447ea61dcb81cec81a62fa33dfccfc6a113f8ef05dfaf8bb1ee020d6aaf500"
+    },
+    {
+      "source": "native.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/native.log.gz",
+      "bytes": 33832,
+      "sha256": "ff5721de87ebc559ff23a227caf26dd1108426a26bebba284c63f609e8afa6fd",
+      "archive_sha256": "87818a641c15198d404b3076cd87f98621fe6631ab6f558765b5636fc147c92b"
+    },
+    {
+      "source": "production.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/production.json.gz",
+      "bytes": 511,
+      "sha256": "a090a71960956d5a7ed02b49840d74671d96ea9287ee786532c3be49f3cc353f",
+      "archive_sha256": "107e662f957e5dbba6eb94a1d223e947a14a3b7cb123551ac5285e31bd18e6a6"
+    },
+    {
+      "source": "production.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/production.log.gz",
+      "bytes": 772,
+      "sha256": "b8f9996585c199676aa42eff17059b3be1b200d2ab8fd336d9139d4ee8987724",
+      "archive_sha256": "705bce78aeabe31c41736abfee048378d3fac3cdde712a816c559188c9d3251e"
+    },
+    {
+      "source": "run.py",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/run.py.gz",
+      "bytes": 3519,
+      "sha256": "97ed68e87e5d3019bbefcc18da36161d0699d5541cabe5754cf401092e15d593",
+      "archive_sha256": "7934f0a133723aeafeb07753335646755edbb0a1dbcf34ae75cb14bc8c59b71c"
+    },
+    {
+      "source": "runtime.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/runtime.json.gz",
+      "bytes": 523,
+      "sha256": "08a305c1cdd6db3fa5f8c2bebf5435dcc5d32de4ff270222af8efa9f3dfdb5e4",
+      "archive_sha256": "9e4cc338db931c55782bde058b7e2f5064719a5f4d0cf5e40f492bfd790258af"
+    },
+    {
+      "source": "runtime.log",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/runtime.log.gz",
+      "bytes": 53243,
+      "sha256": "28188829aff6149182e84d6f0a05f5a37cd93db94a4ac4d8274380c0fcc78c50",
+      "archive_sha256": "7ab897add7d3cb86bc9b71f38c0bf754468e57392c29166ecfdd1119d39e56dd"
+    },
+    {
+      "source": "source.json",
+      "path": "docs/work/active/vacation-campaign/evidence/agent-first-combined/source.json.gz",
+      "bytes": 41709,
+      "sha256": "50be15ed01fbf99139ef7075c2828de68320468d397ec9df0619924ca45441d0",
+      "archive_sha256": "5bd47899747c0c337f6007d35238f0f28722f87e793e16777be1f086c758781f"
+    }
+  ],
+  "limits": [
+    "No actual OS/native interaction or owner acceptance. Native-test-support is state/control-wiring evidence only.",
+    "Controlled synthetic provider/loopback requests establish behavior and encoding, not real model usefulness.",
+    "Existing block0.1.6 future-incompatibility warning retained. No suppression or dependency churn.",
+    "Hosted exact-head and resulting-main remain separate.",
+    "No optional capability-spike feature qualification added; M1 changes production Threads hooks."
+  ]
+}

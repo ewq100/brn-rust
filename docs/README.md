@@ -9,6 +9,7 @@ The [Threads target](architecture/threads-target.md) owns product and architectu
 | Actual progress and remaining gates | [Status](status.md), [roadmap](roadmap.md) |
 | Current assignment | Current user instruction and [status snapshot](status.md); proposed programs in the [build sequence](work/active/build-sequence/README.md) do not assign work |
 | Machine, checks and integration | [Setup](development/setup.md), [verification](development/verification.md), [tooling](development/tooling.md), [workflow](development/workflow.md) |
+| Selected agent-first workstream | [Owner plan](work/active/agent-first-simplification/plan.md), [current reconciliation](work/active/agent-first-simplification/reconciliation.md); execute within the existing Mac campaign |
 | Codebase health and design review | [Strategic programming](development/strategic-programming.md) |
 | Component contracts | READMEs in the workspace crates listed by [Cargo.toml](../Cargo.toml) |
 | Historical plans, reviews and proofs | [Archive index](archive/README.md) |

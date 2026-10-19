@@ -112,6 +112,19 @@ The packaged [base guide](../../agent/BRN.md) is the runtime instruction source.
 
 Each skill should include one ordinary success example and a few relevant boundaries. New semantic behavior should usually require guidance and scenario examples, not new persistent workflow types.
 
+### Mechanical knowledge review and repair guidance
+
+The selected agent-first M2 candidate keeps structural findings, exact record
+identities/versions, scoped details, counts and omission bounds in the host. Its
+bounded review message directs the agent to maintain-notes and explicitly says
+that recorded structure/versions/coverage do not establish truth or require a
+repair. Reusable repair prescriptions live in that existing skill, with authority,
+conflict, exact-version and checked-write rules preserved. Similarity/orphan hints
+are leads, not semantic conclusions. Earlier bundle10 seeded-remedy text above is
+history; [current source qualification](../work/active/agent-first-simplification/knowledge-guidance.md)
+distinguishes the candidate from pending hosted/native/live/owner gates. Exact
+prior skill-digest bindings are never automatically reapproved.
+
 ## Tools, authority, and continuation
 
 Expose a small capability vocabulary: search/read current records; inspect an available source; prepare/apply a grouped change; add thread context or attention; inspect history; and request compensation. Mutating thread and Action operations use the same service as note writes. Exact Rust signatures belong in the core implementation, rather than another duplicated schema here.
@@ -145,7 +158,7 @@ The core, provider runtime, packaged guides and Phase 0/1 hardening are implemen
 
 ## Implemented response and authority contract
 
-Production uses published Rig 0.44.0. Streamed text/events update provisional UI. The successful structured final response replaces that preview and supplies the one host-owned assistant Message. Intermediate tool-loop text is not a second saved answer. Failed, interrupted, token-truncated or unknown termination remains partial progress; EOF cannot create completion. Preview and final answer both have a 128 KiB bound. Invalid/unknown calls and malformed arguments never dispatch, including other otherwise valid calls in the same proposed batch. Retry budgets are explicitly zero, tool rounds default to eight with a bounded final turn, and unknown finish reasons are rejected.
+Production uses published Rig 0.44.0. Streamed text/events update provisional UI. The successful structured final response replaces that preview and supplies the one host-owned assistant Message. Intermediate tool-loop text is not a second saved answer. Failed, interrupted, token-truncated or unknown termination remains partial progress; EOF cannot create completion. Preview and final answer both have a 128 KiB bound. Invalid/unknown calls and malformed arguments never dispatch, including other otherwise valid calls in the same proposed batch. Eligible argument mistakes on known offered tools may receive up to two correction-feedback batches per invocation, consuming the existing tool/model/context/time limits. Every sibling is skipped before effects, traces or external grant spending; an intervening valid turn does not replenish the allowance. Unknown/unoffered calls, protocol errors and identifiable policy refusals still stop, including combined shape/policy faults. Provider/protocol retry budgets remain zero, tool rounds default to eight with a bounded final turn, and unknown finish reasons are rejected. [M1 qualification](../work/active/agent-first-simplification/argument-correction.md) records deterministic evidence and live/native limits.
 
 Ordinary working-note maintenance remains permitted after the owner explicitly selects it and while it is enabled. Fresh or legacy unchosen Settings remain pending: show the two policy choices on Home/Settings, retain manual work and scoped direct instructions, and require a choice before Resume. Review-first selection produces candidates for owner review; it does not grant standing application. Provider configuration never selects delegation. A protected content edit uses the contextual **Edit note** dialog: target ID, displayed version, separate owner instruction, content-edit class, actual owner Message identity and current run/settings fence. Dirty, recoverable or stale notes and pending/busy work refuse that action; ordinary chat/queue/Steer add no extra grant. **Save as decision** on a completed saved reply lets the owner review/edit title and text, then explicitly retains the exact reviewed content in general BRN as a protected, confirmed note linked to its chat, with source-message/version provenance, checked replay and Undo. It neither invokes a model nor promotes the chat or its documents; private figures must be retained explicitly or removed from the reviewed text. Cancel makes no change. CLI `ask --edit-note ID --base VERSION` and `ask --record-decision yes` keep their scoped invocation grants; the latter permits one new confirmed protected decision and binds its concrete target once prepared. The text may be normal English or Estonian; there is no magic phrase. Sources, quotations and historical messages cannot create these host modes. The grant expires with that invocation; Continue carries no old grant. Existing deterministic policy still invalidates prior confirmation when accepted content changes; a content grant is not a new confirmation or permission to unprotect/archive.
 
@@ -181,3 +194,11 @@ The optional client is disabled by default and supports one anonymous literal-lo
 An invocation offers at most one exact tool/input after a separate transient owner review attached to its single durable prepared Run. That private capability is not serializable, is bound to current instruction/context/settings and exact Run fence, and is freshly checked at transport dispatch. No grant means no MCP tools or connection, preserving unrelated local-note work. Continue/reopen/restore cannot recover a grant, nor can skills, summaries, prose or server results grant it. A lazy skill load that changes the fence requires new owner authorization; there is no silent refresh. Catalogue identity is frozen before first provider dispatch and counted in whole-request admission. Invalid batches refuse before local or network effects.
 
 Remote data remains untrusted and does not establish a complete source read or BRN write authority. The SDK owns sessions/deadlines/cancellation; bounded cleanup and late-result fences do not prove remote processing stopped or was undone. Canonical policy/digests survive SQLite backup, while reviewed arguments, active grants, sessions and raw tool transcripts are not automatically archived. A model-authored saved reply may legitimately quote received data under ordinary message behavior; raw-transcript exclusion does not promise otherwise. Native review is transient, scope/policy/run-bound and never an autosaved draft.
+
+Bundle `brn-threads-guidance-15` documents bounded pre-effect argument correction. It changes no receipt/replay, helper, protection or review authority.
+
+The desktop skill list can inspect validated current bytes for an unavailable old
+exact binding. Its explicit Enable current version action rechecks the captured
+current digest and scope through the checked service, then leaves selection off.
+Refresh never rebinds approved bytes. Missing/corrupt packages stay unavailable;
+see [reapproval qualification](../work/active/agent-first-simplification/skill-reapproval.md).

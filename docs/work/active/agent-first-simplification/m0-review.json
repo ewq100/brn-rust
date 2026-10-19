@@ -1,0 +1,25 @@
+{
+  "candidate": "527d47679adef0c1cf2dfe83869eb14d590b1c39",
+  "baseline": "9000ae663ff7349a62c3bcfdac5e13418e256601",
+  "complete_diff_sha256": "3b7bb9e90f86e8131f6fb3974c05e034d3749997164142801462d40843110a76",
+  "reviewer": "Independent ci_native_prep_review, requested gpt-6.1-sol high; effective configuration not exposed",
+  "result": "Approved; no remaining actionable findings",
+  "dispositions": [
+    {
+      "severity": "P2",
+      "finding": "Restart/status entry points were stale after PR169/PR170.",
+      "status": "valid/fixed",
+      "resolution": "Latest main, frozenPR170 and current branch/M1/M2 ownership are reconciled in status/checkpoint/campaign."
+    },
+    {
+      "severity": "P3",
+      "finding": "Existing inventory lacked owner-requested keep/simplify/reuse/defer map.",
+      "status": "valid/fixed",
+      "resolution": "Bounded existing-ID map with reasons added to workflows.md; no new inventory/framework."
+    }
+  ],
+  "owner_source_sha256": "b4da3eb9955f516f2445fadb3fe8b10100553cc0bd4e5db059ac62e663d9b742",
+  "owner_source_bytes": 42199,
+  "scope": "Complete M0 rules/plan/reconciliation/current schema docs and five expectation/comment test changes. All13 upgrade records verified. No production Rust/manifests/locks/toolchain/CI delta.",
+  "limits": "Read-only source/record review; no rerun. Actual source5-to-current upgrade proof is not every older schema/platform, native or live-model acceptance. Hosted integration separate."
+}

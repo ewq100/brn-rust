@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`e583a177ad44b0536be9140b5c845a5dd8a8aa75` (PR168).
+`d7f48e6caa3c200fba931ef75df0012171cd0ed3` (PR170; resulting-main gate pending).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -43,7 +43,7 @@ completion. Existing metadata labels and exact approval destination remain autho
 no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
 at0f; later274/integrateda593 differs only in one test comment. Independent receipt verification passed. PR169 merged normally as e1c0ddaf from
 fixed63b0b0eb after all four required39230048849 jobs passed; optional Windows Core
-failed. Resulting-main39232087600 verification remains pending;
+failed. All four required resulting-main39232087600 jobs passed; optional Windows jobs failed;
 [its receipt](work/active/vacation-campaign/evidence/pr169-integration.json) retains separate gates.
 Project-dialog, remaining-picker, Action/Undo and comment source audits found no
 justified further change; existing distinct tests remain.
@@ -65,3 +65,13 @@ remain lower priority.
 older results. Current campaign records and Git history retain19October's detailed
 source/check receipts without duplicating them in this snapshot. Historical plans
 do not grant new authority.
+
+## Selected agent-first workstream
+
+The owner selected [the supplied agent-first plan](work/active/agent-first-simplification/plan.md)
+inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
+records independently approved M0 rules and M1 bounded tool-argument correction
+independently source-approved and locally verified (runtime505/0/2, strict lint/format);
+combined19efe runtime505/desktop327/CLI15/journeys8, strict native lint/format and production build passed; hosted gates remain. M2 structural findings/skill policy is independently reviewed
+and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. Explicit skill version adoption is also reviewed and locally qualified. M3 exact local edit and M4 selected feedback review are under bounded implementation; broader artifact execution is conditional. No new live/private-data or
+release authority follows, and no native usability or owner acceptance is claimed.

@@ -1,14 +1,13 @@
 # Mac vacation hardening continuation
 
-Updated 19 October2026. Current maine1c0ddaf is PR169, merged normally after all
-four required exact-head checks passed. Its resulting-main39232087600 checks remain
-pending. PR168 and earlier required head/main checks passed; optional Windows
-failures remain explicit. Lead checkout:
+Updated19October2026. Current main d7f48e6c is PR170, normally merged from
+checked9000 after all four required head checks passed; resulting-main is pending.
+PR169 main39232087600 and earlier required head/main checks passed; optional
+Windows failures remain explicit. Lead checkout:
 `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/hardening-native-prep`, app sourcea59315a1 matching worker274.
-Main matches that qualified app source; qualified0f differs only in one test comment.
-Its immutable production artifact remains source-valid. Preserve unrelated work.
-[Current checkpoint](checkpoint.md) owns active jobs and next action.
+`codex/hardening-maintenance`. M0/schema/M1/M2 source is locally reviewed/qualified
+with combined and hosted gates still pending; old production0f cannot qualify this
+new source. [Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
 
@@ -83,6 +82,19 @@ Continue useful authorized batches inside the active session. Near5% remaining,
 checkpoint and use the recovery schedule around the constraining reset; quota pauses
 can move these phases. Daily records track actual outcomes and gaps, not a promise
 of features or uninterrupted host availability. No release is included.
+
+## Selected agent-first workstream,19October
+
+The owner supplied and selected [the agent-first plan](../agent-first-simplification/plan.md).
+[Reconciliation](../agent-first-simplification/reconciliation.md) places it inside
+this campaign, retaining expiry/resources/native/integration gates. Its M1 bounded
+pre-effect tool correction and M2 factual-check/skill-guidance separation now take
+priority over speculative broad state conversion. Finish already owned small
+maintenance/integration gates safely; do not redo merged worker/notice/reference/MCP
+work. M3 exact local edits and M4 consistent instruction/review follow; M5 broader
+capability is conditional. Current authorities exclude live/provider/private-data
+activation. The original roadmap is preserved history, with these live priorities
+superseding its conflicting Cloud-first or all-domain assumptions.
 
 ## First implementation slice: worker identity
 
@@ -178,7 +190,7 @@ capability-spike lint/format pass. Export's candidate-only mutation fails its in
 status assertion. Reference search additionally has an exact retained test replay
 failing on byte-exact old production, then passing after exact frozen restoration.
 Source/hash/log receipts retain their limits; no old-source export or OS transport
-failure is claimed. No local writer/builder is active.
+failure is claimed. Current writers/build ownership are recorded in the checkpoint.
 
 Final independent Luna receipt audit passed, and complete staged candidate whitespace
 check passed. The coherent candidate merged normally as PR168, e583a177, after fixed7c21713b
@@ -207,6 +219,7 @@ bypass is claimed. Final focused14/14, native326/0/1, strict lint/format and pro
 build pass. The valid P3 witness finding is fixed; redundant subscription state was
 removed after a diagnostic survivor. Exact baseline v2 failure and restored14 pass
 are recorded. Independent Luna audited65 raw/archive records and the explicit
-metadata correction; no receipt blocker remains. PR169 is published/attached at fixed63b0b0eb on codex/hardening-next, required
-run39230048849 running. Keep that checked head fixed; later work uses the lead
-branch above. No source writer or local builder is active.
+metadata correction; no receipt blocker remains. PR169 merged normally and all four required main39232087600 jobs passed; optional
+Windows jobs failed. PR170 merged atd7f48e6c after all four required head jobs passed;
+its main gate remains separate. Follow the current checkpoint for active writers
+and pending combined M0/schema/M1/M2 qualification rather than this dated source history.

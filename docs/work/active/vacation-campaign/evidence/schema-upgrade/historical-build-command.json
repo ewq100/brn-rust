@@ -1,0 +1,23 @@
+{
+  "source": "fb1b21001abdaa23687c068ec0b7617c38119ffd",
+  "command": [
+    "cargo",
+    "build",
+    "--manifest-path",
+    "/Users/evokessler/.codex/worktrees/notice-state/schema-upgrade-evidence/source-fb1b2100/Cargo.toml",
+    "-p",
+    "brn",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "started_at": "2026-10-19T09:46:31.489786+00:00",
+  "env": {
+    "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "RUST_TEST_THREADS": "1"
+  }
+}

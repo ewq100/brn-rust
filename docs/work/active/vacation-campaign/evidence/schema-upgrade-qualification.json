@@ -1,0 +1,113 @@
+{
+  "baseline": "9000ae663ff7349a62c3bcfdac5e13418e256601",
+  "worker": "97b5fbda1825665e1f294c579aa2b2958b15b6ad",
+  "lead_candidate": "93673ac5",
+  "historical_source": "fb1b21001abdaa23687c068ec0b7617c38119ffd",
+  "historical_lock_sha256": "478792553b19f956ec1945b664243da80a5263860069b3297c5d34e43aa9fd27",
+  "toolchain": "Rust1.98.1, each source locked/offline, jobs1, shared target; CARGO_INCREMENTAL=0/dev+testdebug0/RUST_TEST_THREADS=1",
+  "historical_build_exit": 0,
+  "historical_cli": "/Users/evokessler/.codex/worktrees/notice-state/schema-upgrade-evidence/artifacts/brn-fb1b2100",
+  "historical_cli_sha256": "eb2e1e77ab3e63776cd6286d75a46a965039162b02941942a68f404181199b35",
+  "fixture": "Real historical CLI init/note-create/begin-edit; no raw SQLite fixture mutation. Header version read asserts source5 before currentCLI calls. Fresh isolated synthetic test roots.",
+  "baseline_result": {
+    "exit": 101,
+    "passed": 0,
+    "failed": 4,
+    "reason": "Compiled tests reached intended semantic assertion differences: current required/upgraded schema10 versus stale9."
+  },
+  "candidate_result": {
+    "exit": 0,
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "seconds": 0.55
+  },
+  "candidate_clippy_exit": 0,
+  "candidate_format_exit": 0,
+  "scope": "Only five explicit current-schema expectation/comment sites change9\u219210; all historical schema5, byte-preservation, no-mutation refusal, dirty-edit refusal, backup/readability/restore, Save/replay and old-executable refusal assertions retained. No production code or schema change.",
+  "records": [
+    {
+      "name": "baseline-command.json",
+      "raw_bytes": 685,
+      "raw_sha256": "cafd5cda473cf5f67c1e4f3fd0c539fd638625d4ee43aeb86d34239b0518f277",
+      "archive_sha256": "cafd5cda473cf5f67c1e4f3fd0c539fd638625d4ee43aeb86d34239b0518f277"
+    },
+    {
+      "name": "baseline.exit",
+      "raw_bytes": 4,
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "archive_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c"
+    },
+    {
+      "name": "baseline.log.gz",
+      "raw_bytes": 3103,
+      "raw_sha256": "c1cfeccf762b1a2043fe6c394be0dcfb2561f615b7f0529fc1f1b95d92e46862",
+      "archive_sha256": "e0630eff0853682f34edce9669bb63c4d2b16834731ce91ab913fc579f73d0c0"
+    },
+    {
+      "name": "candidate-clippy.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "candidate-clippy.log.gz",
+      "raw_bytes": 1458,
+      "raw_sha256": "b15f51de0cd5616b10f46586c16acaf5d242c5a80de52583bbc681dd5736a461",
+      "archive_sha256": "20bc146422fe9c496756a4520df5a673640034e24a2656dccf447d5030d3f587"
+    },
+    {
+      "name": "candidate-commands.json",
+      "raw_bytes": 1041,
+      "raw_sha256": "bbebfcae4838d07eafe0405d25ba2a606f1ec47f3d23e5b08daaea55fa58e55b",
+      "archive_sha256": "bbebfcae4838d07eafe0405d25ba2a606f1ec47f3d23e5b08daaea55fa58e55b"
+    },
+    {
+      "name": "candidate-format.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "candidate-format.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "name": "candidate-test.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "candidate-test.log.gz",
+      "raw_bytes": 634,
+      "raw_sha256": "a9e63faea55d0fdf9de471bf4795d35be01a1e8411bfd7458999c5ea675bafe3",
+      "archive_sha256": "682faa197906c360a15995707e9c29a1c2833af1a78406475dffb4baae6fe0c0"
+    },
+    {
+      "name": "historical-build-command.json",
+      "raw_bytes": 607,
+      "raw_sha256": "11fa066a47e643df084c9852f3191ba7e3a5d23faeeab28220a2c41dbc44499a",
+      "archive_sha256": "11fa066a47e643df084c9852f3191ba7e3a5d23faeeab28220a2c41dbc44499a"
+    },
+    {
+      "name": "historical-build.exit",
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "archive_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "historical-build.log.gz",
+      "raw_bytes": 3701,
+      "raw_sha256": "073256b1b4c529100ecd426ea208a568bddb8991a43f215974796dfdbfe10c86",
+      "archive_sha256": "6dd0af8a916a60ce31800c10e2175cc000f46b14cb65db134d5472a6b4749e9d"
+    }
+  ],
+  "limits": [
+    "Optional family still requires AGENT_CONTRACT_SCHEMA5_BIN; an unset-variable early return is not executed old-data qualification.",
+    "No live provider, ownerdata, native input, new release or all-version/platform claim.",
+    "All four tests use source5; this is not a genuine source9 executable qualification."
+  ]
+}

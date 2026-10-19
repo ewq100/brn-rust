@@ -10,6 +10,8 @@ pub(super) struct SkillView {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub rows: Vec<SkillStatus>,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
+    pub(super) inventory: Vec<SkillPackageInfo>,
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub inspection: Option<String>,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub error: Option<String>,
@@ -24,6 +26,7 @@ struct SkillStamp {
 #[derive(Clone, Copy)]
 pub(super) enum SkillAction {
     Enable,
+    AdoptCurrent,
     Disable,
     Select,
     Clear,
@@ -85,6 +88,7 @@ impl ThreadsUi {
                 SkillView {
                     project,
                     rows,
+                    inventory,
                     inspection,
                     loaded,
                     error,
@@ -99,7 +103,7 @@ impl ThreadsUi {
         };
     }
     #[cfg(any(target_os = "macos", target_os = "linux"))]
-    fn force_refresh_skills(&mut self) {
+    pub(super) fn force_refresh_skills(&mut self) {
         self.skill_view.stamp = None;
         self.refresh_skills();
     }
@@ -126,19 +130,33 @@ impl ThreadsUi {
             return;
         }
         let result = match action {
-            SkillAction::Enable | SkillAction::Disable => self.workspace.set_skill_enabled(id,digest,project.as_deref(),matches!(action,SkillAction::Enable)).map(|_|()),
+            SkillAction::Enable | SkillAction::AdoptCurrent | SkillAction::Disable => self
+                .workspace
+                .set_skill_enabled(
+                    id,
+                    digest,
+                    project.as_deref(),
+                    matches!(action, SkillAction::Enable | SkillAction::AdoptCurrent),
+                )
+                .map(|_| ()),
             SkillAction::Select => self.workspace.select_skill(Some(id),project.as_deref()).map(|_|()),
             SkillAction::Clear => self.workspace.select_skill(None,project.as_deref()).map(|_|()),
             SkillAction::Remove => self.workspace.remove_skill(id.strip_prefix("installed:").unwrap_or(id),digest).map(|_|()),
-            SkillAction::Inspect => self.workspace.inspect_skill(id.strip_prefix("installed:").unwrap_or(id)).map(|p| {
+            SkillAction::Inspect => self.workspace.inspect_skill(id.strip_prefix("installed:").unwrap_or(id)).and_then(|p| {
+                if p.info.digest != digest {
+                    return Err(brn_threads_app::AppError::Invalid(
+                        "Current skill package changed since this view was rendered. Refresh and inspect again.".into(),
+                    ));
+                }
                 // Plain text only; bounded preview explicitly labels omission.
                 let text=serde_json::to_string_pretty(&p).unwrap_or_default();
                 self.skill_view.inspection=Some(if text.len() <= 8192 {text} else {format!("{}\n[Inspection preview truncated at 8192 UTF-8 bytes; exact package remains unchanged.]",truncate_skill(&text,8192))});
+                Ok(())
             }),
         };
         match result {
             Ok(()) => {
-                if matches!(action, SkillAction::Remove) {
+                if matches!(action, SkillAction::Remove | SkillAction::AdoptCurrent) {
                     self.skill_view.stamp = None;
                 }
                 self.refresh();
@@ -246,6 +264,12 @@ impl ThreadsUi {
         }
         if self.skill_view.project == project {
             for skill in &self.skill_view.rows {
+                let current_package = self
+                    .skill_view
+                    .inventory
+                    .iter()
+                    .find(|package| package.id == skill.id);
+                let stale_digest = current_package.filter(|package| package.digest != skill.digest);
                 let mut item = div()
                     .id(format!("skill-row-{}", skill.id))
                     .flex()
@@ -253,13 +277,24 @@ impl ThreadsUi {
                     .gap_1()
                     .child(section(skill.id.clone()))
                     .child(metadata(format!(
-                        "{} · {} · {}{}",
+                        "{} · {} · Approved digest: {}{}",
                         skill.origin,
                         if skill.enabled { "enabled" } else { "disabled" },
                         skill.digest,
                         if skill.selected { " · selected" } else { "" }
                     )))
                     .child(metadata(skill.description.clone()));
+                if let Some(package) = current_package {
+                    item = item.child(metadata(format!(
+                        "Current package digest: {}{}",
+                        package.digest,
+                        if stale_digest.is_some() {
+                            " · differs from approved digest"
+                        } else {
+                            ""
+                        }
+                    )));
+                }
                 if let Some(reason) = &skill.unavailable {
                     item = item.child(metadata(reason.clone()));
                 }
@@ -276,6 +311,13 @@ impl ThreadsUi {
                         if skill.enabled { "Disable" } else { "Enable" },
                     ),
                 ];
+                if stale_digest.is_some() {
+                    choices.push((
+                        SkillAction::AdoptCurrent,
+                        "adopt-current",
+                        "Enable current version",
+                    ));
+                }
                 if skill.id.starts_with("installed:") {
                     choices.push((
                         SkillAction::Remove,
@@ -284,12 +326,24 @@ impl ThreadsUi {
                     ));
                 }
                 for (action, key, label) in choices {
-                    let (id, digest, scope) =
-                        (skill.id.clone(), skill.digest.clone(), project.clone());
+                    let digest =
+                        if matches!(action, SkillAction::AdoptCurrent | SkillAction::Inspect) {
+                            current_package.map_or_else(
+                                || skill.digest.clone(),
+                                |package| package.digest.clone(),
+                            )
+                        } else {
+                            skill.digest.clone()
+                        };
+                    let (id, scope) = (skill.id.clone(), project.clone());
                     actions = actions.child(
                         button(format!("skill-{key}-{}", skill.id))
                             .label(label)
-                            .disabled(!skill.available && !matches!(action, SkillAction::Disable))
+                            .disabled(match action {
+                                SkillAction::Disable | SkillAction::Inspect => false,
+                                SkillAction::AdoptCurrent => current_package.is_none(),
+                                _ => !skill.available,
+                            })
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.skill_action(action, &id, &digest, scope.clone(), cx)
                             })),

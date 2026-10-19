@@ -1,0 +1,321 @@
+{
+  "head": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+  "branch": "codex/pre-effect-tool-correction",
+  "base": "527d47679adef0c1cf2dfe83869eb14d590b1c39",
+  "clean": true,
+  "checks": [
+    {
+      "receipt": "final-scripted-lib-04.json",
+      "head": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+      "tree": "c43a3ca866150ceae65e5a5526e34c714d453b2c",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1"
+      ],
+      "exit": 0,
+      "log_sha256": "4076ceb916d3db7f239c6dd3c6d97d4c6b1f1a0ab98fc9e80c78ee95594ed82c"
+    },
+    {
+      "receipt": "final-clippy-02.json",
+      "head": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+      "tree": "c43a3ca866150ceae65e5a5526e34c714d453b2c",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--all-targets",
+        "--features",
+        "scripted-runs",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log_sha256": "757700fe4e0ef09287fd988de8126afd021146fe4fbdd41d63dcddd4cf48dfd5"
+    },
+    {
+      "receipt": "final-fmt.json",
+      "head": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+      "tree": "c43a3ca866150ceae65e5a5526e34c714d453b2c",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "final-diff-check.json",
+      "head": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+      "tree": "c43a3ca866150ceae65e5a5526e34c714d453b2c",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "527d47679adef0c1cf2dfe83869eb14d590b1c39",
+        "HEAD"
+      ],
+      "exit": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "helpers_sha256": {
+    "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+    "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+  },
+  "status": {
+    "implemented": true,
+    "deterministic_verified": true,
+    "independent_final_review": "approved",
+    "live_model_usefulness": false,
+    "native_observed": false,
+    "owner_accepted": false,
+    "merged": false
+  },
+  "limits": [
+    "The package guide-prefix assertion in crates/brn/tests/agent_runs.rs was updated but that CLI suite was not run here.",
+    "The optional capability-spike feature was not qualified by this slice.",
+    "Controlled provider mocks qualify actual request encoding and state behavior, not real model usefulness."
+  ],
+  "independent_review": {
+    "status": "approved",
+    "reviewer": "independent Sol high argument_correction_review",
+    "candidate": "7b3cf356bea846a3f9771186a26663968e0a2e5f",
+    "baseline": "527d47679adef0c1cf2dfe83869eb14d590b1c39",
+    "full_diff_sha256": "5dc144a3b308f62fdcee93a1c31f6596130f606da302248afa9cd3d460e992a5",
+    "findings": "Three combined-fault hard-refusal findings fixed and independently re-reviewed; final test-only lexical lock lifetime delta approved."
+  },
+  "integrated_source_head": "67d62aec0c86d277614c8ff94a64ad278323b384",
+  "changed_files_match_author_exactly": [
+    "agent/BRN.md",
+    "crates/brn-ai/README.md",
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_argument_correction_tests.rs",
+    "crates/brn-ai/src/threads_continuation_tests.rs",
+    "crates/brn-ai/src/threads_guides.rs",
+    "crates/brn-ai/src/threads_history.rs",
+    "crates/brn-ai/src/threads_mcp_runtime_tests.rs",
+    "crates/brn-ai/src/threads_research.rs",
+    "crates/brn-ai/src/threads_search_tests.rs",
+    "crates/brn-ai/src/threads_summary_tests.rs",
+    "crates/brn/tests/agent_runs.rs"
+  ],
+  "records": [
+    {
+      "source": "final-clippy-02.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-clippy-02.json.gz",
+      "bytes": 3530,
+      "sha256": "de0eb15bedef0fff0af2dcb0e3d1bb0f6369474d98f501dc97f1a489c7f8bf5a",
+      "archive_sha256": "f2d784a3aee5cd12679774cfd57cb6a59266bc88bd92bcf67515ea199ecbeeed"
+    },
+    {
+      "source": "final-clippy-02.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-clippy-02.log.gz",
+      "bytes": 160,
+      "sha256": "757700fe4e0ef09287fd988de8126afd021146fe4fbdd41d63dcddd4cf48dfd5",
+      "archive_sha256": "911fe997e03bfafb8e2d543186baa6dc75761f5fe6b270f5fe3ea928760cf68d"
+    },
+    {
+      "source": "final-clippy.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-clippy.json.gz",
+      "bytes": 3533,
+      "sha256": "8d556e01c58d9f0f0a09f29efcf52e59f9b957c57b57d626a88b6f609c483d51",
+      "archive_sha256": "6de7b47c0952ac62e07142e3134e27317f9511537c946374344f90163c49c2b4"
+    },
+    {
+      "source": "final-clippy.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-clippy.log.gz",
+      "bytes": 1064,
+      "sha256": "b4a794db2418acdfbd55b1cff68d1e58ecd3c4c1c86b437e502fda3fedcfe2bf",
+      "archive_sha256": "0620b3e526cd8c971e9af250326a5b8faf3530dbd6fcef215cff51535c25f8af"
+    },
+    {
+      "source": "final-diff-check.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-diff-check.json.gz",
+      "bytes": 3426,
+      "sha256": "2b70580de92fb4255f2cebd9510d4c63d797e191f329c0f7dd8d178edae68f03",
+      "archive_sha256": "b01081ebd3c1de50f81222081747efda28ee6b7fc2f09c79b19e828b2b605616"
+    },
+    {
+      "source": "final-diff-check.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-diff-check.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "final-fmt.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-fmt.json.gz",
+      "bytes": 3389,
+      "sha256": "93810388d062130dacf8ed86ee223d9e93ceb7ee0e0d52465a8ecba23c066dcd",
+      "archive_sha256": "96ebf4afcbfcc85378b9e620a9e06de86545ff4dc687cdaf86ee60320d63a844"
+    },
+    {
+      "source": "final-fmt.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-fmt.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "final-scripted-lib-02.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-02.json.gz",
+      "bytes": 3651,
+      "sha256": "892e31e0570821aac5249f9cb56b6a3865fa63f1257da797ed20d48206407910",
+      "archive_sha256": "77880b16a5aa3630dd580d6a16471e9629521da62091b7bb0f3aa0497a2d5ed8"
+    },
+    {
+      "source": "final-scripted-lib-02.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-02.log.gz",
+      "bytes": 14413,
+      "sha256": "b902fb86dd266479f7fb62523dbd83d256d20c55e535bc0acf58398dad122650",
+      "archive_sha256": "0c52414c0f00b16931e010d9022ab9b14ed144b4738193bf20a709c2e82bafcd"
+    },
+    {
+      "source": "final-scripted-lib-03.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-03.json.gz",
+      "bytes": 3484,
+      "sha256": "4aa1b9b17f360251aa5298b81011f9b2177050d7df7762ab4ab2ea3801e55c7f",
+      "archive_sha256": "8d81a15e5b3bd240d4e6e686d83c2db12304a47b5c35e116311d9689f945459a"
+    },
+    {
+      "source": "final-scripted-lib-03.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-03.log.gz",
+      "bytes": 53199,
+      "sha256": "36d3b87d8abbe632e3f698e01e6690785e8090c96583340e6d7984ae1a2e208b",
+      "archive_sha256": "5a8552b5ae1d5e32720fa6dfa0e7761c79e860a7dda38dd5435da6862330091c"
+    },
+    {
+      "source": "final-scripted-lib-04.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-04.json.gz",
+      "bytes": 3485,
+      "sha256": "ec319008f7e1c8d431f148062ede52aec281e573e5ac255e34121d25db47416a",
+      "archive_sha256": "fae7ee4f145f9775fd04f6d4a71773ccfec6f567664585918b636929329f026c"
+    },
+    {
+      "source": "final-scripted-lib-04.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib-04.log.gz",
+      "bytes": 53300,
+      "sha256": "4076ceb916d3db7f239c6dd3c6d97d4c6b1f1a0ab98fc9e80c78ee95594ed82c",
+      "archive_sha256": "bffccbe2fe3dcd98cea3f60a81fd2e76b2d1744e86f27388ebee535e2d84e134"
+    },
+    {
+      "source": "final-scripted-lib.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib.json.gz",
+      "bytes": 3246,
+      "sha256": "bc03f5aeaa69d1ce56f8e7f78b821f3f3834be712b3e1c36a77e64dc1b0db697",
+      "archive_sha256": "a2b06d686c60e6d93e883c5f063b69586776cba2c381c3b23f5d7a930a9af878"
+    },
+    {
+      "source": "final-scripted-lib.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/final-scripted-lib.log.gz",
+      "bytes": 54341,
+      "sha256": "ba96667b2964c74b3f3ef716328e2000de2f7e778c06aab6c3e5513fb4ede39e",
+      "archive_sha256": "d405ee67013eff59f9cc59d2835ede6005e52726c92b43c1e507f2ebb22c92e4"
+    },
+    {
+      "source": "focused-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-01.json.gz",
+      "bytes": 3075,
+      "sha256": "e1e2658a08375726f7631ff80c17e7c371e3a412a461e53a80c57e7cad82b7e3",
+      "archive_sha256": "8334c5f86c879d67cb9455d8794ad7fe2830ec2e8912a949bc867c884b34bbb7"
+    },
+    {
+      "source": "focused-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-01.log.gz",
+      "bytes": 12069,
+      "sha256": "b77183587dbf17aaf01be090c959c27d6dddcbcc11b03a41b0552d92b728fa4f",
+      "archive_sha256": "42a9d50dc95cbf22d96a9df996435a69587b44f29b8986a47433e7dd67ef8cdb"
+    },
+    {
+      "source": "focused-02.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-02.json.gz",
+      "bytes": 3074,
+      "sha256": "9e40299fb85f8e8b6e133a2f267f8f52e325839e64cf6d2d2bf0217913e16d88",
+      "archive_sha256": "709565316eafc82734419345ae46fd85f49c3093298db255c3bd7277bfcfabd1"
+    },
+    {
+      "source": "focused-02.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-02.log.gz",
+      "bytes": 3479,
+      "sha256": "d17ed0b9094cb1100ee749c8efa6adc1a8791000de5417f2bef139d973719e4d",
+      "archive_sha256": "142ffe04cdb5c9b6ed3565a16306b5f8ed12db85b0429d49ff27ad197ff1eea9"
+    },
+    {
+      "source": "focused-03.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-03.json.gz",
+      "bytes": 3163,
+      "sha256": "2018db91494d16a9631b5f6bedfefee5e3236eb21f1b01b1f80e9ac25e13930a",
+      "archive_sha256": "94c63f65b7cbdaf24089af326d2eb3d98ca0a6169835e0defd58078240cffacd"
+    },
+    {
+      "source": "focused-03.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/focused-03.log.gz",
+      "bytes": 1264,
+      "sha256": "3b34caf985f663fb68ad2a1b8bc2409bcb32f1ca6d7b9798b76accdb83b63eb5",
+      "archive_sha256": "6988a3b8790cfd72b7d882f9d04ffd1acf4c310efe858c9b637c6928eb4f7e54"
+    },
+    {
+      "source": "handoff.md",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/handoff.md.gz",
+      "bytes": 4611,
+      "sha256": "1b362c8b36cc9c55ae5519086b7ebd081ad6b85154aa51d17ce8616e7e86187f",
+      "archive_sha256": "3acc7fa8078d6a9820b210bcd3771cbe153067495bab0f45c80048171cd63821"
+    },
+    {
+      "source": "review-correction-focused.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/review-correction-focused.json.gz",
+      "bytes": 3511,
+      "sha256": "8b2617800008614502534c5a77bf896cf620681a24c456e5e3f5daa6d67feaea",
+      "archive_sha256": "ddfbaabad773e3c43d828c7d5d0eccb103d35864e39fb1a29da96c28c907d359"
+    },
+    {
+      "source": "review-correction-focused.log",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/review-correction-focused.log.gz",
+      "bytes": 1742,
+      "sha256": "40390fae843e255ffba84249fe281d9f38a37434d36cce0e377f68e90decd466",
+      "archive_sha256": "a273de30f6b00e9a4537ed395aece653b2bfee55e4b6115fe025ad0ca37ff77e"
+    },
+    {
+      "source": "run-check.py",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/run-check.py.gz",
+      "bytes": 2406,
+      "sha256": "95084b1039f042e8a50d6606ab4c0464c5f2b413a4ce845712d05919560f3229",
+      "archive_sha256": "588ea3d3cd09f1f59259e8964ad8d19a5aa81702f9339122b3ec59b034dccac1"
+    },
+    {
+      "source": "summary.json",
+      "path": "docs/work/active/vacation-campaign/evidence/argument-correction/summary.json.gz",
+      "bytes": 2994,
+      "sha256": "f5f9294c489478599c87843a2711b745331ec30ad466bcf5469d4f8a4bf02d90",
+      "archive_sha256": "d5b4d9fc49c5ebe25f8c05a5735ccabf806f3cac2d03c7f14a9165f4bdeb1e11"
+    }
+  ],
+  "audit_note": "Initial lead receipt audit used exit instead of exit_code and stopped before qualification; this corrected audit verifies actual receipt fields, source and log hashes.",
+  "observed_at_utc": "2026-10-19T10:19:07.810539+00:00",
+  "lead_documentation_review": {
+    "candidate": "cf1de05852a571c23847fe47be64200a94f4ef11",
+    "reviewer": "independent Sol high argument_correction_review",
+    "archive_records_verified": 27,
+    "integrated_changed_files_verified": 12,
+    "finding": "One stale status sentence denied new implementation; replaced with no native usability or owner acceptance claim.",
+    "remaining_gates": "Combined guide/context/CLI, required exact-head/resulting-main, real model/native/owner remain separate."
+  }
+}
