@@ -59,6 +59,28 @@ This is an evidence-driven order, not a promise to migrate all 25 provisional
 domains in two weeks. Update the denominator when source inspection discovers more
 routes. Native usability, IME, accessibility and owner acceptance remain distinct.
 
+## Upcoming phases — owner discussion19October
+
+These are priorities, not fixed output promises; defects, review and actual allowance
+can change the order. Do not force a refactor to fit a date.
+
+1. **19–20October:** finish notice ownership and outstanding integration/main gates;
+   establish the current Mac baseline and queue actual control qualification.
+2. **Following days:** harden remaining worker/preview/context transitions where
+   source and failure evidence identify a concrete benefit. Prefer one small owner
+   over a general state-machine framework; preserve durable shared-service rules.
+3. **Middle of campaign:** exercise Save/recovery, stale edits, backup/restore and
+   failure paths using synthetic fixtures. Fix reproduced defects and actionable
+   recovery wording, with consolidated18:00 Mac sessions when scenarios are ready.
+4. **Final days through1November:** finish useful fixes, retire only obsolete
+   mechanism tests with replacement proof, reconcile documentation and leave a
+   reviewed/verified main plus an explicit remaining-gaps handoff.
+
+Continue useful authorized batches inside the active session. Near5% remaining,
+checkpoint and use the recovery schedule around the constraining reset; quota pauses
+can move these phases. Daily records track actual outcomes and gaps, not a promise
+of features or uninterrupted host availability. No release is included.
+
 ## First implementation slice: worker identity
 
 **Already implemented and merged in PR163**, source `823a1544`, main `b5f01b07`.
@@ -90,11 +112,16 @@ type-only preservation refactor does not newly establish native usability.
 ## Execution and resource policy
 
 One lead owns shared files, merges and the campaign record. Retain the selected lead
-configuration. A bounded source/log/document inspection may use one Luna worker;
-implementation and consequential independent review use a suitable Sol configuration
-under the invoked development skill. Start with at most one active helper; run a
-reviewer after the candidate is ready. No recursive delegation or automatic Astra
-escalation. Record requested model/effort and whether the runtime exposes the effective
+configuration. The owner clarified on19October that Luna may also implement small,
+clearly specified changes, as well as inspect code/logs, maintain docs and triage
+tests. Choose it when the bounded task and verifiable outcome suit it; reserve Sol
+for consequential decisions, difficult changes and meaningful independent review.
+Helpers may use nested Luna helpers when the lead explicitly assigns useful bounded
+delegation. Count all helpers, including nested agents and reviewers, in the same
+normal maximum of two; prefer one, with no allowance multiplied per parent. Start
+with at most one active helper; run a
+reviewer after the candidate is ready. No automatic Astra escalation or unassigned
+recursive delegation. Record requested model/effort and whether the runtime exposes the effective
 configuration; do not claim measured savings without usage evidence.
 
 The owner clarified on19October: **continue actively through successive useful
@@ -200,3 +227,36 @@ task-owned partial build cache with one build at a time. The lead owns docs and
 integration; normal allowance is one active helper. Stop and reassess after two
 failed approaches, a disk/capacity limit or a consequential scope ambiguity. No
 native, provider or owner-acceptance result follows from this plan approval.
+
+## Next bounded candidate: worker drain fairness
+
+The Luna source inspection found that `Worker::drain` loops until Empty/Disconnected,
+even after its first terminal. A bounded channel limits queued slots, not cumulative
+reads while a concurrent producer refills it. No production stall, post-terminal
+production path or latency measurement was reproduced; this is proactive hardening.
+
+Adapt the existing private worker owner, without another abstraction or dependency:
+limit each drain to128 events (the largest current production channel capacity) and
+return Pending when that budget ends before terminal. Stop reading immediately after
+the first terminal; UI must consume it and retire its receiver before successor work,
+as it already does. Remaining preterminal events wait for the next80ms poll; they
+must not be dropped or marked complete early. This is an event-count bound, not a
+wall-time guarantee for arbitrary payloads. Keep blocking content/terminal sends,
+lossy progress, cancellation, disconnect partial persistence and queue policy.
+
+Acceptance: a deterministic prefilled channel larger than the budget proves the
+first batch has at most128 events and Pending, subsequent batches preserve every
+payload/FIFO order and eventually admit terminal once. Retain first-terminal payload,
+no-producer-disconnect completion, disconnected partial, Stop/Steer/successor and
+Converted-to-new-Run/trailing-event integration cases. No sleeps or racing live
+producer is needed to claim this defined event-count invariant; do not claim an
+old native freeze reproduction. Existing worker/GPUI tests, native-feature strict
+lint/format, applicable final desktop checks and independent review remain required.
+
+If independent plan review approves, a Luna medium worker can own this small,
+specified source/test change. Lead owns docs/integration. One writer/build per
+boundary; wait until the notice build releases the shared target before testing.
+Normal maximum2 helpers includes this worker and any reviewer/nested helper; no
+nested helper is useful for this tiny task. Reassess after two failed approaches or
+an event-order/persistence scope ambiguity. No implementation is authorized by this
+paragraph until its independent plan review is recorded.

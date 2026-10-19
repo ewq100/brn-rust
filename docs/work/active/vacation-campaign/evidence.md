@@ -249,3 +249,30 @@ with no actionable findings. Its fresh link gate was548/2412/0. The lead then
 recorded this approval, final count and branch receipt only. Lead continuation
 docs now use `codex/notice-hardening`; remote PR164 stays at checked head37c87985
 while gates finish. Normal allowance returns to one active implementation helper.
+
+## Integrated notice review and owner resource clarification —19October
+
+Independent Sol high review approved clean combined `9b2ad729`, containing source
+`36bf2718` plus reviewed docs `12001909`, with no actionable findings. Source diff
+against37c87985 SHA-256 is `fe6c342e57cb65058a83544bad4dc6250e6e8c078a74279518e89eac2ea48241`;
+full union againstb5f01b07 is `379df99dabb3fc850e7042fb7e9921baa83b541ab12e7a8d74686f6a33a29644`.
+The lead verified identical crate bytes from worker source to the union. Owner2/0
+and seven retained focused GPUI cases each1/0 passed locally on the worker source;
+full native tests, helpers, strict lint/build and native OS checks remain pending.
+Temporary2-helper allowance separated one build worker from one read-only reviewer;
+no competing build/writer or nested helper was launched for this review.
+
+The owner requested the upcoming-days plan and broadened Luna use to small work,
+including bounded implementation and nested Luna helpers. The plan now records
+phases and a shared maximum2-helper allowance (including nesting/reviewers), with
+Sol reserved for consequential work/review. Both existing heartbeat prompts were
+updated through the app and persisted policy/ACTIVE status/cadence/target/expiry
+verified. This is explicit owner policy, not a source change or measured cost saving.
+Latest native allowance snapshot:71% used,29% remaining, same reset1792874447.
+
+One Luna medium inspection now checks the next narrow question: whether the actual
+worker channel drain gives the UI a bounded amount of work per poll, including
+continued production and trailing events after terminal. This is source inspection,
+not a selected fix or reproduced UI freeze. It runs beside the sole build worker,
+within the shared2-helper allowance, without edits/builds/delegation. Evidence must
+justify any next task before implementation; no general event framework is planned.

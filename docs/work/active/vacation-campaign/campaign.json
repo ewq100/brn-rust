@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Most recent native snapshot70% used /30% remaining in applicable seven-day window; reset1792874447. Recheck before next substantial batch; floor about5% remaining.",
+    "quota": "Latest native snapshot71% used /29% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -66,12 +66,12 @@
   },
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
-    "inspection": "One fresh bounded gpt-6-luna medium read-only inspection completed.",
+    "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Independent Sol high continuation candidate and notice plan reviews approved; complete notice/source/docs candidate review remains pending.",
-    "concurrency": "At most one active helper, sequential review; no recursive delegation or automatic Astra.",
+    "concurrency": "Normal maximum2 active helpers including nested agents/reviewers, prefer1; nested Luna allowed with assigned bounded benefit. One writer/build per shared boundary; no automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
-    "implementations": "One fresh bounded gpt-6.1-sol medium notice-state worker requested; desktop source/tests, no delegation."
+    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json"
 }
