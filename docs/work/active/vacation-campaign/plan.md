@@ -4,7 +4,7 @@ Updated 19 October 2026. Current main is
 `b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
 is source `14d7c43e`, matching qualified worker `ed859aa4`.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-followup`. PR166 merged normally from
+branch `codex/hardening-continuation`. PR166 merged normally from
 `codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
 artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
 
@@ -173,10 +173,12 @@ asb4a5deeb. Resulting-main run39220505231 is running; retain optional Windows fa
 The current follow-up [reference-import owner](reference-import-plan.md) is source
 ed859aa4/integrated14d7c43e, independently approved without findings. Final321/0/1,
 strict lint/format and a production-only build pass; [receipts](reference-import.md)
-retain exact evidence and native/live limits. No local writer/build is active.
+retain exact evidence and native/live limits. The reference worker is idle; the
+separate export repair below owns the current build slot.
 The lead reconciled merged main as2bd890ef with no crate/root manifest/lock/toolchain
-delta from reviewed14d7. Independent Luna receipt audit passed; publish this later
-coherent candidate and follow PR166 resulting-main checks separately.
+delta from reviewed14d7. Independent Luna receipt audit passed; the later
+coherent candidate is now PR167 at fixed40879f71, run39220781564. Follow its
+required checks and PR166 resulting-main checks separately.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
 MAC-04 for already-durable unsaved-edit close/relaunch. No crash/unprocessed-input
@@ -189,3 +191,9 @@ queue above. Continue useful work while allowance permits; the recovery heartbea
 is not batch pacing. [Preserved planning history](planning-history-through-2026-10-19.md)
 retains earlier detailed plans, review hashes, failures and superseded snapshots.
 Current owner/resource/gate rules remain at this stable path for restarts.
+
+The next selected bounded repair surfaces export folder-picker errors while
+keeping cancellation quiet and the existing output admission guard. A Luna worker
+uses the reused drain checkout at408 on `codex/export-picker-errors` with the sole
+shared build slot. This does not change backup or restore policy. Independent review,
+local effect checks and hosted/main gates remain required before integration.
