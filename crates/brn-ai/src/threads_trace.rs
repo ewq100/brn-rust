@@ -549,3 +549,38 @@ impl TraceCollector {
 fn duration_ms(duration: Duration) -> u64 {
     u64::try_from(duration.as_millis()).unwrap_or(u64::MAX)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::TraceCollector;
+    use serde_json::json;
+
+    #[test]
+    fn read_records_trace_reports_only_actual_truncation() {
+        assert_eq!(
+            TraceCollector::result(
+                "read_records",
+                Some(&json!({"records":[{"id":"n:0","truncated":false}]})),
+            ),
+            json!({"rows":1,"ids":["n:0"],"truncated":false})
+        );
+        assert_eq!(
+            TraceCollector::result(
+                "read_records",
+                Some(&json!({"records":[
+                    {"id":"n:0","truncated":false},
+                    {"id":"n:1","truncated":true}
+                ]})),
+            ),
+            json!({"rows":2,"ids":["n:0","n:1"],"truncated":true})
+        );
+        assert_eq!(
+            TraceCollector::result("read_records", Some(&json!({}))),
+            json!({"rows":0,"ids":[],"truncated":false})
+        );
+        assert_eq!(
+            TraceCollector::result("read_records", Some(&json!({"records":[]}))),
+            json!({"rows":0,"ids":[],"truncated":false})
+        );
+    }
+}
