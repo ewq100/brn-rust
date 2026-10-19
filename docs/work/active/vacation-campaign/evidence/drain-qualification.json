@@ -1,0 +1,66 @@
+{
+  "source_commit": "1e89f4e86435c75bfc320d741eed84abfacb496a",
+  "baseline_commit": "7bbd7d6e145a08bae7eaead089514c33cf88c941",
+  "crate_tree": "7142a08cb6ad9a7b50b53c40f729a8586afdfbc4",
+  "reviewed_union": "2bf8eb08b53db906134d5372dc175eda725cd49e",
+  "source_review_diff_sha256": "92c42ad5078e75c62adda4529f9fb0c0d79eafab12f0d83ec6ea8f7414b17731",
+  "review": "independent Sol high approved, no actionable findings",
+  "baseline": {
+    "protocol_passed": 4,
+    "meaningful_failed": 3,
+    "test_only_patch": "drain-baseline-test-only.patch",
+    "patch_sha256": "60ca4167cdf0d619be88ef6d68a5f4a5fb938e1addce9d66c3e7c4ca51096ab7",
+    "reconstruction": "Reconstructed from frozen baseline/final source for reproducibility; no additional rerun claimed"
+  },
+  "final": {
+    "worker_passed": 7,
+    "failed": 0,
+    "desktop_passed": 320,
+    "desktop_failed": 0,
+    "desktop_ignored": 1,
+    "desktop_body_seconds": 5.82,
+    "strict_all_target_clippy": "passed",
+    "format_whitespace": "passed",
+    "production_native_ui_without_test_support": "passed",
+    "production_build_seconds": 6.29
+  },
+  "production_binary": {
+    "path": "/Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-1e89f4e8",
+    "sha256": "d9002ff689841cb10e1bae5795e25f48590bea377c4ffe2fd29683fdf1752346"
+  },
+  "commands": "drain-commands.txt",
+  "raw_logs": [
+    {
+      "path": "logs/vacation-drain-baseline.log.gz",
+      "sha256": "b12bb0a3b864aff3e0f04163b4a88ed66d956b5dc86226647a50c0043d64bf2f",
+      "raw_sha256": "73d56d7d1c765ce822788a3ffcfde77e7639725b618110cf6767f15e1544d05f"
+    },
+    {
+      "path": "logs/vacation-drain-focused.log.gz",
+      "sha256": "560051e1cd7fe851cff5588fab3848ec1408ffdcb7c49f5be566ef59e3de62c3",
+      "raw_sha256": "0fdda818885d153fc65d40e95a5148eb656ad78d6f740502cc2f3b7a8c465b1f"
+    },
+    {
+      "path": "logs/vacation-drain-desktop.log.gz",
+      "sha256": "0031efccc7716f77745ddc80c08be23c4126571ca93d381325a37f17827e7b2f",
+      "raw_sha256": "0ac7cae7e4873964381ee30e01ca050c2b693dfe0135d87a58360ff41d367199"
+    },
+    {
+      "path": "logs/vacation-drain-clippy.log.gz",
+      "sha256": "6e26ad0f768a2560cd9951b672570b7a1e62fa229c2a70f77a44e215f748c9a6",
+      "raw_sha256": "e8e58ba0aef9ea13a6bbe30884d66f8f39a327c6f34b87f068222f2857c9913c"
+    },
+    {
+      "path": "logs/vacation-drain-production.log.gz",
+      "sha256": "f0af714da9b2de7fdf702b0ff42f11ce1c0cec366049e48a50f25fb3ea7bb95c",
+      "raw_sha256": "c235abf1f68e1944b941ebd1493440937793a9fa13a23678efd249886f26accc"
+    }
+  ],
+  "limits": [
+    "Event-count fairness only; no wall-time or reproduced native freeze claim",
+    "Original wrong filter selected0 tests and is not evidence",
+    "Existing ignored external CLI fixture not run",
+    "Native OS/owner acceptance and hosted/merge/main gates separate",
+    "Carried block0.1.6 future-incompatibility warning"
+  ]
+}

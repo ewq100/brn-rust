@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`b5f01b07301dcc94d3d4e273a472d487f569bbc7` (PR163).
+`348959b7138de6230cb77852f860b910155c64d4` (PR164).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -16,15 +16,15 @@ unattended executions remain unobserved.
 
 Note/Review pilots, worker terminal admission and coherent worker Run identity are
 merged. PR163's final source matches its independent review and all four required
-final-head checks passed; resulting-main checks are pending. PR162's required/main
-checks also passed. Optional Windows failures remain explicit; no all-platform pass
+final-head and resulting-main required checks passed. PR164's required head checks
+passed before its normal merge; its resulting-main run39212874814 is pending.
+PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
-Next: integrate PR164's continuation policy/native queue and verify actual main.
-Notice ownership is implemented and independently reviewed: local desktop317/0/1,
-strict native lint and production build passed; hosted integration and Mac control
-qualification remain pending. Luna is implementing the reviewed, bounded worker
-drain follow-up; remaining preview/context transitions stay on the backlog.
+Next: publish the reviewed notice/drain hardening candidate and finish required
+PR/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
+format and production build passing, plus independent source approval. Mac control
+qualification remains queued; preview/context and reliability work stay on the backlog.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

@@ -10,10 +10,14 @@ The lead verified exact source digest
 against the retained independent review and confirmed the later PR commit was
 docs/evidence only. The normal merge used the exact checked head `c86e6d50` after
 marking the existing draft ready under the owner's new merge authorization.
-Resulting-main checks are pending, not implicitly passed.
+Resulting-main required checks passed in run39209331228, with documentation and
+Ubuntu native lanes also passing; optional Windows lanes failed.
 
 PR164 continuation/native-batch policy is reconciled with that main and passed
-updated independent review at67d7671e; required CI/integration remain pending. Initial PR164 run39208310470 was deliberately
+updated independent review at67d7671e. All four required final-head37c87985 contexts,
+documentation and Ubuntu native passed in run39209590789; optional Windows Core
+failed. Normal exact-head merge completed as348959b7 at06:56:46UTC19October.
+Resulting-main run39212874814 remains pending. Initial PR164 run39208310470 was deliberately
 cancelled as superseded when PR163 advanced main; its documentation passed and
 optional Windows failure remain historical. No failed check was hidden or weakened.
 Both local heartbeats are registered ACTIVE, but their first unattended executions
@@ -25,9 +29,11 @@ approved at `9b2ad729`. Local owner2/0, retained focused7/0, full desktop317/0/1
 strict native lint/format and production native-ui build passed. The lead checked
 exact crate identity, final raw results and immutable binary/helper hashes in
 [notice qualification](notice-state.md). Its hosted/merge/main and queued Mac
-interaction gates remain pending. The notice worker released the single build slot;
-a Luna medium worker is implementing the independently approved drain event budget
-in a separate managed worktree. That next source has no passing gate yet.
+interaction gates remain pending. The notice worker released the single build slot; the Luna drain source1e89f4e8
+then passed actual before/after protocol tests, full desktop320/0/1, strict lint and
+production build. Independent review approved integrated2bf8eb08;
+[drain qualification](drain-fairness.md) retains the newer evidence and binary.
+It awaits required hosted/integration gates; no local build or source writer is active.
 
 ## 19 October 2026: baseline and assignment
 
@@ -285,3 +291,68 @@ continued production and trailing events after terminal. This is source inspecti
 not a selected fix or reproduced UI freeze. It runs beside the sole build worker,
 within the shared2-helper allowance, without edits/builds/delegation. Evidence must
 justify any next task before implementation; no general event framework is planned.
+
+## Owner parallel-flow correction —19October
+
+The owner encouraged multiple small parallel flows, including three or four helpers
+when useful. This runtime has4 total concurrent slots including the lead, so the
+revised active allowance is3 helpers, counting nested helpers and reviewers together.
+Named flows separate meaningful independent drain review, bounded Luna dependency
+warning research and bounded Luna evidence/PR-readiness checking. Source writers
+remain isolated; only one task may own the shared build slot. This supersedes older1/2-helper
+limits; parallelism is for these independent outcomes, not duplicated work. Sol
+remains for consequential decisions and meaningful independent code review.
+
+The Luna drain worker completed source `1e89f4e8` and its local gates before the
+three-flow dispatch: baseline actual owner failed3/7 with the test-only patch, then
+focused7/0 and full desktop320/0/1 passed after the fix, as did strict all-target
+lint/format. An initial wrong filter selected0 tests and is retained as no evidence,
+not a pass. The source is integrated in `2bf8eb08` with identical crate bytes;
+independent whole-candidate review and raw-evidence verification are now assigned.
+The notice-only immutable production binary does not qualify this later drain source.
+The owner also authorized additional economical pre-research helpers and web
+research when uncertain; use primary sources and actual local evidence, without
+speculative dependency upgrades, installs, account changes or paid provider calls.
+
+## Final local drain and integration receipts —19October
+
+Independent Sol high approved `2bf8eb08` plus three dirty policy docs, no findings.
+Source diff SHA-256 `92c42ad5078e75c62adda4529f9fb0c0d79eafab12f0d83ec6ea8f7414b17731`;
+full then-current working-tree union againstb5f01b07
+`5c2909df6909e12a0ad28b630c8a4426a562b4d0ba93c4610fecc1846ee95b8c`;
+dirty docs `80b540fa2a0dbdd427505d08b174aa540886dc9fc95f39e91a529653c4e9dc1b`.
+The lead verified raw final results, exact crate bytes and a production native-ui-only
+build on1e89f4e8 (6.29s), preserving immutable SHA-256
+`d9002ff689841cb10e1bae5795e25f48590bea377c4ffe2fd29683fdf1752346`.
+A reconstructed test-only baseline patch applies cleanly to7bbd7d6e in an isolated
+index; no additional baseline rerun is claimed. Full suite320/0/1; existing external
+CLI fixture stays ignored, and the initial zero-test filter is explicitly no evidence.
+
+The Luna evidence audit validated all18 notice log hashes/original bytes, helper and
+production hashes and reported checks. Its stale-drain snapshot finding is valid and
+fixed here/status/checkpoint; PR164 pending was accurate at its inspection and has
+since merged. All PR163 main required checks passed; optional Windows failures are
+retained. The lead merged PR164 only after its four required exact-head checks, then
+reconciled that main into this candidate without any crate delta. New main checks
+and the upcoming candidate PR remain separate.
+
+The latest owner clarification permits4–6 or more useful helpers; the observed
+three-helper limit is current runtime capacity, not a permanent user policy. Plan,
+checkpoint and both saved app prompts now state that distinction. Prompts were
+rewritten cohesively to remove accumulating superseded prefixes, preserving IDs,
+ACTIVE status, target chat, recovery/daily cadences, notification intent and fixed
+expiry. Persisted current permission/expiry were checked. Bounded Luna
+[dependency research](dependency-notes.md) defers the carried block warning without
+suppression, dependency churn or a latest-fix claim. No native/provider/release
+acceptance follows from these local gates.
+
+Final Luna receipt check at994a5354 plus all dirty/untracked records found no
+blocking issues: five drain logs/original hashes, immutable binary, source identity
+and isolated-index baseline patch all validate. Notice evidence remains separately
+pinned36bf2718. Fresh links551/2426/0. Later edits record this receipt and bounded
+primary-source warning research only; no source bytes changed. Latest allowance
+read is72% used/28% remaining. A separate Luna source audit is checking the
+Note Save/refresh/recovery boundary for a justified next task, without edits/builds.
+The dependency follow-up found latest published block0.1.6 and the flagged static
+still in upstream source; no verified released fix or maintainer migration
+recommendation, so defer without suppression or dependency churn.

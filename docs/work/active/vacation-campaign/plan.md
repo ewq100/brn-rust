@@ -117,10 +117,14 @@ clearly specified changes, as well as inspect code/logs, maintain docs and triag
 tests. Choose it when the bounded task and verifiable outcome suit it; reserve Sol
 for consequential decisions, difficult changes and meaningful independent review.
 Helpers may use nested Luna helpers when the lead explicitly assigns useful bounded
-delegation. Count all helpers, including nested agents and reviewers, in the same
-normal maximum of two; prefer one, with no allowance multiplied per parent. Start
-with at most one active helper; run a
-reviewer after the candidate is ready. No automatic Astra escalation or unassigned
+work. The owner authorizes four, five, six or more helpers when useful; do not turn
+the earlier three-helper observation into a permanent project cap. Inspect actual
+runtime capacity and use independent parallel flows when they improve progress.
+This session currently exposes four total slots including the lead, so three active
+helpers are presently possible. Count nested helpers and reviewers in actual shared
+capacity. Coordinate shared files and the single local build slot; use isolated
+worktrees for overlapping source areas. Assign a reviewer when a concrete candidate
+is ready. No automatic Astra escalation or unassigned
 recursive delegation. Record requested model/effort and whether the runtime exposes the effective
 configuration; do not claim measured savings without usage evidence.
 
@@ -256,7 +260,7 @@ lint/format, applicable final desktop checks and independent review remain requi
 If independent plan review approves, a Luna medium worker can own this small,
 specified source/test change. Lead owns docs/integration. One writer/build per
 boundary; wait until the notice build releases the shared target before testing.
-Normal maximum2 helpers includes this worker and any reviewer/nested helper; no
+The actual runtime allowance includes this worker and every reviewer/nested helper; no
 nested helper is useful for this tiny task. Reassess after two failed approaches or
 an event-order/persistence scope ambiguity. No implementation is authorized by this
 paragraph until its independent plan review is recorded.

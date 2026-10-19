@@ -1,48 +1,54 @@
 # Vacation campaign checkpoint
 
-## Current local continuation — 19 October 2026
+## Current local continuation —19October2026
 
-The owner selected this Mac for continued work, authorized normal merges after
-review/required checks, moved further Linux work behind Mac hardening, and permitted
-work down to about 5% remaining allowance. [Current plan](plan.md) and
-[evidence/next action](evidence.md) supersede conflicting local/cloud, merge and
-quota rules below. The fixed expiry in campaign.json is unchanged.
+Latest fetched main is348959b7138de6230cb77852f860b910155c64d4 (PR164), merged
+normally after all four required exact-head checks passed in run39209590789.
+Resulting-main run39212874814 is pending. PR163/b5f01b07 required main checks
+passed in run39209331228; optional Windows failures remain explicit.
 
-Fresh inspection confirms PR163 final `c86e6d50` merged as `b5f01b07` after
-its four required checks and documentation passed. Its source `823a1544` matches
-the retained independent-review digest; the earlier source-bound local evidence
-is in [worker identity](worker-identity.md). Resulting-main checks remain separate.
-PR162's required/main evidence is retained in the current evidence record.
-The [pre-local PR163 checkpoint](https://github.com/ewq100/brn-rust/blob/c86e6d501ca6f7837d86cf9863367f6fb2bd35f0/docs/work/active/vacation-campaign/checkpoint.md)
-retains its original cloud-era continuation observations.
+Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
+branch `codex/notice-hardening`, with notice36bf2718 and Luna drain1e89f4e8 locally
+integrated. Complete source review approved2bf8eb08; current crate bytes match1e.
+Final protocol7/0, desktop320/0/1, strict native lint/format and production native-ui
+build pass. [Notice](notice-state.md) and [drain](drain-fairness.md) receipts retain
+commands, original failures, raw hashes and ignored/qualification limits. No local
+build or source writer is active. Next publish the reviewed candidate PR, follow
+actual required exact-head gates, merge normally and inspect relevant main checks.
+Always list all open PRs and inspect actual source/jobs before dispatching a slice.
 
-Current lead branch: `codex/notice-hardening`, isolated from the owner's old checkout.
-Remote `codex/vacation-hardening` still carries PR164 at37c87985.
-PR164 carries continuation policy; reconcile it with PR163 rather than redo the
-completed identity slice. Main heartbeat `brn-mac-vacation-hardening` is ACTIVE
-every two hours as recovery only: continue useful work inside the active session
-until a real pause, quota floor or expiry. `brn-batched-mac-interaction-checks` is ACTIVE at18:00Tallinn for
-[queued native checks](native-queue.md), both through the fixed expiry. First
-unattended wakes/native sessions remain unobserved. The original policy candidate
-passed independent review; the later native/merge reconciliation passed updated independent review at
-`67d7671e`; required-check integration remains pending.
+Continue useful authorized batches inside the active session. The two-hour
+`brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily
+`brn-batched-mac-interaction-checks` heartbeat owns ready real Mac sessions at18:00
+Tallinn. Both are ACTIVE through the original2026-11-01T21:41:51Z expiry. First
+unattended executions remain unobserved. The Mac/app must remain available.
+Near5% remaining allowance, checkpoint and back off near the verified constraining
+reset using supported scheduling; recheck before resuming. No purchase/reset credit.
 
-The lead initially missed the open PR163 and started a duplicate local slice.
-That writer/build is stopped with no tests or publication; its task-owned cache
-was retained for future Mac builds and managed archival confirmed for its patch.
-No duplicate production code is being adopted. Check all open PRs before selecting
-future work, not just main/branch names and the previous checkpoint.
+The owner authorizes normal required-check merges, Mac-first hardening, small Luna
+implementation/research/docs work and parallel/nested helpers. Four, five, six or
+more useful helpers are permitted when actual runtime capacity supports them; no
+permanent three-helper user cap. This runtime currently exposes4 total slots
+including the lead. Count nested/review helpers in actual capacity, isolate source
+writers and serialize shared-target builds. Sol handles consequential decisions,
+difficult changes and meaningful independent review. Web research is authorized
+when uncertain; prefer primary sources. No automatic Astra or global model change.
+[Plan](plan.md), [campaign state](campaign.json), [evidence](evidence.md) and both
+persisted resume prompts carry these owner decisions. No live provider/model/private
+data, new billing, release/publication/deployment or external messaging is included.
 
-The next notice-state plan passed independent Sol high review. One fresh Sol medium
-worker owns source/tests on `codex/notice-state` in
-`/Users/evokessler/.codex/worktrees/notice-state/brn-rust`, based on `37c87985`.
-One local native build uses this campaign worktree's partial `target`; no competing
-build. Source36bf2718 is integrated in reviewed9b2ad729; owner/focused/full native317/0/1, strict native lint and production native-ui build passed. Hosted integration remains pending. The lead
-owns the independently reviewed continuous-policy/status-maintenance documentation here.
-Do not push those amendments onto PR164's checked head while its gates are running.
-Observe run39209590789 for PR164 and run39209331228 for PR163's merged main;
-ordinary exact-head merge follows actual required checks. The older status body is
-preserved in [dated history](../../../archive/status-through-2026-10-18.md).
+Native scenarios remain in [the queue](native-queue.md). Source1e immutable binary:
+`/Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-1e89f4e8`,
+SHA256d9002ff689841cb10e1bae5795e25f48590bea377c4ffe2fd29683fdf1752346.
+The older notice36 binary remains source-bound. Both current helper artifacts and
+build receipts live under `/Users/evokessler/.codex/worktrees/notice-state/document-helpers`.
+Preserve these task-owned artifacts and the campaign shared target until needed
+reuse/retention is complete. Actual Mac input/IME/accessibility, owner acceptance
+and release readiness remain separate; no such acceptance is claimed.
+
+Earlier status is preserved in [dated history](../../../archive/status-through-2026-10-18.md)
+and prior Git checkpoints. A stopped duplicate identity worktree was archived;
+do not restore/publish that patch or redo merged PR163.
 
 ## Historical cloud handoff (before PR162 merge)
 
@@ -83,7 +89,9 @@ Next eligible work: maintain the campaign draft PR and observe exact-head CI; re
 
 Local untracked `error.log` is preserved and excluded from campaign commits; it is not an application source change.
 
-## Active small Luna follow-up —19October
+## Earlier Luna follow-up checkpoint —19October
+
+This section records the earlier in-flight state; the current snapshot above supersedes it.
 
 The owner requested economical small-work Luna implementation and permits bounded
 nested Luna helpers, counted in one shared maximum2-helper allowance. Both resume
