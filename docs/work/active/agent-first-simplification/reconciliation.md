@@ -8,7 +8,7 @@ the single execution, resource, schedule, expiry and integration authority.
 
 ## Baseline, ownership and priority
 
-Current main9a6feab2 is PR171, normally merged from checked7a9867a8 after all four required head checks passed; resulting-main39240783382 checks are running. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
+Current main9a6feab2 is PR171, normally merged from checked7a9867a8 after all four required head checks passed; all four required resulting-main39240783382 checks passed. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
 39232087600 passed all four required jobs; optional Windows jobs failed.
 Lead continues on codex/agent-first-followthrough; PR172 fixes M3/M4/fixture atb8735ea1 while its required checks run, preserving the checked histories.
 Already integrated worker/notice/reference/MCP improvements are retained and are
@@ -33,9 +33,9 @@ synthetic fixtures. Baseline/corrected results remain separate.
 
 | Milestone | Current disposition and next gate |
 |---|---|
-| M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normally merged PR171, resulting-main pending. |
-| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; normally merged PR171, resulting-main pending. |
-| M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Normally merged PR171; resulting-main/live/native gates separate. |
+| M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normally merged PR171, all four required resulting-main checks passed. |
+| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; normally merged PR171, all four required resulting-main checks passed. |
+| M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Normally merged PR171; all four required resulting-main checks passed, live/native gates separate. |
 | M3 targeted edit | [Candidatee227](targeted-edit.md) independently approved; runtime518/0/2, strict lint/format and affected CLI guide test pass. Whole-read/refresh and partial-coverage guards preserved; combined7a970 runtime518/native332/CLI43/lint/format/production pass; hosted/native gates remain. |
 | M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source3b3 independently approved and component-qualified; a real small-window regression was repaired by reusing existing cards. Combined runtime518/native332/CLI43 and strict lint pass; production build and format pass at7a970. Owner selection is explicit. [Model suggestions](proposed-feedback.md) remain a selected next item. |
 | M5 broader artifact capability | [Synthetic calculation/SVG proof](artifact-capability.md) and fresh reproduction pass through existing bundled libraries. Production activation deferred with concrete packaging/output/containment/review gaps; no permission expansion. |

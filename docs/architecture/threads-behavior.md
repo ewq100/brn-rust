@@ -140,7 +140,7 @@ repair. Reusable repair prescriptions live in that existing skill, with authorit
 conflict, exact-version and checked-write rules preserved. Similarity/orphan hints
 are leads, not semantic conclusions. Earlier bundle10 seeded-remedy text above is
 history; [current source qualification](../work/active/agent-first-simplification/knowledge-guidance.md)
-distinguishes the candidate from pending hosted/native/live/owner gates. Exact
+records source qualification and PR171 integration separately from native/live/owner gates. Exact
 prior skill-digest bindings are never automatically reapproved.
 
 ## Tools, authority, and continuation

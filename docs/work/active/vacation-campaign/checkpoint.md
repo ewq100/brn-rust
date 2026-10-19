@@ -16,7 +16,7 @@ match their source receipts; the fixture matches its reviewed source. No schema,
 new dependency or provider permission was added.
 
 Current main is PR171 merge9a6feab2, normally merged from fixed7a9867a8 after all
-four required head checks passed; resulting-main39240783382 is running. Optional
+four required head checks passed; all four required resulting-main39240783382 checks passed; optional Windows jobs failed. Optional
 Windows Core failed at its PR head. PR170 main39236565242 and PR169
 main39232087600 passed all four required jobs; optional Windows jobs failed.
 Earlier PR163–168 required head/main checks passed. Normal reviewed merges remain
@@ -99,7 +99,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Capacity, schedules and continuation
 
-Last native quota reading87% used/13% remaining, seven-day reset1792874447.
+Last native quota reading88% used/12% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
 and back off near the verified constraining reset without purchases/reset credits.
 Runtime has four active slots including lead. Owner permits more/nested helpers

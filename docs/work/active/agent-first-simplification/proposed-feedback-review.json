@@ -1,0 +1,19 @@
+{
+  "observed_at_utc": "2026-10-19T11:17:48.731997+00:00",
+  "source_baseline": "b2904c2cce3af6f69524c8fac8afcbe0b0f48bb8",
+  "reviewer": "writing_review_review",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "disposition": "approved after narrow core replacement clarification; requested wording refinements applied",
+  "reviewed_before_wording_sha256": "9d50955f7ec14466351b99524a761fa9cc061b4727d594c2ecd42387a28e20bf",
+  "final_spec_sha256": "0b1f03f3d3520a65251e54d44b568afc154f5bd7879114a245cbd1c5a9114ca4",
+  "root_verified_requested_refinements": [
+    "excluded means absent immutable captured subset, not later UI exclusion",
+    "no database schema change, while persisted evidence field is explicit"
+  ],
+  "boundaries": [
+    "No source implementation claimed by design review",
+    "Initial default+skipempty compatibility, preeffect membership validation, persisted guard and strict SDK schema must be executed",
+    "No automatic owner selection or comment proof from model reports"
+  ]
+}

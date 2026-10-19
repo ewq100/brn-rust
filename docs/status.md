@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`9a6feab2234efb7732feac7fb3cbe7230ea36348` (PR171; all four required head checks passed; resulting-main checks are running).
+`9a6feab2234efb7732feac7fb3cbe7230ea36348` (PR171; all four required head checks passed; all four required resulting-main checks passed).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -72,5 +72,5 @@ The owner selected [the supplied agent-first plan](work/active/agent-first-simpl
 inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
 records independently approved M0 rules and M1 bounded tool-argument correction
 independently source-approved and locally verified (runtime505/0/2, strict lint/format);
-combined19efe runtime505/desktop327/CLI15/journeys8, strict native lint/format and production build passed. M0/M1/M2 and explicit skill version adoption merged normally in PR171 after all four required head checks passed; resulting-main39240783382 checks are running. Optional Windows Core failed at the PR head. M2 topics11, journeys8, keyed11 and strict lint/format passed. M3 exact local edit is reviewed/locally verified (runtime518/0/2, lint/format/CLI guide); M4 explicit selected-feedback review is source-approved and combined-qualified at7a970 (runtime518/native332/CLI43, strict lint/format/production). Hosted/main and actual Mac checks remain; model-proposed feedback suggestions are the next bounded item. Broader artifact production activation is deferred with evidence. No new live/private-data or
+combined19efe runtime505/desktop327/CLI15/journeys8, strict native lint/format and production build passed. M0/M1/M2 and explicit skill version adoption merged normally in PR171 after all four required head checks passed; all four required resulting-main39240783382 checks passed. Optional Windows Core failed at the PR head. M2 topics11, journeys8, keyed11 and strict lint/format passed. M3 exact local edit is reviewed/locally verified (runtime518/0/2, lint/format/CLI guide); M4 explicit selected-feedback review is source-approved and combined-qualified at7a970 (runtime518/native332/CLI43, strict lint/format/production). Hosted/main and actual Mac checks remain; model-proposed feedback suggestions are the next bounded item. Broader artifact production activation is deferred with evidence. No new live/private-data or
 release authority follows, and no native usability or owner acceptance is claimed.
