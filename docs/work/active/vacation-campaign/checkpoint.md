@@ -12,7 +12,7 @@ Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 `codex/agent-first-next`. Frozen PR171 branch codex/hardening-maintenance stays at7a9867a8. Integrated source67d62aec contains reviewed M0,
 schema-upgrade witness repair, M2 and exact M1 source7b3cf356. Current main is
 PR170 merge d7f48e6c, from exact9000 after all four required head checks passed;
-resulting-main remains pending. PR169 main39232087600 passed all four required
+all four required resulting-main39236565242 jobs passed; optional Windows jobs failed. PR169 main39232087600 passed all four required
 checks; optional Windows Core/UI/retrieval failed. PR163–168 required head/main
 checks passed. Normal reviewed merges are authorized; inspect actual protection,
 match exact checked head, then record resulting-main independently. No bypass.
@@ -38,12 +38,13 @@ match exact checked head, then record resulting-main independently. No bypass.
   Final5cf8 independently approved; first actual compile failure retained. Focused1, strict native lint/format and combined native327 pass. Root19efe matches exact two source files; no OS/historical migration proof.
 - [M3 exact local edit](../agent-first-simplification/targeted-edit.md): requested
   Sol high owns brn-ai/agent tool source in notice checkout,
-  `codex/targeted-note-edit`, based67d62aec. Final19af source independently approved (test-only final deltas under review); it now owns the build slot for baseline refresh red/green and focused/full runtime. Preserve
+  `codex/targeted-note-edit`, based67d62aec. Finale227 independently source-approved and verified:518/0/2, strict scripted lint/format, CLI guide1/1. Ten source files match lead88b exactly;43 archived raw records and exact original-module red/green linkage in targeted-edit-qualification.json. Old19efe binary cannot qualify this source. Preserve
   exact range/bytes/metadata, host-only construction, replay-before-reconstruction,
   partial-read ledger after Apply/replay/Continue, full-range guard, and frozen
   Rewrite exclusion. Existing refresh whole-read seam is included with a witness.
-- M4 uses the existing shared OwnerRequest path and selected exact review/comment composition spec; Sol source author is isolated in worker-drain-budget, no build until grant. M5 remains conditional permitted
-  synthetic/interface proof; no live/executable permission expansion follows.
+- M4 reuses OwnerRequest/ReviewLifecycle, source9e5e independently approved. Sol author in worker-drain-budget owns build slot. Exact old19efe UI baseline compiled/fails missing selector; candidate shared-result2/app52/nativewriting37 pass, one test-only strict-lint correction retained; broader/lint/CLI/host checks running.
+- M5 bundled ReportLab/Decimal synthetic calculation/SVG/report proof and fresh reproduction pass; production activation explicitly deferred. See artifact-capability.md/evidence, no containment/agent/native/permission claim.
+- Small native fixture example: Luna source-only author owns exactly new brn-threads-app/examples/native_writing_fixture.rs in notice checkout branchcodex/native-writing-fixture. Reuses checked synthetic workspace/comment/snapshot/prepare APIs, offline provider, fresh-root refusal; no Cargo until grant. Needed to exercise production writing review without live provider.
 
 PR171 publishes the reviewed M0/schema/M1/M2+skill UI at fixed7a9867a8; follow its actual four required checks, fresh protection/head and normal merge, then resulting-main. Combined checks passed at19efe. Continue on codex/agent-first-next; do not push further changes onto the checked PR branch. Also follow PR170 main39236565242 separately. Do not duplicate PR170 or attach unrelated PRs.
 Keep checked head fixed while later work continues separately. Current source changes invalidate old0f for this candidate. Frozen production19efe binary is source-bound in agent-first-combined-evidence with SHAa5a0690d77e092dce03ed894ccfc07cd81ab1c10dc6c3c9b09d44ca25d13980a. Neither headless
@@ -51,7 +52,7 @@ state tests nor source review establish actual Mac usability.
 
 ## Capacity, native queue and continuation
 
-Last native quota reading83% used/17% remaining, seven-day reset1792874447.
+Last native quota reading85% used/15% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries. Continue useful work down to about5%; then
 checkpoint/back off near the verified reset without purchases or reset credits.
 Runtime exposes four active slots including lead; owner permits more helpers and

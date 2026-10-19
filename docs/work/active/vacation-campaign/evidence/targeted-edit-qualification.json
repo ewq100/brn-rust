@@ -1,0 +1,697 @@
+{
+  "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+  "tree": "41e94af8f1874d82bc0f9a5e365b1b15a3d940f7",
+  "base": "67d62aec",
+  "branch": "codex/targeted-note-edit",
+  "clean": true,
+  "files": [
+    "agent/BRN.md",
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_guides.rs",
+    "crates/brn-ai/src/threads_history.rs",
+    "crates/brn-ai/src/threads_int_d_tests.rs",
+    "crates/brn-ai/src/threads_note_edit.rs",
+    "crates/brn-ai/src/threads_note_edit_tests.rs",
+    "crates/brn-ai/src/threads_reads_tests.rs",
+    "crates/brn-ai/src/threads_summary_tests.rs",
+    "crates/brn/tests/agent_runs.rs"
+  ],
+  "source_sha256": {
+    "agent/BRN.md": "71616dbaa23f488445f8c8d54d651d2c93f3d05a3b0ad9f1f86e2a35113261e9",
+    "crates/brn-ai/src/threads.rs": "ff6eb0ad9c5c453cd1ac8fe98f8abb05310a6c412f3be086f78752e59b821ac9",
+    "crates/brn-ai/src/threads_guides.rs": "24a6168f014f236181818728a2adfe9665cf148daaf03bce02843e573264d350",
+    "crates/brn-ai/src/threads_history.rs": "36cc6a480e31fe8c96ee5b05815bbcf0a321015c836286a35638f7e5819c70cd",
+    "crates/brn-ai/src/threads_int_d_tests.rs": "d54b8e449811a4d5400770c692110366eb7727aa70906521b5bc425778db1fc3",
+    "crates/brn-ai/src/threads_note_edit.rs": "5c93ae5492dae1f561cfcebee782eac23ef86b5d9f69e4a5d8edb7cc7592c586",
+    "crates/brn-ai/src/threads_note_edit_tests.rs": "ef372cbb6e5825e5a23f24a922f3b7f99f4cf950ce597fb66fe6443f342ef45f",
+    "crates/brn-ai/src/threads_reads_tests.rs": "fd7e590c0e978319d75390436c5535e8dd1f6e779f17973152378fd5a9e45c73",
+    "crates/brn-ai/src/threads_summary_tests.rs": "d45a06498bd379528e2e8fb7955751fba52c01b959ea193d715e4c829ebfa4a6",
+    "crates/brn/tests/agent_runs.rs": "bcebb93f74d4747045f602ce067712ecfeac5700327a6071bc593fb46c1af402"
+  },
+  "outcome": "Implemented and deterministically verified exact local Note passage edits through existing checked runtime preparation/apply. No app interface/schema/dependency changes.",
+  "verification": {
+    "final_scripted_library": "518 passed,0 failed,2 retained ignores at e22717fc",
+    "exact_edit_focused": "12 passed at19af4a91, included again in final full library",
+    "reads": "9 passed; original-refresh guard red compiled1failed then restored candidate1passed",
+    "history": "original focused3passed/3failed due missing current full reads; fixtures corrected with actual reads;6passed then final full pass",
+    "M1": "10 passed focused and final full",
+    "Rewrite": "19 passed focused;v2evidence9passed;final full",
+    "Continue": "11 passed focused and final full",
+    "strict_scripted_all_target_clippy": "passed at e22717fc",
+    "workspace_format": "passed at e22717fc",
+    "affected_CLI_guide_identity": "1 passed,14 filtered at e22717fc",
+    "diff_check": "passed"
+  },
+  "retained_ignores": [
+    "provider_stderr_child: parent launches this isolated synthetic stderr fixture",
+    "manual_one_start_prepare_diagnostic: future principal activation and pinned preflight required; no permission from --ignored"
+  ],
+  "retained_failures": [
+    "original-refresh-red-01: meaningful original-refresh source red in current harness, not whole baseline",
+    "focused-history-01:3 old fixtures omitted required current whole reads",
+    "final-scripted-library-01:517passed/1failed/2ignored;diagnosticcatalog fence missing explicit forbidden exact-edit mode"
+  ],
+  "review": "Root reports independent Sol full source approval through e22717fc; root retains review receipt and final gate binding.",
+  "limits": [
+    "No live provider/model usefulness qualification",
+    "No actual native input/IME/accessibility observation or owner acceptance",
+    "No merge/release performed",
+    "Root owns shared docs/integration and later production artifact for combined source"
+  ],
+  "checks": {
+    "final-cli-guide-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn",
+        "--test",
+        "agent_runs",
+        "--jobs",
+        "1",
+        "scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_after_move"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "c55961fce4700eba4be0242e06e9f02ee5fe05d27c16fdc927af0b6569d9d500"
+    },
+    "final-clippy-01": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--all-targets",
+        "--features",
+        "scripted-runs",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "f66e9029b7f5964e8de7eaba800e960198418ea637d2d2b4c144bcc9a98adcf5"
+    },
+    "final-diff-check-01": {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "67d62aec",
+        "HEAD"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-fmt-01": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-scripted-library-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 101,
+      "log_sha256": "e0b1b30ab3135971902da94eef70db243a9ae0799a95da3e726cf0256e83a9d2"
+    },
+    "final-scripted-library-02": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "08b832bfdc83f9c733e79f2018264824476a9890493895d4f4354d16b6bfc69a"
+    },
+    "focused-capture-fence-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "runner_observer_allows_reported_progress_but_fences_all_proposal_effects"
+      ],
+      "head": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+      "exit_code": 0,
+      "log_sha256": "b46c13f1fee6df18e16427bacafc5d2c516f76179d735dce1ebad8004b7b4340"
+    },
+    "focused-continue-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::continuation_tests"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 0,
+      "log_sha256": "69c518dfa1b5d05d2667ef1d2c0a319f7e8092992232c409ae8717e06149468f"
+    },
+    "focused-history-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::history::tests"
+      ],
+      "head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+      "exit_code": 101,
+      "log_sha256": "f6cd2300d8453450598ed377ab3e623b6ab9da07fadd0079c1ffceef407b88b2"
+    },
+    "focused-history-02": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::history::tests"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 0,
+      "log_sha256": "be362e68547254bf91dff1eb6736481248c6a0ab6c7a9436e4631e6a25bebada"
+    },
+    "focused-m1-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::argument_correction_tests"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 0,
+      "log_sha256": "18cd7cd33b3d3858b70fceaa9603e00937d7ce7444b91cbe3be5fdd20c898a99"
+    },
+    "focused-note-edit-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "note_edit_tests"
+      ],
+      "head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+      "exit_code": 0,
+      "log_sha256": "76b12419d59324a0253f44b0b174d30b4b9e74738a78cdf5b4699c0439b762f4"
+    },
+    "focused-reads-history-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::reads_tests"
+      ],
+      "head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+      "exit_code": 0,
+      "log_sha256": "5cbaa14b51f83bba38759d7a9daa25604bea8ddce336e1345a755d2fa7d5986b"
+    },
+    "focused-rewrite-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::writing_tests"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 0,
+      "log_sha256": "04a2af673c481ffbd176f2ec74f3113121a7ad20b047f8bcf678c75c806d1c5d"
+    },
+    "focused-rewrite-v2-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "threads::cw2_tests"
+      ],
+      "head": "81b7fe03d0e5d19a161445c3f20577891f3acc27",
+      "exit_code": 0,
+      "log_sha256": "e2eedfef5136dd6fca44e9e8211e5cef66360c76da094087fb221ba3ba9f6898"
+    },
+    "original-refresh-red-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "refresh_cannot_replace_unread_markdown_after_a_metadata_only_preparation"
+      ],
+      "head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+      "exit_code": 101,
+      "log_sha256": "3d9ac20bf02bcb0d8019399647948c4e32d69da94239d21f910babbc727351b0"
+    },
+    "refresh-green-01": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "brn-ai",
+        "--features",
+        "scripted-runs",
+        "--lib",
+        "--jobs",
+        "1",
+        "refresh_cannot_replace_unread_markdown_after_a_metadata_only_preparation"
+      ],
+      "head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+      "exit_code": 0,
+      "log_sha256": "d5d09fac6e1ba7bf2d0fbd00b6a8e66302e36e43c529fd8469b38e0bf26cfe10"
+    }
+  },
+  "independent_review": {
+    "status": "approved",
+    "candidate": "e22717fcfdc6ad2b4d8d68077028968417e2069a",
+    "baseline": "67d62aec0c86d277614c8ff94a64ad278323b384",
+    "complete_diff_sha256": "1598e45f3bf652c10d36d98d781fa293d3bbb728833675d191edbe189c45988a",
+    "reviewer": "independent Sol high argument_correction_review",
+    "finding_disposition": "Guide bundle identity bumped16; final privacy/confirmation/actual-read/diagnostic denial deltas independently approved."
+  },
+  "lead_integrated_head": "88b9efafd7c0aaa3aa768026a784dada9d01a562",
+  "source_match_verified": true,
+  "records": [
+    {
+      "source": "candidate-e6aa0b86.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/candidate-e6aa0b86.json.gz",
+      "bytes": 1174,
+      "sha256": "ba74652e358e86b41a3669918cae8a035e6969a605808c8235885b44059a946b",
+      "archive_sha256": "f2a6377bf356384b2ecd988298a5fcfdd64293ece735fcba2369b3ad4b79d27b"
+    },
+    {
+      "source": "draft-files.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/draft-files.json.gz",
+      "bytes": 237,
+      "sha256": "e2052c16f6e0a8127cf2cf894df22f336a0c1d20dea1145dd696be2721316c18",
+      "archive_sha256": "15687e68d68116cf98f383981d2f814acb589dcc34e76c5f7c720012a4b518be"
+    },
+    {
+      "source": "final-cli-guide-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-cli-guide-01.json.gz",
+      "bytes": 3314,
+      "sha256": "50b097b6b628fe494932cc1f5a4863f0ab6a002ed520aae4a5b8be9fa6805a86",
+      "archive_sha256": "046efb002b50e93cc1b689866406007fc174821b50cacea5333e8633208eb049"
+    },
+    {
+      "source": "final-cli-guide-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-cli-guide-01.log.gz",
+      "bytes": 725,
+      "sha256": "c55961fce4700eba4be0242e06e9f02ee5fe05d27c16fdc927af0b6569d9d500",
+      "archive_sha256": "39be2a90039bd1b5fe8d633ba5d9988317f924dbd7b468575e76579c6afb5414"
+    },
+    {
+      "source": "final-clippy-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-clippy-01.json.gz",
+      "bytes": 3292,
+      "sha256": "f5887c9df7a46f1bb1f468f42bec4021475e3ab50546353da0b739816adf1d70",
+      "archive_sha256": "a27bb3050e5433ff4d02e25f5af83d303c08c693ab99d138561e8ba743077142"
+    },
+    {
+      "source": "final-clippy-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-clippy-01.log.gz",
+      "bytes": 160,
+      "sha256": "f66e9029b7f5964e8de7eaba800e960198418ea637d2d2b4c144bcc9a98adcf5",
+      "archive_sha256": "168af12cb9f91e6a314c1e2141038f207f81764edece80ed149da9021dd2a860"
+    },
+    {
+      "source": "final-diff-check-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-diff-check-01.json.gz",
+      "bytes": 3155,
+      "sha256": "7079b6374ef41913dbe89e35e6f27fd68ba1abb40c4784948493932fbed9304a",
+      "archive_sha256": "1178fddfa19398fa4308373e7e1085147226c41957ec24c45b72d11e3b1bdac9"
+    },
+    {
+      "source": "final-diff-check-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-diff-check-01.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "final-fmt-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-fmt-01.json.gz",
+      "bytes": 3152,
+      "sha256": "d454939ba33bd8ee64f9aef2f579836985a67780577dbf3d4c58783c139daf04",
+      "archive_sha256": "86e7409d071cdb9933de906aee2b7ea7298b1b46b1e1273513084b1c8ae5542a"
+    },
+    {
+      "source": "final-fmt-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-fmt-01.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "final-scripted-library-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-scripted-library-01.json.gz",
+      "bytes": 3132,
+      "sha256": "6eb41f0303e5d0182cf8d0dccebf5ccee4b1cd0783ae8cafdfa413f08b0d044c",
+      "archive_sha256": "75dab14a2ad478650ef8a3503c19a5a517b8e8ed3830424c679346d7365cd20d"
+    },
+    {
+      "source": "final-scripted-library-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-scripted-library-01.log.gz",
+      "bytes": 55315,
+      "sha256": "e0b1b30ab3135971902da94eef70db243a9ae0799a95da3e726cf0256e83a9d2",
+      "archive_sha256": "8b55042adb80a64caa881f8317b8a2f35d3c03a922f22e59d4270ded2d1f38ee"
+    },
+    {
+      "source": "final-scripted-library-02.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-scripted-library-02.json.gz",
+      "bytes": 3247,
+      "sha256": "554fc455970163ae0d7b6e2e5fdf5cd8407d4a981ffdc9f0a8ad577986ecbfe7",
+      "archive_sha256": "a56e631d6cdac921a4e75d28667568a1c17d1524a69bb6461239c242f16fc3f5"
+    },
+    {
+      "source": "final-scripted-library-02.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/final-scripted-library-02.log.gz",
+      "bytes": 54671,
+      "sha256": "08b832bfdc83f9c733e79f2018264824476a9890493895d4f4354d16b6bfc69a",
+      "archive_sha256": "3f415a19e198edf67401bc666283d1c39a377915963a75e4f8b943dca8db438a"
+    },
+    {
+      "source": "focused-capture-fence-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-capture-fence-01.json.gz",
+      "bytes": 3326,
+      "sha256": "0867a57ab235e864196d8874135a8a04ac9667b3ffdaf4bc9656ca2c7e4a7eb1",
+      "archive_sha256": "704b2ad77f7ddc07b60c290a9d7a4d238530cf589859f04787c3683c9a52ad4b"
+    },
+    {
+      "source": "focused-capture-fence-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-capture-fence-01.log.gz",
+      "bytes": 538,
+      "sha256": "b46c13f1fee6df18e16427bacafc5d2c516f76179d735dce1ebad8004b7b4340",
+      "archive_sha256": "65e88cdb1742ed3f50c5c0ddea42a32648c739a09d6b84f072d5c9d190b34320"
+    },
+    {
+      "source": "focused-continue-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-continue-01.json.gz",
+      "bytes": 3165,
+      "sha256": "37e134318d70c4e9a40a24a245a4a0a1237dbe8d2ee775ea4754f1ac92e7beec",
+      "archive_sha256": "d7115a20c8c96786f570ab5935ef4475bf46886ba7a13c00fbe3821aac1f129b"
+    },
+    {
+      "source": "focused-continue-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-continue-01.log.gz",
+      "bytes": 1558,
+      "sha256": "69c518dfa1b5d05d2667ef1d2c0a319f7e8092992232c409ae8717e06149468f",
+      "archive_sha256": "71a53f55a4de83ad8e01ff8ef88b1fbe88f22a53fa708cb415a1908c62e4e48e"
+    },
+    {
+      "source": "focused-history-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-history-01.json.gz",
+      "bytes": 3164,
+      "sha256": "8ea835625f2af5c16722c231aefff6530695c487c9f8cb04ab49d90b45f78079",
+      "archive_sha256": "7bec897ab2cba227123b2bcb2e29139cdf229bba2e6cf4c4b1f2534c129029d3"
+    },
+    {
+      "source": "focused-history-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-history-01.log.gz",
+      "bytes": 2841,
+      "sha256": "f6cd2300d8453450598ed377ab3e623b6ab9da07fadd0079c1ffceef407b88b2",
+      "archive_sha256": "d17c3c56c3ae01fcbc570abf0aa0c4ee5faf762d985501e2c1c0f9d64cef32ce"
+    },
+    {
+      "source": "focused-history-02.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-history-02.json.gz",
+      "bytes": 3161,
+      "sha256": "d71c13ea646fbbacaf6b7ab9960646066a27ded074cce23cbd9d029d675df41d",
+      "archive_sha256": "2204fc9cf8b2b1d1b5b99ff5e0f7ca25069202240f181f2338b1317a827ab631"
+    },
+    {
+      "source": "focused-history-02.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-history-02.log.gz",
+      "bytes": 1092,
+      "sha256": "be362e68547254bf91dff1eb6736481248c6a0ab6c7a9436e4631e6a25bebada",
+      "archive_sha256": "e9558e115a05549f42014c50947750aa17f5a6b9d2182c0376d01b009328757c"
+    },
+    {
+      "source": "focused-m1-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-m1-01.json.gz",
+      "bytes": 3172,
+      "sha256": "3d87425738e1096f44f75e863db67cc7aee76e9360bbb41b16edbf56722f81e5",
+      "archive_sha256": "95d288bbbe309b547703d0c3aaf0e31227fe95353d890b9729a5d19745c5de4e"
+    },
+    {
+      "source": "focused-m1-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-m1-01.log.gz",
+      "bytes": 1524,
+      "sha256": "18cd7cd33b3d3858b70fceaa9603e00937d7ce7444b91cbe3be5fdd20c898a99",
+      "archive_sha256": "60d8368ce4a50cd3eb177ca26ec986502bc99b2b0d1706bdb0e28d120d8277bc"
+    },
+    {
+      "source": "focused-note-edit-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-note-edit-01.json.gz",
+      "bytes": 3154,
+      "sha256": "99db3e00a29037b447b88d71d3f5833e3ee3d3f23f7c53b976128c18601e8982",
+      "archive_sha256": "66b653ee54c3b9612bd255920d906d838d6c91ccfd79cd3474343cfbba2c9794"
+    },
+    {
+      "source": "focused-note-edit-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-note-edit-01.log.gz",
+      "bytes": 1682,
+      "sha256": "76b12419d59324a0253f44b0b174d30b4b9e74738a78cdf5b4699c0439b762f4",
+      "archive_sha256": "eebe61de0b6930993936d6fabbb296f23e395b5c18bd03598b69cfd59a8afa0c"
+    },
+    {
+      "source": "focused-reads-history-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-reads-history-01.json.gz",
+      "bytes": 3158,
+      "sha256": "a17e6895f2973be6c0803b5d9ac0cf68468134ab01314b12685f498cfe3b6849",
+      "archive_sha256": "3382c8026f73c2a9d272dd5a3f717a2b59d069116819d6df42b77b8f732522eb"
+    },
+    {
+      "source": "focused-reads-history-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-reads-history-01.log.gz",
+      "bytes": 1085,
+      "sha256": "5cbaa14b51f83bba38759d7a9daa25604bea8ddce336e1345a755d2fa7d5986b",
+      "archive_sha256": "91d9400ceb07d5fec077859a1085fb8d149ac5499f53d578fff78d83dbb66056"
+    },
+    {
+      "source": "focused-rewrite-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-rewrite-01.json.gz",
+      "bytes": 3160,
+      "sha256": "36d83f502c36552825b9f747ef58e996dc4fab94e8ff1274c8f2a6ef1af3ed6d",
+      "archive_sha256": "bb2182af0a6f61b45bc1da26f24b48885dfd73736f7cde84bc03dea1e0b29824"
+    },
+    {
+      "source": "focused-rewrite-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-rewrite-01.log.gz",
+      "bytes": 2240,
+      "sha256": "04a2af673c481ffbd176f2ec74f3113121a7ad20b047f8bcf678c75c806d1c5d",
+      "archive_sha256": "acd452e3fb0944a7c0cac1d15b6242e4fcb6e6426744fd197d829f5cb4862de7"
+    },
+    {
+      "source": "focused-rewrite-v2-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-rewrite-v2-01.json.gz",
+      "bytes": 3156,
+      "sha256": "40d4318da00a837b8754d423b3a958b84fc121230965378f9532b26ff288fcf4",
+      "archive_sha256": "50053ce529a1bfd89575c2ef944f314a380f6d0a6f1532e71f5ac3870ab75588"
+    },
+    {
+      "source": "focused-rewrite-v2-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/focused-rewrite-v2-01.log.gz",
+      "bytes": 1289,
+      "sha256": "e2eedfef5136dd6fca44e9e8211e5cef66360c76da094087fb221ba3ba9f6898",
+      "archive_sha256": "c0de8b1d31b24725e6121576f7c4ea0bb928ceb250302bd3144c618ce24f6f1c"
+    },
+    {
+      "source": "original-refresh-red-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh-red-01.json.gz",
+      "bytes": 3101,
+      "sha256": "d5d6ff497e6d77a2b5de21e0f200b6dad7e5c6fbe6ef3b067d00c1b4825cfbbe",
+      "archive_sha256": "9d07cb1e42d556c34be1ff163b9bda7a5ae184d3655987a1e21597295c49913a"
+    },
+    {
+      "source": "original-refresh-red-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh-red-01.log.gz",
+      "bytes": 1135,
+      "sha256": "3d9ac20bf02bcb0d8019399647948c4e32d69da94239d21f910babbc727351b0",
+      "archive_sha256": "502168286d657aa53d94486f5ddc594cad4ab7398a30270e9f73d9d9071a8329"
+    },
+    {
+      "source": "original-refresh-sha256.txt",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh-sha256.txt.gz",
+      "bytes": 112,
+      "sha256": "f0aa791f2bbe615cd6c26398aab408071ed56fedf086773abed49545863398d8",
+      "archive_sha256": "c2c682935fc6bea89b7c224bfb1ff5c984265ca5bdb70aae06f4b696cf4bb947"
+    },
+    {
+      "source": "original-refresh-source-replacement.patch",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh-source-replacement.patch.gz",
+      "bytes": 737,
+      "sha256": "e335ab1ee19440d43c0e80378fbabfda8cde0320ec18c88a4b70520a842ad71d",
+      "archive_sha256": "1e4869c351b92b811697260c7c9b51031058c80a0bc3d5ae9d1eca4fe77113c1"
+    },
+    {
+      "source": "original-refresh-witness-linkage.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh-witness-linkage.json.gz",
+      "bytes": 900,
+      "sha256": "709cffdb78a6e34f44de51ddce937fa3afbb045a98577bae0650b94e09d0082e",
+      "archive_sha256": "e23205df19fe2bcac89ef95d45b8d55ac254e067bb538ce79f244ddd25295244"
+    },
+    {
+      "source": "original-refresh.rs",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/original-refresh.rs.gz",
+      "bytes": 31431,
+      "sha256": "43a75ed7aeda759a54be9ac6faf96da21081a0bca1609e09923fc9796dd24ca2",
+      "archive_sha256": "28f1494f6f96fbcc4030af9b98b16a752df7dd388230e7113e1b5e24551b0f12"
+    },
+    {
+      "source": "red-harness-candidate-history.rs",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/red-harness-candidate-history.rs.gz",
+      "bytes": 31580,
+      "sha256": "5a9ac0385e7cfbc3fa8f88863c35e17fd3bbe4db02a7b6b73b64a9d76ba08ca5",
+      "archive_sha256": "b9a24152c5b908b3b3af5f53f3d6fe4d5b3a2528450b2224b7bbe90eb52689bd"
+    },
+    {
+      "source": "refresh-green-01.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/refresh-green-01.json.gz",
+      "bytes": 3210,
+      "sha256": "71878dabcdf48f6c81ea40318d98a6c641e222fb8995a43ac79c8c7b533ef923",
+      "archive_sha256": "e865b32e90a83393a29212afabb1445a095eb94600a0a17db81b9a7811ce1d61"
+    },
+    {
+      "source": "refresh-green-01.log",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/refresh-green-01.log.gz",
+      "bytes": 522,
+      "sha256": "d5d09fac6e1ba7bf2d0fbd00b6a8e66302e36e43c529fd8469b38e0bf26cfe10",
+      "archive_sha256": "46ad69dd03bf562c09711c2f33bcd2adc31864d7c69d7c4f5919956bd79e079d"
+    },
+    {
+      "source": "run-check.py",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/run-check.py.gz",
+      "bytes": 2617,
+      "sha256": "fbfbfa2574c170feb754cc29db6926a4c78ba43e8f27233aaa8b3131c55a65f5",
+      "archive_sha256": "bd5b71476f50d5f99ca8039b818f620a25c4d7dc384078d59ac9a13982e4f77e"
+    },
+    {
+      "source": "summary.json",
+      "path": "docs/work/active/vacation-campaign/evidence/targeted-edit/summary.json.gz",
+      "bytes": 11543,
+      "sha256": "5f458cf230b0921ed0306d17faea6245da316c4ff1ce0451f70a299faf811237",
+      "archive_sha256": "c815a9d2006569b1d4673e0342f70d1267d4072f6b36da0e7a5848caad9df6e3"
+    }
+  ],
+  "original_refresh_witness_linkage": {
+    "run": "original-refresh-red-01",
+    "harness_head": "19af4a9143bc8f994f46e86b64d23eaaf8640ced",
+    "source_replacement": {
+      "path": "crates/brn-ai/src/threads_history.rs",
+      "original_commit": "67d62aec",
+      "retained_file": "original-refresh.rs",
+      "sha256": "43a75ed7aeda759a54be9ac6faf96da21081a0bca1609e09923fc9796dd24ca2"
+    },
+    "classification": "Meaningful original-refresh source red under current candidate harness, not a whole-baseline build. Compiled successfully, then partial-read full-refresh assertion failed because original refresh prepared an operation. Exact candidate history source restored before refresh-green-01.",
+    "hash_capture_note": "run-check.py collects files differing from67d62aec, so the restored-to-baseline history file is intentionally absent from red source_sha256. This independent linkage retains that exact original source and replacement diff."
+  },
+  "observed_at_utc": "2026-10-19T10:41:59.837996+00:00"
+}

@@ -378,3 +378,30 @@ its synthetic stale-binding/first compile failure and two exact files are retain
 in [qualification](evidence/skill-reapproval-qualification.json). No OS/live/owner
 result follows. M3 now owns the build slot; M4 source work uses a separate checkout.
 Fresh quota83%used/17%remaining, same reset/floor/expiry.
+
+
+## M3 qualified exact passage edits and conditional M5 proof
+
+[Targeted-edit qualification](evidence/targeted-edit-qualification.json) binds
+independently approvede227 and ten exact lead88b source files. Final runtime518/0/2,
+strict scripted lint/full format and CLI guide1 passed. The real original refresh
+module compiled/fails partial-read/full-refresh, restored candidate passes; explicit
+source linkage avoids claiming a whole-baseline build. Old missing-read fixtures
+and diagnostic-catalog failure remain, repaired by actual reads/explicit denial.
+
+M4 final9e5e independently source-approved; old19efe rendered selector witness
+compiled/fails, candidate shared-result2/app52/nativewriting37 pass so far. Exact
+final lint/broader/CLI/host qualification still running in its isolated checkout.
+M3/M4 need their combined production binary; old19efe cannot qualify changed runtime.
+
+[M5 proof](../agent-first-simplification/artifact-capability.md) uses existing
+bundled ReportLab/Decimal, no installs: synthetic expected values/chart SVG/report
+and fresh-copy byte-identical reproduction pass. Production activation is deferred
+with output-format/packaging/containment/review scope gaps. No agent/BRN/native/model
+qualification follows. Both saved ACTIVE schedule prompts still read the absolute
+lead worktree's current campaign entries; [linkage receipt](evidence/agent-first-restart-linkage.json)
+retains exact hashes, no changed schedule or new clock. Unattended wake unobserved.
+
+PR170 main39236565242 passed all four required jobs; optional Windows failures
+remain. PR171 fixes checked7a9867a8 while continuation uses codex/agent-first-next.
+Fresh quota85%used/15%remaining; floor/reset/expiry unchanged.

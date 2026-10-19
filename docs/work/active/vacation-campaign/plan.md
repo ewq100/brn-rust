@@ -1,7 +1,7 @@
 # Mac vacation hardening continuation
 
 Updated19October2026. Current main d7f48e6c is PR170, normally merged from
-checked9000 after all four required head checks passed; resulting-main is pending.
+checked9000 after all four required head checks passed; all four required main39236565242 jobs passed, optional Windows jobs failed.
 PR169 main39232087600 and earlier required head/main checks passed; optional
 Windows failures remain explicit. Lead checkout:
 `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch

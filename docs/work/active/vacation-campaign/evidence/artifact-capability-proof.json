@@ -1,0 +1,187 @@
+{
+  "observed_at_utc": "2026-10-19T10:39:53.536187+00:00",
+  "status": "synthetic calculation/SVG proof passed; production activation deferred",
+  "records": [
+    {
+      "source": "README.md",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/README.md.gz",
+      "bytes": 4804,
+      "sha256": "ab72c450988a9c9f9f7e35159c95d8e4485b2a6aaff3b32caf2f4f6718c5eb3a",
+      "archive_sha256": "8d0e561bab6d0a3626d8f60c45da3c11b68adeb82bf4e5f4050a536c8bb3d553"
+    },
+    {
+      "source": "artifacts/comparison.svg",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/artifacts/comparison.svg.gz",
+      "bytes": 6500,
+      "sha256": "c584614bf007aa38f468c535baa751527848836f2f3fd1b79c594dcc6385f295",
+      "archive_sha256": "986606f240cb3c126c272552a08f4968914224435a73d891bc2cc034f2cad46c"
+    },
+    {
+      "source": "artifacts/report.md",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/artifacts/report.md.gz",
+      "bytes": 347,
+      "sha256": "a51f200730c39525d22ba55342bcf670bef504a0b4726d917de1518a73c77610",
+      "archive_sha256": "ecc75da71949025fcd26e81bf2bf5ed6b1930cb58032e5bd89cc02cb5ecd97a8"
+    },
+    {
+      "source": "artifacts-final/comparison.svg",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/artifacts-final/comparison.svg.gz",
+      "bytes": 6500,
+      "sha256": "c584614bf007aa38f468c535baa751527848836f2f3fd1b79c594dcc6385f295",
+      "archive_sha256": "986606f240cb3c126c272552a08f4968914224435a73d891bc2cc034f2cad46c"
+    },
+    {
+      "source": "artifacts-final/report.md",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/artifacts-final/report.md.gz",
+      "bytes": 347,
+      "sha256": "a51f200730c39525d22ba55342bcf670bef504a0b4726d917de1518a73c77610",
+      "archive_sha256": "ecc75da71949025fcd26e81bf2bf5ed6b1930cb58032e5bd89cc02cb5ecd97a8"
+    },
+    {
+      "source": "dependency-inventory.txt",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/dependency-inventory.txt.gz",
+      "bytes": 1099,
+      "sha256": "4999bc4d73f24f72f02eddfd70adfcfd8d310b339b342ce3c18f8b47bcb6e5c0",
+      "archive_sha256": "551ebcbfbe8f524cf91ad9f2fb0297a150adbd6f586919de4a3c2c1b6ee75d4f"
+    },
+    {
+      "source": "fresh-copy-reproduction-receipt.json",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/fresh-copy-reproduction-receipt.json.gz",
+      "bytes": 1258,
+      "sha256": "21c21760847887c8fe36387e17c24ffa5d578cdf42e00d6995007aa31f7e0f6f",
+      "archive_sha256": "198de030af40377b43dcbcbe976df348c9c3f663ec2a75e56daa6b2f83b4db1e"
+    },
+    {
+      "source": "proof.py",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/proof.py.gz",
+      "bytes": 7585,
+      "sha256": "de90531507ccf7dea94c006d137a94f76bc09c7efb4610c2845c57638314e405",
+      "archive_sha256": "e1f1c90ba993502a85f306ba51c2da5d73bc4e11411019b92b023583c45ab610"
+    },
+    {
+      "source": "run-receipt-final.json",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/run-receipt-final.json.gz",
+      "bytes": 1305,
+      "sha256": "99d12dd095d844b2d8f7fe4676ec7f10a1677fcb8ec60f26ef3e493f99248f11",
+      "archive_sha256": "f17885c8b78679d6d41269ce5d83c9e6b0d7ffe72905b8ebe24702586752e0e2"
+    },
+    {
+      "source": "run-receipt.json",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/run-receipt.json.gz",
+      "bytes": 1175,
+      "sha256": "0f7bb851590f35bd604826048eb6e5e2bc649a771d795ae6bc98bb30c48760d6",
+      "archive_sha256": "ca1231aff3dab3798ec84757d59b7acf007c1ab704cc303b0dca12bdc5595359"
+    },
+    {
+      "source": "synthetic_comparison.csv",
+      "path": "docs/work/active/vacation-campaign/evidence/artifact-capability/synthetic_comparison.csv.gz",
+      "bytes": 93,
+      "sha256": "709af791ef1eb54e1351d502da85a6002f59366097aee060eae76542ed9e038c",
+      "archive_sha256": "1848aa0e7bd4cbcd49614a27b2ce7d116b19fe17c2066fe58e56a4afe4d351a0"
+    }
+  ],
+  "proof": {
+    "status": "PASS",
+    "values": {
+      "Plan A": "3.00",
+      "Plan B": "2.50",
+      "Plan C": "3.00"
+    },
+    "input": {
+      "path": "synthetic_comparison.csv",
+      "bytes": 93,
+      "sha256": "709af791ef1eb54e1351d502da85a6002f59366097aee060eae76542ed9e038c"
+    },
+    "source": {
+      "path": "proof.py",
+      "sha256": "de90531507ccf7dea94c006d137a94f76bc09c7efb4610c2845c57638314e405"
+    },
+    "outputs": [
+      {
+        "path": "comparison.svg",
+        "bytes": 6500,
+        "sha256": "c584614bf007aa38f468c535baa751527848836f2f3fd1b79c594dcc6385f295",
+        "validated": true
+      },
+      {
+        "path": "report.md",
+        "bytes": 347,
+        "sha256": "a51f200730c39525d22ba55342bcf670bef504a0b4726d917de1518a73c77610",
+        "validated": true
+      }
+    ],
+    "cancellation": {
+      "timeout_seconds": 0.4,
+      "termination": "terminate",
+      "exit_code": -15,
+      "elapsed_seconds": 0.402,
+      "reaped": true
+    },
+    "runtime": {
+      "python": "3.12.14",
+      "reportlab": "4.4.9",
+      "reportlab_license": "BSD license (see license.txt for details), Copyright (c) 2000-2025, ReportLab Inc."
+    },
+    "limits": {
+      "input_bytes": 16384,
+      "rows": 3,
+      "combined_output_bytes": 2097152,
+      "output_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/artifact-capability-proof/artifacts-final"
+    }
+  },
+  "reproduction": {
+    "status": "PASS",
+    "values": {
+      "Plan A": "3.00",
+      "Plan B": "2.50",
+      "Plan C": "3.00"
+    },
+    "input": {
+      "path": "synthetic_comparison.csv",
+      "bytes": 93,
+      "sha256": "709af791ef1eb54e1351d502da85a6002f59366097aee060eae76542ed9e038c"
+    },
+    "source": {
+      "path": "proof.py",
+      "sha256": "de90531507ccf7dea94c006d137a94f76bc09c7efb4610c2845c57638314e405"
+    },
+    "outputs": [
+      {
+        "path": "comparison.svg",
+        "bytes": 6500,
+        "sha256": "c584614bf007aa38f468c535baa751527848836f2f3fd1b79c594dcc6385f295",
+        "validated": true
+      },
+      {
+        "path": "report.md",
+        "bytes": 347,
+        "sha256": "a51f200730c39525d22ba55342bcf670bef504a0b4726d917de1518a73c77610",
+        "validated": true
+      }
+    ],
+    "cancellation": {
+      "timeout_seconds": 0.4,
+      "termination": "terminate",
+      "exit_code": -15,
+      "elapsed_seconds": 0.405,
+      "reaped": true
+    },
+    "runtime": {
+      "python": "3.12.14",
+      "reportlab": "4.4.9",
+      "reportlab_license": "BSD license (see license.txt for details), Copyright (c) 2000-2025, ReportLab Inc."
+    },
+    "limits": {
+      "input_bytes": 16384,
+      "rows": 3,
+      "combined_output_bytes": 2097152,
+      "output_directory": "/private/tmp/brn-m5-proof.RNZztq/artifacts-final"
+    }
+  },
+  "limits": [
+    "No agent invocation, BRN adoption, canonical store, model/provider/MCP/owner data or native use.",
+    "Separate sleep-child termination/reaping does not qualify chart-pipeline cancellation, filesystem/network/memory containment or hostile input.",
+    "SVG XML/dimensions/labels validated, not visual/native acceptance; existing BRN image assets exclude SVG.",
+    "Bundled ReportLab/Python reuse needs separately owned production packaging/constraints before adoption; no dependency installed."
+  ]
+}

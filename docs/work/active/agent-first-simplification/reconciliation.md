@@ -9,7 +9,7 @@ the single execution, resource, schedule, expiry and integration authority.
 ## Baseline, ownership and priority
 
 Current main d7f48e6c is PR170, normally merged from checked9000 after all four
-required checks passed; its resulting-main gate is pending. PR169 resulting-main
+required checks passed; all four required resulting-main39236565242 jobs passed; optional Windows jobs failed. PR169 resulting-main
 39232087600 passed all four required jobs; optional Windows jobs failed.
 Lead continues on codex/hardening-maintenance, preserving both checked histories.
 Already integrated worker/notice/reference/MCP improvements are retained and are
@@ -37,9 +37,9 @@ synthetic fixtures. Baseline/corrected results remain separate.
 | M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
 | M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; hosted gates pending. |
 | M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
-| M3 targeted edit | [Bounded preparation](targeted-edit.md) selects exact UTF-8 range + expected text and existing checked candidate/write/Undo. M1 interface is frozen; bounded implementation is selected. Whole-read replacement guard remains. |
-| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; selected implementation is source-only in isolated checkout. Rewrite stays proposal-only, comment selection explicit. |
-| M5 broader artifact capability | Conditional bounded reuse proof; production activation/live/provider/data permissions unchanged. Adopt or defer with evidence. |
+| M3 targeted edit | [Candidatee227](targeted-edit.md) independently approved; runtime518/0/2, strict lint/format and affected CLI guide test pass. Whole-read/refresh and partial-coverage guards preserved; combined/hosted/native gates remain. |
+| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source13b3 independently approved; first actual qualification is running in isolated checkout. Rewrite stays proposal-only, comment selection explicit. |
+| M5 broader artifact capability | [Synthetic calculation/SVG proof](artifact-capability.md) and fresh reproduction pass through existing bundled libraries. Production activation deferred with concrete packaging/output/containment/review gaps; no permission expansion. |
 | M6 outcome comparison/retirement | Applied to actual changed callers; deterministic/live/native/owner/main outcomes recorded separately. |
 
 ## Conflicts and preserved limits
