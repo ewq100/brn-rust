@@ -1,0 +1,22 @@
+# Shared environment (for each Cargo invocation below)
+export PATH=/opt/homebrew/opt/rustup/bin:$PATH
+export CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+export CARGO_INCREMENTAL=0
+export CARGO_PROFILE_DEV_DEBUG=0
+export CARGO_PROFILE_TEST_DEBUG=0
+export BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+export BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+
+# Tests additionally used:
+export RUST_TEST_THREADS=1
+rustup run 1.98.1 cargo test -p brn-desktop --features native-test-support completed_context_edit_refreshes_saved_text_and_preserves_human_changes --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-desktop --features native-test-support worker::tests --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-desktop --features native-test-support contextual --locked --offline --jobs 1
+rustup run 1.98.1 cargo test -p brn-desktop --features native-test-support --locked --offline --jobs 1
+
+rustup run 1.98.1 cargo clippy -p brn-desktop --all-targets --features native-test-support --locked --offline --jobs 1 -- -D warnings
+rustup run 1.98.1 cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
+
+# Formatting and whitespace
+rustup run 1.98.1 cargo fmt --all -- --check
+git diff --check

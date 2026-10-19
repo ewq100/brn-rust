@@ -1,0 +1,94 @@
+{
+  "source_commit": "23c27cd1ed2a0878c4bed9cae254106584ef7034",
+  "integrated_commit": "c39a6af3abec4635b07af7287fc60528468e6400",
+  "all_tracked_rust_and_crate_manifests_match": true,
+  "review": {
+    "result": "Independent Sol approved c39a6af3 without source/design findings; stale current docs subsequently reconciled.",
+    "source_diff_against_a631_sha256": "e68cf0489ec781cbd61ae78bc5ef472f2a582735dce244ee7fd2beb94a6bf3a4",
+    "complete_committed_diff_against_a961_sha256": "5dcd5fd482673d0a3253f462a8b71edb322a180499fb2b6040f1782032d433df"
+  },
+  "focused": {
+    "completion": {
+      "passed": 1,
+      "failed": 0
+    },
+    "worker": {
+      "passed": 7,
+      "failed": 0
+    },
+    "contextual": {
+      "passed": 3,
+      "failed": 0
+    }
+  },
+  "full_desktop": {
+    "passed": 321,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 16.84,
+    "ignored_test": "threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left",
+    "ignored_requires": [
+      "BRN_DWR_SHARED_DATA",
+      "BRN_DWR_SHARED_SOURCE",
+      "BRN_DWR_SHARED_CHAT"
+    ]
+  },
+  "strict_all_target_clippy": "passed",
+  "format_and_diff_check": "passed; observed tool results, no separate raw output retained",
+  "production_build": {
+    "features": "native-ui",
+    "native_test_support": false,
+    "passed": true,
+    "seconds": 6.04,
+    "immutable_path": "/Users/evokessler/.codex/worktrees/notice-state/artifacts/brn-desktop-23c27cd1",
+    "sha256": "c6b5639af0f4d30100729bcf4f14001dd26621b235c4fd776bef2124821dee79"
+  },
+  "commands": "run-edit-refresh-commands.txt",
+  "commands_sha256": "ef10ae2dbb1f88b490dccd5539e61a88390ffad56707cb3bbe45fe2dbcbf1e89",
+  "logs": [
+    {
+      "path": "run-edit-refresh-focused.log.gz",
+      "raw_sha256": "df23f4191441b9307e80e302617d7c1ee00a364ba00f70ae3f4d547b4f07897e",
+      "gzip_sha256": "50ef8a7a9b3b87075d8361576f8086ae02b2b5f032b772690ea6e4374dacc7de",
+      "raw_bytes": 1326
+    },
+    {
+      "path": "run-edit-refresh-worker.log.gz",
+      "raw_sha256": "19964e903bae231627e001f7bc9ef648fc92d56c1565a69fc4c9c28a393c3b13",
+      "gzip_sha256": "bca0852b51bcf8b828738b2d7dd633c8ec4df6f05f45e93fee423fa99640395c",
+      "raw_bytes": 1400
+    },
+    {
+      "path": "run-edit-refresh-contextual.log.gz",
+      "raw_sha256": "68ac6633a9c392f64413924e43d07ce30ab06f063ce34eaed897e4b89d93947e",
+      "gzip_sha256": "579fabdc449b89b75eddc7fa95c26207b5aba507f3099ffefb92ab5a1dcb5454",
+      "raw_bytes": 890
+    },
+    {
+      "path": "run-edit-refresh-native-tests.log.gz",
+      "raw_sha256": "d8f3187b3d023b08c27e17c6bd2373b6bf37f2d0feab36fa009fc77008539119",
+      "gzip_sha256": "0974bea9d80a1f108030526aee084274c028f8e6b30774f8056580ee15f20027",
+      "raw_bytes": 33256
+    },
+    {
+      "path": "run-edit-refresh-clippy.log.gz",
+      "raw_sha256": "519cee98f3d5615f05bd5e5e29f49643881b157d4b55e54eff63c373e061c947",
+      "gzip_sha256": "bada22bd7db01ed739f360abec638c66de9ab4a2902d2c508a013de6772e8d6b",
+      "raw_bytes": 413
+    },
+    {
+      "path": "run-edit-refresh-production-build.log.gz",
+      "raw_sha256": "94ba1a54c7e22c0b081a2985d890cef24b984b3608aa8468efba6e2cee4e8ebe",
+      "gzip_sha256": "3359c305229a34e87a6257d50d0998de81c960eaea5da0a611aaf3ad7a93e9b9",
+      "raw_bytes": 413
+    }
+  ],
+  "limits": [
+    "Logs retain Cargo success summaries/Finished lines; shell exit codes not separately persisted.",
+    "No provider/model/private data or OS input check.",
+    "Existing injected completion/offline refusal witnesses do not qualify successful provider EditNote button-to-refresh.",
+    "No original production defect or measured speedup claimed.",
+    "Pre-existing block0.1.6 future incompatibility notice retained unsuppressed.",
+    "Hosted head/main integration remains pending."
+  ]
+}

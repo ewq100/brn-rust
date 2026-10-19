@@ -1,0 +1,83 @@
+diff --git a/crates/brn-desktop/src/threads_tiled_tests.rs b/crates/brn-desktop/src/threads_tiled_tests.rs
+index dfae3f10..ae7efb3c 100644
+--- a/crates/brn-desktop/src/threads_tiled_tests.rs
++++ b/crates/brn-desktop/src/threads_tiled_tests.rs
+@@ -1009,7 +1009,7 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
+     let f = fixture(cx, true, 1600., 1100.);
+     let centre = f.note.as_ref().unwrap().id.clone();
+     let thread = f.thread.as_ref().unwrap().clone();
+-    let (evidence, related) = update_returning(cx, &f, |view| {
++    let (evidence, related, second_hop) = update_returning(cx, &f, |view| {
+         let notes = owner_write(
+             view,
+             "notes",
+@@ -1020,6 +1020,10 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
+                     chat: Some(thread.clone()),
+                     ..Note::working("Private draft", "Chat only.\n")
+                 }),
++                RecordData::Note(Note::working(
++                    "Second-hop-only page",
++                    "Reached through Operations.\n",
++                )),
+             ],
+         );
+         owner_write(
+@@ -1029,10 +1033,15 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
+                 link_data(&centre, &notes[0].id, relations::SOURCE),
+                 link_data(&notes[1].id, &centre, relations::RELATED),
+                 link_data(&notes[2].id, &centre, relations::RELATED),
++                link_data(&notes[1].id, &notes[3].id, relations::RELATED),
+             ],
+         );
+         view.refresh();
+-        (notes[0].id.clone(), notes[1].id.clone())
++        (
++            notes[0].id.clone(),
++            notes[1].id.clone(),
++            notes[3].id.clone(),
++        )
+     });
+     update(cx, &f, |view, window, cx| {
+         view.open_note(&centre, None, window, cx)
+@@ -1057,7 +1066,40 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
+     })
+     .unwrap();
+     click(cx, &f, "connections-filter-all");
+-    click(cx, &f, "connections-depth-2");
++
++    // Dispatch the real control but inspect its immediate frame before the
++    // fixture's usual run_until_parked drains the matching request.
++    cx.update_window(f.window, |_, window, cx| {
++        window.click("connections-depth-2", cx);
++        assert!(
++            window.find("connections-pending").visible(),
++            "changing depth must hide the previous result and show pending"
++        );
++        assert!(window.try_find("connections-status").is_none());
++        assert!(window.try_find(format!("connection-{related}")).is_none());
++        assert!(window.try_find(format!("connection-{second_hop}")).is_none());
++    })
++    .unwrap();
++    cx.run_until_parked();
++    cx.update_window(f.window, |_, window, cx| {
++        window.render_frame(cx);
++        assert!(window.find("connections-status").visible());
++        assert!(window.find(format!("connection-{related}")).visible());
++        assert!(window.find(format!("connection-{second_hop}")).visible());
++        assert!(window.try_find("connections-pending").is_none());
++        f.view.read_with(cx, |view, _| {
++            let result = view.graph.result.as_ref().unwrap();
++            assert_eq!(result.centre.id, centre);
++            assert_eq!(result.hops.len(), 2);
++            let reached = result.hops[1]
++                .shown
++                .iter()
++                .find(|node| node.id == second_hop)
++                .expect("the independent second-hop Note is present");
++            assert_eq!(reached.via.as_deref(), Some(related.as_str()));
++        });
++    })
++    .unwrap();
+     click(cx, &f, format!("connection-{related}"));
+     cx.read(|cx| {
+         let view = f.view.read(cx);

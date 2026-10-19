@@ -1,0 +1,24 @@
+Repository: /Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust
+Baseline: a961a75a7191d80d6b717e99c90db415f8b882b2
+Toolchain: Rust 1.98.1-aarch64-apple-darwin
+Shared target: /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0
+
+Healthy focused test (passed):
+cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop late_checked_refresh_preserves_newer_typed_buffer_and_stale_save --locked --offline --jobs 1
+
+Controlled mutation test (expected failed assertion after removing only refresh_note visible-input sampling):
+cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop late_checked_refresh_preserves_newer_typed_buffer_and_stale_save --locked --offline --jobs 1
+
+Final restored full desktop suite:
+RUST_TEST_THREADS=1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop --locked --offline --jobs 1
+
+Final restored strict lint:
+cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+
+Final format:
+cargo fmt --all -- --check
+
+git diff --check

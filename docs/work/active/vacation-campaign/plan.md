@@ -1,11 +1,11 @@
 # Mac vacation hardening continuation
 
-Updated 19 October 2026. Lead: the current local Codex chat. Baseline:
-`bd42c1d99bfb41607c7218addbb52dc99bc340c3` (initial fetched main, merged PR162).
-Main subsequently advanced to `b5f01b07301dcc94d3d4e273a472d487f569bbc7`
-when the lead merged the already-qualified PR163 under current authorization.
-Working branch: `codex/vacation-hardening`, in an isolated managed checkout.
-The original checkout's untracked files and all other worktrees are preserved.
+Updated 19 October 2026. Current main is
+`f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165). The later reviewed candidate
+is source `98188942`, matching qualified worker `d98374f4`.
+Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
+branch `codex/late-refresh-hardening`. Preserve unrelated changes and all source-bound
+artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
 
 ## Current owner authorization
 
@@ -83,31 +83,9 @@ of features or uninterrupted host availability. No release is included.
 
 ## First implementation slice: worker identity
 
-**Already implemented and merged in PR163**, source `823a1544`, main `b5f01b07`.
-This records the accepted slice, not a request to reimplement it. Its final source
-digest matches the retained independent review; final PR required checks passed.
-The next gate is resulting-main verification and continuation-policy integration,
-then reconcile the remaining preview/context transitions before selecting new code.
-
-Adapt the existing private `threads_worker::Worker`; use ordinary Rust enums and
-the existing `WorkerKind` presentation rules where still useful. Reuse the shared
-Workspace stop/queue/run services and existing real-control tests. No external
-state-machine dependency, global reducer, event bus or new persistence owner.
-
-Inspection found production Runs always construct both identities, while Import,
-Export, Backup and Connect construct neither. The prior struct permitted
-invalid combinations. There is no reproduced identity bug yet: the intended benefit
-is making that invariant structural and reducing repeated caller knowledge.
-Do not remove a presentation discriminator used by legitimate headless consumers
-merely to satisfy a deletion target. Inspect all production and fixture consumers.
-
-Retain and run existing worker protocol, original-thread stream/navigation,
-cancellation capability, stale reference disconnect and replacement-worker journeys.
-Compile/test/lint the actual native feature path on pinned Rust 1.98.1, locked
-dependencies and synthetic disposable data. Build both current helpers for suites
-that require them. Missing setup is a named gate, not permission to weaken a test.
-Use native interaction when a control's wiring or visible behavior changes; a
-type-only preservation refactor does not newly establish native usability.
+Merged PR163 binds Run identity to its worker. [Source/result record](worker-identity.md)
+retains the exact implementation and checks. Its detailed planning snapshot is in
+[the preserved planning history](planning-history-through-2026-10-19.md#first-implementation-slice-worker-identity).
 
 ## Execution and resource policy
 
@@ -116,16 +94,16 @@ configuration. The owner clarified on19October that Luna may also implement smal
 clearly specified changes, as well as inspect code/logs, maintain docs and triage
 tests. Choose it when the bounded task and verifiable outcome suit it; reserve Sol
 for consequential decisions, difficult changes and meaningful independent review.
-Helpers may use nested Luna helpers when the lead explicitly assigns useful bounded
-work. The owner authorizes four, five, six or more helpers when useful; do not turn
+Helpers may independently assign bounded nested Luna work when it materially
+helps their assigned outcome, while coordinating actual shared capacity and ownership. The owner authorizes four, five, six or more helpers when useful; do not turn
 the earlier three-helper observation into a permanent project cap. Inspect actual
 runtime capacity and use independent parallel flows when they improve progress.
 This session currently exposes four total slots including the lead, so three active
 helpers are presently possible. Count nested helpers and reviewers in actual shared
 capacity. Coordinate shared files and the single local build slot; use isolated
 worktrees for overlapping source areas. Assign a reviewer when a concrete candidate
-is ready. No automatic Astra escalation or unassigned
-recursive delegation. Record requested model/effort and whether the runtime exposes the effective
+is ready. No automatic Astra escalation or recursive delegation without a concrete
+useful outcome. Record requested model/effort and whether the runtime exposes the effective
 configuration; do not claim measured savings without usage evidence.
 
 The owner clarified on19October: **continue actively through successive useful
@@ -181,93 +159,21 @@ Use normal merges and inspect relevant main checks before calling a batch comple
 state. The original charter and roadmap remain preserved historical authority;
 the dated corrections here own the changed local/merge/Mac/quota policy.
 
-## Selected next slice: notice state ownership
+## Current candidate and next action
 
-Baseline source is merged PR163; open PRs were reconciled before selection and
-none already implements this slice. The current UI stores notice text, Tone,
-`notice_tone_for` and last-work tuple separately; shell and UI repeat restoration
-and text-equality rules. Adapt the existing native UI boundary using a small private
-Rust owner and the existing Tone type. Preserve the public product behavior and
-the current `ThreadsUi` inform/confirm/warn/fail/report routes. No external framework,
-new crate, persistent state, worker policy, label or new control.
+PR165 notice/drain is merged after its four required exact-head checks. Resulting-main
+run39216341691 remains pending. The later candidate contains the [late-refresh witness](late-refresh.md),
+[Run-bound edit-refresh target](run-edit-refresh.md) and [Connections loading fix](connections-pending.md).
+Independent Sol approved complete source98188942. Final desktop321/0/1, strict native
+lint/format and a production-only build passed; exact receipts preserve limits.
+Publish one coherent PR, then follow its actual required-head and resulting-main checks.
+Native OS qualification remains in [the daily Mac queue](native-queue.md).
 
-Files: the notice owner beside `threads_state.rs`/`threads_worker.rs`, its native
-module wiring in `threads_ui.rs`, rendering/controls in `threads_shell.rs`, and
-actual fixture consumers. Lead owns shared documentation; implementation owns only
-desktop source/test consumers. Retire independent notice/tone/guard/last-work fields,
-the string-guard fallback and duplicate restore coordination in the same slice.
+[CI timing research](ci-feedback.md) identifies repeated helper preparation; no
+workflow change or saving is qualified. Select further work from concrete behavior,
+maintenance evidence and the priority queue above. Keep working while useful eligible
+work and allowance remain; the recovery heartbeat is not batch pacing.
 
-Acceptance:
-
-1. Text and Tone are one payload; unsupported direct writes cannot bypass the owner.
-2. Ordinary notices leave the latest completed work available. Work completion
-   records and displays the same payload atomically. Dismiss/clear hides current
-   text without deleting the latest work status.
-3. Restore requires an empty current notice, no active worker and a remembered work
-   status; it neither restarts work nor replaces a newer notice/error.
-4. The owner records whether current presentation is the remembered work status;
-   identical text in an ordinary later notice does not establish work identity.
-   This follows the existing newer-status preservation contract; no production
-   bug reproduction is claimed at selection.
-5. Keep five real outcome-tone cases (Stale, refresh follow-up, Applied, NeedsReview,
-   failure), recorded-run/terminal severity, failed banner restore, repeated actual
-   Dismiss/Layout restore, active/newer-status refusal and new-run clear. Extend
-   an appropriate retained test for equal-text ordinary-notice provenance.
-6. Retire only the sixth direct-field-write fallback case in the old outcome-tone
-   test once private ownership makes that write unsupported; migrate other fixtures
-   to owner operations and retain their behavioral assertions. No blanket deletion.
-
-Use focused owner transition/sequence tests for these actual rules, retained GPUI
-control/service journeys, native-feature strict lint/format and the relevant final
-desktop suite. Qualify missing helper/build prerequisites separately; no zero-test
-run or source-only inspection satisfies a test gate. Independent plan and complete
-candidate review, required CI/normal merge/main verification remain separate gates.
-
-Plan gate: independent Sol high review approved the complete plan at SHA-256
-`e8bc9208e5ab6f87170213d9664c2d470f2cfdc2bde40656f1b96c559d2e8e17`
-against baseline `37c87985`, with no actionable findings. A fresh Sol medium worker
-owns desktop source/tests in the managed `notice-state` worktree, using the shared
-task-owned partial build cache with one build at a time. The lead owns docs and
-integration; normal allowance is one active helper. Stop and reassess after two
-failed approaches, a disk/capacity limit or a consequential scope ambiguity. No
-native, provider or owner-acceptance result follows from this plan approval.
-
-## Next bounded candidate: worker drain fairness
-
-The Luna source inspection found that `Worker::drain` loops until Empty/Disconnected,
-even after its first terminal. A bounded channel limits queued slots, not cumulative
-reads while a concurrent producer refills it. No production stall, post-terminal
-production path or latency measurement was reproduced; this is proactive hardening.
-
-Adapt the existing private worker owner, without another abstraction or dependency:
-limit each drain to128 events (the largest current production channel capacity) and
-return Pending when that budget ends before terminal. Stop reading immediately after
-the first terminal; UI must consume it and retire its receiver before successor work,
-as it already does. Remaining preterminal events wait for the next80ms poll; they
-must not be dropped or marked complete early. This is an event-count bound, not a
-wall-time guarantee for arbitrary payloads. Keep blocking content/terminal sends,
-lossy progress, cancellation, disconnect partial persistence and queue policy.
-
-Acceptance: a deterministic prefilled channel larger than the budget proves the
-first batch has at most128 events and Pending, subsequent batches preserve every
-payload/FIFO order and eventually admit terminal once. Retain first-terminal payload,
-no-producer-disconnect completion, disconnected partial, Stop/Steer/successor and
-Converted-to-new-Run/trailing-event integration cases. No sleeps or racing live
-producer is needed to claim this defined event-count invariant; do not claim an
-old native freeze reproduction. Existing worker/GPUI tests, native-feature strict
-lint/format, applicable final desktop checks and independent review remain required.
-
-If independent plan review approves, a Luna medium worker can own this small,
-specified source/test change. Lead owns docs/integration. One writer/build per
-boundary; wait until the notice build releases the shared target before testing.
-The actual runtime allowance includes this worker and every reviewer/nested helper; no
-nested helper is useful for this tiny task. Reassess after two failed approaches or
-an event-order/persistence scope ambiguity. No implementation is authorized by this
-paragraph until its independent plan review is recorded.
-
-Plan review approved clean `7bbd7d6e`, plan SHA-256
-`32c4ad53d668f534fea4738f1e264889a690a98e59b41d397895191de4c4dca3`,
-with no actionable findings. A Luna medium worker owns the implementation in the
-managed worker-drain-budget worktree. It may edit statically while the notice
-worker finishes production qualification; local tests wait for the lead to release
-the single shared build slot. Implementation review/checks are not yet satisfied.
+[Preserved planning history](planning-history-through-2026-10-19.md) retains all earlier
+source-backed plans, review hashes, first failures and superseded pending snapshots.
+The current owner/resource/gate rules above remain at this stable path for restarts.

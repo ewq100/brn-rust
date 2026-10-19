@@ -447,7 +447,13 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                                 )
                                 .unwrap(),
                             );
-                            Worker::run(receiver, CancellationToken::new(), thread.id.clone(), run)
+                            Worker::run(
+                                receiver,
+                                CancellationToken::new(),
+                                thread.id.clone(),
+                                run,
+                                None,
+                            )
                         }
                         WorkerKind::Import => Worker::import(
                             receiver,
@@ -1184,7 +1190,7 @@ fn native_stream_and_resolution_keep_the_worker_thread_owner(cx: &mut TestAppCon
     let cancel = CancellationToken::new();
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
-            view.worker = Some(Worker::run(receiver, cancel.clone(), a.id.clone(), run.clone()));
+            view.worker = Some(Worker::run(receiver, cancel.clone(), a.id.clone(), run.clone(), None));
             view.open_thread(&b.id, window, cx);
             sender
                 .send(WorkerEvent::Text("Only A's synthetic answer".into()))

@@ -1,0 +1,4 @@
+Status: RECONSTRUCTED, not the original retained patch.
+Source: frozen production copy saved during the late-refresh test task at /Users/evokessler/.codex/worktrees/worker-drain-budget/late-refresh-evidence/note.rs.original.
+Method: in the temporary copy only, removed the single `self.note_changed(workspace, self.note_editor.read(cx).value().to_string())?;` call from `WritingPanel::refresh_note`; no other bytes were intentionally changed.
+Verification: reconstructed mutant SHA-256 matched the previously recorded mutant SHA-256 exactly. No test was rerun. The original mutant diff was not retained; this patch was reconstructed after the fact.

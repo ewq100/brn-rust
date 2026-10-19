@@ -469,6 +469,7 @@ fn run_fixture(
                     cancel.clone(),
                     thread.clone(),
                     run.clone(),
+                    None,
                 ));
                 view.progress = "Synthetic rewrite in progress".into();
                 (

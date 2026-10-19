@@ -273,6 +273,7 @@ fn nf1_busy_chat_and_retry_leave_exact_review_available(cx: &mut TestAppContext)
                 CancellationToken::new(),
                 f.chat.clone(),
                 run,
+                None,
             ));
             ui.start_run("Exact after busy".into(), f.chat.clone(), vec![], None, cx);
             assert_eq!(ui.notice.text(), WorkerKind::Run.busy_notice());

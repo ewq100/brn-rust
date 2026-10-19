@@ -88,6 +88,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                         cancel.clone(),
                         thread.clone(),
                         run.clone(),
+                        None,
                     ));
                     ui.open_thread(&thread, window, cx);
                     ui.composer.update(cx, |editor, cx| {
@@ -960,7 +961,17 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                     .unwrap();
                 ui.refresh();
                 ui.open_note(&note.id, None, window, cx);
-                ui.context_edit_note = Some((f.run.clone(), note.id.clone(), note.version));
+                let worker = ui.worker.take().unwrap();
+                ui.worker = Some(Worker::run(
+                    worker.receiver,
+                    worker.cancel,
+                    f.thread.clone(),
+                    f.run.clone(),
+                    Some(EditNoteTarget {
+                        note_id: note.id.clone(),
+                        version: note.version,
+                    }),
+                ));
                 ui.workspace
                     .owner_change(
                         "saved-context-edit",
@@ -991,7 +1002,7 @@ fn completed_context_edit_refreshes_saved_text_and_preserves_human_changes(
                     .send(WorkerEvent::Finished(Ok("Finished".into())))
                     .unwrap();
                 ui.poll_worker(window, cx);
-                assert!(ui.context_edit_note.is_none());
+                assert!(ui.worker.is_none());
                 if hide_note {
                     assert!(
                         !ui.note_tile_visible(),
@@ -1385,7 +1396,13 @@ fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
                 },
             );
             let old = ui.worker.take().unwrap();
-            ui.worker = Some(Worker::run(old.receiver, old.cancel, f.thread.clone(), run));
+            ui.worker = Some(Worker::run(
+                old.receiver,
+                old.cancel,
+                f.thread.clone(),
+                run,
+                None,
+            ));
             cx.notify();
         })
     })

@@ -1,0 +1,10 @@
+--- crates/brn-writing-ui/src/note.rs.original
++++ crates/brn-writing-ui/src/note.rs.mutant
+@@ -278,7 +278,6 @@
+         if self.note.open_edit_elsewhere().is_some() {
+             return Ok(());
+         }
+-        self.note_changed(workspace, self.note_editor.read(cx).value().to_string())?;
+         let State::Open(open) = &self.note.state else {
+             return Ok(());
+         };

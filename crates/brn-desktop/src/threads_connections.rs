@@ -69,6 +69,7 @@ impl ThreadsUi {
         graph.task = None;
         graph.cancel = None;
         graph.pending = false;
+        graph.result = None;
         graph.error = None;
         if graph.depth == 0 {
             graph.depth = 1;

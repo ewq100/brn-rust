@@ -1,0 +1,108 @@
+{
+  "test_commit": "335ce1c1241f868abffaabca290a01c458d75f56",
+  "test_checkout": "/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust",
+  "test_head": "335ce1c1241f868abffaabca290a01c458d75f56",
+  "baseline_commit": "a961a75a7191d80d6b717e99c90db415f8b882b2",
+  "production_source_commit": "1e89f4e86435c75bfc320d741eed84abfacb496a",
+  "production_file": "crates/brn-writing-ui/src/note.rs",
+  "production_file_sha256_current": "19b84f2ae2402a9615c4792e18bf2831a5a2f81762e785044ae5ae166d7d52de",
+  "production_file_sha256_frozen_original": "19b84f2ae2402a9615c4792e18bf2831a5a2f81762e785044ae5ae166d7d52de",
+  "production_file_hash_matches_expected": true,
+  "production_ui_binary_for_test_commit_built": false,
+  "focused_healthy_before_mutation": {
+    "passed": 1,
+    "failed": 0
+  },
+  "controlled_mutation": {
+    "expected_failed_assertion": "late refresh must preserve the visible text",
+    "location": "threads_document_tests.rs:468",
+    "failed": 1,
+    "passed": 0,
+    "mutant_source_sha256": "d3cab18594276e6e90bf7b67c4641f1876717b8c9ebcb566a5df4e285544f746",
+    "limitation": "Original mutant diff was not retained. A later reconstructed one-call deletion exactly matches the recorded mutant SHA256; no test was rerun.",
+    "reconstructed_patch": "late-refresh-reconstructed-mutant.patch",
+    "reconstructed_patch_sha256": "283a83286bf5c62df84c2c522eba6c85dc306319ffb686893400fed667a4b9ce",
+    "provenance": "late-refresh-mutation-provenance.txt"
+  },
+  "focused_healthy_after_restore": {
+    "passed": 1,
+    "failed": 0
+  },
+  "full_desktop": {
+    "passed": 321,
+    "failed": 0,
+    "ignored": 1,
+    "seconds": 16.83,
+    "ignored_fixture": "Existing external CLI fixture; not executed."
+  },
+  "strict_clippy": "passed",
+  "format": "passed",
+  "diff_check": "passed",
+  "earlier_wrong_invocation": "A --lib-target invocation is excluded from qualification; valid commands target --bin brn-desktop.",
+  "environment": {
+    "toolchain": "Rust 1.98.1-aarch64-apple-darwin",
+    "locked": true,
+    "offline": true,
+    "jobs": 1,
+    "target_dir": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target"
+  },
+  "commands_file_sha256": "f36a79178905a164a488ab0be372b0bdfeaea435a4e671b4fe63d1dd1f0419b4",
+  "logs": [
+    {
+      "path": "late-refresh-healthy-focused.log.gz",
+      "gzip_sha256": "f6258d52fe4f723ef83c6c37566c126b57327129e51c7d0f01b0354b391b3bf7",
+      "raw_sha256": "578b0a4b8f78a1a75a8ab44b2e60013eba20cd95e7fa49fa70df0c78df22e881",
+      "raw_bytes": 786
+    },
+    {
+      "path": "late-refresh-mutant-focused-expected-failure.log.gz",
+      "gzip_sha256": "285652c232ee399d58b78e168655aca7dcb8fa988b03fa46c4a9728801329b9f",
+      "raw_sha256": "c3acacf871a4739d2c5c5860ff2f76ad1349d3a01a0160f028324b4f86ae81b7",
+      "raw_bytes": 1717
+    },
+    {
+      "path": "late-refresh-healthy-focused-final.log.gz",
+      "gzip_sha256": "af51203e156d23b06a1206c47c954ffffab09361b13bf293de0bd289a4956673",
+      "raw_sha256": "3a9af61e9af712436537c4561f493811987e47a7b7e74c7a12ca6a132d5b0a95",
+      "raw_bytes": 786
+    },
+    {
+      "path": "late-refresh-final-desktop-suite.log.gz",
+      "gzip_sha256": "a23145ff0c7c62fd42c0751af5510bf124dad3000f1943dbd7d78cb9d9de1d88",
+      "raw_sha256": "8f576d1a4a86210521c271380cce8a85a539fe9fda929e90cccab3e6452e475b",
+      "raw_bytes": 33386
+    },
+    {
+      "path": "late-refresh-final-clippy.log.gz",
+      "gzip_sha256": "1c36baa7631f447f2624ee1e7af03f1d95c0e265644236b492af3347d8aa3ce7",
+      "raw_sha256": "aba67a1bca0bc27db79c401520afd9572431e3f09145b3d89d764cdf13f1f78d",
+      "raw_bytes": 543
+    },
+    {
+      "path": "late-refresh-final-format.log.gz",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "late-refresh-final-diff-check.log.gz",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    }
+  ],
+  "limits": [
+    "Test source is commit 335ce1c; production note.rs bytes match source 1e89f4e.",
+    "No production UI build for test commit 335ce1c is claimed.",
+    "Synthetic desktop/toolkit completion boundary only; no native OS input/IME/accessibility or live provider qualification.",
+    "The mutation failure is not evidence of an existing production defect.",
+    "Ignored external CLI fixture remains unrun."
+  ],
+  "integrated_test_commit": "a631371daf6466d082d76e4c5b0c6f62d959dab4",
+  "commands_file": "late-refresh-commands.txt",
+  "independent_review": {
+    "source": "a631371daf6466d082d76e4c5b0c6f62d959dab4",
+    "test_diff_sha256": "2b91c638781ea82929ff121400bcd66b50b4d2d79da8a946b5c8a4aa25727b3f",
+    "result": "Approved; no actionable findings. Independently reproduced the recorded mutant hash without running builds/tests."
+  }
+}

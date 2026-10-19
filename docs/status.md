@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`348959b7138de6230cb77852f860b910155c64d4` (PR164).
+`f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -17,14 +17,25 @@ unattended executions remain unobserved.
 Note/Review pilots, worker terminal admission and coherent worker Run identity are
 merged. PR163's final source matches its independent review and all four required
 final-head and resulting-main required checks passed. PR164's required head checks
-passed before its normal merge; its resulting-main run39212874814 is pending.
+passed before its normal merge; all four required resulting-main jobs in run39212874814 passed.
 PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
-Next: publish the reviewed notice/drain hardening candidate and finish required
-PR/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
+PR165 merged normally after all four required exact-head checks passed in
+run39213694797. Resulting-main run39216341691 is pending. Prior drain source1e89f4e8 passed
+local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.
+The separate [late-refresh/newer-typing witness](work/active/vacation-campaign/late-refresh.md)
+passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation and
+byte-exact restoration. Independent Sol effectiveness review approved the exact test. The later Run-bound edit-refresh ownership candidate is implemented and independently
+approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
+passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
+while publication and hosted gates remain pending. The same later candidate98188942
+also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
+with a failing old-source witness and final321/0/1, lint/format/production build passing.
+Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect
+is claimed.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 
