@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Reserve the caller's exact root before opening or creating workspace data.
     // create_dir is atomic and refuses existing directories and files.
     fs::create_dir(&root)?;
-    let mut app = Workspace::open(root.join("workspace"))?;
+    let mut app = Workspace::open_without_default_credentials(root.join("workspace"))?;
     let mut settings = app.settings()?;
     settings.provider = "offline-fixture".into();
     settings.auth_file = None;
