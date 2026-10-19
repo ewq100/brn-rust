@@ -163,15 +163,15 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
             "id": note.id,
             "version": note.version,
             "title": "Native selected-feedback fixture",
-            "original_bytes": ORIGINAL.as_bytes().len(),
+            "original_bytes": ORIGINAL.len(),
             "original_sha256": sha256(ORIGINAL.as_bytes()),
-            "revised_bytes": REVISED.as_bytes().len(),
+            "revised_bytes": REVISED.len(),
             "revised_sha256": sha256(REVISED.as_bytes())
         },
         "unrelated_note": {
             "id": unrelated.id,
             "title": "Unrelated fixture note",
-            "bytes": UNRELATED.as_bytes().len(),
+            "bytes": UNRELATED.len(),
             "sha256": sha256(UNRELATED.as_bytes())
         },
         "conversation_id": thread_id,
