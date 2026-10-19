@@ -37,7 +37,7 @@ synthetic fixtures. Baseline/corrected results remain separate.
 | M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
 | M1 argument correction | Selected next implementation; bounded source/contract audit underway, no correction behavior claimed yet. |
 | M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
-| M3 targeted edit | Pending small exact-edit design/implementation using existing checked candidate/write/Undo; whole-read replacement guard remains. |
+| M3 targeted edit | [Bounded preparation](targeted-edit.md) selects exact UTF-8 range + expected text and existing checked candidate/write/Undo. Construction/replay/Rewrite seams await M1 interface freeze; whole-read replacement guard remains. |
 | M4 instruction/review consistency | Pending current-caller reconciliation and bounded implementation; Rewrite remains proposal-only and comment selection remains explicit. |
 | M5 broader artifact capability | Conditional bounded reuse proof; production activation/live/provider/data permissions unchanged. Adopt or defer with evidence. |
 | M6 outcome comparison/retirement | Applied to actual changed callers; deterministic/live/native/owner/main outcomes recorded separately. |

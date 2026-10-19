@@ -112,6 +112,19 @@ The packaged [base guide](../../agent/BRN.md) is the runtime instruction source.
 
 Each skill should include one ordinary success example and a few relevant boundaries. New semantic behavior should usually require guidance and scenario examples, not new persistent workflow types.
 
+### Mechanical knowledge review and repair guidance
+
+The selected agent-first M2 candidate keeps structural findings, exact record
+identities/versions, scoped details, counts and omission bounds in the host. Its
+bounded review message directs the agent to maintain-notes and explicitly says
+that recorded structure/versions/coverage do not establish truth or require a
+repair. Reusable repair prescriptions live in that existing skill, with authority,
+conflict, exact-version and checked-write rules preserved. Similarity/orphan hints
+are leads, not semantic conclusions. Earlier bundle10 seeded-remedy text above is
+history; [current source qualification](../work/active/agent-first-simplification/knowledge-guidance.md)
+distinguishes the candidate from pending hosted/native/live/owner gates. Exact
+prior skill-digest bindings are never automatically reapproved.
+
 ## Tools, authority, and continuation
 
 Expose a small capability vocabulary: search/read current records; inspect an available source; prepare/apply a grouped change; add thread context or attention; inspect history; and request compensation. Mutating thread and Action operations use the same service as note writes. Exact Rust signatures belong in the core implementation, rather than another duplicated schema here.
