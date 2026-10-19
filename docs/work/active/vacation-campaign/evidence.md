@@ -527,3 +527,11 @@ remaining; first unattended wake remains unobserved.
 
 - [Exact-ID schema source review](evidence/exact-note-reading-source-review.json) and [qualification](evidence/exact-note-reading-qualification.json): reviewed metadata only, final runtime522/0/2, lint/format/ordinary CLI and third natural-request account probe pass; initial helper-environment failure retained. The live session is closed at3 attempts.
 - [Generated cache reclamation](evidence/build-cache-reclamation.json): exact removed metadata paths/hashes; qualified executables, helpers, data and evidence preserved. No active build.
+
+
+##19October actual Mac and reading follow-through
+
+- [Actual Mac review](evidence/native-mac-review-qualification.json): functional suggestion/selection/Apply/Undo/reopen PASS on source-matched4e; AX state FAIL/open,6 raw archives. No account call or native AI claim.
+- [Trace source review](evidence/read-trace-truncation-source-review.json) and [qualification](evidence/read-trace-truncation-qualification.json): original false-flag regression fails, one-line boolean fix and relevant adjacent tests/lint/format pass;25 raw archives. Combine with exact-ID guidance in PR175.
+- [PR173 receipt](evidence/pr173-integration.json): all four required head/main checks passed. [PR174 receipt](evidence/pr174-integration.json): normally merged7fb5 after all four head checks; main39254538056 pending.
+- [Static duplicate cache receipt](evidence/build-cache-reclamation-static-duplicates.json): older generated caches only; executable/helper/source/data/evidence retained.

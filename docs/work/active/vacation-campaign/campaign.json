@@ -12,20 +12,20 @@
   },
   "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
   "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_AVAILABLE_8_PERCENT_REMAINING",
+  "admission_state": "CAPACITY_AVAILABLE_7_PERCENT_REMAINING",
   "continuation_blockers": [
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T12:33:25.171836+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T12:51:33.780363+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163-172 all four required head/main checks passed. PR173 normally merged33a62aae after all four exact-head required checks passed; resulting-main39250500661 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Complete distinguishing old-expression trace regression, then final focused tests/lint/format. Merge174 normally only when all exact-head checks and preceding main gates pass. Combine related read-guidance and trace-report correction in PR175 and reconcile actual main before fresh CI to avoid a separate tiny PR. Native Mac observation stays queued; account session closed at3/3, day3/6. No concurrent builds.",
-  "last_qualified_source": "9229085a9683a1c988a1cb12d647f52df18115f6",
-  "source_delta_after_qualification": "All production source/manifests/locks/toolchain equal reviewed and locally qualified9229085; only separately qualified test support and campaign docs differ.",
-  "active_work": "PR173 merged33a62aae after all four head checks; main39250500661 pending. Frozen test-support PR174 e56b4dbd hosted checks running. Exact-ID schema clarification9229085 independently approved, runtime522/0/2, strict all-target lint/format/ordinary CLI pass; same-model natural-request probe passed. Three live attempts/session and day used, current account session closed; actual native observation pending.",
-  "continuation_baseline": "33a62aae1b358f1de9475040eb180c63e0651f4f",
+  "integration_status": "PR163-173 all four required head/main checks passed. PR174 normally merged7fb5dff after all four exact-head checks passed; main39254538056 pending. Optional Windows failures retained.",
+  "next_eligible_work": "Publish combined PR175 after final integration review: exact Note ID guidance and truthful trace truncation. Follow PR174 main and PR175 exact-head/main gates. Narrow AX selector fix in isolated worker; lead owns one build slot. First actual Mac review functional PASS/AX state FAIL. Account session closed3/3, Tallinn day3/6.",
+  "last_qualified_source": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
+  "source_delta_after_qualification": "Lead production matches independently reviewed922 schema and a8 trace correction plus main7fb5 test support; no UI fix integrated yet.",
+  "active_work": "Final combined reading PR175 source review. Luna owns narrowly scoped native feedback-selector AX fix; no worker builds/account runs. Actual Mac Apply/Undo/reopen qualified on production4e; AX selected state defect remains open.",
+  "continuation_baseline": "7fb5dff19fda418d2473e5a3fe007fdc8480704b",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot92% used/8% remaining; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot93% used/7% remaining; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -83,7 +83,7 @@
     "branch": "codex/agent-first-suggestions",
     "url": "https://github.com/ewq100/brn-rust/pull/173",
     "required_head_checks": "all four passed",
-    "resulting_main": "33a62aae1b358f1de9475040eb180c63e0651f4f; run39250500661 pending"
+    "resulting_main": "33a62aae1b358f1de9475040eb180c63e0651f4f; all four required main39250500661 passed"
   },
   "codex_ai_testing": {
     "policy": "codex-ai-testing.md",
@@ -103,13 +103,22 @@
       "number": 174,
       "head": "e56b4dbdb14394afd1abeb58712153344b3d3106",
       "branch": "codex/native-suggestion-qualification",
-      "status": "3/4 required head checks passed; Mac Core/CLI running; not merged"
+      "status": "normally merged7fb5dff after all four exact-head checks passed; resulting-main39254538056 pending"
     },
     {
       "number": 175,
       "head": "68f14668",
       "branch": "codex/exact-note-read-guidance",
-      "status": "published reviewed schema source; will combine independently reviewed trace reporter correction after focused qualification and reconcile actual main before fresh required CI"
+      "status": "combined schema/trace source at notice197cdc37 after actual-main reconciliation; final independent integration review before final push/checks"
     }
-  ]
+  ],
+  "native_observation": {
+    "receipt": "evidence/native-mac-review-qualification.json",
+    "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+    "functional": "PASS: suggestion visible, initially unchecked, explicit selection, exact Apply/Undo and reopen",
+    "accessibility": "FAIL/open MAC-SUGGESTION-AX-1: selection visual only; source fix assigned",
+    "native_ai": false,
+    "account_calls": 0
+  },
+  "resource_batch": "Lead retains selected configuration; one bounded Luna medium source worker and one independent Sol high reviewer, max3 active incl lead, single shared build slot. Reassess at candidate/review completion or about5% allowance; no new calls in closed account session."
 }
