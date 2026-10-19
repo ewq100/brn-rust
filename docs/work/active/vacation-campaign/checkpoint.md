@@ -42,13 +42,18 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 Owner selected the [agent-first plan](../agent-first-simplification/plan.md); read
 [its reconciliation](../agent-first-simplification/reconciliation.md) before new
-source work. M0 standing-rule/product-summary candidate is under independent Sol
-review. Identified stale restart/inventory omissions are being corrected. M1
+source work. M0 complete527 is independently approved after correcting stale restart/inventory
+omissions; see the workstream m0-review.json. M1
 pre-effect tool-argument correction is selected next; a requested Sol high design
-pass verifies pinned Rig0.44 dispatch-denial reuse. M2 factual-check/repair-skill
-separation has a requested Luna medium isolated writer in drain checkout, owning
-only knowledge.rs, maintain-notes skill and two affected existing test files.
-Lead owns shared docs/interfaces/integration and the single build slot.
+pass verifies pinned Rig0.44 dispatch-denial reuse. M2 factual-check/repair-skill separation at final333 (workerbf12) is independently
+approved. Topics11/journeys8/keyed11 plus strict app all-target lint/fmt pass. The
+first101 run failed one obsolete prose assertion; raw failure/final logs retained.
+No M2 writer remains; source and guide bytes are frozen.
+Lead owns shared docs/interfaces/integration; the single build slot is now reserved
+by the isolated M1 Sol writer in notice checkout, branchcodex/pre-effect-tool-correction.
+The existing builtin digest/reapproval GUI gap is documented separately, with no
+automatic policy rebinding. M3 exact-range UTF-8/replay/private-scope reuse map is
+complete; no M3 implementation is selected until its current interface is reconciled.
 
 The actual historical schema5 CLI was built offline from fb1b2100. All four
 optional upgrade witnesses genuinely failed current schema10 versus stale9
@@ -98,7 +103,7 @@ is persisted; actual unattended execution remains unobserved. Reconcile actual
 Git/agents/processes after restart before dispatch and preserve source-bound artifacts.
 
 Current allowance was
-78% used/22% remaining in the applicable seven-day window, reset1792874447. Recheck
+79% used/21% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour
 `brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains

@@ -70,7 +70,8 @@ do not grant new authority.
 
 The owner selected [the supplied agent-first plan](work/active/agent-first-simplification/plan.md)
 inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
-records M0 standing-rule changes and M1 bounded tool-argument correction as next
-implementation, with M2 structural findings/skill policy separable. M3/M4 remain
+records independently approved M0 rules and M1 bounded tool-argument correction
+under implementation. M2 structural findings/skill policy is independently reviewed
+and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. M3/M4 remain
 pending; broader artifact execution is conditional. No new live/private-data or
 release authority follows, and no new implementation/native completion is claimed.

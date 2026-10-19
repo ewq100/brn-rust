@@ -16,7 +16,7 @@ Already integrated worker/notice/reference/MCP improvements are retained and are
 not reassigned. One lead owns shared docs/interfaces, source integration and the
 single local build slot; independent workers receive bounded file ownership.
 
-M0 merges standing responsibility/reuse rules into AGENTS and strategic guidance,
+M0 has independently reviewed standing responsibility/reuse rules into AGENTS and strategic guidance,
 and records the selected product direction in the canonical target. M1 is first:
 allow up to two corrective turns for eligible known/offered-tool argument errors
 rejected before whole-batch dispatch. Stop/scope/time/token limits and uncertain
@@ -34,9 +34,9 @@ synthetic fixtures. Baseline/corrected results remain separate.
 
 | Milestone | Current disposition and next gate |
 |---|---|
-| M0 rules/reconciliation | Candidate documentation changes; current-source read and independent review before integration. |
+| M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
 | M1 argument correction | Selected next implementation; bounded source/contract audit underway, no correction behavior claimed yet. |
-| M2 findings/guidance | Boundary mapped; structural DTO/privacy checks retained, existing skill receives reusable policy when selected. |
+| M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
 | M3 targeted edit | Pending small exact-edit design/implementation using existing checked candidate/write/Undo; whole-read replacement guard remains. |
 | M4 instruction/review consistency | Pending current-caller reconciliation and bounded implementation; Rewrite remains proposal-only and comment selection remains explicit. |
 | M5 broader artifact capability | Conditional bounded reuse proof; production activation/live/provider/data permissions unchanged. Adopt or defer with evidence. |

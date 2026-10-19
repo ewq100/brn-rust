@@ -327,3 +327,25 @@ fixture mutation and skipped-without-binary exits are not passing evidence.
 Current README schema3/5 claims were reconciled to supported3–9/current10 admission
 and backup-first restore/rollback rules. Explicit historical CLI contract notes
 remain history; no production storage or authority behavior changed.
+
+
+## Agent-first M0 review and M2 qualified candidate
+
+The supplied42199-byte owner plan remains exact; M0 candidate527 and complete
+diff are [independently approved](../agent-first-simplification/m0-review.json)
+after fixing the stale restart entry and missing existing-ID disposition map.
+The existing saved automation prompts read this campaign plan/checkpoint as current
+authority, so the linked workstream survives restart without another schedule.
+
+[M2 candidate333](../agent-first-simplification/knowledge-guidance.md) retains
+factual checks and moves generic repair policy into the existing skill. First
+source101 genuinely failed one retired-message assertion; final333 passed
+topics11/journeys8/keyed11 plus strict app all-target lint/full format. Independent
+Sol approved the corrected complete four-file diff. Exact digest bindings remain
+fail-closed; the separate existing native reapproval UI gap is recorded, not
+silently repaired by rebinding. No live/native/model-quality claim follows.
+
+Requested Sol high now implements M1 on its isolated notice branch and owns the
+single shared build slot; requested Luna medium completed read-only M3 reuse/risk
+mapping. No new general retry engine/dependency/schema/permission platform is selected.
+Fresh native quota79% used/21% remaining, reset1792874447; original expiry unchanged.

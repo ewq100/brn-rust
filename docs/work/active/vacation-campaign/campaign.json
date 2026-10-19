@@ -18,29 +18,19 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:52:52.026679+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T10:02:34.942476+00:00",
   "current_session_jobs": [
     {
-      "agent": "ci_native_prep_review",
-      "task": "M0 independent docs review/reconciliation",
-      "model_requested": "gpt-6.1-sol high"
-    },
-    {
       "agent": "argument_correction_design",
-      "task": "M1 pinned-hook design",
+      "task": "M1 implementation/focused checks; single builder",
       "model_requested": "gpt-6.1-sol high"
-    },
-    {
-      "agent": "current_readme_contract_audit",
-      "task": "M2 isolated knowledge/skill implementation",
-      "model_requested": "gpt-6-luna medium"
     }
   ],
   "integration_status": "PR163\u2013168 required exact-head/resulting-main pass. PR169 normal merge e1c0ddaf from fixed63b after all4 required39230048849 pass; resulting-main39232087600 running; optional Windows head failure retained.",
-  "next_eligible_work": "Finish M0 rule/restart/inventory review corrections and genuine schema5-to-current upgrade witness maintenance; follow frozenPR1709000 head39232265037 and PR169main39232087600. M1 finite pre-effect correction selected; M2 separate Luna implementation underway. Preserve existing native18/expiry/quota authority.",
+  "next_eligible_work": "Follow frozenPR1709000 actualrequired head/main; reconcile merge history then publish reviewed M0+schema upgrade+M2 candidate. M1 Sol implementation/checks active in notice checkout, single buildslot reserved. M3 reuse map complete; decide smallest exact-edit design after M1 interface freezes. Native18 remains separate.",
   "last_qualified_source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
   "source_delta_after_qualification": "Worker274 and integrateda593 match all Rust/manifests/rootlock/toolchain; compared with qualified0f only one test comment differs. Production artifact0f unchanged. Independent Sol approvedcomplete0f; lead checked mechanicalcommentdelta. No actualnetwork/OSacceptance.",
-  "active_work": "Lead93673ac5 plus M0 docscandidate; upgrade4baselinefail\u21924pass, affectedstrictlint/fmtpass. Sol independentM0 review corrections, SolM1 boundeddesign, LunaM2 isolatedsourcewriter. Singlebuildslot idle afterupgradechecks.",
+  "active_work": "Lead333 production M2 candidate reviewed/qualified: topics11 journeys8 keyed11 lint/fmt. M0 approved527. M1 author owns shared buildslot. M3 read-only reuse map complete. Exact old skill bindings stay unavailable; separate desktop explicit reapproval gap recorded.",
   "continuation_baseline": "e1c0ddaf896ff5d4f1ae68b36099546f3937db32",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -53,7 +43,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot78% used /22% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchases/reset credits.",
+    "quota": "Fresh native snapshot79% used /21% remaining in applicable seven-day window; reset1792874447. About5% floor; no purchase/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
