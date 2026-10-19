@@ -1434,7 +1434,8 @@ impl<T: 'static> WritingView<'_, T> {
                         } else {
                             ""
                         },
-                        captured.body, captured.quote
+                        captured.body,
+                        captured.quote
                     ))
                     .tooltip(format!(
                         "Mark addressed after Apply. Captured passage: “{}”. Instruction: {}",
