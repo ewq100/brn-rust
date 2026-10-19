@@ -40,9 +40,14 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local source writer/builder is active. One Luna read-only audit prepares the
-strictly read-only MAC01/04 checker path; lead prepared exact expected UTF-8 fixtures
-in native-fixtures/ before any OS action or native workspace creation. PR168 merged normally as e583a177 from exact
+No local source writer/builder is active. MAC01/04 checker source audit is complete;
+native-checker.md uses direct SQLite URI mode=ro and a short snapshot transaction,
+avoiding writable CLI bootstrap. Exact expected UTF-8 native-fixtures/ bytes were
+prepared before any OS action or native workspace creation. CI dependency audit is complete. Selected tiny change moves only the static
+headless intake-retirement guard before helper prep; broader build/test reordering
+is not selected because of failure-path guards. Local check,5existing tests and
+Ruby Psych YAML parse pass. Independent review of complete later candidate next. The
+broader producer/artifact-sharing redesign remains deferred. PR168 merged normally as e583a177 from exact
 checked7c after all four required39225335901 jobs passed. Main39227629739 passed all four required jobs, docs and Ubuntu UI/retrieval;
 optional Windows Core/UI/retrieval failed. Keep these gates separate.
 

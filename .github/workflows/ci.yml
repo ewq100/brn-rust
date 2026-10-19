@@ -71,6 +71,9 @@ jobs:
       - name: Check production provider retirement
         if: runner.os != 'Windows'
         run: python3 scripts/check-provider-retirement.py
+      - name: Check production intake retirement
+        if: runner.os != 'Windows'
+        run: python3 scripts/check-intake-retirement.py
       - name: Prepare both locked document helper graphs
         if: runner.os != 'Windows'
         run: |
@@ -84,9 +87,6 @@ jobs:
           cp target/document-helpers/artifacts/brn-xberg-helper* target/debug/
           echo "BRN_XBERG_HELPER=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper" >> "$GITHUB_ENV"
           echo "BRN_XBERG_HELPER_BRN=$GITHUB_WORKSPACE/target/document-helpers/artifacts/brn-xberg-helper-brn" >> "$GITHUB_ENV"
-      - name: Check production intake retirement
-        if: runner.os != 'Windows'
-        run: python3 scripts/check-intake-retirement.py
       - name: Build the default workspace
         id: workspace-build
         run: cargo build --workspace --locked --offline

@@ -256,3 +256,15 @@ closes before OS close, preserving canonical and already-durable recovery eviden
 without bootstrap/repair. Source/table/serialization references were checked; no
 CLI workspace, app window or actual data inspection was performed. This adds no
 production read-only framework/API or new native success claim.
+
+
+## Small CI guard-order candidate selected
+
+Luna source audit found helper paths runtime-only, but moving the workspace build
+ahead of preparation also changes tests after a helper failure (they intentionally
+run after lint failure). Lead selected only moving the existing static intake
+retirement guard before helper prep. Same command/name/condition; all build, lint,
+helper/test steps, IDs, conditions and platform/context settings stay unchanged.
+Existing retirement check +5existing negative-control tests and Ruby Psych YAML
+parse passed. No new test/framework/dependency/pin, passing-run timing saving or
+Rust requalification is claimed. Independent review and hosted integration remain.
