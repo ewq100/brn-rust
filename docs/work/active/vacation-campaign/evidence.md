@@ -405,3 +405,25 @@ retains exact hashes, no changed schedule or new clock. Unattended wake unobserv
 PR170 main39236565242 passed all four required jobs; optional Windows failures
 remain. PR171 fixes checked7a9867a8 while continuation uses codex/agent-first-next.
 Fresh quota85%used/15%remaining; floor/reset/expiry unchanged.
+
+
+## PR171 integration and next review candidate
+
+PR171 merged normally at9a6feab2 from exact7a9867a8 after all four required
+head checks passed. [Integration receipt](evidence/pr171-integration.json) retains
+actual protection, head jobs and resulting-main39240783382, currently running.
+Optional Windows Core failed at the PR head. Lead continuation has merged that
+main while preserving M3 source88b and its independent qualification.
+
+M4 finald235 is independently approved. Its duplicate feedback list caused two
+real unchanged small-window failures; reusing existing comment cards repairs the
+layout, and full native332/0/1 passes. Final CLI/lint/host checks remain pending.
+The synthetic native fixture source4d59 is independently approved after replacing
+initial workspace credential discovery with open_without_default_credentials;
+the earlier source would have retained an owner auth path in initial settings
+history even after clearing current settings. No provider was called. Fixture
+runtime qualification and actual Mac review remain pending.
+
+[M6 comparison](../agent-first-simplification/outcome-comparison.md) records actual
+retirement and remaining evidence. No semantic/live/native equivalence or
+whole-plan completion is inferred from scripted checks.

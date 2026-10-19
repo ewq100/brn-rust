@@ -1,13 +1,15 @@
 # Mac vacation hardening continuation
 
-Updated19October2026. Current main d7f48e6c is PR170, normally merged from
-checked9000 after all four required head checks passed; all four required main39236565242 jobs passed, optional Windows jobs failed.
-PR169 main39232087600 and earlier required head/main checks passed; optional
-Windows failures remain explicit. Lead checkout:
+Updated 19 October 2026. Current main9a6feab2 is PR171, normally merged from
+checked7a9867a8 after all four required head checks passed. Resulting-main
+run39240783382 is running; optional Windows Core failed at the PR head. PR170
+main39236565242, PR169 main39232087600 and earlier required head/main checks
+passed; optional Windows failures remain explicit. Lead checkout:
 `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/agent-first-next`. PR171 fixes reviewed M0/schema/M1/M2+skill UI at7a9867a8 on
-codex/hardening-maintenance; combined19efe checks and production build passed, hosted
-gates remain. Old production0f cannot qualify this new source. [Current checkpoint](checkpoint.md) owns active jobs and next action.
+`codex/agent-first-next`. PR171 contains reviewed M0/schema/M1/M2+skill UI;
+combined19efe checks and production build passed. M3/M4 continue separately and
+need a new combined artifact. [Current checkpoint](checkpoint.md) owns active
+jobs and next action.
 
 ## Current owner authorization
 

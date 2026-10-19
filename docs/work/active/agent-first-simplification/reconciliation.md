@@ -8,10 +8,9 @@ the single execution, resource, schedule, expiry and integration authority.
 
 ## Baseline, ownership and priority
 
-Current main d7f48e6c is PR170, normally merged from checked9000 after all four
-required checks passed; all four required resulting-main39236565242 jobs passed; optional Windows jobs failed. PR169 resulting-main
+Current main9a6feab2 is PR171, normally merged from checked7a9867a8 after all four required head checks passed; resulting-main39240783382 checks are running. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
 39232087600 passed all four required jobs; optional Windows jobs failed.
-Lead continues on codex/hardening-maintenance, preserving both checked histories.
+Lead continues on codex/agent-first-next, preserving the checked histories.
 Already integrated worker/notice/reference/MCP improvements are retained and are
 not reassigned. One lead owns shared docs/interfaces, source integration and the
 single local build slot; independent workers receive bounded file ownership.
@@ -34,13 +33,13 @@ synthetic fixtures. Baseline/corrected results remain separate.
 
 | Milestone | Current disposition and next gate |
 |---|---|
-| M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
-| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; hosted gates pending. |
-| M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
+| M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normally merged PR171, resulting-main pending. |
+| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; normally merged PR171, resulting-main pending. |
+| M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Normally merged PR171; resulting-main/live/native gates separate. |
 | M3 targeted edit | [Candidatee227](targeted-edit.md) independently approved; runtime518/0/2, strict lint/format and affected CLI guide test pass. Whole-read/refresh and partial-coverage guards preserved; combined/hosted/native gates remain. |
-| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source13b3 independently approved; first actual qualification is running in isolated checkout. Rewrite stays proposal-only, comment selection explicit. |
+| M4 instruction/review consistency | [Bounded design](writing-review.md) reuses current OwnerRequest and ReviewLifecycle; source throughd235 independently approved; a real small-window layout regression was repaired by reusing existing comment cards. Full native332/0/1 passes; final CLI/lint qualification is running in isolated checkout. Rewrite stays proposal-only, comment selection explicit. |
 | M5 broader artifact capability | [Synthetic calculation/SVG proof](artifact-capability.md) and fresh reproduction pass through existing bundled libraries. Production activation deferred with concrete packaging/output/containment/review gaps; no permission expansion. |
-| M6 outcome comparison/retirement | Applied to actual changed callers; deterministic/live/native/owner/main outcomes recorded separately. |
+| M6 outcome comparison/retirement | [Comparison/retirement record](outcome-comparison.md) accounts for changed callers and explicit semantic/live/native/owner/main gaps. |
 
 ## Conflicts and preserved limits
 
