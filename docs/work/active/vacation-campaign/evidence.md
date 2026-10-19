@@ -105,3 +105,131 @@ First iteration and its artifact-name limitation remain historical. Final indepe
 hashes match. Stored patch context whitespace is resolved by lossless gzip, with
 raw patch hashes retained. Complete staged candidate whitespace and links pass;
 publication/hosted gates remain, with no local builder active.
+
+The reviewed/local-qualified complete candidate is now PR168 at fixed7c21713b,
+run39225335901. New work uses codex/hardening-next; no checked-head mutation is
+planned. Three bounded Luna read-only audits inspect remaining project-dialog,
+picker and MCP coordination routes; no source writer/build is active. Latest quota
+snapshot76% used/24% remaining, above the approximate5% floor.
+
+
+## Bounded follow-up audits and selected MCP freshness slice —19October
+
+Project settings/delete/Trash callbacks retain captured IDs/version/preview and
+input on checked refusal; no source-supported defect or new test selected. Remaining
+import/skill pickers surface both error layers and preserve captured import scope;
+credentials paths are typed inputs, not pickers. Actual OS transport remains unqualified.
+MCP discovery captures endpoint A while its input remains editable. Context stamps
+do not include that input, allowing A metadata to coexist with edited B. Metadata
+labels A and approval configures A, so this is a UI freshness improvement, not a
+canonical grant bypass. Selected scope: retire stale display/approval/completion
+when endpoint changes, retain same-endpoint success and current authority contracts.
+One Luna medium writer in prepared notice checkout owns only MCP module/tests;
+two parallel Luna medium read-only audits cover Action/Undo and comments. Shared
+build slot is not yet admitted; lead validates proposed seam first. Independent
+Sol review remains required for meaningful final source. This uses the current
+three-helper runtime allowance without changing the owner-authorized broader cap.
+
+The selected design canonicalizes the typed endpoint at request capture and checks
+it with the captured context stamp in the actual completion path. Rendering and
+approval share the endpoint freshness rule; active configured policy/input grants
+remain independent. The private deterministic completion seam will be recorded
+separately from any actual network callback proof. Prefer a standalone stale-approval
+journey using existing APIs for the original-source failure witness. Lead accepted
+the design and admitted the one shared build slot. Action/Undo source audit found
+exact captured Action versions/receipt IDs and truthful checked errors; no fix or
+extra test selected. Comment audit remains separate.
+
+Comment/anchor inspection also found no justified change: exact note/version/range/quote
+and draft survive navigation and checked stale refusal; current service tests cover
+these boundaries. Source inspection adds no runtime/native qualification.
+
+Both saved heartbeat prompts were freshly read and checked against current owner
+rules, including more useful helpers, nested Luna, actual runtime capacity, the5%
+floor, reviewed normal merges, Mac priority, quiet non-actionable states and original
+expiry. [Persistence receipt](evidence/policy-persistence-20261019.json) retains prompt
+hashes and explicit checks. Both remain ACTIVE in the same chat; this is persisted
+configuration proof, not an observed wake or native success. Native quota reread
+remains76% used/24% remaining; no credit/reset purchase.
+
+
+## PR167 required resulting-main verification complete
+
+Main9116ad780de2d827811ef342168997e2df5d1a9c run39224642627 completed with all four
+actual required jobs passing, plus docs and Ubuntu UI/retrieval. Optional Windows
+Core/UI/retrieval failed, so the overall workflow is failed; no all-platform pass
+is claimed. [Final integration receipt](evidence/pr167-integration.json) records
+job identities/timing/conclusions separately from the earlier checked-head merge.
+PR168 still has Mac Core running; its other three required jobs passed.
+
+
+## PR168 normal exact-head merge
+
+Fresh strict protection retained all four actual required contexts; all four
+completed successfully at exact7c21713b in run39225335901. Docs and Ubuntu UI passed;
+optional Windows Core failed. Normal exact-head merge at09:06:55UTC produced
+e583a177ad44b0536be9140b5c845a5dd8a8aa75. All Rust/manifests/root Cargo/lock/toolchain bytes match qualifieda960;
+lead history8f2ccb52 adds no source delta. [Integration receipt](evidence/pr168-integration.json)
+records head/protection and resulting-main39227629739, currently running. This does not
+establish native acceptance. MCP remains isolated; no source rebase/rebuild is
+needed solely for this history merge.
+
+
+## MCP candidate frozen for parallel final checks and independent review
+
+Source4ab19c474676e81feaa6f244f11425350331b41a, only desktop MCP module/tests, is
+clean in the notice checkout. Focused14/14 pass. Exact original-source-compatible
+UI witnesses fail with stale controls visible and active endpoint-B policy replaced
+by A; final test patch/source receipts are being retained. Candidate watches real
+InputState Change and stores status-vs-discovery errors in one private typed value.
+Luna owns final native/lint/format/frozen production checks; fresh Sol high independently
+reviews the complete source. No new generic framework/dependency, runtime grant
+change, live endpoint/provider, actual async-transport or OS success is claimed.
+
+
+## Independent MCP review and valid P3 witness correction
+
+Independent Sol reviewed clean dd1b50c9103fd3fd653c993c9684cf13e92b2088, complete
+diff SHA2564f5e1e59a9e36fd2f964a8e28b48080b5f2146816c94a04bd485195153998f0a,
+with no production correctness findings. The change from4ab only borrows the input
+instead of copying it; focused14/14, strict lint/format and production build passed
+atdd, with full326/0/1 reused from4ab for that mechanical cleanup.
+
+P3 finding valid/fixpending: contrary to the earlier description, test set_value
+suppresses InputEvent::Change in pinned gpui-base0.7.3. The render/baseline/policy
+witnesses remain meaningful, but they do not qualify the new Change subscription.
+Lead selected a correction to the existing witness using actual emitting input,
+plus a bounded subscription-disable diagnostic to distinguish necessary wiring
+from redundant state. Final test/source identity and affected checks/review remain
+pending; no actual event/async-network/OS qualification is claimed from the old test.
+Fresh native allowance77% used/23% remaining, reset1792874447; no purchase/reset.
+
+The corrected witness focuses the actual endpoint widget, selects all with the
+platform key and types through window.input. It passes without a test-side owner
+notify. A bounded no-op substitution for the subscription notify also passes: this
+is a meaningful survivor showing redundant wiring, not mutation detection success.
+The toolkit already invalidates the owner view. Lead accepted removal of the added
+subscription field/call; the same typed-input journey stays. Revised immutable
+source, final affected gates/build and independent reconciliation remain pending.
+
+
+## MCP source and reproducible receipts ready for publication
+
+Independent Sol approved complete0f317e5e after valid P3 correction; later274 and
+integrateda593 only add one test-comment wording change, checked by lead. Frozen
+focused14/14, native326/0/1, strict lint/format and production-only build pass.
+Immutable artifact SHA8bc98bf6fff189d8a7a09182dab51c475d0ce985d4c42d521989541a1b2da92a
+is source-valid for the unchanged production module. Exact baseline v2 patch/index
+application changed only tests, then compiled two intended semantic failures101;
+byte-exact274 restoration passed focused14/14.
+
+Independent Luna verified all65 original records (23gziplogs/2gzippatches/11gzip
+source snapshots/remainder plain), raw/archive hashes, original sibling equality,
+source/binary identity, actual commands/counts/exits and replay/restoration. The
+original copied baseline-module hash suffix was wrong; direct Git/retained-byte
+comparison corrected it explicitly in two SHA-bound metadata copies while keeping
+originals. No code/command/log/exit changed for that correction. An earlier transient
+output is unrecoverable and not passing qualification; original no-op patch remains
+reconstructed historical illustration. [Qualification](evidence/mcp-discovery-qualification.json)
+and [result/limits](mcp-discovery.md) retain these distinctions. No substantive
+receipt blocker remains; no local writer/builder active. Hosted/native gates separate.

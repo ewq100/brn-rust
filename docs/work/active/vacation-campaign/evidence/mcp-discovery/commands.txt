@@ -1,0 +1,39 @@
+Shared environment for Cargo checks:
+PATH=/opt/homebrew/opt/rustup/bin:$PATH
+CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target
+CARGO_INCREMENTAL=0
+CARGO_PROFILE_DEV_DEBUG=0
+CARGO_PROFILE_TEST_DEBUG=0
+RUST_TEST_THREADS=1 (tests only)
+BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper
+BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn
+Toolchain: rustup run 1.98.1; all Cargo commands --locked --offline --jobs 1.
+Frozen source identity: 274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351 (production source identical to 0f317e5e; only a test comment changed after the passing gates).
+
+Focused MCP test family:
+rustup run 1.98.1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::mcp_tests:: --locked --offline --jobs 1
+Log/exit: frozen-focused-mcp.log / frozen-focused-mcp.exit
+
+Full native desktop test suite:
+rustup run 1.98.1 cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1
+Log/exit: frozen-native-suite.log / frozen-native-suite.exit
+
+Strict all-target Clippy:
+rustup run 1.98.1 cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings
+Log/exit: frozen-native-clippy.log / frozen-native-clippy.exit
+
+Formatting:
+rustup run 1.98.1 cargo fmt -p brn-desktop -- --check
+Log/exit: frozen-fmt.log / frozen-fmt.exit
+
+Production-only native UI build (without native-test-support):
+rustup run 1.98.1 cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
+Log/exit: frozen-production-build.log / frozen-production-build.exit
+
+Real endpoint edit render check, on source with subscription removed before commit:
+rustup run 1.98.1 cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::mcp_tests::mcp_discovery_for_previous_endpoint_is_not_rendered --locked --offline --jobs 1
+Log/exit: no-subscription-render-test.log / no-subscription-render-test.exit
+
+Diagnostic mutation only: subscription callback replaced with a no-op, same real endpoint edit render test. Log/exit: endpoint-notify-mutation.log / endpoint-notify-mutation.exit. The test passed, so the explicit endpoint subscription was removed as redundant; this is not evidence that the mutation was detected.
+
+Baseline witness: final-witness-baseline.log / .exit records the two stale-endpoint tests failing against baseline commit 4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa: prior approval remained visible and approval changed the active endpoint-B policy to endpoint A. See baseline-witness.patch and baseline-witness-applied-tests.rs; these are a transparent reconstructed copy from the retained test block, not a byte-for-byte saved copy of the originally applied test file. The retained log is the execution evidence.

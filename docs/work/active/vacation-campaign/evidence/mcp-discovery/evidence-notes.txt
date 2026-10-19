@@ -1,0 +1,8 @@
+Evidence provenance notes:
+- `final-witness-baseline.log` and exit 101 are retained original command output showing both test witnesses fail against baseline. The separately stored patch and applied source are reconstructed from the retained test block; their bytes cannot be proven identical to the originally applied transient file.
+- `endpoint-notify-mutation.log` and exit 0 are retained original output for the temporary no-op endpoint-subscription callback. The patch/source artifact is reconstructed against `candidate-threads_mcp.rs` from that callback mutation; it is not an exact saved copy of the transient worktree file.
+- `baseline-ui-tests.log` completed with 0 matching tests due an incorrect filter; it is not a pass.
+- `focused-mcp-tests.log` is a real candidate assertion failure, retained with exit 101.
+- `final-native-clippy.log` is the first strict Clippy failure, retained with exit 101; the `.to_string()` call was changed to borrow the input and later strict Clippy passed.
+- `no-subscription-render-test.log` is the real widget-input render test after removing the subscription; 1 test passed. `endpoint-notify-mutation.log` is a no-op subscription diagnostic; 1 test passed, showing the explicit subscription was not required for rerender.
+- `0f317e5e` is the exact source used for all frozen executable gates and production binary. Final local candidate `274dc9eb` changes only a test comment; production bytes and executable test behavior are identical.

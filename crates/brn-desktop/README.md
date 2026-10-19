@@ -26,3 +26,9 @@ Attach file retains converted readable content and meaningful figures for this c
 
 
 The status bar shows Idle or current work, without repeating the composer's provider/model/effort controls. The latest completed worker banner can be hidden with × and restored from Layout → Last work status during the same app session. Restore never restarts work or replaces a newer visible status/error; answers and saved changes remain in their existing history.
+
+The MCP Settings endpoint is a discovery draft, separate from the configured active
+connection. Changing it hides old metadata/errors and refuses stale approval; late
+discovery is admitted only for the same canonical endpoint and context. Discover
+and inspect the new destination before approving it. Exact runtime input review
+and the checked service remain authoritative.

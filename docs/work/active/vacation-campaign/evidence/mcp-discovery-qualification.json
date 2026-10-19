@@ -1,0 +1,604 @@
+{
+  "observed_at_utc": "2026-10-19T09:22:18.199811+00:00",
+  "integrated_source": "a59315a1f82e9b69e9be8a331d0114f4689290e8",
+  "worker_candidate": "274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351",
+  "checked_source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
+  "comment_only_delta": "0f..274 changes one test comment only; lead verified full integrated Rust/manifests/root lock/toolchain match274; production artifact bytes remain source-valid.",
+  "baseline": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
+  "worker_manifest": "mcp-discovery/worker-qualification-corrected.json",
+  "independent_review": {
+    "source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
+    "complete_diff_sha256": "853789d7fc2cda327e79f0d2c51bdf02e151bb5b58a4e48c30bae667bf1d6eec",
+    "result": "No further findings; valid P3 evidence issue fixed by actual typing and removal of redundant subscription. Later comment-only delta lead-verified; no repeated independent review needed."
+  },
+  "source_files": {
+    "crates/brn-desktop/src/threads_mcp.rs": "ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d",
+    "crates/brn-desktop/src/threads_mcp_tests.rs": "e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f"
+  },
+  "artifact": {
+    "path": "/Users/evokessler/.codex/worktrees/notice-state/mcp-discovery-evidence/artifacts/brn-desktop-0f317e5e",
+    "sha256": "8bc98bf6fff189d8a7a09182dab51c475d0ce985d4c42d521989541a1b2da92a",
+    "source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
+    "features": [
+      "native-ui"
+    ],
+    "not_features": [
+      "native-test-support"
+    ]
+  },
+  "checks": [
+    {
+      "name": "focused MCP tests",
+      "result": "passed",
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0,
+      "log": "frozen-focused-mcp.log",
+      "exit": 0,
+      "source": "0f317e5e; test logic same at final 274dc9eb, comment-only amendment"
+    },
+    {
+      "name": "native desktop suite",
+      "result": "passed",
+      "passed": 326,
+      "failed": 0,
+      "ignored": 1,
+      "log": "frozen-native-suite.log",
+      "exit": 0,
+      "source": "0f317e5e; test logic same at final 274dc9eb, comment-only amendment"
+    },
+    {
+      "name": "strict all-target native Clippy",
+      "result": "passed",
+      "log": "frozen-native-clippy.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "format check",
+      "result": "passed",
+      "log": "frozen-fmt.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "production-only native UI build",
+      "result": "passed",
+      "features": [
+        "native-ui"
+      ],
+      "without_features": [
+        "native-test-support"
+      ],
+      "log": "frozen-production-build.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "real endpoint edit render after subscription removal",
+      "result": "passed",
+      "passed": 1,
+      "log": "no-subscription-render-test.log",
+      "exit": 0
+    },
+    {
+      "name": "no-op subscription mutation",
+      "result": "passed",
+      "passed": 1,
+      "log": "endpoint-notify-mutation.log",
+      "exit": 0,
+      "interpretation": "test survives no-op subscription; confirms explicit endpoint subscription is redundant, not that test detects no-op"
+    }
+  ],
+  "baseline_replay": "mcp-discovery/baseline-witness-v2-commands-corrected.txt",
+  "records": [
+    {
+      "source_filename": "baseline-stale-endpoint-tests.exit",
+      "record": "baseline-stale-endpoint-tests.exit",
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "record_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "raw_bytes": 4
+    },
+    {
+      "source_filename": "baseline-stale-endpoint-tests.log",
+      "record": "baseline-stale-endpoint-tests.log.gz",
+      "raw_sha256": "cb60c3847ebd6998f97dc677890e6754e7070e1237e461e17bd66ffe569ae41c",
+      "record_sha256": "4e166d15198372283498021276ae996a83aeb03371f3eeea51f69d213934926f",
+      "raw_bytes": 1812
+    },
+    {
+      "source_filename": "baseline-threads_mcp.rs",
+      "record": "baseline-threads_mcp.rs.gz",
+      "raw_sha256": "60b25a78af861e8aa1b2e9d435147f41ff031765a9a3b0a6bf21d56266f0d99f",
+      "record_sha256": "acc700dae1655668a05740a5ca844ea90493988ef3ab1e53e9301f9a718740a1",
+      "raw_bytes": 19594
+    },
+    {
+      "source_filename": "baseline-ui-tests.exit",
+      "record": "baseline-ui-tests.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "baseline-ui-tests.log",
+      "record": "baseline-ui-tests.log.gz",
+      "raw_sha256": "eda2b47f4f6037df4ff20c27817119a99ac59932a50f972b5e59875c578f28e1",
+      "record_sha256": "190d02ba6415605d80f41db42acbef695e793d96b8292dedda05144113034be0",
+      "raw_bytes": 675
+    },
+    {
+      "source_filename": "baseline-witness-applied-tests.rs",
+      "record": "baseline-witness-applied-tests.rs.gz",
+      "raw_sha256": "2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c",
+      "record_sha256": "544a2f6c86843154fc11f4b164bdd819746bc1f59265c58bd88f990b80d8d6eb",
+      "raw_bytes": 26923
+    },
+    {
+      "source_filename": "baseline-witness-v2-applied-from-index.rs",
+      "record": "baseline-witness-v2-applied-from-index.rs.gz",
+      "raw_sha256": "2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c",
+      "record_sha256": "544a2f6c86843154fc11f4b164bdd819746bc1f59265c58bd88f990b80d8d6eb",
+      "raw_bytes": 26923
+    },
+    {
+      "source_filename": "baseline-witness-v2-baseline-production.rs",
+      "record": "baseline-witness-v2-baseline-production.rs.gz",
+      "raw_sha256": "60b25a78af861e8aa1b2e9d435147f41ff031765a9a3b0a6bf21d56266f0d99f",
+      "record_sha256": "acc700dae1655668a05740a5ca844ea90493988ef3ab1e53e9301f9a718740a1",
+      "raw_bytes": 19594
+    },
+    {
+      "source_filename": "baseline-witness-v2-commands.txt",
+      "record": "baseline-witness-v2-commands.txt",
+      "raw_sha256": "955a01f0979900e151a4e648dc34acb7422d2f52d71f2614a69351b8a0ce0363",
+      "record_sha256": "955a01f0979900e151a4e648dc34acb7422d2f52d71f2614a69351b8a0ce0363",
+      "raw_bytes": 2605
+    },
+    {
+      "source_filename": "baseline-witness-v2-replay.exit",
+      "record": "baseline-witness-v2-replay.exit",
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "record_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "raw_bytes": 4
+    },
+    {
+      "source_filename": "baseline-witness-v2-replay.log",
+      "record": "baseline-witness-v2-replay.log.gz",
+      "raw_sha256": "d34c2a1d4976c932cb70bb623a2fc70f952902a5eb08af47c8f4bf59b53fbffd",
+      "record_sha256": "527eaa530117f0feb683edc37c6f4b4d2cf6eb4e034b90179ffb9d9864d2cb38",
+      "raw_bytes": 2786
+    },
+    {
+      "source_filename": "baseline-witness-v2-restoration-source.rs",
+      "record": "baseline-witness-v2-restoration-source.rs.gz",
+      "raw_sha256": "ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d",
+      "record_sha256": "f3501fdddc9f537d24455c80a724d6a89c7015f7cef871edc12989ebe3c8cf80",
+      "raw_bytes": 22584
+    },
+    {
+      "source_filename": "baseline-witness-v2-restoration-tests.rs",
+      "record": "baseline-witness-v2-restoration-tests.rs.gz",
+      "raw_sha256": "e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f",
+      "record_sha256": "456245279adc6ed70d81f389fb37b2ff287243317ef4aca2ae890609adae941c",
+      "raw_bytes": 30970
+    },
+    {
+      "source_filename": "baseline-witness.patch",
+      "record": "baseline-witness.patch.gz",
+      "raw_sha256": "a62828336b921f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db",
+      "record_sha256": "227f704c1bec8c853b76829dca1f7d01ac7582bff8d162ee4b8446d61a061d90",
+      "raw_bytes": 3963
+    },
+    {
+      "source_filename": "candidate-threads_mcp.rs",
+      "record": "candidate-threads_mcp.rs.gz",
+      "raw_sha256": "d75ac214ce8d6bc1e1696d7a34644f36d1ae1a579b83c4d7a084cfd8eb53a870",
+      "record_sha256": "86f8931f3e44de9906a324676a594f51ef9aa6da741472e304f7a0eb355ec8af",
+      "raw_bytes": 22910
+    },
+    {
+      "source_filename": "candidate-threads_mcp_tests.rs",
+      "record": "candidate-threads_mcp_tests.rs.gz",
+      "raw_sha256": "72fd84df23476654c97507b1289e5a40f0108494f761e5d9da5909ad022bb9ed",
+      "record_sha256": "0cab93393b3f33a5b06df7500e756a5123440409e2267e72233f5e8d98bd670b",
+      "raw_bytes": 31016
+    },
+    {
+      "source_filename": "commands.txt",
+      "record": "commands.txt",
+      "raw_sha256": "d0c20cc9114df9d59b48df6d98a61d83c6eed8df0003d3b63a18f627a4a25617",
+      "record_sha256": "d0c20cc9114df9d59b48df6d98a61d83c6eed8df0003d3b63a18f627a4a25617",
+      "raw_bytes": 2949
+    },
+    {
+      "source_filename": "endpoint-notify-mutation-applied-source.rs",
+      "record": "endpoint-notify-mutation-applied-source.rs.gz",
+      "raw_sha256": "93a914eed794f50f8c122debee9527581cf4106041bc3183b0bd9fc48a24134a",
+      "record_sha256": "bea16c0a3b33f5ef793a4c7dec1f85dab141b657bff6a0972776e768e03493d2",
+      "raw_bytes": 22926
+    },
+    {
+      "source_filename": "endpoint-notify-mutation.exit",
+      "record": "endpoint-notify-mutation.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "endpoint-notify-mutation.log",
+      "record": "endpoint-notify-mutation.log.gz",
+      "raw_sha256": "0d88947d44b43ddd3fe826cf5d4d28d2c53389a2c33e008a7d7410f2a3ea3878",
+      "record_sha256": "67dfd00fe7f90179e3c82258eb6672d57fc1a251fc39e95f44fb335a8f1c862d",
+      "raw_bytes": 761
+    },
+    {
+      "source_filename": "endpoint-notify-mutation.patch",
+      "record": "endpoint-notify-mutation.patch.gz",
+      "raw_sha256": "f2dcf2b480cbb0c593c7f41001b14654bdfe23a1de4fe47a9613963c793c4b26",
+      "record_sha256": "b93e291a151470bf4847181fd04ed05e35decb90ae6f8162831968b73cc7ca64",
+      "raw_bytes": 413
+    },
+    {
+      "source_filename": "evidence-notes.txt",
+      "record": "evidence-notes.txt",
+      "raw_sha256": "3bbf6aa1c63c7de83c60d45d6ae2cf0bb5f24629fcbe3e89022dcd07ea8ef3a3",
+      "record_sha256": "3bbf6aa1c63c7de83c60d45d6ae2cf0bb5f24629fcbe3e89022dcd07ea8ef3a3",
+      "raw_bytes": 1483
+    },
+    {
+      "source_filename": "final-fmt-recheck.exit",
+      "record": "final-fmt-recheck.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-fmt-recheck.log",
+      "record": "final-fmt-recheck.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "record_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "source_filename": "final-fmt.exit",
+      "record": "final-fmt.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-fmt.log",
+      "record": "final-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "record_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "source_filename": "final-focused-after-baseline-replay.exit",
+      "record": "final-focused-after-baseline-replay.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-focused-after-baseline-replay.log",
+      "record": "final-focused-after-baseline-replay.log.gz",
+      "raw_sha256": "0a183f11928829297856c20102e29a8426b369269c8b3fda9e145d5cad3dc0c0",
+      "record_sha256": "434d49c28babf68cc27034778f61cbf3c635041f93d74e29e59626410d13a0b0",
+      "raw_bytes": 2017
+    },
+    {
+      "source_filename": "final-focused-mcp-recheck.exit",
+      "record": "final-focused-mcp-recheck.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-focused-mcp-recheck.log",
+      "record": "final-focused-mcp-recheck.log.gz",
+      "raw_sha256": "b9f895ea7ab3036c11a9012c0ba3f2c56371b7b06a016029eb2e7e46d738756d",
+      "record_sha256": "83f6c0e74f650a9ef14854207b997519a06e0aca20a6cc84d93c001267cce686",
+      "raw_bytes": 2017
+    },
+    {
+      "source_filename": "final-focused-mcp-tests.exit",
+      "record": "final-focused-mcp-tests.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-focused-mcp-tests.log",
+      "record": "final-focused-mcp-tests.log.gz",
+      "raw_sha256": "4b3198342ced7be0e8071cdcf4a26ea6fc3f0fa2514f218bd25069998dc74017",
+      "record_sha256": "91cfcc9a30599eebf2e0077763ce3d5e1bc057714a3fda148392cc01c6d2ac7d",
+      "raw_bytes": 2017
+    },
+    {
+      "source_filename": "final-native-clippy-recheck.exit",
+      "record": "final-native-clippy-recheck.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-native-clippy-recheck.log",
+      "record": "final-native-clippy-recheck.log.gz",
+      "raw_sha256": "c560f91d96fc49a61d97857bfaf673d793630f4f4e09d8c0b7ee9e85338b2b35",
+      "record_sha256": "737b2a6ac8568f22e6458c9dddb1d26d90b8ce2b1ae823dbef9027a2e9c8ff2b",
+      "raw_bytes": 413
+    },
+    {
+      "source_filename": "final-native-clippy.exit",
+      "record": "final-native-clippy.exit",
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "record_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "raw_bytes": 4
+    },
+    {
+      "source_filename": "final-native-clippy.log",
+      "record": "final-native-clippy.log.gz",
+      "raw_sha256": "3164f4c01959c41c3f66ffe811439a6851554c62abe5bfe4d973f386b888d2d9",
+      "record_sha256": "6bf13481c06280682b2a16783adc29b96fe6ebe2b2f2ca91d0290ba75dd85c13",
+      "raw_bytes": 781
+    },
+    {
+      "source_filename": "final-native-suite.exit",
+      "record": "final-native-suite.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-native-suite.log",
+      "record": "final-native-suite.log.gz",
+      "raw_sha256": "aba8678b32c7e6b3347ab6a313f6fd8bb9c72e1978925be058581b43af035e98",
+      "record_sha256": "b78924597f502364a039074d5f9b51bf1dfd0e9078ed53f40046437951e30c35",
+      "raw_bytes": 33664
+    },
+    {
+      "source_filename": "final-production-build.exit",
+      "record": "final-production-build.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "final-production-build.log",
+      "record": "final-production-build.log.gz",
+      "raw_sha256": "018f7f34eed15937d387cbbf7bd4ec277dd8f3c726dfa531955c5586806afecf",
+      "record_sha256": "6b884a6468545d6a4b7662048ed6b6ed2e58fb58969e51fb97e8e26b9a93780e",
+      "raw_bytes": 413
+    },
+    {
+      "source_filename": "final-threads_mcp.rs",
+      "record": "final-threads_mcp.rs.gz",
+      "raw_sha256": "ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d",
+      "record_sha256": "f3501fdddc9f537d24455c80a724d6a89c7015f7cef871edc12989ebe3c8cf80",
+      "raw_bytes": 22584
+    },
+    {
+      "source_filename": "final-threads_mcp_tests.rs",
+      "record": "final-threads_mcp_tests.rs.gz",
+      "raw_sha256": "e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f",
+      "record_sha256": "456245279adc6ed70d81f389fb37b2ff287243317ef4aca2ae890609adae941c",
+      "raw_bytes": 30970
+    },
+    {
+      "source_filename": "final-witness-baseline.exit",
+      "record": "final-witness-baseline.exit",
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "record_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "raw_bytes": 4
+    },
+    {
+      "source_filename": "final-witness-baseline.log",
+      "record": "final-witness-baseline.log.gz",
+      "raw_sha256": "ef5e7c9a18c300378d45c598b7627191f796609ca7c600fc6c12f797877371d6",
+      "record_sha256": "1cd2704b68b498042633639b05771772b700727ebb718cc5d3c69820f99dce41",
+      "raw_bytes": 2786
+    },
+    {
+      "source_filename": "focused-mcp-attempt2.exit",
+      "record": "focused-mcp-attempt2.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "focused-mcp-attempt2.log",
+      "record": "focused-mcp-attempt2.log.gz",
+      "raw_sha256": "5288c6136a4dd98cbe1c8ac4d08ac0a172671c31ba3b0a49ab35909f7af33d1c",
+      "record_sha256": "827227391890fba2544b1fe60dce1185abf446b18083c3ceec57273b738cba6c",
+      "raw_bytes": 2017
+    },
+    {
+      "source_filename": "focused-mcp-tests.exit",
+      "record": "focused-mcp-tests.exit",
+      "raw_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "record_sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "raw_bytes": 4
+    },
+    {
+      "source_filename": "focused-mcp-tests.log",
+      "record": "focused-mcp-tests.log.gz",
+      "raw_sha256": "4a02b70a7f563469cfec8c7982dce3796133e6e9ad5285d1ff7dda5259e52fc3",
+      "record_sha256": "37e130071b7e828b96f1244c93207c4ee97a7bcc6499022324e3ee2ce3522d54",
+      "raw_bytes": 27545
+    },
+    {
+      "source_filename": "frozen-fmt.exit",
+      "record": "frozen-fmt.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "frozen-fmt.log",
+      "record": "frozen-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "record_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0
+    },
+    {
+      "source_filename": "frozen-focused-mcp.exit",
+      "record": "frozen-focused-mcp.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "frozen-focused-mcp.log",
+      "record": "frozen-focused-mcp.log.gz",
+      "raw_sha256": "2e881bd4dbf7626bf707f14d28e5888833843c406d37072053f5870276c22ec8",
+      "record_sha256": "2f4616be53b54bf80e0eba0efd1b27d0ad5c02408bcebb98d876c9165e60dc6b",
+      "raw_bytes": 1906
+    },
+    {
+      "source_filename": "frozen-native-clippy.exit",
+      "record": "frozen-native-clippy.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "frozen-native-clippy.log",
+      "record": "frozen-native-clippy.log.gz",
+      "raw_sha256": "57c8a1bc543109400a4fda198ed174e67ef5393a27dc4675f49ad8d4bb1488ac",
+      "record_sha256": "032b872677207c749a4558fab5cc5e53001af44c613827c58643665241fbeaa7",
+      "raw_bytes": 413
+    },
+    {
+      "source_filename": "frozen-native-suite.exit",
+      "record": "frozen-native-suite.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "frozen-native-suite.log",
+      "record": "frozen-native-suite.log.gz",
+      "raw_sha256": "4c6552a35c80e374ab778d6d1a7d69ff6cbe877e6bf12158eeae7d5c748018de",
+      "record_sha256": "21a72e843f6393d68052d893a951246eaa593938b8069b8d4c16812653ca0015",
+      "raw_bytes": 33664
+    },
+    {
+      "source_filename": "frozen-production-build.exit",
+      "record": "frozen-production-build.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "frozen-production-build.log",
+      "record": "frozen-production-build.log.gz",
+      "raw_sha256": "1c9e1a9c6e19ee0f64f9ed4d26f7dea816cadbd89d4ea369465ae7cf3b8b85a8",
+      "record_sha256": "a1197ddf4a5e76931e405bbc6a8920a311bf87788a445376476c4c3e01fffddd",
+      "raw_bytes": 413
+    },
+    {
+      "source_filename": "no-subscription-render-test.exit",
+      "record": "no-subscription-render-test.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "no-subscription-render-test.log",
+      "record": "no-subscription-render-test.log.gz",
+      "raw_sha256": "039a376f9b1546542eac53046be7b69d9fadb6c24a07bb4b1e5ae7fb9210c1b8",
+      "record_sha256": "36dcfe6095c5b01a65b2728c014d14dc6ec8462f14e788092d8f36dfdc65dc88",
+      "raw_bytes": 761
+    },
+    {
+      "source_filename": "overwritten-output-status.txt",
+      "record": "overwritten-output-status.txt",
+      "raw_sha256": "3a2f2372cbb4233992de5c89f332349c9f40214535b9392597b7a2dc6709bc2e",
+      "record_sha256": "3a2f2372cbb4233992de5c89f332349c9f40214535b9392597b7a2dc6709bc2e",
+      "raw_bytes": 727
+    },
+    {
+      "source_filename": "qualification.json",
+      "record": "worker-qualification.json",
+      "raw_sha256": "66a839e494b2c7e7bfd46f85b212832a082645eb256fddfb3e4a5ecf12ffe31c",
+      "record_sha256": "66a839e494b2c7e7bfd46f85b212832a082645eb256fddfb3e4a5ecf12ffe31c",
+      "raw_bytes": 5272
+    },
+    {
+      "source_filename": "real-input-render-test.exit",
+      "record": "real-input-render-test.exit",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "record_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    },
+    {
+      "source_filename": "real-input-render-test.log",
+      "record": "real-input-render-test.log.gz",
+      "raw_sha256": "a24b22cbf515da0208fd5ccc4e72c0600e5b3f75bdb1399b54d299add79b80a6",
+      "record_sha256": "343010049ccc0910b66201b4a4e5c6deb5890fe2752b192a704e58f5aa834702",
+      "raw_bytes": 761
+    },
+    {
+      "source_filename": "receipt.md",
+      "record": "worker-receipt.txt",
+      "raw_sha256": "576d1d93e334a8d9b340df36f44cc350566266d6adb5351bd4611579ad3a8c03",
+      "record_sha256": "576d1d93e334a8d9b340df36f44cc350566266d6adb5351bd4611579ad3a8c03",
+      "raw_bytes": 2407
+    }
+  ],
+  "limits": [
+    "Actual async network transport and OS/native usability remain unqualified.",
+    "Existing shared CLI intake fixture remains ignored for this slice.",
+    "Original diagnostic patches were reconstructed; new v2 baseline replay now binds exact source/test/patch bytes to actual expected failure.",
+    "Original no-op mutation transient source bytes were not retained; reconstructed patch is illustrative. Final no-subscription production and real-typing test independently pass.",
+    "One earlier transient output was overwritten and cannot be recovered exactly; not passing qualification. See overwritten-output-status.txt.",
+    "Imported compressed archives are deterministic lossless copies; raw SHA and archive SHA are distinct."
+  ],
+  "complete_final_mcp_diff_sha256": "3f8fa3572d8cc8c1296c1f51aa19637fc508c15e1b5aa2887e45b500d65edbde",
+  "worker_manifest_original": "mcp-discovery/worker-qualification.json",
+  "metadata_errata": [
+    {
+      "field": "original worker baseline_witness_v2.baseline_production_module_sha256 and original v2commands prose",
+      "reported": "60b25a78af861f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db",
+      "verified": "60b25a78af861e8aa1b2e9d435147f41ff031765a9a3b0a6bf21d56266f0d99f",
+      "method": "Direct SHA256 of git show4aba module and decompressed retained baseline-v2 module; byte-identical. Source, command, log and exit unchanged. Original metadata preserved, corrected copies explicit."
+    }
+  ],
+  "verified_baseline_replay": {
+    "baseline_module_sha256": "60b25a78af861e8aa1b2e9d435147f41ff031765a9a3b0a6bf21d56266f0d99f",
+    "patch_sha256": "a62828336b921f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db",
+    "test_file_sha256": "2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c",
+    "expected_failed_tests": 2,
+    "exit": 101,
+    "restored_focused_passed": 14,
+    "restored_exit": 0
+  },
+  "lead_records": [
+    {
+      "record": "mcp-discovery/worker-qualification-corrected.json",
+      "sha256": "bec4411ba6a307f44ea118c125b483f16a1a1a5d2fd2cb8dc947e6ee6d970e7e",
+      "kind": "explicit lead metadata correction; original bytes preserved separately"
+    },
+    {
+      "record": "mcp-discovery/baseline-witness-v2-commands-corrected.txt",
+      "sha256": "eea91117f5ee5f6c13103931ff9ee609ae20625376c92e173905361af03a98e1",
+      "kind": "explicit lead metadata correction; original bytes preserved separately"
+    }
+  ],
+  "receipt_audit": {
+    "result": "passed with explicit historical limitations and corrected metadata",
+    "agent": "independent Luna medium",
+    "original_records": 65,
+    "corrected_metadata_records": 2,
+    "verified": [
+      "Every original archive/raw SHA and sibling byte equality",
+      "Final source and immutable production binary SHA",
+      "Actual frozen commands/log counts/exit codes",
+      "Isolated-index baseline test-only application, actual2fail101, exactrestore and14pass",
+      "Source0f vs274 one-comment-only delta",
+      "Explicit metadata erratum and lead_records hashes"
+    ]
+  }
+}

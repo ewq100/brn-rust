@@ -1,0 +1,46 @@
+{
+  "observed_at_utc": "2026-10-19T08:56:10.950340+00:00",
+  "method": "Read saved automation TOML without modifying it after supported mode=view rendered both cards. Prompt hashes bind these checks; no unattended execution is established.",
+  "rules_authority": "../plan.md",
+  "restart_entry": "../checkpoint.md",
+  "automations": [
+    {
+      "id": "brn-mac-vacation-hardening",
+      "kind": "heartbeat",
+      "status": "ACTIVE",
+      "target_thread_id": "01a152c1-758c-77d3-96b3-a9d1f8bb73e3",
+      "prompt_sha256": "f0ee62a9ebb1ebaf2d50f82747fa611a2b7b4e34daaaa1df463c8b6988dbc2fa",
+      "checks": {
+        "more_helpers_and_nested_luna": true,
+        "no_permanent_three_helper_cap": true,
+        "actual_runtime_capacity": true,
+        "quota_floor": true,
+        "normal_reviewed_required_check_merges": true,
+        "mac_priority": true,
+        "fixed_expiry": true,
+        "durable_records": true,
+        "quiet_nonactionable": true,
+        "original_expiry_in_schedule": true
+      }
+    },
+    {
+      "id": "brn-batched-mac-interaction-checks",
+      "kind": "heartbeat",
+      "status": "ACTIVE",
+      "target_thread_id": "01a152c1-758c-77d3-96b3-a9d1f8bb73e3",
+      "prompt_sha256": "0cd91b2830768405100b37c0383430a99f54dc778d02eedbb722b8e581b621ce",
+      "checks": {
+        "more_helpers_and_nested_luna": true,
+        "no_permanent_three_helper_cap": true,
+        "actual_runtime_capacity": true,
+        "quota_floor": true,
+        "normal_reviewed_required_check_merges": true,
+        "mac_priority": true,
+        "fixed_expiry": true,
+        "durable_records": true,
+        "quiet_nonactionable": true,
+        "original_expiry_in_schedule": true
+      }
+    }
+  ]
+}

@@ -10,10 +10,11 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, history535b04e1/source8431e70b, matching all
-qualified worker a960 Rust/manifests/root lock/toolchain. Latest main9116ad78 is
-PR167, merged normally from exact checked40879f71 after all four required contexts
-passed in run39220781564. Main run39224642627 is running; inspect actual results.
+branch `codex/hardening-next`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
+Qualified0f differs only in one later test comment; its production artifact is
+unchanged. Current main still matches the earlier qualified a960 source. Latest maine583a177 is
+PR168, merged normally from exact checked7c21713b after all four required contexts
+passed in run39225335901. Its resulting-main39227629739 is running. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
 explicit. Don't redo merged source work or bypass strict protection.
 
@@ -39,14 +40,38 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local source writer/builder is active. Final independent Luna search-receipt audit passed. Complete candidate whitespace
-and link checks pass; publish this coherent later candidate. Main history535 adds no source
-delta from reviewed843. Keep actual hosted-head/merge/main/native gates separate.
-See campaign.json for snapshot ownership and reconcile agents/Git/processes after
-restart before dispatch. Preserve all source-bound artifacts.
+No local writer/builder is active. PR168 merged normally as e583a177 from exact
+checked7c after all four required39225335901 jobs passed. Main39227629739 still
+has Mac Core pending; its other three required jobs passed. Keep these gates separate.
+
+[MCP freshness](mcp-discovery.md) sourcea59315a1 matches worker274; qualified0f
+only differs by one later test comment. Focused14/14, full native326/0/1, strict
+lint/format and frozen production build pass. Independent Sol approved complete0f;
+lead checked the comment-only delta. Valid P3 finding is fixed: actual widget typing
+replaced the non-emitting setter, and a surviving no-op subscription diagnostic
+justified removing redundant wiring. No runtime grant/policy boundary changed.
+
+The exact v2 baseline replay bound the reconstructed compatible test subset and
+byte-exact old module to two intended semantic failures, exit101; restoring274
+hashes then passed focused14/14. Independent Luna verified all65 original raw/archive
+records, source/binary hashes, replay and two explicit corrected metadata copies.
+One copied hash suffix was wrong in the original metadata; corrected receipts and
+originals are preserved. One earlier transient output is unrecoverable and is not
+passing qualification. See evidence/mcp-discovery-qualification.json.
+
+Next publish the coherent candidate from codex/hardening-next, attach its PR, freeze
+that checked head and continue later work on another branch. Follow actual required
+head checks, normal exact-head merge and resulting-main checks separately.
+Actual async network transport and OS usability remain unqualified.
+
+Project-dialog, remaining-picker, Action/Undo and comment audits found no justified
+further change. Both saved automation prompts match current owner rules; see
+[the persistence receipt](evidence/policy-persistence-20261019.json). Configuration
+is persisted; actual unattended execution remains unobserved. Reconcile actual
+Git/agents/processes after restart before dispatch and preserve source-bound artifacts.
 
 Current allowance was
-75% used/25% remaining in the applicable seven-day window, reset1792874447. Recheck
+77% used/23% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour
 `brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains

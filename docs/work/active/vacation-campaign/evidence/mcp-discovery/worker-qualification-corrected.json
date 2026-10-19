@@ -1,0 +1,127 @@
+{
+  "candidate_commit": "274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351",
+  "production_source_commit": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
+  "baseline_commit": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
+  "files": {
+    "crates/brn-desktop/src/threads_mcp.rs": "ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d",
+    "crates/brn-desktop/src/threads_mcp_tests.rs": "e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f"
+  },
+  "checks": [
+    {
+      "name": "focused MCP tests",
+      "result": "passed",
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0,
+      "log": "frozen-focused-mcp.log",
+      "exit": 0,
+      "source": "0f317e5e; test logic same at final 274dc9eb, comment-only amendment"
+    },
+    {
+      "name": "native desktop suite",
+      "result": "passed",
+      "passed": 326,
+      "failed": 0,
+      "ignored": 1,
+      "log": "frozen-native-suite.log",
+      "exit": 0,
+      "source": "0f317e5e; test logic same at final 274dc9eb, comment-only amendment"
+    },
+    {
+      "name": "strict all-target native Clippy",
+      "result": "passed",
+      "log": "frozen-native-clippy.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "format check",
+      "result": "passed",
+      "log": "frozen-fmt.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "production-only native UI build",
+      "result": "passed",
+      "features": [
+        "native-ui"
+      ],
+      "without_features": [
+        "native-test-support"
+      ],
+      "log": "frozen-production-build.log",
+      "exit": 0,
+      "source": "0f317e5e"
+    },
+    {
+      "name": "real endpoint edit render after subscription removal",
+      "result": "passed",
+      "passed": 1,
+      "log": "no-subscription-render-test.log",
+      "exit": 0
+    },
+    {
+      "name": "no-op subscription mutation",
+      "result": "passed",
+      "passed": 1,
+      "log": "endpoint-notify-mutation.log",
+      "exit": 0,
+      "interpretation": "test survives no-op subscription; confirms explicit endpoint subscription is redundant, not that test detects no-op"
+    }
+  ],
+  "binary": {
+    "path": "artifacts/brn-desktop-0f317e5e",
+    "sha256": "8bc98bf6fff189d8a7a09182dab51c475d0ce985d4c42d521989541a1b2da92a"
+  },
+  "baseline_witness": {
+    "result": "failed_as_expected",
+    "passed": 0,
+    "failed": 2,
+    "log": "final-witness-baseline.log",
+    "exit": 101,
+    "patch": "baseline-witness.patch",
+    "patch_sha256": "a62828336b921f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db",
+    "applied_test_file": "baseline-witness-applied-tests.rs",
+    "applied_test_file_sha256": "2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c",
+    "caveat": "patch and applied file reconstructed from retained test block; original exact applied bytes not retained",
+    "historical_reconstruction_caveat": "Original prior run log remains historical evidence; exact bytes are now confirmed by v2 isolated-index application and v2 replay."
+  },
+  "limits": [
+    "No live MCP/provider calls",
+    "No network mutations",
+    "No Linux qualification",
+    "Direct completion seam is not async transport proof",
+    "One existing ignored native test remains ignored",
+    "Final commit amend changed only a test comment after executable checks"
+  ],
+  "endpoint_subscription_mutation": {
+    "basis": "candidate-threads_mcp.rs (saved 4ab candidate snapshot; test logic from diagnostic period)",
+    "basis_sha256": "d75ac214ce8d6bc1e1696d7a34644f36d1ae1a579b83c4d7a084cfd8eb53a870",
+    "patch": "endpoint-notify-mutation.patch",
+    "patch_sha256": "f2dcf2b480cbb0c593c7f41001b14654bdfe23a1de4fe47a9613963c793c4b26",
+    "mutated_source": "endpoint-notify-mutation-applied-source.rs",
+    "mutated_source_sha256": "93a914eed794f50f8c122debee9527581cf4106041bc3183b0bd9fc48a24134a",
+    "provenance": "reconstructed minimal no-op callback patch; transient exact worktree bytes were not saved; retained test log records one passing test"
+  },
+  "compressed_raw_logs_sha256": "gzip-logs.sha256",
+  "baseline_witness_v2": {
+    "baseline_commit": "4aba2e81f5bea7adcdad75e487cd3df3fbbaf8aa",
+    "baseline_production_module_sha256": "60b25a78af861e8aa1b2e9d435147f41ff031765a9a3b0a6bf21d56266f0d99f",
+    "test_patch_applied_in_isolated_index": true,
+    "only_changed_path": "crates/brn-desktop/src/threads_mcp_tests.rs",
+    "applied_test_file_sha256": "2515f321bf8047bb21847f547e951f2df1f84a6dd6c5f0be1be72ef0b346bd2c",
+    "patch_sha256": "a62828336b921f6cc15e51977fab70fa1f06b254bb4be217dca3d8132cf492db",
+    "execution": "2 tests ran and both failed on stale approval visibility and policy replacement assertions; exit 101; compile succeeded",
+    "log": "baseline-witness-v2-replay.log",
+    "exit": 101,
+    "restored_commit": "274dc9ebe5b4b8ea48705ca2db2e2d56f8d22351",
+    "restored_source_sha256": "ee202e112883fc85c0141f06c9c1dcb0a0611aebda1b3e2923b3a5dc10b02e1d",
+    "restored_tests_sha256": "e267cf366afb4b522227bced74db55f4e12f200969c446ed93a1f9b4903a8e2f",
+    "post_restore_focused_tests": "14 passed, 0 failed, exit 0",
+    "post_restore_log": "final-focused-after-baseline-replay.log",
+    "post_restore_exit": 0,
+    "commands_receipt": "baseline-witness-v2-commands.txt"
+  },
+  "metadata_correction": "Lead verified baseline module against Git and retained exact bytes; copied hash suffix corrected. Original worker-qualification.json and original v2commands are preserved."
+}

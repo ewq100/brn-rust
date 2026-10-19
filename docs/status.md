@@ -1,61 +1,65 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`9116ad780de2d827811ef342168997e2df5d1a9c` (PR167).
+`e583a177ad44b0536be9140b5c845a5dd8a8aa75` (PR168).
 
-The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
-assignment: Mac-first state ownership, reliability, proportionate tests and repo
-maintenance, with review and required-check merges authorized. Linux improvements
-are lower priority. Work may use existing allowance down to roughly5% remaining,
-then wait for a verified reset. The original1November expiry remains unchanged.
-Engineering continues through successive useful batches while credits remain;
-the active two-hour heartbeat is only recovery/resumption after a real pause.
-The separate daily18:00Tallinn native batch stays registered ACTIVE. First
-unattended executions remain unobserved.
-[Current evidence](work/active/vacation-campaign/evidence.md) owns candidate/check state.
+The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
+Mac-first state ownership, existing-journey reliability, proportionate tests and
+repository maintenance. Reviewed normal merges are authorized. Engineering continues
+while useful work and allowance remain, down to roughly5% remaining; the two-hour
+heartbeat resumes after real pauses. The daily18:00Tallinn schedule batches native
+interaction. Both retain the original1November expiry. The [restart checkpoint](work/active/vacation-campaign/checkpoint.md)
+and [evidence](work/active/vacation-campaign/evidence.md) hold actual jobs and gates.
 
-Note/Review pilots, worker terminal admission and coherent worker Run identity are
-merged. PR163's final source matches its independent review and all four required
-final-head and resulting-main required checks passed. PR164's required head checks
-passed before its normal merge; all four required resulting-main jobs in run39212874814 passed.
-PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
-is claimed. The25-domain UI inventory remains provisional and incomplete.
+## Integrated and pending work
 
-PR165 merged normally after all four required exact-head checks passed in
-run39213694797. All four resulting-main required jobs in run39216341691 passed; optional
-Windows failures remain. Prior drain source1e89f4e8 passed
-local desktop320/0/1, strict native lint,
-format and production build passing, plus independent source approval. Mac control
-qualification remains queued; preview/context and reliability work stay on the backlog.
-The separate [late-refresh/newer-typing witness](work/active/vacation-campaign/late-refresh.md)
-passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation and
-byte-exact restoration. Independent Sol effectiveness review approved the exact test. The later Run-bound edit-refresh ownership candidate is implemented and independently
-approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
-passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
-in PR166 at exact head73780065. All four required head checks passed in
-run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 passed all four required jobs, docs and Ubuntu
-UI/retrieval; optional Windows Core/UI/retrieval failed. The same later candidate98188942
-also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
-with a failing old-source witness and final321/0/1, lint/format/production build passing.
-Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect
-is claimed.
-The later [reference-import owner](work/active/vacation-campaign/reference-import.md)
-also passed independent review and321/0/1, lint/format/production build at14d7c43e;
-PR167 merged normally from checked408 after all four required head checks passed;
-resulting-main run39224642627 is running. Native recovery
-across normal close/relaunch is queued, with no crash/race guarantee claimed.
-The later [export picker feedback](work/active/vacation-campaign/export-picker.md)
-and [test-only helper consolidation](work/active/vacation-campaign/provider-fixture-helpers.md)
-are source-reviewed at945, with desktop322/0/1 and affected provider4/7/12 plus
-strict matching checks passing. They are not merged. The [scoped-search retirement fix](work/active/vacation-campaign/reference-search.md)
-is also independently approved at843, with an exact old-production failing witness
-and final322/0/1, lint/format/production build passing. These later changes await
-publication/hosted integration; native qualification remains separate.
-Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
-subjective owner acceptance and release readiness remain open. No release is claimed.
+The shared Note and Review lifecycle owners are implemented. Worker terminal
+admission, coherent Run/chat identity, completion-notice ownership, bounded worker
+draining, Run-owned edit-refresh intent and Connections refresh invalidation are
+merged through PR163–166. Their required exact-head and resulting-main checks passed;
+optional Windows failures remain explicit. These checks establish their recorded
+source behavior, not full native usability or owner acceptance.
+
+[Reference-import intent ownership](work/active/vacation-campaign/reference-import.md)
+merged normally in PR167 after all four required head checks passed. All four required resulting-main
+run39224642627 jobs passed; optional Windows Core/UI/retrieval failed. The
+[integration receipt](work/active/vacation-campaign/evidence/pr167-integration.json)
+retains exact identities and actual results.
+
+PR168 merged normally from checked head7c21713b, source8431e70b. It combines
+[export-picker feedback](work/active/vacation-campaign/export-picker.md),
+[hidden reference-search retirement](work/active/vacation-campaign/reference-search.md)
+and [test-only fixture helper sharing](work/active/vacation-campaign/provider-fixture-helpers.md).
+Independent source review, local desktop322/0/1, strict native lint/format and a
+production build passed. Affected provider families4/7/12 and matching checks passed.
+All four required head jobs in run39225335901 passed. Resulting-main39227629739
+is running; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
+keeps that gate separate. Receipts distinguish
+original-source failures, diagnostic mutations and transport qualification limits.
+
+A further bounded [MCP discovery freshness improvement](work/active/vacation-campaign/mcp-discovery.md)
+is locally qualified and source-reviewed: endpoint edits must hide/refuse old discovery metadata and stale
+completion. Existing metadata labels and exact approval destination remain authoritative;
+no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
+at0f; later274/integrateda593 differs only in one test comment. Final receipt
+verification and publication remain pending.
+Project-dialog, remaining-picker, Action/Undo and comment source audits found no
+justified further change; existing distinct tests remain.
+
+## Native qualification and handoff
+
+The provisional [workflow inventory](work/active/vacation-campaign/workflows.md)
+contains25 desktop domains and0 fully qualified domains under the campaign standard.
+[The native queue](work/active/vacation-campaign/native-queue.md) covers actual Mac
+Save/reopen, backup completion/notice restoration and relaunch of already-durable
+unsaved writing. No new actual Mac input, IME, accessibility or owner-acceptance
+result is claimed. First unattended schedule execution remains unobserved. There
+is no release qualification; Linux improvements and CI helper-sharing research
+remain lower priority.
 
 ## Earlier dated checkpoints
 
 [Status history through18October](archive/status-through-2026-10-18.md) preserves
-older implementation, review, verification and release records. Their pending gates
-and authority are historical; the current plan and evidence above govern resumption.
+older results. Current campaign records and Git history retain19October's detailed
+source/check receipts without duplicating them in this snapshot. Historical plans
+do not grant new authority.
