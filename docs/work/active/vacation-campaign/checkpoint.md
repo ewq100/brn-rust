@@ -10,10 +10,10 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, history535b04e1/source8431e70b, matching all
-qualified worker a960 Rust/manifests/root lock/toolchain. Latest main9116ad78 is
-PR167, merged normally from exact checked40879f71 after all four required contexts
-passed in run39220781564. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
+branch `codex/hardening-next`, history8f2ccb52/source8431e70b, matching all
+qualified worker a960 Rust/manifests/root lock/toolchain. Latest maine583a177 is
+PR168, merged normally from exact checked7c21713b after all four required contexts
+passed in run39225335901. Its resulting-main39227629739 is running. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
 explicit. Don't redo merged source work or bypass strict protection.
 
@@ -40,10 +40,10 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 ## Active job and next gate
 
 Final independent Luna search-receipt audit passed. Complete candidate whitespace
-and link checks pass. PR168 is published at fixed7c21713b on
-`codex/hardening-continuation`, required run39225335901 queued/running. Preserve
-that checked head; continue later work on the lead branch above. Main history535 adds no source
-delta from reviewed843. Keep actual hosted-head/merge/main/native gates separate.
+and link checks pass. PR168 merged normally as e583a177 at09:06:55UTC; exact head7c21713b required
+run39225335901 passed all four jobs. Main39227629739 is running; inspect actual
+results before calling resulting-main verified. Lead history8f2ccb52 adds no source
+delta from reviewed843/a960. Continue later work on the lead branch above. Keep actual hosted-head/merge/main/native gates separate.
 Completed project-dialog and remaining-picker audits found no justified change.
 The MCP audit found an endpoint-edit/discovery freshness issue, with actual destination
 label and canonical approval binding preserved; no authority bypass is claimed.

@@ -18,7 +18,7 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:05:34.711459+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T09:07:45.771972+00:00",
   "current_session_jobs": [
     {
       "agent": "/root/worker_next_slice",
@@ -29,12 +29,12 @@
       "build_slot": "exclusively admitted for focused baseline/candidate MCP checks and final native suite/lint/format/frozen production build"
     }
   ],
-  "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. All4required main39224642627 pass; optionalWindowsCore/UI/retrieval fail. Lead historymerge535b04e1 source843 unchanged.",
-  "next_eligible_work": "Follow PR168 required exact-head checks/normal merge and PR167main. Verify MCP selected improvement through smallest deterministic UI seam, then final source checks and independent Sol review. Disposition bounded Action/comment audits only if concrete issues. Continue above quota floor; native18Tallinn separate.",
+  "integration_status": "PR163\u2013168 required exact-head checks pass before normal merges. PR163\u2013167 required resulting-main pass; optional Windows failures retained. PR168 checked7c normalmergee583a177ad44b0536be9140b5c845a5dd8a8aa75 at09:06:55UTC, requiredhead39225335901 all4pass. Main39227629739 running. Lead history8f2ccb52 adds no source delta.",
+  "next_eligible_work": "Follow PR168main39227629739; finish MCP final checks and independent Sol review, then publish coherent next PR from codex/hardening-next. Native18Tallinn separate; continue above quota floor.",
   "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
   "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
-  "active_work": "PR168 fixed7c21713b CI39225335901 running; PR167main39224642627 completed: all4required pass, optionalWindowsCore/UI/retrieval fail. One Luna MCP UI freshness writer in prepared notice checkout with exclusive build slot, comment and Action/Undo audits finished with no justified change. Existing canonical policy/grants unchanged; no native success claimed.",
-  "continuation_baseline": "9116ad780de2d827811ef342168997e2df5d1a9c",
+  "active_work": "PR168 merged normallye583a177; all4required head39225335901 pass, resulting-main39227629739 running. One Luna MCP freshness source writer/build slot in notice checkout, final gates pending. Other bounded audits done with no further change.",
+  "continuation_baseline": "e583a177ad44b0536be9140b5c845a5dd8a8aa75",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",

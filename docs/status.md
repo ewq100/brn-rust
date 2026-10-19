@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`9116ad780de2d827811ef342168997e2df5d1a9c` (PR167).
+`e583a177ad44b0536be9140b5c845a5dd8a8aa75` (PR168).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -26,13 +26,15 @@ run39224642627 jobs passed; optional Windows Core/UI/retrieval failed. The
 [integration receipt](work/active/vacation-campaign/evidence/pr167-integration.json)
 retains exact identities and actual results.
 
-PR168 is published at fixed head7c21713b, source8431e70b. It combines
+PR168 merged normally from checked head7c21713b, source8431e70b. It combines
 [export-picker feedback](work/active/vacation-campaign/export-picker.md),
 [hidden reference-search retirement](work/active/vacation-campaign/reference-search.md)
 and [test-only fixture helper sharing](work/active/vacation-campaign/provider-fixture-helpers.md).
 Independent source review, local desktop322/0/1, strict native lint/format and a
 production build passed. Affected provider families4/7/12 and matching checks passed.
-Required hosted run39225335901 is running; it is not merged. Receipts distinguish
+All four required head jobs in run39225335901 passed. Resulting-main39227629739
+is running; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
+keeps that gate separate. Receipts distinguish
 original-source failures, diagnostic mutations and transport qualification limits.
 
 A further bounded MCP discovery freshness improvement is being implemented in an

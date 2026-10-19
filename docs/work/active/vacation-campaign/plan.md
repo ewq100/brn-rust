@@ -1,9 +1,9 @@
 # Mac vacation hardening continuation
 
-Updated 19 October2026. Current main9116ad78 is PR167; its required checked-head
-contexts passed before normal merge. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
+Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
+contexts passed before normal merge. Resulting-main39227629739 is running. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, history merge535b04e1/source8431e70b.
+branch `codex/hardening-next`, history merge8f2ccb52/source8431e70b.
 All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
 adds no source delta. Preserve unrelated work and source-bound artifacts.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
@@ -179,8 +179,9 @@ Source/hash/log receipts retain their limits; no old-source export or OS transpo
 failure is claimed. No local writer/builder is active.
 
 Final independent Luna receipt audit passed, and complete staged candidate whitespace
-check passed. The coherent candidate is published as PR168 at fixed7c21713b,
-run39225335901; keep that checked head unchanged. Preserve checked heads and follow
+check passed. The coherent candidate merged normally as PR168, e583a177, after fixed7c21713b
+run39225335901 passed all four required jobs. Main39227629739 is running;
+[the integration receipt](evidence/pr168-integration.json) owns exact identities. Preserve checked heads and follow
 actual required-head, normal merge and resulting-main checks separately. No bypass.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including

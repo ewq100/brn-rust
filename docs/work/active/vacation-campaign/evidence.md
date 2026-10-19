@@ -161,3 +161,15 @@ Core/UI/retrieval failed, so the overall workflow is failed; no all-platform pas
 is claimed. [Final integration receipt](evidence/pr167-integration.json) records
 job identities/timing/conclusions separately from the earlier checked-head merge.
 PR168 still has Mac Core running; its other three required jobs passed.
+
+
+## PR168 normal exact-head merge
+
+Fresh strict protection retained all four actual required contexts; all four
+completed successfully at exact7c21713b in run39225335901. Docs and Ubuntu UI passed;
+optional Windows Core failed. Normal exact-head merge at09:06:55UTC produced
+e583a177ad44b0536be9140b5c845a5dd8a8aa75. All Rust/manifests/root Cargo/lock/toolchain bytes match qualifieda960;
+lead history8f2ccb52 adds no source delta. [Integration receipt](evidence/pr168-integration.json)
+records head/protection and resulting-main39227629739, currently running. This does not
+establish native acceptance. MCP remains isolated; no source rebase/rebuild is
+needed solely for this history merge.
