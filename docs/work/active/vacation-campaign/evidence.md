@@ -465,3 +465,13 @@ Final broad checks remain running in the worker's sole build slot, with original
 failure logs preserved. The unchanged core temp fixture refused inherited /var
 symlink; same binary passes with invocation-local canonical TMPDIR. No guard or
 fixture source changed. Current allowance89% used/11% remaining; expiry unchanged.
+
+
+## Passage edit and selected feedback merged
+
+PR172 merged normally as689ab234 from exact checkedb8735ea1 after all four
+required head jobs passed. Fresh strict protection and exact head were verified
+before the match-head normal merge. [Receipt](evidence/pr172-integration.json)
+retains every head job, including optional Windows Core failure. Resulting-main
+checks are a separate pending gate. Lead merged the actual main history while
+preserving continuation documentation; M4b remains a separately reviewed candidate.

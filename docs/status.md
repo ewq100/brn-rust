@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`9a6feab2234efb7732feac7fb3cbe7230ea36348` (PR171; all four required head checks passed; all four required resulting-main checks passed).
+`689ab234bfe388423a7fd1f2a35fd6ea21115a11` (PR172; all four required head checks passed; resulting-main checks pending).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and

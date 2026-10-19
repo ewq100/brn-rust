@@ -15,8 +15,8 @@ approved M3e227, M4 component3b3 and native-fixturec055. The15 M4 and10 M3 files
 match their source receipts; the fixture matches its reviewed source. No schema,
 new dependency or provider permission was added.
 
-Current main is PR171 merge9a6feab2, normally merged from fixed7a9867a8 after all
-four required head checks passed; all four required resulting-main39240783382 checks passed; optional Windows jobs failed. Optional
+Current main is PR172 merge689ab234, normally merged from fixedb8735ea1 after all
+four required head checks passed; resulting-main checks are pending. PR171 main39240783382 passed all four required jobs; optional Windows jobs failed. Optional
 Windows Core failed at its PR head. PR170 main39236565242 and PR169
 main39232087600 passed all four required jobs; optional Windows jobs failed.
 Earlier PR163–168 required head/main checks passed. Normal reviewed merges remain
@@ -38,9 +38,8 @@ resulting-main separately. Never bypass a required check.
    Old19efe/0f executables cannot qualify M3/M4. Do not rerun fixture creation on
    its existing qualified root; that refusal is expected.
 3. PR171 resulting-main39240783382 passed all four required jobs; receipt is current.
-   PR172 is published/attached at fixedb8735ea1; actual required head checks
-   are running. Follow them, fresh protection/head and normal merge, then
-   resulting-main. Do not duplicate either PR or push onto the checked branches.
+   PR172 merged normally as689ab234 from fixedb8735ea1 after all four required
+   head checks passed. Follow resulting-main; its receipt retains actual jobs. Do not duplicate either PR or push onto the checked branches.
 4. M4 still has one explicit owner-plan item: model-proposed captured-comment
    suggestions. Current source supports unchecked owner selection only. Bounded
    Luna audit identifies the existing writing-evidence/review seam; Sol worker

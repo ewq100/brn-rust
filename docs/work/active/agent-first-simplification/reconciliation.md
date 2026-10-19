@@ -8,9 +8,9 @@ the single execution, resource, schedule, expiry and integration authority.
 
 ## Baseline, ownership and priority
 
-Current main9a6feab2 is PR171, normally merged from checked7a9867a8 after all four required head checks passed; all four required resulting-main39240783382 checks passed. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
+Current main689ab234 is PR172, normally merged from checkedb8735ea1 after all four required head checks passed; resulting-main checks are pending. PR171 main39240783382 passed all four required jobs. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
 39232087600 passed all four required jobs; optional Windows jobs failed.
-Lead continues on codex/agent-first-followthrough; PR172 fixes M3/M4/fixture atb8735ea1 while its required checks run, preserving the checked histories.
+Lead continues on codex/agent-first-followthrough; PR172 merged M3/M4a/fixture from fixedb8735ea1; follow its resulting-main checks while preserving the checked histories.
 Already integrated worker/notice/reference/MCP improvements are retained and are
 not reassigned. One lead owns shared docs/interfaces, source integration and the
 single local build slot; independent workers receive bounded file ownership.
