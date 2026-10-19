@@ -1,8 +1,11 @@
 # Campaign restart checkpoint
 
 Updated19October2026; lead owns shared docs/integration and the single local build
-slot. Continue useful authorized work to about5% remaining. Current quota94% used,
-6% remaining, reset1792874447. Original expiry2026-11-01T21:41:51Z is unchanged.
+slot. **Reserve reached:95% used/5% remaining. Stop new development, native jobs and
+account tests.** Recovery heartbeat may verify capacity; resume useful work only
+after a verified increase/reset. Reported reset1792874447 (2026-10-24T23:40:47+03:00).
+Original expiry2026-11-01T21:41:51Z is unchanged.
+
 Read [plan](plan.md), [current status](../../../status.md), [campaign state](campaign.json)
 and [evidence](evidence.md) before acting; fresh Git/CI/quota observations outrank
 these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) preserves history.
@@ -29,7 +32,9 @@ these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) pre
   inclusion metadata f411. Both actual native toggle paths now pass on final87,
   existing stacked-comments test1/0 and affected strict lint/format/production pass.
   [Final qualification](evidence/feedback-inclusion-qualification.json); publish/freeze
-  the narrow UI candidate then required head/main gates.
+  PR176 is now published/attached and frozen at7e41da520e610c56ac18f8b4ffe7ded305855077.
+  Source/local/native gates and independent43-archive receipt audit pass. Hosted
+  head/main gates remain; do not push later lead docs to this frozen branch.
   Maximum3 active agents including lead; no concurrent builds.
 
 ## Actual Mac observation and next batch
@@ -80,3 +85,23 @@ this same chat; first unattended wake unobserved. Continue active work, use sche
 after genuine pauses/reset; no new clock/chat/daemon. Normal reviewed match-head
 merges require all four actual required checks, then resulting-main separately.
 Retain optional failures; no bypass/release/deployment/owner data/other providers.
+
+
+## Reserve-floor continuation
+
+Last known main9cecd00b is the normal PR175 merge after all four required head
+checks. Resulting-main39259077134 was pending at last observation. PR176 source is
+exact reviewed/qualified87f1347b; only production diff vs main is writing.rs owner
+choice metadata/context. [Published receipt](evidence/pr176-integration.json) and
+[independent audit](evidence/feedback-accessibility-receipt-audit.json) retain gates.
+No active compiler, test app or account call. Current CLI AI session stays closed
+at3/3, Tallinn day3/6; limits do not authorize calls at reserve. First unattended
+wake remains unobserved. Both configured recovery/native schedules retain original
+expiry and must obey reserve before dispatch. Preserve qualified helpers/artifacts
+and original synthetic fixtures; no owner data or credential changes.
+
+On capacity return: fresh quota/Git/CI first, then finish175 main and176 exact-head
+checks, normal match-head merge and its resulting-main checks. Continue ready
+Save/reopen, backup and unsaved recovery Mac journeys in a consolidated job. Group
+Include/Omit has separate source-level missing boolean metadata; preparation only,
+no unreviewed fix integrated. Preserve this pending case and any worker recipe.

@@ -12,19 +12,19 @@
   },
   "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
   "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_AVAILABLE_6_PERCENT_REMAINING",
+  "admission_state": "CAPACITY_FLOOR_5_PERCENT_REMAINING_WAIT_FOR_VERIFIED_RESET",
   "continuation_blockers": [
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
-  "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T13:22:49.657567+00:00",
+  "next_wake": "Recovery heartbeat only: verify actual allowance/reset; do not dispatch work or account tests at the5% reserve. Known reported reset1792874447; no purchases/reset redemption.",
+  "last_checkpoint_at_utc": "2026-10-19T13:26:28.136838+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163-174 all four required head/main checks passed. PR175 normally merged9cecd00b after all four exact-head required checks; resulting-main39259077134 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Freeze/publish reviewed native feedback candidate for four required checks, follow175 resulting-main separately. Next useful native case is candidate-bound Save/reopen, with fresh explicit synthetic root; no main/usability completion inferred. Account session closed3/3, day3/6. Stop/checkpoint near5% floor.",
+  "next_eligible_work": "After verified capacity returns, inspect fresh remote/head and resume175 resulting-main and frozen176 required head/main gates; normal match-head merges only. Then distinct queued native Save/reopen/backup/unsaved recovery and source-bound group-choice preparation. No new source or AI work at5% reserve.",
   "last_qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
   "source_delta_after_qualification": "No production change since final source87. Entire production delta vs actual main9ce is12lines in writing.rs: owner-feedback toggle metadata and conditional model context. Both independently reviewed, targeted tests/lint/format/native build and actual Mac toggle states pass.",
-  "active_work": "Publish narrow feedback accessibility candidate after actual-main reconciliation9ce. Native captured off/on/off and ordinary inclusion on/off/on pass; Notes/comments/Runs unchanged, apps closed. No active build/helper/account calls.",
+  "active_work": "No active build, app or account run. PR176 frozen7e41 published/attached; source/local/native qualification and independent receipt audit passed. Last observed175 resulting-main39259077134 and176 exact-head checks pending. Reserve-floor handoff saved.",
   "continuation_baseline": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot94% used/6% remaining; reset1792874447. About5% floor; no purchases/reset.",
+    "quota": "Fresh native snapshot95% used/5% remaining. Reported reset1792874447 (2026-10-24T23:40:47+03:00). Floor reached; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -110,6 +110,12 @@
       "head": "0ff3360af88d9f94e58e2a9593cce0243c3a0adc",
       "branch": "codex/exact-note-read-guidance",
       "status": "normally merged9cecd00b after all four exact-head checks passed; resulting-main39259077134 pending"
+    },
+    {
+      "number": 176,
+      "head": "7e41da520e610c56ac18f8b4ffe7ded305855077",
+      "branch": "codex/feedback-accessibility",
+      "status": "published/attached; source/local/native qualification and independent43-archive audit passed; hosted/main gates pending, branch frozen"
     }
   ],
   "native_observation": {
@@ -121,5 +127,5 @@
     "account_calls": 0,
     "correction_receipt": "evidence/feedback-inclusion-qualification.json"
   },
-  "resource_batch": "Lead retains selected configuration; completed bounded Luna medium source worker and independent Sol high reviews. No active helpers/build writers; lead owns one guarded build slot. Stop/reassess near5% allowance."
+  "resource_batch": "Reserve-floor checkpoint: no active build/UI/account run; bounded Luna research asked to return current findings and stop. No new delegation/work until fresh allowance above reserve."
 }

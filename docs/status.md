@@ -6,6 +6,11 @@ checks passed; resulting-main run39259077134 is pending. Required head and
 resulting-main checks passed for PR163–174. Optional Windows failures remain
 visible in the integration receipts.
 
+At the latest check, allowance reached95% used/5% remaining. New work/tests are
+paused at the agreed reserve; the recovery schedule checks for capacity before
+resuming. PR176 is [published](https://github.com/ewq100/brn-rust/pull/176), with
+source/local/native qualification complete and required hosted/main gates pending.
+
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate verification
 and repository maintenance. Reviewed normal merges are authorized. Continue useful
