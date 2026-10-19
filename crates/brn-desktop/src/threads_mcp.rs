@@ -2,7 +2,7 @@
 //! Exact input is transient and consumed once at the existing prepare handoff.
 use super::*;
 #[derive(Clone, PartialEq, Eq)]
-struct Stamp {
+pub(super) struct Stamp {
     policy: Option<McpPolicy>,
     chat: ChatTarget,
     project: Option<String>,
@@ -14,6 +14,10 @@ pub(super) struct ReviewedInput {
     prompt: String,
     pub tool: String,
     pub input: serde_json::Value,
+}
+enum McpViewError {
+    Status(String),
+    Discovery { endpoint: String, message: String },
 }
 impl ReviewedInput {
     pub(super) fn attach(
@@ -31,9 +35,10 @@ pub(super) struct McpView {
     pub pending: Option<ReviewedInput>,
     pub status: Option<McpStatus>,
     pub discovery: Option<brn_ai::mcp::Discovery>,
+    _endpoint_subscription: Subscription,
     query_subscription: Option<Subscription>,
     discovering: bool,
-    error: Option<String>,
+    error: Option<McpViewError>,
 }
 impl McpView {
     pub(super) fn new(window: &mut Window, cx: &mut Context<ThreadsUi>) -> Self {
@@ -42,6 +47,12 @@ impl McpView {
                 .default_value("http://127.0.0.1:8077/mcp")
                 .placeholder("Anonymous local HTTP endpoint")
         });
+        let endpoint_subscription =
+            cx.subscribe_in(&endpoint, window, |_, _, event: &InputEvent, _, cx| {
+                if matches!(event, InputEvent::Change) {
+                    cx.notify();
+                }
+            });
         Self {
             stamp: None,
             endpoint,
@@ -50,6 +61,7 @@ impl McpView {
             pending: None,
             status: None,
             discovery: None,
+            _endpoint_subscription: endpoint_subscription,
             query_subscription: None,
             discovering: false,
             error: None,
@@ -63,7 +75,19 @@ impl McpView {
     }
 }
 impl ThreadsUi {
-    fn mcp_stamp(&self) -> Stamp {
+    fn endpoint_matches(expected: &str, current: &str) -> bool {
+        brn_ai::mcp::Endpoint::parse(current).is_ok_and(|endpoint| endpoint.uri() == expected)
+    }
+
+    fn discovery_matches_endpoint(&self, cx: &Context<Self>) -> bool {
+        let Some(discovery) = &self.mcp_view.discovery else {
+            return false;
+        };
+        let current = self.mcp_view.endpoint.read(cx).value().to_string();
+        Self::endpoint_matches(&discovery.endpoint, &current)
+    }
+
+    pub(super) fn mcp_stamp(&self) -> Stamp {
         let mut ids = Vec::new();
         if let ChatTarget::Thread(chat) = &self.chat {
             ids.push(chat.clone());
@@ -117,7 +141,9 @@ impl ThreadsUi {
                 self.mcp_view.status = Some(status);
                 self.mcp_view.error = None;
             }
-            Err(error) => self.mcp_view.error = Some(error.to_string()),
+            Err(error) => {
+                self.mcp_view.error = Some(McpViewError::Status(error.to_string()));
+            }
         }
         self.mcp_view.stamp = Some(stamp);
         if cleared {
@@ -128,50 +154,94 @@ impl ThreadsUi {
         if self.mcp_view.discovering {
             return;
         }
-        let endpoint = self.mcp_view.endpoint.read(cx).value().to_string();
-        if let Err(error) = brn_ai::mcp::Endpoint::parse(&endpoint) {
-            self.fail(error.to_string());
-            cx.notify();
-            return;
-        }
+        let endpoint = match brn_ai::mcp::Endpoint::parse(
+            &self.mcp_view.endpoint.read(cx).value().to_string(),
+        ) {
+            Ok(endpoint) => endpoint.uri().to_owned(),
+            Err(error) => {
+                self.fail(error.to_string());
+                cx.notify();
+                return;
+            }
+        };
         self.refresh_mcp();
         let stamp = self.mcp_view.stamp.clone();
         self.mcp_view.discovering = true;
         self.mcp_view.discovery = None;
         // One bounded control action on a background executor. No network or
         // runtime construction in render or on the GUI thread.
+        let worker_endpoint = endpoint.clone();
         let work = cx.background_executor().spawn(async move {
             tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
                 .map_err(|_| "Could not start local MCP discovery".to_owned())?
-                .block_on(Workspace::discover_mcp(&endpoint))
+                .block_on(Workspace::discover_mcp(&worker_endpoint))
                 .map_err(|e| e.to_string())
         });
         cx.spawn_in(window, async move |this, cx| {
             let result = work.await;
             let _ = this.update_in(cx, |this, _, cx| {
                 this.refresh();
-                this.mcp_view.discovering = false;
-                if this.mcp_view.stamp != stamp {
-                    this.warn("MCP context changed during discovery; review again.");
-                    cx.notify();
-                    return;
-                }
-                match result {
-                    Ok(discovery) => this.mcp_view.discovery = Some(discovery),
-                    Err(error) => this.mcp_view.error = Some(error),
-                };
-                cx.notify();
+                this.finish_mcp_discovery(stamp, &endpoint, result, cx);
             });
         })
         .detach();
         cx.notify();
     }
+
+    pub(super) fn finish_mcp_discovery(
+        &mut self,
+        request_stamp: Option<Stamp>,
+        request_endpoint: &str,
+        result: Result<brn_ai::mcp::Discovery, String>,
+        cx: &mut Context<Self>,
+    ) {
+        self.mcp_view.discovering = false;
+        if self.mcp_view.stamp != request_stamp {
+            self.warn("MCP context changed during discovery; review again.");
+            cx.notify();
+            return;
+        }
+        let current_endpoint = self.mcp_view.endpoint.read(cx).value().to_string();
+        if !Self::endpoint_matches(request_endpoint, &current_endpoint) {
+            self.warn("MCP destination changed during discovery; review again.");
+            cx.notify();
+            return;
+        }
+        match result {
+            Ok(discovery) if discovery.endpoint == request_endpoint => {
+                self.mcp_view.discovery = Some(discovery);
+                if matches!(
+                    self.mcp_view.error.as_ref(),
+                    Some(McpViewError::Discovery { .. })
+                ) {
+                    self.mcp_view.error = None;
+                }
+            }
+            Ok(_) => {
+                self.warn("MCP discovery returned metadata for a different destination.");
+            }
+            Err(error) => {
+                self.mcp_view.error = Some(McpViewError::Discovery {
+                    endpoint: request_endpoint.to_owned(),
+                    message: error,
+                });
+            }
+        }
+        cx.notify();
+    }
+
     pub(super) fn approve_mcp_tool(&mut self, name: &str, digest: &str, cx: &mut Context<Self>) {
         self.refresh_mcp();
         if !matches!(self.chat, ChatTarget::Thread(_)) && self.selected_project.is_some() {
             self.warn("Open the intended Project chat before approving its connection access.");
+            cx.notify();
+            return;
+        }
+        if self.mcp_view.discovery.is_some() && !self.discovery_matches_endpoint(cx) {
+            self.mcp_view.discovery = None;
+            self.warn("MCP destination changed after discovery; discover and inspect it again.");
             cx.notify();
             return;
         }
@@ -381,6 +451,7 @@ impl ThreadsUi {
         Ok(Some(pending))
     }
     pub(super) fn mcp_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let current_endpoint = self.mcp_view.endpoint.read(cx).value().to_string();
         let mut panel = div()
             .id("mcp-settings")
             .flex()
@@ -405,10 +476,28 @@ impl ThreadsUi {
                     .on_click(cx.listener(|this, _, _, cx| this.disable_mcp(cx))),
             );
         if let Some(error) = &self.mcp_view.error {
-            panel = panel.child(metadata(error.clone()));
+            let message = match error {
+                McpViewError::Status(message) => Some(message),
+                McpViewError::Discovery { endpoint, message }
+                    if Self::endpoint_matches(endpoint, &current_endpoint) =>
+                {
+                    Some(message)
+                }
+                McpViewError::Discovery { .. } => None,
+            };
+            if let Some(message) = message {
+                panel = panel.child(
+                    metadata(message.clone())
+                        .id("mcp-error")
+                        .test_support()
+                        .into_any_element(),
+                );
+            }
         }
         if self.mcp_view.stamp.as_ref() == Some(&self.mcp_stamp()) {
-            if let Some(discovery) = &self.mcp_view.discovery {
+            if let Some(discovery) = &self.mcp_view.discovery
+                && self.discovery_matches_endpoint(cx)
+            {
                 panel=panel.child(metadata(format!("Destination: {} · self-reported metadata pin {}",discovery.endpoint,discovery.server_digest)))
                     .child(metadata("Untrusted metadata below. Approve only independently known read-only behavior. Approval replaces the existing connection policy with this one tool/current scope; it does not authorize a query."));
                 for tool in &discovery.tools {

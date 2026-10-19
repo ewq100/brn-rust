@@ -420,6 +420,222 @@ fn native_exact_input_is_transient_once_and_cleared_on_scope_policy_or_run_chang
     );
 }
 
+fn discovery_for(endpoint: &str, description: &str) -> brn_ai::mcp::Discovery {
+    brn_ai::mcp::Discovery {
+        endpoint: endpoint.into(),
+        server_digest: "a".repeat(64),
+        tools: vec![brn_ai::mcp::DiscoveredTool {
+            name: "public_read".into(),
+            metadata_digest: "b".repeat(64),
+            schema_digest: Some(mcp_input_schema_digest(McpInputContract::Query)),
+            supported: true,
+            metadata: serde_json::json!({
+                "inputSchema": brn_ai::mcp::input_schema(McpInputContract::Query),
+                "description": description
+            }),
+        }],
+    }
+}
+
+#[gpui_kit::test]
+fn mcp_discovery_for_previous_endpoint_is_not_rendered(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.layout.open(TileKind::Settings);
+            ui.settings_section = SettingsSection::Mcp;
+            ui.mcp_view.discovery = Some(discovery_for(
+                "http://127.0.0.1:8077/mcp",
+                "STALE_DISCOVERY_CANARY",
+            ));
+            ui.finish_mcp_discovery(
+                Some(ui.mcp_stamp()),
+                "http://127.0.0.1:8077/mcp",
+                Err("STALE_DISCOVERY_ERROR_CANARY".into()),
+                cx,
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("mcp-settings").visible());
+        assert!(window.find("mcp-approve-public_read").visible());
+        assert!(window.find("mcp-error").visible());
+    })
+    .unwrap();
+
+    // A real endpoint InputEvent must notify the owning ThreadsUi so its sibling
+    // discovery controls are recomputed, without a test-side owner notification.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.mcp_view.endpoint.update(cx, |endpoint, cx| {
+                endpoint.set_value("http://127.0.0.1:8078/mcp", window, cx)
+            });
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("mcp-settings").visible());
+        assert!(
+            window
+                .try_find("mcp-approve-public_read")
+                .is_none_or(|button| !button.visible()),
+            "approval for the prior endpoint must not remain visible"
+        );
+        assert!(
+            window.try_find("mcp-error").is_none(),
+            "an error from the prior destination must not be shown under the edited endpoint"
+        );
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn mcp_discovery_for_previous_endpoint_cannot_be_approved(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let mut prior_policy = policy(&f.chat);
+            prior_policy.endpoint = "http://127.0.0.1:8078/mcp".into();
+            ui.workspace
+                .configure_mcp(Some(prior_policy.clone()))
+                .unwrap();
+            ui.refresh();
+            ui.mcp_view.discovery = Some(discovery_for(
+                "http://127.0.0.1:8077/mcp",
+                "STALE_APPROVAL_CANARY",
+            ));
+            ui.mcp_view.endpoint.update(cx, |endpoint, cx| {
+                endpoint.set_value("http://127.0.0.1:8078/mcp", window, cx)
+            });
+            ui.approve_mcp_tool("public_read", &"b".repeat(64), cx);
+            assert_eq!(
+                ui.workspace.settings().unwrap().mcp,
+                Some(prior_policy),
+                "approval must not replace the policy with metadata from another destination"
+            );
+            assert!(ui.mcp_view.discovery.is_none());
+            assert!(
+                !ui.notice
+                    .text()
+                    .contains("Approved one known-behavior tool")
+            );
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn mcp_discovery_completion_is_bound_to_canonical_endpoint_and_context(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.layout.open(TileKind::Settings);
+            ui.settings_section = SettingsSection::Mcp;
+            let endpoint = "http://127.0.0.1:8077/mcp";
+            let stamp = ui.mcp_stamp();
+            ui.finish_mcp_discovery(
+                Some(stamp),
+                endpoint,
+                Ok(discovery_for(endpoint, "CURRENT_DISCOVERY_CANARY")),
+                cx,
+            );
+            assert_eq!(
+                ui.mcp_view.discovery.as_ref().map(|d| d.endpoint.as_str()),
+                Some(endpoint)
+            );
+
+            let stamp = ui.mcp_stamp();
+            ui.finish_mcp_discovery(
+                Some(stamp),
+                endpoint,
+                Err("CURRENT_DISCOVERY_ERROR".into()),
+                cx,
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("mcp-error").visible());
+    })
+    .unwrap();
+
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let endpoint = "http://127.0.0.1:8077/mcp";
+            let stamp = ui.mcp_stamp();
+
+            // A new attempt clears the prior discovery before its async result arrives.
+            ui.mcp_view.discovery = None;
+            ui.mcp_view.endpoint.update(cx, |field, cx| {
+                field.set_value("http://127.0.0.1:8078/mcp", window, cx)
+            });
+            ui.finish_mcp_discovery(
+                Some(stamp.clone()),
+                endpoint,
+                Ok(discovery_for(endpoint, "STALE_COMPLETION_CANARY")),
+                cx,
+            );
+            assert!(ui.mcp_view.discovery.is_none());
+
+            ui.finish_mcp_discovery(
+                Some(stamp),
+                endpoint,
+                Err("STALE_COMPLETION_ERROR_CANARY".into()),
+                cx,
+            );
+            cx.notify();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("mcp-error").is_none());
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn mcp_discovery_completion_refuses_changed_context_and_accepts_canonical_endpoint(
+    cx: &mut TestAppContext,
+) {
+    let f = start_fixture(cx, false);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let endpoint = "http://[::1]:8077/mcp";
+            ui.mcp_view.endpoint.update(cx, |field, cx| {
+                field.set_value("http://[0:0:0:0:0:0:0:1]:8077/mcp", window, cx)
+            });
+            let stamp = ui.mcp_stamp();
+            ui.finish_mcp_discovery(
+                Some(stamp.clone()),
+                endpoint,
+                Ok(discovery_for(endpoint, "CANONICAL_ENDPOINT_CANARY")),
+                cx,
+            );
+            assert!(ui.mcp_view.discovery.is_some());
+
+            let old_stamp = ui.mcp_stamp();
+            let other = ui.workspace.new_thread("MCP changed context").unwrap().id;
+            ui.chat = ChatTarget::Thread(other);
+            ui.refresh();
+            ui.finish_mcp_discovery(
+                Some(old_stamp),
+                endpoint,
+                Ok(discovery_for(endpoint, "STALE_CONTEXT_CANARY")),
+                cx,
+            );
+            assert!(ui.mcp_view.discovery.is_none());
+        });
+    })
+    .unwrap();
+}
+
 // Ordered host-action barriers isolate take -> checked change -> durable prepare.
 // The corrected fixture calls the same saved-snapshot attachment as start_run.
 fn reviewed_snapshot_handoff_barrier(cx: &mut TestAppContext, policy_switch: bool) {
