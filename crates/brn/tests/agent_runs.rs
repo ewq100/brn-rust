@@ -612,6 +612,7 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
 const NATIVE_FIXTURE_OUTPUT: &str = "BRN_NATIVE_SUGGESTION_OUTPUT";
 const NATIVE_FIXTURE_REVISION: &str = "BRN_NATIVE_SUGGESTION_SOURCE_REVISION";
 const NATIVE_FIXTURE_ENDPOINT: &str = "BRN_NATIVE_SUGGESTION_ENDPOINT";
+const NATIVE_FIXTURE_PARENT_GATE: &str = "BRN_NATIVE_SUGGESTION_PARENT_GATE";
 const NATIVE_FIXTURE_REPORT: &str = "native-suggestion-child-report.json";
 const NATIVE_FIXTURE_SEED: &str = "native-suggestion-seed.json";
 const NATIVE_FIXTURE_MANIFEST: &str = "manifest.json";
@@ -621,16 +622,6 @@ const UNRELATED_WRITING: &str = "Teine sünteetiline märkus jääb puutumata.\n
 
 fn fixture_sha256(bytes: &[u8]) -> String {
     brn_intake::hex(&brn_intake::digest(bytes))
-}
-
-fn fixture_source_paths() -> (PathBuf, PathBuf, PathBuf) {
-    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let repository = manifest.join("../..").canonicalize().unwrap();
-    (
-        repository,
-        manifest.join("tests/agent_runs.rs"),
-        manifest.join("tests/support/stub.rs"),
-    )
 }
 
 fn fixture_source_revision() -> String {
@@ -643,49 +634,6 @@ fn fixture_source_revision() -> String {
         "source revision must be a full commit ID"
     );
     assert!(supplied.bytes().all(|byte| byte.is_ascii_hexdigit()));
-    let (repository, harness, stub) = fixture_source_paths();
-    let output = Command::new("git")
-        .args(["-C", repository.to_str().unwrap(), "rev-parse", "HEAD"])
-        .output()
-        .expect("read the fixture checkout revision");
-    assert!(output.status.success(), "git rev-parse failed");
-    let head = String::from_utf8(output.stdout).unwrap().trim().to_owned();
-    assert_eq!(
-        head, supplied,
-        "supplied source pin must match checkout HEAD"
-    );
-
-    // Bind the two compiled fixture files to the checked-in source snapshot.
-    assert_eq!(
-        fixture_sha256(include_bytes!("agent_runs.rs")),
-        fixture_sha256(&fs::read(&harness).unwrap()),
-        "agent_runs.rs changed after this test binary was built"
-    );
-    assert_eq!(
-        fixture_sha256(include_bytes!("support/stub.rs")),
-        fixture_sha256(&fs::read(&stub).unwrap()),
-        "support/stub.rs changed after this test binary was built"
-    );
-    for path in [&harness, &stub] {
-        let relative = path.strip_prefix(&repository).unwrap();
-        let changed = Command::new("git")
-            .args([
-                "-C",
-                repository.to_str().unwrap(),
-                "diff",
-                "--quiet",
-                "HEAD",
-                "--",
-            ])
-            .arg(relative)
-            .status()
-            .expect("check fixture source against its pinned commit");
-        assert!(
-            changed.success(),
-            "{} differs from pinned HEAD",
-            relative.display()
-        );
-    }
     supplied
 }
 
@@ -746,7 +694,8 @@ fn isolated_fixture_child(root: &Root, output: &Path, endpoint: &str) -> std::pr
             std::env::var(NATIVE_FIXTURE_REVISION).unwrap(),
         )
         .env(NATIVE_FIXTURE_ENDPOINT, endpoint)
-        .envs(root.env.iter().map(|(key, value)| (key, value)))
+        .env(NATIVE_FIXTURE_PARENT_GATE, "1")
+        .envs(proxy_env())
         .current_dir(&root.path)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -831,12 +780,28 @@ fn seed_native_fixture(data: &Path) -> Value {
         )
         .unwrap();
     let request = serde_json::to_value(snapshot.change_request(REVISED_WRITING).unwrap()).unwrap();
+    let captured_request = app.writing_request(&snapshot.request_message).unwrap();
+    assert_eq!(captured_request.thread, thread);
+    let setup = captured_request.setup.as_ref().expect("v2 setup binding");
+    assert_eq!(setup.chat.as_deref(), Some(thread.as_str()));
+    assert!(setup.brief.is_none());
+    assert!(setup.references.is_empty());
+    assert!(!setup.requirements.exhaustive && setup.requirements.must_be_current.is_empty());
     json!({
         "data_directory": data,
         "note": note,
         "unrelated_note": unrelated,
         "thread": thread,
         "request_message": snapshot.request_message,
+        "writing_request_version": 2,
+        "writing_setup_binding": {
+            "chat": setup.chat,
+            "brief": setup.brief,
+            "references": setup.references,
+            "requirements": setup.requirements,
+            "input_record": setup.input.record,
+            "input_version": setup.input.version
+        },
         "captured_comment": first,
         "excluded_comment": second,
         "request": request
@@ -887,6 +852,8 @@ fn native_suggestion_fixture_parent() {
     let server = Stub::start(writing_model_replies(&seed));
     let endpoint = format!("http://127.0.0.1:{}", server.port);
     let credentials = server.credentials_in(&output);
+    assert_eq!(credentials, output.join(format!("copilot-{}", server.port)));
+    assert_eq!(fs::canonicalize(&credentials).unwrap(), credentials);
     seed["credentials_directory"] = json!(credentials);
     seed["endpoint"] = json!(endpoint);
     let seed_path = output.join(NATIVE_FIXTURE_SEED);
@@ -923,25 +890,22 @@ fn native_suggestion_fixture_parent() {
     }
     let report_path = output.join(NATIVE_FIXTURE_REPORT);
     let report: Value = serde_json::from_slice(&fs::read(&report_path).unwrap()).unwrap();
-    assert_eq!(report["source_revision"], source_revision);
     assert_eq!(report["endpoint"], endpoint);
     assert_eq!(report["provider_requests"], 3);
     assert_eq!(report["completed"], true);
-    assert_eq!(report["candidate_operation"].as_str().is_some(), true);
+    assert!(report["candidate_operation"].as_str().is_some());
+    let request_hash = report["candidate_request_hash"].as_str().unwrap();
+    assert_eq!(request_hash.len(), 64);
+    assert!(request_hash.bytes().all(|byte| byte.is_ascii_hexdigit()));
     assert_eq!(report["cli_readback"], true);
 
-    let (_, harness, stub_source) = fixture_source_paths();
     let runner = std::env::current_exe().unwrap();
     let cli = PathBuf::from(env!("CARGO_BIN_EXE_brn"));
     let manifest = json!({
         "format": "BRN native model-suggestion fixture v1",
         "source_identity": {
-            "repository_revision": source_revision,
-            "revision_validation": "invocation pin matched git HEAD; fixture source bytes matched compiled includes",
-            "harness_path": harness,
-            "harness_sha256": fixture_sha256(include_bytes!("agent_runs.rs")),
-            "stub_path": stub_source,
-            "stub_sha256": fixture_sha256(include_bytes!("support/stub.rs"))
+            "source_revision_pin": source_revision,
+            "pin_provenance": "provided by invocation; root qualification wrapper binds this pin to the reviewed source"
         },
         "binaries": {
             "fixture_test_harness": runner,
@@ -953,6 +917,14 @@ fn native_suggestion_fixture_parent() {
             "BRN_NATIVE_SUGGESTION_OUTPUT=<fresh absolute directory> BRN_NATIVE_SUGGESTION_SOURCE_REVISION={source_revision} rustup run 1.98.1 cargo test -p brn --test agent_runs --locked --offline --jobs 1 native_suggestion_fixture_parent -- --ignored --exact --nocapture"
         ),
         "data_directory": output.join("data"),
+        "writing_request_binding": {
+            "version": seed["writing_request_version"],
+            "default_setup": true,
+            "setup_chat": seed["thread"],
+            "setup_input_record": seed["writing_setup_binding"]["input_record"],
+            "setup_input_version": seed["writing_setup_binding"]["input_version"],
+            "candidate_request_hash": report["candidate_request_hash"]
+        },
         "seed": seed,
         "runtime_validation": report,
         "provider": "Copilot",
@@ -998,12 +970,22 @@ fn native_suggestion_fixture_parent() {
 async fn native_suggestion_fixture_child() {
     use brn_ai::threads::{run_prepared, OwnerRequest, TraceLevel};
     use brn_threads_app::{
-        Record, RecordData, RunState, ThreadRunStart, Workspace, WRITING_EVIDENCE_ROLE,
+        Record, RecordData, RunState, ThreadRunStart, Workspace, WorkspacePurpose,
+        WRITING_EVIDENCE_ROLE,
     };
     use tokio_util::sync::CancellationToken;
 
-    let source_revision = fixture_source_revision();
-    let output = PathBuf::from(std::env::var_os(NATIVE_FIXTURE_OUTPUT).unwrap());
+    assert_eq!(
+        std::env::var(NATIVE_FIXTURE_PARENT_GATE).as_deref(),
+        Ok("1"),
+        "child requires the fixture parent invocation"
+    );
+    let output = PathBuf::from(
+        std::env::var_os(NATIVE_FIXTURE_OUTPUT)
+            .expect("fixture parent must provide its reserved output root"),
+    );
+    assert!(output.is_absolute());
+    assert_eq!(fs::canonicalize(&output).unwrap(), output);
     let endpoint = std::env::var(NATIVE_FIXTURE_ENDPOINT).unwrap();
     let address = endpoint.strip_prefix("http://127.0.0.1:").unwrap();
     assert!(
@@ -1012,15 +994,31 @@ async fn native_suggestion_fixture_child() {
     );
     let seed: Value =
         serde_json::from_slice(&fs::read(output.join(NATIVE_FIXTURE_SEED)).unwrap()).unwrap();
-    let data = PathBuf::from(seed["data_directory"].as_str().unwrap());
-    let credentials = PathBuf::from(seed["credentials_directory"].as_str().unwrap());
+    let data = output.join("data");
+    assert_eq!(
+        PathBuf::from(seed["data_directory"].as_str().unwrap()),
+        data
+    );
+    assert_eq!(fs::canonicalize(&data).unwrap(), data);
+    let port = address.parse::<u16>().unwrap();
+    let credentials = output.join(format!("copilot-{port}"));
+    assert_eq!(
+        PathBuf::from(seed["credentials_directory"].as_str().unwrap()),
+        credentials
+    );
+    assert_eq!(fs::canonicalize(&credentials).unwrap(), credentials);
     assert_eq!(seed["endpoint"], endpoint);
+    assert!(!credentials.join("github-token").exists());
     let credential_cache: Value =
         serde_json::from_slice(&fs::read(credentials.join("copilot.json")).unwrap()).unwrap();
     assert_eq!(credential_cache["token"], "SYNTHETIC");
     assert_eq!(credential_cache["expires_at"], 4102444800i64);
     assert_eq!(credential_cache["endpoints"]["api"], endpoint);
-    let mut app = Workspace::open_without_default_credentials(&data).unwrap();
+    let mut app = Workspace::open_existing_no_upgrade(&data).unwrap();
+    assert_eq!(
+        app.store.workspace_purpose().unwrap(),
+        WorkspacePurpose::Test
+    );
     let initial = app.settings().unwrap();
     assert!(initial.auth_file.is_none() && initial.credentials_dir.is_none());
     assert!(initial.mcp.is_none() && initial.helper.is_none());
@@ -1040,6 +1038,25 @@ async fn native_suggestion_fixture_child() {
         .iter()
         .all(|settings| settings.auth_file.is_none() && settings.credentials_dir.is_none()));
     assert_eq!(initial.provider, "Codex");
+    let request_message = seed["request_message"].as_str().unwrap();
+    let captured_request = app.writing_request(request_message).unwrap();
+    assert_eq!(seed["writing_request_version"], 2);
+    let setup = captured_request.setup.as_ref().expect("checked v2 request");
+    assert_eq!(
+        setup.chat.as_deref(),
+        Some(seed["thread"].as_str().unwrap())
+    );
+    assert!(setup.brief.is_none());
+    assert!(setup.references.is_empty());
+    assert!(!setup.requirements.exhaustive && setup.requirements.must_be_current.is_empty());
+    assert_eq!(
+        seed["writing_setup_binding"]["input_record"],
+        setup.input.record
+    );
+    assert_eq!(
+        seed["writing_setup_binding"]["input_version"],
+        setup.input.version
+    );
 
     let mut configured = initial;
     configured.provider = "Copilot".into();
@@ -1049,6 +1066,7 @@ async fn native_suggestion_fixture_child() {
     app.configure(configured).unwrap();
 
     assert!(credentials.join("copilot.json").is_file());
+    assert!(!credentials.join("github-token").exists());
     let settings = app.settings().unwrap();
     assert_eq!(settings.provider, "Copilot");
     assert_eq!(settings.model, "synthetic");
@@ -1059,7 +1077,7 @@ async fn native_suggestion_fixture_child() {
     );
     assert!(settings.auth_file.is_none() && settings.helper.is_none() && settings.mcp.is_none());
 
-    let request_message = seed["request_message"].as_str().unwrap().to_owned();
+    let request_message = request_message.to_owned();
     let thread = seed["thread"].as_str().unwrap().to_owned();
     let prepared = app
         .prepare_thread_run(ThreadRunStart {
@@ -1105,7 +1123,7 @@ async fn native_suggestion_fixture_child() {
     assert_eq!(read["outcome"], "Read");
     assert_eq!(read["returned_bytes"], ORIGINAL_WRITING.len());
     assert_eq!(read["next_start"], false);
-    assert_eq!(trace.calls[1].result["operation"].as_str().is_some(), true);
+    assert!(trace.calls[1].result["operation"].as_str().is_some());
     let candidate_id = trace.calls[1].result["operation"]
         .as_str()
         .unwrap()
@@ -1113,13 +1131,18 @@ async fn native_suggestion_fixture_child() {
     let run_id = result.run_id.clone();
     drop(app);
 
-    let reopened = Workspace::open_without_default_credentials(&data).unwrap();
+    let reopened = Workspace::open_existing_no_upgrade(&data).unwrap();
+    assert_eq!(
+        reopened.store.workspace_purpose().unwrap(),
+        WorkspacePurpose::Test
+    );
     let prepared_candidates = reopened.store.candidates().unwrap();
     assert_eq!(prepared_candidates.len(), 1);
     let candidate = prepared_candidates
         .iter()
         .find(|candidate| candidate.operation.as_str() == candidate_id)
         .unwrap();
+    let candidate_request_hash = candidate.request_hash.clone();
     let evidence_message = candidate
         .request
         .writes
@@ -1195,14 +1218,6 @@ async fn native_suggestion_fixture_child() {
             .unwrap(),
         original_note
     );
-    assert_eq!(
-        reopened
-            .store
-            .record(unrelated["id"].as_str().unwrap())
-            .unwrap()
-            .unwrap(),
-        serde_json::from_value(unrelated.clone()).unwrap()
-    );
     let comments = reopened
         .writing_comments(note["id"].as_str().unwrap())
         .unwrap();
@@ -1252,42 +1267,20 @@ async fn native_suggestion_fixture_child() {
         .iter()
         .any(|run| run["id"] == run_id && run["state"] == "completed"));
 
-    let current = std::env::current_exe().unwrap();
-    let cli = PathBuf::from(env!("CARGO_BIN_EXE_brn"));
     let report = json!({
-        "source_revision": source_revision,
         "endpoint": endpoint,
         "provider_requests": 3,
         "completed": true,
         "cli_readback": true,
-        "data_directory": data,
-        "note": note,
-        "unrelated_note": unrelated,
-        "thread": thread,
-        "request_message": request_message,
-        "captured_comment": captured,
-        "excluded_comment": seed["excluded_comment"],
         "candidate_operation": candidate_id,
+        "candidate_request_hash": candidate_request_hash,
         "run_id": run_id,
-        "original_markdown": ORIGINAL_WRITING,
-        "original_markdown_utf8_bytes": ORIGINAL_WRITING.len(),
-        "original_markdown_sha256": fixture_sha256(ORIGINAL_WRITING.as_bytes()),
-        "revised_markdown": REVISED_WRITING,
-        "revised_markdown_utf8_bytes": REVISED_WRITING.len(),
-        "revised_markdown_sha256": fixture_sha256(REVISED_WRITING.as_bytes()),
-        "unrelated_markdown": UNRELATED_WRITING,
-        "unrelated_markdown_utf8_bytes": UNRELATED_WRITING.len(),
-        "unrelated_markdown_sha256": fixture_sha256(UNRELATED_WRITING.as_bytes()),
         "candidate_unapplied": true,
         "captured_comments_pending": true,
         "no_apply_receipt": no_apply_receipt,
         "no_working_run": no_working_run,
         "unrelated_note_unchanged": unrelated_note_unchanged,
-        "runtime_trace_tools": tools.iter().map(|(tool, outcome)| json!({"tool":tool,"outcome":outcome})).collect::<Vec<_>>(),
-        "ordinary_cli_binary": cli,
-        "ordinary_cli_binary_sha256": fixture_sha256(&fs::read(&cli).unwrap()),
-        "fixture_test_binary": current,
-        "fixture_test_binary_sha256": fixture_sha256(&fs::read(&current).unwrap())
+        "runtime_trace_tools": tools.iter().map(|(tool, outcome)| json!({"tool":tool,"outcome":outcome})).collect::<Vec<_>>()
     });
     let report_path = output.join(NATIVE_FIXTURE_REPORT);
     let mut report_file = fs::OpenOptions::new()
