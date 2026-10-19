@@ -262,7 +262,21 @@ impl Workspace {
                     remap(&mut link.to, &map);
                 }
                 RecordData::Comment(comment) => remap(&mut comment.note, &map),
-                RecordData::Message(message) => remap(&mut message.thread, &map),
+                RecordData::Message(message) => {
+                    if message.role == WRITING_EVIDENCE_ROLE {
+                        let mut evidence: WritingCandidateEvidence =
+                            serde_json::from_str(&message.text).map_err(|_| {
+                                AppError::Invalid("Writing evidence is unavailable".into())
+                            })?;
+                        if !evidence.proposed_addressed_comment_ids.is_empty() {
+                            evidence.proposed_addressed_comment_ids.clear();
+                            message.text = serde_json::to_string(&evidence).map_err(|_| {
+                                AppError::Invalid("Writing evidence is unavailable".into())
+                            })?;
+                        }
+                    }
+                    remap(&mut message.thread, &map);
+                }
                 RecordData::Thread(thread) => {
                     for attention in &mut thread.attention {
                         if let Some(record) = &mut attention.record {
@@ -329,6 +343,8 @@ pub struct WritingCandidateReview {
     pub host_verified_quotations: Vec<WritingQuotation>,
     /// Explicitly model-reported claims; never proof of all requirements.
     pub requirements_reported: Vec<WritingRequirementsClaim>,
+    /// Untrusted model suggestions; owner selection stays separate.
+    pub proposed_addressed_comment_ids: Vec<String>,
     pub complete_over_retained_text: bool,
     pub model_explanation: String,
 }
@@ -398,6 +414,8 @@ impl Workspace {
                 "Writing evidence is unavailable in this context".into(),
             ));
         }
+        snapshot
+            .validate_proposed_addressed_comment_ids(&evidence.proposed_addressed_comment_ids)?;
         let mut sources = Vec::new();
         let setup = snapshot.setup.as_ref().expect("checked v2");
         let versions = setup
@@ -475,6 +493,7 @@ impl Workspace {
             sources,
             host_verified_quotations: evidence.quotations,
             requirements_reported: evidence.requirements_reported,
+            proposed_addressed_comment_ids: evidence.proposed_addressed_comment_ids,
             complete_over_retained_text,
             model_explanation: evidence.explanation,
         })

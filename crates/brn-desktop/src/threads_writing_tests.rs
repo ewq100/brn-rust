@@ -356,6 +356,56 @@ fn proposal(
         .unwrap();
     (snapshot, candidate)
 }
+fn suggested_proposal(
+    view: &mut ThreadsUi,
+    note: &Record,
+    thread: &str,
+    ids: &[String],
+    key: &str,
+) -> Prepared {
+    let snapshot = view
+        .workspace
+        .snapshot_writing_request(
+            &format!("request-{key}"),
+            &note.id,
+            note.version,
+            thread,
+            ids,
+        )
+        .unwrap();
+    let operation = view
+        .workspace
+        .store
+        .allocate_operation(&format!("proposal-{key}"))
+        .unwrap();
+    let evidence = WritingCandidateEvidence {
+        version: 1,
+        request_message: snapshot.request_message.clone(),
+        thread: thread.into(),
+        chat: None,
+        reads: vec![],
+        quotations: vec![],
+        requirements_reported: vec![],
+        proposed_addressed_comment_ids: ids.to_vec(),
+        explanation: "Model suggests captured feedback addressed".into(),
+    };
+    let mut request = snapshot
+        .change_request("Exact UI accepted revision")
+        .unwrap();
+    request.reason = WRITING_PUBLIC_REASON.into();
+    request.writes.push(Put {
+        id: operation.creation_id(0),
+        expected_version: None,
+        archived: false,
+        data: RecordData::Message(Message {
+            thread: thread.into(),
+            role: WRITING_EVIDENCE_ROLE.into(),
+            text: serde_json::to_string(&evidence).unwrap(),
+        }),
+    });
+    view.workspace.store.prepare(&operation, &request).unwrap()
+}
+
 #[gpui_kit::test]
 fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_review_and_compare(
     cx: &mut TestAppContext,
@@ -503,6 +553,7 @@ fn private_writing_disclosure_is_mandatory_and_wrong_displayed_scope_hides_revie
                 let quote = "PRIVATE EXACT SOURCE QUOTE";
                 let private_request = snapshot.request_message.clone();
                 let proof = WritingCandidateEvidence {
+                    proposed_addressed_comment_ids: vec![],
                     version: 1,
                     request_message: snapshot.request_message,
                     thread: thread.clone(),
@@ -2345,6 +2396,7 @@ fn b3_sources_used_separates_import_reading_claims_quotes_and_changed_removed_ma
                 let quote = "Requirements";
                 let start = note.markdown.find(quote).unwrap();
                 let evidence = WritingCandidateEvidence {
+                    proposed_addressed_comment_ids: vec![],
                     version: 1,
                     request_message: snapshot.request_message,
                     thread: f.chat_a.clone(),
@@ -2869,6 +2921,7 @@ fn b3_saved_host_evidence_has_visible_sources_used_without_opening_inputs(cx: &m
                 panic!("reference")
             };
             let proof = WritingCandidateEvidence {
+                proposed_addressed_comment_ids: vec![],
                 version: 1,
                 request_message: snapshot.request_message,
                 thread: f.chat_a.clone(),
@@ -4344,14 +4397,7 @@ fn review_feedback_selector_and_apply_click_commit_exact_subset_with_undo(cx: &m
                 .into_iter()
                 .map(|entry| entry.record.id)
                 .collect();
-            let (_, candidate) = proposal(
-                view,
-                &f.a,
-                &f.chat_a,
-                &ids,
-                "Exact UI accepted revision",
-                "selected-ui",
-            );
+            let candidate = suggested_proposal(view, &f.a, &f.chat_a, &ids, "selected-ui");
             operation = candidate.operation.as_str().into();
             view.open_review(candidate, window, cx);
         });
@@ -4367,6 +4413,30 @@ fn review_feedback_selector_and_apply_click_commit_exact_subset_with_undo(cx: &m
                 .unwrap()
                 .contains("stay open")
         );
+        for id in &ids {
+            assert!(
+                window
+                    .find(format!("comment-model-suggestion-{id}"))
+                    .visible()
+            );
+            assert_eq!(
+                window
+                    .find(format!("comment-model-suggestion-{id}"))
+                    .label(),
+                Some(
+                    "Model suggests addressed; select With Apply to mark it addressed after Apply"
+                )
+            );
+        }
+        f.view.update(cx, |view, _| {
+            assert!(
+                view.writing
+                    .review
+                    .comments_to_address(&operation)
+                    .is_empty(),
+                "model suggestions must not select owner checkboxes"
+            )
+        });
         window.click(format!("review-address-comment-{}", ids[0]), cx);
     })
     .unwrap();
@@ -4749,4 +4819,46 @@ fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_appl
             assert!(matches!(view.workspace.store.record(&id).unwrap().unwrap().data, RecordData::Comment(comment) if comment.body == "New owner instruction"));
         });
     }).unwrap();
+}
+
+#[gpui_kit::test]
+fn model_comment_hint_apply_alone_creates_no_addressed_proof(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let mut id = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+            feedback(view, &f.a, "tere", 0..4, "Clarify greeting", window, cx);
+            id = view.workspace.writing_comments(&f.a.id).unwrap()[0]
+                .record
+                .id
+                .clone();
+            let candidate = suggested_proposal(
+                view,
+                &f.a,
+                &f.chat_a,
+                std::slice::from_ref(&id),
+                "suggested-apply-alone",
+            );
+            view.open_review(candidate, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            window
+                .find(format!("comment-model-suggestion-{id}"))
+                .visible()
+        );
+        window.click("apply-final", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_,_,cx| { f.view.update(cx,|view,_| {
+        assert!(matches!(view.workspace.store.note(&f.a.id).unwrap().unwrap().data,RecordData::Note(note) if note.markdown=="Exact UI accepted revision"));
+        assert!(!view.workspace.writing_comments(&f.a.id).unwrap()[0].addressed);
+        assert!(view.writing.review.is_none());
+    }); }).unwrap();
 }

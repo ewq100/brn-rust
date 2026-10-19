@@ -675,3 +675,233 @@ fn combined_apply_only_and_order_independent_feedback_replay() {
         assert_eq!(app.history().unwrap().len(), history);
     }
 }
+
+fn suggested_request(
+    snapshot: &WritingSnapshot,
+    operation: &OperationId,
+    ids: Vec<String>,
+) -> ChangeRequest {
+    let evidence = WritingCandidateEvidence {
+        version: 1,
+        request_message: snapshot.request_message.clone(),
+        thread: snapshot.thread.clone(),
+        chat: None,
+        reads: vec![],
+        quotations: vec![],
+        requirements_reported: vec![],
+        proposed_addressed_comment_ids: ids,
+        explanation: "Model reports feedback addressed".into(),
+    };
+    let mut request = snapshot
+        .change_request("A proposed clearer whole draft.")
+        .unwrap();
+    request.reason = WRITING_PUBLIC_REASON.into();
+    request.writes.push(Put {
+        id: operation.creation_id(0),
+        expected_version: None,
+        archived: false,
+        data: RecordData::Message(Message {
+            thread: snapshot.thread.clone(),
+            role: WRITING_EVIDENCE_ROLE.into(),
+            text: serde_json::to_string(&evidence).unwrap(),
+        }),
+    });
+    request
+}
+
+#[test]
+fn proposed_comment_evidence_refuses_forgery_and_preserves_old_empty_hashes() {
+    let (_dir, mut app, note, thread) = setup();
+    let first = comment(&mut app, &note, &thread, "first", (0, 12));
+    let excluded = comment(&mut app, &note, &thread, "excluded", (13, 25));
+    let snapshot = app
+        .snapshot_writing_request(
+            "suggestions",
+            &note.id,
+            note.version,
+            &thread.id,
+            std::slice::from_ref(&first.id),
+        )
+        .unwrap();
+    for (i, ids) in [
+        vec!["unknown".into()],
+        vec![excluded.id],
+        vec![first.id.clone(), first.id.clone()],
+        vec![first.id.clone(); 129],
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let operation = app
+            .store
+            .allocate_operation(&format!("forged-suggestions-{i}"))
+            .unwrap();
+        let request = suggested_request(&snapshot, &operation, ids);
+        assert!(app.store.prepare(&operation, &request).is_err());
+        assert!(app.store.candidates().unwrap().is_empty());
+        assert_eq!(app.store.record(&note.id).unwrap().unwrap(), note);
+    }
+    let operation = app.store.allocate_operation("old-empty-evidence").unwrap();
+    let request = suggested_request(&snapshot, &operation, vec![]);
+    let first = app.store.prepare(&operation, &request).unwrap();
+    let mut roundtrip = request.clone();
+    let RecordData::Message(message) = &mut roundtrip.writes[1].data else {
+        panic!()
+    };
+    assert!(!message.text.contains("proposed_addressed_comment_ids"));
+    let old_bytes = message.text.clone();
+    let mut explicit: serde_json::Value = serde_json::from_str(&message.text).unwrap();
+    explicit["proposed_addressed_comment_ids"] = serde_json::json!([]);
+    let evidence: WritingCandidateEvidence = serde_json::from_value(explicit).unwrap();
+    message.text = serde_json::to_string(&evidence).unwrap();
+    assert_eq!(message.text, old_bytes);
+    assert_eq!(
+        app.store.prepare(&operation, &roundtrip).unwrap(),
+        first,
+        "same immutable hash and bytes"
+    );
+}
+
+#[test]
+fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement() {
+    let (dir, mut app, note, thread) = setup();
+    let first = comment(&mut app, &note, &thread, "first", (0, 12));
+    let snapshot = app
+        .snapshot_writing_request(
+            "suggestions",
+            &note.id,
+            note.version,
+            &thread.id,
+            std::slice::from_ref(&first.id),
+        )
+        .unwrap();
+    let operation = app
+        .store
+        .allocate_operation("suggestions-original")
+        .unwrap();
+    let original = app
+        .store
+        .prepare(
+            &operation,
+            &suggested_request(&snapshot, &operation, vec![first.id.clone()]),
+        )
+        .unwrap();
+    drop(app);
+    let mut app = Workspace::open_without_default_credentials(dir.path().join("data")).unwrap();
+    assert_eq!(
+        app.writing_candidate_review(operation.as_str(), None)
+            .unwrap()
+            .proposed_addressed_comment_ids,
+        vec![first.id]
+    );
+    // Clearing suggestions never permits editing other evidence or its bindings.
+    for forged in 0..4 {
+        let replacement = app
+            .store
+            .allocate_operation(&format!("forged-replacement-{forged}"))
+            .unwrap();
+        let mut request = original.request.clone();
+        let RecordData::Message(message) = &mut request.writes[1].data else {
+            panic!()
+        };
+        let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).unwrap();
+        evidence.proposed_addressed_comment_ids.clear();
+        match forged {
+            0 => evidence.explanation.push_str(" forged"),
+            1 => evidence.thread = "foreign".into(),
+            2 => evidence
+                .requirements_reported
+                .push(WritingRequirementsClaim {
+                    claim: "forged".into(),
+                    quotations: vec![],
+                }),
+            _ => {
+                request.inputs.pop();
+            }
+        }
+        message.text = serde_json::to_string(&evidence).unwrap();
+        assert!(
+            app.store
+                .replace_candidate(
+                    &operation,
+                    &replacement,
+                    &request,
+                    &HostAuthority::owner("exact review")
+                )
+                .is_err()
+        );
+        assert!(
+            app.store
+                .candidates()
+                .unwrap()
+                .iter()
+                .any(|candidate| candidate.operation == operation)
+        );
+    }
+    let replacement = app
+        .review_replace(operation.as_str(), &note.id, "Owner revised candidate")
+        .unwrap();
+    let checked = app
+        .writing_candidate_review(replacement.operation.as_str(), None)
+        .unwrap();
+    assert!(checked.proposed_addressed_comment_ids.is_empty());
+    assert_eq!(
+        checked.model_explanation,
+        "Model reports feedback addressed"
+    );
+    assert!(
+        original
+            .request
+            .inputs
+            .iter()
+            .all(|input| replacement.request.inputs.contains(input))
+    );
+    assert_eq!(app.store.prepared(&operation).unwrap(), original);
+    let mut cleared_original = original.request.clone();
+    let RecordData::Message(message) = &mut cleared_original.writes[1].data else {
+        panic!()
+    };
+    let mut evidence: WritingCandidateEvidence = serde_json::from_str(&message.text).unwrap();
+    evidence.proposed_addressed_comment_ids.clear();
+    message.text = serde_json::to_string(&evidence).unwrap();
+    assert_eq!(
+        replacement.request.writes[1].data,
+        cleared_original.writes[1].data
+    );
+}
+
+#[test]
+fn owner_selected_replacement_also_clears_model_suggestions() {
+    let (_dir, mut app, note, thread) = setup();
+    let first = comment(&mut app, &note, &thread, "first", (0, 12));
+    let snapshot = app
+        .snapshot_writing_request(
+            "suggestions",
+            &note.id,
+            note.version,
+            &thread.id,
+            std::slice::from_ref(&first.id),
+        )
+        .unwrap();
+    let operation = app
+        .store
+        .allocate_operation("suggestions-original")
+        .unwrap();
+    let original = app
+        .store
+        .prepare(
+            &operation,
+            &suggested_request(&snapshot, &operation, vec![first.id]),
+        )
+        .unwrap();
+    let replacement = app
+        .review_select(operation.as_str(), std::slice::from_ref(&note.id))
+        .unwrap();
+    assert!(
+        app.writing_candidate_review(replacement.operation.as_str(), None)
+            .unwrap()
+            .proposed_addressed_comment_ids
+            .is_empty()
+    );
+    assert_eq!(app.store.prepared(&operation).unwrap(), original);
+}

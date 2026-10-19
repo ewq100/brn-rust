@@ -459,6 +459,8 @@ struct PrepareArgs {
 struct WritingEvidenceArgs {
     quotations: Vec<WritingQuotation>,
     requirements_reported: Vec<WritingRequirementsClaim>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    proposed_addressed_comment_ids: Vec<String>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -668,7 +670,7 @@ fn schema(name: &str) -> Value {
         ),
         "retain_progress" => continuation::schema(),
         "prepare_changes" => object(
-            json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
+            json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}},"proposed_addressed_comment_ids":{"type":"array","maxItems":128,"uniqueItems":true,"items":{"type":"string"},"description":"Optional untrusted suggestions: only exact IDs in the saved request captured comments. Empty means none; never resolves or selects comments."}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
             json!(["request_key", "request"]),
         ),
         _ => unreachable!(),
@@ -773,14 +775,16 @@ tool!(
     "Load a fixed BRN playbook; loading guidance never changes permission.",
     read_skill
 );
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct PrepareChanges {
     writing_evidence: bool,
     local_edits: bool,
+    writing_snapshot: Option<Arc<WritingSnapshot>>,
 }
 impl PrepareChanges {
     fn for_scope(scope: &Scope) -> Self {
         Self {
+            writing_snapshot: scope.writing_snapshot.clone().map(Arc::new),
             local_edits: scope.writing_snapshot.is_none(),
             writing_evidence: scope
                 .writing_snapshot
@@ -792,7 +796,20 @@ impl PrepareChanges {
         Self {
             local_edits: true,
             writing_evidence: false,
+            writing_snapshot: None,
         }
+    }
+    fn validate_proposed_comments(&self, args: &Value) -> std::result::Result<(), ArgumentError> {
+        let Some(writing) = args.get("writing").filter(|value| !value.is_null()) else {
+            return Ok(());
+        };
+        let reported: WritingEvidenceArgs = serde_json::from_value(writing.clone())
+            .map_err(|_| ArgumentError::Shape("Check the writing evidence schema"))?;
+        if let Some(snapshot) = &self.writing_snapshot {
+            snapshot.validate_proposed_addressed_comment_ids(&reported.proposed_addressed_comment_ids)
+                .map_err(|_| ArgumentError::Shape("Propose at most 128 unique IDs from this saved request's captured comments, or omit the suggestions"))?;
+        }
+        Ok(())
     }
     fn accepts_writing(&self, args: &Value) -> bool {
         self.writing_evidence || args.get("writing").is_none_or(Value::is_null)
@@ -869,7 +886,7 @@ fn refresh_candidate(scope: &Scope, args: RefreshArgs) -> AiResult<Value> {
 // One declaration registers actual tools and supplies payload-free activity.
 macro_rules! runtime_catalog {
     (@instance $prepare:ident, $tool:ident) => { $tool };
-    (@instance $prepare:ident, $tool:ident, $constructor:expr) => { ($constructor)($prepare) };
+    (@instance $prepare:ident, $tool:ident, $constructor:expr) => { ($constructor)($prepare.clone()) };
     ($(($tool:ident, $activity:literal $(, $constructor:expr)?)),+ $(,)?) => {
         fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>, prepare: PrepareChanges) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
             let builder = builder$(.tool(runtime_catalog!(@instance prepare, $tool $(, $constructor)?)))+;
@@ -1469,6 +1486,7 @@ fn attach_writing_evidence(
             || safe.reason != request.reason
             || evidence.quotations != reported.quotations
             || evidence.requirements_reported != reported.requirements_reported
+            || evidence.proposed_addressed_comment_ids != reported.proposed_addressed_comment_ids
             || evidence.explanation != explanation
         {
             return Err(rejected());
@@ -1565,6 +1583,7 @@ fn attach_writing_evidence(
         reads,
         quotations: reported.quotations,
         requirements_reported: reported.requirements_reported,
+        proposed_addressed_comment_ids: reported.proposed_addressed_comment_ids,
         explanation: explanation.into(),
     };
     let text = serde_json::to_string(&evidence).map_err(storage)?;
@@ -1904,6 +1923,11 @@ fn prepare(scope: &Scope, mut args: PrepareArgs) -> AiResult<Value> {
         return Err(rejected());
     }
     if let Some(snapshot) = &scope.writing_snapshot {
+        if let Some(reported) = &args.writing {
+            snapshot
+                .validate_proposed_addressed_comment_ids(&reported.proposed_addressed_comment_ids)
+                .map_err(|_| rejected())?;
+        }
         args.request = writing_request(snapshot, &args.request)?;
     }
     let mut store = scope.store.lock().map_err(storage)?;
@@ -2646,7 +2670,13 @@ impl AgentHook for BatchHook {
             forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
             forbidden |= name == note_edit::PrepareNoteEdit::NAME && !self.prepare.local_edits;
             forbidden |= name == "read_skill" && self.skill_refused(&args);
-            match validate_arguments(name, &args) {
+            match validate_arguments(name, &args).and_then(|()| {
+                if name == PrepareChanges::NAME {
+                    self.prepare.validate_proposed_comments(&args)
+                } else {
+                    Ok(())
+                }
+            }) {
                 Ok(()) => {}
                 Err(ArgumentError::Forbidden) => forbidden = true,
                 Err(ArgumentError::Shape(guidance)) => {
@@ -3784,7 +3814,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
                 .retain(|id| setup.references.iter().any(|r| r.note == *id));
         }
         format!(
-            "Current Thread: {}\nSaved writing request: {}\nExact saved note, included passage comments and complete selected posted conversation: {}\nRewrite the entire selected note Markdown using this saved context and visible reference evidence read with the scoped tools. Ordinary actual reference reads retain their exact Historical version; exhaustive requirements checks and owner-marked references require Current. Import coverage, retained-text coverage and requirements reported checked are distinct; top-k never proves completeness. Supply quotations and requirements claims through prepare_changes.writing, which the host verifies. Never claim all requirements verified. Preserve every non-Markdown field and the captured note version. Prepare one complete note proposal with prepare_changes. This invocation grants no direct application authority; the owner reviews and applies the exact proposal. Reference reads/search are available for v2; v1 stays frozen. Source/history reads and candidate refresh are unavailable. Do not resolve comments or submit conversation drafts.",
+            "Current Thread: {}\nSaved writing request: {}\nExact saved note, included passage comments and complete selected posted conversation: {}\nRewrite the entire selected note Markdown using this saved context and visible reference evidence read with the scoped tools. Ordinary actual reference reads retain their exact Historical version; exhaustive requirements checks and owner-marked references require Current. Import coverage, retained-text coverage and requirements reported checked are distinct; top-k never proves completeness. Supply quotations and requirements claims through prepare_changes.writing, which the host verifies. Never claim all requirements verified. For v2, optionally report up to 128 unique captured comment IDs you believe this candidate addresses through prepare_changes.writing.proposed_addressed_comment_ids; omit or use [] for none. These are untrusted suggestions displayed to the owner, never checkbox selections or permission to resolve comments. Only IDs in this immutable captured subset are accepted. Preserve every non-Markdown field and the captured note version. Prepare one complete note proposal with prepare_changes. This invocation grants no direct application authority; the owner reviews and applies the exact proposal. Reference reads/search are available for v2; v1 stays frozen. Source/history reads and candidate refresh are unavailable. Do not resolve comments or submit conversation drafts.",
             request.thread,
             snapshot.request_message,
             serde_json::to_string(&model_snapshot).map_err(storage)?,
@@ -4277,7 +4307,10 @@ async fn run_model_budgeted(
     let exhausted = Arc::new(AtomicU16::new(0));
     let preamble = run_preamble(&scope);
     let prepare = PrepareChanges::for_scope(&scope);
-    let mut builder = register_tools(rig::AgentBuilder::new(model).preamble(&preamble), prepare);
+    let mut builder = register_tools(
+        rig::AgentBuilder::new(model).preamble(&preamble),
+        prepare.clone(),
+    );
     if scope.search.is_some() {
         builder = builder.tool(SearchNotes).tool(NoteConnections);
         if scope.helper.is_some() {

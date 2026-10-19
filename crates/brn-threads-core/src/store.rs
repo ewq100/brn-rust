@@ -479,7 +479,8 @@ impl Store {
                         !request
                             .writes
                             .iter()
-                            .any(|w| w.data == evidence.data
+                            .any(|w| (w.data == evidence.data
+                                    || !runtime_refresh && crate::writing::evidence_without_suggestions(&evidence.data).as_ref() == Some(&w.data))
                                 && w.archived == evidence.archived
                                 && w.expected_version == evidence.expected_version)
                     }))

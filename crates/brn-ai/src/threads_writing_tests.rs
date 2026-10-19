@@ -971,10 +971,21 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
     for mode in ["ordinary", "v1", "v2"] {
         for copilot in [false, true] {
             let (_root, request, scope, input) = contract_scope(mode);
-            let http = SequencedHttpClient::new([MockHttpResponse::success_typed(
+            let mut responses = Vec::new();
+            if mode == "v2" {
+                let snapshot = scope.writing_snapshot.as_ref().unwrap();
+                let args = json!({"request_key":"wire-empty-suggestions", "request":snapshot.change_request("Tuesday").unwrap(), "writing":{"quotations":[],"requirements_reported":[],"proposed_addressed_comment_ids":[]}});
+                let call = json!({"type":"function_call","id":"fc_prepare","call_id":"call_prepare","name":"prepare_changes","arguments":args.to_string(),"status":"completed"});
+                responses.push(MockHttpResponse::success_typed(cache_tests::sse(&[
+                    json!({"type":"response.output_item.done","output_index":0,"sequence_number":1,"item":call}),
+                    json!({"type":"response.completed","sequence_number":2,"response":{"id":"resp_prepare","object":"response","created_at":1,"status":"completed","model":"gpt-6.1-sol","output":[call],"tools":[],"usage":{"input_tokens":10,"output_tokens":1,"total_tokens":11}}}),
+                ]), "text/event-stream"));
+            }
+            responses.push(MockHttpResponse::success_typed(
                 cache_tests::final_turn(),
                 "text/event-stream",
-            )]);
+            ));
+            let http = SequencedHttpClient::new(responses);
             let model = if copilot {
                 let client = rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
                     .with_base_url("https://copilot.example.invalid")
@@ -991,7 +1002,7 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                     client.responses(request.selection.model.clone()),
                 )
             };
-            let _answer = run_model(
+            let answer = run_model(
                 model,
                 scope.clone(),
                 &input,
@@ -1002,7 +1013,27 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                 Arc::new(|_| {}),
             )
             .await;
-            assert_eq!(http.requests().len(), 1);
+            assert_eq!(http.requests().len(), if mode == "v2" { 2 } else { 1 });
+            if mode == "v2" {
+                assert!(
+                    matches!(answer.terminal, AiTerminal::Completed),
+                    "{:?}",
+                    answer.terminal
+                );
+                let store = scope.store.lock().unwrap();
+                assert_eq!(
+                    store.candidates().unwrap().len(),
+                    1,
+                    "explicit [] must execute through the actual provider transport"
+                );
+                assert!(store.receipts().unwrap().iter().all(|receipt| {
+                    !receipt.writes.iter().any(|write| {
+                        write.after.id == scope.writing_snapshot.as_ref().unwrap().note.id
+                            && write.after.version
+                                > scope.writing_snapshot.as_ref().unwrap().note.version
+                    })
+                }));
+            }
             let requests = http.requests();
             assert!(requests[0].uri.ends_with("/responses"));
             let body: Value = serde_json::from_slice(&requests[0].body).unwrap();
@@ -1016,9 +1047,20 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                 .unwrap();
             assert_eq!(tool["strict"], copilot);
             if mode == "v2" {
+                let mut expected_writing =
+                    schema("prepare_changes")["properties"]["writing"].clone();
+                if copilot {
+                    expected_writing["required"] = expected_writing["properties"]
+                        .as_object()
+                        .unwrap()
+                        .keys()
+                        .cloned()
+                        .collect::<Vec<_>>()
+                        .into();
+                }
                 assert_eq!(
                     tool["parameters"]["properties"]["writing"],
-                    schema("prepare_changes")["properties"]["writing"]
+                    expected_writing
                 );
             } else {
                 assert_eq!(
