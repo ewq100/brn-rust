@@ -1452,6 +1452,7 @@ impl<T: 'static> WritingView<'_, T> {
                     )
                     .when(checked, |toggle| toggle.icon(IconName::Check))
                     .selected(checked)
+                    .toggled(checked)
                     .tooltip(if location.is_none() && !checked {
                         components::unavailable("Include", Some(&unlocated.reason)).1
                     } else if location.is_none() {
