@@ -33,7 +33,8 @@ byte-exact restoration. Independent Sol effectiveness review approved the exact 
 approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
 passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
 in PR166 at exact head73780065. All four required head checks passed in
-run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 is running. The same later candidate98188942
+run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 passed all four required jobs, docs and Ubuntu
+UI/retrieval; optional Windows Core/UI/retrieval failed. The same later candidate98188942
 also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
 with a failing old-source witness and final321/0/1, lint/format/production build passing.
 Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect

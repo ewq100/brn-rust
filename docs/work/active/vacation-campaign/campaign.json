@@ -18,7 +18,7 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:27:12.856740+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T08:30:13.940385+00:00",
   "current_session_jobs": [
     {
       "agent": "/root/qualification_audit",
@@ -34,11 +34,11 @@
       "gate": "Original production must fail intended pending assertion before any fix; no speculative change if unreproduced."
     }
   ],
-  "integration_status": "PR163/164/165 required head/main checks pass; optional Windows failures retained. PR166 normal exact73780065 merge b4a5deeb at08:07:12UTC after all four required head checks39217700176 passed. Resulting-main39220505231 running.",
-  "next_eligible_work": "Audit provider-helper receipts/current records; validate scoped-search original-source witness before selecting exact fix. Follow PR167 exacthead and PR166 main checks, normalmerge only after requiredpass; publish later coherent candidate when ready. Native18:00Tallinn remains queued.",
+  "integration_status": "PR163/164/165/166 required head/main checks passed. PR166 exact737 normal mergeb4a5deeb; main39220505231 all4required,docs,UbuntuUI/retrieval pass; optionalWindowsCore/UI/retrieval fail, overallfailure retained. PR167fixed408 checks39220781564 last3requiredpass, MacCoreprogressing.",
+  "next_eligible_work": "Audit provider-helper receipts/current records; validate scoped-search original-source witness before selecting exact fix. Follow PR167 exacthead checks; PR166 main requiredchecks passed, normalmerge only after requiredpass; publish later coherent candidate when ready. Native18:00Tallinn remains queued.",
   "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
   "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
-  "active_work": "Current source945: export980 native322/0/1 lintfmt/prod +independentSol+Lunareceipts pass. Provider helper22d5/54eb affected4/7/12 and strictpackagecapabilitylintfmt pass; receipts imported. Its clean unmanagedcheckout removed with normalGit after preserving branch22/patch/siblingevidence. Luna now reproduces scopedsearch hiddencompletion/pending leak in reused drain checkout on codex/reference-search-retirement, solebuildslot. PR167fixed408 required39220781564 +PR166main39220505231 running.",
+  "active_work": "Current source945: export980 native322/0/1 lintfmt/prod +independentSol+Lunareceipts pass. Provider helper22d5/54eb affected4/7/12 and strictpackagecapabilitylintfmt pass; receipts imported. Its clean unmanagedcheckout removed with normalGit after preserving branch22/patch/siblingevidence. Luna now reproduces scopedsearch hiddencompletion/pending leak in reused drain checkout on codex/reference-search-retirement, solebuildslot. PR167fixed408 required39220781564 +PR166main39220505231 requiredpass/optionalWindowsfail.",
   "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",

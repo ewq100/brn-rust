@@ -13,7 +13,8 @@ Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-continuation`, reviewed source945a0a7a. Later commits are
 docs/evidence only. Latest main isb4a5deeb (PR166), merged normally from checked737
 once all four required contexts passed in run39217700176. Its resulting-main
-run39220505231 is still being followed; optional Windows failures remain explicit.
+run39220505231 passed all four required jobs, docs and Ubuntu UI/retrieval;
+optional Windows Core/UI/retrieval failures remain explicit.
 Earlier PR163/164/165 required head/main checks passed; don't redo their source work.
 
 PR167 [reference owner](reference-import.md) is published at fixed40879f71 on

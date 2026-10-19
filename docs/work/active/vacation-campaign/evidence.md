@@ -51,8 +51,8 @@ gates remain separate. The later [Connections correction](connections-pending.md
 independently approved in complete98188942. An expanded existing real-control
 witness fails against unchanged production and passes after the one-line fix;
 final321/0/1, strict lint/format and production build pass. PR166 merged normally at checked head73780065 after all four required contexts
-passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 is running;
-native gates remain pending. [CI timing research](ci-feedback.md) records
+passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 passed all four required jobs, docs and Ubuntu UI/retrieval;
+optional Windows Core/UI/retrieval failed. Native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
 is75% used/25% remaining, above the approximate5% remaining floor.
 

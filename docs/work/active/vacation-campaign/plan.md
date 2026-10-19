@@ -164,7 +164,8 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 ## Current candidate and next action
 
 Main b4a5deeb (PR166) passed all four required exact-head737 checks before normal
-merge; resulting-main run39220505231 is running. Earlier PR165 required main checks
+merge; resulting-main run39220505231 passed all four required jobs, docs and
+Ubuntu UI/retrieval, with optional Windows failures retained. Earlier PR165 required main checks
 passed, with optional Windows failures retained. PR167 reference ownership remains
 fixed at40879f71 on `codex/hardening-followup`, required run39220781564. Its source
 14d7/ed859aa4 and receipts passed independent reviews; hosted/main/native gates
