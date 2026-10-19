@@ -309,5 +309,13 @@
     }
   ],
   "audit_note": "Initial lead receipt audit used exit instead of exit_code and stopped before qualification; this corrected audit verifies actual receipt fields, source and log hashes.",
-  "observed_at_utc": "2026-10-19T10:19:07.810539+00:00"
+  "observed_at_utc": "2026-10-19T10:19:07.810539+00:00",
+  "lead_documentation_review": {
+    "candidate": "cf1de05852a571c23847fe47be64200a94f4ef11",
+    "reviewer": "independent Sol high argument_correction_review",
+    "archive_records_verified": 27,
+    "integrated_changed_files_verified": 12,
+    "finding": "One stale status sentence denied new implementation; replaced with no native usability or owner acceptance claim.",
+    "remaining_gates": "Combined guide/context/CLI, required exact-head/resulting-main, real model/native/owner remain separate."
+  }
 }
