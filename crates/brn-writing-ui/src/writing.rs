@@ -2213,8 +2213,16 @@ impl<T: 'static> WritingView<'_, T> {
             .iter()
             .filter(|write| matches!(write.data, RecordData::Note(_)))
             .count();
-        let tall =
-            self.review.inputs_shown() || review.note.is_none() || grouped || note_writes > 1;
+        // Captured feedback shares the existing scrollable details budget;
+        // it must yield space to stacked comments even with Inputs closed.
+        let tall = self.review.inputs_shown()
+            || review.note.is_none()
+            || grouped
+            || note_writes > 1
+            || review
+                .feedback
+                .as_ref()
+                .is_some_and(|snapshot| !snapshot.comments.is_empty());
         let mut details = div()
             .id("review-details")
             .flex()
