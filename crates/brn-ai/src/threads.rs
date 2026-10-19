@@ -480,31 +480,42 @@ enum ArgumentError {
 fn argument_shape(valid: bool, guidance: &'static str) -> std::result::Result<(), ArgumentError> {
     valid.then_some(()).ok_or(ArgumentError::Shape(guidance))
 }
+fn forbidden_record(data: &RecordData) -> bool {
+    matches!(
+        data,
+        RecordData::Run(_)
+            | RecordData::Settings(_)
+            | RecordData::Asset(_)
+            | RecordData::Message(_)
+            | RecordData::ChatControl(_)
+            | RecordData::WritingSetup(_)
+    ) || matches!(data, RecordData::Thread(t) if t.state == ThreadState::Resolved)
+}
 fn validate_request_policy(request: &ChangeRequest) -> std::result::Result<(), ArgumentError> {
-    if request.writes.iter().any(|w| {
-        matches!(
-            w.data,
-            RecordData::Run(_)
-                | RecordData::Settings(_)
-                | RecordData::Asset(_)
-                | RecordData::Message(_)
-                | RecordData::ChatControl(_)
-                | RecordData::WritingSetup(_)
-        ) || matches!(&w.data,RecordData::Thread(t) if t.state==ThreadState::Resolved)
-    }) {
-        return Err(ArgumentError::Forbidden);
+    if request
+        .writes
+        .iter()
+        .any(|write| forbidden_record(&write.data))
+    {
+        Err(ArgumentError::Forbidden)
+    } else {
+        Ok(())
     }
-    Ok(())
 }
 fn change_shape_error(args: &Value, guidance: &'static str) -> ArgumentError {
-    // A malformed key or extra envelope field cannot hide a typed forbidden
-    // request. Never infer authority from raw variant names or partial records.
-    if let Ok(request) = serde_json::from_value::<ChangeRequest>(args["request"].clone())
-        && let Err(error) = validate_request_policy(&request)
-    {
-        return error;
+    // A complete typed forbidden record remains identifiable even when a
+    // sibling, envelope, reason or input is malformed. Never infer authority
+    // from raw variant names or partial record fields.
+    if args["request"]["writes"].as_array().is_some_and(|writes| {
+        writes
+            .iter()
+            .filter_map(|write| serde_json::from_value::<RecordData>(write["data"].clone()).ok())
+            .any(|data| forbidden_record(&data))
+    }) {
+        ArgumentError::Forbidden
+    } else {
+        ArgumentError::Shape(guidance)
     }
-    ArgumentError::Shape(guidance)
 }
 fn validate_change_arguments(
     key: &str,
@@ -2336,6 +2347,32 @@ impl BatchHook {
             .map(|batch| batch.clone())
             .unwrap_or_else(|_| Some("Skipped: tool batch unavailable; no call executed.".into()))
     }
+    /// Check every independently typed access component before shape feedback.
+    /// Extra fields or a malformed other component cannot hide a known refusal.
+    fn skill_refused(&self, args: &Value) -> bool {
+        let Some(id) = args.get("id").and_then(Value::as_str) else {
+            return false;
+        };
+        let Some(skills) = &self.skills else {
+            return true;
+        };
+        if skills.file(id, "SKILL.md").is_none() {
+            return true;
+        }
+        let path = match args.get("path") {
+            None => "SKILL.md",
+            Some(Value::String(path)) => path,
+            Some(_) => return false,
+        };
+        let Some((text, _)) = skills.file(id, path) else {
+            return true;
+        };
+        let start = match args.get("start") {
+            None => Some(0),
+            Some(value) => value.as_u64().and_then(|n| usize::try_from(n).ok()),
+        };
+        start.is_some_and(|start| text.get(start..).is_none())
+    }
     /// A helper call the host skips with an instructive result, so one bad
     /// call or oversized batch never fails the whole sub-run.
     fn helper_denial(&self, name: &str, args: &Value) -> Option<String> {
@@ -2554,15 +2591,7 @@ impl AgentHook for BatchHook {
             }
             // Frozen-contract and availability refusals are never correction.
             forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
-            if name == "read_skill"
-                && let Ok(a) = serde_json::from_value::<SkillArgs>(args.clone())
-            {
-                forbidden |= !self.skills.as_ref().is_some_and(|skills| {
-                    skills
-                        .file(&a.id, &a.path)
-                        .is_some_and(|(text, _)| text.get(a.start..).is_some())
-                });
-            }
+            forbidden |= name == "read_skill" && self.skill_refused(&args);
             match validate_arguments(name, &args) {
                 Ok(()) => {}
                 Err(ArgumentError::Forbidden) => forbidden = true,

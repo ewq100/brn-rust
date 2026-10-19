@@ -562,3 +562,170 @@ async fn responses_and_chat_second_requests_pair_each_rejected_call_with_no_effe
         );
     }
 }
+
+async fn assert_mixed_hard_refusal(name: &str, args: Value) {
+    for policy_first in [false, true] {
+        let (_root, request, _) = tests::fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let mut calls = vec![
+            ("shape", "read_records", json!({"ids":7,"query":null})),
+            ("policy", name, args.clone()),
+            (
+                "effect",
+                "retain_progress",
+                json!({"summary":"MUST_NOT_EXECUTE"}),
+            ),
+        ];
+        if policy_first {
+            calls.reverse();
+        }
+        let (answer, model, events) =
+            scripted(scope.clone(), &input, vec![turn(&calls), done()], 4).await;
+        invalid(&answer);
+        assert_eq!(model.request_count(), 1, "{name}: {args}");
+        assert!(run_state(&scope).progress.is_empty());
+        assert!(run_state(&scope).operations.is_empty());
+        assert!(scope.store.lock().unwrap().candidates().unwrap().is_empty());
+        assert!(events.iter().all(|event| !matches!(event, AiEvent::Activity(text) if text.starts_with("> ") || text.starts_with("Tool arguments rejected"))), "hard refusal must precede every dispatch and correction");
+    }
+}
+
+#[tokio::test]
+async fn complete_forbidden_record_data_cannot_hide_behind_other_malformed_request_fields() {
+    for data in [
+        RecordData::Message(Message {
+            thread: "synthetic".into(),
+            role: "assistant".into(),
+            text: "Never save".into(),
+        }),
+        RecordData::Thread(Thread {
+            title: "Never resolve".into(),
+            state: ThreadState::Resolved,
+            attention: vec![],
+            private_context: false,
+            context_epoch: 0,
+        }),
+    ] {
+        for fault in [
+            "reason",
+            "inputs",
+            "sibling",
+            "write_envelope",
+            "request_key",
+        ] {
+            for name in ["prepare_changes", "refresh_candidate"] {
+                let mut args = creation("combined-fault");
+                args["request"]["writes"][0]["data"] = serde_json::to_value(&data).unwrap();
+                if name == "refresh_candidate" {
+                    args["operation"] = json!("old");
+                }
+                match fault {
+                    "reason" => args["request"]["reason"] = json!(42),
+                    "inputs" => args["request"]["inputs"] = json!(["not a typed input"]),
+                    "sibling" => args["request"]["writes"]
+                        .as_array_mut()
+                        .unwrap()
+                        .push(json!({"malformed":true})),
+                    "write_envelope" => args["request"]["writes"][0]["id"] = json!(42),
+                    _ => args["request_key"] = json!(42),
+                }
+                assert_eq!(
+                    validate_arguments(name, &args),
+                    Err(ArgumentError::Forbidden),
+                    "{fault}/{name}"
+                );
+                assert_mixed_hard_refusal(name, args).await;
+            }
+        }
+    }
+}
+
+#[tokio::test]
+async fn refresh_writing_is_a_hard_refusal_even_with_a_malformed_envelope() {
+    for writing in [
+        Value::Null,
+        json!({}),
+        json!({"quotations":[],"requirements_reported":[]}),
+    ] {
+        for malformed in [false, true] {
+            let mut args = creation("forged-writing");
+            args["operation"] = json!("old");
+            args["writing"] = writing.clone();
+            if malformed {
+                args["request_key"] = json!(42);
+                args["request"]["reason"] = json!(42);
+            }
+            assert_eq!(
+                validate_arguments("refresh_candidate", &args),
+                Err(ArgumentError::Forbidden)
+            );
+            assert_mixed_hard_refusal("refresh_candidate", args).await;
+        }
+    }
+}
+
+#[tokio::test]
+async fn frozen_skill_access_refusal_is_independent_of_unrelated_shape_errors() {
+    let (_root, request, _) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let (text, _) = scope.skills.file("maintain-notes", "SKILL.md").unwrap();
+    for args in [
+        json!({"id":"maintain-notes","path":"../secret","extra":true}),
+        json!({"id":"absent-enabled-id","extra":true}),
+        json!({"id":"maintain-notes","path":"not-listed.md","start":"bad type","extra":true}),
+        json!({"id":"absent-enabled-id","path":42,"extra":true}),
+        json!({"id":"maintain-notes","start":text.len()+1,"extra":true}),
+    ] {
+        assert_mixed_hard_refusal("read_skill", args).await;
+    }
+}
+
+#[tokio::test]
+async fn allowed_request_and_skill_format_errors_still_get_bounded_correction() {
+    for name in ["prepare_changes", "read_skill"] {
+        let (_root, request, _) = tests::fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let valid = if name == "prepare_changes" {
+            creation("corrected-envelope")
+        } else {
+            json!({"id":"maintain-notes"})
+        };
+        let mut malformed = valid.clone();
+        if name == "prepare_changes" {
+            malformed["request"]["reason"] = json!(42);
+        } else {
+            malformed["start"] = json!(-1);
+        }
+        assert!(matches!(
+            validate_arguments(name, &malformed),
+            Err(ArgumentError::Shape(_))
+        ));
+        let (answer, model, _) = scripted(
+            scope.clone(),
+            &input,
+            vec![
+                turn(&[("bad", name, malformed)]),
+                turn(&[("fixed", name, valid)]),
+                done(),
+            ],
+            4,
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{name}: {answer:?}"
+        );
+        assert_eq!(model.request_count(), 3);
+        if name == "prepare_changes" {
+            assert_eq!(run_state(&scope).operations.len(), 1);
+            assert_eq!(scope.store.lock().unwrap().candidates().unwrap().len(), 1);
+        } else {
+            assert!(
+                run_state(&scope)
+                    .loaded_skill_details
+                    .iter()
+                    .any(|skill| skill.id == "maintain-notes")
+            );
+        }
+    }
+}
