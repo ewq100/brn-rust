@@ -505,7 +505,7 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
 }
 #[test]
 fn outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visibility() {
-    let (_root, mut request, _) = tests::fixture();
+    let (_root, mut request, general) = tests::fixture();
     let mut store = Store::open(&request.data_dir).unwrap();
     let project = project_tests::project_command(
         &mut store,
@@ -574,6 +574,25 @@ fn outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visib
     assert_eq!(
         current(&scope, &private.id).data,
         RecordData::Note(expected)
+    );
+    let general_before = current(&scope, &general);
+    let publish = prepare_edit(
+        &scope,
+        args(
+            &general,
+            general_before.version,
+            0,
+            "Mon",
+            "Private Tuesday",
+            "private-to-general",
+        ),
+    )
+    .unwrap();
+    assert_eq!(apply_op(&scope, &publish)["outcome"], "NeedsReview");
+    assert_eq!(
+        current(&scope, &general),
+        general_before,
+        "private replacement bytes must not publish into general knowledge through maintenance"
     );
 }
 #[test]
