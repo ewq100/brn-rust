@@ -991,20 +991,42 @@ impl<T: 'static> WritingView<'_, T> {
             .unwrap_or_default()
     }
 
+    /// Only the exact candidate's currently verified captured request supplies selectors.
+    fn review_feedback(&self, note: &str) -> Option<&WritingSnapshot> {
+        let review = self.review.as_ref()?;
+        if review.note.as_deref() != Some(note) {
+            return None;
+        }
+        let captured = review.feedback.as_ref()?;
+        self.writing_requests
+            .get(&captured.request_message)
+            .filter(|snapshot| snapshot.note.id == note)
+    }
     /// "Comments · N", 12 px, above the list in both placements.
     fn comments_label(&self, note: &str) -> gpui_kit::AnyElement {
         let pending = self.pending_comments(note);
+        let reviewing = self
+            .review_feedback(note)
+            .is_some_and(|snapshot| !snapshot.comments.is_empty());
         div()
+            .id(if reviewing {
+                "review-feedback"
+            } else {
+                "comments-label"
+            })
             .flex_shrink_0()
             .font_family(UI_FONT)
             .text_size(SMALL_TEXT)
             .font_weight(gpui_kit::FontWeight::MEDIUM)
             .text_color(rgb(pal().muted))
-            .child(if pending > 0 {
+            .child(if reviewing {
+                format!("Comments · {pending} · mark with Apply (optional)")
+            } else if pending > 0 {
                 format!("Comments · {pending}")
             } else {
                 "Comments".into()
             })
+            .test_support()
             .into_any_element()
     }
 
@@ -1299,12 +1321,29 @@ impl<T: 'static> WritingView<'_, T> {
                 continue;
             };
             let id = entry.record.id.clone();
+            let captured = self
+                .review_feedback(&note_id)
+                .and_then(|snapshot| snapshot.comments.iter().find(|record| record.id == id))
+                .and_then(|record| match &record.data {
+                    RecordData::Comment(comment) => Some(comment),
+                    _ => None,
+                });
+            let shown = captured.unwrap_or(comment);
+            let changed_feedback = captured.is_some_and(|captured| {
+                captured.note != comment.note
+                    || captured.base_version != comment.base_version
+                    || captured.range != comment.range
+                    || captured.quote != comment.quote
+                    || captured.body != comment.body
+            });
             let location = comment_location(comment, open.record().version, &note.markdown);
             let checked = !entry.addressed && !self.excluded_comments.contains(&id);
             // An unlocated comment is kept as written; the owner excludes it
             // or comments on the passage again to reattach the feedback.
             let unlocated = unlocated_reason(comment, open.record().version);
-            let status = if entry.addressed {
+            let status = if changed_feedback {
+                "Captured feedback changed since this proposal; prepare a fresh proposal before applying.".to_owned()
+            } else if entry.addressed {
                 "Addressed · history kept".to_owned()
             } else if location.is_none() {
                 unlocated.status.clone()
@@ -1315,8 +1354,8 @@ impl<T: 'static> WritingView<'_, T> {
             };
             let quote_label = format!(
                 "“{}{}”",
-                comment.quote.chars().take(28).collect::<String>(),
-                if comment.quote.chars().count() > 28 {
+                shown.quote.chars().take(28).collect::<String>(),
+                if shown.quote.chars().count() > 28 {
                     "…"
                 } else {
                     ""
@@ -1366,7 +1405,30 @@ impl<T: 'static> WritingView<'_, T> {
                     .tooltip(tooltip)
             };
             let mut actions = div().flex().flex_wrap().gap_1();
-            if !entry.addressed {
+            if let Some(captured) = captured {
+                let selected = self
+                    .review
+                    .as_ref()
+                    .is_some_and(|review| review.selected_comments.contains(&id));
+                actions = actions.child(
+                    pill(
+                        format!("review-address-comment-{id}"),
+                        if selected { "Selected" } else { "With Apply" },
+                    )
+                    .selected(selected)
+                    .when(selected, |button| button.icon(IconName::Check))
+                    .disabled(self.review.is_editing())
+                    .accessibility_label(format!(
+                        "Mark captured comment addressed with Apply: {}. Passage: {}",
+                        captured.body, captured.quote
+                    ))
+                    .tooltip(format!(
+                        "Mark addressed after Apply. Captured passage: “{}”. Instruction: {}",
+                        captured.quote, captured.body
+                    ))
+                    .on_click(self.on(cx, WritingRequest::ToggleReviewComment(id.clone()))),
+                );
+            } else if !entry.addressed {
                 let toggle = id.clone();
                 actions = actions.child(
                     pill(
@@ -1421,7 +1483,7 @@ impl<T: 'static> WritingView<'_, T> {
                 .border_l_2()
                 .border_color(rgb(p.border))
                 .bg(rgb(if entry.addressed { p.alt } else { p.tile }))
-                .child(div().text_size(UI_TEXT).child(comment.body.clone()))
+                .child(div().text_size(UI_TEXT).child(shown.body.clone()))
                 .when(!status.is_empty(), |card| {
                     card.child(
                         div()
@@ -2213,16 +2275,8 @@ impl<T: 'static> WritingView<'_, T> {
             .iter()
             .filter(|write| matches!(write.data, RecordData::Note(_)))
             .count();
-        // Captured feedback shares the existing scrollable details budget;
-        // it must yield space to stacked comments even with Inputs closed.
-        let tall = self.review.inputs_shown()
-            || review.note.is_none()
-            || grouped
-            || note_writes > 1
-            || review
-                .feedback
-                .as_ref()
-                .is_some_and(|snapshot| !snapshot.comments.is_empty());
+        let tall =
+            self.review.inputs_shown() || review.note.is_none() || grouped || note_writes > 1;
         let mut details = div()
             .id("review-details")
             .flex()
@@ -2413,58 +2467,6 @@ impl<T: 'static> WritingView<'_, T> {
                 );
             }
             details = details.child(members.test_support());
-        }
-        // Display only the host's currently verified writing-context batch.
-        if let Some(snapshot) = review
-            .feedback
-            .as_ref()
-            .and_then(|snapshot| self.writing_requests.get(&snapshot.request_message))
-            .filter(|snapshot| review.note.as_ref() == Some(&snapshot.note.id))
-            && !snapshot.comments.is_empty()
-        {
-            let mut feedback = div()
-                .id("review-feedback")
-                .flex()
-                .flex_col()
-                .gap_1()
-                .p_2()
-                .child("Mark selected comments addressed after Apply (optional)");
-            for captured in &snapshot.comments {
-                let RecordData::Comment(comment) = &captured.data else {
-                    continue;
-                };
-                let id = captured.id.clone();
-                let checked = review.selected_comments.contains(&id);
-                feedback = feedback.child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .child(
-                            div()
-                                .text_size(SMALL_TEXT)
-                                .child(format!("“{}” — {}", comment.quote, comment.body)),
-                        )
-                        .child(
-                            pill(
-                                format!("review-address-comment-{id}"),
-                                if checked {
-                                    "Selected"
-                                } else {
-                                    "Mark addressed with Apply"
-                                },
-                            )
-                            .selected(checked)
-                            .when(checked, |button| button.icon(IconName::Check))
-                            .disabled(edited)
-                            .accessibility_label(format!(
-                                "Mark captured comment addressed with Apply: {}",
-                                comment.body
-                            ))
-                            .on_click(self.on(cx, WritingRequest::ToggleReviewComment(id))),
-                        ),
-                );
-            }
-            details = details.child(feedback.test_support());
         }
         let body = if review.note.is_none() {
             div().into_any_element()
