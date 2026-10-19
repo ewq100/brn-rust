@@ -54,6 +54,12 @@ resulting-main separately. Never bypass a required check.
    accessibility and owner acceptance are pending. Continue useful headless work
    while allowance remains; the recovery schedule is not batch pacing.
 
+6. Lead's test-only follow-upd9b56d8a changes mcp_format fixture tempdir to
+   canonical tempdir_in, matching existing core fixtures. Independently approved;
+   [review](evidence/canonical-temp-fixture-review.json). One focused run under
+   original inherited Mac TMPDIR remains after Luna releases the build slot.
+   Frozen PR173 is unchanged; this follow-up is not yet qualified or merged.
+
 ## Qualified components and preserved evidence
 
 - M0 rules, genuine historical schema5→current10 witnesses, M1 correction,
@@ -96,7 +102,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Capacity, schedules and continuation
 
-Last native quota reading89% used/11% remaining, seven-day reset1792874447.
+Last native quota reading90% used/10% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
 and back off near the verified constraining reset without purchases/reset credits.
 Runtime has four active slots including lead. Owner permits more/nested helpers

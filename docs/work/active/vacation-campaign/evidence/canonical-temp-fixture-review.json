@@ -1,0 +1,19 @@
+{
+  "observed_at_utc": "2026-10-19T11:49:32.348766+00:00",
+  "reviewed_baseline": "07fb8029a07d2a5a5f2c3124ffef62ba23f20519",
+  "candidate": "d9b56d8a063f33dc3def7d1b9a7866a86a2bc025",
+  "path": "crates/brn-threads-core/tests/mcp_format.rs",
+  "diff_sha256": "e5d37b3b16b601037d746f619ccfa05dbb2b8ec596b526f9466fb605f43f65da",
+  "reviewer": "writing_review_review",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "disposition": "approved; no findings",
+  "reason": "Existing unchanged fixture refused inherited macOS /var temp symlink during4e qualification. Create disposable root beneath canonical temp directory, matching other core fixtures; preserve storage guards and every assertion.",
+  "verification": "Pending one focused run under the original inherited Mac environment after single build slot release",
+  "prior_evidence": "proposed-feedback-qualification.json preserves original failure and same-binary canonical-TMPDIR diagnosis",
+  "limits": [
+    "Test-only change; no product behavior",
+    "Frozen PR173 unaffected",
+    "No new tests or repeated broad suite selected"
+  ]
+}
