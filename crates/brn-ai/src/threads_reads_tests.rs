@@ -205,6 +205,18 @@ fn an_owner_edit_grant_still_needs_the_note_read() {
 fn refresh_cannot_replace_unread_markdown_after_a_metadata_only_preparation() {
     let (_root, request, note) = tests::fixture();
     let (scope, _) = begin(&request).unwrap();
+    let partial = read_note(
+        &scope,
+        ReadNoteArgs {
+            id: note.clone(),
+            version: 1,
+            start: 0,
+            max_bytes: 3,
+            section: false,
+        },
+    )
+    .unwrap();
+    assert_eq!(partial["note"]["markdown"], "Mon");
     let original = prepare(
         &scope,
         PrepareArgs {

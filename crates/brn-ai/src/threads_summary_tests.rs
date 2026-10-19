@@ -1580,8 +1580,8 @@ async fn guide_bundle_change_recomputes_prior_stamp_summary_then_reuses_unchange
     assert!(!prepared.summary_chunks.is_empty());
     let scope = prepared.scope.clone();
     let current = scope.skills.identity.clone();
-    assert!(current.starts_with("brn-threads-guidance-15:"));
-    let prior = current.replacen("brn-threads-guidance-15:", "brn-threads-guidance-14:", 1);
+    assert!(current.starts_with("brn-threads-guidance-16:"));
+    let prior = current.replacen("brn-threads-guidance-16:", "brn-threads-guidance-15:", 1);
     let mut old_cache_key = None;
     for (stamp, cached) in [
         (&prior, false),
