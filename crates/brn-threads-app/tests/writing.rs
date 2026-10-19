@@ -801,6 +801,7 @@ fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement()
             .allocate_operation(&format!("forged-replacement-{forged}"))
             .unwrap();
         let mut request = original.request.clone();
+        request.writes[1].id = replacement.creation_id(0);
         let RecordData::Note(note) = &mut request.writes[0].data else {
             panic!()
         };
@@ -827,15 +828,22 @@ fn proposed_comments_reopen_checked_review_and_only_clear_on_owner_replacement()
             _ => {}
         }
         message.text = serde_json::to_string(&evidence).unwrap();
+        let error = app
+            .store
+            .replace_candidate(
+                &operation,
+                &replacement,
+                &request,
+                &HostAuthority::owner("exact review"),
+            )
+            .expect_err(&format!(
+                "forgery {forged} must fail the checked evidence boundary"
+            ));
         assert!(
-            app.store
-                .replace_candidate(
-                    &operation,
-                    &replacement,
-                    &request,
-                    &HostAuthority::owner("exact review")
-                )
-                .is_err()
+            error
+                .to_string()
+                .contains("evidence and input bindings must survive replacement"),
+            "forgery {forged}: {error}"
         );
         assert!(
             app.store
