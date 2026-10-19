@@ -1,0 +1,552 @@
+{
+  "observed_at_utc": "2026-10-19T13:13:49.430539+00:00",
+  "source": "8cee96c91a700804af61b8cbc18266c6957682ea",
+  "author_source": "78a97f93513a32fcf0d8f3d722489ebeaa6d99f8",
+  "file_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+  "source_review": "feedback-accessibility-source-review.json",
+  "checks": [
+    {
+      "name": "selector",
+      "head": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+      "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--lib",
+        "review_feedback_selector_and_apply_click_commit_exact_subset_with_undo",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 101,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0119226658716798,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 2657935360,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "selector-candidate",
+      "head": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+      "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "review_feedback_selector_and_apply_click_commit_exact_subset_with_undo",
+        "--",
+        "--nocapture"
+      ],
+      "exit": -2,
+      "expected_exit": 0,
+      "elapsed_seconds": 242.90180216706358,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 1032491008,
+      "stopped": "disk below1GiB",
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "selector-resumed",
+      "head": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+      "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "review_feedback_selector_and_apply_click_commit_exact_subset_with_undo",
+        "--",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 332.3375651249662,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 2939424768,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "lint",
+      "head": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+      "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-writing-ui",
+        "-p",
+        "brn-desktop",
+        "--all-targets",
+        "--features",
+        "brn-desktop/native-ui,brn-desktop/native-test-support",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 90.33566262503155,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 13303533568,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "format",
+      "head": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+      "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 1,
+      "expected_exit": 0,
+      "elapsed_seconds": 2.00896962499246,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 14596554752,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "format-final",
+      "head": "8cee96c91a700804af61b8cbc18266c6957682ea",
+      "source_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 2.012175790965557,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 14591758336,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "production",
+      "head": "8cee96c91a700804af61b8cbc18266c6957682ea",
+      "source_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 151.53673191694543,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; only reviewed UI source changes. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 13433143296,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    }
+  ],
+  "native": {
+    "source": "8cee96c91a700804af61b8cbc18266c6957682ea",
+    "result": "native AX off\u2192on\u2192off; model context present; application quit confirmed by inventory",
+    "account_calls": 0,
+    "notes_comments_runs_exactly_equal_original_fixture": true,
+    "addressed_proof_count": 0,
+    "native_ai": false,
+    "observed_ax": [
+      {
+        "step": "initial",
+        "role": "toggle button (settable, boolean)",
+        "value": "off",
+        "name": "Model suggests addressed. Mark captured comment addressed with Apply: Clarify the first sentence.. Passage: Rannatuli"
+      },
+      {
+        "step": "explicit owner click",
+        "value": "on"
+      },
+      {
+        "step": "explicit owner deselect",
+        "value": "off"
+      }
+    ],
+    "limits": [
+      "Actual CUA AX/screenshot observations in conversation; no PNG exported.",
+      "No VoiceOver usability, IME, general native completeness or owner acceptance claim.",
+      "No new Apply/Undo in this narrow recheck; prior functional Mac result and unchanged existing selector/Apply/Undo test supply adjacent evidence.",
+      "After first quit/query the adapter displayed a fresh initial window; issued quit again without AX query; inventory then showed no BRN app."
+    ]
+  },
+  "artifact": {
+    "source": "8cee96c91a700804af61b8cbc18266c6957682ea",
+    "binary": "/Users/evokessler/.codex/worktrees/vacation-hardening/feedback-accessibility-evidence/brn-desktop-8cee96c9-65c6b295674deeb0",
+    "binary_sha256": "65c6b295674deeb090232fe9e20fb7e73f6887167a32d86334c59c68d5be22a5",
+    "app": "/Users/evokessler/.codex/worktrees/vacation-hardening/native-mac-evidence/2026-10-19-accessibility-01/BRN-Campaign-AX.app",
+    "environment": {
+      "HOME": "/Users/evokessler/.codex/worktrees/vacation-hardening/native-mac-evidence/2026-10-19-accessibility-01/home",
+      "CODEX_HOME": "/Users/evokessler/.codex/worktrees/vacation-hardening/native-mac-evidence/2026-10-19-accessibility-01/home/.codex",
+      "TMPDIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/native-mac-evidence/2026-10-19-accessibility-01/tmp",
+      "BRN_LAUNCH_LOG_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/native-mac-evidence/2026-10-19-accessibility-01/logs",
+      "BRN_LAUNCH_TEST_NO_OPEN": "1",
+      "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib"
+    },
+    "builder": "scripts/make-macos-app.sh; generated launcher only private environment and app display/identifier adjusted",
+    "source_review": "feedback-accessibility-source-review.json",
+    "fixture": "fresh immutable-read synthetic backup; original preserved",
+    "account_calls": 0,
+    "native_observed": false,
+    "integration": "pre-merge reviewed candidate; hosted gates separate"
+  },
+  "archives": [
+    {
+      "name": "check/final-source.patch",
+      "archive": "feedback-accessibility-raw/check-final-source.patch.gz",
+      "raw_bytes": 1306,
+      "raw_sha256": "1ec41c581eb19c7d9f861ff5dcea6a06a42928447d6b64348677fe8d313bb64d",
+      "archive_bytes": 472,
+      "archive_sha256": "01390149744e9392540e2e8dc613b095eec5328cfbb1441e0170b9c7bf2b7298"
+    },
+    {
+      "name": "check/final-writing.rs",
+      "archive": "feedback-accessibility-raw/check-final-writing.rs.gz",
+      "raw_bytes": 118809,
+      "raw_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+      "archive_bytes": 23548,
+      "archive_sha256": "644d623378cf4a4c392b0e8c571c8580d786bb7089b0736c961fc31705c262c0"
+    },
+    {
+      "name": "check/format-final-source.rs",
+      "archive": "feedback-accessibility-raw/check-format-final-source.rs.gz",
+      "raw_bytes": 118809,
+      "raw_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+      "archive_bytes": 23548,
+      "archive_sha256": "644d623378cf4a4c392b0e8c571c8580d786bb7089b0736c961fc31705c262c0"
+    },
+    {
+      "name": "check/format-final.json",
+      "archive": "feedback-accessibility-raw/check-format-final.json.gz",
+      "raw_bytes": 1275,
+      "raw_sha256": "f1de03c534deb49551c2203570e5bc2a72b96fc9df1ab6951d3c7aa973b9cd54",
+      "archive_bytes": 705,
+      "archive_sha256": "3b7fd30de47da54fe13ffcf7b4e29124c3375be9978f2a29cf3cf7627f649d73"
+    },
+    {
+      "name": "check/format-final.log",
+      "archive": "feedback-accessibility-raw/check-format-final.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "name": "check/format-source.rs",
+      "archive": "feedback-accessibility-raw/check-format-source.rs.gz",
+      "raw_bytes": 118785,
+      "raw_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "archive_bytes": 23548,
+      "archive_sha256": "4e3cc249a0129189c3d21431652b821ff333c733fb6dc37fe6df960d24c0c9f5"
+    },
+    {
+      "name": "check/format.json",
+      "archive": "feedback-accessibility-raw/check-format.json.gz",
+      "raw_bytes": 1268,
+      "raw_sha256": "88ec3d561f5316f1def57ede91b6431bbda21911174fa5068cc16f74d47b8359",
+      "archive_bytes": 705,
+      "archive_sha256": "65eb5a5d44d9de6719f7a5d0ad008b95a804a5e9e5fa4abcd6c2ed355cec5cc2"
+    },
+    {
+      "name": "check/format.log",
+      "archive": "feedback-accessibility-raw/check-format.log.gz",
+      "raw_bytes": 506,
+      "raw_sha256": "c2ec7d9df3519ed35404ffe66215e94af62ab387fd1170b490bc4962e77570f5",
+      "archive_bytes": 247,
+      "archive_sha256": "a45902896be97600fe74457d4e18b5a6d0de9738787bd8f99545bc3ea426f4d4"
+    },
+    {
+      "name": "check/lint-source.rs",
+      "archive": "feedback-accessibility-raw/check-lint-source.rs.gz",
+      "raw_bytes": 118785,
+      "raw_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "archive_bytes": 23548,
+      "archive_sha256": "4e3cc249a0129189c3d21431652b821ff333c733fb6dc37fe6df960d24c0c9f5"
+    },
+    {
+      "name": "check/lint.json",
+      "archive": "feedback-accessibility-raw/check-lint.json.gz",
+      "raw_bytes": 1481,
+      "raw_sha256": "777619d03f9bf62a63db83628b1e83df66b8d777824513d1697663826929ff11",
+      "archive_bytes": 777,
+      "archive_sha256": "5b6b25abe4f7c9a29e3b2f2bef534649ee2f218cd08f1b33294c46b671159a24"
+    },
+    {
+      "name": "check/lint.log",
+      "archive": "feedback-accessibility-raw/check-lint.log.gz",
+      "raw_bytes": 7348,
+      "raw_sha256": "73bd8a295ecc132b32657ffa08172861ca39982ba38871a1a30f01065304a606",
+      "archive_bytes": 2063,
+      "archive_sha256": "583f4c03ef3435083947512f77dcd07ece3dc7fa1ce41aea4f6868ac72c143c2"
+    },
+    {
+      "name": "check/production-source.rs",
+      "archive": "feedback-accessibility-raw/check-production-source.rs.gz",
+      "raw_bytes": 118809,
+      "raw_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+      "archive_bytes": 23548,
+      "archive_sha256": "644d623378cf4a4c392b0e8c571c8580d786bb7089b0736c961fc31705c262c0"
+    },
+    {
+      "name": "check/production.json",
+      "archive": "feedback-accessibility-raw/check-production.json.gz",
+      "raw_bytes": 1354,
+      "raw_sha256": "9ef48c83e936a67fa824cfb29d2a1e390ac9bcfd9b86b657f4350e52a68796ab",
+      "archive_bytes": 739,
+      "archive_sha256": "f145a40db3ae5b1b00ca59724515aaa5a8a857b9b1973a6c1ee3a4702ace8cfd"
+    },
+    {
+      "name": "check/production.log",
+      "archive": "feedback-accessibility-raw/check-production.log.gz",
+      "raw_bytes": 7249,
+      "raw_sha256": "11ad1bb441e706744631e51f7b8e0abeb35bfff60421a59096e041f7866d9032",
+      "archive_bytes": 2020,
+      "archive_sha256": "75d92ba072c978f77c719e7b1e5236f3d8df925e26e83e61a718b52a84fc86e8"
+    },
+    {
+      "name": "check/run-check.py",
+      "archive": "feedback-accessibility-raw/check-run-check.py.gz",
+      "raw_bytes": 2887,
+      "raw_sha256": "8b2b10f97c184109e6b25d1b31593f097d47f11eb06ef6de04e0803bd5edc4c6",
+      "archive_bytes": 1450,
+      "archive_sha256": "98e58528a68d2c270cb3457adc19a77bb1611af064290eb399b3d43e71476810"
+    },
+    {
+      "name": "check/run-remaining.py",
+      "archive": "feedback-accessibility-raw/check-run-remaining.py.gz",
+      "raw_bytes": 834,
+      "raw_sha256": "47d9deda6c9e99cd34fe7c8209e608549eea06b7128afb10f9a43750e9a9a95e",
+      "archive_bytes": 452,
+      "archive_sha256": "29758e20f171691c6c3d55d7c8211b2de7a8dcfdd1a7e65578a6ed48deea0868"
+    },
+    {
+      "name": "check/selector-candidate-source.rs",
+      "archive": "feedback-accessibility-raw/check-selector-candidate-source.rs.gz",
+      "raw_bytes": 118785,
+      "raw_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "archive_bytes": 23548,
+      "archive_sha256": "4e3cc249a0129189c3d21431652b821ff333c733fb6dc37fe6df960d24c0c9f5"
+    },
+    {
+      "name": "check/selector-candidate.json",
+      "archive": "feedback-accessibility-raw/check-selector-candidate.json.gz",
+      "raw_bytes": 1500,
+      "raw_sha256": "3f88ff2713ae4da4ba6c6d66d1dd1497aa9cd4fb9098b039f16b76badc4cac18",
+      "archive_bytes": 816,
+      "archive_sha256": "fd1bca547b6f625549eb497d512fdfff87b4b97f801e84372383e047a532730a"
+    },
+    {
+      "name": "check/selector-candidate.log",
+      "archive": "feedback-accessibility-raw/check-selector-candidate.log.gz",
+      "raw_bytes": 6348,
+      "raw_sha256": "83580b0eaea818be23a14352e6c92534d9ac97cfbc70ddb84d2b74b043a8880c",
+      "archive_bytes": 1723,
+      "archive_sha256": "73735c1a0e4d03142920a57f3eb2af43649510c470efaf7e05185d6d8f56716c"
+    },
+    {
+      "name": "check/selector-resumed-source.rs",
+      "archive": "feedback-accessibility-raw/check-selector-resumed-source.rs.gz",
+      "raw_bytes": 118785,
+      "raw_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "archive_bytes": 23548,
+      "archive_sha256": "4e3cc249a0129189c3d21431652b821ff333c733fb6dc37fe6df960d24c0c9f5"
+    },
+    {
+      "name": "check/selector-resumed.json",
+      "archive": "feedback-accessibility-raw/check-selector-resumed.json.gz",
+      "raw_bytes": 1484,
+      "raw_sha256": "67dc29a3cd2e5c3fa5ff85f0e06c54aba617d6a79bcf147e76439eb6817113ea",
+      "archive_bytes": 806,
+      "archive_sha256": "4dab1b0abbe4d674dcecec7b13d97244b5f51a5b06003fb286a850b9dd2db780"
+    },
+    {
+      "name": "check/selector-resumed.log",
+      "archive": "feedback-accessibility-raw/check-selector-resumed.log.gz",
+      "raw_bytes": 3452,
+      "raw_sha256": "ea4cde4d98341b6c7af090426cec01ce2fc918a5e42451a38e72b95fcb5c718f",
+      "archive_bytes": 1139,
+      "archive_sha256": "9d8b67fecff32b36a40b0f9efc79fc8e6db2d83d2b3039d397b38986262c25ee"
+    },
+    {
+      "name": "check/selector-source.rs",
+      "archive": "feedback-accessibility-raw/check-selector-source.rs.gz",
+      "raw_bytes": 118785,
+      "raw_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+      "archive_bytes": 23548,
+      "archive_sha256": "4e3cc249a0129189c3d21431652b821ff333c733fb6dc37fe6df960d24c0c9f5"
+    },
+    {
+      "name": "check/selector.json",
+      "archive": "feedback-accessibility-raw/check-selector.json.gz",
+      "raw_bytes": 1492,
+      "raw_sha256": "367c2c9269d07d0ac0a7afdbb560531840626dbc81f73d9b026c5a4b26c626d7",
+      "archive_bytes": 806,
+      "archive_sha256": "c0639bda9778dedd56d17fde826f16d62b3fd9927a05db076247f79ec99d7bfc"
+    },
+    {
+      "name": "check/selector.log",
+      "archive": "feedback-accessibility-raw/check-selector.log.gz",
+      "raw_bytes": 57,
+      "raw_sha256": "343b58961143de7559db9d4e9add290745aed46110684b74efbe8fffb7ddc5eb",
+      "archive_bytes": 77,
+      "archive_sha256": "fe099c286d4a1eca7385c024f1df8980118c42bdd21c832e48c5865ae7b90d0c"
+    },
+    {
+      "name": "native/cua-observations.json",
+      "archive": "feedback-accessibility-raw/native-cua-observations.json.gz",
+      "raw_bytes": 1204,
+      "raw_sha256": "1c5a4c151fb0c7bb9fde3994c3ebb96b27ecf0e0388d4f622d0b9a905f7d5ff3",
+      "archive_bytes": 686,
+      "archive_sha256": "68129e59066a9f6f77a6acf72ef67b93bfb301b3dc9cc94278b8aa5319bf8c87"
+    },
+    {
+      "name": "native/fixture-copy.json",
+      "archive": "feedback-accessibility-raw/native-fixture-copy.json.gz",
+      "raw_bytes": 478,
+      "raw_sha256": "0c6ba18104dc92e24c40a0af60ebffc32acff0a5002cf06de6c52914f68100d9",
+      "archive_bytes": 349,
+      "archive_sha256": "e1d32ef639ac7302bc70d4395f09b21da75adc93dcf362025eac5e2769135134"
+    },
+    {
+      "name": "native/packaging.json",
+      "archive": "feedback-accessibility-raw/native-packaging.json.gz",
+      "raw_bytes": 1474,
+      "raw_sha256": "82eeba819e21312298e369d61610660087a2e2f54188354ffd19dcbee6e5e873",
+      "archive_bytes": 636,
+      "archive_sha256": "2337ccc033a47d659d0c39dc3ae0e4714d94a340fecb59d3c94ce3a38006f3e5"
+    }
+  ],
+  "conclusion": "Observed original Mac AX omission is corrected on matching ordinary production binary: explicit toggle off/on/off and conditional model context. Existing exact-subset Apply/Undo test1/0, affected strict all-target lint, final format and ordinary native build pass.",
+  "limits": [
+    "No source-mirroring or new headless AX framework test; actual pinned test platform cannot activate accessibility.",
+    "Initial mistaken --lib target invocation and disk-guard interruption were incomplete verification, not behavior failures. After separate helper cache reclamation the existing selector test passed.",
+    "First format check failed only argument layout; mechanical rustfmt correction independently reverified; no semantic source change. Tests/lint from preformat source reused, final format/ordinary build/new Mac observation bind formatted source.",
+    "No extra broad suite repetition for toolkit metadata only; required hosted and resulting-main gates remain.",
+    "No native AI/account run or owner acceptance. General native journeys remain pending.",
+    "No screenshot PNG file exported; actual CUA AX/screenshots observed in conversation and transcribed in archived JSON."
+  ]
+}

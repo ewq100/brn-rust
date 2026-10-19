@@ -1,8 +1,8 @@
 # Campaign restart checkpoint
 
 Updated19October2026; lead owns shared docs/integration and the single local build
-slot. Continue useful authorized work to about5% remaining. Current quota93% used,
-7% remaining, reset1792874447. Original expiry2026-11-01T21:41:51Z is unchanged.
+slot. Continue useful authorized work to about5% remaining. Current quota94% used,
+6% remaining, reset1792874447. Original expiry2026-11-01T21:41:51Z is unchanged.
 Read [plan](plan.md), [current status](../../../status.md), [campaign state](campaign.json)
 and [evidence](evidence.md) before acting; fresh Git/CI/quota observations outrank
 these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) preserves history.
@@ -13,19 +13,18 @@ these snapshots. [Earlier checkpoint](checkpoint-through-2026-10-19-1245.md) pre
   branch `codex/agent-first-followthrough`. Original checkout and unrelated files
   remain preserved. All PR163–173 required head/main gates passed.
 - PR174 merged normally as7fb5dff19fda418d2473e5a3fe007fdc8480704b from exact checked
-  e56b4dbd. Resulting-main39254538056 is pending; [receipt](evidence/pr174-integration.json).
+  e56b4dbd. All four required resulting-main39254538056 checks passed; [receipt](evidence/pr174-integration.json).
 - PR175 is published on `codex/exact-note-read-guidance`. Notice checkout now has
-  actual main7fb5 plus schema922 and tracea8 at197cdc37; final independent combined
-  review precedes push/new exact-head checks. Only production changes vs main are
+  actual main7fb5 plus schema922 and tracea8, independently combined-source-approved
+  and published/frozen at0ff3360a. Required exact-head checks are running. Only production changes vs main are
   threads.rs JSON-schema descriptions and threads_trace.rs boolean summary/test.
   Prior schema runtime522/0/2/lint/format/ordinary CLI and live natural request pass.
   Trace original-expression regression fails; corrected1/0 plus search9,
   catalogue1, heading/partial-read1, strict lint and format pass. Raw failures stay.
-- Independent Sol reviews the complete combined2file source. Luna medium separately
-  owns `codex/review-feedback-accessibility` in worker-drain-budget; source-only,
-  no shared docs/build/account permission. Fix selected-state metadata and model
-  context in the feedback control's accessible name; preserve owner-only choice.
-  Lead must review, run relevant checks and observe actual matching Mac AX state.
+- Independent Sol approved the complete combined2file reading source. Luna medium completed `codex/review-feedback-accessibility` in worker-drain-budget; source78a97, independently approved and lead-integrated b6026aac. Existing selector/Apply/Undo1/0 and strict affected lint passed; rustfmt-only
+  transfer8cee independently verified, final format/ordinary native build pass.
+  Actual Mac AX off/on/off/model context pass; no account call.
+  Lead must publish after175 merges/reconcile actual main, then required head/main gates.
   Maximum3 active agents including lead; no concurrent builds.
 
 ## Actual Mac observation and next batch
@@ -37,7 +36,9 @@ verified equal to then-main33 production. Suggestion visible, initially unchecke
 explicit captured selection/Apply, exact revision Undo and reopen pass. Separate
 read-only SQLite assertions confirm byte hashes, subset proof and unrelated data.
 Selection changes visually but no AX toggle state/name change: P2
-MAC-SUGGESTION-AX-1 remains open. Test app quit; original fixture untouched.
+MAC-SUGGESTION-AX-1 original failure preserved; [correction qualification](evidence/feedback-accessibility-qualification.json)
+now verifies actual off/on/off and model context at8cee, unchanged Notes/comments/Runs.
+Fresh test app closed; integration remains. Original fixture untouched.
 No native account run, IME/VoiceOver usability or general owner acceptance claim.
 Screenshots were actually viewed in CUA; no image file exported. Queued Save/backup/
 unsaved-recovery cases remain. Do not repeat unchanged passed work without reason.
@@ -58,9 +59,12 @@ New trace correction qualifies diagnostics separately without more account calls
 
 ## Resources and continuation
 
-No build is active at this checkpoint. Only generated metadata/older duplicate
+No build or test app is active at this checkpoint. Only generated metadata/older duplicate
 static caches were reclaimed with exact receipts; binaries/helpers/data/evidence
-preserved. About2.6GB free. Require3GiB before a fresh dependency graph or2GiB for
+preserved. Guard stopped the first native compilation below1GiB; separate completed-helper
+metadata/static caches reclaimed2.1GB with exact paths/hashes and qualified helpers
+verified unchanged. Resumed check passed. Available disk later rose to about13GB;
+additional external reclamation was not attributed to this cleanup. Require3GiB before a fresh dependency graph or2GiB for
 same cached graph; monitor owned process group and stop below1GiB. Rust1.98.1,
 locked/offline/jobs1 and qualified helper paths remain mandatory. Do not rebuild
 helpers or install/download dependencies. A shared target's timestamps do not

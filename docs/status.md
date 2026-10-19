@@ -2,8 +2,8 @@
 
 Updated 19 October 2026. Latest merged main is
 `7fb5dff19fda418d2473e5a3fe007fdc8480704b` (PR174). All four required head
-checks passed; resulting-main run39254538056 is pending. Required head and
-resulting-main checks passed for PR163–173. Optional Windows failures remain
+checks and resulting-main run39254538056 passed. Required head and
+resulting-main checks passed for PR163–174. Optional Windows failures remain
 visible in the integration receipts.
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
@@ -38,8 +38,8 @@ separates actual progress and outstanding gates.
 
 - M0/M1/M2 rules, bounded argument correction, structural findings/playbook guidance and explicit current-skill adoption merged in PR171; all four required head/main checks passed.
 - M3 exact local editing and M4 explicit selected-feedback review merged in PR172; all four required head/main checks passed. Combined runtime518/native332/CLI43 and applicable lint/format/production checks passed.
-- M4b model-reported feedback suggestions merged in PR173 after independent source review, receipt audit and all four required head checks. Locally qualified source4e81: core215/runtime522/app65/native333/CLI43 plus lint/format/production checks. All four required resulting-main checks passed. Actual Mac review/Apply/Undo/reopen passed; the selection accessibility defect below remains open.
-- Test-only PR174 merged as7fb5dff after all four required head checks: reviewed runtime-created synthetic v2 fixture and canonical-temp test repair. Parent1/0/0, existing CLI15/0/2, strict lint/format, three data-preserving refusal probes and focused MCP fixture passed. Resulting-main remains pending. [Qualification](work/active/vacation-campaign/evidence/native-suggestion-fixture-qualification.json) preserves failures and limits.
+- M4b model-reported feedback suggestions merged in PR173 after independent source review, receipt audit and all four required head checks. Locally qualified source4e81: core215/runtime522/app65/native333/CLI43 plus lint/format/production checks. All four required resulting-main checks passed. Actual Mac review/Apply/Undo/reopen passed; the accessibility correction below is qualified, awaiting integration.
+- Test-only PR174 merged as7fb5dff after all four required head checks: reviewed runtime-created synthetic v2 fixture and canonical-temp test repair. Parent1/0/0, existing CLI15/0/2, strict lint/format, three data-preserving refusal probes and focused MCP fixture passed. All four required resulting-main checks passed. [Qualification](work/active/vacation-campaign/evidence/native-suggestion-fixture-qualification.json) preserves failures and limits.
 - Broader artifact production activation is explicitly deferred with packaging, output, containment and review gaps recorded. No whole-plan completion is claimed.
 
 Three explicitly owner-authorized existing-Codex-account Luna-low probes used fresh
@@ -48,7 +48,7 @@ explicit exact-ID/read_note diagnostic passed; a natural-request probe after the
 created no candidate. [Test limits](work/active/vacation-campaign/codex-ai-testing.md)
 and [evidence](work/active/vacation-campaign/evidence/codex-ai-smoke-qualification.json)
 retain that distinction. A narrow tool-schema description clarification is
-independently source-reviewed and locally qualified at9229085: runtime522/0/2, strict lint/format/ordinary CLI and the natural-request probe passed. PR175 combines this metadata clarification with a reviewed trace correction: a false truncation flag was reported as true. The original regression fails and the correction/adjacent trace checks pass; final combined review/hosted gates remain.
+independently source-reviewed and locally qualified at9229085: runtime522/0/2, strict lint/format/ordinary CLI and the natural-request probe passed. PR175 combines this metadata clarification with a reviewed trace correction: a false truncation flag was reported as true. The original regression fails and the correction/adjacent trace checks pass; final combined source review passed; PR175 has three of four required head checks passed.
 No host ID matching or access rule is changed.
 
 ## Native qualification and continuation
@@ -61,7 +61,10 @@ backup notices, unsaved-writing relaunch and suggestion label/selection/Apply/Un
 passed visible suggestion, initially unchecked selection, exact captured-comment
 Apply, revision Undo and reopen using fresh synthetic data and matching production
 source. It exposed an accessibility defect: selected state changes visually but
-is absent from the control's accessibility state. A narrow fix is being prepared.
+is absent from the control's accessibility state. [The narrow correction](work/active/vacation-campaign/evidence/feedback-accessibility-qualification.json)
+is independently reviewed and passes the existing selector/Apply/Undo test, strict
+lint, final format and ordinary native build. Actual Mac AX now reports off/on/off
+and model context correctly; integration/hosted gates remain.
 Other native journeys, native AI, IME, VoiceOver usability and owner acceptance
 remain pending. First unattended schedule execution remains unobserved. Linux
 improvements are lower priority; no release qualification follows.

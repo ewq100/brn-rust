@@ -7,17 +7,18 @@ MAC-07 model-suggestion review was exercised early in one consolidated Mac batch
 exactly matched main33 production; visible suggestion, unchecked initial choice,
 explicit selection, exact Apply/Undo and reopen passed on a fresh synthetic clone.
 The original fixture was preserved and the app quit. No account call was made.
-P2 MAC-SUGGESTION-AX-1 remains open: visual selection is absent from AX state; a
-narrow toolkit-metadata fix is selected. Next ready native work should verify its
-matching reviewed binary and false→true state/model context, then use distinct
-queued journeys. Do not spend another session repeating this unchanged path.
+Original P2 MAC-SUGGESTION-AX-1 is retained. [Corrected source8cee](evidence/feedback-accessibility-qualification.json)
+now passes actual Mac off→on→off/model context on a fresh clone; Notes/comments/Runs
+unchanged, no Apply/account call. App quit confirmed by inventory. Existing selector/
+Apply/Undo1/0, lint/final format/ordinary build pass; hosted/integration remain.
+Next native work should use distinct queued journeys. Do not spend another session repeating this unchanged path.
 Native AI, other journeys, IME, VoiceOver usability and owner acceptance remain
 pending. Screenshots/AX were actually observed in CUA; no PNG file exported.
 
 The preparation sections below retain earlier candidate identities and pending
 observations as history. This latest observation supersedes their no-Mac-yet
 statements for this one flow only. PR173 all four required main checks passed;
-PR174 now merged7fb5, resulting-main39254538056 pending. Three authorized CLI
+PR174 now merged7fb5, all four required main39254538056 checks passed. Three authorized CLI
 account attempts used today; session closed3/3, day3/6, shared5% floor remains.
 
 Owner-authorized 19 October 2026. Native computer use is enabled on this Mac; use it

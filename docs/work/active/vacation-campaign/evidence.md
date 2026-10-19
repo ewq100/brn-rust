@@ -535,3 +535,7 @@ remaining; first unattended wake remains unobserved.
 - [Trace source review](evidence/read-trace-truncation-source-review.json) and [qualification](evidence/read-trace-truncation-qualification.json): original false-flag regression fails, one-line boolean fix and relevant adjacent tests/lint/format pass;25 raw archives. Combine with exact-ID guidance in PR175.
 - [PR173 receipt](evidence/pr173-integration.json): all four required head/main checks passed. [PR174 receipt](evidence/pr174-integration.json): normally merged7fb5 after all four head checks; main39254538056 pending.
 - [Static duplicate cache receipt](evidence/build-cache-reclamation-static-duplicates.json): older generated caches only; executable/helper/source/data/evidence retained.
+
+
+- [AX correction source review](evidence/feedback-accessibility-source-review.json) and [qualification](evidence/feedback-accessibility-qualification.json): actual matching Mac off/on/off/model context pass; existing selector/Apply/Undo1/0, affected strict lint, final format and ordinary build pass,28 raw archives. Initial wrong target, disk stop and format failure preserved; no account call.
+- [Separate helper build-cache reclamation](evidence/helper-build-cache-reclamation.json): intermediate metadata/static caches only; exact qualified helper SHA values preserved. [Synthetic model-refresh diagnosis](evidence/native-fixture-model-refresh-diagnosis.json) explains the offline startup notice without claiming an AI run.

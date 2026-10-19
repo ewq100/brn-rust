@@ -1,15 +1,15 @@
 {
   "headRefName": "codex/exact-note-read-guidance",
-  "headRefOid": "68f146686c3068d532170e002c010f9d85a81619",
+  "headRefOid": "0ff3360af88d9f94e58e2a9593cce0243c3a0adc",
   "state": "OPEN",
   "statusCheckRollup": [
     {
       "__typename": "CheckRun",
-      "completedAt": "2026-10-19T12:26:56Z",
+      "completedAt": "2026-10-19T12:53:03Z",
       "conclusion": "SUCCESS",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033710",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519169",
       "name": "Documentation and tooling",
-      "startedAt": "2026-10-19T12:26:27Z",
+      "startedAt": "2026-10-19T12:52:33Z",
       "status": "COMPLETED",
       "workflowName": "BRN CI"
     },
@@ -17,19 +17,19 @@
       "__typename": "CheckRun",
       "completedAt": "0001-01-01T00:00:00Z",
       "conclusion": "",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033784",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519530",
       "name": "Core and CLI (ubuntu-24.04)",
-      "startedAt": "2026-10-19T12:26:27Z",
+      "startedAt": "2026-10-19T12:52:33Z",
       "status": "IN_PROGRESS",
       "workflowName": "BRN CI"
     },
     {
       "__typename": "CheckRun",
-      "completedAt": "2026-10-19T12:28:07Z",
+      "completedAt": "2026-10-19T12:54:17Z",
       "conclusion": "FAILURE",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033651",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519526",
       "name": "Core and CLI (windows-2025)",
-      "startedAt": "2026-10-19T12:26:27Z",
+      "startedAt": "2026-10-19T12:52:34Z",
       "status": "COMPLETED",
       "workflowName": "BRN CI"
     },
@@ -37,9 +37,9 @@
       "__typename": "CheckRun",
       "completedAt": "0001-01-01T00:00:00Z",
       "conclusion": "",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033688",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519305",
       "name": "Core and CLI (macos-15)",
-      "startedAt": "2026-10-19T12:27:35Z",
+      "startedAt": "2026-10-19T12:52:40Z",
       "status": "IN_PROGRESS",
       "workflowName": "BRN CI"
     },
@@ -47,9 +47,9 @@
       "__typename": "CheckRun",
       "completedAt": "0001-01-01T00:00:00Z",
       "conclusion": "",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033592",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519642",
       "name": "Native UI build and state (ubuntu-24.04)",
-      "startedAt": "2026-10-19T12:26:27Z",
+      "startedAt": "2026-10-19T12:52:33Z",
       "status": "IN_PROGRESS",
       "workflowName": "BRN CI"
     },
@@ -57,9 +57,9 @@
       "__typename": "CheckRun",
       "completedAt": "0001-01-01T00:00:00Z",
       "conclusion": "",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033785",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519728",
       "name": "Native UI build and state (macos-15)",
-      "startedAt": "2026-10-19T12:26:25Z",
+      "startedAt": "2026-10-19T12:52:32Z",
       "status": "QUEUED",
       "workflowName": "BRN CI"
     },
@@ -67,20 +67,25 @@
       "__typename": "CheckRun",
       "completedAt": "0001-01-01T00:00:00Z",
       "conclusion": "",
-      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39252064797/job/118058033366",
+      "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39255449074/job/118069519396",
       "name": "Native retrieval and combined build (macos-15)",
-      "startedAt": "2026-10-19T12:26:50Z",
+      "startedAt": "2026-10-19T12:52:40Z",
       "status": "IN_PROGRESS",
       "workflowName": "BRN CI"
     }
   ],
   "url": "https://github.com/ewq100/brn-rust/pull/175",
-  "observed_at_utc": "2026-10-19T12:30:20.045674+00:00",
-  "production_qualified_source": "9229085a9683a1c988a1cb12d647f52df18115f6",
-  "source_equivalence": "Published68f14668 changes only qualification docs/evidence after reviewed/qualified9229085; production tree identical.",
-  "head_required_checks_passed": false,
-  "integration": "pending exact-head required checks, normal merge and separate resulting-main checks",
-  "main_status": "not merged",
-  "source_review": "exact-note-reading-source-review.json",
-  "qualification": "exact-note-reading-qualification.json"
+  "observed_at_utc": "2026-10-19T12:55:33.043980+00:00",
+  "combined_source": "197cdc37281e76aaf8deb5e2284a1aca5f0f64f2",
+  "base": "7fb5dff19fda418d2473e5a3fe007fdc8480704b",
+  "source_review": "exact-note-reading-combined-review.json",
+  "production_files": [
+    "crates/brn-ai/src/threads.rs",
+    "crates/brn-ai/src/threads_trace.rs"
+  ],
+  "qualification": [
+    "exact-note-reading-qualification.json",
+    "read-trace-truncation-qualification.json"
+  ],
+  "integration": "pending all four required exact-head checks, preceding-main gate and normal merge; final head0ff3360a must remain frozen"
 }

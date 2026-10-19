@@ -1,0 +1,13 @@
+{
+  "observed_on": "first actual Mac review/reopen; source4e81",
+  "source_inspected": "b6026aac; relevant source unchanged from4e81",
+  "trigger": "synthetic fixture Settings provider copilot and nonempty synthetic credentials; original loopback runtime server is no longer serving",
+  "path": [
+    "threads_ui.rs auto_load_copilot_models on window startup calls load_copilot_models/copilot_worker(false)",
+    "copilot_worker calls Auth.models; network failure becomes WorkerEvent.Finished(Err)",
+    "Finished handler without Run identity renders Work stopped: plus network error"
+  ],
+  "assessment": "source supports background model-catalogue refresh diagnosis; no language-model Run/account test was launched; independent database observation found no new Run",
+  "scope": "fixture/environment limitation; wording may be a separate user-friendliness improvement but no source change selected in this batch",
+  "limits": "source diagnosis plus observed notice/Run readback, not a network trace or live account failure"
+}
