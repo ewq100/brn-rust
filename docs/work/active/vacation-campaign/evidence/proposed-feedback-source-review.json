@@ -1,0 +1,28 @@
+{
+  "observed_at_utc": "2026-10-19T11:35:39.509928+00:00",
+  "baseline": "b8735ea1c330f3e0f02d7af01957baca9c64bf39",
+  "candidate": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
+  "tree": "646a41c48b1076876787894899d1c75d5d1d7d19",
+  "diff_sha256": "cf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac",
+  "reviewer": "writing_review_review",
+  "requested_model": "gpt-6-sol",
+  "requested_effort": "high",
+  "disposition": "source approved; no unresolved findings",
+  "resolved": [
+    "Core owner replacements must clear nonempty reports while preserving every other evidence field; runtime refresh and old-empty equality unchanged",
+    "Frozen historical JSON/hash fixtures and literal actual SDK wire assertions",
+    "Direct forgeries use valid replacement creation IDs and assert intended guard reasons"
+  ],
+  "production_unchanged_since": "a82db5b948f86fb905361642826fdf5db1714e8d",
+  "last_delta": "12167 -> 4e81 replaces dynamic test panic context with static text; predicates unchanged",
+  "execution_separate": {
+    "original_module_witness": "Exact e5 store in compatible 12167 harness compiles and fails semantically; first earlier survivor retained as masked/ineffective",
+    "restored_candidate": "4e81 focused replacement test passes after actual core/AI/app rebuild",
+    "broad_checks": "running; not complete"
+  },
+  "limits": [
+    "No M4b source integrated or merged",
+    "No actual native/live-provider/owner acceptance",
+    "Source review itself performed no builds"
+  ]
+}

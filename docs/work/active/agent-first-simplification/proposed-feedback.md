@@ -67,16 +67,22 @@ hosted/main and actual native observation stay separate. Stop and reassess an
 unresolved compatibility or authority question before expanding this design.
 
 
-## Initial candidate and review disposition
+## Candidate review and current gate
 
-Candidatee5a34684 againstb8735ea1 changes13 source/test files; full diff
-SHA9464184650e8ed5775ab8edd3793103562f827237d564006754180b6306f31f0.
-Initial actual runtime compilation and3 focused tests pass. Independent review
-requires correction before acceptance: shared app replacement clears suggestions,
-but the existing core equality arm still lets a direct owner replacement retain
-old nonempty reports. Require exactly cleared reports there, preserving old-empty
-and runtime-refresh equality semantics. Add frozen old-format byte/hash fixtures
-and explicit actual-wire name/type/strict-normalization assertions rather than
-using the current serializer/schema as its own expectation. Author validated the
-finding; corrected source review and final qualification remain pending. No source
-from this slice is integrated into PR172 or current main.
+Initiale5a34684 was not accepted: independent review found that core owner
+replacement could retain nonempty model reports for changed text, despite the
+app path clearing them. Corrected productiona82db5b9 requires exact clearing;
+old-empty and runtime-refresh equality remain unchanged. Frozen historical JSON
+and hash fixtures, plus literal actual SDK wire assertions, replace self-derived
+expectations. Final source4e81fcba is independently approved; its full diff against
+b8735ea1 has SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
+Subsequent test-only changes fix replacement creation IDs and assert the intended
+guard reason, with no production change aftera82.
+
+The first original-guard witness survived because a later unrelated creation-ID
+check masked the defect; it is retained as ineffective evidence. The corrected
+compatible harness12167d52 with the exact originale5 store module compiles and
+fails semantically when that guard accepts retained reports. Restored final4e81
+passes the same focused test. This is an original-module witness, not a complete
+old-baseline build. Final broad checks are running; no M4b source is yet integrated
+into PR172 or current main. See the [source review receipt](../vacation-campaign/evidence/proposed-feedback-source-review.json).

@@ -37,7 +37,7 @@ resulting-main separately. Never bypass a required check.
    alongside component receipts. Native queue is updated; hosted gates remain.
    Old19efe/0f executables cannot qualify M3/M4. Do not rerun fixture creation on
    its existing qualified root; that refusal is expected.
-3. Follow PR171 resulting-main39240783382 and update its integration receipt.
+3. PR171 resulting-main39240783382 passed all four required jobs; receipt is current.
    PR172 is published/attached at fixedb8735ea1; actual required head checks
    are running. Follow them, fresh protection/head and normal merge, then
    resulting-main. Do not duplicate either PR or push onto the checked branches.
@@ -48,17 +48,18 @@ resulting-main separately. Never bypass a required check.
    reviewer approved [the next specification](../agent-first-simplification/proposed-feedback.md)
    after narrowing the core replacement exception.
    Sol worker owns implementation and the active build slot in worker-drain-budget
-   on codex/proposed-writing-feedback, basedb8735ea1. Initiale5a34684
-   compiled and focused runtime3/3 passed. Independent review requires one P2
-   correction: core owner replacement must reject retained nonempty suggestions,
-   accepting only exact clearing; old-empty/runtime-refresh equality stays.
-   Frozen old evidence bytes/hash and independent literal SDK wire assertions
-   are also required. Author validated the finding; correction pin/review and
-   final broad qualification are pending. Preserve firste5 receipts in sibling
-   proposed-writing-feedback-evidence. Preserve old3b3
-   branch/untracked evidence. Root owns docs/integration. One bounded nested Luna
-   inspection helper is allowed within four actual slots. Independent source
-   review remains required. Suggestions never infer owner selection or authority.
+   on codex/proposed-writing-feedback, basedb8735ea1. Final4e81fcba is independently
+   source-approved, full diff SHAcf037e410ef5f2cfe61dc0186caa44fff3fbb05912186d6885491f8c74c519ac.
+   Initiale5 core retained-report defect is fixed; exact old bytes/hash and actual
+   SDK wire assertions are added. A first original-guard witness survived due to
+   an unrelated invalid replacement ID; corrected compatible harness12167 with
+   exact originale5 core now fails semantically. Restored4e passes. Final broad
+   checks run under recorded canonical TMPDIR after an unchanged core fixture
+   refused the inherited /var symlink; no guard was relaxed. Preserve every
+   original failure and sibling proposed-writing-feedback-evidence. Root owns
+   docs/integration; worker retains the sole build slot. Source review is not
+   broad qualification or hosted/native acceptance. Suggestions never infer owner
+   selection or authority.
 5. Actual Mac qualification remains queued for18:00Tallinn; native input, IME,
    accessibility and owner acceptance are pending. Continue useful headless work
    while allowance remains; the recovery schedule is not batch pacing.
@@ -105,7 +106,7 @@ resulting-main separately. Never bypass a required check.
 
 ## Capacity, schedules and continuation
 
-Last native quota reading88% used/12% remaining, seven-day reset1792874447.
+Last native quota reading89% used/11% remaining, seven-day reset1792874447.
 Check at meaningful batch boundaries; continue useful work to about5%, checkpoint
 and back off near the verified constraining reset without purchases/reset credits.
 Runtime has four active slots including lead. Owner permits more/nested helpers
@@ -118,7 +119,7 @@ Two ACTIVE heartbeats target this lead: every-two-hour recovery and separate
 unobserved; Mac/Codex availability is required. Original expiry remains
 2026-11-01T21:41:51Z. Read absolute lead-worktree entries on restart; no new clock,
 lead, duplicate schedule or daemon. Preserve qualified helpers and sibling data.
-Disk was about2.3GiB before the final native build; no new target/helper rebuilds,
+Disk was about1.8GiB during M4b qualification; no new target/helper rebuilds,
 and stop a compile below1GiB.
 
 No live provider/model acquisition/private data, release/deployment, new billing,

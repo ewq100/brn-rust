@@ -452,3 +452,16 @@ was independently reviewed after narrowing the core replacement exception and
 clarifying captured membership. It selects optional untrusted model reports,
 never automatic owner selection. Implementation follows publication of this
 checked candidate; no new provider permission is required or granted.
+
+
+## Remaining model suggestions source-approved
+
+[Final4e81 source review](evidence/proposed-feedback-source-review.json) resolves
+initiale5 retained-report/core replacement finding and weak old-byte/wire tests.
+Productiona82 is unchanged in later test fixes. The first original-guard witness
+survived an unrelated invalid-ID rejection; a corrected compatible harness with
+exact originale5 module compiles and exposes the defect. Restored4e81 passes.
+Final broad checks remain running in the worker's sole build slot, with original
+failure logs preserved. The unchanged core temp fixture refused inherited /var
+symlink; same binary passes with invocation-local canonical TMPDIR. No guard or
+fixture source changed. Current allowance89% used/11% remaining; expiry unchanged.
