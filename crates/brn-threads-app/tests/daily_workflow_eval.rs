@@ -350,7 +350,7 @@ async fn daily_workflow_with_contradiction_reply_restart_and_resupply() {
 
     // The owner reviews and applies the ordinary survey update and Action.
     assert!(matches!(
-        w.workspace.review_apply(&survey_op).unwrap(),
+        w.workspace.review_apply(&survey_op).unwrap().outcome,
         ApplyOutcome::Applied(_)
     ));
     assert!(note_text(&w.workspace, &w.survey).contains("1.4 m"));

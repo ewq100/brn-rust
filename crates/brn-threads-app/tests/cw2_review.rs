@@ -343,7 +343,7 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
     );
     for _ in 0..2 {
         assert!(
-            matches!(app.review_apply(replacement.operation.as_str()).unwrap(), ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
+            matches!(app.review_apply(replacement.operation.as_str()).unwrap().outcome, ApplyOutcome::NeedsReview { denied } if denied.contains(&reference))
         );
         assert_eq!(app.store.note(&note.id).unwrap().unwrap().version, 1);
         assert!(app.store.receipt(&replacement.operation).unwrap().is_none());
@@ -359,7 +359,10 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
         },
     );
     assert_eq!(app.store.note(&note.id).unwrap().unwrap().version, 1);
-    let applied = app.review_apply(replacement.operation.as_str()).unwrap();
+    let applied = app
+        .review_apply(replacement.operation.as_str())
+        .unwrap()
+        .outcome;
     let ApplyOutcome::Applied(receipt) = &applied else {
         panic!("exact review applies")
     };
@@ -379,7 +382,9 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
 
     assert!(matches!(applied, ApplyOutcome::Applied(_)));
     assert_eq!(
-        app.review_apply(replacement.operation.as_str()).unwrap(),
+        app.review_apply(replacement.operation.as_str())
+            .unwrap()
+            .outcome,
         applied
     );
     let backup = root.path().join("cw2-backup");
@@ -927,11 +932,13 @@ async fn int_w_f21_private_context_never_enters_p2_or_general_delivery() {
         }
         let applied = app
             .review_apply_in_context(private_candidate.operation.as_str(), Some(&p1))
-            .unwrap();
+            .unwrap()
+            .outcome;
         assert!(matches!(applied, ApplyOutcome::Applied(_)));
         assert_eq!(
             app.review_apply_in_context(private_candidate.operation.as_str(), Some(&p1))
-                .unwrap(),
+                .unwrap()
+                .outcome,
             applied
         );
         assert!(matches!(

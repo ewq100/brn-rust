@@ -1952,7 +1952,15 @@ impl<T: 'static> WritingView<'_, T> {
                 .filter(|comment| !addressed.contains(&comment.id))
                 .count()
         });
-        let footer = review_footer(shape, protected, open_comments);
+        let mut footer = review_footer(shape, protected, open_comments);
+        let selected_comments = review.selected_comments.len();
+        if selected_comments > 0 {
+            footer = format!(
+                "{} Apply also marks {} addressed.",
+                shape.binding(protected),
+                plural(selected_comments, "captured comment")
+            );
+        }
 
         // The Proposal label plus the Protected chip states the review. A
         // narrower bar keeps the counts, then the shape, in the label's
@@ -2397,6 +2405,58 @@ impl<T: 'static> WritingView<'_, T> {
                 );
             }
             details = details.child(members.test_support());
+        }
+        // Display only the host's currently verified writing-context batch.
+        if let Some(snapshot) = review
+            .feedback
+            .as_ref()
+            .and_then(|snapshot| self.writing_requests.get(&snapshot.request_message))
+            .filter(|snapshot| review.note.as_ref() == Some(&snapshot.note.id))
+            && !snapshot.comments.is_empty()
+        {
+            let mut feedback = div()
+                .id("review-feedback")
+                .flex()
+                .flex_col()
+                .gap_1()
+                .p_2()
+                .child("Mark selected comments addressed after Apply (optional)");
+            for captured in &snapshot.comments {
+                let RecordData::Comment(comment) = &captured.data else {
+                    continue;
+                };
+                let id = captured.id.clone();
+                let checked = review.selected_comments.contains(&id);
+                feedback = feedback.child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .child(
+                            div()
+                                .text_size(SMALL_TEXT)
+                                .child(format!("“{}” — {}", comment.quote, comment.body)),
+                        )
+                        .child(
+                            pill(
+                                format!("review-address-comment-{id}"),
+                                if checked {
+                                    "Selected"
+                                } else {
+                                    "Mark addressed with Apply"
+                                },
+                            )
+                            .selected(checked)
+                            .when(checked, |button| button.icon(IconName::Check))
+                            .disabled(edited)
+                            .accessibility_label(format!(
+                                "Mark captured comment addressed with Apply: {}",
+                                comment.body
+                            ))
+                            .on_click(self.on(cx, WritingRequest::ToggleReviewComment(id))),
+                        ),
+                );
+            }
+            details = details.child(feedback.test_support());
         }
         let body = if review.note.is_none() {
             div().into_any_element()

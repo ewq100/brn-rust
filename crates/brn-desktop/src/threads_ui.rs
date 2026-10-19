@@ -2350,33 +2350,49 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        match self.workspace.review_apply_in_context(
+        let comments = self
+            .writing
+            .review
+            .comments_to_address(candidate.operation.as_str());
+        match self.workspace.review_apply_selected_comments(
             candidate.operation.as_str(),
             self.note_writing_scope.as_deref(),
+            &comments,
         ) {
-            Ok(outcome) => {
-                self.report_outcome(&outcome);
-                if let ApplyOutcome::Applied(receipt) = &outcome {
-                    if let Some(input) = candidate
-                        .request
-                        .inputs
-                        .iter()
-                        .find(|input| self.workspace.writing_request(&input.record).is_ok())
-                        && let Ok(snapshot) = self.workspace.writing_request(&input.record)
-                    {
-                        self.writing.applied_rewrite.insert(
-                            snapshot.note.id,
-                            (input.record.clone(), receipt.operation.as_str().into()),
-                        );
-                    }
-                    self.writing.review.completed(candidate.operation.as_str());
-                    self.reload_open_note(window, cx);
-                }
-            }
+            Ok(result) => self.finish_review_apply(&candidate, result, window, cx),
             Err(e) => self.fail(e.to_string()),
         };
         self.refresh();
         cx.notify();
+    }
+    /// A known commit stays applied even when its independent status updates failed.
+    fn finish_review_apply(
+        &mut self,
+        candidate: &Prepared,
+        result: ReviewApplyResult,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.report_outcome(&result.outcome);
+        if let ApplyOutcome::Applied(receipt) = &result.outcome {
+            if let Some(input) = candidate
+                .request
+                .inputs
+                .iter()
+                .find(|input| self.workspace.writing_request(&input.record).is_ok())
+                && let Ok(snapshot) = self.workspace.writing_request(&input.record)
+            {
+                self.writing.applied_rewrite.insert(
+                    snapshot.note.id,
+                    (input.record.clone(), receipt.operation.as_str().into()),
+                );
+            }
+            self.writing.review.completed(candidate.operation.as_str());
+            self.reload_open_note(window, cx);
+        }
+        if let Some(pending) = result.pending_updates() {
+            self.warn(pending);
+        }
     }
     /// After a checked change, show the newly saved note unless the owner has
     /// an unsaved edit, which stays untouched.
@@ -4413,6 +4429,10 @@ impl ThreadsUi {
                 cx.notify();
             }
             WritingRequest::ToggleGroup(id) => self.writing.review.toggle_group(&id),
+            WritingRequest::ToggleReviewComment(id) => {
+                self.writing.review.toggle_comment(&id);
+                cx.notify();
+            }
             WritingRequest::Undo(id) => self.undo_receipt(&id, window, cx),
             WritingRequest::Retry(id) => self.retry_rewrite(id, cx),
             WritingRequest::SelectReviewNote(id) => self.select_review_note(id, window, cx),

@@ -41,6 +41,8 @@ pub struct Review {
     pub original: String,
     pub groups: ReviewGroups,
     pub selected: BTreeSet<String>,
+    pub feedback: Option<WritingSnapshot>,
+    pub selected_comments: BTreeSet<String>,
 }
 pub const MONO: &str = "Menlo";
 pub const UI_FONT: &str = ".SystemUIFont";
@@ -377,6 +379,7 @@ pub enum WritingRequest {
     ToggleRequest(String),
     HideApplied(String),
     ToggleGroup(String),
+    ToggleReviewComment(String),
     Undo(String),
     Retry(String),
     SelectReviewNote(String),
