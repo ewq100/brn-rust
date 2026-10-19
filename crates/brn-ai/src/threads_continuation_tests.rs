@@ -524,8 +524,43 @@ async fn structured_limits_and_unowned_real_operation_refs_reject_before_progres
             assert_eq!(delivered[0]["is_error"], true);
             assert_eq!(delivered[0]["content"][0]["text"], "the tool failed");
         } else {
-            assert!(!matches!(answer.terminal, AiTerminal::Completed), "{bad}");
-            assert_eq!(model.request_count(), 1);
+            assert!(matches!(answer.terminal, AiTerminal::Completed), "{bad}");
+            assert_eq!(model.request_count(), 2);
+            let results = model.requests()[1]
+                .chat_history
+                .iter()
+                .filter_map(|message| {
+                    if let rig::message::Message::User { content } = message {
+                        Some(
+                            content
+                                .iter()
+                                .filter_map(|item| {
+                                    if let rig::message::UserContent::ToolResult(result) = item {
+                                        Some(serde_json::to_value(result).unwrap())
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .collect::<Vec<_>>(),
+                        )
+                    } else {
+                        None
+                    }
+                })
+                .flatten()
+                .collect::<Vec<_>>();
+            assert_eq!(results.len(), 1);
+            assert_eq!(results[0]["name"], "retain_progress");
+            let feedback = results[0]["content"][0]["text"].as_str().unwrap();
+            assert!(
+                feedback.contains("no tool in this batch executed"),
+                "{feedback}"
+            );
+            assert!(feedback.contains("retain_progress"));
+            assert!(
+                !feedback.contains("host_operation_state"),
+                "forged receipt fields are never echoed as host facts"
+            );
         }
         assert!(
             matches!(scope.store.lock().unwrap().record(&scope.run).unwrap().unwrap().data,RecordData::Run(run) if run.progress.is_empty())

@@ -154,21 +154,24 @@ async fn a_model_argument_cannot_choose_the_search_context() {
     let (_root, mut request, _) = tests::fixture();
     let fake = Arc::new(FakeSearch::default());
     request.search = Some(fake.clone());
-    let (answer, _) = run_turns(
+    let (answer, events) = run_turns(
         &request,
-        vec![vec![
-            search_call(
-                "s",
-                json!({"query":"harbor","limit":5,"mode":"keyword","cursor":null,"chat":"other"}),
-            ),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ]],
-    )
-    .await;
+        vec![
+            vec![search_call("bad", json!({"query":"harbor","limit":5,"mode":"keyword","cursor":null,"chat":"other"})), MockStreamEvent::final_response_with_total_tokens(1)],
+            vec![search_call("fixed", json!({"query":"harbor","limit":5,"mode":"keyword","cursor":null})), MockStreamEvent::final_response_with_total_tokens(1)],
+            vec![MockStreamEvent::text("Read within this chat."), MockStreamEvent::final_response_with_total_tokens(1)],
+        ],
+    ).await;
     assert!(
-        matches!(&answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::InvalidToolUse)
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{answer:?}"
     );
-    assert!(fake.calls.lock().unwrap().is_empty());
+    assert_eq!(
+        *fake.calls.lock().unwrap(),
+        [format!("search {} harbor 5 None false", request.thread)],
+        "only the corrected call dispatches, in the host context"
+    );
+    assert!(events.iter().any(|event|matches!(event,AiEvent::Activity(text) if text.starts_with("Tool arguments rejected"))));
 }
 
 #[tokio::test]

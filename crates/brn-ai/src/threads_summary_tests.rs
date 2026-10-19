@@ -1569,7 +1569,7 @@ async fn frozen_skill_catalogue_reuses_summary_until_exact_availability_identity
 }
 
 #[tokio::test]
-async fn guide14_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp() {
+async fn guide_bundle_change_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp() {
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
     let (_root, request, ids) = setup();
     Store::open(&request.data_dir)

@@ -693,7 +693,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn forged_refresh_writing_rejects_both_batch_orders_before_effects() {
+    async fn extra_refresh_writing_field_skips_both_batch_orders_without_changing_the_candidate() {
         for writing in [
             Value::Null,
             json!({"quotations":[],"requirements_reported":[]}),
@@ -752,7 +752,13 @@ mod tests {
                     vec![bad, progress]
                 };
                 batch.push(MockStreamEvent::final_response_with_total_tokens(1));
-                let model = MockCompletionModel::from_stream_turns([batch]);
+                let model = MockCompletionModel::from_stream_turns([
+                    batch,
+                    vec![
+                        MockStreamEvent::text("The invalid batch made no change."),
+                        MockStreamEvent::final_response_with_total_tokens(1),
+                    ],
+                ]);
                 let activity = Arc::new(Mutex::new(Vec::new()));
                 let seen = activity.clone();
                 let answer = run_model(
@@ -771,17 +777,16 @@ mod tests {
                 )
                 .await;
                 assert!(
-                    matches!(
-                        answer.terminal,
-                        AiTerminal::Failed(AiError {
-                            kind: AiErrorKind::InvalidToolUse,
-                            ..
-                        })
-                    ),
+                    matches!(answer.terminal, AiTerminal::Completed),
                     "{writing}/{progress_first}: {:?}",
                     answer.terminal
                 );
-                assert_eq!(model.request_count(), 1);
+                assert_eq!(model.request_count(), 2);
+                let history = serde_json::to_value(&model.requests()[1].chat_history)
+                    .unwrap()
+                    .to_string();
+                assert!(history.contains("no tool in this batch executed"));
+                assert!(history.contains("writing is not accepted"));
                 assert!(!activity.lock().unwrap().iter().any(|s| s.starts_with("> ")));
                 let store = scope.store.lock().unwrap();
                 let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
