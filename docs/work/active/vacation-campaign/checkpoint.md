@@ -14,7 +14,7 @@ branch `codex/hardening-native-prep`, sourcea59315a1, matching all worker274 Rus
 Qualified0f differs only in one later test comment; its production artifact is
 unchanged. Current main still matches the earlier qualified a960 source. Latest maine583a177 is
 PR168, merged normally from exact checked7c21713b after all four required contexts
-passed in run39225335901. Its resulting-main39227629739 is running. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
+passed in run39225335901. Its resulting-main39227629739 passed all four required jobs; optional Windows failures remain. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
 explicit. Don't redo merged source work or bypass strict protection.
 
@@ -43,8 +43,8 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 No local source writer/builder is active. One Luna read-only audit prepares the
 strictly read-only MAC01/04 checker path; lead prepared exact expected UTF-8 fixtures
 in native-fixtures/ before any OS action or native workspace creation. PR168 merged normally as e583a177 from exact
-checked7c after all four required39225335901 jobs passed. Main39227629739 still
-has Mac Core pending; its other three required jobs passed. Keep these gates separate.
+checked7c after all four required39225335901 jobs passed. Main39227629739 passed all four required jobs, docs and Ubuntu UI/retrieval;
+optional Windows Core/UI/retrieval failed. Keep these gates separate.
 
 [MCP freshness](mcp-discovery.md) sourcea59315a1 matches worker274; qualified0f
 only differs by one later test comment. Focused14/14, full native326/0/1, strict

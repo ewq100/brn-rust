@@ -32,8 +32,8 @@ PR168 merged normally from checked head7c21713b, source8431e70b. It combines
 and [test-only fixture helper sharing](work/active/vacation-campaign/provider-fixture-helpers.md).
 Independent source review, local desktop322/0/1, strict native lint/format and a
 production build passed. Affected provider families4/7/12 and matching checks passed.
-All four required head jobs in run39225335901 passed. Resulting-main39227629739
-is running; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
+All four required head jobs in run39225335901 passed. All four required resulting-main39227629739 jobs passed; optional Windows
+Core/UI/retrieval failed; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
 keeps that gate separate. Receipts distinguish
 original-source failures, diagnostic mutations and transport qualification limits.
 

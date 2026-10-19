@@ -42,4 +42,6 @@ bytes as canonical throughout backup and unsaved recovery. The unsaved draft mus
 already be durable before closing in MAC-04; canonical must stay at final Save.
 Retain original mismatches and never rewrite expectations to fit observations.
 The actor uses real controls; the checker records note/session identity and reads
-without repair. Source inspection of the exact read-only checker is pending.
+without repair. The [read-only checker recipe](native-checker.md) avoids CLI bootstrap and reads
+canonical/recovery data in one short SQLite URI mode=ro transaction. It is
+source-qualified preparation; actual observation remains pending.

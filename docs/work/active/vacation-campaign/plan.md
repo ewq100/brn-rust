@@ -1,7 +1,7 @@
 # Mac vacation hardening continuation
 
 Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
-contexts passed before normal merge. Resulting-main39227629739 is running. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
+contexts passed before normal merge. Resulting-main39227629739 passed all four required jobs; optional Windows failures remain. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-native-prep`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
 The current main Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
@@ -180,7 +180,7 @@ failure is claimed. No local writer/builder is active.
 
 Final independent Luna receipt audit passed, and complete staged candidate whitespace
 check passed. The coherent candidate merged normally as PR168, e583a177, after fixed7c21713b
-run39225335901 passed all four required jobs. Main39227629739 is running;
+run39225335901 passed all four required jobs. Main39227629739 passed all four required jobs; optional Windows failures remain;
 [the integration receipt](evidence/pr168-integration.json) owns exact identities. Preserve checked heads and follow
 actual required-head, normal merge and resulting-main checks separately. No bypass.
 

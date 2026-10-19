@@ -233,3 +233,26 @@ output is unrecoverable and not passing qualification; original no-op patch rema
 reconstructed historical illustration. [Qualification](evidence/mcp-discovery-qualification.json)
 and [result/limits](mcp-discovery.md) retain these distinctions. No substantive
 receipt blocker remains; no local writer/builder active. Hosted/native gates separate.
+
+
+## PR168 required resulting-main verification complete
+
+Main e583a177ad44b0536be9140b5c845a5dd8a8aa75 run39227629739 passed all four
+actual required jobs, docs and Ubuntu UI/retrieval. Optional Windows Core/UI/retrieval
+failed; overall workflow failure remains explicit. [Final receipt](evidence/pr168-integration.json)
+retains actual job timing/identity/conclusions. PR169 remains fixed63b0b0eb with
+head run39230048849 running; no source writer or local builder is active.
+
+
+## Prepared independent Mac expectations and read-only checker
+
+Before any native interaction, exact initial/final/unsaved UTF-8 fixtures and SHA
+manifest were prepared. No native workspace was created. A bounded Luna source
+audit found that CLI read/recovery open a writable Store and bootstrap, while the
+existing validated read-only Snapshot lacks recovery access. The chosen [checker](native-checker.md)
+uses SQLite URI mode=ro plus connection query-only and one short read transaction
+for the exact synthetic Note and open edit session. It selects no token hashes and
+closes before OS close, preserving canonical and already-durable recovery evidence
+without bootstrap/repair. Source/table/serialization references were checked; no
+CLI workspace, app window or actual data inspection was performed. This adds no
+production read-only framework/API or new native success claim.
