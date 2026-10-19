@@ -41,8 +41,8 @@ A further bounded [MCP discovery freshness improvement](work/active/vacation-cam
 is locally qualified and source-reviewed: endpoint edits must hide/refuse old discovery metadata and stale
 completion. Existing metadata labels and exact approval destination remain authoritative;
 no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
-at0f; later274/integrateda593 differs only in one test comment. Final receipt
-verification and publication remain pending.
+at0f; later274/integrateda593 differs only in one test comment. Independent receipt verification passed. PR169 is published at fixed63b0b0eb,
+required run39230048849 running. Hosted integration remains pending.
 Project-dialog, remaining-picker, Action/Undo and comment source audits found no
 justified further change; existing distinct tests remain.
 

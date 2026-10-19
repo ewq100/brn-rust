@@ -1,0 +1,5 @@
+# Mac vacation check
+
+Unsaved recovery — café, jõgi, 日本語, 🧭.
+Keep  two spaces on this line.
+This text must survive reopening without Save.

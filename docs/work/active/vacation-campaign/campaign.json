@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/hardening-next",
+  "branch": "codex/hardening-native-prep",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -18,13 +18,20 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:25:52.102514+00:00",
-  "current_session_jobs": [],
+  "last_checkpoint_at_utc": "2026-10-19T09:28:03.782727+00:00",
+  "current_session_jobs": [
+    {
+      "agent": "/root/recovery_boundary_audit",
+      "role": "read-only native MAC01/04 checker-path audit; inspect CLI open sideeffects or direct SQLite mode=ro schema",
+      "source": "63b0b0eb sourcea593/worker274",
+      "build_slot": "none; no edits/builds/dataworkspace/OS/network actions"
+    }
+  ],
   "integration_status": "PR163\u2013168 required exact-head checks pass before normal merges. PR163\u2013167 required resulting-main pass; optional Windows failures retained. PR168 checked7c normalmergee583a177ad44b0536be9140b5c845a5dd8a8aa75 at09:06:55UTC, requiredhead39225335901 all4pass. Main39227629739 running. Lead history8f2ccb52 adds no source delta.",
-  "next_eligible_work": "Publish MCP coherentcandidate on codex/hardening-next, attachPR and freezecheckedhead, then use newbranch forlaterwork. FollowPR168main and nextPR requiredhead checks; normalexactheadmerge and resulting-mainverification. Native18Tallinn separate.",
+  "next_eligible_work": "Follow PR169 exactrequiredheadchecks; normalmerge onlyafterfreshactualrequiredsuccess/protection, thenmainverification. FollowPR168main. Finishread-onlyMACcheckerprep; actualnative18Tallinn remainsbatched. Keepusefulactiveworkabovefloor withoutspeculativefeatures.",
   "last_qualified_source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
   "source_delta_after_qualification": "Worker274 and integrateda593 match all Rust/manifests/rootlock/toolchain; compared with qualified0f only one test comment differs. Production artifact0f unchanged. Independent Sol approvedcomplete0f; lead checked mechanicalcommentdelta. No actualnetwork/OSacceptance.",
-  "active_work": "MCP sourcea59315a1/worker274 qualified and independentlyreviewed (0f source plus verifiedonecommentdelta). Final14/326/strictlint/fmt/prodbuild; exactv2baseline2semanticfail101 then restored14pass. All65records+2correctedmetadata copies independentlyaudited; no blockers. No localwriter/builderactive. Publicationnext, whilePR168main39227629739 MacCorepending; other3requiredpass.",
+  "active_work": "PR169 fixed63b0b0eb (sourcea593/worker274) published/attached; required CI39230048849 running, watchsession16665. Preservecheckedbranch codex/hardening-next. Leadnowcodex/hardening-native-prep. PR168main39227629739 MacCoreofflinecapabilityfixturesrunning; other3requiredpass. No localbuilder/sourcewriter; Luna checker-pathaudit and leadnativeexpected-byte prep only, no OS/dataworkspacecreated.",
   "continuation_baseline": "e583a177ad44b0536be9140b5c845a5dd8a8aa75",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",

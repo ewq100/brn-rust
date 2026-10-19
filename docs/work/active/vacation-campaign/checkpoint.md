@@ -10,7 +10,7 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
+branch `codex/hardening-native-prep`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
 Qualified0f differs only in one later test comment; its production artifact is
 unchanged. Current main still matches the earlier qualified a960 source. Latest maine583a177 is
 PR168, merged normally from exact checked7c21713b after all four required contexts
@@ -40,7 +40,9 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local writer/builder is active. PR168 merged normally as e583a177 from exact
+No local source writer/builder is active. One Luna read-only audit prepares the
+strictly read-only MAC01/04 checker path; lead prepared exact expected UTF-8 fixtures
+in native-fixtures/ before any OS action or native workspace creation. PR168 merged normally as e583a177 from exact
 checked7c after all four required39225335901 jobs passed. Main39227629739 still
 has Mac Core pending; its other three required jobs passed. Keep these gates separate.
 
@@ -59,8 +61,9 @@ One copied hash suffix was wrong in the original metadata; corrected receipts an
 originals are preserved. One earlier transient output is unrecoverable and is not
 passing qualification. See evidence/mcp-discovery-qualification.json.
 
-Next publish the coherent candidate from codex/hardening-next, attach its PR, freeze
-that checked head and continue later work on another branch. Follow actual required
+PR169 is published/attached at fixed63b0b0eb on codex/hardening-next, required
+run39230048849 running (watchsession16665). Keep that checked branch unchanged.
+Lead now uses codex/hardening-native-prep for later work. Follow actual required
 head checks, normal exact-head merge and resulting-main checks separately.
 Actual async network transport and OS usability remain unqualified.
 

@@ -31,3 +31,15 @@ After a case passes, record its candidate and rerun only after relevant changes 
 an unresolved risk. If the Mac is locked or its control surface is unavailable,
 record the exact missing capability and continue eligible headless work. Do not
 alter OS security or claim native success from a substitute no-window driver.
+
+## Prepared expected bytes
+
+[Fixture manifest](native-fixtures/manifest.json) binds independent UTF-8 bytes for
+[initial Save](native-fixtures/save-initial.txt), [final Save](native-fixtures/save-final.txt)
+and [unsaved recovery](native-fixtures/unsaved-recovery.txt). These were prepared
+before any actual Mac action; no native workspace was created. Use the final Save
+bytes as canonical throughout backup and unsaved recovery. The unsaved draft must
+already be durable before closing in MAC-04; canonical must stay at final Save.
+Retain original mismatches and never rewrite expectations to fit observations.
+The actor uses real controls; the checker records note/session identity and reads
+without repair. Source inspection of the exact read-only checker is pending.

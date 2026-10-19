@@ -3,7 +3,7 @@
 Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
 contexts passed before normal merge. Resulting-main39227629739 is running. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
+branch `codex/hardening-native-prep`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
 The current main Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
 adds no source delta. Preserve unrelated work and source-bound artifacts.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
@@ -205,5 +205,6 @@ bypass is claimed. Final focused14/14, native326/0/1, strict lint/format and pro
 build pass. The valid P3 witness finding is fixed; redundant subscription state was
 removed after a diagnostic survivor. Exact baseline v2 failure and restored14 pass
 are recorded. Independent Luna audited65 raw/archive records and the explicit
-metadata correction; no receipt blocker remains. Publish the coherent next PR,
-then freeze its checked head. No source writer or local builder is active.
+metadata correction; no receipt blocker remains. PR169 is published/attached at fixed63b0b0eb on codex/hardening-next, required
+run39230048849 running. Keep that checked head fixed; later work uses the lead
+branch above. No source writer or local builder is active.
