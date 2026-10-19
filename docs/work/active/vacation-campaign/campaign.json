@@ -18,28 +18,14 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:30:13.940385+00:00",
-  "current_session_jobs": [
-    {
-      "agent": "/root/qualification_audit",
-      "role": "reproduce then repair scoped-reference search pending retirement",
-      "checkout": "/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust",
-      "branch": "codex/reference-search-retirement",
-      "baseline": "e2f7ce60f0162feebb4d0b954c0744037ad1ec77",
-      "scope": [
-        "crates/brn-desktop/src/threads_ui.rs",
-        "crates/brn-desktop/src/threads_writing_tests.rs"
-      ],
-      "build_slot": "exclusive after provider helper release",
-      "gate": "Original production must fail intended pending assertion before any fix; no speculative change if unreproduced."
-    }
-  ],
-  "integration_status": "PR163/164/165/166 required head/main checks passed. PR166 exact737 normal mergeb4a5deeb; main39220505231 all4required,docs,UbuntuUI/retrieval pass; optionalWindowsCore/UI/retrieval fail, overallfailure retained. PR167fixed408 checks39220781564 last3requiredpass, MacCoreprogressing.",
-  "next_eligible_work": "Audit provider-helper receipts/current records; validate scoped-search original-source witness before selecting exact fix. Follow PR167 exacthead checks; PR166 main requiredchecks passed, normalmerge only after requiredpass; publish later coherent candidate when ready. Native18:00Tallinn remains queued.",
-  "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
-  "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
-  "active_work": "Current source945: export980 native322/0/1 lintfmt/prod +independentSol+Lunareceipts pass. Provider helper22d5/54eb affected4/7/12 and strictpackagecapabilitylintfmt pass; receipts imported. Its clean unmanagedcheckout removed with normalGit after preserving branch22/patch/siblingevidence. Luna now reproduces scopedsearch hiddencompletion/pending leak in reused drain checkout on codex/reference-search-retirement, solebuildslot. PR167fixed408 required39220781564 +PR166main39220505231 requiredpass/optionalWindowsfail.",
-  "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
+  "last_checkpoint_at_utc": "2026-10-19T08:45:49.499519+00:00",
+  "current_session_jobs": [],
+  "integration_status": "PR163\u2013166 required head/main checks pass, optionalWindowsfail retained. PR167 exact408 normalmerge9116ad78 at08:42:06UTC after4required39220781564 pass. Main39224642627 running. Lead historymerge535b04e1 source843 unchanged.",
+  "next_eligible_work": "Publish coherent export+fixturehelper+search candidate with fixedhead, follow actualrequiredchecks and PR167main. Native18:00Tallinn queued. Select further justified existingjourney hardening after publication.",
+  "last_qualified_source": "a9600e641c18598e52340df5366918a1df7ce242",
+  "source_delta_after_qualification": "Lead843 and history535 all Rust/manifests/rootlock/toolchain match frozena960. Independent Sol source review approved843, later changes docs/evidence and main history only. Source-bound final nativebinarya960 retained; no nativeOSacceptance.",
+  "active_work": "Complete source843/a960 independentlyapproved, native322/0/1 +provider4/7/12 and strictchecks pass. Luna export/helper/search receipts audits pass. Search V3 exact retainedpatch failsoldUIthenpassesrestoredsource. Mainhistory535 no Rustdelta. Whole stagedcandidate whitespace and links pass; no localwriter/builder. Ready for publication, PR167main39224642627 running.",
+  "continuation_baseline": "9116ad780de2d827811ef342168997e2df5d1a9c",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -81,7 +67,7 @@
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
-    "review": "Independent Sol approved reference14d7c43e without findings; final321/0/1 lintfmt/prod pass. Luna final source/hash/log/receipt audit passed. Later history-merge2bd890ef has no source delta.",
+    "review": "Independent Sol approved complete843; Luna all3receipt audits pass. Local native322/0/1 and provider4/7/12 plus strictchecks pass; hosted/main/native acceptance remain separate.",
     "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",

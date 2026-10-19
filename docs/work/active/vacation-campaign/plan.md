@@ -1,13 +1,12 @@
 # Mac vacation hardening continuation
 
-Updated 19 October 2026. Current main is
-`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
-is source `945a0a7a`, combining qualified export worker `98035888` with
-test-only provider helper consolidation `22d5cd5f` (affected families/lint pass).
+Updated 19 October2026. Current main9116ad78 is PR167; its required checked-head
+contexts passed before normal merge. Resulting-main run39224642627 is running.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`. PR166 merged normally from
-`codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
-artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
+branch `codex/hardening-continuation`, history merge535b04e1/source8431e70b.
+All Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
+adds no source delta. Preserve unrelated work and source-bound artifacts.
+[Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
 
@@ -163,41 +162,35 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 
 ## Current candidate and next action
 
-Main b4a5deeb (PR166) passed all four required exact-head737 checks before normal
-merge; resulting-main run39220505231 passed all four required jobs, docs and
-Ubuntu UI/retrieval, with optional Windows failures retained. Earlier PR165 required main checks
-passed, with optional Windows failures retained. PR167 reference ownership remains
-fixed at40879f71 on `codex/hardening-followup`, required run39220781564. Its source
-14d7/ed859aa4 and receipts passed independent reviews; hosted/main/native gates
-remain separate. Follow actual checks before any exact-head normal merge.
+PR163–166 required head/main checks passed; optional Windows failures remain explicit.
+PR167 reference ownership merged normally as9116ad78 from checked40879f71 after all
+four required contexts passed in run39220781564. Main run39224642627 is running;
+[the integration receipt](evidence/pr167-integration.json) owns exact check identities.
 
-The later lead source945a0a7a combines the [export-picker repair](export-picker.md)
-(original98035888) and test-only provider helper consolidation22d5/54eb.
-Independent Sol approved the complete source without findings. Export focused1
-+related6, final desktop322/0/1, strict native lint/format and production-only build
-passed. A candidate-only error-report mutation failed its intended assertion and
-production was restored exactly; no unchanged-old-source or OS transport failure
-run is claimed. The helper removes five local reader definitions in favor of two
-shared test functions, preserving all callers/assertions/cases and production code.
-The [helper checks](provider-fixture-helpers.md) passed4/7/12 and strict package
-lint/format. Export receipts passed independent Luna audit. Reconcile PR167
-integration/main, then publish this coherent later candidate. Preserve checked heads.
+The later source8431e70b combines [export feedback](export-picker.md),
+[test-only fixture helper sharing](provider-fixture-helpers.md) and
+[hidden reference-search retirement](reference-search.md). Independent Sol approved
+the complete source without findings. Final native322/0/1, strict native lint/format
+and production-only build pass; provider helper families4/7/12 and strict package
+capability-spike lint/format pass. Export's candidate-only mutation fails its intended
+status assertion. Reference search additionally has an exact retained test replay
+failing on byte-exact old production, then passing after exact frozen restoration.
+Source/hash/log receipts retain their limits; no old-source export or OS transport
+failure is claimed. No local writer/builder is active.
+
+Final independent Luna receipt audit passed, and complete staged candidate whitespace
+check passed. Publish the coherent later candidate. Preserve checked heads and follow
+actual required-head, normal merge and resulting-main checks separately. No bypass.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
 already-durable unsaved close/relaunch. No crash/unprocessed-input durability or
 native success is claimed. [CI timing research](ci-feedback.md) remains deferred;
-no workflow change or saving is established.
+no workflow change or saving is established. Recent bounded source audits found no
+justified preview/activity/context refactor or worker/notice/reference test reduction.
+Recheck already invalidates reference searches; no extra guard is needed. Empty
+Copilot catalogue semantics remain unspecified and no provider policy change is selected.
 
-Recent bounded source audits found no justified next preview/activity/context
-refactor or worker/notice/reference test reduction. Empty Copilot catalogue semantics
-remain unspecified; no provider behavior change is selected. Select further work
-from concrete behavior and maintenance evidence rather than forcing refactors.
-Continue useful work while allowance permits; the recovery heartbeat is not batch
-pacing. [Preserved planning history](planning-history-through-2026-10-19.md) retains
-earlier snapshots. Current owner/resource/gate rules remain at this stable path.
-
-A new source audit identified a possible stuck pending indicator when scoped search
-finishes while its unchanged draft is hidden. A Luna worker now owns the reused
-drain checkout and single build slot to reproduce the exact old-source sequence
-before a minimal job-retirement fix. Preserve stale-result and replacement-draft
-fences; no broader setup/search/conversion state migration is selected.
+Select further work from concrete behavior and maintenance evidence. Continue useful
+work while allowance permits; the recovery heartbeat is not batch pacing.
+[Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
+snapshots. Current owner/resource/gate rules remain at this stable path for restarts.

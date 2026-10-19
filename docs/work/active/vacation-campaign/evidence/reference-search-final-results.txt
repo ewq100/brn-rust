@@ -1,0 +1,12 @@
+Exact old source: commit e2f7ce60f0162feebb4d0b954c0744037ad1ec77 threads_ui.rs restored byte-for-byte (SHA256 d357a87cb03eebfef0d2dfd32b47ea3465c1a212b19fe4d33a879ab431fa1342). The only test-only patch modified threads_writing_tests.rs (SHA256 b064e4fd0d6e876bc2ebdd605f7928e7a343f2ea3a44eccedb7722f4de24efd9). Baseline command compiled then failed exit 101 at `a retired reply must clear pending for its retained setup`; it confirmed `reference_search_cancel` was Some after real UI admission and None after the callback while note B was open. Raw log v2-baseline-assertion-failure.log.
+
+Frozen candidate commit a9600e641c18598e52340df5366918a1df7ce242 on codex/reference-search-retirement; worktree clean. Candidate source SHA256: threads_ui.rs ceb7d5b11588d76fc393192a8bbd859aed221f57f5062fa5e63efe539e451fb3; threads_writing_tests.rs 8944005d02403c94dd510031a4efe5c4df31af8b0f4ee782e6b14a8e29f48ae7. Commit diff only those two assigned files.
+
+Final focused test exit 0: 1 passed, 0 failed. v2-focused-search.log.
+Related B3 writing tests exit 0: 16 passed, 0 failed. v2-related-writing.log.
+Full native desktop suite exit 0: 322 passed, 0 failed, 1 ignored; 16.95s. v2-full-native-tests.log.
+Strict all-target Clippy exit 0. v2-clippy.log.
+Formatting exit 0; git diff --check exit 0. v2-fmt.log and v2-diff-check.log.
+Production-only native-ui build after commit exit 0; v2-final-production-native-ui-build.log. The precommit candidate build output is retained separately as v2-production-native-ui-build.log.
+Immutable final binary: brn-desktop-a9600e641c18598e; SHA256 9e9b22289e4d76f44898a351943b53783cd3639d37a51204863dc260cfc61128.
+Existing Cargo warning: block 0.1.6 future-incompatibility. No OS/native interaction or live provider qualification.

@@ -1,6 +1,6 @@
 # Reference import intent ownership plan
 
-Status: implemented and independently reviewed; local qualification passed, hosted integration pending.
+Status: merged PR167 after reviewed/local-qualified source and all required head checks; resulting-main checks and native qualification remain separate.
 Baseline lead1395c92c, production Rust matching qualified source d98374f4. PR166
 subsequently merged from checked73780065; this later work uses a separate branch.
 

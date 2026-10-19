@@ -89,3 +89,19 @@ provider/config through the UI. A successful empty Copilot catalogue currently
 retains generic/manual selection behavior, still on Copilot. No requirement was
 found specifying empty-versus-unknown policy, so no behavior change is selected;
 define that policy before any future change. No live provider or runtime check ran.
+
+PR167 reference ownership merged normally as9116ad78 at08:42:06UTC after all four
+required checked408 contexts passed in run39220781564; docs/Ubuntu UI passed and
+optional Windows Core failed. [Main run39224642627](evidence/pr167-integration.json)
+is running. Its crate/manifest/lock/toolchain tree matches qualifieded859aa4.
+Lead history merge535b04e1 has no source delta from approved843.
+
+The [hidden scoped-search fix](reference-search.md) is sourcea960/integrated843,
+independently approved; focused1/0, related16/0, full322/0/1, strict lint/format
+and frozen-source production-only build pass. The exact retained test patch fails
+on byte-exact old UI source, then passes after exact final restoration. Hash labels
+distinguish patch bytes from replayed file bytes. No test-only counter remains.
+First iteration and its artifact-name limitation remain historical. Final independent Luna receipt audit passed; all20 logs/5 patches/source/artifact
+hashes match. Stored patch context whitespace is resolved by lossless gzip, with
+raw patch hashes retained. Complete staged candidate whitespace and links pass;
+publication/hosted gates remain, with no local builder active.

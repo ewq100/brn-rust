@@ -1,0 +1,26 @@
+Toolchain: Rust 1.98.1. All Cargo commands used PATH=/opt/homebrew/opt/rustup/bin:$PATH, CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target, CARGO_INCREMENTAL=0, CARGO_PROFILE_DEV_DEBUG=0, CARGO_PROFILE_TEST_DEBUG=0, BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper, BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn, RUST_TEST_THREADS=1; Cargo used --locked --offline --jobs 1.
+
+Old source, exact baseline UI file, test-only patch to threads_writing_tests.rs:
+cargo test -p brn-desktop --features native-test-support b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form --locked --offline --jobs 1
+
+Final candidate focused:
+cargo test -p brn-desktop --features native-test-support b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form --locked --offline --jobs 1
+
+Related writing cases:
+cargo test -p brn-desktop --features native-test-support threads_ui::writing_tests::b3_ --locked --offline --jobs 1
+
+Full native desktop suite:
+cargo test -p brn-desktop --features native-test-support --locked --offline --jobs 1
+
+Strict all-target native-test-support Clippy:
+cargo clippy -p brn-desktop --all-targets --features native-test-support --locked --offline --jobs 1 -- -D warnings
+
+Formatting and whitespace:
+cargo fmt --all -- --check
+git diff --check
+
+Candidate production build (before commit; retained separately):
+cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
+
+Final production build after freezing commit a9600e641c18598e52340df5366918a1df7ce242:
+cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1

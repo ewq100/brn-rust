@@ -10,19 +10,12 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, reviewed source945a0a7a. Later commits are
-docs/evidence only. Latest main isb4a5deeb (PR166), merged normally from checked737
-once all four required contexts passed in run39217700176. Its resulting-main
-run39220505231 passed all four required jobs, docs and Ubuntu UI/retrieval;
-optional Windows Core/UI/retrieval failures remain explicit.
-Earlier PR163/164/165 required head/main checks passed; don't redo their source work.
-
-PR167 [reference owner](reference-import.md) is published at fixed40879f71 on
-`codex/hardening-followup`, required run39220781564. At the latest observation,
-three required contexts passed and Mac Core remained running. Its source14d7/ed859aa4
-and receipts passed independent reviews; keep that checked head unchanged. Inspect
-actual strict protection, all four required successes and exact head before normal
-merge, then inspect resulting-main checks. Do not bypass or hide optional failures.
+branch `codex/hardening-continuation`, history535b04e1/source8431e70b, matching all
+qualified worker a960 Rust/manifests/root lock/toolchain. Latest main9116ad78 is
+PR167, merged normally from exact checked40879f71 after all four required contexts
+passed in run39220781564. Main run39224642627 is running; inspect actual results.
+Earlier PR163–166 required head/main checks passed; optional Windows failures remain
+explicit. Don't redo merged source work or bypass strict protection.
 
 The later source945 combines [export feedback](export-picker.md), original98035888,
 and [test-only fixture helper sharing](provider-fixture-helpers.md), original22d5/lead54eb.
@@ -36,21 +29,23 @@ helper move. No OS error-transport or unchanged-old-source failing run is claime
 Its final receipt audit passed. The clean unmanaged helper checkout was removed
 with normal Git after preserving branch22, patch and sibling evidence.
 
+The [search retirement fix](reference-search.md), sourcea960/integrated843, also
+passed independent Sol review, focused1/0, related16/0, full native322/0/1, strict
+lint/format and a frozen-source production-only build. A retained test-only patch
+replays on byte-exact old production and fails at the pending assertion; restoring
+a960 exactly passes. Patch bytes and replayed test-file bytes have separately labeled
+hashes. No new counter/instrumentation remains. Only a960's final immutable binary
+qualifies this complete source; first-iteration pre-freeze artifacts stay historical.
+
 ## Active job and next gate
 
-Luna `/root/qualification_audit` owns the reused drain checkout
-`/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust`, new branch
-`codex/reference-search-retirement` at e2f7ce60, and the sole shared build slot.
-Scope: threads_ui.rs +threads_writing_tests.rs. Reproduce completion while the
-unchanged original setup draft is hidden leaving its pending indicator stuck;
-require a compiled old-source failure before any minimal fix. Preserve stale-result,
-generation and replacement-draft fences. No general state framework is selected.
-See [campaign state](campaign.json) for snapshot ownership. No other local builder
-is authorized while this job owns the slot. Independent source review follows a
-concrete candidate; source inspection alone does not establish a defect or pass.
+No local source writer/builder is active. Final independent Luna search-receipt audit passed. Complete candidate whitespace
+and link checks pass; publish this coherent later candidate. Main history535 adds no source
+delta from reviewed843. Keep actual hosted-head/merge/main/native gates separate.
+See campaign.json for snapshot ownership and reconcile agents/Git/processes after
+restart before dispatch. Preserve all source-bound artifacts.
 
-Finish that bounded gate and reconcile PR167 integration/main before publishing the
-later coherent candidate. Preserve source-bound artifacts. Current allowance was
+Current allowance was
 75% used/25% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour

@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166).
+`9116ad780de2d827811ef342168997e2df5d1a9c` (PR167).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -41,13 +41,16 @@ Independent Sol approved the complete candidate; native OS qualification remains
 is claimed.
 The later [reference-import owner](work/active/vacation-campaign/reference-import.md)
 also passed independent review and321/0/1, lint/format/production build at14d7c43e;
-its separate hosted integration is being prepared after PR166. Native recovery
+PR167 merged normally from checked408 after all four required head checks passed;
+resulting-main run39224642627 is running. Native recovery
 across normal close/relaunch is queued, with no crash/race guarantee claimed.
 The later [export picker feedback](work/active/vacation-campaign/export-picker.md)
 and [test-only helper consolidation](work/active/vacation-campaign/provider-fixture-helpers.md)
 are source-reviewed at945, with desktop322/0/1 and affected provider4/7/12 plus
-strict matching checks passing. They are not merged. A further scoped-search pending
-issue is being tested against unchanged source before any fix.
+strict matching checks passing. They are not merged. The [scoped-search retirement fix](work/active/vacation-campaign/reference-search.md)
+is also independently approved at843, with an exact old-production failing witness
+and final322/0/1, lint/format/production build passing. These later changes await
+publication/hosted integration; native qualification remains separate.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

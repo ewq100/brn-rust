@@ -74,5 +74,7 @@
     "No live provider or external network qualification; provider transport fixtures use synthetic local endpoints.",
     "Hosted/main integration remains pending."
   ],
-  "receipt_audit": "Independent Luna verified source/patch hashes, all5 imported compressed/raw hashes and raw equality with originals, actual0 exits and4/7/12 focused results, reference/executed command distinction and wrong-cwd disclosure. Imported gzip is deterministic recompression; compressed-byte equality to sibling gzip is not claimed."
+  "receipt_audit": "Independent Luna verified source/patch hashes, all5 imported compressed/raw hashes and raw equality with originals, actual0 exits and4/7/12 focused results, reference/executed command distinction and wrong-cwd disclosure. Imported gzip is deterministic recompression; compressed-byte equality to sibling gzip is not claimed.",
+  "source_patch": "provider-fixture-source.patch.gz",
+  "source_patch_gzip_sha256": "71fc59fa038c6ab13e7229e8d63e17da81d5306a3739feb555ae185baa18b383"
 }

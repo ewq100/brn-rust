@@ -1,0 +1,8 @@
+Baseline old-source reproduction on e2f7ce60, test-only patch, production behavior unchanged: compiled; failed with exit 101 at the intended assertion "a retired reply must clear pending for its retained setup" after an actual admitted UI search callback arrived while another note was open. Raw log: baseline-assertion-failure.log. Initial test-harness typo attempt was compile-only and non-qualifying; retained as initial-test-harness-compile-failure.log.
+Corrected focused candidate: exit 0, 1 passed; 0 failed. focused-search.log.
+Related B3 writing family: exit 0, 16 passed; 0 failed. related-writing.log.
+Full native-test-support desktop suite: exit 0, 322 passed; 0 failed; 1 ignored; 17.38s. full-native-tests.log.
+Strict all-target Clippy: exit 0. clippy.log.
+Formatting check: exit 0 after cargo fmt --all; whitespace check exit 0. fmt.log and diff-check.log.
+Production native-ui build, without native-test-support: exit 0, 6.04s. production-native-ui-build.log.
+The existing block 0.1.6 future-incompatibility warning appears in Cargo output. No OS/native input or live provider claim.
