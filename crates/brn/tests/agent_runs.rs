@@ -844,8 +844,11 @@ fn seed_native_fixture(data: &Path) -> Value {
 }
 
 fn writing_model_replies(seed: &Value) -> Vec<Reply> {
+    const MODEL_EXPLANATION: &str = "Synthetic prepare reason recorded for owner review.";
     let note = &seed["note"];
     let comment = &seed["captured_comment"];
+    let mut request = seed["request"].clone();
+    request["reason"] = json!(MODEL_EXPLANATION);
     vec![
         tool(
             "read-note",
@@ -860,7 +863,7 @@ fn writing_model_replies(seed: &Value) -> Vec<Reply> {
             "prepare_changes",
             json!({
                 "request_key": "native-suggestion-prepare",
-                "request": seed["request"],
+                "request": request,
                 "writing": {
                     "quotations": [], "requirements_reported": [],
                     "proposed_addressed_comment_ids": [comment["id"]]
@@ -897,7 +900,11 @@ fn native_suggestion_fixture_parent() {
     seed_file.write_all(b"\n").unwrap();
     let child = isolated_fixture_child(&root, &output, &endpoint);
     let result = wait_output(child, Duration::from_secs(180));
-    assert_eq!(result.code, 0, "fixture child failed: {}", result.stderr);
+    assert_eq!(
+        result.code, 0,
+        "fixture child failed; stdout: {}\nstderr: {}",
+        result.stdout, result.stderr
+    );
     assert_eq!(result.signal, None);
     assert_eq!(
         server.requests().len(),
@@ -963,14 +970,15 @@ fn native_suggestion_fixture_parent() {
         },
         "review_state": {
             "suggestion_is_model_reported": true,
-            "selected_comment_ids": [],
+            "expected_initial_ui_selected_comment_ids": [],
             "captured_comments_pending": report["captured_comments_pending"],
             "candidate_unapplied": report["candidate_unapplied"],
             "no_apply_receipt": report["no_apply_receipt"],
             "no_working_run": report["no_working_run"],
             "unrelated_note_unchanged": report["unrelated_note_unchanged"]
         },
-        "native_observed": false
+        "native_observed": false,
+        "native_selection_observed": false
     });
     let manifest_path = output.join(NATIVE_FIXTURE_MANIFEST);
     let mut file = fs::OpenOptions::new()
@@ -1095,9 +1103,8 @@ async fn native_suggestion_fixture_child() {
     );
     let read = &trace.calls[0].result;
     assert_eq!(read["outcome"], "Read");
-    assert_eq!(read["note"]["complete"], true);
-    assert_eq!(read["note"]["markdown"], ORIGINAL_WRITING);
-    assert_eq!(read["note"]["total_bytes"], ORIGINAL_WRITING.len());
+    assert_eq!(read["returned_bytes"], ORIGINAL_WRITING.len());
+    assert_eq!(read["next_start"], false);
     assert_eq!(trace.calls[1].result["operation"].as_str().is_some(), true);
     let candidate_id = trace.calls[1].result["operation"]
         .as_str()
@@ -1106,7 +1113,7 @@ async fn native_suggestion_fixture_child() {
     let run_id = result.run_id.clone();
     drop(app);
 
-    let mut reopened = Workspace::open_without_default_credentials(&data).unwrap();
+    let reopened = Workspace::open_without_default_credentials(&data).unwrap();
     let prepared_candidates = reopened.store.candidates().unwrap();
     assert_eq!(prepared_candidates.len(), 1);
     let candidate = prepared_candidates
@@ -1157,7 +1164,7 @@ async fn native_suggestion_fixture_child() {
     );
     assert_eq!(
         review.model_explanation,
-        "Prepared the synthetic revision for owner review."
+        "Synthetic prepare reason recorded for owner review."
     );
     assert_eq!(
         candidate
