@@ -898,3 +898,73 @@ async fn attachment_refusal_survives_real_finish_storage_failure_without_claimin
     assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
     server.stop().await;
 }
+
+#[tokio::test]
+async fn eligible_local_argument_correction_skips_external_sibling_without_spending_its_grant() {
+    for external_first in [false, true] {
+        let server = TestServer::start().await;
+        let (_root, mut request, _) = tests::fixture();
+        request.trace = TraceLevel::Full;
+        let policy = server.policy(vec![McpAccess::General]).await;
+        configure(&request, &policy);
+        let name = external_name(&policy);
+        let args = json!({"query":"reviewed synthetic correction witness"});
+        let prepared = prepare_run(request)
+            .unwrap()
+            .with_external_input("public_read", &args)
+            .unwrap();
+        let scope = prepared.scope.clone();
+        let cancel = CancellationToken::new();
+        mcp_runtime::connect(&scope, &cancel).await.unwrap();
+        let invocation = mcp_runtime::invocation(&scope).unwrap();
+        let mut first = vec![
+            MockStreamEvent::tool_call("bad", "read_records", json!({"ids":7,"query":null})),
+            MockStreamEvent::tool_call("external-skipped", &name, args.clone()),
+        ];
+        if external_first {
+            first.reverse();
+        }
+        first.push(MockStreamEvent::final_response_with_total_tokens(1));
+        let model = MockCompletionModel::from_stream_turns([
+            first,
+            vec![
+                MockStreamEvent::tool_call("external-fixed", &name, args.clone()),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            completed(),
+        ]);
+        let observed = Arc::new(AtomicBool::new(false));
+        let checked = observed.clone();
+        let before = invocation.clone();
+        let checked_name = name.clone();
+        let state = server.state.clone();
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let captured = events.clone();
+        let answer = run_model(model.clone(),scope.clone(),&prepared.input,ReasoningEffort::Medium,4,true,cancel,Arc::new(move |event| {
+            if matches!(event,AiEvent::Activity(ref text) if text.starts_with("Tool arguments rejected")) {
+                assert_eq!(state.calls.load(Ordering::SeqCst),0);
+                assert!(before.valid_call(&checked_name,&args),"skipped external sibling must leave exact-input grant unspent");
+                checked.store(true,Ordering::SeqCst);
+            }
+            captured.lock().unwrap().push(event);
+        })).await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{answer:?}"
+        );
+        assert!(observed.load(Ordering::SeqCst));
+        assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
+        let trace = scope.trace.as_ref().unwrap().finish("fixture", false, 4);
+        assert_eq!(
+            trace.calls.len(),
+            1,
+            "skipped siblings are not traced as real dispatches"
+        );
+        assert_eq!(trace.calls[0].tool, name);
+        let events = events.lock().unwrap();
+        assert_eq!(events.iter().filter(|event| matches!(event,AiEvent::Activity(s) if s.starts_with("External MCP read:"))).count(),2,"only the actual request and success get external activity");
+        drop(events);
+        mcp_runtime::cleanup(&scope).await;
+        server.stop().await;
+    }
+}

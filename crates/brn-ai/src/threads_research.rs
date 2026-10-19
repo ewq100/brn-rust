@@ -439,6 +439,8 @@ pub(super) async fn run_helper_model(
             allowed: Some(&HELPER_TOOLS),
             tokens: Some((slot.tokens.clone(), MAX_HELPER_INPUT_TOKENS)),
             turn_calls: AtomicU16::new(0),
+            corrections: AtomicU16::new(0),
+            rejected_batch: Mutex::new(None),
         })
         .build();
     let stream = agent

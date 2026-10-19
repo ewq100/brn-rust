@@ -99,15 +99,18 @@ pub(super) struct RefreshArgs {
     pub request: ChangeRequest,
 }
 pub(super) fn validate_refresh(args: &Value) -> bool {
-    serde_json::from_value::<RefreshArgs>(args.clone()).is_ok_and(|parsed| {
-        !parsed.operation.is_empty()
-            && parsed.operation.len() <= 256
-            && parse_valid(
-                "prepare_changes",
-                &json!({"request_key":parsed.request_key,"request":parsed.request}),
-            )
-            && request_matches_args(&parsed.request, &args["request"])
-    })
+    validate_refresh_arguments(args).is_ok()
+}
+pub(super) fn validate_refresh_arguments(args: &Value) -> std::result::Result<(), ArgumentError> {
+    let parsed = serde_json::from_value::<RefreshArgs>(args.clone()).map_err(|_| change_shape_error(args,
+        "Supply only operation, request_key and the typed request with reason/writes/inputs; writing is not accepted.",
+    ))?;
+    // Preserve the same policy boundary as prepare, before shape feedback.
+    validate_change_arguments(&parsed.request_key, &parsed.request, &args["request"])?;
+    argument_shape(
+        !parsed.operation.is_empty() && parsed.operation.len() <= 256,
+        "operation must contain 1..256 UTF-8 bytes.",
+    )
 }
 pub(super) fn refresh_schema() -> Value {
     let mut definition = schema("prepare_changes");
