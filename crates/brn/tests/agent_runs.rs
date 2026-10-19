@@ -5,7 +5,12 @@
 #![cfg(unix)]
 mod support;
 use serde_json::{json, Value};
-use std::{path::Path, time::Duration};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
+    time::Duration,
+};
 use support::stub::{answer, proxy_env, tool, Reply, Stub};
 use support::*;
 
@@ -602,6 +607,690 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
     let last = stub.requests().pop().unwrap();
     assert!(!last.to_string().contains("SCOPED_SELECTED_CANARY"));
     assert!(!last.to_string().contains("installed:run-review"));
+}
+
+const NATIVE_FIXTURE_OUTPUT: &str = "BRN_NATIVE_SUGGESTION_OUTPUT";
+const NATIVE_FIXTURE_REVISION: &str = "BRN_NATIVE_SUGGESTION_SOURCE_REVISION";
+const NATIVE_FIXTURE_ENDPOINT: &str = "BRN_NATIVE_SUGGESTION_ENDPOINT";
+const NATIVE_FIXTURE_REPORT: &str = "native-suggestion-child-report.json";
+const NATIVE_FIXTURE_SEED: &str = "native-suggestion-seed.json";
+const NATIVE_FIXTURE_MANIFEST: &str = "manifest.json";
+const ORIGINAL_WRITING: &str = "Rannatuli põleb vaikselt. Teine lause jääb alles.\n";
+const REVISED_WRITING: &str = "Rannatuli põleb selgelt. Teine lause jääb alles.\n";
+const UNRELATED_WRITING: &str = "Teine sünteetiline märkus jääb puutumata.\n";
+
+fn fixture_sha256(bytes: &[u8]) -> String {
+    brn_intake::hex(&brn_intake::digest(bytes))
+}
+
+fn fixture_source_paths() -> (PathBuf, PathBuf, PathBuf) {
+    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let repository = manifest.join("../..").canonicalize().unwrap();
+    (
+        repository,
+        manifest.join("tests/agent_runs.rs"),
+        manifest.join("tests/support/stub.rs"),
+    )
+}
+
+fn fixture_source_revision() -> String {
+    let supplied = std::env::var(NATIVE_FIXTURE_REVISION).unwrap_or_else(|_| {
+        panic!("set {NATIVE_FIXTURE_REVISION} to the committed source revision")
+    });
+    assert_eq!(
+        supplied.len(),
+        40,
+        "source revision must be a full commit ID"
+    );
+    assert!(supplied.bytes().all(|byte| byte.is_ascii_hexdigit()));
+    let (repository, harness, stub) = fixture_source_paths();
+    let output = Command::new("git")
+        .args(["-C", repository.to_str().unwrap(), "rev-parse", "HEAD"])
+        .output()
+        .expect("read the fixture checkout revision");
+    assert!(output.status.success(), "git rev-parse failed");
+    let head = String::from_utf8(output.stdout).unwrap().trim().to_owned();
+    assert_eq!(
+        head, supplied,
+        "supplied source pin must match checkout HEAD"
+    );
+
+    // Bind the two compiled fixture files to the checked-in source snapshot.
+    assert_eq!(
+        fixture_sha256(include_bytes!("agent_runs.rs")),
+        fixture_sha256(&fs::read(&harness).unwrap()),
+        "agent_runs.rs changed after this test binary was built"
+    );
+    assert_eq!(
+        fixture_sha256(include_bytes!("support/stub.rs")),
+        fixture_sha256(&fs::read(&stub).unwrap()),
+        "support/stub.rs changed after this test binary was built"
+    );
+    for path in [&harness, &stub] {
+        let relative = path.strip_prefix(&repository).unwrap();
+        let changed = Command::new("git")
+            .args([
+                "-C",
+                repository.to_str().unwrap(),
+                "diff",
+                "--quiet",
+                "HEAD",
+                "--",
+            ])
+            .arg(relative)
+            .status()
+            .expect("check fixture source against its pinned commit");
+        assert!(
+            changed.success(),
+            "{} differs from pinned HEAD",
+            relative.display()
+        );
+    }
+    supplied
+}
+
+fn reserve_fixture_output(root: &Root) -> PathBuf {
+    let path =
+        PathBuf::from(std::env::var_os(NATIVE_FIXTURE_OUTPUT).unwrap_or_else(|| {
+            panic!("set {NATIVE_FIXTURE_OUTPUT} to a fresh absolute output root")
+        }));
+    assert!(path.is_absolute(), "fixture output path must be absolute");
+    assert!(
+        path.file_name().is_some(),
+        "fixture output root needs a final component"
+    );
+    assert!(
+        !path.starts_with(&root.path),
+        "durable fixture output must be outside the disposable Root"
+    );
+    let parent = path.parent().unwrap();
+    assert!(parent.is_dir(), "fixture output parent must already exist");
+    assert_eq!(
+        fs::canonicalize(parent).unwrap(),
+        parent,
+        "fixture output parent must use its canonical absolute path"
+    );
+    fs::create_dir(&path).expect("fixture output must be a new, exclusively reserved directory");
+    fs::canonicalize(&path).unwrap()
+}
+
+fn isolated_fixture_child(root: &Root, output: &Path, endpoint: &str) -> std::process::Child {
+    let current = std::env::current_exe().unwrap();
+    let mut command = Command::new(current);
+    command.args([
+        "--exact",
+        "native_suggestion_fixture_child",
+        "--ignored",
+        "--nocapture",
+    ]);
+    command.env_clear();
+    for name in [
+        "PATH",
+        "DYLD_LIBRARY_PATH",
+        "DYLD_FALLBACK_LIBRARY_PATH",
+        "LD_LIBRARY_PATH",
+    ] {
+        if let Some(value) = std::env::var_os(name) {
+            command.env(name, value);
+        }
+    }
+    command
+        .env("HOME", root.join("home"))
+        .env("CODEX_HOME", root.join("home"))
+        .env("TMPDIR", root.join("tmp"))
+        .env("TMP", root.join("tmp"))
+        .env("TEMP", root.join("tmp"))
+        .env(NATIVE_FIXTURE_OUTPUT, output)
+        .env(
+            NATIVE_FIXTURE_REVISION,
+            std::env::var(NATIVE_FIXTURE_REVISION).unwrap(),
+        )
+        .env(NATIVE_FIXTURE_ENDPOINT, endpoint)
+        .envs(root.env.iter().map(|(key, value)| (key, value)))
+        .current_dir(&root.path)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("start isolated fixture child")
+}
+
+fn seed_native_fixture(data: &Path) -> Value {
+    use brn_threads_app::{
+        RecordData, Workspace, WorkspacePurpose, WritingCommentInput, WritingReadRequirements,
+    };
+
+    let mut app =
+        Workspace::create_without_default_credentials(data, WorkspacePurpose::Test).unwrap();
+    let settings = app.settings().unwrap();
+    assert!(settings.auth_file.is_none() && settings.credentials_dir.is_none());
+    assert!(settings.mcp.is_none() && settings.helper.is_none());
+    let settings_history = app
+        .store
+        .receipts()
+        .unwrap()
+        .into_iter()
+        .flat_map(|receipt| receipt.writes)
+        .filter_map(|write| match write.after.data {
+            RecordData::Settings(settings) => Some(settings),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert!(!settings_history.is_empty());
+    assert!(settings_history
+        .iter()
+        .all(|s| s.auth_file.is_none() && s.credentials_dir.is_none()));
+
+    let note = app
+        .new_note("Synthetic writing suggestion", ORIGINAL_WRITING)
+        .unwrap();
+    let unrelated = app
+        .new_note("Unrelated synthetic note", UNRELATED_WRITING)
+        .unwrap();
+    let context = app
+        .ensure_writing_context("native-suggestion-context", &note.id, None)
+        .unwrap();
+    let thread = context.conversation.unwrap();
+    let first_quote = "Rannatuli";
+    let first = app
+        .add_writing_comment(
+            "native-suggestion-captured",
+            &WritingCommentInput {
+                note: note.id.clone(),
+                version: note.version,
+                thread: thread.clone(),
+                range: (0, first_quote.len()),
+                quote: first_quote.into(),
+                body: "Clarify the first sentence.".into(),
+            },
+        )
+        .unwrap();
+    let second_quote = "Teine lause";
+    let second_start = ORIGINAL_WRITING.find(second_quote).unwrap();
+    let second = app
+        .add_writing_comment(
+            "native-suggestion-excluded",
+            &WritingCommentInput {
+                note: note.id.clone(),
+                version: note.version,
+                thread: thread.clone(),
+                range: (second_start, second_start + second_quote.len()),
+                quote: second_quote.into(),
+                body: "Preserve this sentence.".into(),
+            },
+        )
+        .unwrap();
+    let snapshot = app
+        .snapshot_writing_request_with_requirements(
+            "native-suggestion-request",
+            &note.id,
+            note.version,
+            &thread,
+            std::slice::from_ref(&first.id),
+            "",
+            &WritingReadRequirements::default(),
+        )
+        .unwrap();
+    let request = serde_json::to_value(snapshot.change_request(REVISED_WRITING).unwrap()).unwrap();
+    json!({
+        "data_directory": data,
+        "note": note,
+        "unrelated_note": unrelated,
+        "thread": thread,
+        "request_message": snapshot.request_message,
+        "captured_comment": first,
+        "excluded_comment": second,
+        "request": request
+    })
+}
+
+fn writing_model_replies(seed: &Value) -> Vec<Reply> {
+    let note = &seed["note"];
+    let comment = &seed["captured_comment"];
+    vec![
+        tool(
+            "read-note",
+            "read_note",
+            json!({
+                "id": note["id"], "version": note["version"], "start": 0,
+                "max_bytes": ORIGINAL_WRITING.len(), "section": false
+            }),
+        ),
+        tool(
+            "prepare-suggestion",
+            "prepare_changes",
+            json!({
+                "request_key": "native-suggestion-prepare",
+                "request": seed["request"],
+                "writing": {
+                    "quotations": [], "requirements_reported": [],
+                    "proposed_addressed_comment_ids": [comment["id"]]
+                }
+            }),
+        ),
+        answer("Prepared the synthetic revision for owner review."),
+    ]
+}
+
+/// Parent owns the loopback listener and publishes the manifest only after it
+/// validates the child report and the exact number of completed HTTP exchanges.
+#[test]
+#[ignore = "manual synthetic model-suggestion fixture for Mac UI review"]
+fn native_suggestion_fixture_parent() {
+    let root = root();
+    let source_revision = fixture_source_revision();
+    let output = reserve_fixture_output(&root);
+    let data = output.join("data");
+    let mut seed = seed_native_fixture(&data);
+    let server = Stub::start(writing_model_replies(&seed));
+    let endpoint = format!("http://127.0.0.1:{}", server.port);
+    let credentials = server.credentials_in(&output);
+    seed["credentials_directory"] = json!(credentials);
+    seed["endpoint"] = json!(endpoint);
+    let seed_path = output.join(NATIVE_FIXTURE_SEED);
+    let mut seed_file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&seed_path)
+        .unwrap();
+    use std::io::Write;
+    serde_json::to_writer_pretty(&mut seed_file, &seed).unwrap();
+    seed_file.write_all(b"\n").unwrap();
+    let child = isolated_fixture_child(&root, &output, &endpoint);
+    let result = wait_output(child, Duration::from_secs(180));
+    assert_eq!(result.code, 0, "fixture child failed: {}", result.stderr);
+    assert_eq!(result.signal, None);
+    assert_eq!(
+        server.requests().len(),
+        3,
+        "unexpected provider transport count"
+    );
+    for request in server.requests() {
+        assert_eq!(
+            request["model"], "synthetic",
+            "provider request escaped the fixture model"
+        );
+        assert!(
+            request["messages"].is_array(),
+            "unexpected provider request body"
+        );
+    }
+    let report_path = output.join(NATIVE_FIXTURE_REPORT);
+    let report: Value = serde_json::from_slice(&fs::read(&report_path).unwrap()).unwrap();
+    assert_eq!(report["source_revision"], source_revision);
+    assert_eq!(report["endpoint"], endpoint);
+    assert_eq!(report["provider_requests"], 3);
+    assert_eq!(report["completed"], true);
+    assert_eq!(report["candidate_operation"].as_str().is_some(), true);
+    assert_eq!(report["cli_readback"], true);
+
+    let (_, harness, stub_source) = fixture_source_paths();
+    let runner = std::env::current_exe().unwrap();
+    let cli = PathBuf::from(env!("CARGO_BIN_EXE_brn"));
+    let manifest = json!({
+        "format": "BRN native model-suggestion fixture v1",
+        "source_identity": {
+            "repository_revision": source_revision,
+            "revision_validation": "invocation pin matched git HEAD; fixture source bytes matched compiled includes",
+            "harness_path": harness,
+            "harness_sha256": fixture_sha256(include_bytes!("agent_runs.rs")),
+            "stub_path": stub_source,
+            "stub_sha256": fixture_sha256(include_bytes!("support/stub.rs"))
+        },
+        "binaries": {
+            "fixture_test_harness": runner,
+            "fixture_test_harness_sha256": fixture_sha256(&fs::read(&runner).unwrap()),
+            "ordinary_cli": cli,
+            "ordinary_cli_sha256": fixture_sha256(&fs::read(&cli).unwrap())
+        },
+        "reproduction_command": format!(
+            "BRN_NATIVE_SUGGESTION_OUTPUT=<fresh absolute directory> BRN_NATIVE_SUGGESTION_SOURCE_REVISION={source_revision} rustup run 1.98.1 cargo test -p brn --test agent_runs --locked --offline --jobs 1 native_suggestion_fixture_parent -- --ignored --exact --nocapture"
+        ),
+        "data_directory": output.join("data"),
+        "seed": seed,
+        "runtime_validation": report,
+        "provider": "Copilot",
+        "model": "synthetic",
+        "synthetic_settings": {
+            "provider": "Copilot", "model": "synthetic", "effort": "low",
+            "credentials_directory": seed["credentials_directory"],
+            "auth_file": null, "helper": null, "mcp": null
+        },
+        "transport": {
+            "endpoint": endpoint,
+            "requests": 3,
+            "credentials": "synthetic cached session token only",
+            "proxy": "closed port with loopback-only bypass"
+        },
+        "review_state": {
+            "suggestion_is_model_reported": true,
+            "selected_comment_ids": [],
+            "captured_comments_pending": report["captured_comments_pending"],
+            "candidate_unapplied": report["candidate_unapplied"],
+            "no_apply_receipt": report["no_apply_receipt"],
+            "no_working_run": report["no_working_run"],
+            "unrelated_note_unchanged": report["unrelated_note_unchanged"]
+        },
+        "native_observed": false
+    });
+    let manifest_path = output.join(NATIVE_FIXTURE_MANIFEST);
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&manifest_path)
+        .expect("success manifest must be new");
+    serde_json::to_writer_pretty(&mut file, &manifest).unwrap();
+    file.write_all(b"\n").unwrap();
+    fs::remove_file(output.join(NATIVE_FIXTURE_REPORT)).unwrap();
+    println!("Synthetic writing fixture: {}", output.display());
+}
+
+/// Ignored child selected only by `native_suggestion_fixture_parent`.
+#[ignore = "only run under the isolated fixture parent"]
+#[tokio::test]
+async fn native_suggestion_fixture_child() {
+    use brn_ai::threads::{run_prepared, OwnerRequest, TraceLevel};
+    use brn_threads_app::{
+        Record, RecordData, RunState, ThreadRunStart, Workspace, WRITING_EVIDENCE_ROLE,
+    };
+    use tokio_util::sync::CancellationToken;
+
+    let source_revision = fixture_source_revision();
+    let output = PathBuf::from(std::env::var_os(NATIVE_FIXTURE_OUTPUT).unwrap());
+    let endpoint = std::env::var(NATIVE_FIXTURE_ENDPOINT).unwrap();
+    let address = endpoint.strip_prefix("http://127.0.0.1:").unwrap();
+    assert!(
+        address.parse::<u16>().is_ok(),
+        "endpoint must be literal loopback HTTP"
+    );
+    let seed: Value =
+        serde_json::from_slice(&fs::read(output.join(NATIVE_FIXTURE_SEED)).unwrap()).unwrap();
+    let data = PathBuf::from(seed["data_directory"].as_str().unwrap());
+    let credentials = PathBuf::from(seed["credentials_directory"].as_str().unwrap());
+    assert_eq!(seed["endpoint"], endpoint);
+    let credential_cache: Value =
+        serde_json::from_slice(&fs::read(credentials.join("copilot.json")).unwrap()).unwrap();
+    assert_eq!(credential_cache["token"], "SYNTHETIC");
+    assert_eq!(credential_cache["expires_at"], 4102444800i64);
+    assert_eq!(credential_cache["endpoints"]["api"], endpoint);
+    let mut app = Workspace::open_without_default_credentials(&data).unwrap();
+    let initial = app.settings().unwrap();
+    assert!(initial.auth_file.is_none() && initial.credentials_dir.is_none());
+    assert!(initial.mcp.is_none() && initial.helper.is_none());
+    let initial_settings = app
+        .store
+        .receipts()
+        .unwrap()
+        .into_iter()
+        .flat_map(|receipt| receipt.writes)
+        .filter_map(|write| match write.after.data {
+            RecordData::Settings(settings) => Some(settings),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert!(!initial_settings.is_empty());
+    assert!(initial_settings
+        .iter()
+        .all(|settings| settings.auth_file.is_none() && settings.credentials_dir.is_none()));
+    assert_eq!(initial.provider, "Codex");
+
+    let mut configured = initial;
+    configured.provider = "Copilot".into();
+    configured.model = "synthetic".into();
+    configured.effort = "low".into();
+    configured.credentials_dir = Some(credentials.to_string_lossy().into_owned());
+    app.configure(configured).unwrap();
+
+    assert!(credentials.join("copilot.json").is_file());
+    let settings = app.settings().unwrap();
+    assert_eq!(settings.provider, "Copilot");
+    assert_eq!(settings.model, "synthetic");
+    assert_eq!(settings.effort, "low");
+    assert_eq!(
+        settings.credentials_dir.as_deref(),
+        Some(credentials.to_str().unwrap())
+    );
+    assert!(settings.auth_file.is_none() && settings.helper.is_none() && settings.mcp.is_none());
+
+    let request_message = seed["request_message"].as_str().unwrap().to_owned();
+    let thread = seed["thread"].as_str().unwrap().to_owned();
+    let prepared = app
+        .prepare_thread_run(ThreadRunStart {
+            thread: thread.clone(),
+            prompt: "Rewrite the saved note using its captured feedback.".into(),
+            request_message: None,
+            queue_claim: None,
+            owner_request: Some(OwnerRequest::RewriteNote {
+                request_message: request_message.clone(),
+            }),
+            sources: vec![],
+            max_tool_rounds: Some(4),
+            trace: TraceLevel::Full,
+            offered_copilot_models: None,
+        })
+        .unwrap();
+    let result = run_prepared(
+        prepared.prepared,
+        CancellationToken::new(),
+        std::sync::Arc::new(|_| {}),
+    )
+    .await
+    .unwrap();
+    assert!(matches!(
+        result.answer.terminal,
+        brn_ai::AiTerminal::Completed
+    ));
+    assert_eq!(
+        result.answer.text,
+        "Prepared the synthetic revision for owner review."
+    );
+    let trace = result.trace.as_ref().expect("full runtime trace");
+    let tools = trace
+        .calls
+        .iter()
+        .map(|call| (call.tool.as_str(), call.outcome.as_str()))
+        .collect::<Vec<_>>();
+    assert_eq!(
+        tools,
+        [("read_note", "success"), ("prepare_changes", "success")]
+    );
+    let read = &trace.calls[0].result;
+    assert_eq!(read["outcome"], "Read");
+    assert_eq!(read["note"]["complete"], true);
+    assert_eq!(read["note"]["markdown"], ORIGINAL_WRITING);
+    assert_eq!(read["note"]["total_bytes"], ORIGINAL_WRITING.len());
+    assert_eq!(trace.calls[1].result["operation"].as_str().is_some(), true);
+    let candidate_id = trace.calls[1].result["operation"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let run_id = result.run_id.clone();
+    drop(app);
+
+    let mut reopened = Workspace::open_without_default_credentials(&data).unwrap();
+    let prepared_candidates = reopened.store.candidates().unwrap();
+    assert_eq!(prepared_candidates.len(), 1);
+    let candidate = prepared_candidates
+        .iter()
+        .find(|candidate| candidate.operation.as_str() == candidate_id)
+        .unwrap();
+    let evidence_message = candidate
+        .request
+        .writes
+        .iter()
+        .find_map(|write| match &write.data {
+            RecordData::Message(message) if message.role == WRITING_EVIDENCE_ROLE => Some(message),
+            _ => None,
+        })
+        .expect("runtime-created host evidence");
+    let evidence: Value = serde_json::from_str(&evidence_message.text).unwrap();
+    assert_eq!(evidence["request_message"], request_message);
+    assert_eq!(evidence["thread"], thread);
+    let note = &seed["note"];
+    let captured = &seed["captured_comment"];
+    let unrelated = &seed["unrelated_note"];
+    assert_eq!(
+        evidence["proposed_addressed_comment_ids"],
+        json!([captured["id"]])
+    );
+    let read_evidence = evidence["reads"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|read| read["id"] == note["id"])
+        .unwrap();
+    assert_eq!(read_evidence["version"], 1);
+    assert_eq!(read_evidence["complete"], true);
+    assert_eq!(
+        read_evidence["covered_retained_bytes"],
+        ORIGINAL_WRITING.len()
+    );
+    assert_eq!(
+        read_evidence["total_retained_bytes"],
+        ORIGINAL_WRITING.len()
+    );
+    let review = reopened
+        .writing_candidate_review(&candidate_id, Some(&thread))
+        .unwrap();
+    assert_eq!(
+        review.proposed_addressed_comment_ids,
+        vec![captured["id"].as_str().unwrap().to_owned()]
+    );
+    assert_eq!(
+        review.model_explanation,
+        "Prepared the synthetic revision for owner review."
+    );
+    assert_eq!(
+        candidate
+            .request
+            .writes
+            .iter()
+            .find_map(|write| match &write.data {
+                RecordData::Note(value) if write.id == note["id"] => Some(value.markdown.as_str()),
+                _ => None,
+            }),
+        Some(REVISED_WRITING)
+    );
+    assert_eq!(
+        reopened
+            .store
+            .record(note["id"].as_str().unwrap())
+            .unwrap()
+            .unwrap()
+            .version,
+        1
+    );
+    let original_note: Record = serde_json::from_value(note.clone()).unwrap();
+    assert_eq!(
+        reopened
+            .store
+            .record(note["id"].as_str().unwrap())
+            .unwrap()
+            .unwrap(),
+        original_note
+    );
+    assert_eq!(
+        reopened
+            .store
+            .record(unrelated["id"].as_str().unwrap())
+            .unwrap()
+            .unwrap(),
+        serde_json::from_value(unrelated.clone()).unwrap()
+    );
+    let comments = reopened
+        .writing_comments(note["id"].as_str().unwrap())
+        .unwrap();
+    assert_eq!(comments.len(), 2);
+    assert!(comments.iter().all(|comment| !comment.addressed));
+    let no_apply_receipt = reopened
+        .store
+        .receipt(&reopened.store.operation(&candidate_id).unwrap())
+        .unwrap()
+        .is_none();
+    assert!(no_apply_receipt);
+    let run_records = reopened.records().unwrap();
+    let no_working_run = run_records.iter().all(
+        |record| !matches!(&record.data, RecordData::Run(run) if run.state == RunState::Working),
+    );
+    assert!(no_working_run);
+    assert!(run_records.iter().any(|record| record.id == run_id
+        && matches!(&record.data, RecordData::Run(run) if run.state == RunState::Completed)));
+    let unrelated_note_unchanged = reopened
+        .store
+        .record(unrelated["id"].as_str().unwrap())
+        .unwrap()
+        .unwrap()
+        == serde_json::from_value(unrelated.clone()).unwrap();
+    assert!(unrelated_note_unchanged);
+    drop(reopened);
+
+    let mut cli_root = Root::new();
+    cli_root.env = proxy_env();
+    let listed = ok(&cli_root, &data, &["candidates", "--limit", "10"]);
+    assert!(listed["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|candidate| candidate["operation"] == candidate_id));
+    let note_read = ok(
+        &cli_root,
+        &data,
+        &["read", "--id", note["id"].as_str().unwrap()],
+    );
+    assert_eq!(note_read["version"], 1);
+    assert_eq!(note_read["data"]["Note"]["markdown"], ORIGINAL_WRITING);
+    let run_readback = ok(&cli_root, &data, &["runs", "--thread", &thread]);
+    assert!(run_readback["runs"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|run| run["id"] == run_id && run["state"] == "completed"));
+
+    let current = std::env::current_exe().unwrap();
+    let cli = PathBuf::from(env!("CARGO_BIN_EXE_brn"));
+    let report = json!({
+        "source_revision": source_revision,
+        "endpoint": endpoint,
+        "provider_requests": 3,
+        "completed": true,
+        "cli_readback": true,
+        "data_directory": data,
+        "note": note,
+        "unrelated_note": unrelated,
+        "thread": thread,
+        "request_message": request_message,
+        "captured_comment": captured,
+        "excluded_comment": seed["excluded_comment"],
+        "candidate_operation": candidate_id,
+        "run_id": run_id,
+        "original_markdown": ORIGINAL_WRITING,
+        "original_markdown_utf8_bytes": ORIGINAL_WRITING.len(),
+        "original_markdown_sha256": fixture_sha256(ORIGINAL_WRITING.as_bytes()),
+        "revised_markdown": REVISED_WRITING,
+        "revised_markdown_utf8_bytes": REVISED_WRITING.len(),
+        "revised_markdown_sha256": fixture_sha256(REVISED_WRITING.as_bytes()),
+        "unrelated_markdown": UNRELATED_WRITING,
+        "unrelated_markdown_utf8_bytes": UNRELATED_WRITING.len(),
+        "unrelated_markdown_sha256": fixture_sha256(UNRELATED_WRITING.as_bytes()),
+        "candidate_unapplied": true,
+        "captured_comments_pending": true,
+        "no_apply_receipt": no_apply_receipt,
+        "no_working_run": no_working_run,
+        "unrelated_note_unchanged": unrelated_note_unchanged,
+        "runtime_trace_tools": tools.iter().map(|(tool, outcome)| json!({"tool":tool,"outcome":outcome})).collect::<Vec<_>>(),
+        "ordinary_cli_binary": cli,
+        "ordinary_cli_binary_sha256": fixture_sha256(&fs::read(&cli).unwrap()),
+        "fixture_test_binary": current,
+        "fixture_test_binary_sha256": fixture_sha256(&fs::read(&current).unwrap())
+    });
+    let report_path = output.join(NATIVE_FIXTURE_REPORT);
+    let mut report_file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(report_path)
+        .unwrap();
+    use std::io::Write;
+    serde_json::to_writer_pretty(&mut report_file, &report).unwrap();
+    report_file.write_all(b"\n").unwrap();
 }
 
 #[cfg(any(target_os = "macos", target_os = "linux"))]
