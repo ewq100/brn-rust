@@ -32,6 +32,10 @@ identity and untouched bytes, subject to the existing core rule that a changed
 content revision clears confirmation without Confirm authority. It must not
 change protection, import metadata, visibility, archive, supersession or assets.
 
+An edit covering the complete current Markdown must retain the ordinary whole-read
+requirement (or refuse with guidance to use whole replacement); range syntax must
+not become a way to choose a whole-document guard bypass.
+
 Only an actual host-constructed exact-edit value may select the local-edit path.
 Use a private non-deserializable input/proof variant at the existing shared
 preparation owner, not a model-supplied bypass boolean or mutation mode. Preserve
