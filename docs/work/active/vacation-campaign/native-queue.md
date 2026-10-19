@@ -65,7 +65,7 @@ if integrated before the actual session; do not use19efe for changed source.
 MAC-06 is queued for one actual production writing journey: open the qualified
 fresh offline fixture, inspect its captured repeated/Unicode passages, select only
 the first comment, Apply the exact revision, verify only that comment addressed
-and the unrelated note unchanged, then Undo and verify canonical/comment state.
+and the unrelated note unchanged. Use the Note tile’s applied-rewrite Undo (the control with tooltip “Undo the applied rewrite; Changes keeps it”), bound to the manifest’s candidate operation; verify original canonical bytes and both comments pending. A history action that only undoes the separate comment proof has a different outcome and does not establish revision Undo.
 The fixture is v1 ordinary captured-request review, not v2 evidence qualification.
 Use the source-bound fixture manifest and exact expected bytes. Its construction
 must not discover owner credentials or run a provider. Sourcee4e is independently
