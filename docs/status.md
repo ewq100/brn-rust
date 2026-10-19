@@ -1,10 +1,32 @@
-**Vacation identity continuation, 19 October 2026:** [Typed worker operation identity](work/active/vacation-campaign/worker-identity.md) at `823a1544` replaces independently mutable kind/chat/Run fields with one private operation owner and required paired Run identity. Independent source review passed; final desktop315/0/1, explicit offline CLI/desktop1/0, strict all-target lint, production build and formatting passed. Initial MCP fixture ordering and CLI setup failures are retained; new-source hosted CI is pending. This remains partial Run/worker ownership.
+# Current development status
 
-**Vacation integration reconciled, 19 October 2026:** the owner merged [PR162](https://github.com/ewq100/brn-rust/pull/162) at `bd42c1d9`. Its final head `aebfa12b`, including reviewed worker source `c24da6af`, passed all configured required contexts, Ubuntu Native UI and documentation; optional Windows failed on unchanged Unix authentication. [Exact-head receipt](work/active/vacation-campaign/evidence/pr162-worker-ci.json) retains the executed counts and distinguishes merge-commit CI. The [campaign checkpoint](work/active/vacation-campaign/checkpoint.md) remains authoritative for continuation on `vacation-campaign-20261018`. Expiry remains1November2026 at23:41:51 Europe/Tallinn. Fresh Cloud listing401 and unavailable quota/resume keep unattended continuation inactive. Full workflow/native qualification and release readiness remain open; this continuation performed no merge or release.
+Updated 19 October 2026. Latest merged main is
+`b5f01b07301dcc94d3d4e273a472d487f569bbc7` (PR163).
 
-**Vacation worker followup, 19 October 2026 (local checkpoint before merge):** [Worker protocol ownership](work/active/vacation-campaign/worker-lifecycle.md) fixes a reproduced stale reference-import intent that could strip the next chat attachment of its scope. Reviewed sourcec24da6af passes315 local desktop tests, strict lint, formatting and the production UI build. Its hosted/integration status is reconciled above. This remains a partial ownership slice.
+The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
+assignment: Mac-first state ownership, reliability, proportionate tests and repo
+maintenance, with review and required-check merges authorized. Linux improvements
+are lower priority. Work may use existing allowance down to roughly5% remaining,
+then wait for a verified reset. The original1November expiry remains unchanged.
+The local two-hour engineering heartbeat and daily18:00Tallinn native-batch heartbeat
+are registered ACTIVE; their first unattended executions remain unobserved.
+[Current evidence](work/active/vacation-campaign/evidence.md) owns candidate/check state.
 
-**Vacation campaign pilot, 18 October 2026:** Main is verified at merged PR161 (`1b7625a8`); that run passed all required contexts and documentation. The [campaign checkpoint](work/active/vacation-campaign/checkpoint.md) now owns active work on `vacation-campaign-20261018`: shared private Note/Review lifecycle owners, Linux atomic model installation and restricted current converters, actual local component tests and a production graphical Linux journey. Full inventory/OS qualification and release readiness remain open. The campaign expires 1 November 2026 at21:41:51UTC; unattended continuation is inactive. Dated pre-161 pending-merge/check statements below are historical, not the current baseline.
+Note/Review pilots, worker terminal admission and coherent worker Run identity are
+merged. PR163's final source matches its independent review and all four required
+final-head checks passed; resulting-main checks are pending. PR162's required/main
+checks also passed. Optional Windows failures remain explicit; no all-platform pass
+is claimed. The25-domain UI inventory remains provisional and incomplete.
+
+Next: integrate PR164's continuation policy/native queue and verify actual main,
+then reconcile remaining preview/context transitions before choosing another slice.
+Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
+subjective owner acceptance and release readiness remain open. No release is claimed.
+
+## Earlier dated checkpoints
+
+The following entries preserve past qualifications and intermediate gate states.
+They are historical; use the current plan/evidence and actual Git state to resume.
 
 **Required widget fixture correction reviewed, 18 October 2026:** PRs [159](https://github.com/ewq100/brn-rust/pull/159) and [160](https://github.com/ewq100/brn-rust/pull/160) are merged. Latest main completed macOS Core/CLI in 25m55s, but one required confirmation-dialog widget test failed. A controlled stale-coordinate probe supports the [reviewed two-line test-local fixture correction](work/active/final-integration/current/dialog-confirmation/phase3/principal-disposition.md); exact and full widget checks pass locally, with every original safety assertion and click retained. Corrected PR/main CI is next. Historical cause, animation/native-human, live and owner qualifications remain separate.
 
