@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`e1c0ddaf896ff5d4f1ae68b36099546f3937db32` (PR169; resulting-main checks pending).
+`d7f48e6caa3c200fba931ef75df0012171cd0ed3` (PR170; resulting-main gate pending).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -43,7 +43,7 @@ completion. Existing metadata labels and exact approval destination remain autho
 no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
 at0f; later274/integrateda593 differs only in one test comment. Independent receipt verification passed. PR169 merged normally as e1c0ddaf from
 fixed63b0b0eb after all four required39230048849 jobs passed; optional Windows Core
-failed. Resulting-main39232087600 verification remains pending;
+failed. All four required resulting-main39232087600 jobs passed; optional Windows jobs failed;
 [its receipt](work/active/vacation-campaign/evidence/pr169-integration.json) retains separate gates.
 Project-dialog, remaining-picker, Action/Undo and comment source audits found no
 justified further change; existing distinct tests remain.
@@ -71,7 +71,7 @@ do not grant new authority.
 The owner selected [the supplied agent-first plan](work/active/agent-first-simplification/plan.md)
 inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
 records independently approved M0 rules and M1 bounded tool-argument correction
-under implementation. M2 structural findings/skill policy is independently reviewed
-and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. M3/M4 remain
-pending; broader artifact execution is conditional. No new live/private-data or
+independently source-approved and locally verified (runtime505/0/2, strict lint/format);
+combined and hosted gates remain. M2 structural findings/skill policy is independently reviewed
+and locally verified (topics11, journeys8, keyed11, strict lint/format), pending hosted integration. M3 exact local edit is under bounded implementation; M4 remains pending; broader artifact execution is conditional. No new live/private-data or
 release authority follows, and no new implementation/native completion is claimed.

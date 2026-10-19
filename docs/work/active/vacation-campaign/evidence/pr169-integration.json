@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-10-19T09:43:20.892387+00:00",
+  "observed_at_utc": "2026-10-19T10:18:15.974284+00:00",
   "pr": 169,
   "head": "63b0b0ebbd4e994e78520b4206256240a441e0e9",
   "merge": "e1c0ddaf896ff5d4f1ae68b36099546f3937db32",
@@ -86,24 +86,24 @@
   ],
   "main_run": 39232087600,
   "main_head": "e1c0ddaf896ff5d4f1ae68b36099546f3937db32",
-  "main_status": "queued",
-  "main_overall_conclusion": "",
+  "main_status": "completed",
+  "main_overall_conclusion": "failure",
   "main_jobs": [
     {
       "name": "Core and CLI (ubuntu-24.04)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218606",
       "startedAt": "2026-10-19T09:42:36Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:57:26Z"
     },
     {
       "name": "Native UI build and state (macos-15)",
-      "status": "queued",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218836",
-      "startedAt": "2026-10-19T09:42:34Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "startedAt": "2026-10-19T09:52:46Z",
+      "completedAt": "2026-10-19T10:02:59Z"
     },
     {
       "name": "Documentation and tooling",
@@ -115,61 +115,61 @@
     },
     {
       "name": "Core and CLI (windows-2025)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "failure",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218847",
       "startedAt": "2026-10-19T09:42:37Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:44:27Z"
     },
     {
       "name": "Native retrieval and combined build (windows-2025)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "failure",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218853",
       "startedAt": "2026-10-19T09:42:36Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:44:31Z"
     },
     {
       "name": "Native UI build and state (windows-2025)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "failure",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218857",
       "startedAt": "2026-10-19T09:42:36Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:44:52Z"
     },
     {
       "name": "Native retrieval and combined build (ubuntu-24.04)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218867",
       "startedAt": "2026-10-19T09:42:36Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:49:15Z"
     },
     {
       "name": "Core and CLI (macos-15)",
-      "status": "queued",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992218930",
-      "startedAt": "2026-10-19T09:42:34Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "startedAt": "2026-10-19T09:47:42Z",
+      "completedAt": "2026-10-19T10:10:56Z"
     },
     {
       "name": "Native retrieval and combined build (macos-15)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992219119",
       "startedAt": "2026-10-19T09:42:42Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:56:17Z"
     },
     {
       "name": "Native UI build and state (ubuntu-24.04)",
-      "status": "in_progress",
-      "conclusion": "",
+      "status": "completed",
+      "conclusion": "success",
       "url": "https://github.com/ewq100/brn-rust/actions/runs/39232087600/job/117992219219",
       "startedAt": "2026-10-19T09:42:37Z",
-      "completedAt": "0001-01-01T00:00:00Z"
+      "completedAt": "2026-10-19T09:50:59Z"
     }
   ],
-  "main_required_checks_passed": false,
+  "main_required_checks_passed": true,
   "source_equivalence": "Resulting main and lead merged history match all worker274 Rust/manifests/root Cargo.toml/Cargo.lock/toolchain. Qualified0f differs only in one test comment; production artifact unchanged. No OS/network acceptance claimed."
 }

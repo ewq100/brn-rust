@@ -8,9 +8,9 @@ the single execution, resource, schedule, expiry and integration authority.
 
 ## Baseline, ownership and priority
 
-Current main e1c0ddaf is PR169, normally merged from checked63b after all four
-required checks passed; resulting-main39232087600 remains pending. PR170 freezes
-9000ae66 for the independently reviewed intake-guard reorder/native preparation.
+Current main d7f48e6c is PR170, normally merged from checked9000 after all four
+required checks passed; its resulting-main gate is pending. PR169 resulting-main
+39232087600 passed all four required jobs; optional Windows jobs failed.
 Lead continues on codex/hardening-maintenance, preserving both checked histories.
 Already integrated worker/notice/reference/MCP improvements are retained and are
 not reassigned. One lead owns shared docs/interfaces, source integration and the
@@ -35,9 +35,9 @@ synthetic fixtures. Baseline/corrected results remain separate.
 | Milestone | Current disposition and next gate |
 |---|---|
 | M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normal integration gates pending. |
-| M1 argument correction | Selected next implementation; bounded source/contract audit underway, no correction behavior claimed yet. |
+| M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined guidance/CLI and hosted gates pending. |
 | M2 findings/guidance | [Candidate333](knowledge-guidance.md) independently approved; topics11/journeys8/keyed11 and strict lint/format pass. Hosted/main/live/native gates separate. |
-| M3 targeted edit | [Bounded preparation](targeted-edit.md) selects exact UTF-8 range + expected text and existing checked candidate/write/Undo. Construction/replay/Rewrite seams await M1 interface freeze; whole-read replacement guard remains. |
+| M3 targeted edit | [Bounded preparation](targeted-edit.md) selects exact UTF-8 range + expected text and existing checked candidate/write/Undo. M1 interface is frozen; bounded implementation is selected. Whole-read replacement guard remains. |
 | M4 instruction/review consistency | Pending current-caller reconciliation and bounded implementation; Rewrite remains proposal-only and comment selection remains explicit. |
 | M5 broader artifact capability | Conditional bounded reuse proof; production activation/live/provider/data permissions unchanged. Adopt or defer with evidence. |
 | M6 outcome comparison/retirement | Applied to actual changed callers; deterministic/live/native/owner/main outcomes recorded separately. |

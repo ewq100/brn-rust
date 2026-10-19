@@ -349,3 +349,19 @@ Requested Sol high now implements M1 on its isolated notice branch and owns the
 single shared build slot; requested Luna medium completed read-only M3 reuse/risk
 mapping. No new general retry engine/dependency/schema/permission platform is selected.
 Fresh native quota79% used/21% remaining, reset1792874447; original expiry unchanged.
+
+
+## M1 independently reviewed candidate and next local edit
+
+[M1 source7b3](../agent-first-simplification/argument-correction.md) independently
+approved after three combined-fault hard-refusal findings and a strict-lint test
+lifetime fix. Final runtime505/0/2, strict scripted all-target lint/full format
+pass; twelve source files match lead67d exactly. [Receipt](evidence/argument-correction-qualification.json)
+verifies27 lossless archives, actual source/log hashes and final gates, retaining
+all earlier failures/interruption. Combined guide/context/CLI and hosted gates remain.
+
+PR169 main39232087600 passed all four required jobs; optional Windows jobs failed.
+PR170 merged normally atd7f48e6c from checked9000 after all four required head checks;
+its resulting-main gate remains pending. Current checkpoint owns active UI author
+(build slot), M3 author (source only), review and exact next gates. Latest allowance
+82% used/18% remaining; fixed expiry and continuous-work rules unchanged.
