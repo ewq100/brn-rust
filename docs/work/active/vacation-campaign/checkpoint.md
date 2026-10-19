@@ -8,17 +8,26 @@ work down to about 5% remaining allowance. [Current plan](plan.md) and
 [evidence/next action](evidence.md) supersede conflicting local/cloud, merge and
 quota rules below. The fixed expiry in campaign.json is unchanged.
 
-Fresh GitHub inspection confirms PR162's final head `aebfa12b` merged into main as
-`bd42c1d9`. Final PR and resulting-main run39200470515 passed all four required
-contexts and documentation; optional Windows failures remain visible. The earlier
-statements that worker CI/merge were pending describe the historical handoff only.
+Fresh inspection confirms PR163 final `c86e6d50` merged as `b5f01b07` after
+its four required checks and documentation passed. Its source `823a1544` matches
+the retained independent-review digest; the earlier source-bound local evidence
+is in [worker identity](worker-identity.md). Resulting-main checks remain separate.
+PR162's required/main evidence is retained in the current evidence record.
 
 Current branch: `codex/vacation-hardening`, isolated from the owner's old checkout.
-First continuation batch reconciles this record and registers supported local
-heartbeat `brn-mac-vacation-hardening` (ACTIVE, every two hours through expiry). Next code slice is typed worker task/chat/run identity, retaining the
-checked service and existing real-control/recovery tests. Independent candidate
-review passed with no findings; required-check integration and the first unattended
-wake remain pending. No new native or owner acceptance.
+PR164 carries continuation policy; reconcile it with PR163 rather than redo the
+completed identity slice. Main heartbeat `brn-mac-vacation-hardening` is ACTIVE
+every two hours; `brn-batched-mac-interaction-checks` is ACTIVE at18:00Tallinn for
+[queued native checks](native-queue.md), both through the fixed expiry. First
+unattended wakes/native sessions remain unobserved. The original policy candidate
+passed independent review; the later native/merge reconciliation needs its own
+updated candidate review and required-check integration.
+
+The lead initially missed the open PR163 and started a duplicate local slice.
+That writer/build is stopped with no tests or publication; its task-owned cache
+was retained for future Mac builds and managed archival requested for its patch.
+No duplicate production code is being adopted. Check all open PRs before selecting
+future work, not just main/branch names and the previous checkpoint.
 
 ## Historical cloud handoff (before PR162 merge)
 

@@ -1,7 +1,9 @@
 # Mac vacation hardening continuation
 
 Updated 19 October 2026. Lead: the current local Codex chat. Baseline:
-`bd42c1d99bfb41607c7218addbb52dc99bc340c3` (`origin/main`, merged PR162).
+`bd42c1d99bfb41607c7218addbb52dc99bc340c3` (initial fetched main, merged PR162).
+Main subsequently advanced to `b5f01b07301dcc94d3d4e273a472d487f569bbc7`
+when the lead merged the already-qualified PR163 under current authorization.
 Working branch: `codex/vacation-hardening`, in an isolated managed checkout.
 The original checkout's untracked files and all other worktrees are preserved.
 
@@ -59,13 +61,19 @@ routes. Native usability, IME, accessibility and owner acceptance remain distinc
 
 ## First implementation slice: worker identity
 
+**Already implemented and merged in PR163**, source `823a1544`, main `b5f01b07`.
+This records the accepted slice, not a request to reimplement it. Its final source
+digest matches the retained independent review; final PR required checks passed.
+The next gate is resulting-main verification and continuation-policy integration,
+then reconcile the remaining preview/context transitions before selecting new code.
+
 Adapt the existing private `threads_worker::Worker`; use ordinary Rust enums and
 the existing `WorkerKind` presentation rules where still useful. Reuse the shared
 Workspace stop/queue/run services and existing real-control tests. No external
 state-machine dependency, global reducer, event bus or new persistence owner.
 
 Inspection found production Runs always construct both identities, while Import,
-Export, Backup and Connect construct neither. The current struct nevertheless permits
+Export, Backup and Connect construct neither. The prior struct permitted
 invalid combinations. There is no reproduced identity bug yet: the intended benefit
 is making that invariant structural and reducing repeated caller knowledge.
 Do not remove a presentation discriminator used by legitimate headless consumers
@@ -100,6 +108,16 @@ quota means defer new substantial work and retry later, not assume unlimited cre
 The scheduler itself is not a dollar-denominated spending cap or proof of wake during
 exhausted allowance, sleep, app closure or host failure. Do not bypass a user pause.
 
+The owner additionally enabled and authorized Mac computer use on 19 October,
+requesting batched sessions. A separate heartbeat at **18:00 Europe/Tallinn** owns
+one consolidated native session when scenarios are ready; its registration is not
+an observed execution. Keep the main engineering loop primarily headless and use
+[the native queue](native-queue.md) to avoid replaying unchanged journeys. Prefer a
+30–45 minute block, defer for active builds/writers or unavailable desktop access,
+and use immediate computer interaction only for a specific blocking diagnosis.
+Both heartbeats share this chat/lead and the same quota floor and fixed expiry;
+neither may launch a competing writer or bypass a pause.
+
 Prefer coherent reviewable batches and focused checks. Save progress before a long
 batch becomes difficult to hand off. After two failed approaches, reassess the
 evidence instead of repeating builds or accumulating speculative fixes. Reuse valid
@@ -109,7 +127,7 @@ the first slice. At expiry, stop product dispatch and leave the final handoff.
 ## Gates and integration
 
 Defined: existing behavior and invariants are the requirements; the first identity
-slice above is Build-ready subject to local native build prerequisites. Candidate:
+slice above is merged with source/PR evidence; resulting-main checks remain separate. Candidate:
 actual reviewed changes with applicable checks and residual risks recorded.
 Integrated: actual authorized merge plus the relevant resulting-main evidence.
 

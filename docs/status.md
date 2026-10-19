@@ -1,26 +1,27 @@
 # Current development status
 
-Updated 19 October 2026 against freshly fetched main
-`bd42c1d99bfb41607c7218addbb52dc99bc340c3` (merged PR162).
+Updated 19 October 2026. Latest merged main is
+`b5f01b07301dcc94d3d4e273a472d487f569bbc7` (PR163).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
-maintenance, with review and required-check merges authorized. Further Linux
-improvements are lower priority. Existing allowance may be used down to roughly 5%
-remaining before waiting for a verified reset. The original 1 November expiry remains.
-[Current evidence](work/active/vacation-campaign/evidence.md) records scheduler and
-candidate state; the local two-hour heartbeat is registered ACTIVE; its first unattended run is not
-yet observed.
+maintenance, with review and required-check merges authorized. Linux improvements
+are lower priority. Work may use existing allowance down to roughly5% remaining,
+then wait for a verified reset. The original1November expiry remains unchanged.
+The local two-hour engineering heartbeat and daily18:00Tallinn native-batch heartbeat
+are registered ACTIVE; their first unattended executions remain unobserved.
+[Current evidence](work/active/vacation-campaign/evidence.md) owns candidate/check state.
 
-Note/Review lifecycle pilots and the worker terminal-admission fix are merged.
-Final PR162 and exact resulting-main run39200470515 passed all four required
-contexts and documentation; Ubuntu Native UI and resulting-main Ubuntu Retrieval
-also passed. Optional Windows lanes failed; the overall main workflow is red.
-This fresh reconciliation supersedes older pending-merge/worker-CI statements.
-The 25-domain UI inventory remains provisional and incomplete. Next code slice:
-typed worker task/chat/run identity using existing checked services and Mac tests.
-Native-human/IME/accessibility, subjective owner acceptance and release readiness
-remain open. No release is authorized or claimed by this continuation.
+Note/Review pilots, worker terminal admission and coherent worker Run identity are
+merged. PR163's final source matches its independent review and all four required
+final-head checks passed; resulting-main checks are pending. PR162's required/main
+checks also passed. Optional Windows failures remain explicit; no all-platform pass
+is claimed. The25-domain UI inventory remains provisional and incomplete.
+
+Next: integrate PR164's continuation policy/native queue and verify actual main,
+then reconcile remaining preview/context transitions before choosing another slice.
+Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
+subjective owner acceptance and release readiness remain open. No release is claimed.
 
 ## Earlier dated checkpoints
 

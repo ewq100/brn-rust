@@ -1,5 +1,25 @@
 # Local continuation evidence
 
+## Current gate snapshot
+
+PR163's already-qualified worker identity source `823a1544` is merged as
+`b5f01b07301dcc94d3d4e273a472d487f569bbc7`. Final-head required contexts,
+documentation and Ubuntu Native UI passed in run39201810419; Windows Core failed.
+The lead verified exact source digest
+`e346235c98c26e9ce1922bfbf92ba6f32d4bd42dcc2c674567cab992ea9e2f88`
+against the retained independent review and confirmed the later PR commit was
+docs/evidence only. The normal merge used the exact checked head `c86e6d50` after
+marking the existing draft ready under the owner's new merge authorization.
+Resulting-main checks are pending, not implicitly passed.
+
+PR164 continuation/native-batch policy is being reconciled with that main and
+needs updated review/required CI. Initial PR164 run39208310470 was deliberately
+cancelled as superseded when PR163 advanced main; its documentation passed and
+optional Windows failure remain historical. No failed check was hidden or weakened.
+Both local heartbeats are registered ACTIVE, but their first unattended executions
+and Mac OS-input qualification remain pending. Historical entries below describe
+the setup sequence; this snapshot controls the next action.
+
 ## 19 October 2026: baseline and assignment
 
 The original local `main` was `18f3891e29e57d4459c663967d26115f0e57787d`,
@@ -111,3 +131,43 @@ No manifest or lockfile changed. Rust tests have not been run in this batch.
 Independent review approved the complete five-file candidate without actionable
 findings. Later changes to this evidence/checkpoint only record that approval and
 the successful dependency preflight; they do not expand the reviewed policy.
+
+## Published setup and batched native authorization
+
+Initial reviewed setup commit `584679e402085785a2356369d590a030187b500d` is
+published in [PR164](https://github.com/ewq100/brn-rust/pull/164). Hosted run
+39208310470 started; documentation/tooling passed, required native/core lanes are
+pending. Normal agent merge follows the required checks. Repository auto-merge is
+not enabled (the native request was rejected); it was not enabled or bypassed.
+
+The owner subsequently authorized enabled Mac computer use and requested batching.
+A separate `brn-batched-mac-interaction-checks` heartbeat was created ACTIVE for
+18:00 Europe/Tallinn, through the same fixed expiry. The main heartbeat was updated
+with that division of work. Both persisted configurations target this chat and
+were checked. No unattended wake or native interaction is claimed. The added
+[native queue](native-queue.md) owns ready scenarios and prevents unnecessary reruns.
+These additions directly record current owner instructions; the earlier independent
+approval covers its pinned candidate, not unseen later material.
+
+The first worker identity implementation is active in its separate owned checkout,
+branch `codex/worker-task-identity`, with requested Sol medium and no shared-doc,
+push/merge or recursive-delegation ownership. Task-local pinned/locked/offline
+native test compilation is running against a cold target. Fixture migration and
+qualification remain in progress; no candidate or passing tests are yet claimed.
+
+## Overlap correction and unpublished duplicate
+
+The lead checked current main and campaign records but initially failed to list all
+open PRs. PR163 already contained the selected identity slice before this session.
+The duplicate implementation was stopped as soon as discovered. It is not adopted,
+pushed or claimed as a new fix. Its18-file local patch is preserved through managed
+worktree archival; its stopped task-owned dependency cache was moved into the
+campaign checkout for possible reuse. Both local compile attempts ended130 with
+no executed tests; no native or code qualification is attributed to them. No local
+build remains active. Earlier formatting/whitespace passes do not qualify that
+unfinished patch. The existing PR163 source is deeper than the duplicate: private
+operation plus explicit constructors, coherent identity reads and qualified fixtures.
+
+Future selection must list open PRs, inspect the actual campaign branch tip and
+compare existing candidates before dispatching a worker. The lead will reuse valid
+source/review/CI evidence and preserve the existing independent findings/failures.
