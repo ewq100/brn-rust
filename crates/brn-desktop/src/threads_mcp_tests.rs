@@ -466,7 +466,7 @@ fn mcp_discovery_for_previous_endpoint_is_not_rendered(cx: &mut TestAppContext) 
     })
     .unwrap();
 
-    // A real endpoint InputEvent must notify the owning ThreadsUi so its sibling
+    // A real endpoint InputEvent must invalidate the rendered view so its sibling
     // discovery controls are recomputed, without a test-side owner notification.
     cx.update_window(f.window, |_, window, cx| {
         window.click("mcp-endpoint", cx);
