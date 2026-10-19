@@ -154,9 +154,8 @@ impl ThreadsUi {
         if self.mcp_view.discovering {
             return;
         }
-        let endpoint = match brn_ai::mcp::Endpoint::parse(
-            &self.mcp_view.endpoint.read(cx).value().to_string(),
-        ) {
+        let endpoint_input = self.mcp_view.endpoint.read(cx);
+        let endpoint = match brn_ai::mcp::Endpoint::parse(endpoint_input.value().as_ref()) {
             Ok(endpoint) => endpoint.uri().to_owned(),
             Err(error) => {
                 self.fail(error.to_string());
