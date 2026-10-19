@@ -338,7 +338,7 @@ impl TraceCollector {
                 json!({
                     "rows": rows.map_or(0, Vec::len),
                     "ids": field_ids(value.get("records"), &["id"]),
-                    "truncated": rows.is_some_and(|rows| rows.iter().any(|r| r.get("truncated").is_some())),
+                    "truncated": rows.is_some_and(|rows| rows.iter().any(|r| r.get("truncated").and_then(Value::as_bool) == Some(true))),
                 })
             }
             "read_note" | "read_history" => {
