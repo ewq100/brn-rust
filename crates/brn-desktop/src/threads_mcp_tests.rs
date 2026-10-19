@@ -469,11 +469,9 @@ fn mcp_discovery_for_previous_endpoint_is_not_rendered(cx: &mut TestAppContext) 
     // A real endpoint InputEvent must notify the owning ThreadsUi so its sibling
     // discovery controls are recomputed, without a test-side owner notification.
     cx.update_window(f.window, |_, window, cx| {
-        f.view.update(cx, |ui, cx| {
-            ui.mcp_view.endpoint.update(cx, |endpoint, cx| {
-                endpoint.set_value("http://127.0.0.1:8078/mcp", window, cx)
-            });
-        });
+        window.click("mcp-endpoint", cx);
+        window.press(super::focus_tests::SELECT_ALL, cx);
+        window.input("http://127.0.0.1:8078/mcp", cx);
     })
     .unwrap();
     cx.run_until_parked();

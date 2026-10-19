@@ -35,7 +35,6 @@ pub(super) struct McpView {
     pub pending: Option<ReviewedInput>,
     pub status: Option<McpStatus>,
     pub discovery: Option<brn_ai::mcp::Discovery>,
-    _endpoint_subscription: Subscription,
     query_subscription: Option<Subscription>,
     discovering: bool,
     error: Option<McpViewError>,
@@ -47,12 +46,6 @@ impl McpView {
                 .default_value("http://127.0.0.1:8077/mcp")
                 .placeholder("Anonymous local HTTP endpoint")
         });
-        let endpoint_subscription =
-            cx.subscribe_in(&endpoint, window, |_, _, event: &InputEvent, _, cx| {
-                if matches!(event, InputEvent::Change) {
-                    cx.notify();
-                }
-            });
         Self {
             stamp: None,
             endpoint,
@@ -61,7 +54,6 @@ impl McpView {
             pending: None,
             status: None,
             discovery: None,
-            _endpoint_subscription: endpoint_subscription,
             query_subscription: None,
             discovering: false,
             error: None,
