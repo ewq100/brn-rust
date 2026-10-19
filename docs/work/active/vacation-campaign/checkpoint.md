@@ -10,11 +10,11 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
+branch `codex/hardening-native-prep`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
 Qualified0f differs only in one later test comment; its production artifact is
-unchanged. Current main still matches the earlier qualified a960 source. Latest maine583a177 is
+unchanged. Current main e1c0ddaf matches worker274; the qualified0f production artifact remains valid. Earlier maine583a177 is
 PR168, merged normally from exact checked7c21713b after all four required contexts
-passed in run39225335901. Its resulting-main39227629739 is running. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
+passed in run39225335901. Its resulting-main39227629739 passed all four required jobs; optional Windows failures remain. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed.
 Earlier PR163–166 required head/main checks passed; optional Windows failures remain
 explicit. Don't redo merged source work or bypass strict protection.
 
@@ -40,9 +40,16 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local writer/builder is active. PR168 merged normally as e583a177 from exact
-checked7c after all four required39225335901 jobs passed. Main39227629739 still
-has Mac Core pending; its other three required jobs passed. Keep these gates separate.
+No local source writer/builder is active. MAC01/04 checker source audit is complete;
+native-checker.md uses direct SQLite URI mode=ro and a short snapshot transaction,
+avoiding writable CLI bootstrap. Exact expected UTF-8 native-fixtures/ bytes were
+prepared before any OS action or native workspace creation. CI dependency audit is complete. Selected tiny change moves only the static
+headless intake-retirement guard before helper prep; broader build/test reordering
+is not selected because of failure-path guards. Local check,5existing tests and
+Ruby Psych YAML parse pass. Independent Sol approved complete97f against63b with no findings; see evidence/native-prep-review.json. The
+broader producer/artifact-sharing redesign remains deferred. PR168 merged normally as e583a177 from exact
+checked7c after all four required39225335901 jobs passed. Main39227629739 passed all four required jobs, docs and Ubuntu UI/retrieval;
+optional Windows Core/UI/retrieval failed. Keep these gates separate.
 
 [MCP freshness](mcp-discovery.md) sourcea59315a1 matches worker274; qualified0f
 only differs by one later test comment. Focused14/14, full native326/0/1, strict
@@ -59,9 +66,14 @@ One copied hash suffix was wrong in the original metadata; corrected receipts an
 originals are preserved. One earlier transient output is unrecoverable and is not
 passing qualification. See evidence/mcp-discovery-qualification.json.
 
-Next publish the coherent candidate from codex/hardening-next, attach its PR, freeze
-that checked head and continue later work on another branch. Follow actual required
-head checks, normal exact-head merge and resulting-main checks separately.
+PR169 merged normally as e1c0ddaf from fixed63b0b0eb after all four required
+run39230048849 jobs passed; optional Windows Core failed. Resulting-main39232087600
+is running; see evidence/pr169-integration.json. Watch16665 finished successfully.
+Lead codex/hardening-native-prep merged main history without changing app source.
+Publish the reviewed native-prep/tiny CI candidate next, then freeze its head while
+following actual checks. Two bounded Luna audits completed launcher and composer destination preservation
+without a demonstrated defect; relevant existing witnesses remain. No local builds
+or source writers active.
 Actual async network transport and OS usability remain unqualified.
 
 Project-dialog, remaining-picker, Action/Undo and comment audits found no justified
@@ -71,7 +83,7 @@ is persisted; actual unattended execution remains unobserved. Reconcile actual
 Git/agents/processes after restart before dispatch and preserve source-bound artifacts.
 
 Current allowance was
-77% used/23% remaining in the applicable seven-day window, reset1792874447. Recheck
+78% used/22% remaining in the applicable seven-day window, reset1792874447. Recheck
 at meaningful batch boundaries; near5% remaining checkpoint/back off near verified
 reset without purchases/reset credits. Continue useful active work; two-hour
 `brn-mac-vacation-hardening` is recovery only, not batch pacing. Fixed expiry remains

@@ -233,3 +233,67 @@ output is unrecoverable and not passing qualification; original no-op patch rema
 reconstructed historical illustration. [Qualification](evidence/mcp-discovery-qualification.json)
 and [result/limits](mcp-discovery.md) retain these distinctions. No substantive
 receipt blocker remains; no local writer/builder active. Hosted/native gates separate.
+
+
+## PR168 required resulting-main verification complete
+
+Main e583a177ad44b0536be9140b5c845a5dd8a8aa75 run39227629739 passed all four
+actual required jobs, docs and Ubuntu UI/retrieval. Optional Windows Core/UI/retrieval
+failed; overall workflow failure remains explicit. [Final receipt](evidence/pr168-integration.json)
+retains actual job timing/identity/conclusions. PR169 remains fixed63b0b0eb with
+head run39230048849 running; no source writer or local builder is active.
+
+
+## Prepared independent Mac expectations and read-only checker
+
+Before any native interaction, exact initial/final/unsaved UTF-8 fixtures and SHA
+manifest were prepared. No native workspace was created. A bounded Luna source
+audit found that CLI read/recovery open a writable Store and bootstrap, while the
+existing validated read-only Snapshot lacks recovery access. The chosen [checker](native-checker.md)
+uses SQLite URI mode=ro plus connection query-only and one short read transaction
+for the exact synthetic Note and open edit session. It selects no token hashes and
+closes before OS close, preserving canonical and already-durable recovery evidence
+without bootstrap/repair. Source/table/serialization references were checked; no
+CLI workspace, app window or actual data inspection was performed. This adds no
+production read-only framework/API or new native success claim.
+
+
+## Small CI guard-order candidate selected
+
+Luna source audit found helper paths runtime-only, but moving the workspace build
+ahead of preparation also changes tests after a helper failure (they intentionally
+run after lint failure). Lead selected only moving the existing static intake
+retirement guard before helper prep. Same command/name/condition; all build, lint,
+helper/test steps, IDs, conditions and platform/context settings stay unchanged.
+Existing retirement check +5existing negative-control tests and Ruby Psych YAML
+parse passed. No new test/framework/dependency/pin, passing-run timing saving or
+Rust requalification is claimed. Independent review and hosted integration remain.
+
+
+## PR169 normal merge and native-prep independent review
+
+All four actual required exact-head39230048849 jobs passed on fixed63b0b0eb. Fresh
+strict protection/head were checked immediately before normal matching-head merge
+as e1c0ddaf. Optional Windows Core failed. Resulting-main39232087600 remains pending;
+[the receipt](evidence/pr169-integration.json) preserves separate gates. Lead merged
+main history, with all Rust/manifests/root lock/toolchain matching worker274.
+
+Independent fresh Sol high reviewed the complete clean97f native-prep candidate
+against merge-base63b, full diff SHA0fcdb8836920e0f52161b57b194d78c3eafe0b2404272d0c5bb2fc1dcf780a18,
+and found no actionable issue. [Review receipt](evidence/native-prep-review.json)
+records source/fixture/readonly-checker and unchanged CI failure-path boundaries.
+No new app-source qualification or native success is inferred. Two bounded Luna
+medium read-only audits now inspect command-launcher and composer-destination
+preservation while hosted checks run; no shared builder/source writer is active.
+
+
+## Launcher/composer bounded source audits
+
+Two requested Luna medium read-only audits at leadcc147df2 found no justified
+change. Lead inspected the actual launcher checked result lookup/current-query
+selection and set_chat destination draft save/restore, plus picker closure capturing
+attachment_chat before asynchronous completion and its busy/refusal path. Existing
+omakase/dialog/focus/chat/writing witnesses retain distinct boundaries. No test
+retirement, generalized reducer or source change was selected. Actual OS picker
+navigation remains unobserved; no native transport qualification is inferred.
+Fresh allowance78% used/22% remaining, reset1792874447; no purchase/reset.

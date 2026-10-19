@@ -1,11 +1,13 @@
 # Mac vacation hardening continuation
 
-Updated 19 October2026. Current maine583a177 is PR168; its required checked-head
-contexts passed before normal merge. Resulting-main39227629739 is running. Resulting-main run39224642627 passed all four required jobs; optional Windows Core/UI/retrieval failed.
-Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-next`, sourcea59315a1, matching worker274; qualified0f differs only in one test comment.
-The current main Rust/manifests/root lock/toolchain match qualified workera9600e64; the merge
-adds no source delta. Preserve unrelated work and source-bound artifacts.
+Updated 19 October2026. Current maine1c0ddaf is PR169, merged normally after all
+four required exact-head checks passed. Its resulting-main39232087600 checks remain
+pending. PR168 and earlier required head/main checks passed; optional Windows
+failures remain explicit. Lead checkout:
+`/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
+`codex/hardening-native-prep`, app sourcea59315a1 matching worker274.
+Main matches that qualified app source; qualified0f differs only in one test comment.
+Its immutable production artifact remains source-valid. Preserve unrelated work.
 [Current checkpoint](checkpoint.md) owns active jobs and next action.
 
 ## Current owner authorization
@@ -180,7 +182,7 @@ failure is claimed. No local writer/builder is active.
 
 Final independent Luna receipt audit passed, and complete staged candidate whitespace
 check passed. The coherent candidate merged normally as PR168, e583a177, after fixed7c21713b
-run39225335901 passed all four required jobs. Main39227629739 is running;
+run39225335901 passed all four required jobs. Main39227629739 passed all four required jobs; optional Windows failures remain;
 [the integration receipt](evidence/pr168-integration.json) owns exact identities. Preserve checked heads and follow
 actual required-head, normal merge and resulting-main checks separately. No bypass.
 
@@ -205,5 +207,6 @@ bypass is claimed. Final focused14/14, native326/0/1, strict lint/format and pro
 build pass. The valid P3 witness finding is fixed; redundant subscription state was
 removed after a diagnostic survivor. Exact baseline v2 failure and restored14 pass
 are recorded. Independent Luna audited65 raw/archive records and the explicit
-metadata correction; no receipt blocker remains. Publish the coherent next PR,
-then freeze its checked head. No source writer or local builder is active.
+metadata correction; no receipt blocker remains. PR169 is published/attached at fixed63b0b0eb on codex/hardening-next, required
+run39230048849 running. Keep that checked head fixed; later work uses the lead
+branch above. No source writer or local builder is active.

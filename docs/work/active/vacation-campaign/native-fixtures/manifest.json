@@ -1,0 +1,35 @@
+{
+  "purpose": "Independent expected bytes prepared before actual Mac interaction; no native action or data store created.",
+  "scenarios": {
+    "MAC-01": "Type initial, Save; replace with final, Save; navigate and close/reopen; canonical must equal save-final with no recovery session.",
+    "MAC-03": "Backup after final Save; canonical remains save-final.",
+    "MAC-04": "Replace editor with unsaved-recovery, no Save. Read-only check before close must confirm exact durable draft/base/session and unchanged save-final canonical; after OS relaunch verify both again."
+  },
+  "fixtures": [
+    {
+      "file": "save-initial.txt",
+      "utf8_bytes": 78,
+      "sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+      "terminal_lf": true
+    },
+    {
+      "file": "save-final.txt",
+      "utf8_bytes": 126,
+      "sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e",
+      "terminal_lf": true
+    },
+    {
+      "file": "unsaved-recovery.txt",
+      "utf8_bytes": 152,
+      "sha256": "81e6224b4042ad42b4f68549095ec221cb8df312eb5cd39715b30f127a723529",
+      "terminal_lf": true
+    }
+  ],
+  "rules": [
+    "Use a new explicit synthetic native workspace created by the actual app, not owner data.",
+    "Actor uses real controls; checker reads without repairing or mutating authority.",
+    "Retain original observed mismatches. Do not change expected fixtures to match output.",
+    "Record actual source/artifact identity and read-only note/session IDs at execution.",
+    "Preparing fixtures does not establish OS input, rendering, recovery or acceptance."
+  ]
+}

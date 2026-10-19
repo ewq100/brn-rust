@@ -53,3 +53,29 @@ owner and Mac application qualification take priority. A future bounded prototyp
 must demonstrate passing check identities, explicit producer-failure propagation,
 tampered-artifact refusal and retained helper/application qualification without
 branch-protection changes. No extra infrastructure or weaker checks are selected.
+
+
+## Selected small follow-up: cheap intake guard before preparation
+
+The current candidate moves only the existing headless production-intake retirement
+check before expensive helper preparation, alongside the existing provider guard.
+The check reads repository source/manifests/workflow text and needs no prepared
+binary or generated workspace. Its name, command and Unix condition are unchanged.
+Build, lint, helper preparation/qualification, tests, runner matrix, pins, permissions
+and required context names remain unchanged. A retired-route failure now stops
+before helper preparation; no successful-run speedup is claimed.
+
+A broader compile-before-preparation reorder is not selected. Headless tests
+deliberately run after lint failure using workspace-build success; moving that
+build ahead of preparation would also make them run after failed preparation.
+Preserving that behavior would add more guards/state for limited benefit. Native
+regrouping and producer/artifact sharing remain deferred. This is a three-line step
+move, not a new CI framework or qualification shortcut.
+
+Local retirement check and all5 existing retirement tooling tests passed, including
+negative controls for legacy paths/dependencies and workflow fetch/generator ordering.
+Ruby Psych parsed workflow YAML; no parser dependency was installed. Application
+Rust/manifests/locks/toolchain are unchanged from qualified MCP production. Independent Sol review of complete97f against63b found no actionable issues;
+[the receipt](evidence/native-prep-review.json) binds the exact complete diff.
+Actual hosted gates remain next; no new Rust suite is needed merely for this
+configuration/docs change.

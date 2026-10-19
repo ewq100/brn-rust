@@ -32,8 +32,8 @@ PR168 merged normally from checked head7c21713b, source8431e70b. It combines
 and [test-only fixture helper sharing](work/active/vacation-campaign/provider-fixture-helpers.md).
 Independent source review, local desktop322/0/1, strict native lint/format and a
 production build passed. Affected provider families4/7/12 and matching checks passed.
-All four required head jobs in run39225335901 passed. Resulting-main39227629739
-is running; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
+All four required head jobs in run39225335901 passed. All four required resulting-main39227629739 jobs passed; optional Windows
+Core/UI/retrieval failed; [its receipt](work/active/vacation-campaign/evidence/pr168-integration.json)
 keeps that gate separate. Receipts distinguish
 original-source failures, diagnostic mutations and transport qualification limits.
 
@@ -41,8 +41,10 @@ A further bounded [MCP discovery freshness improvement](work/active/vacation-cam
 is locally qualified and source-reviewed: endpoint edits must hide/refuse old discovery metadata and stale
 completion. Existing metadata labels and exact approval destination remain authoritative;
 no grant bypass is claimed. Focused14/14, full native326/0/1, strict lint/format and production build passed
-at0f; later274/integrateda593 differs only in one test comment. Final receipt
-verification and publication remain pending.
+at0f; later274/integrateda593 differs only in one test comment. Independent receipt verification passed. PR169 merged normally as e1c0ddaf from
+fixed63b0b0eb after all four required39230048849 jobs passed; optional Windows Core
+failed. Resulting-main39232087600 verification remains pending;
+[its receipt](work/active/vacation-campaign/evidence/pr169-integration.json) retains separate gates.
 Project-dialog, remaining-picker, Action/Undo and comment source audits found no
 justified further change; existing distinct tests remain.
 
