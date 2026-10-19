@@ -47,9 +47,15 @@ resulting-main separately. Never bypass a required check.
    `writing_review_design` completed the v1/v2/serde/replay audit; the independent
    reviewer approved [the next specification](../agent-first-simplification/proposed-feedback.md)
    after narrowing the core replacement exception.
-   Sol worker now owns implementation in worker-drain-budget on
-   codex/proposed-writing-feedback, basedb8735ea1, and may hold the single build
-   slot after an initial immutable source pin (notify lead). Preserve old3b3
+   Sol worker owns implementation and the active build slot in worker-drain-budget
+   on codex/proposed-writing-feedback, basedb8735ea1. Initiale5a34684
+   compiled and focused runtime3/3 passed. Independent review requires one P2
+   correction: core owner replacement must reject retained nonempty suggestions,
+   accepting only exact clearing; old-empty/runtime-refresh equality stays.
+   Frozen old evidence bytes/hash and independent literal SDK wire assertions
+   are also required. Author validated the finding; correction pin/review and
+   final broad qualification are pending. Preserve firste5 receipts in sibling
+   proposed-writing-feedback-evidence. Preserve old3b3
    branch/untracked evidence. Root owns docs/integration. One bounded nested Luna
    inspection helper is allowed within four actual slots. Independent source
    review remains required. Suggestions never infer owner selection or authority.

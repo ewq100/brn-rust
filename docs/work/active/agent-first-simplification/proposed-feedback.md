@@ -65,3 +65,18 @@ integration and the single build slot. No database schema, dependency, CLI-resul
 or live-provider change is selected. Source review, deterministic usefulness,
 hosted/main and actual native observation stay separate. Stop and reassess an
 unresolved compatibility or authority question before expanding this design.
+
+
+## Initial candidate and review disposition
+
+Candidatee5a34684 againstb8735ea1 changes13 source/test files; full diff
+SHA9464184650e8ed5775ab8edd3793103562f827237d564006754180b6306f31f0.
+Initial actual runtime compilation and3 focused tests pass. Independent review
+requires correction before acceptance: shared app replacement clears suggestions,
+but the existing core equality arm still lets a direct owner replacement retain
+old nonempty reports. Require exactly cleared reports there, preserving old-empty
+and runtime-refresh equality semantics. Add frozen old-format byte/hash fixtures
+and explicit actual-wire name/type/strict-normalization assertions rather than
+using the current serializer/schema as its own expectation. Author validated the
+finding; corrected source review and final qualification remain pending. No source
+from this slice is integrated into PR172 or current main.
