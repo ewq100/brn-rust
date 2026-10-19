@@ -1,0 +1,53 @@
+{
+  "source": "93673ac548ed21ff2b3071baf7a257366730b8cb",
+  "test_sha256": "5bcbd0c70f190d881f41ea632491d6d433e27927ae377164525984e16d6aaa6d",
+  "fixture_env": "AGENT_CONTRACT_SCHEMA5_BIN=/Users/evokessler/.codex/worktrees/notice-state/schema-upgrade-evidence/artifacts/brn-fb1b2100",
+  "commands": [
+    [
+      "candidate-test",
+      [
+        "cargo",
+        "test",
+        "-p",
+        "brn",
+        "--test",
+        "agent_upgrade",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "--nocapture"
+      ]
+    ],
+    [
+      "candidate-clippy",
+      [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn",
+        "--test",
+        "agent_upgrade",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    ],
+    [
+      "candidate-format",
+      [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ]
+    ]
+  ],
+  "started_at": "2026-10-19T09:50:46.970736+00:00"
+}

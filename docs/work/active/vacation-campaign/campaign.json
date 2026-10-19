@@ -1,6 +1,6 @@
 {
   "campaign_id": "brn-vacation-20261018",
-  "branch": "codex/hardening-native-prep",
+  "branch": "codex/hardening-maintenance",
   "baseline": "1b7625a8af0808ab0218525ded1d470ad4928e0a",
   "started_at_utc": "2026-10-18T21:41:51+00:00",
   "expires_at_utc": "2026-11-01T21:41:51+00:00",
@@ -18,13 +18,29 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T09:43:53.171016+00:00",
-  "current_session_jobs": [],
+  "last_checkpoint_at_utc": "2026-10-19T09:52:52.026679+00:00",
+  "current_session_jobs": [
+    {
+      "agent": "ci_native_prep_review",
+      "task": "M0 independent docs review/reconciliation",
+      "model_requested": "gpt-6.1-sol high"
+    },
+    {
+      "agent": "argument_correction_design",
+      "task": "M1 pinned-hook design",
+      "model_requested": "gpt-6.1-sol high"
+    },
+    {
+      "agent": "current_readme_contract_audit",
+      "task": "M2 isolated knowledge/skill implementation",
+      "model_requested": "gpt-6-luna medium"
+    }
+  ],
   "integration_status": "PR163\u2013168 required exact-head/resulting-main pass. PR169 normal merge e1c0ddaf from fixed63b after all4 required39230048849 pass; resulting-main39232087600 running; optional Windows head failure retained.",
-  "next_eligible_work": "Publish independently reviewed native-prep/docs + tiny CI guard reorder with reconciled PR169 history; follow actual required checks and resulting-main. Launcher/composer audits complete without justified source change. Native18Tallinn remains separate.",
+  "next_eligible_work": "Finish M0 rule/restart/inventory review corrections and genuine schema5-to-current upgrade witness maintenance; follow frozenPR1709000 head39232265037 and PR169main39232087600. M1 finite pre-effect correction selected; M2 separate Luna implementation underway. Preserve existing native18/expiry/quota authority.",
   "last_qualified_source": "0f317e5edba6fd5446f62a625c60b6cdd456fa24",
   "source_delta_after_qualification": "Worker274 and integrateda593 match all Rust/manifests/rootlock/toolchain; compared with qualified0f only one test comment differs. Production artifact0f unchanged. Independent Sol approvedcomplete0f; lead checked mechanicalcommentdelta. No actualnetwork/OSacceptance.",
-  "active_work": "Native-prep complete97f independently approved; PR169 main history merged without app delta. Local source/build idle. Launcher/composer read-only audits complete, no defect found. Main39232087600 running.",
+  "active_work": "Lead93673ac5 plus M0 docscandidate; upgrade4baselinefail\u21924pass, affectedstrictlint/fmtpass. Sol independentM0 review corrections, SolM1 boundeddesign, LunaM2 isolatedsourcewriter. Singlebuildslot idle afterupgradechecks.",
   "continuation_baseline": "e1c0ddaf896ff5d4f1ae68b36099546f3937db32",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -74,5 +90,7 @@
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json",
-  "policy_persistence_receipt": "evidence/policy-persistence-20261019.json"
+  "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
+  "agent_first_plan": "../agent-first-simplification/plan.md",
+  "agent_first_reconciliation": "../agent-first-simplification/reconciliation.md"
 }

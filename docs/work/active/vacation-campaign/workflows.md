@@ -65,3 +65,23 @@ bindings|fn .*open_note|fn .*save|cx.spawn|std::thread::spawn|\.on_click|\.dropd
 crates/brn-desktop/src/threads_*.rs`. Re-enumerate menus, callbacks, file prompts,
 optional feature routes, and integration/native drivers before treating this as the
 completion denominator.
+
+## Agent-first disposition,19October2026
+
+The owner selected the [agent-first workstream](../agent-first-simplification/plan.md).
+This uses the existing provisional IDs; it is not a new inventory or native
+coverage claim. The [reconciliation](../agent-first-simplification/reconciliation.md)
+owns milestone status and preserves pending acceptance.
+
+| Existing domains | Disposition and material reason |
+|---|---|
+| All1–25 | **Keep** retained reliability obligations: actual UI/service workflows, source provenance and native gaps survive this workstream; no blanket state-machine conversion or deletion target. |
+|5 Note,11 Review,15 Run, plus recently integrated9/20/23 | **Reuse** existing lifecycle/shared-service ownership and checked identities; do not implement the same worker/notice/reference/MCP fixes again. |
+|6 formatting,7 comments,10 Rewrite,11 Review | **Simplify** local editing/instruction/review interaction through M3/M4 exact reusable operations; preserve whole replacement/read guard, explicit selected comment outcomes, versions and Undo. |
+|8 setup,19 search,20 Connections,21 Settings,22 Skills,23 MCP | **Reuse** current tools and scoped policy; M1 improves eligible pre-effect argument feedback, M2 keeps objective findings while semantic repair policy lives in skills. No second skills/permission platform. |
+|4 Notes,13 Chats,14 composer,16 Actions,17 History,18 Projects | **Keep** supported records/navigation/checked actions; generated briefs/plans/summaries remain ordinary artifacts. **Defer** expansion into project management, workflow design or semantic graph engines without repeated owner need. |
+|24 conversion,25 export/backup; M5 capability decision | **Reuse** maintained exact processing and canonical publication/restore paths. **Defer** broader production execution until one bounded useful artifact proof and its applicable authority gates; no connector/browser/runtime platform is selected. |
+|1 startup,2 layout/focus,3 launcher,12 Undo | **Keep** operational/interaction reliability; recent bounded audits justify no extra abstraction or test retirement. Existing Mac queue qualifies actual controls separately. |
+
+M1/M2 are agent/tool/service improvements across existing domains, not new desktop
+workflow kinds. M0 guidance does not establish implementation or native acceptance.

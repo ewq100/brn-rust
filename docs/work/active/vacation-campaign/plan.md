@@ -84,6 +84,19 @@ checkpoint and use the recovery schedule around the constraining reset; quota pa
 can move these phases. Daily records track actual outcomes and gaps, not a promise
 of features or uninterrupted host availability. No release is included.
 
+## Selected agent-first workstream,19October
+
+The owner supplied and selected [the agent-first plan](../agent-first-simplification/plan.md).
+[Reconciliation](../agent-first-simplification/reconciliation.md) places it inside
+this campaign, retaining expiry/resources/native/integration gates. Its M1 bounded
+pre-effect tool correction and M2 factual-check/skill-guidance separation now take
+priority over speculative broad state conversion. Finish already owned small
+maintenance/integration gates safely; do not redo merged worker/notice/reference/MCP
+work. M3 exact local edits and M4 consistent instruction/review follow; M5 broader
+capability is conditional. Current authorities exclude live/provider/private-data
+activation. The original roadmap is preserved history, with these live priorities
+superseding its conflicting Cloud-first or all-domain assumptions.
+
 ## First implementation slice: worker identity
 
 Merged PR163 binds Run identity to its worker. [Source/result record](worker-identity.md)

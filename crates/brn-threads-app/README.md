@@ -80,8 +80,10 @@ restored state. Backup publication stages a standalone validated database and
 exclusively publishes the complete file, so a failed or interrupted copy cannot
 appear at the requested final filename. Existing destinations remain untouched.
 
-The core now uses schema version 3 for durable host-input and candidate-replacement binding; earlier
-synthetic Threads databases are refused safely, without migration. Save maps
+The core uses schema10. Supported schema3–9 workspaces upgrade only after a
+verified external pre-upgrade backup; restoring an older backup upgrades only its
+unpublished copy and leaves the source snapshot unchanged. Foreign/unsupported
+formats remain refused. Save maps
 supported UTF-8 comment anchors under its writer transaction, marks intersections
 unresolved, and records actual Comment writes for Undo. Unsupported arbitrary
 text remapping remains visibly unresolved. Closed edit sessions retain ordering

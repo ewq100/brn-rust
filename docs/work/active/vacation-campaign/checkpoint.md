@@ -10,7 +10,7 @@ intermediate checkpoints; [preserved earlier history](checkpoint-history-through
 retains the original cloud handoff without extending its authority.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-native-prep`, sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
+branch `codex/hardening-maintenance`, production sourcea59315a1, matching all worker274 Rust/manifests/root lock/toolchain.
 Qualified0f differs only in one later test comment; its production artifact is
 unchanged. Current main e1c0ddaf matches worker274; the qualified0f production artifact remains valid. Earlier maine583a177 is
 PR168, merged normally from exact checked7c21713b after all four required contexts
@@ -40,16 +40,31 @@ qualifies this complete source; first-iteration pre-freeze artifacts stay histor
 
 ## Active job and next gate
 
-No local source writer/builder is active. MAC01/04 checker source audit is complete;
-native-checker.md uses direct SQLite URI mode=ro and a short snapshot transaction,
-avoiding writable CLI bootstrap. Exact expected UTF-8 native-fixtures/ bytes were
-prepared before any OS action or native workspace creation. CI dependency audit is complete. Selected tiny change moves only the static
-headless intake-retirement guard before helper prep; broader build/test reordering
-is not selected because of failure-path guards. Local check,5existing tests and
-Ruby Psych YAML parse pass. Independent Sol approved complete97f against63b with no findings; see evidence/native-prep-review.json. The
-broader producer/artifact-sharing redesign remains deferred. PR168 merged normally as e583a177 from exact
-checked7c after all four required39225335901 jobs passed. Main39227629739 passed all four required jobs, docs and Ubuntu UI/retrieval;
-optional Windows Core/UI/retrieval failed. Keep these gates separate.
+Owner selected the [agent-first plan](../agent-first-simplification/plan.md); read
+[its reconciliation](../agent-first-simplification/reconciliation.md) before new
+source work. M0 standing-rule/product-summary candidate is under independent Sol
+review. Identified stale restart/inventory omissions are being corrected. M1
+pre-effect tool-argument correction is selected next; a requested Sol high design
+pass verifies pinned Rig0.44 dispatch-denial reuse. M2 factual-check/repair-skill
+separation has a requested Luna medium isolated writer in drain checkout, owning
+only knowledge.rs, maintain-notes skill and two affected existing test files.
+Lead owns shared docs/interfaces/integration and the single build slot.
+
+The actual historical schema5 CLI was built offline from fb1b2100. All four
+optional upgrade witnesses genuinely failed current schema10 versus stale9
+expectations; exact five expectation/comment corrections were applied from isolated
+worker97b as lead93673ac5. All four then passed, along with strict affected-test
+Clippy and full format. Preserve raw sibling schema-upgrade-evidence and the
+historical artifact; no raw SQL fixture mutation, production or schema change.
+
+PR170 is published/attached and freezes9000ae66 on codex/hardening-native-prep,
+required run39232265037 running (watch26066). It contains tiny existing intake
+guard reorder plus native fixtures/read-only checker. Independent Sol reviewed
+complete97f against63b without findings; only current integration/audit records
+changed afterward. Do not push continuation work to that checked branch or open a
+duplicate candidate. Current branch continues from9000 with test correction936.
+PR169 resulting-main39232087600 is running; actual required main gates separate.
+No native workspace/window created. Daily18:00Tallinn remains the existing queue.
 
 [MCP freshness](mcp-discovery.md) sourcea59315a1 matches worker274; qualified0f
 only differs by one later test comment. Focused14/14, full native326/0/1, strict
@@ -70,8 +85,8 @@ PR169 merged normally as e1c0ddaf from fixed63b0b0eb after all four required
 run39230048849 jobs passed; optional Windows Core failed. Resulting-main39232087600
 is running; see evidence/pr169-integration.json. Watch16665 finished successfully.
 Lead codex/hardening-native-prep merged main history without changing app source.
-Publish the reviewed native-prep/tiny CI candidate next, then freeze its head while
-following actual checks. Two bounded Luna audits completed launcher and composer destination preservation
+PR170 now freezes that reviewed native-prep/tiny CI candidate at9000;
+follow its actual required checks. Two bounded Luna audits completed launcher and composer destination preservation
 without a demonstrated defect; relevant existing witnesses remain. No local builds
 or source writers active.
 Actual async network transport and OS usability remain unqualified.

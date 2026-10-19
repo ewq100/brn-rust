@@ -24,6 +24,32 @@ Optimize for correct owner outcomes and the ease of the next change. Follow the 
 - Protect behavior and important boundaries with proportionate tests and existing checks. Tests must distinguish correct from incorrect outcomes; counts, coverage, smaller files and fewer lines are diagnostic signals, not completion criteria. Native interaction remains separate from headless state tests.
 - Independent review checks responsibility placement, caller complexity, reuse, retirement and behavior preservation. For material changes, report what became easier, any justified complexity/debt, and the evidence. Reconcile current status after integration; do not leave dated branch claims presented as current.
 
+## Agent work and application responsibilities
+
+BRN is a durable knowledge workspace and an interface for capable agents. The
+[strategic programming guide](docs/development/strategic-programming.md) defines
+the responsibility, reuse and evaluation rules.
+
+- Start new semantic behavior with the existing agent, relevant skills/examples
+  and tools. Add application code for necessary interaction, a missing reusable
+  operation, dependable execution or an evidence-supported improvement.
+- For a material capability, state what the agent decides, what a tool executes,
+  what the host validates and what the owner sees. Compare the simplest viable
+  approaches; an obvious local repair needs no options essay.
+- Keep meaning and task strategy in runtime guidance. Shared services retain
+  exact state, scope, protection, versions, dirty writing, review, replay and Undo.
+  Skills, model output and selected text cannot manufacture authority.
+- Give tools clear contracts/results. Bounded correction is for eligible requests
+  rejected before effects; a missing response does not prove no action occurred.
+  Reuse operation identities/receipts rather than adding a general retry engine.
+- Prefer ordinary notes/artifacts for semantic outputs and existing reusable
+  processing. A dedicated workflow, agent, screen or platform needs a concrete
+  present benefit. Keep proven cheap processing until relevant evidence supports
+  replacement; model capability alone is no reason to delete it.
+- Separate deterministic correctness, live model usefulness, native observation,
+  owner acceptance and integration. Update runtime guidance with actual behavior.
+  Use bounded helpers under current authority and retain one integration owner.
+
 ## Working boundaries
 
 Use one shared checked service for desktop, agent and CLI writes; SQLite owns BRN state and search indexes are derived. Runtime guidance is packaged separately from this development guide and cannot grant authority. Preserve protection, exact-candidate review, version checks, replay and Undo guarantees described in the invariants.

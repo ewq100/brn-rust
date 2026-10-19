@@ -25,6 +25,15 @@ Undo records a new compensating operation. Immediate grouped Undo is required. L
 
 Defer autonomous writes to a note with unsaved owner writing. Retain meaningful revisions and comment context; unresolved anchors remain visible. Start with ordinary editor tracking and current/proposed comparison. Add a CRDT or editor fork only after evidence of a concrete need.
 
+## Agent and tool responsibilities
+
+The agent and existing skills own interpretation and task strategy. Maintained
+libraries/shared tools own exact processing; the existing service/core owns durable
+state and execution guarantees; native controls present actual state and owner
+actions. The [selected agent-first direction](threads-target.md#accepted-agent-first-direction19october2026)
+and [workstream reconciliation](../work/active/agent-first-simplification/reconciliation.md)
+refine these boundaries without replacing the campaign, store or skills platform.
+
 ## Reuse boundary
 
 Reuse useful GPUI controls, provider integrations, maintained decoders, and retrieval capabilities. The existing crate map is a source of components, not a frozen architecture. The new core replaced mutable-vault coordination, blanket proposal gating, original-copy recovery, temporary comments, and old-state readers.

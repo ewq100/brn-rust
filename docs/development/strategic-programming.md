@@ -8,11 +8,36 @@ Deliver the requested behavior while keeping subsequent changes understandable a
 
 Invest during ordinary work when there is a demonstrated benefit. Do not wait for a separate cleanup campaign to fix a small design problem directly caused or exposed by the assignment. Equally, do not expand every bug fix into a rewrite. State a concrete follow-up when the necessary work exceeds the assigned scope or another agent owns the boundary.
 
+## Choosing agent behavior or application code
+
+Classify a material capability by the owner outcome and assign each responsibility:
+
+| Responsibility | Default owner |
+|---|---|
+| Interpretation, organization, retrieval strategy, planning, drafting and semantic conflict analysis | Existing agent with concise skills/examples |
+| Exact calculation, parsing, document conversion and editing | Maintained library or small shared tool |
+| Accepted state, access, protection, versions, dirty writing, exact review, replay and Undo | Existing core/application service |
+| Understandable controls and presentation of actual state | UI and reusable components |
+
+A skill can invoke existing code; instruction text alone provides neither execution
+nor file access/permission. Do not have a model simulate exact processing that an
+available tool performs more reliably and cheaply. Prefer ordinary notes/artifacts
+for briefs, plans and summaries. A dedicated workflow, runner or screen must earn
+its ongoing ownership cost through useful repeated interaction or a present need.
+
 ## Before a meaningful change
 
 Inspect the current source and all relevant consumers. Identify the owner of the rule, the state it depends on, and the boundary through which callers reach it. Search for existing implementations before creating another one. Use the pinned dependencies as the starting point for reuse research; verify the actual API and behavior, not only a package description.
 
-For a material new abstraction or contested design, compare the simplest viable approaches briefly. Include caller effort, adapter code, dependencies, testability, failure/recovery semantics and the old code that can be removed. Write the decision in the existing task plan or affected architecture document. Small obvious repairs need no options essay.
+For a material capability, state what the agent decides, what the tool executes,
+what the host validates and what the owner sees. Compare an existing capability
+unchanged, skill/example improvement, a small maintained adapter, and custom code
+where still necessary. Include caller/adapter cost, dependencies, verification,
+failure/recovery and retired routes. Inspect pinned APIs/implementation and use a
+bounded fixture where uncertainty matters. Record the choice in the existing task;
+small obvious repairs need no options essay. Custom code can provide a useful
+interaction, reusable operation, durable guarantee or measured outcome/latency/cost
+improvement; novelty and line-count targets do not decide its value.
 
 ## Design rules
 
@@ -27,7 +52,27 @@ For a material new abstraction or contested design, compare the simplest viable 
 
 BRN's checked state changes, authority, version checks, replay and Undo remain owned by the existing core/service boundaries. A UI reducer cannot become a second persistence or authorization engine. Derived search storage is legitimate; do not confuse it with a second canonical state owner.
 
-Prefer local ownership improvements over an application-wide reducer, generic event bus, universal `common` crate or speculative plugin layer. Similar syntax alone does not establish shared responsibility. A larger cohesive implementation can have a simpler interface than many small mutually dependent files.
+Prefer local ownership improvements over an application-wide reducer, generic event bus, universal `common` crate or speculative plugin layer. A reducer models actual editing, run, review or recovery state; it must not prescribe agent reasoning. Similar syntax alone does not establish shared responsibility. A larger cohesive implementation can have a simpler interface than many small mutually dependent files.
+
+## Tool design and error handling
+
+Share clear arguments/descriptions/outcomes across actual callers rather than
+one mode per task wording. Host authorization remains separate from model-selected
+targets/content. Validate an intended batch before effects where required. Known
+offered-tool argument mistakes rejected before dispatch can receive concise field
+correction guidance within a finite repair allowance and existing run/time/token
+limits. Unknown/unauthorized actions, unparseable protocol and uncertain outcomes
+after dispatch remain distinct; do not enable global provider retries. Use existing
+operation identities and receipts for replay. Changed request contents cannot reuse
+a conflicting identity.
+
+A targeted edit checks exact current base/target, constructs its candidate through
+shared code and uses existing review/write/Undo. Preserve untouched bytes/metadata.
+Only host construction from a checked exact edit qualifies for that path; a model
+mode flag does not. Host reads do not establish model full-read coverage. Ordinary
+whole-document replacements retain their whole-read requirement. Delivered text
+and valid quotes establish availability/provenance, not comprehension or truth.
+These are design requirements; current observable behavior remains in its contract.
 
 ## What counts as done
 
@@ -50,6 +95,23 @@ Checks need specific diagnostic messages and a clear owner. Exceptions or change
 Test desired behavior using independently specified expectations. Use examples for known bugs, transition/sequence tests for ordering, fault injection for interrupted effects, and mutation testing for suspiciously weak guard assertions. A complete transition table covers the defined model; it is not proof of every possible execution or native interaction.
 
 Retain separate evidence for real rendering, focus, selection, scrolling and OS behavior. Investigate flaky tests as defects in the product or test harness until evidence identifies the cause. Record reruns and original failures; repeated execution until green is not a repair.
+
+## Evidence for retaining special machinery
+
+For a contested specialized route, compare a viable agent with concise skills and
+ordinary tools under comparable model/effort, inputs, access and outcome criteria.
+Inspect useful saved results, source support, unintended changes, owner corrections,
+elapsed time and actual usage/cost when available. Several reasoning routes can be
+valid; do not grade a prescribed trajectory. Reuse existing fixtures/evaluation
+tools rather than a new benchmark service.
+
+Synthetic models establish dispatch/state behavior; live runs assess usefulness
+and native sessions assess actual interaction. An agent saying done or a passing
+source-shape check is not outcome proof. Keep proven cheap processing, including
+intake prefetch, unless a relevant controlled comparison supports replacement.
+Revisit after material model/tool changes or a concrete regression. Stop optional
+broadening when the selected outcome/gates are met, then continue useful authorized
+work; no deletion or state-machine conversion quota applies.
 
 ## Review whether change is getting easier
 

@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`e583a177ad44b0536be9140b5c845a5dd8a8aa75` (PR168).
+`e1c0ddaf896ff5d4f1ae68b36099546f3937db32` (PR169; resulting-main checks pending).
 
 The [vacation campaign](work/active/vacation-campaign/plan.md) owns current work:
 Mac-first state ownership, existing-journey reliability, proportionate tests and
@@ -65,3 +65,12 @@ remain lower priority.
 older results. Current campaign records and Git history retain19October's detailed
 source/check receipts without duplicating them in this snapshot. Historical plans
 do not grant new authority.
+
+## Selected agent-first workstream
+
+The owner selected [the supplied agent-first plan](work/active/agent-first-simplification/plan.md)
+inside the Mac campaign. [Reconciliation](work/active/agent-first-simplification/reconciliation.md)
+records M0 standing-rule changes and M1 bounded tool-argument correction as next
+implementation, with M2 structural findings/skill policy separable. M3/M4 remain
+pending; broader artifact execution is conditional. No new live/private-data or
+release authority follows, and no new implementation/native completion is claimed.
