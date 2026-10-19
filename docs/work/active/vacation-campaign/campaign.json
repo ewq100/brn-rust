@@ -18,13 +18,13 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T07:44:59.337864+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T07:54:00.737938+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163 and PR164 required head/main checks pass, optional Windows fail. PR165 normal mergef4753e99 at07:29:42UTC after all four exactheada961 checks39213694797 passed; docs/UbuntuUI passed, optionalWindowsCore failed. Resulting-main39216341691 pending. PR166 later candidate published73780065, required run39217700176 running.",
-  "next_eligible_work": "Follow PR166 exacthead requiredchecks/normalmerge/main and PR165 resulting-main. Keep checked737head fixed; prepare any next eligible work on codex/hardening-followup. Evaluate measured CIfeedback opportunity before deciding implementation; do not force a search refactor from a clean audit.",
+  "integration_status": "PR163 and PR164 required head/main checks pass, optional Windows fail. PR165 normal mergef4753e99 at07:29:42UTC after all four exactheada961 checks39213694797 passed; docs/UbuntuUI passed, optionalWindowsCore failed. Resulting-main39216341691 required jobs,docs/UbuntuUI/retrieval passed; optionalWindowsCore/UI/retrieval failed. PR166 later candidate published73780065, required run39217700176 running.",
+  "next_eligible_work": "Qualify/review worker-bound reference-import intent and preserve actual behavior. Follow PR166737 requiredheadchecks/normalmerge/main. Keep separatefollowupbranch and sharedbuildslot ownership. CIprototype deferred pending stronger benefit/validation plan; native batch remains18:00Tallinn.",
   "last_qualified_source": "d98374f4dc4eea5af1f6096703b37768b5a42709",
   "source_delta_after_qualification": "Lead98188942 Rust/crate manifests/root lock/toolchain match qualified workerd98374f4. Independent full candidate review approved981; later changes import/reconcile docs/evidence only. Native OS and hosted head/merge/main checks remain separate.",
-  "active_work": "PR166 published exacthead73780065 fromcodex/late-refresh-hardening, requiredCI39217700176 running. Leadfollowupbranch preserves that checkedhead; source remains qualifiedd98374f4. No local sourcewriter/build. PR165 main39216341691 in progress. Bounded Luna evaluates CIhelper-sharing feasibility; searchaudit foundno productiondefect.",
+  "active_work": "PR166 exacthead73780065 requiredCI39217700176 running; checkedhead staysfixed. Independent Sol approved reference-import intent plan ae463e3e at1395c92c. Luna owns source in notice-state NEWbranchcodex/reference-import-owner @1395, sole sharedbuildslot. MainPR165requiredjobs allpass39216341691. No CIworkflowchange selected; helper-sharing feasibility recorded separately.",
   "continuation_baseline": "f4753e99baa9a2a70047a54d10c0bdc0bbd96dad",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot73% used /27% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "quota": "Latest native snapshot74% used /26% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },

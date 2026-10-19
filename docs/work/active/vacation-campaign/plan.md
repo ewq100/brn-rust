@@ -163,7 +163,7 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 ## Current candidate and next action
 
 PR165 notice/drain is merged after its four required exact-head checks. Resulting-main
-run39216341691 remains pending. The later candidate contains the [late-refresh witness](late-refresh.md),
+run39216341691 passed all four required jobs; optional Windows failures remain. The later candidate contains the [late-refresh witness](late-refresh.md),
 [Run-bound edit-refresh target](run-edit-refresh.md) and [Connections loading fix](connections-pending.md).
 Independent Sol approved complete source98188942. Final desktop321/0/1, strict native
 lint/format and a production-only build passed; exact receipts preserve limits.
@@ -179,3 +179,9 @@ work and allowance remain; the recovery heartbeat is not batch pacing.
 [Preserved planning history](planning-history-through-2026-10-19.md) retains all earlier
 source-backed plans, review hashes, first failures and superseded pending snapshots.
 The current owner/resource/gate rules above remain at this stable path for restarts.
+
+Active implementation: the [worker-bound reference-import plan](reference-import-plan.md)
+passed independent Sol plan review at original SHAae463e3e. Luna implements it in
+reused notice-state checkout on `codex/reference-import-owner` at1395c92c, with the
+sole shared build slot. No current defect is claimed; existing checked effects
+remain the contract. Final source review/checks/build/integration remain pending.

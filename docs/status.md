@@ -22,7 +22,8 @@ PR162's required/main checks also passed. Optional Windows failures remain expli
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
 PR165 merged normally after all four required exact-head checks passed in
-run39213694797. Resulting-main run39216341691 is pending. Prior drain source1e89f4e8 passed
+run39213694797. All four resulting-main required jobs in run39216341691 passed; optional
+Windows failures remain. Prior drain source1e89f4e8 passed
 local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.

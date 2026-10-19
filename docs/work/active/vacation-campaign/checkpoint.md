@@ -4,7 +4,8 @@
 
 Latest fetched main isf4753e99baa9a2a70047a54d10c0bdc0bbd96dad (PR165), merged
 normally at07:29:42UTC after all four required exact-head checks passed in run39213694797.
-Resulting-main run39216341691 is pending. Earlier PR164 merged348959b7 after
+Resulting-main run39216341691 passed all four required jobs, docs and Ubuntu
+UI/retrieval; optional Windows Core/UI/retrieval failed. Earlier PR164 merged348959b7 after
 required exact-head run39209590789.
 Resulting-main run39212874814 passed all four required jobs; optional Windows
 failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5f01b07 required main checks
@@ -45,7 +46,7 @@ The expanded existing test fails on unchanged production at the pending assertio
 then passes with one result-invalidation line. Final desktop321/0/1, strict native
 lint/format and production-only native-ui build pass. [Connections receipts](connections-pending.md)
 retain baseline patch/failure, final logs, source and immutable artifact identity.
-No local writer/build is active. PR166 is published from `codex/late-refresh-hardening`
+The later reference worker below owns the local build slot. PR166 is published from `codex/late-refresh-hardening`
 at exact head73780065; required run39217700176 is running. Keep that checked head
 fixed while preparing further work here. Its resulting-main/native gates remain pending. [CI timing research](ci-feedback.md)
 is observation and a future qualification idea, not an implemented workflow change.
@@ -92,3 +93,10 @@ only a future qualification opportunity; no change is selected. A Luna feasibili
 study evaluates CI helper sharing without editing workflows or weakening checks.
 Both app automation views still render successfully; they do not establish an
 observed unattended execution. Native Mac qualification remains queued.
+
+Independent Sol approved the [reference-import ownership plan](reference-import-plan.md)
+at original SHAae463e3e and baseline1395c92c. Luna owns `codex/reference-import-owner`
+in `/Users/evokessler/.codex/worktrees/notice-state/brn-rust`, with the sole shared
+build slot. Existing Import operation gains its captured optional intent; no new
+kind, live call or policy. Preserve old task artifacts/helpers/evidence. Final
+qualification/source review remain pending. Current allowance74% used/26% remaining.

@@ -30,14 +30,16 @@ approved at `9b2ad729`. Local owner2/0, retained focused7/0, full desktop317/0/1
 strict native lint/format and production native-ui build passed. The lead checked
 exact crate identity, final raw results and immutable binary/helper hashes in
 [notice qualification](notice-state.md). That notice-only record predates the combined PR165 head/merge gates below.
-Resulting-main and queued Mac interaction qualification remain pending. The notice worker released the single build slot; the Luna drain source1e89f4e8
+Queued Mac interaction qualification remains pending; combined main jobs are
+reported below. The notice worker released the single build slot; the Luna drain source1e89f4e8
 then passed actual before/after protocol tests, full desktop320/0/1, strict lint and
 production build. Independent review approved integrated2bf8eb08;
 [drain qualification](drain-fairness.md) retains the newer evidence and binary.
 PR165 merged normally asf4753e99 after all four required exactheada961a75a
 contexts passed in run39213694797. Docs/Ubuntu UI also passed; optional Windows
 Core failed. [Integration receipt](evidence/pr165-integration.json) retains exact
-check identities; resulting-main run39216341691 is pending.
+check identities; resulting-main run39216341691 passed all required jobs, docs and Ubuntu native
+UI/retrieval; optional Windows Core/UI/retrieval failed.
 The later branch adds the [late-refresh witness](late-refresh.md), locally qualified
 at original335ce1c/integrateda631371d with a diagnostic mutant failure and restored
 321/0/1 desktop pass. Independent Sol test-effectiveness review approved a631371d without findings.
@@ -51,8 +53,14 @@ witness fails against unchanged production and passes after the one-line fix;
 final321/0/1, strict lint/format and production build pass. PR166 is published at exact head73780065 with required run39217700176 running;
 its main/native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
-is73% used/27% remaining, above the approximate5% remaining floor.
+is74% used/26% remaining, above the approximate5% remaining floor.
 
 [Preserved continuation history](continuation-history-through-2026-10-19.md) retains
 the original setup sequence, policy changes, earlier failures and superseded snapshots.
 Current rules and active work remain in the stable plan/checkpoint above.
+
+The later [reference-import plan](reference-import-plan.md) passed independent Sol
+review at original SHAae463e3e; Luna implements it in the isolated notice-state
+checkout with one build slot. Final source/behavior qualification remains pending.
+No CI helper-sharing workflow change is selected yet; measured costs and feasibility
+must not be represented as an implemented speedup.
