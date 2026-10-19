@@ -1,7 +1,7 @@
 # Current development status
 
 Updated 19 October 2026. Latest merged main is
-`f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165).
+`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166).
 
 The [vacation hardening plan](work/active/vacation-campaign/plan.md) owns the current
 assignment: Mac-first state ownership, reliability, proportionate tests and repo
@@ -32,11 +32,16 @@ passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation
 byte-exact restoration. Independent Sol effectiveness review approved the exact test. The later Run-bound edit-refresh ownership candidate is implemented and independently
 approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
 passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
-in PR166 at exact head73780065, with required run39217700176 running. The same later candidate98188942
+in PR166 at exact head73780065. All four required head checks passed in
+run39217700176 before its normal merge asb4a5deeb; resulting-main run39220505231 is running. The same later candidate98188942
 also fixes [Connections showing old results while loading](work/active/vacation-campaign/connections-pending.md),
 with a failing old-source witness and final321/0/1, lint/format/production build passing.
 Independent Sol approved the complete candidate; native OS qualification remains queued. No original production defect
 is claimed.
+The later [reference-import owner](work/active/vacation-campaign/reference-import.md)
+also passed independent review and321/0/1, lint/format/production build at14d7c43e;
+its separate hosted integration is being prepared after PR166. Native recovery
+across normal close/relaunch is queued, with no crash/race guarantee claimed.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

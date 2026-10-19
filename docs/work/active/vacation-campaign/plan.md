@@ -1,11 +1,11 @@
 # Mac vacation hardening continuation
 
 Updated 19 October 2026. Current main is
-`f4753e99baa9a2a70047a54d10c0bdc0bbd96dad` (PR165). The later reviewed candidate
-is source `98188942`, matching qualified worker `d98374f4`.
+`b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
+is source `14d7c43e`, matching qualified worker `ed859aa4`.
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-followup`. The published PR166 remains fixed on
-`codex/late-refresh-hardening` at73780065. Preserve unrelated changes and all source-bound
+branch `codex/hardening-followup`. PR166 merged normally from
+`codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
 artifacts. [Current checkpoint](checkpoint.md) owns active jobs and the next action.
 
 ## Current owner authorization
@@ -162,26 +162,30 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 
 ## Current candidate and next action
 
-PR165 notice/drain is merged after its four required exact-head checks. Resulting-main
-run39216341691 passed all four required jobs; optional Windows failures remain. The later candidate contains the [late-refresh witness](late-refresh.md),
-[Run-bound edit-refresh target](run-edit-refresh.md) and [Connections loading fix](connections-pending.md).
-Independent Sol approved complete source98188942. Final desktop321/0/1, strict native
-lint/format and a production-only build passed; exact receipts preserve limits.
-PR166 is published at exact head73780065; required run39217700176 is running.
-Follow its actual required-head and resulting-main checks; keep its checked head fixed.
-Native OS qualification remains in [the daily Mac queue](native-queue.md).
+PR165 notice/drain is merged and its resulting-main run39216341691 passed all four
+required jobs; optional Windows failures remain explicit. PR166 at exact head73780065
+contains the [late-refresh witness](late-refresh.md), [Run-bound edit target](run-edit-refresh.md)
+and [Connections loading fix](connections-pending.md). Independent Sol approved its
+source98188942 and local321/0/1, lint/format/production checks pass. All four required
+contexts passed in run39217700176; normal exact-head merge completed at08:07:12UTC
+asb4a5deeb. Resulting-main run39220505231 is running; retain optional Windows failures.
 
-[CI timing research](ci-feedback.md) identifies repeated helper preparation; no
-workflow change or saving is qualified. Select further work from concrete behavior,
-maintenance evidence and the priority queue above. Keep working while useful eligible
-work and allowance remain; the recovery heartbeat is not batch pacing.
+The current follow-up [reference-import owner](reference-import-plan.md) is source
+ed859aa4/integrated14d7c43e, independently approved without findings. Final321/0/1,
+strict lint/format and a production-only build pass; [receipts](reference-import.md)
+retain exact evidence and native/live limits. No local writer/build is active.
+The lead reconciled merged main as2bd890ef with no crate/root manifest/lock/toolchain
+delta from reviewed14d7. Independent Luna receipt audit passed; publish this later
+coherent candidate and follow PR166 resulting-main checks separately.
 
-[Preserved planning history](planning-history-through-2026-10-19.md) retains all earlier
-source-backed plans, review hashes, first failures and superseded pending snapshots.
-The current owner/resource/gate rules above remain at this stable path for restarts.
+Native OS qualification remains in [the daily Mac queue](native-queue.md), including
+MAC-04 for already-durable unsaved-edit close/relaunch. No crash/unprocessed-input
+durability or native success is claimed. [CI timing research](ci-feedback.md) identifies
+repeated helper preparation, but workflow implementation is deferred pending a
+bounded qualification plan; no saving is established.
 
-Active implementation: the [worker-bound reference-import plan](reference-import-plan.md)
-passed independent Sol plan review at original SHAae463e3e. Luna implements it in
-reused notice-state checkout on `codex/reference-import-owner` at1395c92c, with the
-sole shared build slot. No current defect is claimed; existing checked effects
-remain the contract. Final source review/checks/build/integration remain pending.
+Select further work from concrete behavior, maintenance evidence and the priority
+queue above. Continue useful work while allowance permits; the recovery heartbeat
+is not batch pacing. [Preserved planning history](planning-history-through-2026-10-19.md)
+retains earlier detailed plans, review hashes, failures and superseded snapshots.
+Current owner/resource/gate rules remain at this stable path for restarts.

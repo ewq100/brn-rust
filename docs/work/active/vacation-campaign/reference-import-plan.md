@@ -1,8 +1,8 @@
 # Reference import intent ownership plan
 
-Status: independent Sol plan review approved for implementation; source qualification pending.
+Status: implemented and independently reviewed; local qualification passed, hosted integration pending.
 Baseline lead1395c92c, production Rust matching qualified source d98374f4. PR166
-remains fixed at73780065 while this later work uses a separate branch.
+subsequently merged from checked73780065; this later work uses a separate branch.
 
 A bounded source audit found no current reference-import leak or cancellation defect.
 The exact setup target, purpose and idempotency key are captured before the file
@@ -63,3 +63,11 @@ unused `_data` convert_file argument with the relevant optional intent instead o
 increasing its arity; remove only the now-unused picker data-dir clone. That argument
 is not read today (four private call sites). Actual Workspace/settings authority
 and the backup data-dir capture remain unchanged. Final source review verifies this.
+
+Source ed859aa4 is integrated as14d7c43e. Independent Sol approved the complete
+candidate without source/design findings. Focused six filters/seven executions and
+final321/0/1, strict all-target lint, format/whitespace and production native-ui
+build pass. [Source/result receipts](reference-import.md) retain exact evidence,
+initial compile errors, unchanged service/queue policy and native/live limits.
+Independent Luna final receipt audit passed; lead reconciled PR166 main history
+as2bd890ef without source changes.

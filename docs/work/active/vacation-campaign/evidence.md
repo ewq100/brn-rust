@@ -50,8 +50,9 @@ strict native lint/format and production-only build passed. The [durable receipt
 gates remain separate. The later [Connections correction](connections-pending.md) is implemented and
 independently approved in complete98188942. An expanded existing real-control
 witness fails against unchanged production and passes after the one-line fix;
-final321/0/1, strict lint/format and production build pass. PR166 is published at exact head73780065 with required run39217700176 running;
-its main/native gates remain pending. [CI timing research](ci-feedback.md) records
+final321/0/1, strict lint/format and production build pass. PR166 merged normally at checked head73780065 after all four required contexts
+passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 is running;
+native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
 is74% used/26% remaining, above the approximate5% remaining floor.
 
@@ -59,8 +60,17 @@ is74% used/26% remaining, above the approximate5% remaining floor.
 the original setup sequence, policy changes, earlier failures and superseded snapshots.
 Current rules and active work remain in the stable plan/checkpoint above.
 
-The later [reference-import plan](reference-import-plan.md) passed independent Sol
-review at original SHAae463e3e; Luna implements it in the isolated notice-state
-checkout with one build slot. Final source/behavior qualification remains pending.
+The later [reference-import owner](reference-import.md) is implemented as
+ed859aa4/integrated14d7c43e, independently approved without findings and locally
+qualified321/0/1 plus strict lint/format and production build. Independent Luna final
+receipt audit passed. Hosted integration remains pending; no local writer/build is active.
+Lead history merge2bd890ef contains no crate/root manifest/lock/toolchain delta
+from reviewed14d7c43e.
 No CI helper-sharing workflow change is selected yet; measured costs and feasibility
 must not be represented as an implemented speedup.
+
+A bounded worker-preview/activity/context source audit found no justified next
+refactor: live state belongs to the current Run, durable stopped partials belong to
+Workspace, and chat-bound activity intentionally survives worker retirement. Existing
+navigation/stop/activity witnesses cover the inspected boundaries; no new code or
+passing-test claim follows from that source audit.

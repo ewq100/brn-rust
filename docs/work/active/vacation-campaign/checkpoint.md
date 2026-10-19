@@ -2,8 +2,10 @@
 
 ## Current local continuation —19October2026
 
-Latest fetched main isf4753e99baa9a2a70047a54d10c0bdc0bbd96dad (PR165), merged
-normally at07:29:42UTC after all four required exact-head checks passed in run39213694797.
+Latest fetched main isb4a5deeb9ad00bfbdee428386c62b34a0618e1b5 (PR166), merged
+normally at08:07:12UTC after all four required exact-head73780065 checks passed
+in run39217700176. Resulting-main run39220505231 is running. PR165/f4753e99
+merged normally at07:29:42UTC after required head run39213694797 passed.
 Resulting-main run39216341691 passed all four required jobs, docs and Ubuntu
 UI/retrieval; optional Windows Core/UI/retrieval failed. Earlier PR164 merged348959b7 after
 required exact-head run39209590789.
@@ -12,8 +14,8 @@ failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-followup`, current source98188942 matching qualified
-worker d98374f4. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
+branch `codex/hardening-followup`, history-merge2bd890ef/source14d7c43e matching qualified
+worker ed859aa4. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
 The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
 production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
 receipts retain exact source qualification. PR165 checked head a961a75a is now
@@ -46,9 +48,10 @@ The expanded existing test fails on unchanged production at the pending assertio
 then passes with one result-invalidation line. Final desktop321/0/1, strict native
 lint/format and production-only native-ui build pass. [Connections receipts](connections-pending.md)
 retain baseline patch/failure, final logs, source and immutable artifact identity.
-The later reference worker below owns the local build slot. PR166 is published from `codex/late-refresh-hardening`
-at exact head73780065; required run39217700176 is running. Keep that checked head
-fixed while preparing further work here. Its resulting-main/native gates remain pending. [CI timing research](ci-feedback.md)
+The reference worker completed and released the build slot. PR166 merged at
+checked head73780065 asb4a5deeb after all four required jobs passed. Main run39220505231
+is running. Lead history-only merge2bd890ef has no crate/root manifest/lock/toolchain
+delta from reviewed14d7c43e. Native gates remain pending. [CI timing research](ci-feedback.md)
 is observation and a future qualification idea, not an implemented workflow change.
 
 Continue useful authorized batches inside the active session. The two-hour
@@ -94,9 +97,15 @@ study evaluates CI helper sharing without editing workflows or weakening checks.
 Both app automation views still render successfully; they do not establish an
 observed unattended execution. Native Mac qualification remains queued.
 
-Independent Sol approved the [reference-import ownership plan](reference-import-plan.md)
-at original SHAae463e3e and baseline1395c92c. Luna owns `codex/reference-import-owner`
-in `/Users/evokessler/.codex/worktrees/notice-state/brn-rust`, with the sole shared
-build slot. Existing Import operation gains its captured optional intent; no new
-kind, live call or policy. Preserve old task artifacts/helpers/evidence. Final
-qualification/source review remain pending. Current allowance74% used/26% remaining.
+Independent Sol approved reference owner source ed859aa4/integrated14d7c43e,
+without source/design findings. Focused six filters/seven executions, final321/0/1,
+strict lint/format and production-only native-ui build pass. [Durable receipts](reference-import.md)
+retain the initial compile errors, raw/compressed hashes and immutable binary.
+No local source writer/build is active. Independent Luna final receipt audit passed;
+later PR publication remains pending. PR166 is merged, with main checks running.
+A next-worker-state audit found no useful preview/activity/context refactor; do not
+fold retained post-completion chat activity into the short-lived Worker. A bounded
+export/backup/restore admission and failure-path source audit is active.
+Current allowance74% used/26% remaining. All PR165 main required jobs passed;
+optional Windows failures remain explicit. MAC-04 is queued for actual already-durable
+unsaved close/relaunch, with canonical text unchanged; no race/crash guarantee.
