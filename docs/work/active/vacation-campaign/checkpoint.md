@@ -9,9 +9,9 @@ failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/late-refresh-hardening`, with notice36bf2718 and Luna drain1e89f4e8 locally
-integrated. Complete source review approved2bf8eb08; current crate bytes match1e.
-Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
+branch `codex/late-refresh-hardening`, current source c39a6af3 matching qualified
+worker23c27cd1. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
+The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
 production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
 receipts retain exact source qualification. PR165 remains fixed at remote
 `codex/notice-hardening` exactheada961a75a; required run39213694797 is in progress.
@@ -27,13 +27,21 @@ Restored final desktop321/0/1, strict native lint and format pass. Independent S
 test-effectiveness review approved a631371d; [durable receipts](late-refresh.md) are imported. No production
 defect or native interaction is claimed.
 
-Sol approved the source-backed Run-bound edit-refresh ownership plan SHA256
-59c0592c57971d294c760777711c67804bb18268adebd3fe9d4faca9a8f240e7.
-Luna implements it on `codex/run-edit-refresh-owner` in the reused notice-state
-checkout at a631371d. That worker is the only local writer/build-slot owner.
-It replaces the duplicated UI tuple with an optional typed Run target while
-preserving existing refresh gates. Final source review/checks/build are pending.
-Do not push later work onto PR165's checked head or replace older immutable artifacts.
+Run-bound edit-refresh source23c27cd1 is integrated as c39a6af3. Independent Sol
+approved complete candidate c39 without correctness/design findings. The target is
+restricted to the Run operation; current identity, admission/retirement ordering
+and the existing clean/typed/hidden refresh gate are retained. Focused completion1/0,
+worker7/0 and contextual3/0 passed; final native321/0/1, strict all-target lint,
+format and actual production-only native-ui build passed. Binary SHA256
+c6b5639af0f4d30100729bcf4f14001dd26621b235c4fd776bef2124821dee79.
+The [durable source/result receipt](run-edit-refresh.md) is imported; publication
+and hosted/main gates remain pending. No source writer/build is active. Preserve older source-bound artifacts.
+
+A bounded source-only audit found a possible same-note Connections stale-display
+gap while depth/source queries are replaced; generation/cancellation already fences
+late result publication. Deterministic pending-UI witness readiness is being checked.
+No new slice implementation is authorized yet. Do not broaden it to Knowledge or
+claim a runtime-reproduced defect. Keep PR165's exact checked head fixed.
 
 Continue useful authorized batches inside the active session. The two-hour
 `brn-mac-vacation-hardening` heartbeat is recovery/resumption only; the daily
@@ -55,7 +63,7 @@ when uncertain; prefer primary sources. No automatic Astra or global model chang
 persisted resume prompts carry these owner decisions. No live provider/model/private
 data, new billing, release/publication/deployment or external messaging is included.
 
-Native scenarios remain in [the queue](native-queue.md). Source1e immutable binary:
+Native scenarios remain in [the queue](native-queue.md). Retained older source1e binary:
 `/Users/evokessler/.codex/worktrees/worker-drain-budget/artifacts/brn-desktop-1e89f4e8`,
 SHA256d9002ff689841cb10e1bae5795e25f48590bea377c4ffe2fd29683fdf1752346.
 The older notice36 binary remains source-bound. Both current helper artifacts and

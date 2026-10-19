@@ -116,16 +116,16 @@ configuration. The owner clarified on19October that Luna may also implement smal
 clearly specified changes, as well as inspect code/logs, maintain docs and triage
 tests. Choose it when the bounded task and verifiable outcome suit it; reserve Sol
 for consequential decisions, difficult changes and meaningful independent review.
-Helpers may use nested Luna helpers when the lead explicitly assigns useful bounded
-work. The owner authorizes four, five, six or more helpers when useful; do not turn
+Helpers may independently assign bounded nested Luna work when it materially
+helps their assigned outcome, while coordinating actual shared capacity and ownership. The owner authorizes four, five, six or more helpers when useful; do not turn
 the earlier three-helper observation into a permanent project cap. Inspect actual
 runtime capacity and use independent parallel flows when they improve progress.
 This session currently exposes four total slots including the lead, so three active
 helpers are presently possible. Count nested helpers and reviewers in actual shared
 capacity. Coordinate shared files and the single local build slot; use isolated
 worktrees for overlapping source areas. Assign a reviewer when a concrete candidate
-is ready. No automatic Astra escalation or unassigned
-recursive delegation. Record requested model/effort and whether the runtime exposes the effective
+is ready. No automatic Astra escalation or recursive delegation without a concrete
+useful outcome. Record requested model/effort and whether the runtime exposes the effective
 configuration; do not claim measured savings without usage evidence.
 
 The owner clarified on19October: **continue actively through successive useful
@@ -228,7 +228,8 @@ Plan gate: independent Sol high review approved the complete plan at SHA-256
 against baseline `37c87985`, with no actionable findings. A fresh Sol medium worker
 owns desktop source/tests in the managed `notice-state` worktree, using the shared
 task-owned partial build cache with one build at a time. The lead owns docs and
-integration; normal allowance is one active helper. Stop and reassess after two
+integration. This historical notice assignment used one active helper; it does
+not cap the current campaign policy above. Stop and reassess after two
 failed approaches, a disk/capacity limit or a consequential scope ambiguity. No
 native, provider or owner-acceptance result follows from this plan approval.
 
@@ -364,15 +365,22 @@ PR165 fixed while preparing this later coherent edit-refresh batch.
 
 Independent Sol approved the source-backed ownership plan at SHA-256
 `59c0592c57971d294c760777711c67804bb18268adebd3fe9d4faca9a8f240e7`
-against lead a43a3ef6. Luna now owns the isolated new
+against lead a43a3ef6. At that planning checkpoint Luna owned the isolated new
 `codex/run-edit-refresh-owner` branch in the reused notice-state checkout, starting
 at a631371d including the late-refresh test. The recovery worker restored its
 controlled mutation byte-for-byte and released the shared build slot. The new
-worker has that one slot; older source-bound helper/binary/evidence paths remain.
-Implementation and final independent review are still pending.
+worker had that one slot; older source-bound helper/binary/evidence paths remain.
+That pending implementation/review snapshot is superseded by the completed
+qualification below and its durable receipt.
 
 The late-refresh witness is now independently approved at integrated a631371d;
 [its durable receipt](late-refresh.md) records focused1/0, restored321/0/1, strict
 lint/format, exact restoration and the separately retained mutant failure. A later
 reconstructed single-call deletion matches the recorded mutant hash; it is labeled
 as reconstructed and no rerun is implied. This adds qualification, not a defect fix.
+
+Run-bound target source23c27cd1 is now integrated as c39a6af3. Independent Sol
+approved the complete candidate without source/design findings. Final321/0/1,
+strict lint/format and production-only build pass; [source-bound receipts](run-edit-refresh.md)
+retain exact outcomes and native/live-worker limitations. Later edits reconcile
+docs only; hosted integration remains separate.

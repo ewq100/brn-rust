@@ -38,10 +38,12 @@ PR165 remains fixed at exactheada961a75a with required run39213694797 in progres
 The later branch adds the [late-refresh witness](late-refresh.md), locally qualified
 at original335ce1c/integrateda631371d with a diagnostic mutant failure and restored
 321/0/1 desktop pass. Independent Sol test-effectiveness review approved a631371d without findings.
-Sol approved the Run-bound edit-refresh plan59c0592c; Luna implements it on a new
-branch in the reused notice checkout and owns the single shared build slot.
-The current quota snapshot remains72% used/28% remaining, above the approximate5%
-remaining floor. None of these local results establishes native OS qualification.
+Run-bound edit-refresh ownership source23c27cd1 is integrated atc39a6af3 and
+independently approved without findings. Existing target/admission/retirement gates
+are preserved. Focused completion1/0, worker7/0, contextual3/0 and final desktop321/0/1,
+strict native lint/format and production-only build passed. The [durable receipt](run-edit-refresh.md) is imported; required hosted/integration/native
+gates remain separate. Current
+quota remains72% used/28% remaining, above the approximate5% remaining floor.
 
 ## 19 October 2026: baseline and assignment
 
@@ -365,7 +367,10 @@ The dependency follow-up found latest published block0.1.6 and the flagged stati
 still in upstream source; no verified released fix or maintainer migration
 recommendation, so defer without suppression or dependency churn.
 
-## Next test-only qualification selected —19October
+## Historical test-only selection checkpoint —19October
+
+This selection snapshot is superseded by the completed [late-refresh receipt](late-refresh.md)
+and current gate snapshot above.
 
 PR165 is published at exactheada961a75a, required run39213694797 in progress;
 PR164 resulting-main run39212874814 is separate. Lead moved later work to

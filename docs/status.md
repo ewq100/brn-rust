@@ -21,14 +21,17 @@ passed before its normal merge; all four required resulting-main jobs in run3921
 PR162's required/main checks also passed. Optional Windows failures remain explicit; no all-platform pass
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
-Next: finish PR165's required head/main gates. Final source1e89f4e8 has local desktop320/0/1, strict native lint,
+Next: finish PR165's required head/main gates. Prior drain source1e89f4e8 passed
+local desktop320/0/1, strict native lint,
 format and production build passing, plus independent source approval. Mac control
 qualification remains queued; preview/context and reliability work stay on the backlog.
 The separate [late-refresh/newer-typing witness](work/active/vacation-campaign/late-refresh.md)
 passed321/0/1 plus strict lint/format after a diagnostic sampling-guard mutation and
-byte-exact restoration. Independent Sol effectiveness review approved the exact test. Luna also
-implements a reviewed Run-bound edit-refresh ownership plan on a separate branch;
-no current production defect is claimed.
+byte-exact restoration. Independent Sol effectiveness review approved the exact test. The later Run-bound edit-refresh ownership candidate is implemented and independently
+approved atc39a6af3, with desktop321/0/1, strict lint/format and a production build
+passing; [receipts](work/active/vacation-campaign/run-edit-refresh.md) are retained,
+while publication and hosted gates remain pending. No original production defect
+is claimed.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 
