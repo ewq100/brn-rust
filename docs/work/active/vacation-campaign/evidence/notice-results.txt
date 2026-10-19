@@ -1,0 +1,13 @@
+Source branch codex/notice-state; commit36bf2718c22f7838a3e82963cec7e01a53c32f52; tree999bc1d881c3412746b82358301113aa26255c83. Checkout clean. Fifteen desktop source/test files only. Lead owns shared docs, review and integration.
+
+Implemented: private native NoticeState owns ordinary payload, last completed work payload and explicit presentation provenance. Atomic work completion, ordinary notices preserve memory, clear hides current, restore refuses busy/newer/absent states. Shell obtains provenance and restore availability from owner. Text and existing Tone stay together. No new dependency/crate/persistence/worker policy or labels.
+Retained all five outcome-tone arms, actual repeated Dismiss/Layout restore, busy/newer-error refusal, worker replacement clear, actual recorded-run/terminal/error-restore and backup assertions. Retired only unsupported direct-field-write sixth arm. Fixture consumers use read-only .text(). Added owner transition/sequence tests and equal-text ordinary provenance witness in retained real UI test. No original production bug reproduction claimed.
+
+Verified: owner tests2/0/0; seven focused retained GPUI tests each1/0/0; full native desktop suite317/0/1 in6.26s; native strict all-target Clippy passed2m34s; final fmt/diff whitespace checks passed. Features native-ui,native-test-support. Pinned1.98.1, locked deps; initial dependency fetch allowed, final checks offline. Exact commands and env in commands.txt; raw logs beside this file.
+Ignored existing test: threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left needs BRN_DWR_SHARED_DATA, BRN_DWR_SHARED_SOURCE and BRN_DWR_SHARED_CHAT from an external CLI useful intake. No zero-test/self-skipped gate claimed.
+Both exact stock/adapted document helpers built successfully in distinct task-owned literal targets, stock2m42s/adapted2m34s. Source-root, graph, artifact hash and build receipts in ../document-helpers/receipts and ../document-helpers/*-root.txt; helper-artifacts.sha256 records final bytes. No helper-source change or redundant helper test/lint campaign.
+Carried Cargo future-incompatibility notice: block0.1.6. No local test or strict-lint failure.
+
+Not verified here: native-human interaction/IME/accessibility/pointer feel, owner acceptance, live providers/models/private data, release, hosted checks/main integration. No publish/push/PR/merge action taken by implementation worker.
+
+Production build PASS2m43s: native-ui only, no native-test-support. Immutable task artifact ../artifacts/brn-desktop-36bf2718, SHA in production-artifact.sha256. Source unchanged36bf2718 and clean after all checks. Shared build slot released; no further Cargo work assigned.

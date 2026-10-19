@@ -1,0 +1,158 @@
+{
+  "source_commit": "36bf2718c22f7838a3e82963cec7e01a53c32f52",
+  "source_tree": "999bc1d881c3412746b82358301113aa26255c83",
+  "crate_tree": "daa78131b06311f40cfc0e0f18aca9185aa7e97f",
+  "reviewed_union": "9b2ad729025f78354b4658bd1f5440664b8f8b64",
+  "source_review_diff_sha256": "fe6c342e57cb65058a83544bad4dc6250e6e8c078a74279518e89eac2ea48241",
+  "review": "independent Sol high approved, no actionable findings",
+  "environment": {
+    "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+    "arch": "arm64",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8",
+    "compact_flags": [
+      "CARGO_INCREMENTAL=0",
+      "CARGO_PROFILE_DEV_DEBUG=0",
+      "CARGO_PROFILE_TEST_DEBUG=0"
+    ],
+    "jobs": 1
+  },
+  "checks": {
+    "owner": {
+      "passed": 2,
+      "failed": 0
+    },
+    "retained_focused_gpui": {
+      "passed": 7,
+      "failed": 0
+    },
+    "full_native": {
+      "passed": 317,
+      "failed": 0,
+      "ignored": 1,
+      "test_body_seconds": 6.26
+    },
+    "strict_all_target_native_clippy": "passed",
+    "format": "passed",
+    "whitespace": "passed",
+    "production_native_ui_without_test_support": "passed"
+  },
+  "ignored": "a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left requires external BRN_DWR_SHARED_* CLI fixture; not run",
+  "production_binary": {
+    "path": "/Users/evokessler/.codex/worktrees/notice-state/artifacts/brn-desktop-36bf2718",
+    "sha256": "69e1678defbf31a7f183f5ac0be3610af62b6bad3687c1ab8a1b8cd342af0aa2"
+  },
+  "helpers": [
+    {
+      "mode": "stock",
+      "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "source_root": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/tools/xberg-intake-helper",
+      "graph_sha256": "3843e251dbe53513907ec39c5791d6725e76ee77d10d05be0a3e76e1b8f82a5a"
+    },
+    {
+      "mode": "adapted",
+      "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "source_root": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/target/xberg-adapted/workspace",
+      "graph_sha256": "933c416f08c2eed699daea0d4e4404c1fbd780fb65e0432d4f334aa0fb937abc"
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "logs/vacation-notice-a_failed_finish_is_an_error_banner_and_restores_as_an_error.log.gz",
+      "sha256": "8fe154d22ad769ff89912618911be05825b6b5979da26984c9167631021facc7",
+      "raw_sha256": "a8417790b4b50e1105a2d91e66dfe6019e567dfcd6c6e6b962d0781bb5ee9b04"
+    },
+    {
+      "path": "logs/vacation-notice-a_failed_or_interrupted_finish_shows_the_recorded_terminal_text.log.gz",
+      "sha256": "3b9868a70ebf209c746f9770d5d10915e9bbcb9910f689869aa6562c80411e3c",
+      "raw_sha256": "86bbc357c3d9ffd0fd7176af603fb5bd000036c755f3cbcc55d73db091a31f95"
+    },
+    {
+      "path": "logs/vacation-notice-a_finish_takes_its_tone_from_its_own_recorded_run.log.gz",
+      "sha256": "f728ca2f08a990cbccf31c106ee9e211bef548c8b635b356e439c38bd34f39d3",
+      "raw_sha256": "f33d3dac23ada57e11a53f1ad260bd1b309133a2ba057ef1dfbae452bfe39ee4"
+    },
+    {
+      "path": "logs/vacation-notice-clippy.log.gz",
+      "sha256": "102d44ae5b67fc97029d17e36f5af548c5c7d326f6558ef0c684a6c18b0d37d6",
+      "raw_sha256": "c5af5de528efd4fd763a80b1f00264bf8b2a3af8568d96c91574f72a82019dfd"
+    },
+    {
+      "path": "logs/vacation-notice-desktop-full.log.gz",
+      "sha256": "c30e7b8ecea5d2000a2c06feeead8a6cdd66fed6f6cc8fb205b7aec856cac0a7",
+      "raw_sha256": "d8cc5a035358e6bee5b90aa1caaa485493c011984b6e22bf3c85531607822bdf"
+    },
+    {
+      "path": "logs/vacation-notice-diff-final.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/vacation-notice-dismissed_completion_banner_can_be_restored_from_layout_menu.log.gz",
+      "sha256": "a89cfed8922658f3c90927c968f3dfaec39379f2aaadc927e4edea7a610f11ca",
+      "raw_sha256": "08a7a2e6bd4257afca6a881e72f98151542ae9bae5b6de8f93ae7a039506d2ae"
+    },
+    {
+      "path": "logs/vacation-notice-fmt-final.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/vacation-notice-fmt.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/vacation-notice-helper-build.log.gz",
+      "sha256": "5eb25b341671d2966c9048efc0e17f4580191aeb398e197ef698111d3fd707de",
+      "raw_sha256": "577df42a0afb319f2eb31938c17bb6114a54e3ceff66676a4f59be1878ff548c"
+    },
+    {
+      "path": "logs/vacation-notice-helper-fetch-adapted.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/vacation-notice-helper-fetch-stock.log.gz",
+      "sha256": "74e9cfed064e13b692c95e2ab26db22a27dc2e1a5bb75790eaa232436cbe7814",
+      "raw_sha256": "face57485adb5627a4a89b5b8e80acf6fa05b40b99a1edc0a8f24fd0bd654455"
+    },
+    {
+      "path": "logs/vacation-notice-helper-prepare.log.gz",
+      "sha256": "380913f9515688e4529ab9b5cbd4e5798401b0717eee4247ea19b97ac66c6805",
+      "raw_sha256": "380cc2143703a7385f1b7b28fb5cefd172c63c270e9724a0146adba56e26ec6c"
+    },
+    {
+      "path": "logs/vacation-notice-outcome_notices_keep_their_expected_tones.log.gz",
+      "sha256": "e096d1090af70f87f7ef9640a4ae9b53a64ae1753de79118757099c8cf8f21bd",
+      "raw_sha256": "d00443344e2968ca877be552a71cb860623154505d7aad0afb4f3d2b44be3bcc"
+    },
+    {
+      "path": "logs/vacation-notice-owner-tests.log.gz",
+      "sha256": "65f9d10b06f70be5b3782b5ce3ef55fdcffef14fa08b719640111b1824e71d36",
+      "raw_sha256": "0ee19d2ff31961f20fd3423213845a1e0ad5bec0a6bf4cac3cc62df633760763"
+    },
+    {
+      "path": "logs/vacation-notice-production-build.log.gz",
+      "sha256": "f5bbb7f75d87c18c4eb33eb9d183b4e2c825e565eb8118ae1ac688f04f0c2ecc",
+      "raw_sha256": "8b514c2c29819b1df4f34e2f9122f9ee784684c3d8e3c60324b8e6c24c0794e6"
+    },
+    {
+      "path": "logs/vacation-notice-restoring_old_work_status_preserves_newer_errors_and_active_work.log.gz",
+      "sha256": "cf47b6089f39641923334798d1b0c612d7cb3decf8d88d87a5d1f7621561b117",
+      "raw_sha256": "b10953bc84358969f4b6b8942aea48b53b3dc764d03cc9f156d201d07dbeff64"
+    },
+    {
+      "path": "logs/vacation-notice-starting_a_replacement_run_clears_the_old_paused_notice.log.gz",
+      "sha256": "29b98cd9108f80052fdf57731e2e7d067f933d21d6e200b4defd3f300639b12b",
+      "raw_sha256": "457948db602c02020cd79289ff8fa3d520fe9da099e19d95f1aa4cbcf0ed4855"
+    }
+  ],
+  "limits": [
+    "No old production failure reproduction or performance claim",
+    "Native OS interaction/IME/accessibility and owner acceptance pending",
+    "Required hosted CI, authorized merge and resulting-main verification separate",
+    "Carried block0.1.6 future-incompatibility warning; no dependency update"
+  ]
+}

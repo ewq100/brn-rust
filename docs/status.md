@@ -21,8 +21,10 @@ checks also passed. Optional Windows failures remain explicit; no all-platform p
 is claimed. The25-domain UI inventory remains provisional and incomplete.
 
 Next: integrate PR164's continuation policy/native queue and verify actual main.
-The independently reviewed notice-state ownership plan is now in implementation;
-remaining preview/context transitions stay on the backlog.
+Notice ownership is implemented and independently reviewed: local desktop317/0/1,
+strict native lint and production build passed; hosted integration and Mac control
+qualification remain pending. Luna is implementing the reviewed, bounded worker
+drain follow-up; remaining preview/context transitions stay on the backlog.
 Do not repeat the merged worker-identity work. Native-human/IME/accessibility,
 subjective owner acceptance and release readiness remain open. No release is claimed.
 

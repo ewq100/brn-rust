@@ -20,6 +20,15 @@ Both local heartbeats are registered ACTIVE, but their first unattended executio
 and Mac OS-input qualification remain pending. Historical entries below describe
 the setup sequence; this snapshot controls the next action.
 
+Notice source `36bf2718` is integrated into the lead candidate and independently
+approved at `9b2ad729`. Local owner2/0, retained focused7/0, full desktop317/0/1,
+strict native lint/format and production native-ui build passed. The lead checked
+exact crate identity, final raw results and immutable binary/helper hashes in
+[notice qualification](notice-state.md). Its hosted/merge/main and queued Mac
+interaction gates remain pending. The notice worker released the single build slot;
+a Luna medium worker is implementing the independently approved drain event budget
+in a separate managed worktree. That next source has no passing gate yet.
+
 ## 19 October 2026: baseline and assignment
 
 The original local `main` was `18f3891e29e57d4459c663967d26115f0e57787d`,

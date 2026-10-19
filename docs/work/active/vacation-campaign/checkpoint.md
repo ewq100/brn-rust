@@ -37,7 +37,7 @@ The next notice-state plan passed independent Sol high review. One fresh Sol med
 worker owns source/tests on `codex/notice-state` in
 `/Users/evokessler/.codex/worktrees/notice-state/brn-rust`, based on `37c87985`.
 One local native build uses this campaign worktree's partial `target`; no competing
-build. Tests, complete candidate review and integration remain pending. The lead
+build. Source36bf2718 is integrated in reviewed9b2ad729; owner/focused/full native317/0/1, strict native lint and production native-ui build passed. Hosted integration remains pending. The lead
 owns the independently reviewed continuous-policy/status-maintenance documentation here.
 Do not push those amendments onto PR164's checked head while its gates are running.
 Observe run39209590789 for PR164 and run39209331228 for PR163's merged main;
@@ -82,3 +82,19 @@ Next eligible work: maintain the campaign draft PR and observe exact-head CI; re
 **Unattended continuation is INACTIVE.** Codex CLI0.159.2 cloud listing returns401; no actual quota snapshot, verified native-goal activation, durable wake/hosting guarantee or supported supervisor is available. App host name “durable” is not that guarantee. No remote task/supervisor launched and no next wake scheduled. Do not promise14day autonomous execution or bypass pauses/budgets. Missing continuation capabilities do not invalidate current-session implementation.
 
 Local untracked `error.log` is preserved and excluded from campaign commits; it is not an application source change.
+
+## Active small Luna follow-up —19October
+
+The owner requested economical small-work Luna implementation and permits bounded
+nested Luna helpers, counted in one shared maximum2-helper allowance. Both resume
+prompts and the phased plan reflect this. The worker drain plan passed independent
+review at7bbd7d6e, plan SHA32c4ad53d668f534fea4738f1e264889a690a98e59b41d397895191de4c4dca3.
+Luna owns `codex/worker-drain-budget` in
+`/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust`; it may now use the
+single shared campaign target after the notice worker released it. Existing helper
+artifacts stay under the notice-state sibling document-helpers directory. The
+immutable notice production binary is
+`/Users/evokessler/.codex/worktrees/notice-state/artifacts/brn-desktop-36bf2718`,
+SHA69e1678defbf31a7f183f5ac0be3610af62b6bad3687c1ab8a1b8cd342af0aa2,
+so later shared-target builds cannot replace its evidence bytes. Do not archive
+these task-owned artifact/helper paths before required reuse/retention.
