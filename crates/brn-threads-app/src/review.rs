@@ -771,7 +771,7 @@ mod apply_status_tests {
             &mut result,
             &snapshot.request_message,
             candidate.operation.as_str(),
-            &[captured.id.clone()],
+            std::slice::from_ref(&captured.id),
         );
         assert!(matches!(result.outcome, ApplyOutcome::Applied(_)));
         assert!(result.comments_error.as_ref().unwrap().contains("changed"));
