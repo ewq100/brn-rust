@@ -18,37 +18,27 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T08:13:35.615731+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T08:22:34.277914+00:00",
   "current_session_jobs": [
-    {
-      "agent": "/root/recovery_boundary_audit",
-      "role": "export-picker repair and qualification",
-      "checkout": "/Users/evokessler/.codex/worktrees/worker-drain-budget/brn-rust",
-      "branch": "codex/export-picker-errors",
-      "baseline": "40879f71f5db03b67da6ec3b9822eb5f6f774169",
-      "scope": [
-        "crates/brn-desktop/src/threads_ui.rs",
-        "crates/brn-desktop/src/threads_backup_tests.rs"
-      ],
-      "build_slot": "exclusive until released"
-    },
     {
       "agent": "/root/worker_next_slice",
       "role": "test-only fixture-helper consolidation",
-      "checkout": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust",
+      "checkout": "/Users/evokessler/.codex/worktrees/provider-fixture-helpers/brn-rust",
       "branch": "codex/provider-fixture-helpers",
       "baseline": "40879f71f5db03b67da6ec3b9822eb5f6f774169",
       "scope": [
         "crates/brn-ai/src/provider_formats_tests.rs"
       ],
-      "build_slot": "wait for lead after export release"
+      "build_slot": "exclusive after export worker release",
+      "checkout_note": "Worker created direct Git sibling rather than reusing assigned clean checkout. No extra target/helper setup; source scope unchanged. Not app-managed; preserve patch/receipts before ordinary Git worktree cleanup.",
+      "source_commit": "22d5cd5f3761ed38800c7b934f88b52107e82726"
     }
   ],
   "integration_status": "PR163/164/165 required head/main checks pass; optional Windows failures retained. PR166 normal exact73780065 merge b4a5deeb at08:07:12UTC after all four required head checks39217700176 passed. Resulting-main39220505231 running.",
-  "next_eligible_work": "Follow PR166 main39220505231 and PR167 required checks; exacthead normal merge only after allrequiredpass. Complete export-picker fix/local gates, independent source review and receipts. Native18:00Tallinn queue pending; use exactcurrentmain artifact.",
+  "next_eligible_work": "Finish provider-helper local checks and combined receipt/current-record audit; reconcile PR167 actualrequired/main gates. Publish coherent reviewed export+fixturecleanup candidate after PR167 integration. Native18:00Tallinn qualification pending.",
   "last_qualified_source": "ed859aa466d0b5fc6d0eae57f6277f5ad245aafc",
   "source_delta_after_qualification": "Lead14d7c43e Rust/crate manifests/root lock/toolchain match qualified workered859aa4. Independent complete source review approved14d7. Later changes import docs/evidence/queuedMac04 only; no production source delta. Hosted head/merge/main and native qualification remain separate.",
-  "active_work": "PR167 fixed40879f71 required run39220781564; PR166 mergedmain39220505231 running. Two isolated Luna writers: export picker error repair owns buildslot; test-only fixture-helper consolidation edits only until slot released. Independent source review follows. Job records are restart snapshots: reconcile actual Git/processes before dispatch.",
+  "active_work": "Export source98035888 integrated945a0a7a: final322/0/1 lintfmt/prod pass, candidate-only mutant fails expectedstatus, source restored exactly. Independent Sol approved complete945 incl test-only helper22d5/54eb without findings. Helper worker owns sole buildslot for3affected provider families/strictcapability-spikelint. Export receipts imported; finalLunaaudit passed. PR167 fixed408 CI39220781564 and PR166 main39220505231 running.",
   "continuation_baseline": "b4a5deeb9ad00bfbdee428386c62b34a0618e1b5",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -61,7 +51,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Latest native snapshot74% used /26% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
+    "quota": "Latest native snapshot75% used /25% remaining in applicable seven-day window; reset1792874447. Admission floor about5% remaining; no purchases/reset credits.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },

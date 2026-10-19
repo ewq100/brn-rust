@@ -14,8 +14,10 @@ failures remain; documentation and Ubuntu native/retrieval also passed. PR163/b5
 passed in run39209331228; optional Windows failures remain explicit.
 
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
-branch `codex/hardening-continuation`, history-merge2bd890ef/source14d7c43e matching qualified
-worker ed859aa4. Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
+branch `codex/hardening-continuation`, current source945a0a7a. Export original98035888
+is locally qualified; the additional test-only helper22d5/54eb has its own checks
+running. Prior reference14d7c43e/worker ed859aa4 remains in fixed PR167408.
+Earlier notice36bf2718 and drain1e89f4e8 remain integrated.
 The prior drain candidate review approved2bf8eb08. Source1e passed protocol7/0, desktop320/0/1, strict native lint/format and a
 production native-ui build. [Notice](notice-state.md) and [drain](drain-fairness.md)
 receipts retain exact source qualification. PR165 checked head a961a75a is now
@@ -104,19 +106,21 @@ retain the initial compile errors, raw/compressed hashes and immutable binary.
 No local source writer/build is active. Independent Luna final receipt audit passed;
 PR167 is published at fixed40879f71, required run39220781564 queued/running.
 PR166 is merged, with main checks running.
-A next-worker-state audit found no useful preview/activity/context refactor; do not
-fold retained post-completion chat activity into the short-lived Worker. A bounded
-export/backup/restore audit found a silent export folder-picker error path. Luna
-implements the bounded status/cancel/retry repair in reused drain checkout on
-`codex/export-picker-errors` at408, owning the sole shared build slot. Backup
-destination behavior is already covered; no desktop restore route is implied.
-Test-family refresh is done. A second Luna worker owns only
-`brn-ai/src/provider_formats_tests.rs` in the reused notice-state checkout on
-`codex/provider-fixture-helpers` at408: consolidate five repeated test helper
-definitions into two shared helpers, preserving every caller/assertion/test. It may
-edit now but waits for the export worker to release the single build slot before
-focused provider-fixture checks. See campaign.json for snapshot job ownership;
-reconcile actual agents/Git/processes after restart. Keep PR167 checked head unchanged.
-Current allowance74% used/26% remaining. All PR165 main required jobs passed;
-optional Windows failures remain explicit. MAC-04 is queued for actual already-durable
-unsaved close/relaunch, with canonical text unchanged; no race/crash guarantee.
+The worker-preview audit found no justified refactor; retained post-completion chat
+activity must outlive Worker. Settings audit found existing active-work controls;
+empty-Copilot-catalogue semantics are unspecified and no behavior change is selected.
+
+Export source98035888 is integrated945a0a7a, with focused1 +related6, final322/0/1,
+strict lint/format and production build passing. The candidate-only error-report
+mutation failed its intended status assertion; production was restored exactly.
+Independent Sol approved complete945 including test-only helper22d5/54eb, without
+findings. [Export receipts](export-picker.md) are imported, final Luna receipt audit passed.
+The export worker is idle and released the build slot. The provider helper worker
+now owns it in direct-Git sibling checkout
+`/Users/evokessler/.codex/worktrees/provider-fixture-helpers/brn-rust`, branch
+`codex/provider-fixture-helpers` at22d5. Three affected provider-family checks and
+strict capability-spike lint remain pending. No test or assertion was retired.
+Source scope is only provider_formats_tests.rs; preserve its branch/receipts before
+ordinary Git cleanup (app attach rejected this unmanaged checkout). See campaign.json
+for snapshot ownership; reconcile actual agents/Git/processes after restart.
+Keep PR167's checked408 head unchanged; hosted/main/native gates remain separate.

@@ -54,7 +54,7 @@ final321/0/1, strict lint/format and production build pass. PR166 merged normall
 passed in run39217700176; mergeb4a5deeb at08:07:12UTC. Main run39220505231 is running;
 native gates remain pending. [CI timing research](ci-feedback.md) records
 completed step costs without claiming a workflow change or saving. Current quota
-is74% used/26% remaining, above the approximate5% remaining floor.
+is75% used/25% remaining, above the approximate5% remaining floor.
 
 [Preserved continuation history](continuation-history-through-2026-10-19.md) retains
 the original setup sequence, policy changes, earlier failures and superseded snapshots.
@@ -74,3 +74,17 @@ refactor: live state belongs to the current Run, durable stopped partials belong
 Workspace, and chat-bound activity intentionally survives worker retirement. Existing
 navigation/stop/activity witnesses cover the inspected boundaries; no new code or
 passing-test claim follows from that source audit.
+
+The selected [export-picker repair](export-picker.md), original98035888/integrated945,
+passed focused1 +related6, final322/0/1, strict lint/format and production build.
+A candidate-only error-report mutation failed at the intended status assertion;
+production bytes were restored exactly. Independent Sol approved complete945, also
+covering the separate test-only helper consolidation22d5/54eb. That helper worker
+now owns the single build slot for its own provider-fixture checks; those remain
+pending. No old-source failing run or actual OS transport error is claimed.
+
+A bounded settings source audit found no delayed catalogue crossing a selectable
+provider/config through the UI. A successful empty Copilot catalogue currently
+retains generic/manual selection behavior, still on Copilot. No requirement was
+found specifying empty-versus-unknown policy, so no behavior change is selected;
+define that policy before any future change. No live provider or runtime check ran.

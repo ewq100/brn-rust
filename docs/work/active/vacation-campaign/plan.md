@@ -2,7 +2,8 @@
 
 Updated 19 October 2026. Current main is
 `b4a5deeb9ad00bfbdee428386c62b34a0618e1b5` (PR166). The later reviewed candidate
-is source `14d7c43e`, matching qualified worker `ed859aa4`.
+is source `945a0a7a`, combining qualified export worker `98035888` with
+test-only provider helper consolidation `22d5cd5f` (its own checks running).
 Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`,
 branch `codex/hardening-continuation`. PR166 merged normally from
 `codex/late-refresh-hardening` at its checked73780065 head. Preserve unrelated changes and all source-bound
@@ -162,44 +163,34 @@ the dated corrections here own the changed local/merge/Mac/quota policy.
 
 ## Current candidate and next action
 
-PR165 notice/drain is merged and its resulting-main run39216341691 passed all four
-required jobs; optional Windows failures remain explicit. PR166 at exact head73780065
-contains the [late-refresh witness](late-refresh.md), [Run-bound edit target](run-edit-refresh.md)
-and [Connections loading fix](connections-pending.md). Independent Sol approved its
-source98188942 and local321/0/1, lint/format/production checks pass. All four required
-contexts passed in run39217700176; normal exact-head merge completed at08:07:12UTC
-asb4a5deeb. Resulting-main run39220505231 is running; retain optional Windows failures.
+Main b4a5deeb (PR166) passed all four required exact-head737 checks before normal
+merge; resulting-main run39220505231 is running. Earlier PR165 required main checks
+passed, with optional Windows failures retained. PR167 reference ownership remains
+fixed at40879f71 on `codex/hardening-followup`, required run39220781564. Its source
+14d7/ed859aa4 and receipts passed independent reviews; hosted/main/native gates
+remain separate. Follow actual checks before any exact-head normal merge.
 
-The current follow-up [reference-import owner](reference-import-plan.md) is source
-ed859aa4/integrated14d7c43e, independently approved without findings. Final321/0/1,
-strict lint/format and a production-only build pass; [receipts](reference-import.md)
-retain exact evidence and native/live limits. The reference worker is idle; the
-separate export repair below owns the current build slot.
-The lead reconciled merged main as2bd890ef with no crate/root manifest/lock/toolchain
-delta from reviewed14d7. Independent Luna receipt audit passed; the later
-coherent candidate is now PR167 at fixed40879f71, run39220781564. Follow its
-required checks and PR166 resulting-main checks separately.
+The later lead source945a0a7a combines the [export-picker repair](export-picker.md)
+(original98035888) and test-only provider helper consolidation22d5/54eb.
+Independent Sol approved the complete source without findings. Export focused1
++related6, final desktop322/0/1, strict native lint/format and production-only build
+passed. A candidate-only error-report mutation failed its intended assertion and
+production was restored exactly; no unchanged-old-source or OS transport failure
+run is claimed. The helper removes five local reader definitions in favor of two
+shared test functions, preserving all callers/assertions/cases and production code.
+That worker now owns the sole build slot for its separate provider-fixture checks.
+Export receipts passed independent Luna audit. Complete helper gates and reconcile PR167
+integration/main, then publish this coherent later candidate. Preserve checked heads.
 
 Native OS qualification remains in [the daily Mac queue](native-queue.md), including
-MAC-04 for already-durable unsaved-edit close/relaunch. No crash/unprocessed-input
-durability or native success is claimed. [CI timing research](ci-feedback.md) identifies
-repeated helper preparation, but workflow implementation is deferred pending a
-bounded qualification plan; no saving is established.
+already-durable unsaved close/relaunch. No crash/unprocessed-input durability or
+native success is claimed. [CI timing research](ci-feedback.md) remains deferred;
+no workflow change or saving is established.
 
-Select further work from concrete behavior, maintenance evidence and the priority
-queue above. Continue useful work while allowance permits; the recovery heartbeat
-is not batch pacing. [Preserved planning history](planning-history-through-2026-10-19.md)
-retains earlier detailed plans, review hashes, failures and superseded snapshots.
-Current owner/resource/gate rules remain at this stable path for restarts.
-
-The next selected bounded repair surfaces export folder-picker errors while
-keeping cancellation quiet and the existing output admission guard. A Luna worker
-uses the reused drain checkout at408 on `codex/export-picker-errors` with the sole
-shared build slot. This does not change backup or restore policy. Independent review,
-local effect checks and hosted/main gates remain required before integration.
-
-The verified provider-fixture duplication is also selected: replace three local
-preamble readers and two local tool-definition readers with two shared test helpers.
-All existing callers, assertions and cases remain. A separate Luna writer edits only
-that test file and waits for the export worker to release the shared build slot;
-focused fixture checks and independent review remain gates. No provider logic changes.
+Recent bounded source audits found no justified next preview/activity/context
+refactor or worker/notice/reference test reduction. Empty Copilot catalogue semantics
+remain unspecified; no provider behavior change is selected. Select further work
+from concrete behavior and maintenance evidence rather than forcing refactors.
+Continue useful work while allowance permits; the recovery heartbeat is not batch
+pacing. [Preserved planning history](planning-history-through-2026-10-19.md) retains
+earlier snapshots. Current owner/resource/gate rules remain at this stable path.

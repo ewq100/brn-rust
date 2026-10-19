@@ -1,0 +1,9 @@
+Toolchain: rustc 1.98.1
+Common environment: PATH=/opt/homebrew/opt/rustup/bin:$PATH CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn RUST_TEST_THREADS=1
+Focused: cargo test -p brn-desktop --features native-test-support export_picker_error_is_visible_cancel_is_quiet_and_retry_exports_to_fresh_destination --locked --offline --jobs 1
+Mutant expected failure: same focused command after changing only Err(error) status+notify branch to Err(_error) => {}; original bytes restored immediately afterward.
+Focused related tests: cargo test -p brn-desktop --features native-test-support threads_ui::backup_tests --locked --offline --jobs 1
+Full native desktop suite: cargo test -p brn-desktop --features native-test-support --locked --offline --jobs 1
+Strict native all-target lint: cargo clippy -p brn-desktop --all-targets --features native-test-support --locked --offline --jobs 1 -- -D warnings
+Formatting: cargo fmt --all -- --check
+Production native UI build: cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1
