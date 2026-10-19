@@ -26,11 +26,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     ops::Range,
     path::PathBuf,
-    sync::{
-        Arc,
-        atomic::AtomicBool,
-        mpsc::{self, Receiver},
-    },
+    sync::{Arc, atomic::AtomicBool, mpsc},
     time::Duration,
 };
 use tokio_util::sync::CancellationToken;
@@ -74,6 +70,8 @@ mod theme;
 mod tiles;
 #[cfg(all(test, feature = "native-test-support"))]
 use brn_writing_ui::workbench;
+#[path = "threads_worker.rs"]
+mod worker;
 #[path = "threads_writing.rs"]
 mod writing;
 use components::{IconName, Tone};
@@ -86,6 +84,7 @@ use state::{
     save_message,
 };
 use theme::{ThemeId, pal};
+use worker::{Worker, WorkerBatchEnd, WorkerEvent};
 
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_context_actions_tests.rs"]
@@ -230,42 +229,6 @@ impl SettingsSection {
             Self::Mcp => "MCP",
         }
     }
-}
-
-enum WorkerEvent {
-    AnswerFinalized(String),
-    Progress(String),
-    Activity(String),
-    Text(String),
-    Finished(Result<String, String>),
-    RunFinished {
-        result: Result<String, String>,
-        terminal: Option<(String, u64)>,
-    },
-    CopilotLogin {
-        verification_uri: String,
-        user_code: String,
-    },
-    CopilotConnected(String),
-    CopilotModels(Vec<String>),
-    Converted {
-        result: Box<Result<ConversionResult, String>>,
-        title: String,
-        chat: Option<String>,
-        settings: DocumentConversionSettings,
-        useful_project: Option<String>,
-    },
-}
-struct Worker {
-    receiver: Receiver<WorkerEvent>,
-    cancel: CancellationToken,
-    conversion_cancel: Arc<AtomicBool>,
-    kind: WorkerKind,
-    /// The native stream and cancellation belong to this invocation's thread,
-    /// independently of whichever thread the owner is currently viewing.
-    thread: Option<String>,
-    /// Created synchronously before the provider worker can start.
-    run_id: Option<String>,
 }
 
 struct PendingSend {
@@ -2633,48 +2596,15 @@ impl ThreadsUi {
             .map(|_| self.stream.as_str())
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let mut events = Vec::new();
-        let mut disconnected = false;
-        if let Some(worker) = &self.worker {
-            loop {
-                match worker.receiver.try_recv() {
-                    Ok(event) => events.push(event),
-                    Err(mpsc::TryRecvError::Empty) => break,
-                    Err(mpsc::TryRecvError::Disconnected) => {
-                        disconnected = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if events.is_empty() {
-            if disconnected {
-                self.pause_failed_worker();
-                if self
-                    .worker
-                    .as_ref()
-                    .is_some_and(|w| w.kind == WorkerKind::Run)
-                {
-                    self.run_activity_status = "Disconnected".into();
-                    self.context_edit_note = None;
-                }
-                self.worker = None;
-                self.pending_send = None;
-                self.stream.clear();
-                self.progress.clear();
-                self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
-                self.refresh();
-                cx.notify();
-            }
+        let Some(worker) = &self.worker else {
+            return;
+        };
+        let (events, end) = worker.drain().into_parts();
+        if events.is_empty() && end == WorkerBatchEnd::Pending {
             return;
         }
-        let mut finished = false;
         let mut allow_dispatch = false;
         for event in events {
-            // Events belong to the old worker, even when a producer queues after Finished.
-            if finished {
-                continue;
-            }
             let event = match event {
                 WorkerEvent::RunFinished { result, terminal } => {
                     let advance = self.acknowledge_run(terminal, result.is_ok());
@@ -2750,7 +2680,6 @@ impl ThreadsUi {
                     }
                 }
                 WorkerEvent::Finished(result) => {
-                    finished = true;
                     let kind = self.worker.as_ref().map(|w| w.kind);
                     let context_edit = self.context_edit_note.take().filter(|(run, _, _)| {
                         self.worker.as_ref().and_then(|w| w.run_id.as_deref()) == Some(run.as_str())
@@ -2865,7 +2794,6 @@ impl ThreadsUi {
                                 .conversion_cancel
                                 .load(std::sync::atomic::Ordering::Acquire)
                     });
-                    finished = true;
                     self.worker = None;
                     self.progress.clear();
                     let result = if cancelled {
@@ -2951,7 +2879,7 @@ impl ThreadsUi {
                 }
             }
         }
-        if finished {
+        if end == WorkerBatchEnd::Finished {
             self.persist_theme();
             if let Some(pending) = self.pending_send.take() {
                 // Launch only after draining the complete old batch, without navigation or grants.
@@ -2959,28 +2887,34 @@ impl ThreadsUi {
             } else if allow_dispatch {
                 self.dispatch_next(cx);
             }
-        } else if disconnected && self.worker.is_some() {
-            self.reference_import = None;
-            self.pause_failed_worker();
-            if self
-                .worker
-                .as_ref()
-                .is_some_and(|w| w.kind == WorkerKind::Run)
-            {
-                self.run_activity_status = "Disconnected".into();
-                self.context_edit_note = None;
-            }
-            self.worker = None;
-            self.pending_send = None;
-            self.stream.clear();
-            self.progress.clear();
-            let _ = self
-                .workspace
-                .recover_queue(&format!("disconnect:{}", uuid::Uuid::new_v4()));
-            self.fail("Work stopped unexpectedly. Your saved instruction remains available; Continue from the chat.");
-            self.refresh();
+        } else if end == WorkerBatchEnd::Disconnected {
+            self.worker_disconnected();
         }
         cx.notify();
+    }
+    fn worker_disconnected(&mut self) {
+        // Preserve the old Run identity and visible partial before retiring it.
+        // Non-Run interruption already recovers the queue in this checked path.
+        self.pause_failed_worker();
+        if let Some(worker) = &self.worker
+            && worker.kind == WorkerKind::Run
+        {
+            self.run_activity_status = "Disconnected".into();
+            if self
+                .context_edit_note
+                .as_ref()
+                .is_some_and(|(run, _, _)| worker.run_id.as_deref() == Some(run.as_str()))
+            {
+                self.context_edit_note = None;
+            }
+        }
+        self.reference_import = None;
+        self.worker = None;
+        self.pending_send = None;
+        self.stream.clear();
+        self.progress.clear();
+        self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
+        self.refresh();
     }
     fn useful_intake(
         &mut self,

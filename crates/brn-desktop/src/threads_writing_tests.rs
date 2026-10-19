@@ -2989,6 +2989,203 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
 }
 
 #[gpui_kit::test]
+fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mut TestAppContext) {
+    for with_progress in [true, false] {
+        let f = fixture(cx);
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.workspace
+                    .set_writing_setup(
+                        "b3-disconnected-setup",
+                        None,
+                        &WritingSetup {
+                            note: f.a.id.clone(),
+                            chat: None,
+                            brief: Some("Keep this saved writing setup".into()),
+                            references: vec![],
+                        },
+                    )
+                    .unwrap();
+                view.open_note(&f.a.id, None, window, cx);
+                view.load_writing_setup(window, cx);
+                view.reference_import = Some(ReferenceImportIntent {
+                    target: view.writing.setup.as_ref().unwrap().target.clone(),
+                    purpose: WritingPurpose::Evidence,
+                    key: "b3-disconnected-reference".into(),
+                });
+                view.workspace
+                    .queue_message("b3-disconnected-waiting", &f.chat_a, "Keep waiting")
+                    .unwrap();
+                let relevant = |workspace: &Workspace| {
+                    workspace
+                        .records()
+                        .unwrap()
+                        .into_iter()
+                        .filter(|record| {
+                            matches!(
+                                record.data,
+                                RecordData::Note(_)
+                                    | RecordData::Source(_)
+                                    | RecordData::Asset(_)
+                                    | RecordData::WritingSetup(_)
+                            )
+                        })
+                        .collect::<Vec<_>>()
+                };
+                let before = relevant(&view.workspace);
+                let saved_setup = view.workspace.writing_setup(&f.a.id, None).unwrap().record;
+                let import_worker = |receiver| Worker {
+                    receiver,
+                    cancel: CancellationToken::new(),
+                    conversion_cancel: Arc::new(AtomicBool::new(false)),
+                    kind: WorkerKind::Import,
+                    thread: None,
+                    run_id: None,
+                };
+                let (sender, receiver) = mpsc::sync_channel(4);
+                view.worker = Some(import_worker(receiver));
+                if with_progress {
+                    sender
+                        .send(WorkerEvent::Progress("Reading reference…".into()))
+                        .unwrap();
+                }
+                drop(sender);
+                view.poll_worker(window, cx);
+                assert!(view.worker.is_none());
+                let intent_cleared = view.reference_import.is_none();
+                assert_eq!(relevant(&view.workspace), before);
+                let queue = view.queue_state();
+                assert!(queue.paused);
+                assert_eq!(queue.queue.len(), 1);
+                assert_eq!(queue.queue[0].text, "Keep waiting");
+
+                // Drag/drop and clipboard attachments start conversion directly,
+                // without the file picker's reference-intent reset. Inject their
+                // synthetic conversion completion through the production poller.
+                let (sender, receiver) = mpsc::sync_channel(4);
+                view.worker = Some(import_worker(receiver));
+                sender
+                    .send(WorkerEvent::Converted {
+                        result: Box::new(Ok(b3_converted_reference())),
+                        title: "Chat attachment after disconnected reference".into(),
+                        chat: Some(f.chat_b.clone()),
+                        settings: DocumentConversionSettings::default(),
+                        useful_project: None,
+                    })
+                    .unwrap();
+                view.poll_worker(window, cx);
+                let records = view.workspace.records().unwrap();
+                let attachment = records
+                    .iter()
+                    .filter_map(|record| match &record.data {
+                        RecordData::Note(note)
+                            if note.title == "Chat attachment after disconnected reference" =>
+                        {
+                            Some(note)
+                        }
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(attachment.len(), 1);
+                assert_eq!(attachment[0].chat.as_deref(), Some(f.chat_b.as_str()));
+                assert_eq!(
+                    view.workspace.writing_setup(&f.a.id, None).unwrap().record,
+                    saved_setup
+                );
+                assert!(intent_cleared, "disconnect must clear reference intent");
+                assert!(view.reference_import.is_none() && view.worker.is_none());
+                assert!(view.queue_state().paused);
+            });
+        })
+        .unwrap();
+    }
+}
+
+#[gpui_kit::test]
+async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_effects(
+    cx: &mut TestAppContext,
+) {
+    use gpui_kit::test::TestAppContextExt;
+
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let mut settings = view.workspace.settings().unwrap();
+            settings.provider = "Codex".into();
+            settings.model = "gpt-6.1-sol".into();
+            settings.effort = "medium".into();
+            // Explicit missing fixture credentials prevent default credential or
+            // network access, while allowing synchronous preparation and spawn.
+            settings.auth_file = Some(f.data.join("no-credentials.json").display().to_string());
+            settings.credentials_dir = None;
+            view.workspace.configure(settings.clone()).unwrap();
+            let (sender, receiver) = mpsc::sync_channel(8);
+            view.worker = Some(Worker {
+                receiver,
+                cancel: CancellationToken::new(),
+                conversion_cancel: Arc::new(AtomicBool::new(false)),
+                kind: WorkerKind::Import,
+                thread: None,
+                run_id: None,
+            });
+            let mut converted = b3_converted_reference();
+            converted.intent = ImportIntent::UsefulInformation;
+            converted.source_reference = "synthetic/useful-worker-handoff.md".into();
+            sender
+                .send(WorkerEvent::Converted {
+                    result: Box::new(Ok(converted)),
+                    title: "Useful worker handoff".into(),
+                    chat: None,
+                    settings: DocumentConversionSettings::default(),
+                    useful_project: None,
+                })
+                .unwrap();
+            sender
+                .send(WorkerEvent::Text("Late old conversion text".into()))
+                .unwrap();
+            sender
+                .send(WorkerEvent::CopilotConnected("wrong-old-credentials".into()))
+                .unwrap();
+            sender
+                .send(WorkerEvent::RunFinished {
+                    result: Ok("Wrong old terminal".into()),
+                    terminal: Some(("wrong-old-run".into(), 99)),
+                })
+                .unwrap();
+            drop(sender);
+            view.poll_worker(window, cx);
+
+            let worker = view.worker.as_ref().expect("conversion started its new Run");
+            assert_eq!(worker.kind, WorkerKind::Run);
+            assert_eq!(worker.thread.as_deref(), view.chat_thread());
+            let run_id = worker.run_id.as_ref().unwrap();
+            assert!(matches!(
+                view.workspace.store.record(run_id).unwrap().unwrap().data,
+                RecordData::Run(run) if Some(run.thread.as_str()) == view.chat_thread()
+            ));
+            assert_eq!(view.progress, "Starting…");
+            assert!(view.stream.is_empty());
+            assert!(view.notice.is_empty());
+            assert_eq!(view.workspace.settings().unwrap(), settings);
+            assert!(view.workspace.messages(worker.thread.as_ref().unwrap()).unwrap().iter().any(
+                |record| matches!(&record.data, RecordData::Message(message) if message.role == "owner" && message.text == brn_threads_app::SOURCE_INTAKE_INSTRUCTION)
+            ));
+            worker.cancel.cancel();
+        });
+    })
+    .unwrap();
+    // Cancellation signals the detached provider worker; consume its terminal
+    // before removing the fixture directory and its still-owned Store/RunLease.
+    cx.wait_for(f.window, Duration::from_secs(10), |window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.poll_worker(window, cx);
+            view.worker.is_none()
+        })
+    })
+    .await;
+}
+
+#[gpui_kit::test]
 fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_another_form(
     cx: &mut TestAppContext,
 ) {
