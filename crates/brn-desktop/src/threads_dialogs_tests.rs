@@ -597,14 +597,12 @@ fn working_run(
             .unwrap();
         let (_sender, receiver) = mpsc::sync_channel(4);
         let cancel = CancellationToken::new();
-        view.worker = Some(Worker {
+        view.worker = Some(Worker::run(
             receiver,
-            cancel: cancel.clone(),
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: WorkerKind::Run,
-            thread: Some(thread.into()),
-            run_id: Some(run.clone()),
-        });
+            cancel.clone(),
+            thread.into(),
+            run.clone(),
+        ));
         let lease = brn_ai::run_lease::RunLease::acquire(
             &view.workspace.store.derived_directory().unwrap(),
             &run,

@@ -119,14 +119,11 @@ fn documents_completion_uses_captured_settings_and_stored_provenance(cx: &mut Te
     let (sender, receiver) = mpsc::sync_channel(2);
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |ui, cx| {
-            ui.worker = Some(Worker {
+            ui.worker = Some(Worker::import(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: None,
-                run_id: None,
-            });
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+            ));
             sender
                 .send(WorkerEvent::Converted {
                     result: Box::new(Ok(ConversionResult {

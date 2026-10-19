@@ -527,14 +527,16 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
 fn finish_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
     update(cx, f, |view, window, cx| {
         let (sender, receiver) = mpsc::sync_channel(4);
-        view.worker = Some(Worker {
+        let run = latest_run(&view.records, &view.history, thread)
+            .expect("recorded terminal Run")
+            .id
+            .clone();
+        view.worker = Some(Worker::run(
             receiver,
-            cancel: CancellationToken::new(),
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: WorkerKind::Run,
-            thread: Some(thread.into()),
-            run_id: None,
-        });
+            CancellationToken::new(),
+            thread.into(),
+            run,
+        ));
         sender
             .send(WorkerEvent::Finished(Ok("Finished.".into())))
             .unwrap();

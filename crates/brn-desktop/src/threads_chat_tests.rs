@@ -98,7 +98,12 @@ fn click(cx: &mut TestAppContext, f: &Fixture, id: impl Into<String>) {
     on_window(cx, f, |window, cx| window.click(id, cx));
 }
 /// A synthetic run with its own recorded reason.
-fn record_run(workspace: &mut Workspace, thread: &str, state: RunState, progress: &str) -> String {
+pub(super) fn record_run(
+    workspace: &mut Workspace,
+    thread: &str,
+    state: RunState,
+    progress: &str,
+) -> String {
     let key = format!("chat-run-{}", uuid::Uuid::new_v4());
     let settings = workspace.settings().unwrap();
     let id = workspace
@@ -176,14 +181,12 @@ fn hold_worker(
         brn_ai::run_lease::RunLease::acquire(&ui.workspace.store.derived_directory().unwrap(), run)
             .unwrap();
     let (sender, receiver) = mpsc::sync_channel(16);
-    ui.worker = Some(Worker {
+    ui.worker = Some(Worker::run(
         receiver,
-        cancel: CancellationToken::new(),
-        conversion_cancel: Arc::new(AtomicBool::new(false)),
-        kind: WorkerKind::Run,
-        thread: Some(thread.into()),
-        run_id: Some(run.into()),
-    });
+        CancellationToken::new(),
+        thread.into(),
+        run.into(),
+    ));
     (sender, lease)
 }
 fn notice_tone(cx: &mut TestAppContext, f: &Fixture) -> Option<String> {

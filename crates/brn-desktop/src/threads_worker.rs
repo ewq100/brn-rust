@@ -36,12 +36,22 @@ pub(super) struct Worker {
     pub(super) receiver: Receiver<WorkerEvent>,
     pub(super) cancel: CancellationToken,
     pub(super) conversion_cancel: Arc<AtomicBool>,
-    pub(super) kind: WorkerKind,
-    /// The native stream and cancellation belong to this invocation's thread,
-    /// independently of whichever thread the owner is currently viewing.
-    pub(super) thread: Option<String>,
-    /// Created synchronously before the provider worker can start.
-    pub(super) run_id: Option<String>,
+    operation: WorkerOperation,
+}
+
+/// One invocation's owner, independent of the chat currently being viewed.
+/// Only a Run worker has this identity; both values exist before it starts.
+pub(super) struct RunIdentity {
+    pub(super) thread: String,
+    pub(super) run_id: String,
+}
+
+enum WorkerOperation {
+    Run(RunIdentity),
+    Import,
+    Export,
+    Backup,
+    Connect,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -64,6 +74,72 @@ impl WorkerBatch {
 }
 
 impl Worker {
+    pub(super) fn run(
+        receiver: Receiver<WorkerEvent>,
+        cancel: CancellationToken,
+        thread: String,
+        run_id: String,
+    ) -> Self {
+        Self {
+            receiver,
+            cancel,
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            operation: WorkerOperation::Run(RunIdentity { thread, run_id }),
+        }
+    }
+
+    pub(super) fn import(
+        receiver: Receiver<WorkerEvent>,
+        cancel: CancellationToken,
+        conversion_cancel: Arc<AtomicBool>,
+    ) -> Self {
+        Self {
+            receiver,
+            cancel,
+            conversion_cancel,
+            operation: WorkerOperation::Import,
+        }
+    }
+
+    pub(super) fn output(receiver: Receiver<WorkerEvent>, backup: bool) -> Self {
+        Self {
+            receiver,
+            cancel: CancellationToken::new(),
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            operation: if backup {
+                WorkerOperation::Backup
+            } else {
+                WorkerOperation::Export
+            },
+        }
+    }
+
+    pub(super) fn connect(receiver: Receiver<WorkerEvent>, cancel: CancellationToken) -> Self {
+        Self {
+            receiver,
+            cancel,
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            operation: WorkerOperation::Connect,
+        }
+    }
+
+    pub(super) fn run_identity(&self) -> Option<&RunIdentity> {
+        match &self.operation {
+            WorkerOperation::Run(identity) => Some(identity),
+            _ => None,
+        }
+    }
+
+    pub(super) fn kind(&self) -> WorkerKind {
+        match self.operation {
+            WorkerOperation::Run(_) => WorkerKind::Run,
+            WorkerOperation::Import => WorkerKind::Import,
+            WorkerOperation::Export => WorkerKind::Export,
+            WorkerOperation::Backup => WorkerKind::Backup,
+            WorkerOperation::Connect => WorkerKind::Connect,
+        }
+    }
+
     /// Drain currently available events from this receiver only. The first
     /// terminal wins even if the producer then sends more events or disconnects.
     /// The host must retire this worker after consuming a terminal batch, before
@@ -111,14 +187,12 @@ mod tests {
         let (sender, receiver) = mpsc::sync_channel(16);
         (
             sender,
-            Worker {
+            Worker::run(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Run,
-                thread: Some("original-chat".into()),
-                run_id: Some("original-run".into()),
-            },
+                CancellationToken::new(),
+                "original-chat".into(),
+                "original-run".into(),
+            ),
         )
     }
 

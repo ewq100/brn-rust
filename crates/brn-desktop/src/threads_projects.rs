@@ -117,13 +117,12 @@ impl ThreadsUi {
         let command = if let Some(run) = self
             .worker
             .as_ref()
-            .filter(|w| w.kind == WorkerKind::Run)
-            .and_then(|w| w.run_id.as_ref())
+            .and_then(Worker::run_identity)
             .filter(|_| !self.stream.trim().is_empty())
         {
             ProjectCommand::WithProgress {
                 command: Box::new(command),
-                run: run.clone(),
+                run: run.run_id.clone(),
                 partial: self.stream.clone(),
             }
         } else {
@@ -133,8 +132,9 @@ impl ThreadsUi {
             .workspace
             .project_command(&format!("ui:{}", uuid::Uuid::new_v4()), command)?;
         if let Some(worker) = &self.worker
+            && let Some(run) = worker.run_identity()
             && receipt.writes.iter().any(|w| {
-                Some(w.after.id.as_str()) == worker.run_id.as_deref()
+                w.after.id == run.run_id
                     && matches!(&w.after.data, RecordData::Run(r) if r.state != RunState::Working)
             })
         {

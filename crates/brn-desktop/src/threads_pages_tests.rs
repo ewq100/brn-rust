@@ -1083,14 +1083,7 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
     // While work runs, both Models buttons announce why they wait.
     let _sender = update(cx, &f, |view, _, cx| {
         let (sender, receiver) = mpsc::sync_channel(1);
-        view.worker = Some(Worker {
-            receiver,
-            cancel: CancellationToken::new(),
-            conversion_cancel: Arc::new(AtomicBool::new(false)),
-            kind: WorkerKind::Backup,
-            thread: None,
-            run_id: None,
-        });
+        view.worker = Some(Worker::output(receiver, true));
         cx.notify();
         sender
     });

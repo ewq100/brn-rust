@@ -2953,14 +2953,11 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
             };
             let before = relevant(&view.workspace);
             let (sender, receiver) = mpsc::sync_channel(4);
-            view.worker = Some(Worker {
+            view.worker = Some(Worker::import(
                 receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: None,
-                run_id: None,
-            });
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+            ));
             sender
                 .send(WorkerEvent::Converted {
                     settings: DocumentConversionSettings::default(),
@@ -3034,13 +3031,12 @@ fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mu
                 };
                 let before = relevant(&view.workspace);
                 let saved_setup = view.workspace.writing_setup(&f.a.id, None).unwrap().record;
-                let import_worker = |receiver| Worker {
-                    receiver,
-                    cancel: CancellationToken::new(),
-                    conversion_cancel: Arc::new(AtomicBool::new(false)),
-                    kind: WorkerKind::Import,
-                    thread: None,
-                    run_id: None,
+                let import_worker = |receiver| {
+                    Worker::import(
+                        receiver,
+                        CancellationToken::new(),
+                        Arc::new(AtomicBool::new(false)),
+                    )
                 };
                 let (sender, receiver) = mpsc::sync_channel(4);
                 view.worker = Some(import_worker(receiver));
@@ -3120,14 +3116,7 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
             settings.credentials_dir = None;
             view.workspace.configure(settings.clone()).unwrap();
             let (sender, receiver) = mpsc::sync_channel(8);
-            view.worker = Some(Worker {
-                receiver,
-                cancel: CancellationToken::new(),
-                conversion_cancel: Arc::new(AtomicBool::new(false)),
-                kind: WorkerKind::Import,
-                thread: None,
-                run_id: None,
-            });
+            view.worker = Some(Worker::import(receiver, CancellationToken::new(), Arc::new(AtomicBool::new(false))));
             let mut converted = b3_converted_reference();
             converted.intent = ImportIntent::UsefulInformation;
             converted.source_reference = "synthetic/useful-worker-handoff.md".into();
@@ -3156,9 +3145,9 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
             view.poll_worker(window, cx);
 
             let worker = view.worker.as_ref().expect("conversion started its new Run");
-            assert_eq!(worker.kind, WorkerKind::Run);
-            assert_eq!(worker.thread.as_deref(), view.chat_thread());
-            let run_id = worker.run_id.as_ref().unwrap();
+            let identity = worker.run_identity().expect("successor is a Run");
+            assert_eq!(Some(identity.thread.as_str()), view.chat_thread());
+            let run_id = &identity.run_id;
             assert!(matches!(
                 view.workspace.store.record(run_id).unwrap().unwrap().data,
                 RecordData::Run(run) if Some(run.thread.as_str()) == view.chat_thread()
@@ -3167,7 +3156,7 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
             assert!(view.stream.is_empty());
             assert!(view.notice.is_empty());
             assert_eq!(view.workspace.settings().unwrap(), settings);
-            assert!(view.workspace.messages(worker.thread.as_ref().unwrap()).unwrap().iter().any(
+            assert!(view.workspace.messages(&identity.thread).unwrap().iter().any(
                 |record| matches!(&record.data, RecordData::Message(message) if message.role == "owner" && message.text == brn_threads_app::SOURCE_INTAKE_INSTRUCTION)
             ));
             worker.cancel.cancel();
@@ -3367,14 +3356,11 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
                     purpose: WritingPurpose::Evidence,
                     key: "b3-dirty-conversion".into(),
                 });
-                view.worker = Some(Worker {
+                view.worker = Some(Worker::import(
                     receiver,
-                    cancel: CancellationToken::new(),
-                    conversion_cancel: Arc::new(AtomicBool::new(false)),
-                    kind: WorkerKind::Import,
-                    thread: None,
-                    run_id: None,
-                });
+                    CancellationToken::new(),
+                    Arc::new(AtomicBool::new(false)),
+                ));
                 view.writing
                     .setup_brief
                     .read(cx)
@@ -3872,14 +3858,11 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
                     purpose: WritingPurpose::Evidence,
                     key: "b3-other-dirty-converted".into(),
                 });
-                view.worker = Some(Worker {
+                view.worker = Some(Worker::import(
                     receiver,
-                    cancel: CancellationToken::new(),
-                    conversion_cancel: Arc::new(AtomicBool::new(false)),
-                    kind: WorkerKind::Import,
-                    thread: None,
-                    run_id: None,
-                });
+                    CancellationToken::new(),
+                    Arc::new(AtomicBool::new(false)),
+                ));
                 view.open_note(&f.b.id, None, window, cx);
                 view.load_writing_setup(window, cx);
                 assert_eq!(view.writing.setup.as_ref().unwrap().target.note, f.b.id);
