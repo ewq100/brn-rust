@@ -361,7 +361,6 @@ struct ThreadsUi {
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
     attaching_chat: Option<String>,
-    reference_import: Option<ReferenceImportIntent>,
     reference_search_generation: u64,
     reference_search_cancel: Option<brn_threads_app::search::CancelOnDrop>,
     selected_project: Option<String>,
@@ -644,7 +643,6 @@ impl ThreadsUi {
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
             attaching_chat: None,
-            reference_import: None,
             reference_search_generation: 0,
             reference_search_cancel: None,
             selected_project: None,
@@ -2771,6 +2769,11 @@ impl ThreadsUi {
                     settings,
                     useful_project,
                 } => {
+                    let reference = self
+                        .worker
+                        .as_ref()
+                        .and_then(Worker::reference_import)
+                        .cloned();
                     let cancelled = self.worker.as_ref().is_some_and(|worker| {
                         worker.cancel.is_cancelled()
                             || worker
@@ -2786,9 +2789,9 @@ impl ThreadsUi {
                     };
                     match result {
                         Ok(converted) => {
-                            if let Some(reference) = self.reference_import.take() {
+                            if let Some(reference) = reference.as_ref() {
                                 allow_dispatch = self.complete_writing_reference_import(
-                                    &reference, &title, &converted, &settings, window, cx,
+                                    reference, &title, &converted, &settings, window, cx,
                                 );
                             } else if converted.intent == ImportIntent::FullNote {
                                 let key = format!(
@@ -2844,7 +2847,7 @@ impl ThreadsUi {
                         // The owner's own Stop is a warning; any other failure is an error.
                         Err(e) if cancelled => self.warn(format!("Import stopped: {e}")),
                         Err(_)
-                            if self.reference_import.as_ref().is_some_and(|reference| {
+                            if reference.as_ref().is_some_and(|reference| {
                                 !self.reference_import_context_displayed(reference)
                             }) =>
                         {
@@ -2852,7 +2855,6 @@ impl ThreadsUi {
                         }
                         Err(e) => self.fail(format!("Import stopped: {e}")),
                     }
-                    self.reference_import = None;
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
                             .workspace
@@ -2887,7 +2889,6 @@ impl ThreadsUi {
         {
             self.run_activity_status = "Disconnected".into();
         }
-        self.reference_import = None;
         self.worker = None;
         self.pending_send = None;
         self.stream.clear();
@@ -2989,7 +2990,6 @@ impl ThreadsUi {
             multiple: false,
             prompt: Some("Choose a document, note or email".into()),
         });
-        let data = self.data_dir.clone();
         cx.spawn_in(window, async move |this, cx| {
             let paths = receiver.await;
             let _ = this.update_in(cx, |this, _, cx| match paths {
@@ -3014,17 +3014,7 @@ impl ThreadsUi {
                             cx.notify();
                             return;
                         }
-                        if this.worker.is_none() {
-                            this.reference_import = None;
-                        }
-                        this.convert_file(data, path, intent, attachment_chat, cx);
-                        if this
-                            .worker
-                            .as_ref()
-                            .is_some_and(|worker| worker.kind() == WorkerKind::Import)
-                        {
-                            this.reference_import = reference;
-                        }
+                        this.convert_file(reference, path, intent, attachment_chat, cx);
                     }
                 }
                 Ok(Ok(None)) => {}
@@ -3038,7 +3028,7 @@ impl ThreadsUi {
     }
     fn convert_file(
         &mut self,
-        _data: PathBuf,
+        reference_intent: Option<ReferenceImportIntent>,
         path: PathBuf,
         intent: ImportIntent,
         attachment_chat: Option<String>,
@@ -3160,7 +3150,12 @@ impl ThreadsUi {
                 useful_project,
             });
         });
-        self.worker = Some(Worker::import(receiver, cancel, cancel_flag));
+        self.worker = Some(Worker::import(
+            receiver,
+            cancel,
+            cancel_flag,
+            reference_intent,
+        ));
         self.progress = if intent == ImportIntent::FullNote {
             "Reading the full document…"
         } else {
@@ -4175,8 +4170,8 @@ impl ThreadsUi {
             reference_importing: self
                 .worker
                 .as_ref()
-                .is_some_and(|worker| worker.kind() == WorkerKind::Import)
-                && self.reference_import.as_ref().is_some_and(|intent| {
+                .and_then(Worker::reference_import)
+                .is_some_and(|intent| {
                     self.open_note_id() == Some(intent.target.note.as_str())
                         && self.note_writing_scope == intent.target.scope
                 }),

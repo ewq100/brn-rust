@@ -123,6 +123,7 @@ fn documents_completion_uses_captured_settings_and_stored_provenance(cx: &mut Te
                 receiver,
                 CancellationToken::new(),
                 Arc::new(AtomicBool::new(false)),
+                None,
             ));
             sender
                 .send(WorkerEvent::Converted {
@@ -338,13 +339,7 @@ fn documents_native_worker_runs_selected_helper_without_credentials(cx: &mut Tes
             .unwrap();
         cx.update_window(window, |_, _, cx| {
             view.update(cx, |ui, cx| {
-                ui.convert_file(
-                    data.clone(),
-                    source.clone(),
-                    ImportIntent::FullNote,
-                    None,
-                    cx,
-                )
+                ui.convert_file(None, source.clone(), ImportIntent::FullNote, None, cx)
             })
         })
         .unwrap();
@@ -477,7 +472,7 @@ fn useful_navigation(cx: &mut TestAppContext, from_project: bool, to_project: bo
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |ui, cx| {
             ui.convert_file(
-                data.clone(),
+                None,
                 source.clone(),
                 ImportIntent::UsefulInformation,
                 None,

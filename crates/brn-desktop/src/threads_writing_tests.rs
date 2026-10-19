@@ -2934,11 +2934,11 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
         f.view.update(cx, |view, cx| {
             view.open_note(&f.a.id, None, window, cx);
             view.load_writing_setup(window, cx);
-            view.reference_import = Some(ReferenceImportIntent {
+            let reference = ReferenceImportIntent {
                 target: view.writing.setup.as_ref().unwrap().target.clone(),
                 purpose: WritingPurpose::Evidence,
                 key: "b3-cancelled-reference".into(),
-            });
+            };
             let relevant = |workspace: &Workspace| {
                 workspace
                     .records()
@@ -2961,6 +2961,7 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
                 receiver,
                 CancellationToken::new(),
                 Arc::new(AtomicBool::new(false)),
+                Some(reference),
             ));
             sender
                 .send(WorkerEvent::Converted {
@@ -2974,7 +2975,6 @@ fn b3_cancelled_reference_conversion_never_imports_or_attaches_and_clears_intent
             view.cancel(cx);
             view.poll_worker(window, cx);
             assert!(view.worker.is_none());
-            assert!(view.reference_import.is_none());
             assert!(view.notice.text().contains("stopped before saving"));
             assert_eq!(relevant(&view.workspace), before);
             assert!(
@@ -3009,11 +3009,11 @@ fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mu
                     .unwrap();
                 view.open_note(&f.a.id, None, window, cx);
                 view.load_writing_setup(window, cx);
-                view.reference_import = Some(ReferenceImportIntent {
+                let reference = ReferenceImportIntent {
                     target: view.writing.setup.as_ref().unwrap().target.clone(),
                     purpose: WritingPurpose::Evidence,
                     key: "b3-disconnected-reference".into(),
-                });
+                };
                 view.workspace
                     .queue_message("b3-disconnected-waiting", &f.chat_a, "Keep waiting")
                     .unwrap();
@@ -3035,15 +3035,16 @@ fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mu
                 };
                 let before = relevant(&view.workspace);
                 let saved_setup = view.workspace.writing_setup(&f.a.id, None).unwrap().record;
-                let import_worker = |receiver| {
+                let import_worker = |receiver, reference| {
                     Worker::import(
                         receiver,
                         CancellationToken::new(),
                         Arc::new(AtomicBool::new(false)),
+                        reference,
                     )
                 };
                 let (sender, receiver) = mpsc::sync_channel(4);
-                view.worker = Some(import_worker(receiver));
+                view.worker = Some(import_worker(receiver, Some(reference)));
                 if with_progress {
                     sender
                         .send(WorkerEvent::Progress("Reading reference…".into()))
@@ -3052,18 +3053,17 @@ fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mu
                 drop(sender);
                 view.poll_worker(window, cx);
                 assert!(view.worker.is_none());
-                let intent_cleared = view.reference_import.is_none();
                 assert_eq!(relevant(&view.workspace), before);
                 let queue = view.queue_state();
                 assert!(queue.paused);
                 assert_eq!(queue.queue.len(), 1);
                 assert_eq!(queue.queue[0].text, "Keep waiting");
 
-                // Drag/drop and clipboard attachments start conversion directly,
-                // without the file picker's reference-intent reset. Inject their
-                // synthetic conversion completion through the production poller.
+                // A chat attachment is an ordinary Import worker with no
+                // reference target. Inject its synthetic completion through the
+                // production poller.
                 let (sender, receiver) = mpsc::sync_channel(4);
-                view.worker = Some(import_worker(receiver));
+                view.worker = Some(import_worker(receiver, None));
                 sender
                     .send(WorkerEvent::Converted {
                         result: Box::new(Ok(b3_converted_reference())),
@@ -3092,8 +3092,7 @@ fn b3_reference_disconnect_clears_intent_before_the_next_chat_attachment(cx: &mu
                     view.workspace.writing_setup(&f.a.id, None).unwrap().record,
                     saved_setup
                 );
-                assert!(intent_cleared, "disconnect must clear reference intent");
-                assert!(view.reference_import.is_none() && view.worker.is_none());
+                assert!(view.worker.is_none());
                 assert!(view.queue_state().paused);
             });
         })
@@ -3120,7 +3119,12 @@ async fn useful_conversion_keeps_its_new_run_and_rejects_trailing_old_worker_eff
             settings.credentials_dir = None;
             view.workspace.configure(settings.clone()).unwrap();
             let (sender, receiver) = mpsc::sync_channel(8);
-            view.worker = Some(Worker::import(receiver, CancellationToken::new(), Arc::new(AtomicBool::new(false))));
+            view.worker = Some(Worker::import(
+                receiver,
+                CancellationToken::new(),
+                Arc::new(AtomicBool::new(false)),
+                None,
+            ));
             let mut converted = b3_converted_reference();
             converted.intent = ImportIntent::UsefulInformation;
             converted.source_reference = "synthetic/useful-worker-handoff.md".into();
@@ -3355,15 +3359,16 @@ fn b3_dirty_setup_survives_converted_completion_and_rechecks_without_retargeting
                     .unwrap();
                 assert_eq!(page.matches[0].note, pending.id);
                 view.writing.setup.as_mut().unwrap().matches = page.matches;
-                view.reference_import = Some(ReferenceImportIntent {
+                let reference = ReferenceImportIntent {
                     target: view.writing.setup.as_ref().unwrap().target.clone(),
                     purpose: WritingPurpose::Evidence,
                     key: "b3-dirty-conversion".into(),
-                });
+                };
                 view.worker = Some(Worker::import(
                     receiver,
                     CancellationToken::new(),
                     Arc::new(AtomicBool::new(false)),
+                    Some(reference),
                 ));
                 view.writing
                     .setup_brief
@@ -3857,15 +3862,16 @@ fn b3_import_completion_keeps_another_notes_hidden_dirty_setup(cx: &mut TestAppC
                 view.load_writing_setup(window, cx);
                 assert!(!view.writing_setup_dirty(cx));
                 // The existing picker/worker contract is injected; conversion itself is synthetic.
-                view.reference_import = Some(ReferenceImportIntent {
+                let reference = ReferenceImportIntent {
                     target: view.writing.setup.as_ref().unwrap().target.clone(),
                     purpose: WritingPurpose::Evidence,
                     key: "b3-other-dirty-converted".into(),
-                });
+                };
                 view.worker = Some(Worker::import(
                     receiver,
                     CancellationToken::new(),
                     Arc::new(AtomicBool::new(false)),
+                    Some(reference),
                 ));
                 view.open_note(&f.b.id, None, window, cx);
                 view.load_writing_setup(window, cx);

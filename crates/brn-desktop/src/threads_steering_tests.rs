@@ -658,6 +658,7 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                 receiver,
                 CancellationToken::new(),
                 Arc::new(AtomicBool::new(false)),
+                None,
             ));
             ui.progress = "Unrelated conversion".into();
             cx.notify();
@@ -706,6 +707,7 @@ fn queued_question_dispatches_after_successful_attachment_preparation(cx: &mut T
                 old.receiver,
                 old.cancel,
                 old.conversion_cancel,
+                None,
             ));
             ui.ask(window, cx);
             assert_eq!(ui.queue_state().queue.len(), 1);

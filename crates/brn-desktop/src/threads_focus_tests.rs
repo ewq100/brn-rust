@@ -78,6 +78,7 @@ fn stop_after_conversion_is_queued_prevents_the_import_commit(cx: &mut TestAppCo
                 receiver,
                 CancellationToken::new(),
                 Arc::new(AtomicBool::new(false)),
+                None,
             ));
             sender
                 .send(WorkerEvent::Converted {
@@ -459,6 +460,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                             receiver,
                             CancellationToken::new(),
                             Arc::new(AtomicBool::new(false)),
+                            None,
                         ),
                         WorkerKind::Export | WorkerKind::Backup => {
                             Worker::output(receiver, kind == WorkerKind::Backup)
