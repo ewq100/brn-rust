@@ -45,5 +45,15 @@
     "Prior source-bound UI/state witnesses retained; no repeated broad suite locally",
     "Original native artifacts and synthetic fixtures preserved"
   ],
-  "existing_helper_route": "review-group-qualification.json and feedback-inclusion-qualification.json hold unchanged qualified helpers/fixture source; reconcile bytes at launch"
+  "existing_helper_route": "review-group-qualification.json and feedback-inclusion-qualification.json hold unchanged qualified helpers/fixture source; reconcile bytes at launch",
+  "later_applicability": [
+    {
+      "observed_at": "2026-10-20T09:34:40.609777+00:00",
+      "integrated_main": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+      "production_tree_matches_build_source": true,
+      "preserved_binary_hash_verified": true,
+      "required_resulting_main": "pending39401033547",
+      "native": "not launched; daily actual qualification separate"
+    }
+  ]
 }

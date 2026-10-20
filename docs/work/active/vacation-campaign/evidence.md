@@ -558,3 +558,10 @@ remaining; first unattended wake remains unobserved.
 [Backup/export audit](evidence/2026-10-20-backup-failure-audit.md) identified missing export directory flushes by source inspection. The current task record owns its selected correction and current gates; the audit alone is not executed qualification.
 
 [Export qualification](evidence/export-durability-qualification.json) preserves the six focused passing tests, full logs and toolchain warning for reviewed source0f64a034. [Independent source review](evidence/export-durability-review.md) and [evidence review](evidence/writing-evidence-review.md) passed; current publication/merge gates remain in the task record.
+
+
+## 20 October — completion and feedback-cost inspection
+
+[Action/history audit](evidence/action-history-audit.md) selected a missing Confirm done UI-to-Store/receipt Undo witness. [Qualification](evidence/action-completion-qualification.json) retains the bounded extension to the existing journey, passing focused/full desktop checks and original test-authoring failures; it is toolkit evidence, not actual Mac interaction.
+
+[CI timing receipt](evidence/ci-cost-triage.md) compares two completed runs and preserves its limits/original report. No safe test or required-lane removal was established. Dated workflow/test snapshots remain history; the current task record owns present gates.

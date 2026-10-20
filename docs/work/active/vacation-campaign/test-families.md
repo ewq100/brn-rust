@@ -1,8 +1,6 @@
 # Test-family audit (bounded)
 
-Snapshot: current vacation-campaign pilot after integrating shared Note and Review
-lifecycle owners. This is a practical family map, not a per-case retirement
-authorization. Historical timing evidence is explicitly labeled. Keep behavior at
+Historical pilot snapshot after integrating shared Note and Review lifecycle owners, with later source-bound annotations below. Current tasks and gates live in [campaign state](campaign.json) and [the overview](../../overview.md). This is a practical family map, not a per-case retirement authorization. Historical timing evidence is explicitly labeled. Keep behavior at
 one authoritative interface; add a second layer only for a distinct failure class
 (native wiring, serialized bytes, persistence, OS behavior, package, or pixels).
 
@@ -24,6 +22,8 @@ one authoritative interface; add a second layer only for a distinct failure clas
 | CLI/end-to-end contracts: `scripts/verify-end-to-end.sh`, fixtures; `crates/brn/tests` | Fresh startup, documented JSON route, export/backup and foreign-data refusal | **KEEP** as cross-process durable behavior; fixture-only scripted provider lane is not a live-provider claim. |
 
 ## CI graph and cost evidence
+
+The [20 October two-run timing assessment](evidence/ci-cost-triage.md) and [timing receipt](evidence/ci-cost-triage.json) provide newer measured observations. They establish no safe CI/test/cache simplification; distinct required helper and feature guarantees remain. The detailed results below are earlier source-bound history.
 
 `.github/workflows/ci.yml` carries the default workspace, helper, scripted document,
 capability, native desktop and retrieval lanes. Historical roadmap snapshots remain

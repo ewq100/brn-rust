@@ -1,0 +1,48 @@
+{
+  "assessment": "bounded read-only; no change recommended",
+  "repo": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+  "baseline_requested": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+  "runs": [
+    {
+      "id": 39392977994,
+      "event": "pull_request",
+      "sha": "7225c20877edcb5c4dd20d50d530095682d10c40",
+      "created_at": "2026-10-20T08:22:53Z"
+    },
+    {
+      "id": 39392850688,
+      "event": "push",
+      "sha": "02445b283d85ac09d24f7ee7f111039a87b4dbb5",
+      "created_at": "2026-10-20T08:21:50Z"
+    }
+  ],
+  "macos_jobs_seconds": {
+    "main": {
+      "core_cli": 1499,
+      "native_ui": 2339,
+      "native_retrieval": 822
+    },
+    "pull_request": {
+      "core_cli": 1350,
+      "native_ui": 2033,
+      "native_retrieval": 845
+    }
+  },
+  "helper_prepare_seconds": {
+    "main": {
+      "core_cli": 396,
+      "native_ui": 731,
+      "native_retrieval": 396
+    },
+    "pull_request": {
+      "core_cli": 422,
+      "native_ui": 734,
+      "native_retrieval": 428
+    }
+  },
+  "queue": "Not separately measurable from available job timestamps; PR native UI started 775 seconds after run creation, main native UI 9 seconds after run creation.",
+  "candidate": null,
+  "reason": "Helper prep is costly but required and helper tests reuse the same explicit mode target directories; no safe lane/test/cache change is demonstrated by two runs on different SHAs/cache states.",
+  "lead_reconciliation": "Exact inspected run SHAs are ancestors of main20f; Core/CLI Windows also runs on PR. Leadproductiontree matches20f.",
+  "lead_timing_verification": "Six job elapsed observations independently matched fresh GitHub run API; step-level figures remain helper-inspected."
+}

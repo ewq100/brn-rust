@@ -1,0 +1,99 @@
+{
+  "observed_at": "2026-10-20T09:41:32.173554+00:00",
+  "source": "12679ef4cd7248e44efb1d89ce37f59352ac2fd8",
+  "base": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+  "checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "binary_diff_sha256": "6918165362dc2c7a419d49f99951a9f04195fbdee493a85f2ecb266e7805eda0",
+  "changed_paths": [
+    "crates/brn-desktop/src/threads_tiled_tests.rs"
+  ],
+  "check_record": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-run-record.md.gz",
+  "checks": {
+    "focused": "PASS1,333filtered",
+    "desktop": "PASS333,0failed,1ignored; ignored external shared-intake fixture unchanged",
+    "clippy": "PASS native-ui,native-test-support all-targets -D warnings",
+    "fmt": "PASS",
+    "diff": "PASS"
+  },
+  "test_count": "334 unchanged; extended existing journey rather than adding a test",
+  "lead_log_reconciliation": {
+    "focused.log": "Raw first compiled failure: Actions lookup while History focused; not cargo selector output. Helper run-record mapping was inaccurate.",
+    "focused-rerun.log": "Raw second compiled failure: expected original version1 instead of actual restored version3.",
+    "fmt.log": "Original formatter failure retained.",
+    "selector_failure": "Reported direct cargo +1.98.1 selector error101; raw output not located in these files. Do not claim archived."
+  },
+  "raw_archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-clippy.log.gz",
+      "original_bytes": 1253,
+      "original_sha256": "5bd4a047ea48d8814114f2e41e4203a7279939d7be6e7d6334390f24f44e984e",
+      "archive_sha256": "d5512c191c0a925bdcb3d57006264480b01aa2cd515a3a0a06a3d4f339f659c2"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-desktop-suite.log.gz",
+      "original_bytes": 34557,
+      "original_sha256": "4380ecbc8f5a207b20c215e18d5b2db829a1b141898e90b6c2b37e8a64e7dec5",
+      "archive_sha256": "a3d98228ce963cef8986a00bd6f72182db7804cf08b212360b95b59bf9232a99"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-diff-check-final.log.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-diff-check.log.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-fmt-final.log.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-fmt.log.gz",
+      "original_bytes": 633,
+      "original_sha256": "c4f76fc4fb5aa851220eaad381c45d519f1f1d5dcace1e1b81127d1226e3aed4",
+      "archive_sha256": "6cb920e5fa4c34c1c0c96517fa5a3907fe3d70353363f0760101c3f365032612"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-focused-final.log.gz",
+      "original_bytes": 791,
+      "original_sha256": "c1a39900e88e52620bc2f00de7270163eacbf019219d9cced8c4510974b8b144",
+      "archive_sha256": "96890028d2d18a4302f9ff8a5a030fd277c8aeb7c0deedb706395845e702184c"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-focused-rerun.log.gz",
+      "original_bytes": 2780,
+      "original_sha256": "70a5f68483a0417df6662c7f979d8642bb795e7da4bbd6a868e884256ed5615a",
+      "archive_sha256": "eed57fd88ecab5c2100171984741d869469e7c816500238701af3e3cb90be77b"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-focused.log.gz",
+      "original_bytes": 19942,
+      "original_sha256": "17685fb155027433d93b4606652317d6bc8450ab4803cf7bbc9d1f8871f09957",
+      "archive_sha256": "27184dc7a78b0cf0ca86bc33e36117d166801030247ecd92fa66eac30b5e0dd1"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-run-record.md.gz",
+      "original_bytes": 3451,
+      "original_sha256": "de6e5bb1f49b4218a0fb4cc00e0ab009e9a9e8c0890ca70ee99e8fbb5820980e",
+      "archive_sha256": "c5525df6a6415b057ae6a64631c3103399a858525cedec729d648afcbe42c719"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/action-completion-raw/brn-action-history-rustfmt.log.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ],
+  "limits": [
+    "Headless toolkit control callbacks and canonical data/receipt assertions; no OS/native interaction or owner acceptance",
+    "No production change, account call or extra test attribute",
+    "Existing block0.1.6 future-incompatibility warning retained",
+    "Independent source review pending; integration pending required hosted checks"
+  ]
+}

@@ -31,6 +31,32 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure
 
 </details>
 
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: bounded Luna medium writer; lead integration and independent Sol review · State: **active** · Last observed: 2026-10-20T09:41:32.173897+00:00
+Activity: Frozen test-only12679ef4 extends existing Waiting/Undo journey through Confirm done and exact receipt Undo. Focused and333/0/1 full toolkit suite, strict lint,fmt,diff passed; independent Sol review active.
+Next: Resolve independent review, compose complete source/evidence candidate and inspect applicable hosted gates before normal integration.
+Resource waits: Independent review; no shared build held.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
+- **checks:** PASS focused1/333filtered, full desktop333/0/1,strict lint,format,diff; original test-authoring failures retained; independent review pending
+- **integration:** pending independent review, required hosted gates and normal integration
+- **native:** toolkit checks are not OS interaction or owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json)
+
+Attempts:
+
+- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
+
+</details>
+
 ## Next
 
 None recorded.
@@ -97,6 +123,14 @@ Owner: development lead; Luna implementation and independent Sol reviews complet
 Waiting:
 
 - resource: Hosted resulting-main20fcd738; independent bounded headless work may continue.
+
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: bounded Luna medium writer; lead integration and independent Sol review
+
+Waiting:
+
+- resource: Independent review; no shared build held.
 
 ## Completed
 
@@ -427,6 +461,48 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-queue-recovery
 
 </details>
 
+### Measure current automated-check feedback cost
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:34:14.850064+00:00
+Activity: Measured two completed CI runs; lead independently matched six Mac job durations. Required helper/feature lanes already reuse appropriate build targets; no safe optimization established.
+Next: Retain current required checks. Revisit only with comparable cache/feature/toolchain and per-test compile/body evidence.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: bounded investigation until a demonstrated correction selects work
+- **checks:** PASS bounded timing/source assessment only; no tests rerun or code changed
+- **integration:** inapplicable to investigation
+- **native:** not observed; separate native batch
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cost-triage.md](active/vacation-campaign/evidence/ci-cost-triage.md), [docs/work/active/vacation-campaign/evidence/ci-cost-triage.json](active/vacation-campaign/evidence/ci-cost-triage.json)
+
+</details>
+
+### Inspect Action and history Undo safeguards
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:34:14.850064+00:00
+Activity: No apparent identity/version defect; found missing actual Confirm done UI completion-evidence and receipt Undo witness. Lead validated existing test only exercises Waiting and selected a bounded extension.
+Next: Extend the existing Action/Undo journey, preserving Waiting coverage and test count.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: bounded investigation until a demonstrated correction selects work
+- **checks:** source/test inspection only; selected missing consequential UI-to-Store behavior witness
+- **integration:** inapplicable to investigation
+- **native:** not observed; separate native batch
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -445,4 +521,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T09:30:16.780781+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T09:41:32.173897+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
