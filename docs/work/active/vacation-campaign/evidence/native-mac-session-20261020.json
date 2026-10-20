@@ -131,7 +131,8 @@
         "writing-review/after-undo.json",
         "writing-review/undo-checks.json"
       ],
-      "limits": "No generation, Send, Retry, Rewrite or account contact. Original fixture preserved. Close not completed: CUA next observation reported Mac locked and automatic unlock unavailable; running task app retained."
+      "limits": "No generation, Send, Retry, Rewrite or account contact. Original fixture preserved. Close not completed: CUA next observation reported Mac locked and automatic unlock unavailable; running task app retained.",
+      "navigation_observation": "Needs you menu heading was exposed in AX; visible writing-proposal menu item had no named AX entry in the observation and was activated by screenshot coordinate1100,160. Activation worked; separate bounded source audit selected, not a menu accessibility pass."
     },
     "MAC-08": {
       "verdict": "DEFERRED: Mac locked before remaining grouped review scenario; no attempt or pass claimed",

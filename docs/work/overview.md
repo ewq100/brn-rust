@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Make visible note rows discoverable to Mac accessibility
 
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:43:43.000778+00:00
-Activity: Candidate9b0b13e1 prepared and independently reviewed with no remaining findings. Focused real Tab/Space regression1/0; desktop341/0/1, strict lint/format/ordinary native build PASS. Original missing-role, harness and actual Tab-stop failures retained.
-Next: Publish source-only PR with stable reviewed head9b0b13e1; inspect actual required checks/protection before normal merge. Native AX recheck waits for unlocked Mac.
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:44:34.704044+00:00
+Activity: Reviewed source-only PR186 published at9b0b13e1; local checks PASS. Hosted required run39441912609 queued/running; keep exact PR head stable. Native AX recheck pending locked Mac.
+Next: Hold PR186 head9b0b13e1 stable while required hosted checks run. Matching555 app/fresh synthetic Note clone prepared without launch for MAC11 after unlock; close prior undone review app first. Normal merge only after actual gates; resulting-main separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,16 +22,37 @@ Gates:
 
 - **implementation:** PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1
 - **checks:** PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained
-- **integration:** pending publication and all four required exact-head checks plus normal merge/resulting-main separately
+- **integration:** PR186 OPEN9b0b13e1, required head39441912609 pending; no merge
 - **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json)
 
 Attempts:
 
 - Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection.: Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
 - Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.: Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
+
+</details>
+
+### Inspect the accessibility name of Needs you menu choices
+
+Owner: bounded Luna medium read-only audit; lead validates · State: **active** · Last observed: 2026-10-20T14:44:52.326268+00:00
+Activity: During MAC09, the visible saved-proposal Needs you menu choice required coordinate activation while AX exposed its heading. Inspect custom menu-row naming against the active pinned component; no additional native pass or source fix inferred.
+Next: Trace exact custom menu item wrapper/child roles and name, retained rendering/keyboard tests; report smallest source-supported correction only if concrete. No builds, desktop/account activity or source edits.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only, no correction selected
+- **checks:** bounded static inspection pending; actual symptom from current-session CUA observation
+- **integration:** inapplicable unless separate verified candidate selected
+- **native:** choice visible; coordinate activation succeeded, no named choice in AX observation; not full VoiceOver qualification
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn-desktop/src/threads_shell.rs](../../crates/brn-desktop/src/threads_shell.rs)
 
 </details>
 
@@ -805,4 +826,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T14:43:43.000778+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T14:44:52.326268+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

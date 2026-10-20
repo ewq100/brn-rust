@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T14:43:43.000778+00:00",
+    "observed_at": "2026-10-20T14:44:52.326268+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1178,22 +1178,25 @@
         "title": "Make visible note rows discoverable to Mac accessibility",
         "state": "active",
         "owner": "bounded Luna medium implementation; lead disposition/integration; independent Sol review",
-        "activity": "Candidate9b0b13e1 prepared and independently reviewed with no remaining findings. Focused real Tab/Space regression1/0; desktop341/0/1, strict lint/format/ordinary native build PASS. Original missing-role, harness and actual Tab-stop failures retained.",
-        "observed_at": "2026-10-20T14:43:43.000778+00:00",
+        "activity": "Reviewed source-only PR186 published at9b0b13e1; local checks PASS. Hosted required run39441912609 queued/running; keep exact PR head stable. Native AX recheck pending locked Mac.",
+        "observed_at": "2026-10-20T14:44:34.704044+00:00",
         "origin": "observed",
-        "next_action": "Publish source-only PR with stable reviewed head9b0b13e1; inspect actual required checks/protection before normal merge. Native AX recheck waits for unlocked Mac.",
+        "next_action": "Hold PR186 head9b0b13e1 stable while required hosted checks run. Matching555 app/fresh synthetic Note clone prepared without launch for MAC11 after unlock; close prior undone review app first. Normal merge only after actual gates; resulting-main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
           "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md",
           "docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md"
+          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md",
+          "https://github.com/ewq100/brn-rust/pull/186",
+          "docs/work/active/vacation-campaign/evidence/pr186-publication.json",
+          "docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json"
         ],
         "gates": {
           "implementation": "PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1",
           "checks": "PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained",
-          "integration": "pending publication and all four required exact-head checks plus normal merge/resulting-main separately",
+          "integration": "PR186 OPEN9b0b13e1, required head39441912609 pending; no merge",
           "native": "Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access",
           "owner_acceptance": "not claimed"
         },
@@ -1214,6 +1217,31 @@
           }
         ],
         "resource_plan": "Owner permits small Luna implementation. Requested Luna medium, fresh context; independent Sol high review afterward; max2 helpers within4 total slots. Lead alone writes campaign docs and owns integration; helper only Notes renderer/tests in export-durability checkout. No build until lead grants shared target; no desktop/account actor."
+      },
+      {
+        "id": "needs-you-menu-accessibility-audit",
+        "title": "Inspect the accessibility name of Needs you menu choices",
+        "state": "active",
+        "owner": "bounded Luna medium read-only audit; lead validates",
+        "activity": "During MAC09, the visible saved-proposal Needs you menu choice required coordinate activation while AX exposed its heading. Inspect custom menu-row naming against the active pinned component; no additional native pass or source fix inferred.",
+        "observed_at": "2026-10-20T14:44:52.326268+00:00",
+        "origin": "observed",
+        "next_action": "Trace exact custom menu item wrapper/child roles and name, retained rendering/keyboard tests; report smallest source-supported correction only if concrete. No builds, desktop/account activity or source edits.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
+          "crates/brn-desktop/src/threads_shell.rs"
+        ],
+        "gates": {
+          "implementation": "audit only, no correction selected",
+          "checks": "bounded static inspection pending; actual symptom from current-session CUA observation",
+          "integration": "inapplicable unless separate verified candidate selected",
+          "native": "choice visible; coordinate activation succeeded, no named choice in AX observation; not full VoiceOver qualification",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium fresh context for separable active dependency/name audit while lead owns CI/native follow-up; max1 active helper,4 total runtime slots. No nested delegation or source writer."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1229,13 +1257,20 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-native-session-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T14:43:43.000778+00:00",
-    "runtime_capacity": "4 total slots; bounded Luna worker and independent Sol reviewer completed; lead integration owner",
+    "observed_at": "2026-10-20T14:44:34.704044+00:00",
+    "runtime_capacity": "4 total slots; lead plus one bounded Luna read-only menu audit; prior source writer/reviewer completed",
     "build_slot": "free; final candidate ordinary build archived555 with exact source/hash",
     "desktop_account_actor": "writing-review app remains open after verified Undo; desktop locked, no further CUA actions or account tests",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39441912609,
+        "command": "gh run watch39441912609 --interval60",
+        "log": "/tmp/brn-pr186-ci-watch.log",
+        "scope": "read-only until workflow ends; inspect actual final exact-head results separately"
+      }
+    ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR185 all four required resulting-main PASS; reviewed Notes candidate9b0b13e1 publication next",
+    "integration": "PR186 source-only9b0b13e1 held stable; run39441912609 required-head pending",
     "wait_reason": "Mac manual unlock required for further native work; headless work admitted",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }

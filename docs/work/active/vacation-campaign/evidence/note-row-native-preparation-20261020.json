@@ -1,0 +1,56 @@
+{
+  "prepared_at": "2026-10-20T14:45:48.945888+00:00",
+  "source": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+  "qualification": "reviewed/local-qualified candidate; hosted exact-head checks pending, not merged/main/native-observed",
+  "app": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app",
+  "data_dir": "/private/tmp/brn-native-20261020T134854Z/note-row-review",
+  "clone_source": "/private/tmp/brn-native-20261020T134854Z/data",
+  "source_files_before": {
+    "threads.sqlite3": "da63a52bdf62b3fc863995d79f497584be3ba97c1de4c55d1d301afbafab6cfc",
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+  },
+  "source_files_after": {
+    "threads.sqlite3": "da63a52bdf62b3fc863995d79f497584be3ba97c1de4c55d1d301afbafab6cfc",
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+  },
+  "method": "SQLite read-only source online backup to fresh synthetic clone plus data marker only; no credential files/assets/derived data copied; original retains unsaved edit",
+  "binary_manifest": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+      "sha256": "baa72d5715749e23678511f3da6929bf6c22008431988172ebfebcbf7bb1f7b9",
+      "mode": "0o555"
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "mode": "0o555"
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "mode": "0o555"
+    }
+  ],
+  "packaging_command": [
+    "bash",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+    "--output",
+    "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app",
+    "--binary",
+    "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/brn-desktop",
+    "--xberg-helper",
+    "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+    "--xberg-helper-brn",
+    "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+    "--data-dir",
+    "/private/tmp/brn-native-20261020T134854Z/note-row-review"
+  ],
+  "packaging_exit": 0,
+  "original_launcher_sha256": "c7124e35de921983515397fdb717a525d3da618c248847b6406cd0a99b9f7cd8",
+  "actual_launcher_sha256": "4aca417d2182f64119c85b2a4f4094b44a175c093d1dac1850dea39c40ae9aac",
+  "launcher_environment": "task-specific log folder and empty embedding-model folder before first launch",
+  "launched": false,
+  "account_runs": 0,
+  "scenario": "MAC11: close prior undone writing-review app through actual OS controls first. Open candidate app on clone, inspect named Notes rows through actual AX in Recent/Linked/All; use named row activation and filtered search Tab/Space to open exact Note. Compare canonical Note/drafts to clone baseline without Save/repair. Screenshot/AX observations distinct from native VoiceOver/IME/owner acceptance. Do not repeat original Save/backup/recovery journeys.",
+  "resource_wait": "Mac locked; automatic unlock unavailable; manual unlock requested, sole lead desktop actor."
+}

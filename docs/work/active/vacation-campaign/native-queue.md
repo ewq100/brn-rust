@@ -20,6 +20,21 @@ bounded correction task. Do not replay these unchanged passing journeys merely
 because a later daily heartbeat arrives. Earlier preparation states below are
 historical; current actions and resource waits live in campaign.json.
 
+## MAC-11 Notes-row accessibility follow-up
+
+[Reviewed candidate9b0b13e1 preparation](evidence/note-row-native-preparation-20261020.json)
+binds an ordinary `native-ui` app to a fresh read-only-backed clone of the synthetic
+MAC-01/04 workspace; the original retains its unsaved edit. No app launch is claimed.
+After actual control access returns, reconcile the sole desktop actor and close the
+previous verified-undone proposal app. On the matching qualified candidate (or
+verified identical integrated source), require named actionable Note rows in Recent,
+Linked and All, activate a row through its actual named control, then use the Notes
+filter followed by actual Tab/Space to open the exact Note. Retain actual AX states,
+rendering observations and read-only unchanged canonical text/version/drafts; no
+Save, repair, new AI run or broad VoiceOver/IME/owner-acceptance claim. If a row is
+still omitted, preserve the failure and return to engineering rather than using a
+coordinate fallback as accessibility success.
+
 ## Source-bound writing proposal ready — 20 October
 
 MAC-09 is ready for the consolidated native session after the lead reconciles its current task and actual artifact. [One bounded account writing proposal](writing-account-verification.md) passed normal runtime and exact source-preservation verification on production source `b0eb18d7` (lead product tree unchanged). The successful synthetic workspace and immutable harness/binary identities are in [qualification](evidence/writing-account-qualification.json). Test metadata is outside DATA. Do not use the preserved first failed fixture, regenerate AI output or infer native success from this check.
