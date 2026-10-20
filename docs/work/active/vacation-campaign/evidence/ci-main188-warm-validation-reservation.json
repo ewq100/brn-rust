@@ -9,7 +9,7 @@
   "ordinary_work_allowed": true,
   "required_preceding_main": "PASS all four attempt1",
   "scope": "Only existing Mac Native UI job and any workflow-declared dependencies; no source, checks, cache limits, billing, account test or desktop change.",
-  "state": "single dispatch returned exit0; actual run readback follows",
+  "state": "completed: exactly one warm dispatch; jobsuccess/exactfullhit; no further experiment rerun",
   "dispatched_at": "2026-10-20T17:13:33.236400+00:00",
   "dispatch_command": "gh run rerun 39457653809 --repo ewq100/brn-rust --job 118748618236",
   "readback": {
@@ -1263,5 +1263,6 @@
       }
     ],
     "status": "queued"
-  }
+  },
+  "completion_receipt": "docs/work/active/vacation-campaign/evidence/ci-main188-warm-mac-ui.json"
 }

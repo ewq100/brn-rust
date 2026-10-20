@@ -1,0 +1,51 @@
+{
+  "reserved_at": "2026-10-20T17:24:06.094778+00:00",
+  "purpose": "One supported CLI malformed-backup refusal, fresh synthetic source/absent target, no owner data or account action",
+  "source": "/private/tmp/brn-restore-invalid-input-20261020T1725Z/not-a-backup.sqlite3",
+  "destination": "/private/tmp/brn-restore-invalid-input-20261020T1725Z/must-not-publish",
+  "binary": "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+  "binary_sha256": "b5fe8083b3c877dc3de8aa661af203b30f54b4e6352951813bc6a47c7dc54529",
+  "source_sha256": "84cb56328fd46c17725f44ad88bf92a4b8c4800fd57f94c3787d2cf5fd4cae40",
+  "source_binding": "Same qualified immutable CLI; product crates identical integrated6622443e. No source/build change.",
+  "observed_at": "2026-10-20T17:24:06.104092+00:00",
+  "command": [
+    "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-restore-invalid-input-20261020T1725Z/must-not-publish",
+    "restore",
+    "--source",
+    "/private/tmp/brn-restore-invalid-input-20261020T1725Z/not-a-backup.sqlite3"
+  ],
+  "exit_code": 1,
+  "stdout": {
+    "contract": 3,
+    "command": "restore",
+    "ok": false,
+    "status": "internal",
+    "exit": 1,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "refuse",
+    "changed": [],
+    "conflict": null,
+    "result": null,
+    "error": {
+      "code": "storage_error",
+      "message": "SQLite: file is not a database",
+      "details": {}
+    },
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": null,
+      "cli_authority": null,
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "stderr": "",
+  "result": "PASS fail-closed: malformed input refused, no final workspace or stage published, input bytes unchanged",
+  "limits": "One actual CLI malformed-source boundary, not exhaustive corruption/fault/crash testing or native error wording."
+}

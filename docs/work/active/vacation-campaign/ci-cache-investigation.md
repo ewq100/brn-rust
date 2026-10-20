@@ -75,3 +75,14 @@ source-root guard entries. This is a local estimate, not a hosted cache archive,
 configured storage limit or speedup. Real exact-head/main checks, first main
 publication size and later warm-job behavior remain separate gates in the task
 record. Preview packaging retains its prior helper paths; no release was run.
+
+## 20 October: observed same-source cache reuse after PR188
+
+[Integrated-main cold/warm receipt](evidence/ci-main188-warm-mac-ui.json) records exactly one repeat Mac UI job on6622443e. The first run uploaded a1,902,323,274-byte combined cache. The repeat restored the exact full key, regenerated the derived adapted workspace, passed every applicable step and reported cache up-to-date with no new upload. All four resulting-main required contexts remain passed; optional Windows failures remain visible.
+
+| Observed same-source job | Cold | Warm |
+|---|---:|---:|
+| Complete Mac UI job, excluding runner queue |30m28s|6m23s|
+| Both helper graphs preparation |11m07s|1m23s|
+
+The warm job additionally waited5m07s for a hosted runner. This is one pair on different actual runners with the same source, cache key, pinned toolchain and runner image; it is no controlled benchmark or future cache-retention/latency guarantee. The measured combined archive is distinct from the local helper-only size estimate. No further experiment reruns or storage/billing changes are selected.

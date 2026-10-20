@@ -9,31 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Reuse converter dependencies without mixing build identities
-
-Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T17:14:10.555818+00:00
-Activity: PR188 main all4 required PASS and first combined cache upload1.90GB saved. Single reserved same-source MacUI rerun dispatched successfully: run39457653809 attempt2, newUIjob118771060685 queued; no other rerun.
-Next: Inspect exactly this warm attempt for actual full cache hit/key, helper source guard, checks and timings. No second dispatch on miss or uncertainty.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
-- **checks:** PASS local independent qualification and all4 required hosted head/main checks. Actual first-main cold upload successful; warm performance pending one reserved same-source rerun.
-- **integration:** PASS authorized normal merge6622443e and all4 exact-head/preceding-main/resulting-main checks; optional Windows failures retained.
-- **native:** inapplicable: development CI only
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json), [docs/work/active/vacation-campaign/evidence/pr188-premerge.json](active/vacation-campaign/evidence/pr188-premerge.json), [docs/work/active/vacation-campaign/evidence/pr188-integration.json](active/vacation-campaign/evidence/pr188-integration.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json](active/vacation-campaign/evidence/pr188-resulting-main.json), [docs/work/active/vacation-campaign/evidence/ci-main188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-main188-cold-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-main188-warm-validation-reservation.json](active/vacation-campaign/evidence/ci-main188-warm-validation-reservation.json)
-
-Attempts:
-
-- Overview refresh rejected an unsupported extra performance gate key; last valid overview preserved.: Keep fixed five-gate schema; performance measurement remains in checks/next action and dated receipt. No product/check policy changed. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json))
-
-</details>
-
 ### Check exact stored attachment data after reopen and restore
 
 Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:23:00.159823+00:00
@@ -913,6 +888,31 @@ Attempts:
 
 </details>
 
+### Reuse converter dependencies without mixing build identities
+
+Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **complete** · Last observed: 2026-10-20T17:26:55.760472+00:00
+Activity: PR188 integrated6622443e, all4required head/main gatesPASS. Exactly one same-source warm MacUI run full-hitPASS:383s vs1828s cold; helpers83s vs667s. Cacheup-to-date/no new upload. Hosted runner queue307s separate; optionalWindows failures retained.
+Next: Reuse existing safe cache layout. No further experiment rerun; monitor ordinary required CI evidence after relevant changes, retain1.90GB combined-cache size and one-pair limits.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
+- **checks:** PASS localreview/cleaner/isolation/tooling and hostedhead/main. Actualmaincache upload1902323274B, single same-source full-hitMacUI383s vs1828cold; helpers83s vs667. Uncontrolled one-pair result, no future guarantee.
+- **integration:** PASS normalmerge6622443e, all4required exacthead/preceding-main/resulting-main, then actual same-source MacUI warm validationPASS.
+- **native:** inapplicable: development CI only
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json), [docs/work/active/vacation-campaign/evidence/pr188-premerge.json](active/vacation-campaign/evidence/pr188-premerge.json), [docs/work/active/vacation-campaign/evidence/pr188-integration.json](active/vacation-campaign/evidence/pr188-integration.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json](active/vacation-campaign/evidence/pr188-resulting-main.json), [docs/work/active/vacation-campaign/evidence/ci-main188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-main188-cold-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-main188-warm-validation-reservation.json](active/vacation-campaign/evidence/ci-main188-warm-validation-reservation.json), [docs/work/active/vacation-campaign/evidence/ci-main188-warm-mac-ui.json](active/vacation-campaign/evidence/ci-main188-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main-warm-validation.json](active/vacation-campaign/evidence/pr188-resulting-main-warm-validation.json)
+
+Attempts:
+
+- Overview refresh rejected an unsupported extra performance gate key; last valid overview preserved.: Keep fixed five-gate schema; performance measurement remains in checks/next action and dated receipt. No product/check policy changed. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json))
+
+</details>
+
 ### Inspect writing settings when the selected note changes
 
 Owner: bounded Luna read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T15:28:00.621255+00:00
@@ -936,9 +936,9 @@ Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-camp
 
 ### Restore the Mac-created backup into a fresh test folder
 
-Owner: development lead; single shared build slot and restore actor · State: **complete** · Last observed: 2026-10-20T15:47:52.088362+00:00
-Activity: PASS actual supported CLI restore of MAC03 backup into fresh synthetic root. All11 SQLite tables and every row exactly match backup; backup and primary file/logical state unchanged. Repeated restore refuses nonempty destination and preserves exact existing files. Pinned CLI/core/AI/app rebuild11.35s, immutable555 binary archived.
-Next: Reuse source-bound command-line recovery proof. Restore UI, crash/power-loss and asset-rich backup cases remain separate; no unchanged broad rerun.
+Owner: development lead; single shared build slot and restore actor · State: **complete** · Last observed: 2026-10-20T17:24:06.104092+00:00
+Activity: PASS actual supported CLI restore of MAC03 backup into fresh synthetic root. All11 SQLite tables and every row exactly match backup; backup and primary file/logical state unchanged. Repeated restore refuses nonempty destination and preserves exact existing files. Pinned CLI/core/AI/app rebuild11.35s, immutable555 binary archived. Additional actual malformed-backup CLI check refused with exit1/internal/storage_error, left no destination/stage and preserved source bytes; no normalization of that error into rejection6.
+Next: Reuse actual valid/collision/malformed-source CLI recovery proof. MacRestore controls, asset-rich production conversion and crash/powerloss remain distinct; no unchanged test repetition.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -951,7 +951,7 @@ Gates:
 - **native:** MAC03 backup creation observed; restore here is headless, not GUI/owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn/README.md](../../crates/brn/README.md), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json](active/vacation-campaign/evidence/mac-backup-cli-restore.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json](active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz](active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz)
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn/README.md](../../crates/brn/README.md), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json](active/vacation-campaign/evidence/mac-backup-cli-restore.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json](active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz](active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json)
 
 </details>
 
@@ -1026,4 +1026,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:23:00.159823+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:26:55.760472+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
