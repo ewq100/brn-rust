@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** Three prepared Mac control checks need access. Last CUA check15:04UTC reported locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app lastconfirmed open18:17UTC after verifiedUndo.
+**Owner attention:** Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 

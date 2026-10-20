@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-10-20T18:25:26.658917+00:00",
+  "trigger": "Scheduled consolidated Mac session20October18:21UTC",
+  "lead_head": "4c39acbd4157da66a0c10fe755279db8adea098a",
+  "lead_clean_before_record": true,
+  "integrated_main": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "open_prs": [
+    177,
+    149,
+    112,
+    84,
+    82,
+    80
+  ],
+  "agents": "Lead only active; all bounded helpers complete",
+  "builds": "No cargo/rustc/owned watch process found; process search exit1 means no match, not failed build",
+  "quota": {
+    "used_percent": 19,
+    "remaining_percent": 81,
+    "ordinary_usage_allowed": true,
+    "reset_unix": 1793083360,
+    "secondary": "unavailable"
+  },
+  "existing_app": {
+    "pid": 63750,
+    "state": "S",
+    "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/writing-review/BRN Threads.app",
+    "outcome": "Still open after previously verified Undo; no OS close or new fixture launch performed"
+  },
+  "control_call": "cua.getApp(existing writing-review app path)",
+  "actual_control_result": "The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.",
+  "disposition": "Deferred. Existing manual unlock request remains pending; no repeated question or additional access retry in this session.",
+  "scenarios": {
+    "MAC-08": "not attempted",
+    "MAC-11": "not attempted",
+    "MAC-12": "not attempted"
+  },
+  "boundaries": "No new app launch, account generation, OS security change, data mutation, artifact rebuild, or native pass. No unchanged passing journey replayed.",
+  "next": "Reconcile changed native availability; close old verified-undone app normally before launching matching prepared97 source wrappers. No concrete new headless candidate from completed bounded audits."
+}

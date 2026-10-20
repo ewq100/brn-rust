@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T18:18:15.577322+00:00",
+    "observed_at": "2026-10-20T18:25:26.658917+00:00",
     "remaining_percent": 81,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: actual19%used/81%remaining; ordinaryUsageAllowedtrue; no ownerpause/fixedexpiry unchanged",
@@ -1588,7 +1588,7 @@
         "resource_plan": "One Luna medium existing-receipt/source assessment completed; lead validated exact steps/priority. No source,build,CIrerun,cache,account,native or nested actions. Actual modelcost/effectiveconfiguration unexposed."
       }
     ],
-    "owner_attention": "Three prepared Mac control checks need access. Last CUA check15:04UTC reported locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app lastconfirmed open18:17UTC after verifiedUndo."
+    "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1601,14 +1601,15 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr189-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T18:18:15.577322+00:00",
+    "observed_at": "2026-10-20T18:25:26.658917+00:00",
     "runtime_capacity": "4total slots; onlylead, allhelperscomplete atobservation",
     "build_slot": "free; no owned localbuild/writer",
-    "desktop_account_actor": "PID63750 confirmed18:17UTC stillopen task writing-review app afterverifiedUndo. No new desktop/accountaction; lastCUA denial15:04 remains unresolved; OSclose afteraccessreturns.",
+    "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "All four PR189 resulting-main gates PASS at exacta23f486b; entireBRN CI complete with optionalWindows failures retained.",
     "wait_reason": "All selected headless engineering/review/integration/main gates complete; no concrete new headless candidate from bounded audits. Three prepared real Mac control checks wait changed availability. This is a capability wait, not quota/ownerpause or batch pacing.",
-    "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
+    "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
+    "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json"
   }
 }

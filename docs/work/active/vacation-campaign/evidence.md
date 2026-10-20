@@ -622,3 +622,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October: attachment witness integration and resulting-main
 
 [PR189 integration](evidence/pr189-integration.json) retains the original local aggregate-status assertion and dependent-shell sequencing failure. All four exact-head and preceding-main required jobs had passed; GitHub enforced normal protection, no bypass was used, and the complete merged tree equals reviewed57531. [Resulting-main39469206851](evidence/pr189-resulting-main.json) now independently passes all four required contexts at a23f486b; three optional Windows failures remain. The exact stored-attachment witness is complete; production image extraction and actual Mac controls remain separate.
+
+## 20 October: scheduled Mac access recheck18:25UTC
+
+[Fresh reconciliation and actual control result](evidence/native-access-recheck-20261020T1825.json) retain unchanged main/open PRs, completed helpers, no active build and81% ordinary allowance. The Mac control tool again reports locked and automatic unlock unavailable. MAC-08/11/12 were not attempted; existing manual unlock request remains pending. No repeated passing journey, new account run, data mutation or native success. Original app remains open after verified Undo; close normally after access returns before any prepared fixture launch.
