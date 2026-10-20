@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. PR183 normally merged; required resulting-main checks pending. Draft690 passes local qualification; independent review is checking recovery warning survival after background completion. Mac batch remains18:00 Tallinn.
+**Owner attention:** No owner decision requested. PR183 merged; resulting-main required checks running. Draft recovery has a narrowly scoped review correction in progress; no publication/native claim. Mac batch remains18:00 Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -59,26 +59,28 @@ Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/
 
 ### Preserve unsent drafts when a note creates its writing conversation
 
-Owner: lead decision/integration; bounded Sol high implementation; independent Sol review required · State: **active** · Last observed: 2026-10-20T12:13:49.910622+00:00
-Activity: Frozen clean implementation 690c2c3f: atomic Store draft transfer plus coherent UI/editor adoption. Same original recovery regression PASS 1; focused desktop draft family PASS 22. Complete independent Sol review overlaps sequential final checks and ordinary native build.
-Next: Validate independent findings and final broad checks/build receipts; integrate only after review and actual required gates. Preserve original red proof and stable PR183 head.
+Owner: lead integration; bounded Luna dismissal correction; independent Sol review · State: **active** · Last observed: 2026-10-20T12:26:12.703752+00:00
+Activity: Candidate574 fixes background completion overwrite; original red witness and final339/0/1, strict lint/native build retained. Independent review confirms prior P2 fixed, finds distinct unseen ordinary error erased by recovery Dismiss. Lead validated; bounded Luna correction in progress.
+Next: Prove574 Dismiss sequence fails, preserve unseen ordinary error with a tiny scoped correction, then final affected checks and independent recheck before publication.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** complete local 690c2c3f; 11 paths, no schema/dependency/provider/runtime prompt change
-- **checks:** PASS focused original1 and draft22, four new Store cases, fmt/diff; final chat_storage/desktop/lint/build pending; independent review running
-- **integration:** pending complete independent source review and required hosted gates; PR183 head remains stable
+- **implementation:** 574 local atomic draft transfer and scoped recovery attention implemented; final dismissal correction pending
+- **checks:** 574 local gates PASS, independent review one new P2 valid/fix; no publication qualification yet
+- **integration:** PR183 merged separately; draft candidate remains local until final independent review/checks and hosted gates
 - **native:** not observed; synthetic toolkit test is separate from OS interaction
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json)
 
 Attempts:
 
 - Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
+- Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.: Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md))
+- 574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.: Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md))
 
 </details>
 
@@ -722,4 +724,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:16:42.598235+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:26:12.703752+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

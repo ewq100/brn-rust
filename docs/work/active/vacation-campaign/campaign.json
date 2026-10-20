@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T11:51:28+00:00",
-    "remaining_percent": 93,
+    "observed_at": "2026-10-20T12:24:50+00:00",
+    "remaining_percent": 91,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual 7% used / 93% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual 9% used / 91% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:16:42.598235+00:00",
+    "observed_at": "2026-10-20T12:26:12.703752+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -980,11 +980,11 @@
         "id": "writing-draft-recovery",
         "title": "Preserve unsent drafts when a note creates its writing conversation",
         "state": "active",
-        "owner": "lead decision/integration; bounded Sol high implementation; independent Sol review required",
-        "activity": "Frozen clean implementation 690c2c3f: atomic Store draft transfer plus coherent UI/editor adoption. Same original recovery regression PASS 1; focused desktop draft family PASS 22. Complete independent Sol review overlaps sequential final checks and ordinary native build.",
-        "observed_at": "2026-10-20T12:13:49.910622+00:00",
+        "owner": "lead integration; bounded Luna dismissal correction; independent Sol review",
+        "activity": "Candidate574 fixes background completion overwrite; original red witness and final339/0/1, strict lint/native build retained. Independent review confirms prior P2 fixed, finds distinct unseen ordinary error erased by recovery Dismiss. Lead validated; bounded Luna correction in progress.",
+        "observed_at": "2026-10-20T12:26:12.703752+00:00",
         "origin": "observed",
-        "next_action": "Validate independent findings and final broad checks/build receipts; integrate only after review and actual required gates. Preserve original red proof and stable PR183 head.",
+        "next_action": "Prove574 Dismiss sequence fails, preserve unseen ordinary error with a tiny scoped correction, then final affected checks and independent recheck before publication.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -992,12 +992,16 @@
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_context_actions.rs",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json",
-          "crates/brn-threads-core/src/chat.rs"
+          "crates/brn-threads-core/src/chat.rs",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json"
         ],
         "gates": {
-          "implementation": "complete local 690c2c3f; 11 paths, no schema/dependency/provider/runtime prompt change",
-          "checks": "PASS focused original1 and draft22, four new Store cases, fmt/diff; final chat_storage/desktop/lint/build pending; independent review running",
-          "integration": "pending complete independent source review and required hosted gates; PR183 head remains stable",
+          "implementation": "574 local atomic draft transfer and scoped recovery attention implemented; final dismissal correction pending",
+          "checks": "574 local gates PASS, independent review one new P2 valid/fix; no publication qualification yet",
+          "integration": "PR183 merged separately; draft candidate remains local until final independent review/checks and hosted gates",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
         },
@@ -1008,11 +1012,25 @@
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json"
             ]
+          },
+          {
+            "outcome": "Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.",
+            "change": "Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md"
+            ]
+          },
+          {
+            "outcome": "574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.",
+            "change": "Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md"
+            ]
           }
         ]
       }
     ],
-    "owner_attention": "No owner decision requested. PR183 normally merged; required resulting-main checks pending. Draft690 passes local qualification; independent review is checking recovery warning survival after background completion. Mac batch remains18:00 Tallinn."
+    "owner_attention": "No owner decision requested. PR183 merged; resulting-main required checks running. Draft recovery has a narrowly scoped review correction in progress; no publication/native claim. Mac batch remains18:00 Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1023,11 +1041,10 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T12:13:49.910622+00:00",
-    "lead": "existing selected lead retained; one integration owner",
-    "helpers": "One Sol high source author owns final sequential checks/build; separate independent Sol high reviewer reads complete690 plus lead records. Luna audits completed. Three active slots incl lead, runtime max4.",
-    "build_actor": "Exclusive shared local target belongs to source author; reviewer read-only; immutable native artifacts preserved.",
-    "desktop_account_actor": "None; native batch remains 18:00 Tallinn.",
-    "stop": "Reassess on review finding or final check failure; no publication of new source until candidate is qualified and reviewed. PR183 stable exact-head gates remain separate."
+    "observed_at": "2026-10-20T12:26:12.703752+00:00",
+    "runtime_capacity": "4 total slots including lead; lead + Luna writer, review helper available",
+    "build_slot": "draft_dismiss_scope owns serialized shared target; no concurrent build",
+    "desktop_account_actor": "none; daily native batch pending",
+    "scope": "headless synthetic checks; no live provider/account actions"
   }
 }

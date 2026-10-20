@@ -1,0 +1,523 @@
+{
+  "candidate": "5744d102573134474c38ae1352ea1abfccb53567",
+  "archive": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/candidate-574-correction.tar.gz",
+  "archive_sha256": "0c54916185e411df53450ec3a568e40c5e30fc66e029846020bf4a013abbe0b4",
+  "files": [
+    {
+      "name": "brn-draft-recovery-correction-01-format-witness.diff",
+      "sha256": "f9beba6596b55648ec8a55eaa51b80edcf3386ab8fb434a6065b6886f3a693b7",
+      "size": 3904
+    },
+    {
+      "name": "brn-draft-recovery-correction-01-format-witness.json",
+      "sha256": "2aa4830f865289418714f297b409b1af0434df86a78347eea5aeafbd143b8e0b",
+      "size": 1968
+    },
+    {
+      "name": "brn-draft-recovery-correction-01-format-witness.log",
+      "sha256": "fa3f5409644e61f64dd4d069c6dfd3b38713479e3360226c54265abbf4cb0fac",
+      "size": 1789
+    },
+    {
+      "name": "brn-draft-recovery-correction-02-old-source-red.diff",
+      "sha256": "1f5a6a6c403f67080679fbeaccc04f3fd633fb835e66182f2fd72ee106dcf09f",
+      "size": 4228
+    },
+    {
+      "name": "brn-draft-recovery-correction-02-old-source-red.json",
+      "sha256": "41430e424e78ab44a72b8ae84dbed75285f293349d68992c9954cd7c4ef68560",
+      "size": 2185
+    },
+    {
+      "name": "brn-draft-recovery-correction-02-old-source-red.log",
+      "sha256": "28777ad1fdd558fc3cee565c529733df8038d5568b88362bf0195a72e8902d95",
+      "size": 3699
+    },
+    {
+      "name": "brn-draft-recovery-correction-03-format-correction.diff",
+      "sha256": "47dc6e2a09cf164279425028745c3336336b15d35ceae40a3b6b4419856c9026",
+      "size": 12741
+    },
+    {
+      "name": "brn-draft-recovery-correction-03-format-correction.json",
+      "sha256": "cd4fcda7855678fedee66dbd4b1a951055698b9b2c8b356b8acaef5e029f36c3",
+      "size": 1968
+    },
+    {
+      "name": "brn-draft-recovery-correction-03-format-correction.log",
+      "sha256": "ae489d6a5af97e18703335309eaf9859fb824243a67116a26d582043b02ad17f",
+      "size": 1789
+    },
+    {
+      "name": "brn-draft-recovery-correction-04-background-green.diff",
+      "sha256": "749ee44ebb26d830b1a559a845381098e3abed9253dd2eb1e076bc2cb6214317",
+      "size": 14147
+    },
+    {
+      "name": "brn-draft-recovery-correction-04-background-green.json",
+      "sha256": "f4f743b3915495b655bab30bc51babc5b79142587468433e4465fd2cf0a1cf9b",
+      "size": 2183
+    },
+    {
+      "name": "brn-draft-recovery-correction-04-background-green.log",
+      "sha256": "ed0eba23a5da19a77c9e78f9f10868cbf27f5445cf3a06fa71e5e26f109db43c",
+      "size": 2768
+    },
+    {
+      "name": "brn-draft-recovery-correction-05-final-draft-focus.diff",
+      "sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+      "size": 16467
+    },
+    {
+      "name": "brn-draft-recovery-correction-05-final-draft-focus.json",
+      "sha256": "81bb87ebb4dde87211ad5fe2e349bf7f0df5338475b92a96cc1f8106209702a1",
+      "size": 2109
+    },
+    {
+      "name": "brn-draft-recovery-correction-05-final-draft-focus.log",
+      "sha256": "9dca7c9ca908dcff2e4a6c5d89f7add639d9be6db32514cf411c7151aadbb695",
+      "size": 5036
+    },
+    {
+      "name": "brn-draft-recovery-correction-06-final-notice-focus.diff",
+      "sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+      "size": 16467
+    },
+    {
+      "name": "brn-draft-recovery-correction-06-final-notice-focus.json",
+      "sha256": "ab2805a50d4a1b036193f7f18c17f481a764da55a855fd1575b2470c171b87af",
+      "size": 2110
+    },
+    {
+      "name": "brn-draft-recovery-correction-06-final-notice-focus.log",
+      "sha256": "3c49c5c9246538fb3ab8e72a538fb09d3f29ea4e5b2d7231dfbb06f012535d81",
+      "size": 4148
+    },
+    {
+      "name": "brn-draft-recovery-correction-07-final-format.diff",
+      "sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+      "size": 16467
+    },
+    {
+      "name": "brn-draft-recovery-correction-07-final-format.json",
+      "sha256": "52959cc4d61ec1e6af6f45fa770db06b84adcc0c7f31d71aaa3a7975bae24613",
+      "size": 1993
+    },
+    {
+      "name": "brn-draft-recovery-correction-07-final-format.log",
+      "sha256": "17ae67fb20b0038351d9bc667d3a37986d990ddde225b912c55fabd3982daf06",
+      "size": 1806
+    },
+    {
+      "name": "brn-draft-recovery-correction-08-final-desktop-suite.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "name": "brn-draft-recovery-correction-08-final-desktop-suite.json",
+      "sha256": "5f1826ee2791a8e761599f50a5aabb451263eeaf2297de0ea24ea63b9ba1ed3d",
+      "size": 2097
+    },
+    {
+      "name": "brn-draft-recovery-correction-08-final-desktop-suite.log",
+      "sha256": "b946ea2a2c3531904aca0441d5ea20001e79556f712a87034ca37da4af8b926e",
+      "size": 37018
+    },
+    {
+      "name": "brn-draft-recovery-correction-09-final-clippy.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "name": "brn-draft-recovery-correction-09-final-clippy.json",
+      "sha256": "8c320ec64e5d04157f64ca8be42e38121c38959cb93d276d97da6fa9d1876527",
+      "size": 2155
+    },
+    {
+      "name": "brn-draft-recovery-correction-09-final-clippy.log",
+      "sha256": "ea2b59462d4261bd6cd27b7511131fc5df783c2ead593ed00fddfa2c0396c7bd",
+      "size": 2350
+    },
+    {
+      "name": "brn-draft-recovery-correction-10-ordinary-native-build.diff",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "name": "brn-draft-recovery-correction-10-ordinary-native-build.json",
+      "sha256": "e2930b5884ceb402964f2db559a9f765ccc59f5c3141ea916701dff8220e0a2c",
+      "size": 2077
+    },
+    {
+      "name": "brn-draft-recovery-correction-10-ordinary-native-build.log",
+      "sha256": "a9c308576b6729257c73b188f252068535790b8af1779b8a7bcf04a4d945a4e1",
+      "size": 2288
+    },
+    {
+      "name": "brn-draft-recovery-correction-complete-candidate.diff",
+      "sha256": "053e287b24c5f06541299f39f804bb5668b3a7995011e900d1f69c0bf39e3ee7",
+      "size": 54752
+    },
+    {
+      "name": "brn-draft-recovery-correction-final.diff",
+      "sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+      "size": 16467
+    },
+    {
+      "name": "brn-draft-recovery-correction-native-artifact.json",
+      "sha256": "48520261c9590d6ca0ebedfc7c5779709a75eda39fe824dee4019ac49b57f6a0",
+      "size": 4359
+    },
+    {
+      "name": "brn-draft-recovery-correction-qualification.json",
+      "sha256": "57ac27405abe328756556a06b4bfce5a8d2ead78e0b806e28c5d4dcba653656e",
+      "size": 14717
+    },
+    {
+      "name": "brn-draft-recovery-correction-report.md",
+      "sha256": "01ff0e6bcef4bf889622714517d96574cda375f28bf7ec1bf844166f286bdcd0",
+      "size": 3642
+    },
+    {
+      "name": "brn-draft-recovery-correction-run.py",
+      "sha256": "34ecdc20fecb42ad94f4477c01bf03912b99f40d6e7a58ee8ee36b2d30d66e12",
+      "size": 2392
+    }
+  ],
+  "original_qualification": {
+    "recorded_utc": "2026-10-20T12:24:42.882621+00:00",
+    "outcome": "Keep unresolved per-Note composer recovery attention visible across background completion",
+    "review_source": "/tmp/brn-writing-draft-recovery-review.md",
+    "finding": "P2 valid/fixed candidate; lead-owned independent targeted review pending",
+    "baseline": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+    "candidate": "5744d102573134474c38ae1352ea1abfccb53567",
+    "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "branch": "codex/writing-draft-recovery",
+    "clean_worktree": true,
+    "correction_diff_sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+    "complete_original_base": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+    "complete_candidate_diff_sha256": "053e287b24c5f06541299f39f804bb5668b3a7995011e900d1f69c0bf39e3ee7",
+    "changed_files": {
+      "crates/brn-desktop/README.md": "d5f65ef4f37b2deeea9d6d6682c530a781804bd0c516bf042105dc8b78801487",
+      "crates/brn-desktop/src/threads_notice.rs": "e419065f46362908578c639e029d5034dcb757acd9e3f039753a7a5d24239e67",
+      "crates/brn-desktop/src/threads_shell.rs": "5e88913d6f9cb64deacd3fb096afbf9eb16ac74d2a13dc5562cf43b2404f9404",
+      "crates/brn-desktop/src/threads_ui.rs": "d0019bf1ca01aa7768d6b675b6a77880cf94330ab808b7200812642436e322da",
+      "crates/brn-desktop/src/threads_writing_tests.rs": "442f6c76d8bd74891e9e76db2a8d10c84c6bd5ef64945b4856a6f8cd131bb921"
+    },
+    "attempts": [
+      {
+        "record": "/tmp/brn-draft-recovery-correction-01-format-witness.json",
+        "log": "/tmp/brn-draft-recovery-correction-01-format-witness.log",
+        "log_sha256": "fa3f5409644e61f64dd4d069c6dfd3b38713479e3360226c54265abbf4cb0fac",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "f9beba6596b55648ec8a55eaa51b80edcf3386ab8fb434a6065b6886f3a693b7",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-02-old-source-red.json",
+        "log": "/tmp/brn-draft-recovery-correction-02-old-source-red.log",
+        "log_sha256": "28777ad1fdd558fc3cee565c529733df8038d5568b88362bf0195a72e8902d95",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "refused_writing_draft_attention_survives_background_completion_until_dismissed"
+        ],
+        "exit_code": 101,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "1f5a6a6c403f67080679fbeaccc04f3fd633fb835e66182f2fd72ee106dcf09f",
+        "elapsed_seconds": 51.15
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-03-format-correction.json",
+        "log": "/tmp/brn-draft-recovery-correction-03-format-correction.log",
+        "log_sha256": "ae489d6a5af97e18703335309eaf9859fb824243a67116a26d582043b02ad17f",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "47dc6e2a09cf164279425028745c3336336b15d35ceae40a3b6b4419856c9026",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-04-background-green.json",
+        "log": "/tmp/brn-draft-recovery-correction-04-background-green.log",
+        "log_sha256": "ed0eba23a5da19a77c9e78f9f10868cbf27f5445cf3a06fa71e5e26f109db43c",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "refused_writing_draft_attention_survives_background_completion_until_dismissed"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "749ee44ebb26d830b1a559a845381098e3abed9253dd2eb1e076bc2cb6214317",
+        "elapsed_seconds": 51.12
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-05-final-draft-focus.json",
+        "log": "/tmp/brn-draft-recovery-correction-05-final-draft-focus.log",
+        "log_sha256": "9dca7c9ca908dcff2e4a6c5d89f7add639d9be6db32514cf411c7151aadbb695",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "draft"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-06-final-notice-focus.json",
+        "log": "/tmp/brn-draft-recovery-correction-06-final-notice-focus.log",
+        "log_sha256": "3c49c5c9246538fb3ab8e72a538fb09d3f29ea4e5b2d7231dfbb06f012535d81",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "notice"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-07-final-format.json",
+        "log": "/tmp/brn-draft-recovery-correction-07-final-format.log",
+        "log_sha256": "17ae67fb20b0038351d9bc667d3a37986d990ddde225b912c55fabd3982daf06",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "18587c448196b6c3f6d320e15a693e0e2988a46ddeaeec1db805d79110f4c2f7",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-08-final-desktop-suite.json",
+        "log": "/tmp/brn-draft-recovery-correction-08-final-desktop-suite.log",
+        "log_sha256": "b946ea2a2c3531904aca0441d5ea20001e79556f712a87034ca37da4af8b926e",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop"
+        ],
+        "exit_code": 0,
+        "head": "5744d102573134474c38ae1352ea1abfccb53567",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 18.06
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-09-final-clippy.json",
+        "log": "/tmp/brn-draft-recovery-correction-09-final-clippy.log",
+        "log_sha256": "ea2b59462d4261bd6cd27b7511131fc5df783c2ead593ed00fddfa2c0396c7bd",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "head": "5744d102573134474c38ae1352ea1abfccb53567",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 6.02
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-correction-10-ordinary-native-build.json",
+        "log": "/tmp/brn-draft-recovery-correction-10-ordinary-native-build.log",
+        "log_sha256": "a9c308576b6729257c73b188f252068535790b8af1779b8a7bcf04a4d945a4e1",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui",
+          "-p",
+          "brn-desktop"
+        ],
+        "exit_code": 0,
+        "head": "5744d102573134474c38ae1352ea1abfccb53567",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 6.02
+      }
+    ],
+    "old_source_red": {
+      "record": "/tmp/brn-draft-recovery-correction-02-old-source-red.json",
+      "result": "compiled then assertion failed actual Synthetic background backup finished versus unresolved recovery warning; source/editor/target/generation assertions passed first",
+      "production": "unchanged690; only new regression test changed",
+      "test_only_diff_sha256": "1f5a6a6c403f67080679fbeaccc04f3fd633fb835e66182f2fd72ee106dcf09f"
+    },
+    "final_results": {
+      "same_background_witness": "1 passed",
+      "draft_focus": "24 passed",
+      "notice_focus": "17 passed",
+      "desktop_suite": "339 passed, 0 failed, 1 existing ignored",
+      "strict_affected_clippy": "passed",
+      "format": "passed",
+      "diff_check": "passed",
+      "ordinary_native_ui_build": "passed"
+    },
+    "reused_unchanged_qualification": {
+      "core_storage_source_identical_to": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+      "qualification": "/tmp/brn-draft-recovery-impl-qualification.json",
+      "complete_chat_storage": "11 passed; retained, not rerun"
+    },
+    "artifact": {
+      "created_utc": "20261020T122407Z",
+      "candidate_commit": "5744d102573134474c38ae1352ea1abfccb53567",
+      "candidate_tree": "f2ed60480aa07a068bd92f1dd3a5ad4b53f87202",
+      "prior_candidate_preserved": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+      "branch": "codex/writing-draft-recovery",
+      "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+      "clean_worktree_observed": true,
+      "ordinary_native_build_record": "/tmp/brn-draft-recovery-correction-10-ordinary-native-build.json",
+      "ordinary_native_build_log_sha256": "a9c308576b6729257c73b188f252068535790b8af1779b8a7bcf04a4d945a4e1",
+      "features": [
+        "native-ui"
+      ],
+      "toolchain": "1.98.1-aarch64-apple-darwin",
+      "app": {
+        "original": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+        "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122407Z-5744d102/brn-desktop",
+        "sha256": "ef3034acdd2654554ce1b606ae0371ea953fc3b4001e08269c66edb878874acb",
+        "size_bytes": 165873888
+      },
+      "helpers": [
+        {
+          "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122407Z-5744d102/brn-xberg-helper",
+          "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+          "size_bytes": 131732512,
+          "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/tools/xberg-intake-helper",
+          "build_identity": "backend=xberg\nengine_identity=xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d\n",
+          "current_source_files_sha256": {
+            "Cargo.toml": "2f45d3df9291736a1c19c5466c34ac8898ffe7a29df7238c19fd782b7400e4f9",
+            "Cargo.lock": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+            "build-identity.txt": "b47231eb31790574819516bbf34cf409476c57e9f35333f157f6f0bbc6f3bcdc",
+            "src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0"
+          },
+          "matching_existing_build_receipts": [
+            {
+              "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-20261019T063628Z-97481.sha256",
+              "text": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper\n",
+              "sha256": "85eefb5e07c4f6957a34620cbe4632255288ad9f395ef36820150c2eb4bb44a9"
+            }
+          ]
+        },
+        {
+          "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+          "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122407Z-5744d102/brn-xberg-helper-brn",
+          "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+          "size_bytes": 131924176,
+          "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/target/xberg-adapted/workspace",
+          "build_identity": "backend=xberg_brn\nengine_identity=xberg/1.3.10/brn/524a4d3bb6a9eeae95f586bc71a9330bd2ba7e43af1e1c681e16eb01896bb490\n",
+          "current_source_files_sha256": {
+            "Cargo.toml": "4f0d1b323b540b2b36be85b173573f7d1c5e59578c67abe07cdb005b7c135c6b",
+            "Cargo.lock": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+            "build-identity.txt": "4da5e806586ac00048db3c5460ff09593c6056ff90b9c8c7817f8587a907e5d8"
+          },
+          "matching_existing_build_receipts": [
+            {
+              "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-brn-20261019T063912Z-97481.sha256",
+              "text": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn\n",
+              "sha256": "3d99a14ffc54e4ad37e6d36d6d742137234482ebd43a2b17ce6b36d4dacbe086"
+            }
+          ]
+        }
+      ],
+      "limits": [
+        "Built but not launched or native-observed",
+        "Targeted independent review pending lead disposition",
+        "No owner acceptance, publication, integration or release claim",
+        "Unchanged supplied helpers/source-file bindings verified against preserved690 manifest; no helper rebuild performed"
+      ]
+    },
+    "old690_native_artifact_hash_verified_unchanged": true,
+    "gates": {
+      "implemented": "complete",
+      "automated_verification": "passed",
+      "independent_review": "pending lead-owned targeted review",
+      "native_observation": "pending later Mac session; no app launched",
+      "owner_acceptance": "not claimed",
+      "integration": "not authorized here; local commits only"
+    },
+    "limits": [
+      "One intentional old-source red failure; no failed correction approach",
+      "No Store/schema/dependency or send/queue/contextual-edit changes",
+      "No ordinary-error global stickiness or text-based provenance; only explicit per-Note recovery attention is retained",
+      "No private/existing owner data, real provider/account/model/prompt actions, native launch, push, PR, merge or release",
+      "Existing ignored test requires BRN_DWR_SHARED_* CLI intake fixture; retained block0.1.6 future compatibility advisory",
+      "Not OS power-loss or native usability qualification"
+    ]
+  },
+  "review": "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md",
+  "lead_disposition": {
+    "prior_690_P2": "valid/fixed independently verified at574",
+    "new_574_P2": "valid/fix; source priority and production note_changed error caller verified; tiny correction delegated to Luna",
+    "publication": "blocked pending correction/review/final affected gates"
+  }
+}
