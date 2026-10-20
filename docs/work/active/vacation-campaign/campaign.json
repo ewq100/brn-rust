@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:26:12.703752+00:00",
+    "observed_at": "2026-10-20T12:33:11.472595+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -980,11 +980,11 @@
         "id": "writing-draft-recovery",
         "title": "Preserve unsent drafts when a note creates its writing conversation",
         "state": "active",
-        "owner": "lead integration; bounded Luna dismissal correction; independent Sol review",
-        "activity": "Candidate574 fixes background completion overwrite; original red witness and final339/0/1, strict lint/native build retained. Independent review confirms prior P2 fixed, finds distinct unseen ordinary error erased by recovery Dismiss. Lead validated; bounded Luna correction in progress.",
-        "observed_at": "2026-10-20T12:26:12.703752+00:00",
+        "owner": "lead integration; independent Sol review completed; bounded implementation complete",
+        "activity": "Final clean2b836148 passes notice18, desktop340/0/1, strict lint, ordinary native build; core storage11 reused unchanged. Independent complete/targeted reviews PASS; both P2 corrections verified and original red/invalid attempts retained.",
+        "observed_at": "2026-10-20T12:33:11.472595+00:00",
         "origin": "observed",
-        "next_action": "Prove574 Dismiss sequence fails, preserve unseen ordinary error with a tiny scoped correction, then final affected checks and independent recheck before publication.",
+        "next_action": "Compose exact qualified source with lead records, verify source equality and documentation, publish separate draft-recovery PR; inspect exact-head required checks before normal integration.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -996,12 +996,14 @@
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md",
-          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json"
         ],
         "gates": {
-          "implementation": "574 local atomic draft transfer and scoped recovery attention implemented; final dismissal correction pending",
-          "checks": "574 local gates PASS, independent review one new P2 valid/fix; no publication qualification yet",
-          "integration": "PR183 merged separately; draft candidate remains local until final independent review/checks and hosted gates",
+          "implementation": "complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes",
+          "checks": "PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused",
+          "integration": "pending separate publication and all actual required exact-head gates; source not yet inmain",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
         },
@@ -1026,11 +1028,50 @@
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md"
             ]
+          },
+          {
+            "outcome": "Compiled574 plus regression failed1/101 at missing ordinary error; first zero-test filter invalid and retained. Final2b836 witness/final gates pass; independent review no remaining findings.",
+            "change": "Dismiss acknowledges only visible scoped recovery while preserving a separate ordinary error; remembered work lifecycle unchanged. Misreported chat digest corrected from actualgit; original artifacts preserved.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md",
+              "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "skill-catalog-ui-audit",
+        "title": "Inspect stale skill choices and scope changes",
+        "state": "active",
+        "owner": "bounded Luna source audit; lead disposition",
+        "activity": "Selected the remaining Skills UI/service handoff for one bounded read-only audit; developer configuration remains separate from shipped runtime prompts.",
+        "observed_at": "2026-10-20T12:31:36.744155+00:00",
+        "origin": "observed",
+        "next_action": "Trace refresh/install/inspect/enable/select/remove and delayed folder-picker scope; report concrete accepted-behavior defects or bounded no-finding result with exact source references.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_skills.rs"
+        ],
+        "gates": {
+          "implementation": "audit only; no product change selected",
+          "checks": "source/caller/test mapping pending; no build dispatch",
+          "integration": "inapplicable unless a later verified defect selects a separate candidate",
+          "native": "not observed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Overview refresh refused missing required attempts field; last valid page preserved.",
+            "change": "Supplied explicit attempt history and reran record validation; no product or gate changed.",
+            "evidence": [
+              "scripts/render-work-overview.py"
+            ]
           }
         ]
       }
     ],
-    "owner_attention": "No owner decision requested. PR183 merged; resulting-main required checks running. Draft recovery has a narrowly scoped review correction in progress; no publication/native claim. Mac batch remains18:00 Tallinn."
+    "owner_attention": "No owner decision requested. PR183 merged; required resulting-main checks pending. Draft repair reviewed/local-qualified and ready for separate publication; bounded Skills audit read-only. Mac batch remains18:00 Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1041,10 +1082,10 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T12:26:12.703752+00:00",
-    "runtime_capacity": "4 total slots including lead; lead + Luna writer, review helper available",
-    "build_slot": "draft_dismiss_scope owns serialized shared target; no concurrent build",
+    "observed_at": "2026-10-20T12:33:11.472595+00:00",
+    "runtime_capacity": "4 total slots; lead + bounded Luna skill audit; review/implementation completed",
+    "build_slot": "released; final2b836 checks and immutable app saved",
     "desktop_account_actor": "none; daily native batch pending",
-    "scope": "headless synthetic checks; no live provider/account actions"
+    "scope": "headless source/read-only audit; no live provider/account actions"
   }
 }

@@ -582,3 +582,7 @@ The [general Search audit](evidence/general-search-audit.md) and lead validation
 ## Draft recovery candidate574 review and bounded correction —20October
 
 [Qualification](evidence/writing-draft-recovery-574-qualification.json) preserves every command/log/diff and the original690 background-warning red proof. Candidate574 passed339 desktop cases with one existing ignored, strict lint and ordinary native build; unchanged core storage11 is reused. [Independent complete correction review](evidence/writing-draft-recovery-review-574.md) confirms the first P2 fixed and identifies a separate P2: Dismiss on a recovery warning also clears an unseen ordinary error. Lead validated the source/control consequence and selected a tiny scoped correction. Candidate574 and its immutable app remain preserved; no publication, native observation or owner acceptance is claimed.
+
+## Final draft recovery source2b836 —20October
+
+[Final qualification](evidence/writing-draft-recovery-2b836-qualification.json) retains the valid574 dismissal red, the separately invalid zero-test attempt, complete final notice18 and desktop340/0/1, strict lint, format and ordinary native build. [Independent final review](evidence/writing-draft-recovery-review-2b836.md) verifies both earlier P2 findings fixed and no remaining actionable finding. Unchanged core storage11 is reused. All original candidates/logs and separate immutable apps remain preserved; actual Mac MAC-10, hosted exact-head checks, integration and owner acceptance remain separate gates. No account test or private data was used.

@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. PR183 merged; resulting-main required checks running. Draft recovery has a narrowly scoped review correction in progress; no publication/native claim. Mac batch remains18:00 Tallinn.
+**Owner attention:** No owner decision requested. PR183 merged; required resulting-main checks pending. Draft repair reviewed/local-qualified and ready for separate publication; bounded Skills audit read-only. Mac batch remains18:00 Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -59,28 +59,54 @@ Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/
 
 ### Preserve unsent drafts when a note creates its writing conversation
 
-Owner: lead integration; bounded Luna dismissal correction; independent Sol review · State: **active** · Last observed: 2026-10-20T12:26:12.703752+00:00
-Activity: Candidate574 fixes background completion overwrite; original red witness and final339/0/1, strict lint/native build retained. Independent review confirms prior P2 fixed, finds distinct unseen ordinary error erased by recovery Dismiss. Lead validated; bounded Luna correction in progress.
-Next: Prove574 Dismiss sequence fails, preserve unseen ordinary error with a tiny scoped correction, then final affected checks and independent recheck before publication.
+Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **active** · Last observed: 2026-10-20T12:33:11.472595+00:00
+Activity: Final clean2b836148 passes notice18, desktop340/0/1, strict lint, ordinary native build; core storage11 reused unchanged. Independent complete/targeted reviews PASS; both P2 corrections verified and original red/invalid attempts retained.
+Next: Compose exact qualified source with lead records, verify source equality and documentation, publish separate draft-recovery PR; inspect exact-head required checks before normal integration.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** 574 local atomic draft transfer and scoped recovery attention implemented; final dismissal correction pending
-- **checks:** 574 local gates PASS, independent review one new P2 valid/fix; no publication qualification yet
-- **integration:** PR183 merged separately; draft candidate remains local until final independent review/checks and hosted gates
+- **implementation:** complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes
+- **checks:** PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused
+- **integration:** pending separate publication and all actual required exact-head gates; source not yet inmain
 - **native:** not observed; synthetic toolkit test is separate from OS interaction
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json)
 
 Attempts:
 
 - Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
 - Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.: Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md))
 - 574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.: Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md))
+- Compiled574 plus regression failed1/101 at missing ordinary error; first zero-test filter invalid and retained. Final2b836 witness/final gates pass; independent review no remaining findings.: Dismiss acknowledges only visible scoped recovery while preserving a separate ordinary error; remembered work lifecycle unchanged. Misreported chat digest corrected from actualgit; original artifacts preserved. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json))
+
+</details>
+
+### Inspect stale skill choices and scope changes
+
+Owner: bounded Luna source audit; lead disposition · State: **active** · Last observed: 2026-10-20T12:31:36.744155+00:00
+Activity: Selected the remaining Skills UI/service handoff for one bounded read-only audit; developer configuration remains separate from shipped runtime prompts.
+Next: Trace refresh/install/inspect/enable/select/remove and delayed folder-picker scope; report concrete accepted-behavior defects or bounded no-finding result with exact source references.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no product change selected
+- **checks:** source/caller/test mapping pending; no build dispatch
+- **integration:** inapplicable unless a later verified defect selects a separate candidate
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs)
+
+Attempts:
+
+- Overview refresh refused missing required attempts field; last valid page preserved.: Supplied explicit attempt history and reran record validation; no product or gate changed. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py))
 
 </details>
 
@@ -724,4 +750,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:26:12.703752+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:33:11.472595+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
