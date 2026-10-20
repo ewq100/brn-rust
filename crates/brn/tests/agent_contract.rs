@@ -1253,6 +1253,33 @@ fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
     let restore = call(&root, &occupied, &["restore", "--source", backup]);
     assert_error(&restore, "rejected", "unsafe_directory");
     assert_eq!(restore["error"]["details"], json!({}));
+    let malformed_bytes = b"not a SQLite database";
+    let malformed_source = root.join("not-a-backup.sqlite3");
+    std::fs::write(&malformed_source, malformed_bytes).unwrap();
+    let malformed_source_arg = malformed_source.to_str().unwrap();
+    let nested_target = root.join("restore-parent/missing-target");
+    let malformed = call(
+        &root,
+        &nested_target,
+        &["restore", "--source", malformed_source_arg],
+    );
+    assert_error(&malformed, "rejected", "unsafe_directory");
+    assert_eq!(malformed["exit"], 6);
+    assert_eq!(malformed["retry"], "refuse");
+    assert!(malformed["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("BRN backup"));
+    assert_eq!(std::fs::read(&malformed_source).unwrap(), malformed_bytes);
+    assert!(!nested_target.exists());
+    assert!(!nested_target.parent().unwrap().exists());
+    assert!(!std::fs::read_dir(&root.path).unwrap().any(|entry| {
+        entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".brn-restore-stage-")
+    }));
     let old = root.join("old");
     std::fs::create_dir(&old).unwrap();
     std::fs::write(old.join("brn.sqlite"), b"old format synthetic bytes").unwrap();

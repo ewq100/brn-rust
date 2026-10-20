@@ -33,10 +33,20 @@ impl StagedRestore {
     fn create(backup: &Path, destination: &Path) -> Result<Self> {
         let source =
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        validate_schema(
+        match validate_schema(
             &source,
             &[3, 4, 5, 6, 7, 8, 9, crate::store::SCHEMA_VERSION],
-        )?;
+        ) {
+            Ok(()) => {}
+            Err(Error::Sqlite(rusqlite::Error::SqliteFailure(code, _)))
+                if code.code == rusqlite::ErrorCode::NotADatabase =>
+            {
+                return Err(Error::UnsafeDirectory(
+                    "The restore source is not a BRN backup; choose a BRN backup file".into(),
+                ));
+            }
+            Err(error) => return Err(error),
+        }
         Self::prepare(destination)?.copy_from(&source)
     }
 
@@ -438,7 +448,10 @@ mod tests {
         for source in [&corrupt, &incompatible, &foreign, &empty] {
             let bytes = fs::read(source).unwrap();
             let destination = root.path().join("missing/parents/destination");
-            assert!(Store::restore(source, &destination).is_err());
+            assert!(matches!(
+                Store::restore(source, &destination),
+                Err(Error::UnsafeDirectory(_))
+            ));
             assert!(!root.path().join("missing").exists());
             assert_eq!(fs::read(source).unwrap(), bytes);
         }
