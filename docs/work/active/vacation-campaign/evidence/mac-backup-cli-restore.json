@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-10-20T15:47:13.749532+00:00",
+  "command": [
+    "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-native-20261020T134854Z/cli-restored",
+    "restore",
+    "--source",
+    "/private/tmp/brn-native-20261020T134854Z/backups/BRN-backup-1439755c-c9ec-4250-87a1-03978b70c875"
+  ],
+  "exit_code": 0,
+  "source_backup": "/private/tmp/brn-native-20261020T134854Z/backups/BRN-backup-1439755c-c9ec-4250-87a1-03978b70c875",
+  "backup_sha256": "111f1d1f904461ff9ee6ea09ab21118de6de60ac8bddae2ec84220c1755d4211",
+  "destination": "/private/tmp/brn-native-20261020T134854Z/cli-restored",
+  "binary": "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+  "binary_sha256": "b5fe8083b3c877dc3de8aa661af203b30f54b4e6352951813bc6a47c7dc54529",
+  "binary_mode": "0o555",
+  "schema": 10,
+  "tables": 11,
+  "all_table_rows_exact": true,
+  "contract_permitted_differences": {},
+  "primary_all_table_rows_unchanged": true,
+  "primary_file_hashes_unchanged": {
+    "/private/tmp/brn-native-20261020T134854Z/data/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "/private/tmp/brn-native-20261020T134854Z/data/threads.sqlite3": "da63a52bdf62b3fc863995d79f497584be3ba97c1de4c55d1d301afbafab6cfc",
+    "/private/tmp/brn-native-20261020T134854Z/data/threads.sqlite3-shm": "f848a7deb6bd00334577cdcbde1d2a649e7bb63c396111717ab127b8bbcb5b7a",
+    "/private/tmp/brn-native-20261020T134854Z/data/threads.sqlite3-wal": "1a9e1a29a254b968da8e6f0bd21c38fac26f8a29f445cb5c5f6c66e55609e2a0"
+  },
+  "source_backup_unchanged": true,
+  "restore_response": {
+    "contract": 3,
+    "command": "restore",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "refuse",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "restored": "/private/tmp/brn-native-20261020T134854Z/cli-restored",
+      "workspace_purpose": "owner"
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": null,
+      "cli_authority": null,
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "limits": "Actual supported CLI restore of Mac-created synthetic backup, not Mac Restore controls, assets absent from this fixture, crash/power-loss, broad backup fidelity or owner acceptance. No account/provider/model action or SQL repair.",
+  "source": {
+    "lead_head": "18e604f0b5446990987b42dcd7c7ab4f48cef8a0",
+    "integrated_main": "4c50b6147634140a5072da7fdaaf950919a0ed85",
+    "identity": "Lead crates identical to main; CLI and app/core/AI recompiled at pinned1.98.1, no production edits",
+    "crate_trees": {
+      "crates/brn": "105c57efeaa74746366f7608e0dae0a2f79414d3",
+      "crates/brn-threads-app": "ad9f83debc007a7b6ecd01277cac5f3f2964bdac",
+      "crates/brn-threads-core": "14a721215596b49c9169dbcee8df3773f76099ce",
+      "crates/brn-ai": "fa45e75bcd4944a0fa5f2e0fa585583bd7293add"
+    },
+    "raw_sha256": "5f43be4b43c6368d8a609eb01e967381ee4edf1c51d2478366a157434461ad5e"
+  }
+}

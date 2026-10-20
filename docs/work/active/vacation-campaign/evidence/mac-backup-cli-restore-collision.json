@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-20T15:47:52.054030+00:00",
+  "command": [
+    "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+    "--json",
+    "--data-dir",
+    "/private/tmp/brn-native-20261020T134854Z/cli-restored",
+    "restore",
+    "--source",
+    "/private/tmp/brn-native-20261020T134854Z/backups/BRN-backup-1439755c-c9ec-4250-87a1-03978b70c875"
+  ],
+  "exit_code": 6,
+  "response": {
+    "contract": 3,
+    "command": "restore",
+    "ok": false,
+    "status": "rejected",
+    "exit": 6,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "refuse",
+    "changed": [],
+    "conflict": null,
+    "result": null,
+    "error": {
+      "code": "unsafe_directory",
+      "message": "incompatible or unsafe data directory: restore requires an empty fresh directory",
+      "details": {}
+    },
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": null,
+      "cli_authority": null,
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "existing_destination_file_hashes_unchanged": {
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "threads.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "threads.sqlite3-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "threads.sqlite3": "0688071af1e5eacc2103781d59df00c58c26342b44bb228c9f8c190cd01f38e8"
+  },
+  "source_backup_unchanged": true,
+  "verdict": "PASS supported restore refuses nonempty destination without changing existing copy/source"
+}

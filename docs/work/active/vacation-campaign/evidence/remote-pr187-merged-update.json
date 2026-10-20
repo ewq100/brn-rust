@@ -1,0 +1,104 @@
+{
+  "observed_at": "2026-10-20 15:44:51 UTC",
+  "source_commit": "18e604f0",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 23,
+  "edit_receipt": {
+    "new_sequence": 23,
+    "through_sequence": 23,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "4045e64566767cac5715102525ae131a1179df75f224c87e5c417b5bf5fbc48f"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "600e4e9c5fa304a84fcaf36df9122c3f72a2bc57762a568a54ffb62607b95eab"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "1f1ed0af330197ab54b39816463b9a886c35bfd96b34d873bacb3d864b7c8214"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMDFnPYCuApB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "46533f9bf649ca757ed41661eb8eb1189f6a2a0e0d3a19dd24bcd91943a15e4f"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "kind": "markdown",
+      "markdown": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The Notes navigation and menu accessibility corrections are now merged in [PR 186](https://github.com/ewq100/brn-rust/pull/186) and [PR 187](https://github.com/ewq100/brn-rust/pull/187). Both passed every required pre-merge check. Notes also passed all post-merge checks; the menu correction’s post-merge checks are running.",
+      "hash": "4045e64566767cac5715102525ae131a1179df75f224c87e5c417b5bf5fbc48f",
+      "metadata": {}
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 18:43 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "600e4e9c5fa304a84fcaf36df9122c3f72a2bc57762a568a54ffb62607b95eab",
+      "metadata": {}
+    },
+    {
+      "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+      "kind": "markdown",
+      "markdown": "- **Mac CI improvement in testing:** a measured warm job still spent about seven of thirteen minutes preparing converters. [PR 188](https://github.com/ewq100/brn-rust/pull/188) keeps their dependencies in separate cache folders while preserving every existing check and source safeguard. Independent review and 183 local tooling tests passed. A disposable local measurement produced about 68 MiB of compressed dependencies; hosted cache size and speedup still need verification. Earlier obsolete-cache cleanup and its limits remain in the [investigation](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/ci-cache-investigation.md).",
+      "hash": "46533f9bf649ca757ed41661eb8eb1189f6a2a0e0d3a19dd24bcd91943a15e4f",
+      "metadata": {}
+    },
+    {
+      "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+      "kind": "markdown",
+      "markdown": "1. Confirm the menu correction’s post-merge checks and the required checks for [PR 188](https://github.com/ewq100/brn-rust/pull/188), the reviewed converter-cache improvement. Actual corrected Mac accessibility remains a separate check.",
+      "hash": "1f1ed0af330197ab54b39816463b9a886c35bfd96b34d873bacb3d864b7c8214",
+      "metadata": {}
+    }
+  ],
+  "limits": "Saved owner summary; no live-sync claim; human additions preserved."
+}

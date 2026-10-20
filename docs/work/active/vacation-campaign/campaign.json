@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T15:43:21.587928+00:00",
+    "observed_at": "2026-10-20T15:47:52.088362+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1379,6 +1379,34 @@
         },
         "attempts": [],
         "resource_plan": "Requested Luna medium fresh context for one separable source audit, lead validates consequential findings. One helper within4slots; no builds/cache/native/account or nested workers."
+      },
+      {
+        "id": "native-backup-cli-restore",
+        "title": "Restore the Mac-created backup into a fresh test folder",
+        "state": "complete",
+        "owner": "development lead; single shared build slot and restore actor",
+        "activity": "PASS actual supported CLI restore of MAC03 backup into fresh synthetic root. All11 SQLite tables and every row exactly match backup; backup and primary file/logical state unchanged. Repeated restore refuses nonempty destination and preserves exact existing files. Pinned CLI/core/AI/app rebuild11.35s, immutable555 binary archived.",
+        "observed_at": "2026-10-20T15:47:52.088362+00:00",
+        "origin": "observed",
+        "next_action": "Reuse source-bound command-line recovery proof. Restore UI, crash/power-loss and asset-rich backup cases remain separate; no unchanged broad rerun.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
+          "crates/brn/README.md",
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json",
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json",
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "qualification only; no product change selected",
+          "checks": "PASS actual restore/schema10/integrity/all11table-row equivalence, original backup/primary hashes preserved; expected collision refusal and existing-destination exact hashes unchanged",
+          "integration": "inapplicable unless reproduced defect selects a candidate",
+          "native": "MAC03 backup creation observed; restore here is headless, not GUI/owner acceptance",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Lead alone for consequential restore boundary; no helpers needed for simple supported command/comparison. One cached build slot, max6minutes before reassessment, stop below1GiB; current free~21GiB. Pinned1.98.1, jobs1,debug0,incremental0; synthetic original data untouched."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1390,13 +1418,13 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20T15:17:42Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-navigation-integration-update.json"
+    "last_refresh_at": "2026-10-20T15:43:38Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr187-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T15:43:21.587928+00:00",
+    "observed_at": "2026-10-20T15:47:52.088362+00:00",
     "runtime_capacity": "4 total slots; lead only; bounded helpers completed",
-    "build_slot": "free; no local Rust compile; all qualified binaries preserved",
+    "build_slot": "free; CLI pinned build completed11.35s and immutable555 artifact archived; no local cargo job",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",

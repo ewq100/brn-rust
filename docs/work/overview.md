@@ -899,6 +899,27 @@ Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-camp
 
 </details>
 
+### Restore the Mac-created backup into a fresh test folder
+
+Owner: development lead; single shared build slot and restore actor · State: **complete** · Last observed: 2026-10-20T15:47:52.088362+00:00
+Activity: PASS actual supported CLI restore of MAC03 backup into fresh synthetic root. All11 SQLite tables and every row exactly match backup; backup and primary file/logical state unchanged. Repeated restore refuses nonempty destination and preserves exact existing files. Pinned CLI/core/AI/app rebuild11.35s, immutable555 binary archived.
+Next: Reuse source-bound command-line recovery proof. Restore UI, crash/power-loss and asset-rich backup cases remain separate; no unchanged broad rerun.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** qualification only; no product change selected
+- **checks:** PASS actual restore/schema10/integrity/all11table-row equivalence, original backup/primary hashes preserved; expected collision refusal and existing-destination exact hashes unchanged
+- **integration:** inapplicable unless reproduced defect selects a candidate
+- **native:** MAC03 backup creation observed; restore here is headless, not GUI/owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn/README.md](../../crates/brn/README.md), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json](active/vacation-campaign/evidence/mac-backup-cli-restore.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json](active/vacation-campaign/evidence/mac-backup-cli-restore-collision.json), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz](active/vacation-campaign/evidence/mac-backup-cli-restore-raw.tar.gz)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -923,4 +944,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:43:21.587928+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:47:52.088362+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
