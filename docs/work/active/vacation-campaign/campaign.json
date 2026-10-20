@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T08:17:09.406438+00:00",
+    "observed_at": "2026-10-20T08:26:55.056Z",
     "remaining_percent": 96,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: verified allowance4%used/96%remaining; original floor and expiry retained",
+    "ordinary_work": "verified4%used/96%remaining after account batch and native preparation; waiting on real external gates, not quota",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T08:22:45.967629+00:00",
+    "observed_at": "2026-10-20T08:27:45.733055+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -227,17 +227,18 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Prepared source-bound Save/reopen/backup/recovery scenarios plus successful live writing proposal for actual Apply/Undo; all four required PR179 main checks passed.",
-        "observed_at": "2026-10-20T08:10:49.158833+00:00",
+        "activity": "Matching ordinary native-ui candidate build7225c208 passed and immutable executable65083ccc saved; original artifacts preserved. Live proposal ready for actual Apply/Undo.",
+        "observed_at": "2026-10-20T08:26:01.079451+00:00",
         "origin": "reported",
-        "next_action": "Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.",
+        "next_action": "Use consolidated18:00Mac session for source-reconciled synthetic Save/reopen/backup/recovery and writing proposal controls. Confirm native access and helpers at entry.",
         "depends_on": [],
         "resource_waits": [
-          "Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed."
+          "Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
-          "docs/work/active/vacation-campaign/writing-account-verification.md"
+          "docs/work/active/vacation-campaign/writing-account-verification.md",
+          "docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json"
         ],
         "gates": {
           "implementation": "existing application; no new source fix selected",
@@ -611,22 +612,26 @@
         "title": "Flush complete export folders before reporting success",
         "state": "active",
         "owner": "bounded Luna medium writer; lead integration; independent Sol review follows",
-        "activity": "Reviewed export source0f64a034 and reviewed writing/evidence records composed without product changes; main02445b28 reconciled after PR180 normal merge. Candidate ready for publication.",
-        "observed_at": "2026-10-20T08:22:45.967629+00:00",
+        "activity": "Published reviewed PR181 at7225c208 after normal PR180 merge02445b28. Required exact-head jobs running; remote head frozen.",
+        "observed_at": "2026-10-20T08:23:55.751071+00:00",
         "origin": "observed",
-        "next_action": "Publish the complete reviewed follow-through candidate, then keep head stable while all required hosted jobs run. Normal merge waits for actual required head and preceding-main evidence.",
+        "next_action": "Inspect four required PR181 head jobs and preceding-main39392850688, then live protection before normal merge; resulting main separately.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Hosted required PR181 head and preceding-main02445b28 checks."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-review.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json"
+          "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json",
+          "https://github.com/ewq100/brn-rust/pull/181",
+          "docs/work/active/vacation-campaign/evidence/pr181-integration.json"
         ],
         "gates": {
           "implementation": "complete isolated0f64a034; app export source+README only",
           "checks": "PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.",
-          "integration": "ready for publication; exact reviewed source unchanged. Independent source/evidence reviews passed; required hosted head/merge/main gates pending.",
+          "integration": "published PR181 exact7225c20877edcb5c4dd20d50d530095682d10c40; required head/preceding-main/normal merge/resulting-main pending",
           "native": "daily synthetic export journey separate; no power-loss qualification claim",
           "owner_acceptance": "not claimed"
         },
@@ -656,7 +661,7 @@
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Grouped review verified on main; bounded writing proposal passed; progress records normally merged with resulting-main checks pending. Reviewed export correction ready for hosted checks."
+    "owner_attention": "No owner decision requested. Grouped review verified on main; exact writing proposal passed; progress records merged. Reviewed export PR181 and preceding-main checks are pending; actual Mac batch remains18:00Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -667,11 +672,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T08:18:03.635242+00:00",
+    "observed_at": "2026-10-20T08:27:45.733055+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "all bounded source and independent reviews completed; no helper/build/desktop/account actor active",
-    "build_actor": "none; candidate source remains exact qualified0f64a034",
-    "desktop_account_actor": "none; no further AI generation selected",
-    "stop": "Hosted PR180 required checks are the immediate integration gate; native scenarios wait for daily consolidated session. No speculative changes or extra account calls."
+    "helpers": "none active; all bounded implementation/review/audit helpers completed",
+    "build_actor": "none; changed-source ordinary native build qualified and frozen",
+    "desktop_account_actor": "no owned actor; account session closed2counted attempts, no extra generation selected",
+    "stop": "Genuine external waits only: PR181head39392977994 and preceding-main39392850688 required CI; selected native journeys use daily18:00batch. Save/checkpoint with frozen remote7225c208; existing recovery schedule resumes this lead/chat. No user decision, quota stop, campaign completion or arbitrary batch delay."
   }
 }
