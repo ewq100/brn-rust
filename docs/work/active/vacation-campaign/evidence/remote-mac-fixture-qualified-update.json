@@ -1,0 +1,92 @@
+{
+  "observed_at": "2026-10-20 20:43:07 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "d682c0aafc4b43c960d5b24cb73d36ba5e097e95",
+  "edit": {
+    "new_sequence": 32,
+    "through_sequence": 32,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "6ef93a910590a0f837d009abb26b903f43940a1c269d2c64a098f0535aa4b426"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+        "created_block_ids": [
+          "4b12b94b-375e-420a-8c4f-617917e61859"
+        ],
+        "continuation_position": {
+          "block_id": "4b12b94b-375e-420a-8c4f-617917e61859",
+          "relative_position_base64": "AMbpssgFigRB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "4b12b94b-375e-420a-8c4f-617917e61859",
+            "hash": "c333c89d32ed27e018a8b894a16be6f70160f6be5eef9ebd6eb0773038218d70"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMbpssgF1QZB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "841b528e7b11b2e12e545ea2d7796e3ded945f8b0c04612d1a680fcceca255e1"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+          "relative_position_base64": "AJuY17sC5hFB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+            "hash": "b1ddb60c9b4ee317156ea4fa231d499a9ab5553f57fb9592eb6bb6b0f547038e"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "exact": true
+    },
+    {
+      "id": "4b12b94b-375e-420a-8c4f-617917e61859",
+      "exact": true
+    },
+    {
+      "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+      "exact": true
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "exact": true
+    }
+  ],
+  "meaning": "Qualified unmerged Mac fixture; remaining Mac CI measurements with limits; PR190 hosted/integration still pending."
+}
