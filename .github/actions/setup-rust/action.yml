@@ -51,6 +51,8 @@ runs:
         key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}-${{ hashFiles('Cargo.toml') }}
         cache-bin: 'false'
         cache-on-failure: 'true'
+        # PRs restore base/main caches without uploading large ref-only copies.
+        save-if: ${{ github.ref == 'refs/heads/main' }}
     - name: Discard restored generated Xberg workspace
       shell: bash
       run: |
