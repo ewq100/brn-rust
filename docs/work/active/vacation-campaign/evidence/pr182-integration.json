@@ -82,7 +82,7 @@
   "source": "12679ef4cd7248e44efb1d89ce37f59352ac2fd8",
   "review": "action-completion-review.md",
   "publication_delta": "Review receipt/current gates, confirmed resource deviation and lead-inspected mechanical historical routes; no source effect",
-  "result": "All4required exact-head checksPASS; integration held for preceding-main diagnosed45m resource timeout, one bounded retry active",
+  "result": "Normally mergedbc8; resulting-main39415372292pending; premerge receipt retains actual4head/4precedingmain checks and protection",
   "latest_required_head_checks_at": "2026-10-20T11:02:57.170751+00:00",
   "latest_pr": {
     "baseRefOid": "20fcd7383662cd2f67607c3ce04194aed50809b5",
@@ -161,5 +161,14 @@
       }
     ],
     "url": "https://github.com/ewq100/brn-rust/pull/182"
+  },
+  "reconciled_at": "2026-10-20T11:37:02.369505+00:00",
+  "normal_merge": {
+    "headRefOid": "be2de8af21f787b15afb821bbcd7d8fc26039ecf",
+    "mergeCommit": {
+      "oid": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4"
+    },
+    "mergedAt": "2026-10-20T11:29:57Z",
+    "state": "MERGED"
   }
 }

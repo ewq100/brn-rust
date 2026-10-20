@@ -565,3 +565,8 @@ remaining; first unattended wake remains unobserved.
 [Action/history audit](evidence/action-history-audit.md) selected a missing Confirm done UI-to-Store/receipt Undo witness. [Qualification](evidence/action-completion-qualification.json) retains the bounded extension to the existing journey, passing focused/full desktop checks and original test-authoring failures; it is toolkit evidence, not actual Mac interaction.
 
 [CI timing receipt](evidence/ci-cost-triage.md) compares two completed runs and preserves its limits/original report. No safe test or required-lane removal was established. Dated workflow/test snapshots remain history; the current task record owns present gates.
+
+
+## 20 October — Mac CI cache investigation
+
+[Investigation](ci-cache-investigation.md) and [source/log receipt](evidence/ci-cache-investigation.json) retain the earlier cache hit/later absence, same-source cold/warm pair, PR-scoped storage and actual pinned cleanup behavior. Original helper reports and corrected factual versions remain lossless. Main-only cache saving is a separate selected candidate; broader helper-cache/target sharing and claimed speedups remain unqualified.

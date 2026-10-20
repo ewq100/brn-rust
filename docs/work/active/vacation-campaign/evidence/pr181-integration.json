@@ -395,5 +395,13 @@
       },
       "resulting_main": "20fcd738 pending actual required checks; no bypass"
     }
-  ]
+  ],
+  "reconciled_at": "2026-10-20T11:37:02.369505+00:00",
+  "later_main_recovery": {
+    "run": 39401033547,
+    "source": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+    "required": "All4PASS",
+    "retry_job": 118591050475,
+    "original": "45mresourcecancellationretained in ci-main20f-timeout.json; sourceunchanged"
+  }
 }
