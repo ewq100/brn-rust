@@ -55,7 +55,8 @@ jobs:
     name: Core and CLI (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     # Mac also builds/tests both converters; main additionally lints the workspace.
-    timeout-minutes: ${{ matrix.runner == 'macos-15' && 45 || 30 }}
+    # Allow finalization within the same bounded hour as the native lanes.
+    timeout-minutes: ${{ matrix.runner == 'macos-15' && 60 || 30 }}
     strategy:
       fail-fast: false
       matrix:
