@@ -57,6 +57,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibil
 
 </details>
 
+### Reuse converter dependencies without mixing build identities
+
+Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:24:13.203245+00:00
+Activity: Frozen localcd99ad1e passed independent review, actual pinned-cleaner fixture, equal408 external stock/adapted tuple comparison,183tooling tests, YAML/docs/format checks. No builds/account/cache mutation. No hosted speedup/archive-size proof yet.
+Next: Preserve reviewed local candidate; publish against then-current main after current menu integration to avoid redundant hosted runs. Inspect exact head/main gates, first main cache upload size and a later warm observation before claiming acceleration.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
+- **checks:** PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending
+- **integration:** not published; current main/menu integration in progress; no merge
+- **native:** inapplicable: development CI only
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -876,4 +897,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:17:20.165336+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:24:13.203245+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

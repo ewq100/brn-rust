@@ -1,0 +1,133 @@
+{
+  "observed_at": "2026-10-20 15:23:13 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "4a37b419",
+  "sequence": 22,
+  "readback": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "kind": "markdown",
+      "markdown": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The Notes navigation correction is now merged in [PR 186](https://github.com/ewq100/brn-rust/pull/186), with all required pre-merge checks passed and post-merge checks running. The separate menu accessibility correction is reviewed and locally checked in [PR 187](https://github.com/ewq100/brn-rust/pull/187).",
+      "hash": "2343799d6fe2a10ed856b878f1ddac50855c1f9504bfc02b262248454741f618",
+      "metadata": {}
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 18:17 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "28908abff9d341f2e1d46d1ff55ef74fc4ba27ca90629ea64f9ecb36a50a478b",
+      "metadata": {}
+    },
+    {
+      "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+      "kind": "markdown",
+      "markdown": "1. Confirm the required checks after PR 186 merged and on the separate [PR 187 menu correction](https://github.com/ewq100/brn-rust/pull/187). Both corrections passed independent review and local checks; corrected native controls still need actual Mac observation.",
+      "hash": "0cf7e3b4451f70b80d633aa8708f1f43b0b0b21314c5cff87dd64a91ed6a0bc6",
+      "metadata": {}
+    }
+  ],
+  "edit_receipt": {
+    "new_sequence": 21,
+    "through_sequence": 21,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "2343799d6fe2a10ed856b878f1ddac50855c1f9504bfc02b262248454741f618"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "bac6fa7ab1057714fee84e08b0d18081546b321e5a40cc102d9339d418b9f42d"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "0cf7e3b4451f70b80d633aa8708f1f43b0b0b21314c5cff87dd64a91ed6a0bc6"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "c636f06ce881c69f60240896fc60f2e82013dbc0fbf017e80a604cd0913241f0"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMDFnPYCuApB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "2e7c19634849b578365590a9c2fc8105a2998f69e3eb2cb3f1f1ef95b6e9cd2e"
+          }
+        ]
+      }
+    ]
+  },
+  "timestamp_correction": {
+    "new_sequence": 22,
+    "through_sequence": 22,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "28908abff9d341f2e1d46d1ff55ef74fc4ba27ca90629ea64f9ecb36a50a478b"
+          }
+        ]
+      }
+    ]
+  },
+  "limits": "Saved owner summary; not live activity. No human additions removed; both edit operations read back."
+}

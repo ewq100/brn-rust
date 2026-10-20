@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T15:17:20.165336+00:00",
+    "observed_at": "2026-10-20T15:24:13.203245+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1318,6 +1318,34 @@
           }
         ],
         "resource_plan": "Requested Luna medium fresh context for separable bounded measurement while lead integrates two reviewed UI corrections; one helper,4total slots. Read-only except /tmp report, no builds/nested agents or cache/source writes."
+      },
+      {
+        "id": "ci-document-helper-cache",
+        "title": "Reuse converter dependencies without mixing build identities",
+        "state": "active",
+        "owner": "bounded Luna implementation; lead qualification/integration; independent Sol review",
+        "activity": "Frozen localcd99ad1e passed independent review, actual pinned-cleaner fixture, equal408 external stock/adapted tuple comparison,183tooling tests, YAML/docs/format checks. No builds/account/cache mutation. No hosted speedup/archive-size proof yet.",
+        "observed_at": "2026-10-20T15:24:13.203245+00:00",
+        "origin": "observed",
+        "next_action": "Preserve reviewed local candidate; publish against then-current main after current menu integration to avoid redundant hosted runs. Inspect exact head/main gates, first main cache upload size and a later warm observation before claiming acceleration.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md",
+          "docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json",
+          "docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md",
+          "docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key",
+          "checks": "PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending",
+          "integration": "not published; current main/menu integration in progress; no merge",
+          "native": "inapplicable: development CI only",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Owner authorizes bounded Luna implementation; requested Luna medium fresh context for three small CI/ignore files. Lead verifies exact pinned pruner in disposable fixture; independent Sol high complete-candidate review afterward. Max2helpers within4total slots; no nested workers/build/CUA/account/cache operations."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1329,13 +1357,13 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20T14:50:00.615156+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr186-published-update.json"
+    "last_refresh_at": "2026-10-20T15:17:42Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-navigation-integration-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T15:17:20.165336+00:00",
-    "runtime_capacity": "4 total slots; only lead active after bounded audit completed",
-    "build_slot": "free; source97e0d313 ordinary artifact archived555, no Rust job",
+    "observed_at": "2026-10-20T15:24:13.203245+00:00",
+    "runtime_capacity": "4 total slots; lead only after implementation/review completed",
+    "build_slot": "free; no Rust compile; shared production artifacts preserved",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",

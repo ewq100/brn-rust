@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-10-20T15:24:13.203245+00:00",
+  "source": "cd99ad1e0cf82aa4ca4ca770e6f1a682f8c49218",
+  "base": "ea223ef1c123c2402651236450df7541f825608a",
+  "source_files": {
+    ".github/actions/setup-rust/action.yml": "b938d4368e7f2a9397c2ab43fa130662cd49f960294a927beea36c7e0853b526",
+    ".github/workflows/ci.yml": "3db9b97ad975600efdd2dc4500f76bb13fd860e2e30d8c2798580f7d9cd4ead3",
+    ".gitignore": "cce1b0b0da95beb3d85a97b03192e28b22324dea6a883c923dc10cb6de096f41"
+  },
+  "review": "PASS independent Sol high complete actual three-file candidate; no actionable findings",
+  "checks": {
+    "pinned_cleaner_fixture": {
+      "rejected_nested_mapping": "PASS actual cleaner deletes helper-only dependency under root target",
+      "nonoverlapping_mapping": "PASS dependency/fingerprint/build retained in both helper targets",
+      "binaries": "PASS helper executables removed from debug and deps",
+      "archive_boundaries": "PASS configured paths exclude receipts/artifacts/source guards structurally",
+      "generated_source": "PASS synthetic generated source removed by root cleaner; production post-restore regeneration preserved separately"
+    },
+    "stock_adapted_graph": {
+      "result": "PASS actual stock/adapted all-features external package name/version/library-target tuples identical",
+      "packages": 408,
+      "limit": "Actual locked offline metadata after normal SHA-checked generation; no compilation/cache upload. Metadata names do not replace source guards."
+    },
+    "YAML": "PASS Ruby Psych; not GitHub expression execution",
+    "tooling": "PASS183tests/0failures11.860s; raw archive",
+    "docs": "PASS625files2965links0failures; source checkout baseline docs",
+    "overview": "PASS generated owner overview check",
+    "shell": "PASS author all scripts bash syntax",
+    "diff": "PASS"
+  },
+  "evidence": [
+    "ci-helper-cache-implementation.md",
+    "ci-helper-cache-review.md",
+    "ci-helper-cache-cleaner-proof.json",
+    "ci-helper-cache-proof-raw.tar.gz"
+  ],
+  "raw_sha256": "d00a96f3b7a6f98d10559af9943286f39b3477c04ade8f445b8e1d61606a0163",
+  "limits": [
+    "No actual cache upload/hit/compressed size or controlled timing proof yet. Before relying on acceleration, inspect main cache publication and subsequent warm job.",
+    "Existing local helper targets measured740MiB uncompressed before cleaning; actual CI compression/storage headroom unknown. No storage/billing changes.",
+    "Preview packaging uses shared setup but its old helper target path remains; no helper acceleration claimed there, no release run authorized/launched.",
+    "Stock graph substitution is proven only for current equal408 external package tuples; future adapted dependencies require review.",
+    "Full CI/preceding-main/exact-head integration gates remain pending; no native or owner acceptance claim."
+  ],
+  "integration": "unpublished local candidate; avoid unnecessary hosted rerun/rebase while current menu candidate integrates"
+}

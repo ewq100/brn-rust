@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-20T15:20:26.190Z",
+  "source": "Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+  "cleanup_sha256": "abb66d223548b9f6a69a645e7fbdec3efb22e71898cb8c9bfc97750e5fc6c491",
+  "adaptation": "Only imports replaced with fs/path, quiet logger, exists and deletion-constrained io.rmRF; Node built-in TypeScript stripping; cleaner bodies unchanged. No registry or other action entrypoint invoked.",
+  "metadata": "Actual pinned-toolchain locked offline all-features root/helper metadata; names/targets filtered as pinned Workspace implementation.",
+  "exclusive_dependency": "alemat",
+  "checks": {
+    "rejected_nested_mapping": "PASS actual cleaner deletes helper-only dependency under root target",
+    "nonoverlapping_mapping": "PASS dependency/fingerprint/build retained in both helper targets",
+    "binaries": "PASS helper executables removed from debug and deps",
+    "archive_boundaries": "PASS configured paths exclude receipts/artifacts/source guards structurally",
+    "generated_source": "PASS synthetic generated source removed by root cleaner; production post-restore regeneration preserved separately"
+  },
+  "limits": "Synthetic cleaner fixture, not an uploaded archive, complete action execution, actual cache hit or speed/storage measurement. Registry/git paths unchanged; no credential/cache API action.",
+  "initial_attempts": [
+    "cargo unavailable in default PATH (127)",
+    "guessed conventional cargo path absent (127)",
+    "correct pinned toolchain path recovered from existing receipts; metadata then passed",
+    "Initial optional adapted-metadata comparison refused because checkout had no generated manifest. Normal accepted generator then succeeded from existing verified local archive; comparison passed. Source candidate commit already existed but no publication/review completion/gate bypass occurred."
+  ],
+  "node": "v22.23.1",
+  "adapted_pruning_graph": {
+    "result": "PASS actual stock/adapted all-features external package name/version/library-target tuples identical",
+    "packages": 408,
+    "limit": "Actual locked offline metadata after normal SHA-checked generation; no compilation/cache upload. Metadata names do not replace source guards."
+  }
+}
