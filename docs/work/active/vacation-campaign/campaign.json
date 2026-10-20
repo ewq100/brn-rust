@@ -91,11 +91,12 @@
     "audit": "evidence/visibility-adoption-preflight.json",
     "owner": "existing lead",
     "constraints": "Reserve exception only for this adoption; existing fixed expiry, integration/account limits retained; no model/routing change.",
-    "current_task": "work_view.tasks[id=visibility-adoption]"
+    "current_task": "work_view.tasks[id=visibility-adoption]",
+    "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T05:10:37.356608+00:00",
-    "remaining_percent": 5,
+    "observed_at": "2026-10-20T05:18:26.961320+00:00",
+    "remaining_percent": 4,
     "reset_unix": 1792874447,
     "ordinary_work": "wait for verified capacity above floor",
     "exception": {
@@ -106,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T05:16:23.634823+00:00",
+    "observed_at": "2026-10-20T05:18:26.961320+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -114,24 +115,29 @@
         "title": "Clearer instructions and one progress view",
         "state": "active",
         "owner": "development lead",
-        "activity": "Instruction consolidation, local planning skill, shorter saved prompts and generated progress view implemented; final review/validation complete, publishing candidate next.",
-        "observed_at": "2026-10-20T05:16:23.634823+00:00",
-        "origin": "reported",
-        "next_action": "Publish the reviewed adoption candidate; inspect required exact-head and resulting-main checks before claiming integrated verification.",
+        "activity": "Adoption implemented and independently reviewed; published as PR178. Required hosted checks are now running.",
+        "observed_at": "2026-10-20T05:18:26.961320+00:00",
+        "origin": "observed",
+        "next_action": "Inspect all four actual exact-head required checks, normal merge when passed, then inspect resulting-main checks.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Hosted exact-head checks for PR178; no new implementation or local build needed."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/visibility-adoption.md",
           "docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json",
           "https://github.com/ewq100/brn-rust/pull/177",
           "docs/work/active/vacation-campaign/instruction-audit.md",
           "docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json",
-          "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json"
+          "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json",
+          "https://github.com/ewq100/brn-rust/pull/178",
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json",
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json"
         ],
         "gates": {
           "implementation": "complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged",
-          "checks": "passed:8 final focused renderer tests, generated consistency,589 Markdown files/2738 links and whitespace; earlier full182 tooling pass separate",
-          "integration": "pending reviewable PR and required hosted checks",
+          "checks": "passed local final8 tests, view consistency,589 files/2740 links and whitespace; hosted checks pending",
+          "integration": "PR178 published; normal merge and resulting-main verification pending",
           "native": "inapplicable: development documentation/view only",
           "owner_acceptance": "not requested; owner authorized implementation"
         },

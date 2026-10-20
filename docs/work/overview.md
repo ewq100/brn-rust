@@ -11,9 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Clearer instructions and one progress view
 
-Owner: development lead · State: **active** · Last reported: 2026-10-20T05:16:23.634823+00:00
-Activity: Instruction consolidation, local planning skill, shorter saved prompts and generated progress view implemented; final review/validation complete, publishing candidate next.
-Next: Publish the reviewed adoption candidate; inspect required exact-head and resulting-main checks before claiming integrated verification.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T05:18:26.961320+00:00
+Activity: Adoption implemented and independently reviewed; published as PR178. Required hosted checks are now running.
+Next: Inspect all four actual exact-head required checks, normal merge when passed, then inspect resulting-main checks.
+Resource waits: Hosted exact-head checks for PR178; no new implementation or local build needed.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -21,12 +22,12 @@ Next: Publish the reviewed adoption candidate; inspect required exact-head and r
 Gates:
 
 - **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
-- **checks:** passed:8 final focused renderer tests, generated consistency,589 Markdown files/2738 links and whitespace; earlier full182 tooling pass separate
-- **integration:** pending reviewable PR and required hosted checks
+- **checks:** passed local final8 tests, view consistency,589 files/2740 links and whitespace; hosted checks pending
+- **integration:** PR178 published; normal merge and resulting-main verification pending
 - **native:** inapplicable: development documentation/view only
 - **owner acceptance:** not requested; owner authorized implementation
 
-Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json)
+Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json), [https://github.com/ewq100/brn-rust/pull/178](https://github.com/ewq100/brn-rust/pull/178), [docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json](active/vacation-campaign/evidence/visibility-adoption-review.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json](active/vacation-campaign/evidence/visibility-adoption-qualification.json)
 
 Attempts:
 
@@ -63,6 +64,14 @@ Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde78
 None recorded.
 
 ## Needs attention
+
+### Clearer instructions and one progress view
+
+Owner: development lead
+
+Waiting:
+
+- resource: Hosted exact-head checks for PR178; no new implementation or local build needed.
 
 ### Confirm checks after the Mac correction merged
 
@@ -183,4 +192,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T05:16:23.634823+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T05:18:26.961320+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
