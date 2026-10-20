@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Grouped review verified on main; bounded writing proposal passed; progress records normally merged with resulting-main checks pending. Reviewed export correction ready for hosted checks.
+**Owner attention:** No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,34 +9,12 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Integrate remote progress routing and verification records
-
-Owner: development lead; independent Sol high review completed · State: **active** · Last observed: 2026-10-20T08:22:13.912839+00:00
-Activity: PR180 normally merged02445b28 after complete review/live protection/all4required exact-head passes. Resulting-main checks pending.
-Next: Inspect four required resulting-main jobs for02445b28 separately; keep optional Windows failures visible.
-Depends on: review-group-toggle when PR179 normally merged so documentation can build on the integrated source. (reported satisfied: true)
-Resource waits: Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete documentation-only candidate; no runtime prompt/script/dependency/product changes
-- **checks:** PASS independent complete docs review and all4required head39388373395 checks; optional WindowsCore failed
-- **integration:** normally merged02445b283d85ac09d24f7ee7f111039a87b4dbb5; required resulting-main pending
-- **native:** inapplicable: documentation projection; mobile/browser rendering remains unobserved
-- **owner acceptance:** not requested; owner authorized remote progress access
-
-Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](active/vacation-campaign/evidence/remote-cycle-review.md), [https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68), [https://github.com/ewq100/brn-rust/pull/180](https://github.com/ewq100/brn-rust/pull/180), [docs/work/active/vacation-campaign/evidence/pr180-integration.json](active/vacation-campaign/evidence/pr180-integration.json)
-
-</details>
-
 ### Flush complete export folders before reporting success
 
-Owner: bounded Luna medium writer; lead integration; independent Sol review follows · State: **active** · Last observed: 2026-10-20T08:22:45.967629+00:00
-Activity: Reviewed export source0f64a034 and reviewed writing/evidence records composed without product changes; main02445b28 reconciled after PR180 normal merge. Candidate ready for publication.
-Next: Publish the complete reviewed follow-through candidate, then keep head stable while all required hosted jobs run. Normal merge waits for actual required head and preceding-main evidence.
+Owner: development lead; Luna implementation and independent Sol reviews completed · State: **active** · Last observed: 2026-10-20T09:30:16.780781+00:00
+Activity: PR181 normally merged20fcd738 after actual live protection/all4required exact-head checks and passing preceding main. Resulting-main checks pending.
+Next: Inspect four required resulting-main jobs; compare exact production tree to reviewed0f64a034 and saved native artifact before reuse.
+Resource waits: Hosted resulting-main20fcd738; independent bounded headless work may continue.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -44,12 +22,38 @@ Next: Publish the complete reviewed follow-through candidate, then keep head sta
 Gates:
 
 - **implementation:** complete isolated0f64a034; app export source+README only
-- **checks:** PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.
-- **integration:** ready for publication; exact reviewed source unchanged. Independent source/evidence reviews passed; required hosted head/merge/main gates pending.
+- **checks:** PASS independent source/evidence reviews,6focused local tests,Clippy/fmt/nativebuild and all4required exact-head39392977994 checks; optional WindowsCore failed
+- **integration:** normally merged20fcd7383662cd2f67607c3ce04194aed50809b5; all4required head passed, resulting-main pending
 - **native:** daily synthetic export journey separate; no power-loss qualification claim
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md), [docs/work/active/vacation-campaign/evidence/export-durability-review.md](active/vacation-campaign/evidence/export-durability-review.md), [docs/work/active/vacation-campaign/evidence/export-durability-qualification.json](active/vacation-campaign/evidence/export-durability-qualification.json), [docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json](active/vacation-campaign/evidence/followthrough-candidate-review.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md), [docs/work/active/vacation-campaign/evidence/export-durability-review.md](active/vacation-campaign/evidence/export-durability-review.md), [docs/work/active/vacation-campaign/evidence/export-durability-qualification.json](active/vacation-campaign/evidence/export-durability-qualification.json), [docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json](active/vacation-campaign/evidence/followthrough-candidate-review.json), [https://github.com/ewq100/brn-rust/pull/181](https://github.com/ewq100/brn-rust/pull/181), [docs/work/active/vacation-campaign/evidence/pr181-integration.json](active/vacation-campaign/evidence/pr181-integration.json)
+
+</details>
+
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T09:45:22.800409+00:00
+Activity: Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.
+Next: Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.
+Resource waits: Required hosted integration gates after publication.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
+- **checks:** PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained
+- **integration:** pending independent review, required hosted gates and normal integration
+- **native:** toolkit checks are not OS interaction or owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md)
+
+Attempts:
+
+- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
 
 </details>
 
@@ -61,10 +65,10 @@ None recorded.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T08:10:49.158833+00:00
-Activity: Prepared source-bound Save/reopen/backup/recovery scenarios plus successful live writing proposal for actual Apply/Undo; all four required PR179 main checks passed.
-Next: Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.
-Resource waits: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
+Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T08:26:01.079451+00:00
+Activity: Matching ordinary native-ui candidate build7225c208 passed and immutable executable65083ccc saved; original artifacts preserved. Live proposal ready for actual Apply/Undo.
+Next: Use consolidated18:00Mac session for source-reconciled synthetic Save/reopen/backup/recovery and writing proposal controls. Confirm native access and helpers at entry.
+Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -77,13 +81,13 @@ Gates:
 - **native:** pending Save/reopen, backup and unsaved-recovery journeys
 - **owner acceptance:** pending; native evidence does not imply owner acceptance
 
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md)
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json](active/vacation-campaign/evidence/export-native-build-qualification.json)
 
 </details>
 
 Waiting:
 
-- resource: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
+- resource: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
 
 ### Check grouped review controls on the Mac
 
@@ -112,13 +116,21 @@ Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
-### Integrate remote progress routing and verification records
+### Flush complete export folders before reporting success
 
-Owner: development lead; independent Sol high review completed
+Owner: development lead; Luna implementation and independent Sol reviews completed
 
 Waiting:
 
-- resource: Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence.
+- resource: Hosted resulting-main20fcd738; independent bounded headless work may continue.
+
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: development lead; bounded Luna implementation and independent Sol high review completed
+
+Waiting:
+
+- resource: Required hosted integration gates after publication.
 
 ## Completed
 
@@ -385,6 +397,28 @@ Attempts:
 
 </details>
 
+### Integrate remote progress routing and verification records
+
+Owner: development lead; independent Sol high review completed · State: **complete** · Last observed: 2026-10-20T09:30:16.780781+00:00
+Activity: PR180 main02445b28 now passed all4required resulting-main39392850688 jobs. Optional Windows failures retained.
+Next: Reuse reviewed progress route; refresh the same remote summary at meaningful transitions.
+Depends on: review-group-toggle when PR179 normally merged so documentation can build on the integrated source. (reported satisfied: true)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete documentation-only candidate; no runtime prompt/script/dependency/product changes
+- **checks:** PASS independent review, required exact-head and resulting-main jobs; optional Windows failures retained
+- **integration:** PASS normal merge02445b28 and all4required resulting-main checks
+- **native:** inapplicable: documentation projection; mobile/browser rendering remains unobserved
+- **owner acceptance:** not requested; owner authorized remote progress access
+
+Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](active/vacation-campaign/evidence/remote-cycle-review.md), [https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68), [https://github.com/ewq100/brn-rust/pull/180](https://github.com/ewq100/brn-rust/pull/180), [docs/work/active/vacation-campaign/evidence/pr180-integration.json](active/vacation-campaign/evidence/pr180-integration.json)
+
+</details>
+
 ### Inspect backup and restore failure boundaries
 
 Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T08:05:07.042761+00:00
@@ -427,6 +461,69 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-queue-recovery
 
 </details>
 
+### Measure current automated-check feedback cost
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:34:14.850064+00:00
+Activity: Measured two completed CI runs; lead independently matched six Mac job durations. Required helper/feature lanes already reuse appropriate build targets; no safe optimization established.
+Next: Retain current required checks. Revisit only with comparable cache/feature/toolchain and per-test compile/body evidence.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: bounded investigation until a demonstrated correction selects work
+- **checks:** PASS bounded timing/source assessment only; no tests rerun or code changed
+- **integration:** inapplicable to investigation
+- **native:** not observed; separate native batch
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cost-triage.md](active/vacation-campaign/evidence/ci-cost-triage.md), [docs/work/active/vacation-campaign/evidence/ci-cost-triage.json](active/vacation-campaign/evidence/ci-cost-triage.json)
+
+</details>
+
+### Inspect Action and history Undo safeguards
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:34:14.850064+00:00
+Activity: No apparent identity/version defect; found missing actual Confirm done UI completion-evidence and receipt Undo witness. Lead validated existing test only exercises Waiting and selected a bounded extension.
+Next: Extend the existing Action/Undo journey, preserving Waiting coverage and test count.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: bounded investigation until a demonstrated correction selects work
+- **checks:** source/test inspection only; selected missing consequential UI-to-Store behavior witness
+- **integration:** inapplicable to investigation
+- **native:** not observed; separate native batch
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md)
+
+</details>
+
+### Route older agent-first results to current task facts
+
+Owner: development lead; mechanical routing inspection · State: **complete** · Last observed: 2026-10-20T09:45:22.800409+00:00
+Activity: Marked two older comparison/reconciliation pages as19October history and routed current work to overview/campaign instead of checkpoint. Supplied plan and dated results preserved.
+Next: Use concise current startup route; consult historical results only when relevant.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete two-page routing/label correction only
+- **checks:** PASS lead mechanical diff inspection, overview current,606Markdown files/2844local links,whitespace; independent review inapplicable to routing labels only, source candidate separately reviewed
+- **integration:** pending reviewed witness publication; no production behavior or standing authority change
+- **native:** inapplicable documentation-only
+- **owner acceptance:** not requested
+
+Evidence: [docs/work/active/agent-first-simplification/reconciliation.md](active/agent-first-simplification/reconciliation.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -445,4 +542,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T08:22:45.967629+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T09:45:22.800409+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

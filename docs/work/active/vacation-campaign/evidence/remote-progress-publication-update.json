@@ -1,0 +1,88 @@
+{
+  "observed_at": "2026-10-20T08:27:45.613Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "publication_update": {
+    "new_sequence": 6,
+    "through_sequence": 6,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "c55d099b3865a0646fbff55cc111dcba31d07d20cade295c324e9dfeb7ae6a1d"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "c40fc41dae5774840f5ede7d8e8ebc7d16d0bd80708a995668afec7d7c85b7d2"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "relative_position_base64": "AMfr2vgBqwdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "hash": "4bc5b6255641a5ed8524c99d0c6f955e9ed5f405ebc6397f96128edb47ed6882"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "3d2b8bed8604a1f9e00b576050615471802efb1ebe039f984e547cf49491f85e"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "b838a301792612b6ba13c3465c58fdcf1d115a3f02789fe760bc462ed617c013"
+          }
+        ]
+      }
+    ]
+  },
+  "readback_verified": true,
+  "limits": "Saved content verified; mobile/browser rendering unobserved. Existing memberships and schedules unchanged."
+}

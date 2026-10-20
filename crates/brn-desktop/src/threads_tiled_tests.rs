@@ -401,6 +401,77 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
         assert_eq!(history[before].operation, receipt.operation);
         assert!(view.worker.is_none());
     });
+
+    // Undo restored the original open Action. Exercise the row's actual
+    // Confirm done callback and its own receipt-specific Undo.
+    let (history_before_done, action_before_done) = cx.read(|cx| {
+        let view = f.view.read(cx);
+        (
+            view.workspace.history().unwrap().len(),
+            view.workspace.store.record(&action.id).unwrap().unwrap(),
+        )
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("actions-group-open").visible());
+        assert!(window.find(format!("done-action-{}", action.id)).visible());
+    })
+    .unwrap();
+    click(cx, &f, format!("done-action-{}", action.id));
+    let done_receipt = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let current = view.workspace.store.record(&action.id).unwrap().unwrap();
+        assert_eq!(current.version, action.version + 3);
+        let mut expected = match action.data.clone() {
+            RecordData::Action(action) => action,
+            _ => unreachable!(),
+        };
+        expected.state = ActionState::Done;
+        expected.evidence = Some("Owner confirmed completion in BRN.".into());
+        assert_eq!(current.data, RecordData::Action(expected));
+
+        let history = view.workspace.history().unwrap();
+        assert_eq!(history.len(), history_before_done + 1);
+        let receipt = history.last().unwrap().clone();
+        assert_eq!(receipt.writes.len(), 1);
+        assert_eq!(receipt.writes[0].after.id, action.id);
+        assert_eq!(receipt.writes[0].after, current);
+        assert_eq!(receipt.writes[0].before.as_ref(), Some(&action_before_done));
+        receipt
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("actions-group-done").visible());
+    })
+    .unwrap();
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::History, cx)
+    });
+    cx.update_window(f.window, |_, window, _| {
+        let id = done_receipt.operation.as_str();
+        assert!(window.find(format!("receipt-{id}")).visible());
+        assert!(window.find(format!("undo-{id}")).visible());
+    })
+    .unwrap();
+    click(cx, &f, format!("undo-{}", done_receipt.operation.as_str()));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let current = view.workspace.store.record(&action.id).unwrap().unwrap();
+        assert_eq!(current.data, action.data);
+        assert_eq!(current.version, action.version + 4);
+        let history = view.workspace.history().unwrap();
+        assert_eq!(history.len(), history_before_done + 2);
+        assert_eq!(
+            history[history_before_done].operation,
+            done_receipt.operation
+        );
+        assert_eq!(
+            history[history_before_done + 1].undo_of.as_ref(),
+            Some(&done_receipt.operation)
+        );
+        assert!(view.worker.is_none());
+    });
 }
 
 #[gpui_kit::test]

@@ -1,0 +1,59 @@
+{
+  "observed_at": "2026-10-20T08:24:25.640330+00:00",
+  "source": "7225c20877edcb5c4dd20d50d530095682d10c40",
+  "qualified_product_source": "0f64a0344eac23edb43403034bf3e0deae87655c",
+  "command": [
+    "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+    "build",
+    "--locked",
+    "--offline",
+    "-j",
+    "1",
+    "-p",
+    "brn-desktop",
+    "--features",
+    "native-ui"
+  ],
+  "environment": {
+    "RUSTUP_TOOLCHAIN": "1.98.1",
+    "RUSTC": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/rustc",
+    "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib"
+  },
+  "exit": 0,
+  "elapsed_seconds": 11.090684542199597,
+  "lowest_free_bytes": 36231741440,
+  "stopped": null,
+  "native_observed": false,
+  "account_call": false,
+  "artifact": {
+    "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/export-native-evidence/desktop-7225c208-65083ccc34d1e7d6",
+    "sha256": "65083ccc34d1e7d6ed9f9c7533f1df7dacaeb57dcd7c5237c3972b19d7f1c8dd",
+    "bytes": 165785520
+  },
+  "log_archive": "docs/work/active/vacation-campaign/evidence/export-durability-raw/production-native-build.log.gz",
+  "log_archive_sha256": "109863004557f5ea765ed2332814f925af7aa26cf32cb1939dc379ef1d621cbf",
+  "applicability": "Ordinary native-ui production build from reviewed export tree0f64a034, publishedPR181head7225c208. Before native use reconcile exact source with integrated main/candidate and matching helpers. Existing grouped fixture/controls source is unchanged.",
+  "warning": "Pinned block0.1.6 future-incompatibility warning retained; no toolchain or dependency acquisition",
+  "limits": [
+    "build only; no executable/native launch or owner acceptance",
+    "No account/provider call",
+    "Prior source-bound UI/state witnesses retained; no repeated broad suite locally",
+    "Original native artifacts and synthetic fixtures preserved"
+  ],
+  "existing_helper_route": "review-group-qualification.json and feedback-inclusion-qualification.json hold unchanged qualified helpers/fixture source; reconcile bytes at launch",
+  "later_applicability": [
+    {
+      "observed_at": "2026-10-20T09:34:40.609777+00:00",
+      "integrated_main": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+      "production_tree_matches_build_source": true,
+      "preserved_binary_hash_verified": true,
+      "required_resulting_main": "pending39401033547",
+      "native": "not launched; daily actual qualification separate"
+    }
+  ]
+}

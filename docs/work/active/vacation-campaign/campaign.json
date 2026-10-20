@@ -61,8 +61,7 @@
     "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
-    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification.",
-    "current_batch": "Two fresh-context Luna medium workers: developer fixture and UI metadata, isolated file/worktree ownership; Sol lead and independent Sol review when candidate ready. Actual4 total slots, single build slot controlled by lead. Stop/reassess on two failed approaches or scope/invariant ambiguity."
+    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json",
   "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
@@ -96,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T08:17:09.406438+00:00",
-    "remaining_percent": 96,
-    "reset_unix": 1793083360,
-    "ordinary_work": "admitted: verified allowance4%used/96%remaining; original floor and expiry retained",
+    "observed_at": "2026-10-20T09:41:32.173897+00:00",
+    "remaining_percent": 95,
+    "reset_unix": 1793083361,
+    "ordinary_work": "admitted: actual5%used/95%remaining rechecked; no owner pause, original expiry retained",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T08:22:45.967629+00:00",
+    "observed_at": "2026-10-20T09:45:22.800409+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -227,17 +226,18 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Prepared source-bound Save/reopen/backup/recovery scenarios plus successful live writing proposal for actual Apply/Undo; all four required PR179 main checks passed.",
-        "observed_at": "2026-10-20T08:10:49.158833+00:00",
+        "activity": "Matching ordinary native-ui candidate build7225c208 passed and immutable executable65083ccc saved; original artifacts preserved. Live proposal ready for actual Apply/Undo.",
+        "observed_at": "2026-10-20T08:26:01.079451+00:00",
         "origin": "reported",
-        "next_action": "Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.",
+        "next_action": "Use consolidated18:00Mac session for source-reconciled synthetic Save/reopen/backup/recovery and writing proposal controls. Confirm native access and helpers at entry.",
         "depends_on": [],
         "resource_waits": [
-          "Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed."
+          "Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
-          "docs/work/active/vacation-campaign/writing-account-verification.md"
+          "docs/work/active/vacation-campaign/writing-account-verification.md",
+          "docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json"
         ],
         "gates": {
           "implementation": "existing application; no new source fix selected",
@@ -552,12 +552,12 @@
       {
         "id": "progress-record-integration",
         "title": "Integrate remote progress routing and verification records",
-        "state": "active",
+        "state": "complete",
         "owner": "development lead; independent Sol high review completed",
-        "activity": "PR180 normally merged02445b28 after complete review/live protection/all4required exact-head passes. Resulting-main checks pending.",
-        "observed_at": "2026-10-20T08:22:13.912839+00:00",
+        "activity": "PR180 main02445b28 now passed all4required resulting-main39392850688 jobs. Optional Windows failures retained.",
+        "observed_at": "2026-10-20T09:30:16.780781+00:00",
         "origin": "observed",
-        "next_action": "Inspect four required resulting-main jobs for02445b28 separately; keep optional Windows failures visible.",
+        "next_action": "Reuse reviewed progress route; refresh the same remote summary at meaningful transitions.",
         "depends_on": [
           {
             "task": "review-group-toggle",
@@ -565,9 +565,7 @@
             "satisfied": true
           }
         ],
-        "resource_waits": [
-          "Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/remote-cycle-review.md",
           "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
@@ -576,8 +574,8 @@
         ],
         "gates": {
           "implementation": "complete documentation-only candidate; no runtime prompt/script/dependency/product changes",
-          "checks": "PASS independent complete docs review and all4required head39388373395 checks; optional WindowsCore failed",
-          "integration": "normally merged02445b283d85ac09d24f7ee7f111039a87b4dbb5; required resulting-main pending",
+          "checks": "PASS independent review, required exact-head and resulting-main jobs; optional Windows failures retained",
+          "integration": "PASS normal merge02445b28 and all4required resulting-main checks",
           "native": "inapplicable: documentation projection; mobile/browser rendering remains unobserved",
           "owner_acceptance": "not requested; owner authorized remote progress access"
         },
@@ -610,23 +608,27 @@
         "id": "export-publication-durability",
         "title": "Flush complete export folders before reporting success",
         "state": "active",
-        "owner": "bounded Luna medium writer; lead integration; independent Sol review follows",
-        "activity": "Reviewed export source0f64a034 and reviewed writing/evidence records composed without product changes; main02445b28 reconciled after PR180 normal merge. Candidate ready for publication.",
-        "observed_at": "2026-10-20T08:22:45.967629+00:00",
+        "owner": "development lead; Luna implementation and independent Sol reviews completed",
+        "activity": "PR181 normally merged20fcd738 after actual live protection/all4required exact-head checks and passing preceding main. Resulting-main checks pending.",
+        "observed_at": "2026-10-20T09:30:16.780781+00:00",
         "origin": "observed",
-        "next_action": "Publish the complete reviewed follow-through candidate, then keep head stable while all required hosted jobs run. Normal merge waits for actual required head and preceding-main evidence.",
+        "next_action": "Inspect four required resulting-main jobs; compare exact production tree to reviewed0f64a034 and saved native artifact before reuse.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Hosted resulting-main20fcd738; independent bounded headless work may continue."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-review.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json"
+          "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json",
+          "https://github.com/ewq100/brn-rust/pull/181",
+          "docs/work/active/vacation-campaign/evidence/pr181-integration.json"
         ],
         "gates": {
           "implementation": "complete isolated0f64a034; app export source+README only",
-          "checks": "PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.",
-          "integration": "ready for publication; exact reviewed source unchanged. Independent source/evidence reviews passed; required hosted head/merge/main gates pending.",
+          "checks": "PASS independent source/evidence reviews,6focused local tests,Clippy/fmt/nativebuild and all4required exact-head39392977994 checks; optional WindowsCore failed",
+          "integration": "normally merged20fcd7383662cd2f67607c3ce04194aed50809b5; all4required head passed, resulting-main pending",
           "native": "daily synthetic export journey separate; no power-loss qualification claim",
           "owner_acceptance": "not claimed"
         },
@@ -654,9 +656,115 @@
           "owner_acceptance": "not claimed"
         },
         "attempts": []
+      },
+      {
+        "id": "ci-cost-triage",
+        "title": "Measure current automated-check feedback cost",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; lead validates",
+        "activity": "Measured two completed CI runs; lead independently matched six Mac job durations. Required helper/feature lanes already reuse appropriate build targets; no safe optimization established.",
+        "observed_at": "2026-10-20T09:34:14.850064+00:00",
+        "origin": "observed",
+        "next_action": "Retain current required checks. Revisit only with comparable cache/feature/toolchain and per-test compile/body evidence.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/ci-cost-triage.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cost-triage.json"
+        ],
+        "gates": {
+          "implementation": "inapplicable: bounded investigation until a demonstrated correction selects work",
+          "checks": "PASS bounded timing/source assessment only; no tests rerun or code changed",
+          "integration": "inapplicable to investigation",
+          "native": "not observed; separate native batch",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "action-history-audit",
+        "title": "Inspect Action and history Undo safeguards",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; lead validates",
+        "activity": "No apparent identity/version defect; found missing actual Confirm done UI completion-evidence and receipt Undo witness. Lead validated existing test only exercises Waiting and selected a bounded extension.",
+        "observed_at": "2026-10-20T09:34:14.850064+00:00",
+        "origin": "observed",
+        "next_action": "Extend the existing Action/Undo journey, preserving Waiting coverage and test count.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/action-history-audit.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: bounded investigation until a demonstrated correction selects work",
+          "checks": "source/test inspection only; selected missing consequential UI-to-Store behavior witness",
+          "integration": "inapplicable to investigation",
+          "native": "not observed; separate native batch",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "action-completion-witness",
+        "title": "Exercise Confirm done and its exact Undo in the desktop journey",
+        "state": "active",
+        "owner": "development lead; bounded Luna implementation and independent Sol high review completed",
+        "activity": "Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.",
+        "observed_at": "2026-10-20T09:45:22.800409+00:00",
+        "origin": "observed",
+        "next_action": "Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.",
+        "depends_on": [],
+        "resource_waits": [
+          "Required hosted integration gates after publication."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/action-history-audit.md",
+          "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/action-completion-review.md"
+        ],
+        "gates": {
+          "implementation": "complete12679ef4; one test file +71lines, existing test count unchanged",
+          "checks": "PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained",
+          "integration": "pending independent review, required hosted gates and normal integration",
+          "native": "toolkit checks are not OS interaction or owner acceptance",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.",
+            "change": "Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "historical-authority-routing",
+        "title": "Route older agent-first results to current task facts",
+        "state": "complete",
+        "owner": "development lead; mechanical routing inspection",
+        "activity": "Marked two older comparison/reconciliation pages as19October history and routed current work to overview/campaign instead of checkpoint. Supplied plan and dated results preserved.",
+        "observed_at": "2026-10-20T09:45:22.800409+00:00",
+        "origin": "observed",
+        "next_action": "Use concise current startup route; consult historical results only when relevant.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/agent-first-simplification/reconciliation.md",
+          "docs/work/active/agent-first-simplification/outcome-comparison.md"
+        ],
+        "gates": {
+          "implementation": "complete two-page routing/label correction only",
+          "checks": "PASS lead mechanical diff inspection, overview current,606Markdown files/2844local links,whitespace; independent review inapplicable to routing labels only, source candidate separately reviewed",
+          "integration": "pending reviewed witness publication; no production behavior or standing authority change",
+          "native": "inapplicable documentation-only",
+          "owner_acceptance": "not requested"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Grouped review verified on main; bounded writing proposal passed; progress records normally merged with resulting-main checks pending. Reviewed export correction ready for hosted checks."
+    "owner_attention": "No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -667,11 +775,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T08:18:03.635242+00:00",
+    "observed_at": "2026-10-20T09:45:22.800409+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "all bounded source and independent reviews completed; no helper/build/desktop/account actor active",
-    "build_actor": "none; candidate source remains exact qualified0f64a034",
-    "desktop_account_actor": "none; no further AI generation selected",
-    "stop": "Hosted PR180 required checks are the immediate integration gate; native scenarios wait for daily consolidated session. No speculative changes or extra account calls."
+    "helpers": "Bounded Luna writer/auditors and independent Sol reviewer completed; no active helper.",
+    "build_actor": "No owned build active; future builds must explicitly set jobs1; last test writer resource deviation recorded.",
+    "desktop_account_actor": "no owned actor; no account call selected",
+    "stop": "Test-only witness; stop on production defect/scope growth. Main39401033547 required jobs pending."
   }
 }

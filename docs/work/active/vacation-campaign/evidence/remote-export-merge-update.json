@@ -1,0 +1,88 @@
+{
+  "observed_at": "2026-10-20T09:35:43.203Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "export_merge_update": {
+    "new_sequence": 7,
+    "through_sequence": 7,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "4c18917e473b6d27792b4baecd961609c62dbe153200721a9d4ba8cd143960c8"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "17dd513859ecaaf803d18312d9b05deda0cce3e1c40b749a20c7ed661c4b53d2"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "relative_position_base64": "AMfr2vgBqwdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "hash": "28a42338c4b94240cdfe9dd44954c99b578625c9b3cb917ce00cb918773a5da9"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "8d95dae5b3ec946635b59d24de3323a7c94e6973fd31f9bad23668236a44b67d"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "7484f53f503036e47bbaa6f1a607aca31f8a6e62a21fe0388c64f839f8dcfca6"
+          }
+        ]
+      }
+    ]
+  },
+  "readback_verified": true,
+  "limitations": "Saved content verified. Browser/mobile rendering unobserved; no membership/schedule changes."
+}

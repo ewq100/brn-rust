@@ -1,7 +1,6 @@
 # Shipped BRN UI workflow inventory (provisional)
 
-Snapshot: campaign pilot status after the shared Note and Review lifecycle owners
-were integrated. This remains an explicit provisional denominator of 25 coherent
+Historical pilot snapshot after the shared Note and Review lifecycle owners were integrated, with later source-bound annotations. Current execution, gates and next steps live in [campaign state](campaign.json) and [the overview](../../overview.md). This remains an explicit provisional denominator of 25 coherent
 native desktop workflow domains found by source search, not a completeness claim.
 Reconcile against live callbacks, optional features,
 OS prompts, and the final release surface before reporting coverage. Every row is
@@ -20,7 +19,7 @@ desktop inventory. No OS-intent registration was found in the bounded pass;
 platform file/folder prompts are included, and any additional routed OS entry remains
 an explicit denominator gap.
 
-| # | Workflow / real routes | BRN owner and current lifecycle | Effects, identity, failure / recovery | Evidence and status |
+| # | Workflow / real routes | BRN owner / lifecycle at snapshot | Effects, identity, failure / recovery | Evidence and status |
 |---|---|---|---|---|
 | 1 | Startup/data root: `main.rs::parse/launch`, `--data-dir`, startup check | `Workspace::open`; no long-lived UI state | explicit absolute root; refuse incompatible/unsafe roots before mutation; startup errors returned | `main.rs` tests + CI startup; stateful UI N/A, **UNQUALIFIED** |
 | 2 | Workbench layout, tile show/hide/maximize/move, focus traversal; title/nav menus, layout keys | `ThreadsUi.layout`, focus handles, reveal/focus intent; shell adapter in `threads_shell.rs` | clicks/actions/shortcuts update layout and focus; unavailable destination falls back to first control; no async work | focus/tiled/pages tests; [notice owner](notice-state.md) source36bf2718, merged via PR165, centralizes completion/ordinary presentation and Last work status restoration, locally checked/reviewed. Broader layout and Mac OS qualification remain **UNQUALIFIED** |

@@ -1,6 +1,10 @@
 # M6 outcome comparison and retirement
 
-Current19October follow-through: PR172/173 all four required head/main checks
+Historical comparison and implementation evidence from 19 October 2026. For current assignment, next steps and gates, follow [the overview](../../overview.md) → the selected task in [campaign state](../vacation-campaign/campaign.json). [The campaign plan](../vacation-campaign/plan.md) owns scope and limits; [the workflow](../../../development/workflow.md) owns the development cycle. Historical “current” and “pending” statements below describe their recorded source/time and do not assign work.
+
+## Historical 19 October follow-through
+
+Recorded19October follow-through: PR172/173 all four required head/main checks
 passed; PR174 merged7fb5 after all four head checks, resulting-main39254538056
 pending. [Actual Mac review](../vacation-campaign/evidence/native-mac-review-qualification.json)
 passed visible suggestion/unchecked selection/Apply/Undo/reopen and exposed an
@@ -8,16 +12,15 @@ open AX selected-state defect now selected for repair. Three bounded existing
 Codex-account CLI probes completed: natural request failure from omitted ID
 suffix, explicit-ID success, revised-schema natural-request success. All preserved
 Note bytes/no candidate. Native AI and broader semantic/owner journeys remain
-pending. [Current checkpoint](../vacation-campaign/checkpoint.md) supersedes older
-pending snapshots below; they remain dated implementation history.
+pending. [Checkpoint](../vacation-campaign/checkpoint.md) supplies machine resumption pointers; current task facts belong to the linked campaign state. The snapshots below remain dated implementation history.
 
 
-This is the current comparison record for the selected owner plan, not a claim
+This is the historical comparison record for the selected owner plan, not a claim
 that all of its journeys are accepted. The Mac campaign remains the execution
 authority. Deterministic fixtures establish mechanical behavior; they cannot
 establish semantic usefulness, live-model equivalence or native usability.
 
-| Slice | Concrete comparison and disposition | Remaining gate |
+| Slice | Concrete comparison and disposition at snapshot | Gate at snapshot |
 |---|---|---|
 | M0 responsibilities | Existing agent/shared-service responsibilities refined in standing rules; supplied source retained exactly. No second workflow or permission framework. | All four required PR171 resulting-main checks passed; later implementation follows these rules. |
 | M1 correction | Known offered malformed arguments can receive two bounded corrections before dispatch. Mixed invalid batches have no effects; unknown/unoffered/protocol/policy refusals remain. Abort-only handling for this eligible class is replaced, with authority/replay/Stop tests retained. | All four required PR171 resulting-main checks passed; no live-model quality claim. |
