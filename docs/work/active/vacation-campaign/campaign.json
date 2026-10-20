@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T12:24:50+00:00",
-    "remaining_percent": 91,
+    "observed_at": "2026-10-20T12:35:22+00:00",
+    "remaining_percent": 90,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual 9% used / 91% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual10% used /90% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:33:11.472595+00:00",
+    "observed_at": "2026-10-20T12:36:02.922793+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -981,10 +981,10 @@
         "title": "Preserve unsent drafts when a note creates its writing conversation",
         "state": "active",
         "owner": "lead integration; independent Sol review completed; bounded implementation complete",
-        "activity": "Final clean2b836148 passes notice18, desktop340/0/1, strict lint, ordinary native build; core storage11 reused unchanged. Independent complete/targeted reviews PASS; both P2 corrections verified and original red/invalid attempts retained.",
-        "observed_at": "2026-10-20T12:33:11.472595+00:00",
+        "activity": "Reviewed and local-qualified final2b836 source published in PR184 head19d592c6; actual source equals qualified candidate. Hosted exact-head checks pending; immutable native artifact retained, not launched.",
+        "observed_at": "2026-10-20T12:36:02.922793+00:00",
         "origin": "observed",
-        "next_action": "Compose exact qualified source with lead records, verify source equality and documentation, publish separate draft-recovery PR; inspect exact-head required checks before normal integration.",
+        "next_action": "Keep PR184 head stable; inspect all required exact-head checks and resulting-main633 before any authorized normal merge. Native MAC-10 remains queued.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -998,12 +998,15 @@
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md",
-          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr184-publication.json",
+          "https://github.com/ewq100/brn-rust/pull/184",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md"
         ],
         "gates": {
           "implementation": "complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes",
           "checks": "PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused",
-          "integration": "pending separate publication and all actual required exact-head gates; source not yet inmain",
+          "integration": "PR184 published head19d592c6; all actual required exact-head gates and current-main reconciliation pending",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
         },
@@ -1042,20 +1045,21 @@
       {
         "id": "skill-catalog-ui-audit",
         "title": "Inspect stale skill choices and scope changes",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna source audit; lead disposition",
-        "activity": "Selected the remaining Skills UI/service handoff for one bounded read-only audit; developer configuration remains separate from shipped runtime prompts.",
-        "observed_at": "2026-10-20T12:31:36.744155+00:00",
+        "activity": "Bounded source audit found one misleading inactive-Project enable affordance; core correctly refuses and canonical state is safe. Lead validated actual source/callers; separate tiny UI correction selected, no runtime execution claimed.",
+        "observed_at": "2026-10-20T12:36:02.922793+00:00",
         "origin": "observed",
-        "next_action": "Trace refresh/install/inspect/enable/select/remove and delayed folder-picker scope; report concrete accepted-behavior defects or bounded no-finding result with exact source references.",
+        "next_action": "Use separate inactive-project-skill-controls task for regression/correction; preserve no-finding boundaries and source-only limitation.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "crates/brn-desktop/src/threads_skills.rs"
+          "crates/brn-desktop/src/threads_skills.rs",
+          "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md"
         ],
         "gates": {
           "implementation": "audit only; no product change selected",
-          "checks": "source/caller/test mapping pending; no build dispatch",
+          "checks": "PASS bounded source/caller/test mapping; one valid UI finding selected, static inference not runtime proof",
           "integration": "inapplicable unless a later verified defect selects a separate candidate",
           "native": "not observed",
           "owner_acceptance": "not claimed"
@@ -1069,9 +1073,33 @@
             ]
           }
         ]
+      },
+      {
+        "id": "inactive-project-skill-controls",
+        "title": "Show unavailable skill choices correctly in inactive Projects",
+        "state": "active",
+        "owner": "bounded Luna implementation; independent Sol review/lead integration",
+        "activity": "Lead validated inventory-only rows advertise Enable in archived Project despite checked service refusal; stale-digest Enable current version also bypasses availability in render. Selected a tiny UI-only correction with active/global and inspect/clear behavior retained.",
+        "observed_at": "2026-10-20T12:36:02.922793+00:00",
+        "origin": "observed",
+        "next_action": "Isolate writer after frozen draft publication; reproduce inactive inventory/control sequence, correct displayed availability and disable enable/select/adopt-current in inactive scope, then final affected checks and independent review.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md",
+          "crates/brn-desktop/src/threads_skills.rs"
+        ],
+        "gates": {
+          "implementation": "selected UI correction; no schema/provider/runtime prompt or service authorization change",
+          "checks": "pending meaningful old-source witness and final affected qualification",
+          "integration": "separate candidate; preserve PR184 stablehead and actualnormalmerge gates",
+          "native": "not observed; later changed-control case may be queued after qualification",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. PR183 merged; required resulting-main checks pending. Draft repair reviewed/local-qualified and ready for separate publication; bounded Skills audit read-only. Mac batch remains18:00 Tallinn."
+    "owner_attention": "No owner decision requested. Draft recovery PR184 is reviewed/local-qualified and running hosted checks; PR183 merged, required main checks pending. Tiny inactive-Project skill affordance fix selected. Native batch remains18:00 Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1079,13 +1107,15 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
-    "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
+    "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
+    "last_refresh_at": "2026-10-20T12:39:11.758658+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-publication-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T12:33:11.472595+00:00",
-    "runtime_capacity": "4 total slots; lead + bounded Luna skill audit; review/implementation completed",
-    "build_slot": "released; final2b836 checks and immutable app saved",
-    "desktop_account_actor": "none; daily native batch pending",
-    "scope": "headless source/read-only audit; no live provider/account actions"
+    "observed_at": "2026-10-20T12:39:11.758658+00:00",
+    "runtime_capacity": "4 slots; lead + Luna inactive-project writer; independent reviewer available",
+    "build_slot": "skill_catalog_audit owns sole serialized sharedtarget in export-durability checkout, branchcodex/inactive-project-skill-controls; prior draft2b836 artifact preserved",
+    "desktop_account_actor": "none; daily18:00Tallinn batch pending",
+    "integration": "PR184 published stable19d592c6; lead progress records remain local while hosted checks run"
   }
 }
