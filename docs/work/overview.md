@@ -1,42 +1,13 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Draft repairPR184 merged, required resulting-main checks running. Separate skill-controlPR185 published and checked locally/reviewed within recorded limits; required hostedchecks running. Actual Mac batch18:00Tallinn remains separate.
+**Owner attention:** No owner decision requested. Draft repair PR184 merged with all four required main checks passed. Skill-control PR185 remains reviewed/locally checked, required exact-head checks running. Mac batch18:00Tallinn separate.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
 ## Working on
-
-### Preserve unsent drafts when a note creates its writing conversation
-
-Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **active** · Last observed: 2026-10-20T13:06:27.339045+00:00
-Activity: PR184 normally mergedd2e0e298 after fresh strict protection, all4required exact-head19d and preceding-main633 checks PASS. Entire resultingtree equals passinghead19d; newmain39427446132 checks running. Actual Mac/owner acceptance separate.
-Next: Inspect all4required resulting-main d2e0e298 run39427446132; preserve optionalfailures and nativeMAC10 queue.
-Resource waits: Required resulting-main d2e0e298 checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes
-- **checks:** PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused
-- **integration:** Normalmerged2e0e298 verified;4requiredheadPASS, resulting-main39427446132 pending
-- **native:** not observed; synthetic toolkit test is separate from OS interaction
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/pr184-publication.json](active/vacation-campaign/evidence/pr184-publication.json), [https://github.com/ewq100/brn-rust/pull/184](https://github.com/ewq100/brn-rust/pull/184), [docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md](active/vacation-campaign/evidence/writing-draft-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr184-premerge.json](active/vacation-campaign/evidence/pr184-premerge.json), [docs/work/active/vacation-campaign/evidence/pr184-integration.json](active/vacation-campaign/evidence/pr184-integration.json)
-
-Attempts:
-
-- Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
-- Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.: Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md))
-- 574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.: Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md))
-- Compiled574 plus regression failed1/101 at missing ordinary error; first zero-test filter invalid and retained. Final2b836 witness/final gates pass; independent review no remaining findings.: Dismiss acknowledges only visible scoped recovery while preserving a separate ordinary error; remembered work lifecycle unchanged. Misreported chat digest corrected from actualgit; original artifacts preserved. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json))
-
-</details>
 
 ### Show unavailable skill choices correctly in inactive Projects
 
@@ -125,14 +96,6 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
-
-### Preserve unsent drafts when a note creates its writing conversation
-
-Owner: lead integration; independent Sol review completed; bounded implementation complete
-
-Waiting:
-
-- resource: Required resulting-main d2e0e298 checks.
 
 ### Show unavailable skill choices correctly in inactive Projects
 
@@ -735,6 +698,34 @@ Evidence: [crates/brn-desktop/src/threads_state.rs](../../crates/brn-desktop/src
 
 </details>
 
+### Preserve unsent drafts when a note creates its writing conversation
+
+Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **complete** · Last observed: 2026-10-20T13:29:04.658699+00:00
+Activity: PR184 normally merged d2e0e298; all four required exact-head and resulting-main39427446132 checks passed. Three optional Windows failures retained. Native MAC10 and owner acceptance remain separate.
+Next: Use the queued source-bound Mac close/reopen scenario; revisit engineering only on a concrete defect.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes
+- **checks:** PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused
+- **integration:** PASS normal merge d2e0e298, exact tree matches passing head19d; all4required resulting-main checks PASS
+- **native:** not observed; synthetic toolkit test is separate from OS interaction
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/pr184-publication.json](active/vacation-campaign/evidence/pr184-publication.json), [https://github.com/ewq100/brn-rust/pull/184](https://github.com/ewq100/brn-rust/pull/184), [docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md](active/vacation-campaign/evidence/writing-draft-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr184-premerge.json](active/vacation-campaign/evidence/pr184-premerge.json), [docs/work/active/vacation-campaign/evidence/pr184-integration.json](active/vacation-campaign/evidence/pr184-integration.json), [docs/work/active/vacation-campaign/evidence/pr184-resulting-main.json](active/vacation-campaign/evidence/pr184-resulting-main.json)
+
+Attempts:
+
+- Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
+- Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.: Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md))
+- 574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.: Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md))
+- Compiled574 plus regression failed1/101 at missing ordinary error; first zero-test filter invalid and retained. Final2b836 witness/final gates pass; independent review no remaining findings.: Dismiss acknowledges only visible scoped recovery while preserving a separate ordinary error; remembered work lifecycle unchanged. Misreported chat digest corrected from actualgit; original artifacts preserved. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json))
+
+</details>
+
 ### Inspect stale skill choices and scope changes
 
 Owner: bounded Luna source audit; lead disposition · State: **complete** · Last observed: 2026-10-20T12:36:02.922793+00:00
@@ -802,4 +793,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:22:45.843366+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:29:04.658699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:22:45.843366+00:00",
+    "observed_at": "2026-10-20T13:29:04.658699+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -981,16 +981,14 @@
       {
         "id": "writing-draft-recovery",
         "title": "Preserve unsent drafts when a note creates its writing conversation",
-        "state": "active",
+        "state": "complete",
         "owner": "lead integration; independent Sol review completed; bounded implementation complete",
-        "activity": "PR184 normally mergedd2e0e298 after fresh strict protection, all4required exact-head19d and preceding-main633 checks PASS. Entire resultingtree equals passinghead19d; newmain39427446132 checks running. Actual Mac/owner acceptance separate.",
-        "observed_at": "2026-10-20T13:06:27.339045+00:00",
+        "activity": "PR184 normally merged d2e0e298; all four required exact-head and resulting-main39427446132 checks passed. Three optional Windows failures retained. Native MAC10 and owner acceptance remain separate.",
+        "observed_at": "2026-10-20T13:29:04.658699+00:00",
         "origin": "observed",
-        "next_action": "Inspect all4required resulting-main d2e0e298 run39427446132; preserve optionalfailures and nativeMAC10 queue.",
+        "next_action": "Use the queued source-bound Mac close/reopen scenario; revisit engineering only on a concrete defect.",
         "depends_on": [],
-        "resource_waits": [
-          "Required resulting-main d2e0e298 checks."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md",
           "crates/brn-desktop/src/threads_ui.rs",
@@ -1007,12 +1005,13 @@
           "https://github.com/ewq100/brn-rust/pull/184",
           "docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md",
           "docs/work/active/vacation-campaign/evidence/pr184-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr184-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr184-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr184-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes",
           "checks": "PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused",
-          "integration": "Normalmerged2e0e298 verified;4requiredheadPASS, resulting-main39427446132 pending",
+          "integration": "PASS normal merge d2e0e298, exact tree matches passing head19d; all4required resulting-main checks PASS",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
         },
@@ -1170,7 +1169,7 @@
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Draft repairPR184 merged, required resulting-main checks running. Separate skill-controlPR185 published and checked locally/reviewed within recorded limits; required hostedchecks running. Actual Mac batch18:00Tallinn remains separate."
+    "owner_attention": "No owner decision requested. Draft repair PR184 merged with all four required main checks passed. Skill-control PR185 remains reviewed/locally checked, required exact-head checks running. Mac batch18:00Tallinn separate."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1183,17 +1182,11 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-merged-pr185-published-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:14:09.196676+00:00",
+    "observed_at": "2026-10-20T13:29:04.658699+00:00",
     "runtime_capacity": "4 total slots; lead active, all helper turns completed",
     "build_slot": "free; no source writer/build/native/account actor",
     "desktop_account_actor": "none; consolidated18Tallinn batch pending",
     "read_only_ci_watches": [
-      {
-        "run": 39427446132,
-        "kind": "PR184resultingmain",
-        "exec_session_id": 49865,
-        "output": "/tmp/brn-watch-main184.log"
-      },
       {
         "run": 39427727099,
         "kind": "PR185exacthead7fa60a3e",
