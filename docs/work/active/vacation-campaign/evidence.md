@@ -1,6 +1,8 @@
-# Local continuation evidence
+# Historical campaign evidence
 
-## Current gate snapshot
+Dated results below preserve observations for their recorded source/time. They are not startup instructions or a current task queue. Use [the overview](../../overview.md) and [current task record](campaign.json); load detailed receipts only for a relevant question.
+
+## Earlier gate snapshot
 
 PR163's already-qualified worker identity source `823a1544` is merged as
 `b5f01b07301dcc94d3d4e273a472d487f569bbc7`. Final-head required contexts,
@@ -23,7 +25,7 @@ cancelled as superseded when PR163 advanced main; its documentation passed and
 optional Windows failure remain historical. No failed check was hidden or weakened.
 Both local heartbeats are registered ACTIVE, but their first unattended executions
 and Mac OS-input qualification remain pending. Historical entries below describe
-the setup sequence; this snapshot controls the next action.
+the setup sequence; current tasks and next actions live only in campaign.json.
 
 Notice source `36bf2718` is integrated into the lead candidate and independently
 approved at `9b2ad729`. Local owner2/0, retained focused7/0, full desktop317/0/1,
@@ -58,7 +60,7 @@ is75% used/25% remaining, above the approximate5% remaining floor.
 
 [Preserved continuation history](continuation-history-through-2026-10-19.md) retains
 the original setup sequence, policy changes, earlier failures and superseded snapshots.
-Current rules and active work remain in the stable plan/checkpoint above.
+The plan owns authority; campaign.json owns current task facts.
 
 The later [reference-import owner](reference-import.md) is implemented as
 ed859aa4/integrated14d7c43e, independently approved without findings and locally

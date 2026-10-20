@@ -1,0 +1,152 @@
+{
+  "schema": "brn.personal-skill-adoption.v1",
+  "recorded_at_utc": "2026-10-20T05:11:11.028076+00:00",
+  "authorization": "Owner approved bounded adoption cleanup for the writing-plans personal skill.",
+  "scope": {
+    "skill_directory": "/Users/evokessler/.codex/skills/writing-plans",
+    "repository_receipt": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json",
+    "excluded": [
+      "system/bundled skills",
+      "model/runtime configuration",
+      "other personal skills",
+      "auth files",
+      "commits",
+      "provider or account calls"
+    ]
+  },
+  "backup": {
+    "archive": "/Users/evokessler/.codex/skill-backups/writing-plans-original-20261020T050940Z.tar.gz",
+    "sha256": "7400b31fc296738002540454bb4a263b3694b715fde2564a6defe24fe21437a1",
+    "verified_original_members": [
+      {
+        "path": "writing-plans/SKILL.md",
+        "sha256": "caf13a1dce5f09527ea4b2c0986c386fc9ab73b0afee77c6d8f8e78707ab1a91",
+        "bytes": 14367
+      },
+      {
+        "path": "writing-plans/agents/openai.yaml",
+        "sha256": "de6a2f3d9de78d9c5027512ab1abab998f9acbef70960ecdbad525f4dce2e1bb",
+        "bytes": 123
+      },
+      {
+        "path": "writing-plans/plan-document-reviewer-prompt.md",
+        "sha256": "44db135f1c68c630d37040e0151f3fac17ffc4b541fee6f427735aea8d813ea5",
+        "bytes": 4193
+      }
+    ],
+    "integrity": "All three original file hashes were recomputed from the archive."
+  },
+  "changes": [
+    {
+      "path": "/Users/evokessler/.codex/skills/writing-plans/SKILL.md",
+      "before_sha256": "caf13a1dce5f09527ea4b2c0986c386fc9ab73b0afee77c6d8f8e78707ab1a91",
+      "after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/SKILL.md",
+        "bytes": 2250,
+        "sha256": "6540ab0fd94a9c6d716a8f6a70bcea4309006a56a1ef85f63ab926083e01f029"
+      },
+      "summary": "Replaced blanket before-code planning trigger and 268-line process with a concise standalone-plan/handoff trigger, proportional guidance, product-workflow routing, preserved user authority, and no routine review/approval/execution-method gate. Independent review is allowed when requested by the user or required by a governing workflow.",
+      "previous_after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/SKILL.md",
+        "bytes": 2220,
+        "sha256": "daa24e8d6f58e22d46e6c1c2e53fc927caa95b8a9cfbf8d9e00c80073cdd07a6"
+      }
+    },
+    {
+      "path": "/Users/evokessler/.codex/skills/writing-plans/references/planning-guide.md",
+      "after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/references/planning-guide.md",
+        "bytes": 1694,
+        "sha256": "5730c39c29014244f61de045231ebb80102d5147c7da6c7ef904e241d48c22f5"
+      },
+      "summary": "Added progressive-disclosure guidance for substantial standalone plans: useful outline, meaningful task boundaries, concrete verification, and self-review.",
+      "previous_after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/references/planning-guide.md",
+        "bytes": 1694,
+        "sha256": "5730c39c29014244f61de045231ebb80102d5147c7da6c7ef904e241d48c22f5"
+      }
+    },
+    {
+      "path": "/Users/evokessler/.codex/skills/writing-plans/references/independent-plan-reviewer-prompt.md",
+      "before_path": "/Users/evokessler/.codex/skills/writing-plans/plan-document-reviewer-prompt.md",
+      "before_sha256": "44db135f1c68c630d37040e0151f3fac17ffc4b541fee6f427735aea8d813ea5",
+      "after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/references/independent-plan-reviewer-prompt.md",
+        "bytes": 5114,
+        "sha256": "c4a653b4c042e5ad557d431210408d1311bda6a5a990647baeb6700e364982e9"
+      },
+      "summary": "Moved the existing reusable reviewer prompt under references and added an explicit opt-in gate; retained its review format for requested independent reviews. Reviewer inputs now accept a formal spec or current request/accepted requirements and permit explicitly bounded unresolved decisions.",
+      "previous_after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/references/independent-plan-reviewer-prompt.md",
+        "bytes": 4292,
+        "sha256": "f196ab787e80409c857d6aec6904916e405dd63e663eb5b63cbbafea2bf9d3db"
+      }
+    },
+    {
+      "path": "/Users/evokessler/.codex/skills/writing-plans/agents/openai.yaml",
+      "before_sha256": "de6a2f3d9de78d9c5027512ab1abab998f9acbef70960ecdbad525f4dce2e1bb",
+      "after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/agents/openai.yaml",
+        "bytes": 105,
+        "sha256": "e8d2241d5fd850489bcff34537e68c2b5a2d7b5d8d70e8d08d08ebbb3627ea47"
+      },
+      "summary": "Preserved display_name; clarified short_description. No invocation policy or dependency field was added, so implicit invocation remains available.",
+      "previous_after": {
+        "path": "/Users/evokessler/.codex/skills/writing-plans/agents/openai.yaml",
+        "bytes": 105,
+        "sha256": "e8d2241d5fd850489bcff34537e68c2b5a2d7b5d8d70e8d08d08ebbb3627ea47"
+      }
+    }
+  ],
+  "routing_review": {
+    "references_found": "Repository-wide search of personal skill roots found the old reviewer prompt referenced only by this skill; metadata was confined to agents/openai.yaml. No other callers required edits.",
+    "examples": [
+      {
+        "request": "Create a separate task-by-task implementation plan from accepted requirements.",
+        "route": "Use writing-plans; save in requested or repository-conventional location."
+      },
+      {
+        "request": "Fix a selected, actionable issue under an existing accepted product task.",
+        "route": "Skip generic writing-plans; use the product-task workflow and proceed with authorized implementation."
+      },
+      {
+        "request": "Plan a multi-step change with unresolved interfaces or sequencing.",
+        "route": "Use writing-plans only if a written plan is materially needed; keep assumptions/open decisions explicit and continue other authorized work."
+      },
+      {
+        "request": "A governing workflow requires plan review even though the user did not ask separately.",
+        "route": "Use the optional reviewer prompt when a suitable reviewer is available; assess the current request and accepted requirements, and distinguish bounded decisions from blockers."
+      }
+    ],
+    "dependency_cleanup": "Removed mandatory references to unavailable superpowers worktree/planning/subagent-execution skills and automatic persistent reviewer/handoff gates. Retained an opt-in independent-review prompt only."
+  },
+  "validation": {
+    "quick_validate": "Passed: Skill is valid!",
+    "validator": "/Users/evokessler/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+    "yaml_runtime_note": "System and bundled Python lacked PyYAML. Ran the validator unchanged with its yaml.safe_load interface supplied by Ruby Psych via an in-memory adapter; separately parsed agents/openai.yaml with Ruby Psych and checked preserved interface metadata.",
+    "manual_checks": [
+      "Frontmatter allows name, description, metadata and stays within validator constraints.",
+      "No TODO scaffold placeholders.",
+      "No superpowers or REQUIRED SUB-SKILL dependencies remain.",
+      "Reference links resolve inside the skill directory.",
+      "Implicit invocation remains enabled because no explicit-only policy was introduced."
+    ],
+    "forward_routing": "Reviewed the three representative request routes above without spawning agents or using a provider.",
+    "quick_validate_after_correction": "Passed: Skill is valid! (same in-memory Ruby Psych adapter; system/bundled Python still lacks PyYAML)",
+    "reviewer_template_checks": [
+      "A formal spec is optional when current request and accepted requirements state governing intent.",
+      "Bounded unresolved decisions are recorded with ownership or gates and only block when safe ordering or acceptance is impossible."
+    ]
+  },
+  "limitations": [
+    "No live skill-selection telemetry was available; routing was assessed from the description, instructions, metadata, and representative requests.",
+    "The validator required the in-memory Ruby Psych adapter because PyYAML was unavailable; its normal Python invocation could not import yaml."
+  ],
+  "commit": "None",
+  "review_correction": {
+    "reason": "Consistency review found the skill entrypoint was narrower than its optional review prompt and the prompt required an approved specification and zero unresolved decisions for every review.",
+    "correction": "Aligned the trigger to user request OR governing workflow requirement; reviewer accepts the current request/accepted requirements as its source and treats explicit, bounded, owned or gated decisions as nonblocking unless they prevent safe sequencing or testable acceptance.",
+    "review_criteria": "Specification coverage, scope, ordering, interfaces, paths, verification, constraints, and executable detail remain required."
+  },
+  "updated_at_utc": "2026-10-20T05:13:51.588744+00:00"
+}

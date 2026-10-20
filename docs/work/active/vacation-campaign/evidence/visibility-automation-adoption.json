@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-10-20T05:14:31.843057+00:00",
+  "update_method": "Codex automation_update purpose-built tool, existing IDs",
+  "preserved": "IDs, status, target chat, cadence, original expiry; no new schedule",
+  "records": [
+    {
+      "id": "brn-mac-vacation-hardening",
+      "kind": "heartbeat",
+      "name": "BRN Mac vacation hardening",
+      "status": "ACTIVE",
+      "rrule": "FREQ=HOURLY;INTERVAL=2;UNTIL=20261101T214151Z",
+      "target_thread_id": "01a152c1-758c-77d3-96b3-a9d1f8bb73e3",
+      "prompt": "Use /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust and the existing lead/chat. First check actual account allowance, owner pause and fixed expiry 2026-11-01T21:41:51Z; inspect admission in docs/work/active/vacation-campaign/campaign.json. Around 5% remaining or unknown capacity, defer ordinary dispatch and checkpoint for a verified reset; the owner's20October reserve exception covers only unfinished visibility adoption. No purchases/reset redemption. Follow AGENTS.md \u2192 docs/work/overview.md \u2192 selected task in campaign.json. Reconcile actual Git/HEAD/main, all open PRs, agents/jobs and resource ownership; preserve unrelated changes. Load only the next gate's contracts/skill/receipts. Campaign plan.md owns scope/limits; workflow owns the cycle; checkpoint.md holds machine pointers. Missing authority records mean no new dispatch. Preserve all data/provenance/recovery/version/Run/Undo invariants. Reviewed normal merges remain authorized after live protection/exact-head checks, then resulting-main separately; no bypass, release/deployment, new paid infrastructure/providers/models, private data, credential changes or external messages. Use economical bounded Luna helpers and consequential Sol review within actual runtime capacity; one integration owner, serialize shared builds/desktop/account actors, no automatic Astra or global routing changes. Before any account test read codex-ai-testing.md and reserve an attempt in its ledger; all existing bounds apply. Update task facts at meaningful transitions and regenerate the overview. Return without repetitive narration for unchanged/non-actionable state.\nResume useful Mac-first headless hardening continuously while authorized work and capacity remain; completing a batch is no reason to wait. This recurrence is recovery after a real pause/interruption/reset. Native scenarios normally use the separate daily batch. At expiry stop new product dispatch and hand off.",
+      "updated_at": 1792473237851,
+      "sha256": "03f87f1f46e4d8e01765bf09e14f9233acbd85cf32489c045d012d723dff4f37",
+      "notification_policy": "no field before or after; existing default retained"
+    },
+    {
+      "id": "brn-batched-mac-interaction-checks",
+      "kind": "heartbeat",
+      "name": "BRN batched Mac interaction checks",
+      "status": "ACTIVE",
+      "rrule": "FREQ=DAILY;BYHOUR=18;BYMINUTE=0;BYSECOND=0;UNTIL=20261101T214151Z",
+      "target_thread_id": "01a152c1-758c-77d3-96b3-a9d1f8bb73e3",
+      "prompt": "Use /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust and the existing lead/chat. First check actual account allowance, owner pause and fixed expiry 2026-11-01T21:41:51Z; inspect admission in docs/work/active/vacation-campaign/campaign.json. Around 5% remaining or unknown capacity, defer ordinary dispatch and checkpoint for a verified reset; the owner's20October reserve exception covers only unfinished visibility adoption. No purchases/reset redemption. Follow AGENTS.md \u2192 docs/work/overview.md \u2192 selected task in campaign.json. Reconcile actual Git/HEAD/main, all open PRs, agents/jobs and resource ownership; preserve unrelated changes. Load only the next gate's contracts/skill/receipts. Campaign plan.md owns scope/limits; workflow owns the cycle; checkpoint.md holds machine pointers. Missing authority records mean no new dispatch. Preserve all data/provenance/recovery/version/Run/Undo invariants. Reviewed normal merges remain authorized after live protection/exact-head checks, then resulting-main separately; no bypass, release/deployment, new paid infrastructure/providers/models, private data, credential changes or external messages. Use economical bounded Luna helpers and consequential Sol review within actual runtime capacity; one integration owner, serialize shared builds/desktop/account actors, no automatic Astra or global routing changes. Before any account test read codex-ai-testing.md and reserve an attempt in its ledger; all existing bounds apply. Update task facts at meaningful transitions and regenerate the overview. Return without repetitive narration for unchanged/non-actionable state.\nRun one consolidated real Mac session only for ready consequential scenarios in native-queue.md; normally30\u201345minutes. Confirm actual native access and qualified source/binary/helper identity using fresh explicit synthetic data. Defer on competing actors/builds or no ready case. Preserve source-bound actions, visible/durable outcomes, failures and useful screenshots; don't replay unchanged passes or infer native/IME/VoiceOver/owner acceptance from builds. No OS security changes.",
+      "updated_at": 1792473237954,
+      "sha256": "bb76323b19eb36c2109e62a6856401b77358dd6d543b2a04f95fd7445f8374f1",
+      "notification_policy": "no field before or after; existing default retained"
+    }
+  ]
+}

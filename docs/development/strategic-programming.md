@@ -25,6 +25,10 @@ available tool performs more reliably and cheaply. Prefer ordinary notes/artifac
 for briefs, plans and summaries. A dedicated workflow, runner or screen must earn
 its ongoing ownership cost through useful repeated interaction or a present need.
 
+## Visibility has one source
+
+The agent selects meaning and useful next work; checked tools record facts and the owner view projects the existing task record. Keep current assignment/readiness/gates in that record, source-bound proof in receipts and old snapshots historical. Dependency edges express real prerequisites; resource waits and bounded correction history remain distinct. Prefer the smallest read-only view over another tracker, narrator agent or scheduler. The [workflow](workflow.md) owns update/freshness rules, and [status](../status.md) routes the active assignment after this campaign ends.
+
 ## Before a meaningful change
 
 Inspect the current source and all relevant consumers. Identify the owner of the rule, the state it depends on, and the boundary through which callers reach it. Search for existing implementations before creating another one. Use the pinned dependencies as the starting point for reuse research; verify the actual API and behavior, not only a package description.

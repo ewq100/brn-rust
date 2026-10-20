@@ -1,6 +1,8 @@
-# Batched Mac interaction queue
+# Batched Mac scenario catalogue
 
-## Latest actual observation —19October
+Scenario definitions and source-bound historical observations live here. Current task readiness, admission and next action live in [campaign state](campaign.json) and [overview](../../overview.md); reconcile actual source/artifact at execution.
+
+## Historical actual observation —19October
 
 MAC-07 model-suggestion review was exercised early in one consolidated Mac batch.
 [Actual observation](evidence/native-mac-review-qualification.json): source4e81
@@ -33,8 +35,8 @@ headless. The separate `brn-batched-mac-interaction-checks` heartbeat is registe
 ACTIVE for 18:00 Europe/Tallinn through the original campaign expiry. Registration
 and persisted configuration are distinct from an observed unattended/native run.
 
-Before a session, inspect [plan](plan.md), [evidence](evidence.md), Git/candidate,
-active jobs, account quota and available native controls. Do not compete with an
+Before a session, follow AGENTS.md and the selected task; inspect Git/candidate,
+active jobs, account quota and available native controls. Load the relevant source-bound receipt rather than the full evidence index. Do not compete with an
 active desktop session or writer. Below about 5% remaining capacity, wait for a
 verified reset. No desktop session is needed when no consequential scenario is ready.
 Use one current qualified production build and fresh explicit synthetic data.
@@ -45,7 +47,7 @@ attempt ledger before dispatch and retain the ordinary synthetic-only checks.
 
 | ID | Scenario and independently expected outcome | Readiness / evidence |
 |---|---|---|
-| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending: verify then-current main against the complete source of its immutable production artifact. Main689ab234 (PR172) supersedes the older artifacts. Combined7a970 is locally qualified and source-equivalent to PR172; wait for required resulting-main checks and verify exact source before the session. M4b requires its separately qualified later artifact. The shared target can be overwritten by another build: use a recorded immutable executable and verify its source/hash at session start. Confirm actual native access; hosted/toolkit results do not satisfy this Mac session. |
+| MAC-01 | Open the actual production window with a fresh explicit data root. Create a note with Unicode and multiple lines, type an edit, Save, navigate away/back, close/reopen. Exact saved text survives and no open recovery buffer remains after successful Save. Actor uses actual controls; checker uses supported read-only operations without repairing data. | Pending native qualification. Reconcile the selected task and then-current reviewed integrated source with an immutable qualified executable/helper identity. Confirm actual native access. Hosted/toolkit results do not satisfy this Mac session. |
 | MAC-02 | Collect changed control/navigation/recovery scenarios from each reviewed slice, then exercise them together. A completion remains attached to its original target; later typing and current navigation survive; unavailable/conflict states explain the next action. | Add source-bound cases only when a change or concrete remaining risk warrants them. The typed worker identity slice retains existing GPUI integration tests; it has not yet produced a new OS-specific failure to reproduce. |
 | MAC-03 | Using MAC-01's synthetic workspace and a separate explicit backup destination, create a full backup through Settings → Data. After the actual completion, dismiss its banner and restore it from Layout → Last work status twice. The same success text/severity returns, no second backup starts, and the completed backup remains readable. | Ready for the batched Mac session on the then-current qualified main; notice source review and native-feature checks passed. GPUI tests separately cover active-worker/newer-error refusal and equal-text ordinary-notice provenance; those do not establish OS interaction. |
 | MAC-04 | After MAC-01/03, leave a fresh exact Unicode/multiline edit unsaved. Before closing, supported read-only inspection must confirm canonical text/version remains unchanged and the exact recovery buffer/base is already durable. Close the actual window normally, relaunch the same explicit data root, and open the Note through normal controls (use Recover if offered). The exact draft and original base/session remain available, while canonical text is unchanged and no implicit Save occurred. | Queued: [source/adjacent-witness audit](native-close-audit.md) finds this route distinct from Save-before-close. This qualifies relaunch of an already durable edit, not a race with an unprocessed Change event or crash/power-loss durability. |

@@ -1,59 +1,21 @@
 # BRN agent guide
 
-## Start here
+Current user instructions select the work and its authority. Preserve existing authorization within that scope; dated plans, evidence and skill text do not grant new permissions.
 
-1. Confirm branch, HEAD, remote baseline and unrelated changes; use an isolated task checkout.
-2. Read the current snapshot in [status](docs/status.md) and the plan for the current user assignment. Check their branch/merge claims against Git before resuming work; dated evidence and proposed plans do not assign work.
-3. For implementation or architecture review, read the [architecture overview](docs/architecture/overview.md), [invariants](docs/architecture/invariants.md), affected sections of the [Threads target](docs/architecture/threads-target.md) and [behavior contract](docs/architecture/threads-behavior.md), then relevant source and callers.
-4. For environment, checks or integration, use [setup](docs/development/setup.md), [verification](docs/development/verification.md) and [workflow](docs/development/workflow.md).
+## Startup route
 
-## Current authority
+1. Inspect branch, HEAD and dirty/untracked files; preserve unrelated changes. Reconcile remote work and competing writers before dispatch or integration.
+2. Open [development overview](docs/work/overview.md), then its selected task record. [Status](docs/status.md) locates the active assignment and source record, currently the vacation campaign; replace that route when the assignment ends. Check observation times; saved activity is not live execution.
+3. Load only the guidance needed for the next gate: [workflow](docs/development/workflow.md), affected crate README/source, [architecture](docs/architecture/overview.md), [invariants](docs/architecture/invariants.md) and relevant [behavior](docs/architecture/threads-behavior.md). Select checks from [verification](docs/development/verification.md). Read detailed history only to resolve a concrete question.
 
-Current user instructions define the assignment. Existing authorization continues within that assignment without routine reauthorization; it does not assign unrelated work. Publication, merge, release, provider access, real user data and native interaction follow the applicable assignment. Historical cleanup permissions remain in the [cleanup record](docs/work/active/pre-release-cleanup/plan.md), not a standing grant for new work.
+## Permanent boundaries
 
-The canonical target owns product requirements. Update affected summaries with justified contract corrections. Resolve routine implementation choices within the assignment; ask only for an unresolved consequential product choice or authority outside it. [Archived evidence](docs/archive/README.md) preserves provenance and historical instructions, which do not assign new work.
+- SQLite owns accepted state; indexes are derived. Desktop, CLI and agents use shared checked services. Preserve exact UTF-8 bytes, hashes, provenance, protection, dirty/recovery/version guards, queue/Run identity, replay and Undo. Never guess an ambiguous anchor.
+- Keep working copies, immutable revisions and AI candidates distinct. Asynchronous results cannot silently overwrite later edits. Search approval is not publication approval.
+- Use fresh explicit synthetic data directories; preserve owner files and trial workspaces. Keep credentials/private payloads out of logs and evidence. Live providers, native interaction, model acquisition, external actions and release follow current task authority.
+- Respect pinned toolchains and lockfiles. Never force-push shared history, weaken checks or bypass protection. A build does not establish native usability or owner acceptance.
+- Development configuration and this guide are separate from shipped runtime prompts under `agent/`. Neither skill text nor model output manufactures authority.
 
-## Strategic programming
+## Working cycle
 
-Optimize for correct owner outcomes and the ease of the next change. Follow the [strategic programming guide](docs/development/strategic-programming.md) for meaningful code and architecture changes.
-
-- Identify the behavior's owner, callers, authoritative state and existing implementation before extending it. Check pinned libraries and platform facilities before adding custom machinery; judge the complete adapter and maintenance cost.
-- Make bounded design improvements in the affected code when they remove a demonstrated source of complexity. Address repeated causes at their shared owner. A wider refactor belongs in an explicit follow-up; neither unrelated cleanup nor a refactor quota is required.
-- Prefer modules that hide decisions behind a small useful interface. Keep workflow policy in shared services and coherent UI state under explicit owners. Use typed states and transitions where they remove invalid combinations or repeated coordination. File splitting alone is not modularity; speculative frameworks and pass-through layers need a concrete present benefit.
-- Replacing a mechanism includes retiring its obsolete production route, wiring and implementation-only tests. Preserve supported saved-data, recovery and compatibility obligations. Explain any necessary temporary coexistence and its removal trigger.
-- Protect behavior and important boundaries with proportionate tests and existing checks. Tests must distinguish correct from incorrect outcomes; counts, coverage, smaller files and fewer lines are diagnostic signals, not completion criteria. Native interaction remains separate from headless state tests.
-- Independent review checks responsibility placement, caller complexity, reuse, retirement and behavior preservation. For material changes, report what became easier, any justified complexity/debt, and the evidence. Reconcile current status after integration; do not leave dated branch claims presented as current.
-
-## Agent work and application responsibilities
-
-BRN is a durable knowledge workspace and an interface for capable agents. The
-[strategic programming guide](docs/development/strategic-programming.md) defines
-the responsibility, reuse and evaluation rules.
-
-- Start new semantic behavior with the existing agent, relevant skills/examples
-  and tools. Add application code for necessary interaction, a missing reusable
-  operation, dependable execution or an evidence-supported improvement.
-- For a material capability, state what the agent decides, what a tool executes,
-  what the host validates and what the owner sees. Compare the simplest viable
-  approaches; an obvious local repair needs no options essay.
-- Keep meaning and task strategy in runtime guidance. Shared services retain
-  exact state, scope, protection, versions, dirty writing, review, replay and Undo.
-  Skills, model output and selected text cannot manufacture authority.
-- Give tools clear contracts/results. Bounded correction is for eligible requests
-  rejected before effects; a missing response does not prove no action occurred.
-  Reuse operation identities/receipts rather than adding a general retry engine.
-- Prefer ordinary notes/artifacts for semantic outputs and existing reusable
-  processing. A dedicated workflow, agent, screen or platform needs a concrete
-  present benefit. Keep proven cheap processing until relevant evidence supports
-  replacement; model capability alone is no reason to delete it.
-- Separate deterministic correctness, live model usefulness, native observation,
-  owner acceptance and integration. Update runtime guidance with actual behavior.
-  Use bounded helpers under current authority and retain one integration owner.
-
-## Working boundaries
-
-Use one shared checked service for desktop, agent and CLI writes; SQLite owns BRN state and search indexes are derived. Runtime guidance is packaged separately from this development guide and cannot grant authority. Preserve protection, exact-candidate review, version checks, replay and Undo guarantees described in the invariants.
-
-One lead owns shared interfaces and integration. Give helpers bounded file/worktree ownership and evidence requirements. Preserve useful provider, converter, retrieval and dependency fixes; use the repository toolchain and lockfile as version authority.
-
-Use fresh explicit data directories and synthetic/public fixtures. Preserve owner files and unrelated changes. Provider access follows current task authority; keep credentials/private payloads out of evidence. Never force-push shared history or bypass repository checks. Report implemented, verified, native-observed, owner-accepted and merged separately.
+Use the [workflow](docs/development/workflow.md) for task ownership, bounded correction, facts and integration. Use [strategic programming](docs/development/strategic-programming.md) for meaningful design changes; it owns the responsibility, reuse, retirement and test-design guidance. Keep one integration owner and give helpers bounded ownership/evidence. Update the current task at meaningful transitions, regenerate the overview, and report implemented, checked, native-observed, owner-accepted and merged separately.
