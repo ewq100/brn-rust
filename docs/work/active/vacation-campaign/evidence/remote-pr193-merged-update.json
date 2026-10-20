@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-20T22:23:54.993Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 39,
+  "result": "PASS all3 guarded operations applied, exact readback; all35 canonical blocks preserved",
+  "source_commit": "dc80818d",
+  "changed_blocks": [
+    "a37e5801-b0c8-4330-800f-13d98b10338a",
+    "6726b51a-b7a5-4755-b5c1-b8384a8016dd",
+    "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9"
+  ],
+  "limits": "Remote saved projection, not live telemetry; resulting-main193 pending."
+}

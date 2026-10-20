@@ -1960,8 +1960,8 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20 22:13:28 UTC",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr192-main-qualified-update.json"
+    "last_refresh_at": "2026-10-20T22:23:54.993Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr193-merged-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-20T22:22:58.573532+00:00",
