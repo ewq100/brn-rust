@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T08:07:09.402Z",
-    "remaining_percent": 97,
+    "observed_at": "2026-10-20T08:17:09.406438+00:00",
+    "remaining_percent": 96,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: verified allowance3%used/97%remaining; original floor and expiry retained",
+    "ordinary_work": "admitted: verified allowance4%used/96%remaining; original floor and expiry retained",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T08:11:31.603951+00:00",
+    "observed_at": "2026-10-20T08:17:09.406438+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -611,26 +611,51 @@
         "title": "Flush complete export folders before reporting success",
         "state": "active",
         "owner": "bounded Luna medium writer; lead integration; independent Sol review follows",
-        "activity": "Implemented0f64a034 on isolated codex/export-publication-durability; 2injected failure witnesses,3existing export checks and1full roundtrip passed; all-target Clippy/fmt passed. Independent Sol review active.",
-        "observed_at": "2026-10-20T08:10:49.158833+00:00",
+        "activity": "Independent complete-source review0f64a034 passed with no actionable findings. Six focused tests, Clippy/fmt passed; logs and nonfatal toolchain warning retained.",
+        "observed_at": "2026-10-20T08:13:26.429177+00:00",
         "origin": "observed",
-        "next_action": "Resolve independent review, preserve check logs and nonfatal rust-objcopy missingLLVM warning, then publish reviewable candidate after current docs integration.",
+        "next_action": "Reconcile PR180 integration, then publish this reviewed export correction with supporting current evidence; inspect actual required checks before normal merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md"
+          "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md",
+          "docs/work/active/vacation-campaign/evidence/export-durability-review.md",
+          "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json"
         ],
         "gates": {
           "implementation": "complete isolated0f64a034; app export source+README only",
-          "checks": "PASS2new+3existing+1roundtrip; all-target Clippy-Dwarnings/fmt/whitespace. Nonfatal rust-objcopy SIGABRT/missinglibLLVM warning retained; independent review pending.",
-          "integration": "pending independent review/exact-head required checks and normal merge",
+          "checks": "PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.",
+          "integration": "pending publication/exact-head required hosted checks and normal merge; independent source review0f64a034 passed",
           "native": "daily synthetic export journey separate; no power-loss qualification claim",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "queue-recovery-audit",
+        "title": "Inspect saved-message recovery after Stop and restart",
+        "state": "active",
+        "owner": "bounded read-only Luna medium helper; lead validates",
+        "activity": "Inspect durable claim/Message/Run association and late worker settlement through Stop/Resume/restart while hosted integration gates run. Existing merged identity/drain fixes remain the baseline.",
+        "observed_at": "2026-10-20T08:17:09.406438+00:00",
+        "origin": "observed",
+        "next_action": "Record one actionable consequential gap or explicit none with existing witnesses; no speculative framework or app execution.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/architecture/invariants.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: inspection only until an evidenced defect selects repair",
+          "checks": "pending source and existing-witness audit; no tests executed",
+          "integration": "inapplicable to audit",
+          "native": "actual Stop/restart usability remains separate",
           "owner_acceptance": "not claimed"
         },
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Grouped review verified on main; bounded writing proposal passed. Export correction is under independent review; remote-progress integration awaits required checks."
+    "owner_attention": "No owner decision requested. Grouped review verified on main; bounded writing proposal passed. Export correction independently reviewed; remote-progress integration awaits required checks."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -641,11 +666,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T08:10:49.158833+00:00",
+    "observed_at": "2026-10-20T08:17:09.406438+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "One independent Sol export reviewer; implementation/build complete",
-    "build_actor": "none; export checks complete, ordinary target changed by isolated writer; native artifacts require immutable identity reconciliation",
-    "desktop_account_actor": "none; account batch closed, native batch queued",
+    "helpers": "One bounded read-only Luna medium queue recovery audit; independent code and evidence publication reviews completed",
+    "build_actor": "none; serialized target free",
+    "desktop_account_actor": "none; no further AI generation selected",
     "stop": "One focused harness repair; reassess after another failed approach, no blind retries. Backup audit stops at bounded source boundary. Original account quotas/expiry retained."
   }
 }

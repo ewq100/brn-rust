@@ -1,0 +1,86 @@
+{
+  "observed_at": "2026-10-20T08:13:26.429177+00:00",
+  "baseline": "b0eb18d7db7560269fa18d96c5bbf92eee1f40da",
+  "candidate": "0f64a0344eac23edb43403034bf3e0deae87655c",
+  "branch": "codex/export-publication-durability",
+  "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "complete_binary_diff_sha256": "4b2845e7d24d0d6b12d1af543ab12fb456bfc64fc8c45207acfe6256fcac0ba4",
+  "changed_files": [
+    {
+      "path": "crates/brn-threads-app/src/export.rs",
+      "sha256": "b5d419078a3f51c704df2410c62b5f8e78b6be6ee1076735d31944525e17461b"
+    },
+    {
+      "path": "crates/brn-threads-app/README.md",
+      "sha256": "327e353694c3104fa30edf99ecf38a335b995ec1a71a09eb1b71709bc9463a4b"
+    }
+  ],
+  "scope": "Existing Markdown snapshot export only; flush staged assets/root then exclusive rename and destination parent on Unix before success; late flush failure preserves complete published snapshot and returns error. No dependency/public API/runtime prompt changes.",
+  "reuse": "Reuse backup/restore File::open(directory).sync_all Unix pattern. One private injectable directory-flush seam supports two meaningful failure-boundary witnesses; existing public export/asset/full-roundtrip witnesses retained.",
+  "diagnosis": "Validated source missing directory flushes; no original power-loss event reproduced and no power-loss proof claimed.",
+  "independent_review": "PASS complete clean0f64a034 in export-durability-review.md, no actionable findings",
+  "environment": {
+    "toolchain": "1.98.1-aarch64-apple-darwin",
+    "RUSTC": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/rustc",
+    "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+    "CARGO_BUILD_JOBS": 1,
+    "path_prefix": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin",
+    "acquisition": "none; locked/offline"
+  },
+  "checks": [
+    {
+      "command": "cargo test -p brn-threads-app --locked --offline --lib export::tests",
+      "path": "docs/work/active/vacation-campaign/evidence/export-durability-raw/lib-tests.log.gz",
+      "sha256": "262cae5aad85cf7927cf19c02975d68f9e57c1a5eba535db5a219051148d8f0d",
+      "uncompressed_sha256": "9d23e697db47ea2db3f7ae7e08e6d2e9a6e63fea3d81408412e531422559c941",
+      "bytes": 917,
+      "test_passed": 2,
+      "result": "Cargo Finished and passing summary present; raw Cargo subprocess exit integer not separately captured by helper tee pipeline"
+    },
+    {
+      "command": "cargo test -p brn-threads-app --locked --offline --test product export_",
+      "path": "docs/work/active/vacation-campaign/evidence/export-durability-raw/product-export.log.gz",
+      "sha256": "8d5b3244c8ba46a2c199bc0cb86fa85c99f8cc417ca13c1b9381e63134184290",
+      "uncompressed_sha256": "93d6bc73b3187099abb2001a21303825ada38a37291f3f7a890197ac981664d5",
+      "bytes": 707,
+      "test_passed": 3,
+      "result": "Cargo Finished and passing summary present; raw Cargo subprocess exit integer not separately captured by helper tee pipeline"
+    },
+    {
+      "command": "cargo test -p brn-threads-app --locked --offline --test product full_import_retains_assets_source_identity_and_rejects_changed_retry_input",
+      "path": "docs/work/active/vacation-campaign/evidence/export-durability-raw/product-roundtrip.log.gz",
+      "sha256": "996ff974439dc1e36edeac8c148c173a6b43dbf196240995b18bdc34104d4af0",
+      "uncompressed_sha256": "ebe9b05230b93d2bcc3d06110d3c5be33aa3c0dc9dca81cedc476b9794adff2c",
+      "bytes": 603,
+      "test_passed": 1,
+      "result": "Cargo Finished and passing summary present; raw Cargo subprocess exit integer not separately captured by helper tee pipeline"
+    },
+    {
+      "command": "cargo clippy -p brn-threads-app --all-targets --locked --offline -- -D warnings",
+      "path": "docs/work/active/vacation-campaign/evidence/export-durability-raw/clippy.log.gz",
+      "sha256": "4e9b4fc3d32c091fdb7c3be62c37a863bd34cc68bca4b240d53c741aeb53caf4",
+      "uncompressed_sha256": "da73b147d2b430e8c1d0cd5fad7e80d2171ede830852dacc2df7fd7605c3e7ee",
+      "bytes": 370,
+      "test_passed": null,
+      "result": "Cargo Finished and passing summary present; raw Cargo subprocess exit integer not separately captured by helper tee pipeline"
+    }
+  ],
+  "total_tests": 6,
+  "formatting": {
+    "reported_sequence": [
+      "cargo absent on PATH:127",
+      "direct pinned Cargo without toolchain bin PATH: no fmt subcommand101",
+      "direct pinned rustfmt check found formatting differences1",
+      "pinned rustfmt applied formatting; subsequent direct check passed",
+      "final PATH-prefixed pinned cargo fmt --all -- --check passed; git diff --check passed"
+    ],
+    "original_output_retention": "Helper tool transcript only for formatter attempts; separate formatter logs were not retained. Reported sequence is not substituted raw output."
+  },
+  "warnings": "Test builds emitted nonfatal rust-objcopy SIGABRT/dyld missinglibLLVM.dylib warning; actual Cargo tests completed/passed. Verbatim warnings retained in log archives. No toolchain repair/download attempted.",
+  "qualification_limits": [
+    "6focused tests passed; no full workspace rerun locally",
+    "No Linux/Windows local execution; existing non-Unix behavior unchanged, hosted checks separate",
+    "No native observation, owner acceptance, sudden power-loss/filesystem guarantee or performance claim",
+    "Not published/merged at this observation; normal integration still needs live required gates"
+  ]
+}

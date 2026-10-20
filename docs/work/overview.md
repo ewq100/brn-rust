@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Grouped review verified on main; bounded writing proposal passed. Export correction is under independent review; remote-progress integration awaits required checks.
+**Owner attention:** No owner decision requested. Grouped review verified on main; bounded writing proposal passed. Export correction independently reviewed; remote-progress integration awaits required checks.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -34,9 +34,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](a
 
 ### Flush complete export folders before reporting success
 
-Owner: bounded Luna medium writer; lead integration; independent Sol review follows · State: **active** · Last observed: 2026-10-20T08:10:49.158833+00:00
-Activity: Implemented0f64a034 on isolated codex/export-publication-durability; 2injected failure witnesses,3existing export checks and1full roundtrip passed; all-target Clippy/fmt passed. Independent Sol review active.
-Next: Resolve independent review, preserve check logs and nonfatal rust-objcopy missingLLVM warning, then publish reviewable candidate after current docs integration.
+Owner: bounded Luna medium writer; lead integration; independent Sol review follows · State: **active** · Last observed: 2026-10-20T08:13:26.429177+00:00
+Activity: Independent complete-source review0f64a034 passed with no actionable findings. Six focused tests, Clippy/fmt passed; logs and nonfatal toolchain warning retained.
+Next: Reconcile PR180 integration, then publish this reviewed export correction with supporting current evidence; inspect actual required checks before normal merge.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -44,12 +44,33 @@ Next: Resolve independent review, preserve check logs and nonfatal rust-objcopy 
 Gates:
 
 - **implementation:** complete isolated0f64a034; app export source+README only
-- **checks:** PASS2new+3existing+1roundtrip; all-target Clippy-Dwarnings/fmt/whitespace. Nonfatal rust-objcopy SIGABRT/missinglibLLVM warning retained; independent review pending.
-- **integration:** pending independent review/exact-head required checks and normal merge
+- **checks:** PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.
+- **integration:** pending publication/exact-head required hosted checks and normal merge; independent source review0f64a034 passed
 - **native:** daily synthetic export journey separate; no power-loss qualification claim
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md), [docs/work/active/vacation-campaign/evidence/export-durability-review.md](active/vacation-campaign/evidence/export-durability-review.md), [docs/work/active/vacation-campaign/evidence/export-durability-qualification.json](active/vacation-campaign/evidence/export-durability-qualification.json)
+
+</details>
+
+### Inspect saved-message recovery after Stop and restart
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **active** · Last observed: 2026-10-20T08:17:09.406438+00:00
+Activity: Inspect durable claim/Message/Run association and late worker settlement through Stop/Resume/restart while hosted integration gates run. Existing merged identity/drain fixes remain the baseline.
+Next: Record one actionable consequential gap or explicit none with existing witnesses; no speculative framework or app execution.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: inspection only until an evidenced defect selects repair
+- **checks:** pending source and existing-witness audit; no tests executed
+- **integration:** inapplicable to audit
+- **native:** actual Stop/restart usability remains separate
+- **owner acceptance:** not claimed
+
+Evidence: [docs/architecture/invariants.md](../architecture/invariants.md)
 
 </details>
 
@@ -424,4 +445,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T08:11:31.603951+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T08:17:09.406438+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
