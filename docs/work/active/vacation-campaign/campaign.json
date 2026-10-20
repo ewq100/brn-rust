@@ -1158,10 +1158,25 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-merged-pr185-published-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:10:14.230799+00:00",
-    "runtime_capacity": "4 total slots; lead active, all current helpers completed",
-    "build_slot": "released; no ownedlocalbuild/writer needed while exactCI gates run",
-    "desktop_account_actor": "none; daily18Tallinn batch pending",
-    "integration": "PR185stablehead7fa60a3e; lead monitors exacthead and parentmain gates; progressrecordsremainlocal"
+    "observed_at": "2026-10-20T13:14:09.196676+00:00",
+    "runtime_capacity": "4 total slots; lead active, all helper turns completed",
+    "build_slot": "free; no source writer/build/native/account actor",
+    "desktop_account_actor": "none; consolidated18Tallinn batch pending",
+    "read_only_ci_watches": [
+      {
+        "run": 39427446132,
+        "kind": "PR184resultingmain",
+        "exec_session_id": 49865,
+        "output": "/tmp/brn-watch-main184.log"
+      },
+      {
+        "run": 39427727099,
+        "kind": "PR185exacthead7fa60a3e",
+        "exec_session_id": 57863,
+        "output": "/tmp/brn-watch-pr185.log"
+      }
+    ],
+    "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
+    "integration": "PR185head7fa60a3e stable; progressrecords local only while hostedgates pending"
   }
 }
