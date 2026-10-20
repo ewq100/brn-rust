@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-10-20T11:59:00.743666+00:00",
+  "initial_markdown_check": "FAILED27 local editor :line targets; original tool output retained in conversation; no product/build failure",
+  "correction": "Normalized verified paths and line ranges to exact mainbc8 source URLs, preserving original report bytes in gzip",
+  "final_markdown_check": "PASS616files/2897local links/0failures",
+  "imports": [
+    {
+      "report": "docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md",
+      "original_bytes": 4940,
+      "original_sha256": "5748681e68a122a085b930ae029987723d3d00f919559eee94afede6e2d74fb3",
+      "archive": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/composer-drafts-audit.md.gz",
+      "archive_sha256": "80f4bd0f92e2d1e91024462a53756b16bef05e1537939fa543cbfe4853a24802",
+      "normalized_editor_links": 15,
+      "reason": "Local editor :line links failed repository link checker; preserve original and use exact inspected source/line links."
+    },
+    {
+      "report": "docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md",
+      "original_bytes": 4327,
+      "original_sha256": "d984778d998c83780ab2f6b7eecaa02894c278b20b67978a9490e3839338a839",
+      "archive": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/composer-draft-adoption-audit.md.gz",
+      "archive_sha256": "94b3bec35519430c8c98cfab100e96a4a4922383c2cb7cf2c442421b241a4d5d",
+      "normalized_editor_links": 12,
+      "reason": "Local editor :line links failed repository link checker; preserve original and use exact inspected source/line links."
+    }
+  ]
+}

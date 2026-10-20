@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Investigation complete;5.89GB obsolete PR caches removed, main caches retained. Reviewed PR183 awaits required checks; PR182 merged with resulting-main checks running. Mac interaction18:00Tallinn.
+**Owner attention:** No owner decision requested. Reproduced first-writing-conversation draft recovery failure is under focused repair. Reviewed PR183 awaits required checks; PR182 merged with final main check running. Mac interaction remains 18:00 Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -80,6 +80,31 @@ Gates:
 - **owner acceptance:** not requested; authorized campaign follow-up
 
 Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json)
+
+</details>
+
+### Preserve unsent drafts when a note creates its writing conversation
+
+Owner: lead decision/integration; bounded Sol high implementation; independent Sol review required · State: **active** · Last observed: 2026-10-20T12:05:34.406920+00:00
+Activity: Actual old-source recovery failure confirmed. Lead accepted one atomic draft transfer in existing Store chat recovery: exact optional source/target generation guards, occupied-target refusal, target text and source tombstone in one transaction; UI updates only after committed result. No schema or normal-send/contextual-edit changes.
+Next: Implement safe durable handoff through existing draft ownership; prove reopened exact text and stale/collision/failure preservation; independent complete review before publication.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** pending exercised old-source failure; no correction yet
+- **checks:** Old-source FAIL confirmed and archived; candidate checks pending
+- **integration:** pending complete independent source review and required hosted gates; PR183 head remains stable
+- **native:** not observed; synthetic toolkit test is separate from OS interaction
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs)
+
+Attempts:
+
+- Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
 
 </details>
 
@@ -646,6 +671,48 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-pr182-cleanup.js
 
 </details>
 
+### Inspect stale search results across view and scope changes
+
+Owner: bounded read-only Luna medium helper; development lead validates · State: **complete** · Last observed: 2026-10-20T11:56:42.338154+00:00
+Activity: Luna bounded source/test audit and lead validation found no actionable Search/launcher defect. Request identity guards reject stale completion; existing witnesses cover supersession and independent paging.
+Next: No new mirror test or refactor selected; revisit on a concrete failure.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inspection only; no source change selected
+- **checks:** PASS bounded inspection only; tests not executed
+- **integration:** inapplicable until a concrete candidate exists
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [crates/brn-desktop/src/threads_pages_tests.rs](../../crates/brn-desktop/src/threads_pages_tests.rs), [docs/work/active/vacation-campaign/evidence/general-search-audit.md](active/vacation-campaign/evidence/general-search-audit.md)
+
+</details>
+
+### Inspect drafts and attachments when switching conversations
+
+Owner: bounded read-only Luna medium helper; development lead validates · State: **complete** · Last observed: 2026-10-20T11:56:42.338154+00:00
+Activity: Initial navigation/send/attachment pass found no issue. Lead follow-up isolated a distinct first-writing-chat draft adoption persistence gap; supplemental audit confirmed source-supported restart risk.
+Next: Selected writing-draft-recovery task owns reproduction and correction; preserve both original and supplemental audit.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inspection only; no source change selected
+- **checks:** Bounded source inspection; recovery defect requires a disposable view-recreation witness before implementation
+- **integration:** inapplicable until a concrete candidate exists
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_state.rs](../../crates/brn-desktop/src/threads_state.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -664,4 +731,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T11:49:11.790264+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:05:34.406920+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

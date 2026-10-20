@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T11:45:20+00:00",
+    "observed_at": "2026-10-20T11:51:28+00:00",
     "remaining_percent": 93,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual7%used/93%remaining; fixed expiry/no owner pause",
+    "ordinary_work": "admitted: actual 7% used / 93% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T11:49:11.790264+00:00",
+    "observed_at": "2026-10-20T12:05:34.406920+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -920,9 +920,96 @@
           "owner_acceptance": "not requested; standing repository maintenance authority"
         },
         "attempts": []
+      },
+      {
+        "id": "general-search-audit",
+        "title": "Inspect stale search results across view and scope changes",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; development lead validates",
+        "activity": "Luna bounded source/test audit and lead validation found no actionable Search/launcher defect. Request identity guards reject stale completion; existing witnesses cover supersession and independent paging.",
+        "observed_at": "2026-10-20T11:56:42.338154+00:00",
+        "origin": "observed",
+        "next_action": "No new mirror test or refactor selected; revisit on a concrete failure.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_search.rs",
+          "crates/brn-desktop/src/threads_pages_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/general-search-audit.md"
+        ],
+        "gates": {
+          "implementation": "inspection only; no source change selected",
+          "checks": "PASS bounded inspection only; tests not executed",
+          "integration": "inapplicable until a concrete candidate exists",
+          "native": "not observed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "composer-drafts-audit",
+        "title": "Inspect drafts and attachments when switching conversations",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; development lead validates",
+        "activity": "Initial navigation/send/attachment pass found no issue. Lead follow-up isolated a distinct first-writing-chat draft adoption persistence gap; supplemental audit confirmed source-supported restart risk.",
+        "observed_at": "2026-10-20T11:56:42.338154+00:00",
+        "origin": "observed",
+        "next_action": "Selected writing-draft-recovery task owns reproduction and correction; preserve both original and supplemental audit.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_state.rs",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_chat_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md",
+          "docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md"
+        ],
+        "gates": {
+          "implementation": "inspection only; no source change selected",
+          "checks": "Bounded source inspection; recovery defect requires a disposable view-recreation witness before implementation",
+          "integration": "inapplicable until a concrete candidate exists",
+          "native": "not observed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "writing-draft-recovery",
+        "title": "Preserve unsent drafts when a note creates its writing conversation",
+        "state": "active",
+        "owner": "lead decision/integration; bounded Sol high implementation; independent Sol review required",
+        "activity": "Actual old-source recovery failure confirmed. Lead accepted one atomic draft transfer in existing Store chat recovery: exact optional source/target generation guards, occupied-target refusal, target text and source tombstone in one transaction; UI updates only after committed result. No schema or normal-send/contextual-edit changes.",
+        "observed_at": "2026-10-20T12:05:34.406920+00:00",
+        "origin": "observed",
+        "next_action": "Implement safe durable handoff through existing draft ownership; prove reopened exact text and stale/collision/failure preservation; independent complete review before publication.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_context_actions.rs",
+          "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json",
+          "crates/brn-threads-core/src/chat.rs"
+        ],
+        "gates": {
+          "implementation": "pending exercised old-source failure; no correction yet",
+          "checks": "Old-source FAIL confirmed and archived; candidate checks pending",
+          "integration": "pending complete independent source review and required hosted gates; PR183 head remains stable",
+          "native": "not observed; synthetic toolkit test is separate from OS interaction",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.",
+            "change": "Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json"
+            ]
+          }
+        ]
       }
     ],
-    "owner_attention": "No owner decision requested. Investigation complete;5.89GB obsolete PR caches removed, main caches retained. Reviewed PR183 awaits required checks; PR182 merged with resulting-main checks running. Mac interaction18:00Tallinn."
+    "owner_attention": "No owner decision requested. Reproduced first-writing-conversation draft recovery failure is under focused repair. Reviewed PR183 awaits required checks; PR182 merged with final main check running. Mac interaction remains 18:00 Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -933,11 +1020,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T11:37:02.369505+00:00",
-    "lead": "existing selected lead retained",
-    "helpers": "Two bounded Luna research helpers completed. Lead composes one CI candidate; independent Sol review next.",
-    "build_actor": "No local build selected; preserve source-bound artifacts/targets and all hosted gates.",
-    "desktop_account_actor": "no owned actor; no account call selected",
-    "stop": "Reassess if cache cause cannot be distinguished from eviction/history; do not claim speedup without measured relevant run."
+    "observed_at": "2026-10-20T12:01:02.736355+00:00",
+    "lead": "existing selected lead retained; one integration owner",
+    "helpers": "Luna regression author completed meaningful old-source failure; consequential draft recovery correction assigned to fresh Sol high worker. Independent reviewer will be separate.",
+    "build_actor": "Shared local build slot transfers to one Sol worker; source and logs from old failure retained.",
+    "desktop_account_actor": "None; native batch remains 18:00 Tallinn.",
+    "stop": "One reviewable draft-recovery outcome. Preserve generations and other destinations; no new schema/provider/runtime prompts. Reassess scope after two failed approaches or an unresolved product decision."
   }
 }
