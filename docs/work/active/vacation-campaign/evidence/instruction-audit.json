@@ -1,0 +1,30 @@
+{
+  "observed_at_utc": "2026-10-20T05:13:11.941661+00:00",
+  "scope": "Development instructions/configuration audit and selected local adoption; no credentials inspected/copied; no model/routing/runtime prompt changes.",
+  "preflight": "visibility-adoption-preflight.json",
+  "nested_configuration_scan": "Recursively inspected config table keys excluding MCP/env/notification payloads; no instruction/project_doc/profile override key found. No repository .codex/config.toml found.",
+  "repo_nested_instructions": "rg --files --hidden bounded to lead repo excluding target/.git found only root AGENTS.md.",
+  "host_layers": [
+    "system/developer instructions",
+    "provided skill catalogue metadata",
+    "conversation and automation messages",
+    "provided memory summary and user-injected AGENTS guidance"
+  ],
+  "limits": [
+    "Host injection is not fully inspectable or editable from repository files.",
+    "Configured model is not independent evidence of effective runtime settings.",
+    "Skill routing assessed from metadata/instructions/representative scenarios; no live skill-selection telemetry.",
+    "File-byte reductions are not measured token/cost or model-quality improvements."
+  ],
+  "global_changes": "Only personal writing-plans skill and the two existing saved automation prompts; global AGENTS remains empty, config/model/settings and bundled/system/vendor skills untouched.",
+  "runtime_separation": "No changed path under agent/ or crates/ relative integrated main.",
+  "source_report": {
+    "pr": 177,
+    "draft": true,
+    "commit": "255d2c8c490756e7c988ea513748707e7ba719df",
+    "path": "docs/work/active/agent-first-simplification/visible-development-cycle.md",
+    "sha256": "107376cf9a22bf543a1b1aaa6fa4448cf0d2274ab70b80de69851603b82dd971",
+    "bytes": 38181,
+    "full_report_read": true
+  }
+}

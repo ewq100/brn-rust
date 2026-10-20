@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-20T05:16:46.542419+00:00",
+  "scope": "Development visibility/instruction adoption only; final documentation render follows task-state updates.",
+  "commands": [
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -v",
+      "result": "182 passed on earlier renderer revision; final readiness changes validated separately",
+      "raw": "visibility-tooling-182.log.gz"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -p 'test_work_overview.py' -v",
+      "result": "8 final tests passed"
+    },
+    {
+      "command": "python3 scripts/render-work-overview.py --check",
+      "result": "passed after regeneration"
+    },
+    {
+      "command": "python3 scripts/check-markdown-links.py",
+      "result": "589 files,2738 local links,0 failures before qualification receipt additions"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "files_sha256": {
+    "AGENTS.md": "56382f9244d834131644fb406b953c5d996984897b3436af6caf978f4b6485ad",
+    "docs/development/workflow.md": "6cb34b279ad6e08a9d26e200065b76176c7d3db7d3bb438b880b9e298fa8506e",
+    "docs/development/strategic-programming.md": "4b518f45473cd8e5f41e7b375c6e2fcecc3c8d3235318154505436e72ed6e371",
+    "scripts/render-work-overview.py": "ac654ef76f1d29739fd1cb25d24ddb57064b0729528b8992970d295a486eb503",
+    "scripts/tests/test_work_overview.py": "eba319e8e6fb9253ec41d4e46ae8b63454af5855c0993a30f5c5152674c3de2d",
+    ".github/workflows/ci.yml": "5fbe601b8623c58640f0261ee6974ba86a79f6b3e4f321ad2d75cd3b0015ad0f"
+  },
+  "limits": [
+    "No Rust rebuild/native/provider test needed; no claim of application behavioral qualification from this docs/tooling pass.",
+    "Personal skill quick_validate passed using in-memory Ruby YAML adapter; native PyYAML unavailable; see writing-plans-adoption.json.",
+    "Hosted exact-head and resulting-main gates are separate/pending until actually observed.",
+    "Current active session may retain earlier injected skill/catalogue/conversation; no measured token savings."
+  ]
+}

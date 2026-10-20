@@ -10,22 +10,12 @@
     "BRN-Codex-Cloud-Vacation-Prompt.txt": "ad1a5d88759ce9f3e270e8863618c7caa71e97697d00ab5af1f16f570aec7d50",
     "BRN-Vacation-Roadmap.txt": "37e2111ea79c14f8406258b1335e4a3634791a243ed0d0cacb5b4c8cfd5d8fd3"
   },
-  "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
-  "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_FLOOR_5_PERCENT_REMAINING_WAIT_FOR_VERIFIED_RESET",
+  "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged. Owner20October explicitly approves using the remaining reserve for the visibility/instruction adoption pass only; ordinary campaign quota floor resumes afterward.",
+  "unattended_status": "HEARTBEAT_DELIVERY_OBSERVED_EXECUTION_NOT_INFERRED",
   "continuation_blockers": [
-    "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
+    "Future Mac/app uptime and task execution cannot be guaranteed by heartbeat delivery."
   ],
   "remote_jobs_launched": [],
-  "next_wake": "Recovery heartbeat only: verify actual allowance/reset; do not dispatch work or account tests at the5% reserve. Known reported reset1792874447; no purchases/reset redemption.",
-  "last_checkpoint_at_utc": "2026-10-20T04:49:49.357639+00:00",
-  "current_session_jobs": [],
-  "integration_status": "PR163-174 all four required head/main checks passed. PR175 normally merged9cecd00b after all four exact-head required checks; resulting-main39259077134 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Visibility/instruction adoption is the newest selected task, pending explicit reserve exception or reset. Read visibility-adoption.md. After adoption resume existing campaign; PR175 required main gates and PR176 required head gates have now passed, no reimplementation/rebuild.",
-  "last_qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
-  "source_delta_after_qualification": "No production change since final source87. Entire production delta vs actual main9ce is12lines in writing.rs: owner-feedback toggle metadata and conditional model context. Both independently reviewed, targeted tests/lint/format/native build and actual Mac toggle states pass.",
-  "active_work": "Bounded read-only report/configuration preflight completed; new implementation remains at5% reserve pending owner choice. Existing source, local changes and frozen PR176 preserved.",
-  "continuation_baseline": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,8 +27,8 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot95% used/5% remaining. Reported reset1792874447 (2026-10-24T23:40:47+03:00). Floor reached; no purchases/reset credits.",
-    "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
+    "quota": "See admission observation; no purchases/reset credits.",
+    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -67,8 +57,8 @@
   "model_policy": {
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
-    "review": "Independent Sol approved complete M0, M2 and final M1 source. UI first source review does not replace compilation/final re-review. Source/hash receipts retain exact coverage; live/native/owner/hosted integration gates separate.",
-    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
+    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
@@ -77,14 +67,6 @@
   "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
   "agent_first_plan": "../agent-first-simplification/plan.md",
   "agent_first_reconciliation": "../agent-first-simplification/reconciliation.md",
-  "checked_pr": {
-    "number": 173,
-    "head": "cf7e4f2e60f30c95f9d5bbdbc9996e2a63f29826",
-    "branch": "codex/agent-first-suggestions",
-    "url": "https://github.com/ewq100/brn-rust/pull/173",
-    "required_head_checks": "all four passed",
-    "resulting_main": "33a62aae1b358f1de9475040eb180c63e0651f4f; all four required main39250500661 passed"
-  },
   "codex_ai_testing": {
     "policy": "codex-ai-testing.md",
     "ledger": "evidence/codex-ai-test-ledger.json",
@@ -92,51 +74,232 @@
     "provider": "existing Codex account only",
     "max_attempts_per_session": 3,
     "max_attempts_per_tallinn_day": 6,
-    "client_deadline_seconds": 180,
-    "actual_live_attempts": 3,
-    "current_session_attempts_used": 3,
-    "current_session_closed": true,
-    "tallinn_day_attempts_used": 3
+    "client_deadline_seconds": 180
   },
-  "checked_prs": [
-    {
-      "number": 174,
-      "head": "e56b4dbdb14394afd1abeb58712153344b3d3106",
-      "branch": "codex/native-suggestion-qualification",
-      "status": "normally merged7fb5; all four required exact-head and resulting-main39254538056 checks passed"
-    },
-    {
-      "number": 175,
-      "head": "0ff3360af88d9f94e58e2a9593cce0243c3a0adc",
-      "branch": "codex/exact-note-read-guidance",
-      "status": "normally merged9cecd00b after all four exact-head checks passed; resulting-main39259077134 pending"
-    },
-    {
-      "number": 176,
-      "head": "7e41da520e610c56ac18f8b4ffe7ded305855077",
-      "branch": "codex/feedback-accessibility",
-      "status": "published/attached; source/local/native qualification and independent43-archive audit passed; hosted/main gates pending, branch frozen"
-    }
-  ],
   "native_observation": {
-    "receipt": "evidence/native-mac-review-qualification.json",
-    "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
-    "functional": "PASS: suggestion visible, initially unchecked, explicit selection, exact Apply/Undo and reopen",
-    "accessibility": "Final source87 actual captured off/on/off and ordinary inclusion on/off/on/model context PASS; pre-merge candidate",
-    "native_ai": false,
-    "account_calls": 0,
-    "correction_receipt": "evidence/feedback-inclusion-qualification.json"
+    "receipts": [
+      "evidence/native-mac-review-qualification.json",
+      "evidence/feedback-inclusion-qualification.json"
+    ],
+    "current_gates": "See work_view; source-bound observations remain in receipts."
   },
-  "resource_batch": "Reserve-floor checkpoint: no active build/UI/account run; bounded Luna research asked to return current findings and stop. No new delegation/work until fresh allowance above reserve.",
   "visibility_adoption": {
     "selected_by": "owner request20October2026",
     "reference_pr": 177,
     "reference_commit": "255d2c8c490756e7c988ea513748707e7ba719df",
-    "state": "selected; bounded preflight complete; implementation waiting for reserve override or verified reset",
     "record": "visibility-adoption.md",
     "audit": "evidence/visibility-adoption-preflight.json",
     "owner": "existing lead",
-    "next_action": "Resolve pending budget choice; then finish actual instruction audit, consolidate rules, single current-fact owners and smallest read-only owner view, review/validate/integrate, resume campaign.",
-    "constraints": "Existing5% reserve, fixed expiry, integration and account-test limits retained. No new worker, build, config edit or merge authorized by inference at reserve."
+    "constraints": "Reserve exception only for this adoption; existing fixed expiry, integration/account limits retained; no model/routing change.",
+    "current_task": "work_view.tasks[id=visibility-adoption]"
+  },
+  "admission": {
+    "observed_at": "2026-10-20T05:10:37.356608+00:00",
+    "remaining_percent": 5,
+    "reset_unix": 1792874447,
+    "ordinary_work": "wait for verified capacity above floor",
+    "exception": {
+      "scope": "visibility/instruction adoption only",
+      "authority": "Owner20October: Do the work. I approved them use of the reserve.",
+      "state": "approved; in progress"
+    },
+    "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
+  },
+  "work_view": {
+    "observed_at": "2026-10-20T05:16:23.634823+00:00",
+    "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
+    "tasks": [
+      {
+        "id": "visibility-adoption",
+        "title": "Clearer instructions and one progress view",
+        "state": "active",
+        "owner": "development lead",
+        "activity": "Instruction consolidation, local planning skill, shorter saved prompts and generated progress view implemented; final review/validation complete, publishing candidate next.",
+        "observed_at": "2026-10-20T05:16:23.634823+00:00",
+        "origin": "reported",
+        "next_action": "Publish the reviewed adoption candidate; inspect required exact-head and resulting-main checks before claiming integrated verification.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/visibility-adoption.md",
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json",
+          "https://github.com/ewq100/brn-rust/pull/177",
+          "docs/work/active/vacation-campaign/instruction-audit.md",
+          "docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json",
+          "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json"
+        ],
+        "gates": {
+          "implementation": "complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged",
+          "checks": "passed:8 final focused renderer tests, generated consistency,589 Markdown files/2738 links and whitespace; earlier full182 tooling pass separate",
+          "integration": "pending reviewable PR and required hosted checks",
+          "native": "inapplicable: development documentation/view only",
+          "owner_acceptance": "not requested; owner authorized implementation"
+        },
+        "attempts": [
+          {
+            "outcome": "Preflight complete; stopped at ordinary reserve floor.",
+            "change": "Owner explicitly approved using reserve for this adoption; implementation resumed.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json"
+            ]
+          },
+          {
+            "outcome": "Independent review found readiness was inferred from overall task completion and overlapping skill review rules.",
+            "change": "Explicit prerequisite-condition satisfaction now controls readiness; skill review triggers and inputs aligned with governing workflow.",
+            "evidence": [
+              "scripts/tests/test_work_overview.py",
+              "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "feedback-accessibility",
+        "title": "Mac feedback choices expose their selected state",
+        "state": "complete",
+        "owner": "development lead",
+        "activity": "Reviewed correction normally merged as PR176; resulting-main checks still separate.",
+        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "origin": "observed",
+        "next_action": "See resulting-main-checks before declaring integration fully verified.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/feedback-inclusion-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr176-integration.json",
+          "https://github.com/ewq100/brn-rust/pull/176"
+        ],
+        "gates": {
+          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
+          "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
+          "integration": "normally merged 1ea0ac875f6e7aa128ce21bde781075e87784fff; resulting-main pending",
+          "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
+          "owner_acceptance": "pending; no VoiceOver/IME/general usability claim"
+        },
+        "attempts": [
+          {
+            "outcome": "Actual Mac check exposed missing selected-state accessibility metadata.",
+            "change": "Added toggle metadata and model-suggestion context; both real control sequences then passed.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/feedback-accessibility-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "resulting-main-checks",
+        "title": "Confirm checks after the Mac correction merged",
+        "state": "active",
+        "owner": "hosted checks; development lead inspects results",
+        "activity": "PR176 merged; inspecting resulting-main checks at 1ea0ac87.",
+        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "origin": "observed",
+        "next_action": "Record each actual required result and retain optional failures.",
+        "depends_on": [
+          {
+            "task": "feedback-accessibility",
+            "condition": "Correction is normally merged so resulting-main checks exist.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [
+          "Hosted checks may still be running; no local build needed."
+        ],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff"
+        ],
+        "gates": {
+          "implementation": "inapplicable: verification only",
+          "checks": "pending actual resulting-main jobs",
+          "integration": "merge exists; post-merge verification pending",
+          "native": "reuse unchanged qualified controls; no new native claim",
+          "owner_acceptance": "inapplicable to hosted verification"
+        },
+        "attempts": []
+      },
+      {
+        "id": "mac-journeys",
+        "title": "Check saving, reopening and backup in the real Mac app",
+        "state": "blocked",
+        "owner": "development lead; single desktop actor",
+        "activity": "Prepared scenarios remain; previously passing feedback journeys need no replay.",
+        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "origin": "reported",
+        "next_action": "After ordinary capacity returns, qualify ready synthetic scenarios in one consolidated Mac session.",
+        "depends_on": [],
+        "resource_waits": [
+          "Ordinary campaign admission: reserve exception covers visibility adoption only.",
+          "Single desktop/build slot must be free; confirm actual access and artifact identity."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md"
+        ],
+        "gates": {
+          "implementation": "existing application; no new source fix selected",
+          "checks": "reconcile source-bound build before native session",
+          "integration": "use reviewed integrated source",
+          "native": "pending Save/reopen, backup and unsaved-recovery journeys",
+          "owner_acceptance": "pending; native evidence does not imply owner acceptance"
+        },
+        "attempts": []
+      },
+      {
+        "id": "exact-note-reading",
+        "title": "AI note reads use the exact note identity",
+        "state": "complete",
+        "owner": "development lead",
+        "activity": "PR175 merged and all four required resulting-main jobs passed; no reimplementation needed.",
+        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "origin": "observed",
+        "next_action": "Reuse source-bound evidence; keep broader native AI testing separate.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/pr175-integration.json",
+          "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-qualification.json"
+        ],
+        "gates": {
+          "implementation": "merged 9cecd00b: schema guidance and truthful truncation trace",
+          "checks": "all four required head/main jobs passed; optional Windows failures retained",
+          "integration": "verified merged",
+          "native": "native AI not qualified; deterministic/live CLI evidence separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Natural request omitted an ID suffix and failed safely; explicit-ID diagnostic passed.",
+            "change": "Clarified tool schema; a new natural-request probe passed with Note bytes unchanged.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/codex-ai-smoke-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "reliability-foundations",
+        "title": "Earlier reliability and agent-workflow improvements",
+        "state": "complete",
+        "owner": "development lead",
+        "activity": "Merged shared worker/Run and recovery coordination, notice/reference/MCP fixes, bounded argument correction, exact local editing and selected-feedback review.",
+        "observed_at": "2026-10-20T05:16:23.634823+00:00",
+        "origin": "observed",
+        "next_action": "Reuse recorded guarantees; qualify remaining native journeys rather than rebuild completed work.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence.md",
+          "docs/work/active/agent-first-simplification/reconciliation.md"
+        ],
+        "gates": {
+          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
+          "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
+          "integration": "verified per dated integration receipt; no whole-program completion claim",
+          "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      }
+    ],
+    "owner_attention": "No owner decision requested. Remaining external waits are checks or capacity."
   }
 }

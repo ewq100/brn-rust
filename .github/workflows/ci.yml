@@ -41,6 +41,8 @@ jobs:
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
       - name: Check current Markdown file and fragment links
         run: python3 scripts/check-markdown-links.py
+      - name: Check the generated owner overview
+        run: python3 scripts/render-work-overview.py --check
       - name: Test deterministic development tooling
         if: ${{ !cancelled() }}
         run: python3 -m unittest discover -s scripts/tests -v

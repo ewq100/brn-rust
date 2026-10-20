@@ -1,16 +1,6 @@
-# Mac vacation hardening continuation
+# Mac vacation hardening campaign
 
-Updated19October2026. Current main689ab234 is PR172, normally merged from
-checkedb8735ea1 after all four required head checks passed; three required
-resulting-main39246001617 jobs passed, Mac Core/CLI is still running. PR171 and
-earlier required head/main checks passed; optional Windows failures stay explicit.
-Lead: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch
-`codex/agent-first-followthrough`. PR173 freezes model suggestions atcf7e4f2e:
-source4e81 is independently approved and locally qualified, three required head
-checks passed and Mac Core/CLI is running. The synthetic v2 Mac fixturef819 is
-independently reviewed and qualified separately, with no actual native observation.
-[The checkpoint](checkpoint.md) owns actual jobs and next gates. The owner's new
-Codex-account test authorization and limits are recorded below.
+Scope, authority and resource policy live here. [Current task facts](campaign.json) and the [owner overview](../../overview.md) replace dated progress snapshots. [Workflow](../../../development/workflow.md) owns the cycle and fact routes.
 
 ## Current owner authorization
 
@@ -41,15 +31,14 @@ the preserved cloud charter and earlier checkpoint:
 The owner subsequently authorized bounded tests through their existing Codex
 account on19October; [the test policy](codex-ai-testing.md) and persistent attempt
 ledger govern them: at most3 attempts/session,6/Tallinn day,180seconds each,
-synthetic inputs only and the existing5% allowance floor. No call has yet run under
-that permission. Publication/release/deployment, new paid infrastructure/API
+synthetic inputs only and the existing5% allowance floor. The attempt ledger retains actual launches/results; this plan does not repeat current counts. Publication/release/deployment, new paid infrastructure/API
 workloads, other live providers, private vault/data use, credential changes and
 messaging others remain outside this work.
 Preserve supported data, schemas, lockfiles and the checked service contracts.
 Consequential changes to product meaning still need an owner decision; isolate those
 and continue independent maintenance rather than blocking the whole programme.
 
-## Outcomes and priority queue
+## Campaign outcome priorities
 
 Use [the workflow inventory](workflows.md), [test families](test-families.md),
 [strategic programming](../../../development/strategic-programming.md) and actual
@@ -69,7 +58,7 @@ This is an evidence-driven order, not a promise to migrate all 25 provisional
 domains in two weeks. Update the denominator when source inspection discovers more
 routes. Native usability, IME, accessibility and owner acceptance remain distinct.
 
-## Upcoming phases — owner discussion19October
+## Original phase priorities — historical owner discussion19October
 
 These are priorities, not fixed output promises; defects, review and actual allowance
 can change the order. Do not force a refactor to fit a date.
@@ -91,13 +80,13 @@ checkpoint and use the recovery schedule around the constraining reset; quota pa
 can move these phases. Daily records track actual outcomes and gaps, not a promise
 of features or uninterrupted host availability. No release is included.
 
-## Selected agent-first workstream,19October
+## Agent-first scope selected19October
 
 The owner supplied and selected [the agent-first plan](../agent-first-simplification/plan.md).
 [Reconciliation](../agent-first-simplification/reconciliation.md) places it inside
 this campaign, retaining expiry/resources/native/integration gates. Its M1 bounded
-pre-effect tool correction and M2 factual-check/skill-guidance separation now take
-priority over speculative broad state conversion. Finish already owned small
+pre-effect tool correction and M2 factual-check/skill-guidance separation established
+the priority over speculative broad state conversion; actual results are in task evidence. Finish already owned small
 maintenance/integration gates safely; do not redo merged worker/notice/reference/MCP
 work. M3 exact local edits and M4 consistent instruction/review follow; M5 broader
 capability is conditional. Bounded existing-Codex-account tests are now explicitly
@@ -179,56 +168,11 @@ checks also stay visible. Do not weaken or bypass checks. An overall red workflo
 must retain its actual optional failures rather than being described simply as green.
 Use normal merges and inspect relevant main checks before calling a batch complete.
 
-[Evidence and next action](evidence.md) own the current candidate/check/scheduler
-state. The original charter and roadmap remain preserved historical authority;
+[Campaign state](campaign.json) owns current task/check/admission facts; [evidence](evidence.md) preserves dated source-bound results. The original charter and roadmap remain preserved historical authority;
 the dated corrections here own the changed local/merge/Mac/quota policy.
 
-## Current candidate and next action
+## Current execution
 
-PR163–166 required head/main checks passed; optional Windows failures remain explicit.
-PR167 reference ownership merged normally as9116ad78 from checked40879f71 after all
-four required contexts passed in run39220781564. All four required main run39224642627 jobs passed; optional Windows Core/UI/retrieval failed;
-[the integration receipt](evidence/pr167-integration.json) owns exact check identities.
+Use the selected task in [campaign.json](campaign.json) and [overview](../../overview.md). Earlier candidate/main/job lists are preserved in [Git history](https://github.com/ewq100/brn-rust/blob/3bf64a43f21f92cfdfc142be7e675e8e0e24210b/docs/work/active/vacation-campaign/plan.md), not maintained as a second current queue.
 
-The later source8431e70b combines [export feedback](export-picker.md),
-[test-only fixture helper sharing](provider-fixture-helpers.md) and
-[hidden reference-search retirement](reference-search.md). Independent Sol approved
-the complete source without findings. Final native322/0/1, strict native lint/format
-and production-only build pass; provider helper families4/7/12 and strict package
-capability-spike lint/format pass. Export's candidate-only mutation fails its intended
-status assertion. Reference search additionally has an exact retained test replay
-failing on byte-exact old production, then passing after exact frozen restoration.
-Source/hash/log receipts retain their limits; no old-source export or OS transport
-failure is claimed. Current writers/build ownership are recorded in the checkpoint.
-
-Final independent Luna receipt audit passed, and complete staged candidate whitespace
-check passed. The coherent candidate merged normally as PR168, e583a177, after fixed7c21713b
-run39225335901 passed all four required jobs. Main39227629739 passed all four required jobs; optional Windows failures remain;
-[the integration receipt](evidence/pr168-integration.json) owns exact identities. Preserve checked heads and follow
-actual required-head, normal merge and resulting-main checks separately. No bypass.
-
-Native OS qualification remains in [the daily Mac queue](native-queue.md), including
-already-durable unsaved close/relaunch. No crash/unprocessed-input durability or
-native success is claimed. [CI timing research](ci-feedback.md) remains deferred;
-no workflow change or saving is established. Recent bounded source audits found no
-justified preview/activity/context refactor or worker/notice/reference test reduction.
-Recheck already invalidates reference searches; no extra guard is needed. Empty
-Copilot catalogue semantics remain unspecified and no provider policy change is selected.
-
-Select further work from concrete behavior and maintenance evidence. Continue useful
-work while allowance permits; the recovery heartbeat is not batch pacing.
-[Preserved planning history](planning-history-through-2026-10-19.md) retains earlier
-snapshots. Current owner/resource/gate rules remain at this stable path for restarts.
-
-Project-dialog, remaining-picker, Action/Undo and comment audits found no justified
-further change; distinct existing witnesses remain. The bounded [MCP freshness
-fix](mcp-discovery.md) is independently reviewed and locally qualified at0f/274,
-integrateda593. Canonical policy and runtime grants remain authoritative; no grant
-bypass is claimed. Final focused14/14, native326/0/1, strict lint/format and production
-build pass. The valid P3 witness finding is fixed; redundant subscription state was
-removed after a diagnostic survivor. Exact baseline v2 failure and restored14 pass
-are recorded. Independent Luna audited65 raw/archive records and the explicit
-metadata correction; no receipt blocker remains. PR169 merged normally and all four required main39232087600 jobs passed; optional
-Windows jobs failed. PR170 merged atd7f48e6c after all four required head jobs passed;
-its main gate remains separate. Follow the current checkpoint for active writers
-and pending combined M0/schema/M1/M2 qualification rather than this dated source history.
+On20October the owner selected the [visibility/instruction adoption](visibility-adoption.md) and explicitly approved using the remaining reserve for that pass. This scoped exception ends when adoption is delivered; other campaign work still stops around5% remaining. It does not authorize purchases/reset credits, new account tests or global model/routing changes. Fixed expiry and required integration gates remain.
