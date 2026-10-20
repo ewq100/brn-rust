@@ -1,0 +1,526 @@
+{
+  "observed_at": "2026-10-20T07:03:28.560989+00:00",
+  "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+  "source_sha256": {
+    "ui": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+    "fixture": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+    "lock": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89"
+  },
+  "checks": [
+    {
+      "name": "affected-lint",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-writing-ui",
+        "-p",
+        "brn-desktop",
+        "-p",
+        "brn-threads-app",
+        "--all-targets",
+        "--features",
+        "brn-desktop/native-ui,brn-desktop/native-test-support",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 12.099353458033875,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40036937728,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "desktop-native-tests",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 70.4821362500079,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40011726848,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-build-corrected",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-threads-app",
+        "--example",
+        "native_review_groups_fixture"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 3.024242540821433,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40052391936,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-build",
+      "head": "d47de5ee9af9e3bf432f166bba0ba7f4337b0234",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "a481e0cced3ea75946427852338c572e5605cffdb63e4bc723decf7c7b0ffd83",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-threads-app",
+        "--example",
+        "native_review_groups_fixture"
+      ],
+      "exit": 101,
+      "expected_exit": 0,
+      "elapsed_seconds": 39.28418237506412,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 38984151040,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-positive",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_review_groups_fixture",
+        "--output",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/fixture-positive"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0125481660943478,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40046399488,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-refuse-directory",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_review_groups_fixture",
+        "--output",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/fixture-positive"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 1.0121943331323564,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40045092864,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-refuse-file",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_review_groups_fixture",
+        "--output",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/refuse-file"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 1.0127195420209318,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40044195840,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "fixture-refuse-relative",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/native_review_groups_fixture",
+        "--output",
+        "review-group-relative-refusal"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 1.0022365842014551,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40044036096,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "format",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 2.0175688329618424,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 40042749952,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "production-native",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 8.064665958983824,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39854755840,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    }
+  ],
+  "results": {
+    "fixture": "positive and public reopen/discovery/exact unchanged canonical data/no receipt PASS",
+    "refusals": "preexisting directory/file and relative output refused; directory tree and marker bytes unchanged",
+    "desktop_native_state": "333passed/0failed/1ignored",
+    "ignored": "a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left needs explicit BRN_DWR_SHARED_DATA/SOURCE/CHAT; not native OS proof",
+    "lint_format_production": "strict affected all-target lint,format,ordinary native-ui build PASS",
+    "original_failure": "fixture-build E0107 core Result<T> shadowed std Result<T,E>; preserved failed command/source hash/log, corrected explicit std type then build PASS",
+    "warning": "pre-existing block0.1.6 future incompatibility warning retained; pinned toolchain unchanged"
+  },
+  "artifacts": {
+    "desktop": {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/desktop-465a6fad-5ff2e9776b504f3c",
+      "sha256": "5ff2e9776b504f3cf4601c5bc27fa86ab805c9a4b1cf02e369b2707af75ea54e",
+      "bytes": 165763040,
+      "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6"
+    },
+    "fixture": {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/fixture-465a6fad-a7aec2243ba4e52b",
+      "sha256": "a7aec2243ba4e52bbb0730eb03e615987a3c32c79da12f92fc3421fba9ea1fb2",
+      "bytes": 9732384,
+      "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6"
+    }
+  },
+  "archives": [
+    {
+      "file": "affected-lint.json.gz",
+      "sha256": "7ba0668921a4deefc9f597fb1da91ebdd5a12768d14a33235776e074b5580cc0",
+      "raw_sha256": "b5bf13d314dd07b3e70d4a552d5c92748b2e71f1bc55dc014a97bd01a66b907d",
+      "raw_bytes": 1632
+    },
+    {
+      "file": "affected-lint.log.gz",
+      "sha256": "f13809ec99d2ad662905c92bf7d4ba3f35e86a98662ee765fe66b46531d96af4",
+      "raw_sha256": "d860c7f150cd85a0f0de18ea309d998b898a1a27e6b31c6893a4d7f9d8f18957",
+      "raw_bytes": 666
+    },
+    {
+      "file": "desktop-native-tests.json.gz",
+      "sha256": "4aef6ee2bd3f53d19e0ce79793de943a69affe44538106ec77bb18ed7957436f",
+      "raw_sha256": "454d41eeb8c211e7345f6dadc83104d06ede3574031ffac82141acc45e2ec015",
+      "raw_bytes": 1489
+    },
+    {
+      "file": "desktop-native-tests.log.gz",
+      "sha256": "cad85482e37d5ce1053ae0a856d8ba494f7b163c1da06a1daebe063138136939",
+      "raw_sha256": "ddb73f1be0e4a653f0096541931c83730dcc67772644c7b4575d1db51ca82a00",
+      "raw_bytes": 34617
+    },
+    {
+      "file": "fixture-build-corrected.json.gz",
+      "sha256": "7d625b428839911b3dd953d629399cf49a15b10bcdbcf7f78072013a6d269c25",
+      "raw_sha256": "d665c357a33474128d6caf2be5f664aecdcf92fb736dfef75613025128307dfd",
+      "raw_bytes": 1496
+    },
+    {
+      "file": "fixture-build-corrected.log.gz",
+      "sha256": "5e12b1b5dbfbb553e56edfa1c554261d5210bf514dc9a889978beb6ab75ca868",
+      "raw_sha256": "c3aad3db9116c5fb9056c7cb72bc1ad60ee8c2c4e38bebb0b74a1550647914cd",
+      "raw_bytes": 184
+    },
+    {
+      "file": "fixture-build.json.gz",
+      "sha256": "4e03ab45ad30b8b85b64e55dc254218ce5bd1d9de8131cf6cacf1e9eb7a32f87",
+      "raw_sha256": "db9616cf357f1020763b87ef4984be880cf408845300c96f0d2697fc1259b4f8",
+      "raw_bytes": 1488
+    },
+    {
+      "file": "fixture-build.log.gz",
+      "sha256": "1cda5074026c280bcfa2f7341b459b62f36dfc4cb0938fc478e3d062343a662d",
+      "raw_sha256": "0774aed7173e40d8b940125cdb448087b4a53f09e7debe6fdaef6e28ec3038ee",
+      "raw_bytes": 3220
+    },
+    {
+      "file": "fixture-positive.json.gz",
+      "sha256": "99d3c0c164309621efd6c57709068d55dc256925dbf632a4dda89782a88a1bdf",
+      "raw_sha256": "49e735f563f8871723a4c1738765c7de05778a7211fa0a0944f21132dc023d00",
+      "raw_bytes": 1563
+    },
+    {
+      "file": "fixture-positive.log.gz",
+      "sha256": "5174fdbe3c2140bd8ef405371146c5a37fae2eb61cf54acfcf212c06aa2fcb5c",
+      "raw_sha256": "1f3b01f1dd985a413d6fd6a27127741d20cf30e91df39d4525a0519416d36533",
+      "raw_bytes": 247
+    },
+    {
+      "file": "fixture-refusal-assertions.json.gz",
+      "sha256": "eb5110c6b9e462b24b3b73f347dfe3b183b1905a38a1a3da33d0ac22fe7c94fd",
+      "raw_sha256": "dfddd9ab4424f7db90b8c1587c617b0bd053ed3e32250ff2c016edfb5d90db72",
+      "raw_bytes": 858
+    },
+    {
+      "file": "fixture-refuse-directory.json.gz",
+      "sha256": "a8495379fb27dc7844e4aa1ecc22b2124d7ba92f48ac95faf139d634619490bf",
+      "raw_sha256": "c3daffab7ed2d2c45871265019b48a923806b6cb354d164b13d2ddf43c283853",
+      "raw_bytes": 1571
+    },
+    {
+      "file": "fixture-refuse-directory.log.gz",
+      "sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "raw_bytes": 68
+    },
+    {
+      "file": "fixture-refuse-file.json.gz",
+      "sha256": "0495815fb7b8d0ae2c74a718dbba8239dd85d5da5050aa90d8ef45967967c403",
+      "raw_sha256": "208ad340ed8453a4072bac01dbb5d404557b11f12e90adfc123cce6783c50b5a",
+      "raw_bytes": 1561
+    },
+    {
+      "file": "fixture-refuse-file.log.gz",
+      "sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "raw_bytes": 68
+    },
+    {
+      "file": "fixture-refuse-relative.json.gz",
+      "sha256": "beb7b5af832dd70b3de63fcb495a55d5b47ca51aaaf6ac6ff407dc41bace388e",
+      "raw_sha256": "c87208684d3e4d19e16bace95225f83d8210a4204bf522a35ac98f75f4c4b3ac",
+      "raw_bytes": 1507
+    },
+    {
+      "file": "fixture-refuse-relative.log.gz",
+      "sha256": "188c1c60cd839f698acce0177b2b127e9e44a92519512bbeba41f4081afe91e5",
+      "raw_sha256": "09debea8eb0da04ad7b04b176ad4fb957dea175ffcaf8e906c59051168f6fb8e",
+      "raw_bytes": 58
+    },
+    {
+      "file": "format.json.gz",
+      "sha256": "fdbe7b32c2e16dbedc7b487513d4488a67b2c32ed69904839138816e36fab24d",
+      "raw_sha256": "91c4ba28c1fa9c99b8c449ed99dae2440f82f0532626baa6d729d29eaad5a042",
+      "raw_bytes": 1378
+    },
+    {
+      "file": "format.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "file": "production-native.json.gz",
+      "sha256": "2b59128d4e71871bae5372129536a1a5453f0da8938c876a055816ed740b7634",
+      "raw_sha256": "1b974534937ce58006908f58f9fc9fb2dfaac4cfc1558f1b4c0f0d153728764b",
+      "raw_bytes": 1468
+    },
+    {
+      "file": "production-native.log.gz",
+      "sha256": "a84945c1ed67e53e6acd8b2f765031a58c175936f86c15f818164f332c093c14",
+      "raw_sha256": "eea5bebcda20c2eb6919d2f4be76f1f76ab2426fb22fcbfb6dd894474a50194f",
+      "raw_bytes": 541
+    },
+    {
+      "file": "run-check.py.gz",
+      "sha256": "5c3da1af9b219a8ff90ac0929fef7f7469888554a97f8663828e84e2e28854bc",
+      "raw_sha256": "31c77f4d3142db98fa080eeeae4d7f64324d0cdf4cd8c38498f40f5009444516",
+      "raw_bytes": 3168
+    },
+    {
+      "file": "fixture-positive-manifest.json.gz",
+      "sha256": "df8334bc85d53d7ef20e5dab75b95f66829d96bc79a42f941f67d1ec8116982f",
+      "raw_sha256": "89b7d859c08e6029e0a7c14cf33718940fa19dac2977561810df93ae3df5e7a5",
+      "raw_bytes": 5098
+    }
+  ],
+  "limits": [
+    "No native AX, IME/VoiceOver or owner acceptance from headless tests/build",
+    "No account/provider/model calls or owner data",
+    "No core schema,manifest,lock or toolchain changes",
+    "Native group control observation queued for consolidated Mac batch; baseline old binary retained"
+  ],
+  "archive_directory": "review-group-raw"
+}

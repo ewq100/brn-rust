@@ -38,43 +38,47 @@ Attempts:
 
 ### Prepare grouped-review test workspace
 
-Owner: Luna medium fixture worker · State: **active** · Last reported: 2026-10-20T06:45:18.405208+00:00
-Activity: Implementing developer-only offline two-Action fixture in isolated notice worktree.
-Next: Review source; run fixture/refusal/unchanged-state checks under the single build slot.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
+Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
+Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** in progress; bounded selected outcome
-- **checks:** pending actual final candidate
-- **integration:** not published; reviewed normal integration authorized after actual gates
-- **native:** pending; source/toolkit does not prove Mac usability
+- **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
+- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
+- **integration:** not yet published; required head/main gates pending
+- **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md)
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
+
+Attempts:
+
+- First build failed E0107: wildcard-imported core Result has one type parameter.: Qualified std::result::Result in the reopen collection; corrected build and public fixture assertions pass. ([docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json))
 
 </details>
 
 ### Expose grouped Include/Omit selection to accessibility tools
 
-Owner: Luna medium UI worker · State: **active** · Last reported: 2026-10-20T06:45:18.405208+00:00
-Activity: Implementing narrow boolean accessibility metadata using the existing group-selection owner.
-Next: Independently review full candidate, verify existing subset/selection behavior, qualify actual Mac controls in the batch.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
+Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
+Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** in progress; bounded selected outcome
-- **checks:** pending actual final candidate
-- **integration:** not published; reviewed normal integration authorized after actual gates
-- **native:** pending; source/toolkit does not prove Mac usability
+- **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
+- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
+- **integration:** not yet published; required head/main gates pending
+- **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs)
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
 
 </details>
 
@@ -117,6 +121,33 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
+
+### Check grouped review controls on the Mac
+
+Owner: single native actor in consolidated batch · State: **blocked** · Last reported: 2026-10-20T07:05:09.863171+00:00
+Activity: MAC-08 scenario and immutable source-bound desktop/fixture binaries ready for scheduled actual control observation.
+Next: Run MAC-08 during consolidated native session, then retain actual AX states and unchanged canonical data separately from source/build checks.
+Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
+Resource waits: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** scenario prepared; no new product feature
+- **checks:** matching source/binary/fixture must be confirmed at session start
+- **integration:** prefer then-current reviewed main; candidate observations kept separate
+- **native:** pending actual true/false/true pressed-state and unchanged data
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json)
+
+</details>
+
+Waiting:
+
+- resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
 ## Completed
 
@@ -219,9 +250,14 @@ Evidence: [docs/work/active/vacation-campaign/evidence.md](active/vacation-campa
 graph TD
   t1["Mac feedback choices expose their selected state"]
   t2["Confirm checks after the Mac correction merged"]
+  t6["Prepare grouped-review test workspace"]
+  t7["Expose grouped Include/Omit selection to accessibility tools"]
+  t8["Check grouped review controls on the Mac"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
+  t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
+  t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T06:45:18.405208+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:05:09.863171+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
