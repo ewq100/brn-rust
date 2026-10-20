@@ -1,0 +1,90 @@
+{
+  "observed_at": "2026-10-20 20:58:23 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "5b1f64eb0c3e2b35673b2eb97e1c34450ad8b6b4",
+  "edit": {
+    "new_sequence": 33,
+    "through_sequence": 33,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "7da957c6f17ad149af384e5d141a50f747cdc9cdcef988aee354834b4ce393a6"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+          "relative_position_base64": "AKWk0LcDygdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+            "hash": "4dd65d0a0bf2dccae1a3948eb6dcea32f840768b82f6d81ce426350dd5aef766"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "4b12b94b-375e-420a-8c4f-617917e61859",
+          "relative_position_base64": "AMbpssgFigRB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "4b12b94b-375e-420a-8c4f-617917e61859",
+            "hash": "7af00e5525a5197e814d93792115188b0390d8321501cc40b4ce0d342f4756d7"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+          "relative_position_base64": "AJuY17sC5hFB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+            "hash": "91176afffa051ec5ba1ff80c541153aeaff39b6507148abbfbb520ccbc58ce19"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "exact": true
+    },
+    {
+      "id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+      "exact": true
+    },
+    {
+      "id": "4b12b94b-375e-420a-8c4f-617917e61859",
+      "exact": true
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "exact": true
+    }
+  ],
+  "meaning": "PR190 normalmerge/main pending; PR191 published locally qualified/hosted pending; no resulting-main or candidate merge claim."
+}
