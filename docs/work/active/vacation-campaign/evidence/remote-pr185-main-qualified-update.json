@@ -1,0 +1,552 @@
+{
+  "before": {
+    "content": [],
+    "structuredContent": {
+      "metadata": {
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "layout": "document",
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "preview": "The Mac CI correction and unsent-draft repair are merged, with all four required checks passed on their merged versions. The smaller inactive-Project skill-control fix is now merged as [PR 185](https://github.com/ewq100/brn-rust/pull/185); ",
+        "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+        "owner_workspace_id": null,
+        "parent": {
+          "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+          "title": "BRN"
+        },
+        "drive_scope": "space",
+        "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+        "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+        "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "position": 1835500201638912,
+        "created_at": "2026-10-20T07:17:46.030410Z",
+        "updated_at": "2026-10-20T13:33:52.134022Z",
+        "deleted_at": null,
+        "current_sequence": 16,
+        "projection_through_sequence": 16,
+        "access": {
+          "can_read": true,
+          "can_comment": true,
+          "can_write": true,
+          "can_share": true,
+          "can_delete": true,
+          "sources": [
+            "library"
+          ]
+        },
+        "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "content": {
+        "schema_version": 2,
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+        "blocks": [
+          {
+            "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "kind": "markdown",
+            "markdown": "The Mac CI correction and unsent-draft repair are merged, with all four required checks passed on their merged versions. The smaller inactive-Project skill-control fix is now merged as [PR 185](https://github.com/ewq100/brn-rust/pull/185); its follow-up checks are running.",
+            "hash": "03d3a81303bc432d04a4d1e1a0765986165c4f4cce34e8bd1feab1dd4c2654f7",
+            "metadata": {}
+          },
+          {
+            "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "kind": "markdown",
+            "markdown": "Last refreshed: **20 October 2026 at 16:34 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+            "hash": "da83d72d4a1aabfc6e3fde0dc463a4188f9dfc4248460ca3a611fa6e4fb50bad",
+            "metadata": {}
+          },
+          {
+            "id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+            "kind": "markdown",
+            "markdown": "# Current work",
+            "hash": "0b94a92ac9022c38eaed0510c4bd328eb8a95018eab19115e378074890d01161",
+            "metadata": {}
+          },
+          {
+            "id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+            "kind": "markdown",
+            "markdown": "- **Completion and Undo checked:** [PR 182](https://github.com/ewq100/brn-rust/pull/182) is merged and all four required checks now pass on its resulting main version. It extends the existing desktop journey to confirm completion, verify its saved evidence, and undo that exact change. Actual Mac interaction remains separate.",
+            "hash": "dc815a1888a64d589385ea84e032cfe297d8418143a403f8ed4cca3ac733911b",
+            "metadata": {}
+          },
+          {
+            "id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "kind": "markdown",
+            "markdown": "- **Clearer grouped review controls:** [PR 179](https://github.com/ewq100/brn-rust/pull/179) is merged, and all four required checks now pass on the merged main version. Actual Mac control observation remains in the daily batch.",
+            "hash": "da291186a9cf8333bf222f6d1a8db89aae20da39ff72c1cffd113c8be67f4e8f",
+            "metadata": {}
+          },
+          {
+            "id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "kind": "markdown",
+            "markdown": "- **Writing proposal checked:** one bounded account test produced exactly the requested wording change as a pending proposal. The original note, captured feedback and unrelated note stayed unchanged. A test-harness failure before account contact was diagnosed and corrected first. Actual Mac Apply and Undo remain queued; no further generation is needed.",
+            "hash": "1dde32895bd3e4c33f42508964938205178bb71c5d7697b88cd3ac8298ffd383",
+            "metadata": {}
+          },
+          {
+            "id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+            "kind": "markdown",
+            "markdown": "- **Unsent drafts preserved:** [PR 184](https://github.com/ewq100/brn-rust/pull/184) is merged and all four required checks pass on its merged version. It saves the draft when the first passage comment creates a writing conversation, protects against replacing another draft and keeps recovery warnings visible. Local desktop checks passed 340 tests with one existing ignored. Actual Mac close/reopen remains queued.",
+            "hash": "d6530b91d383a0445f30c0fc2c64111b096b4a1dcd3c9f3740a5bbeb7403b1e6",
+            "metadata": {}
+          },
+          {
+            "id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+            "kind": "markdown",
+            "markdown": "- **Clearer skill choices:** [PR 185](https://github.com/ewq100/brn-rust/pull/185) is merged after independent review and all four required checks. Inactive Projects no longer offer Enable choices that will be rejected. Inspection, disabling and removal of the exact installed package remain available. Checks on the merged version and actual Mac observation remain separate and pending.",
+            "hash": "c9dd09410c450a363620084bee15727874184ce55b877f7d86495658c2922f28",
+            "metadata": {}
+          },
+          {
+            "id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "kind": "markdown",
+            "markdown": "- **More reliable export completion:** [PR181](https://github.com/ewq100/brn-rust/pull/181) is merged and all four required checks now pass on its resulting main version. The original Mac45-minute cancellation is preserved alongside the successful exact-source retry. Actual Mac export and broader durability observation remain separate.",
+            "hash": "e1898b97affb47e962722dc0198fc0d5f0c09575481c100e3c51199f3136a878",
+            "metadata": {}
+          },
+          {
+            "id": "f8fb7782-b39d-46ab-812c-295c2fac61bf",
+            "kind": "markdown",
+            "markdown": "# Completed improvements",
+            "hash": "e5d073e0692c29e3c855fde23e8392ddc2ee376d4cbce33dc23f344aa2a51326",
+            "metadata": {}
+          },
+          {
+            "id": "77380e5e-999c-46fa-a874-e2d39599129d",
+            "kind": "markdown",
+            "markdown": "- **One progress view and clearer development instructions:** merged in [PR 178](https://github.com/ewq100/brn-rust/pull/178), with all four required checks passing after merge.",
+            "hash": "b4a3ac4a730146cddaf330cb19a6a6194429c65621ed3d3cde337e4546d5efb4",
+            "metadata": {}
+          },
+          {
+            "id": "74fa4da1-a93d-4758-b530-a1e31b63945b",
+            "kind": "markdown",
+            "markdown": "- **Clearer feedback choices:** merged in [PR 176](https://github.com/ewq100/brn-rust/pull/176). Selected states were also observed through actual Mac controls on the qualified build.",
+            "hash": "725e2b88b234f8b17917e51186bbc0a279fccabfdf20167d41ac5d8ff8da569e",
+            "metadata": {}
+          },
+          {
+            "id": "4bdbfc27-8f1a-45a0-968c-77a5b3177798",
+            "kind": "markdown",
+            "markdown": "- **More precise AI note reading:** merged in [PR 175](https://github.com/ewq100/brn-rust/pull/175). Note requests use exact identities, and reading reports identify truncation correctly.",
+            "hash": "8191572699e474ec954a7ab89ec4f479f312d2c15c2e9cad8105bacb6c7c107c",
+            "metadata": {}
+          },
+          {
+            "id": "2270f693-b38a-45e5-99af-d12dc1024ddd",
+            "kind": "markdown",
+            "markdown": "- **Earlier reliability work:** worker identity, recovery coordination, notices, reference import, bounded correction, local editing and review feedback improvements are merged. Their detailed checks remain in the repository records.",
+            "hash": "0e9a03a09237bf2171d664fb98d35806129aca673e98a80a5ab8944d8ada9810",
+            "metadata": {}
+          },
+          {
+            "id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+            "kind": "markdown",
+            "markdown": "- **Consistent imports across entry points:** the offline command-line-to-desktop check reused the same conversation and exact owner message, with one additional work attempt. Successful AI work and actual Mac input remain separate.",
+            "hash": "701105e456182e10c61531e484f040dfaa05245a75ca44e2b6ef5a6653931005",
+            "metadata": {}
+          },
+          {
+            "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "kind": "markdown",
+            "markdown": "- **Mac CI investigation and cleanup:** missing cached build files and converter compilation dominate the inspected delay; converter test execution itself took about two seconds. Removed5.89GB of obsolete caches belonging to merged PR182, preserving all five main caches. The earlier cache’s disappearance remains unexplained. [Investigation and evidence](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/ci-cache-investigation.md).",
+            "hash": "dcf21c987dda38cb9f6ba4182a99afcb309c5d9dce0f7737a754ff601a9b7741",
+            "metadata": {}
+          },
+          {
+            "id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+            "kind": "markdown",
+            "markdown": "# Next steps",
+            "hash": "1758609d884f7781c216fe7ba0b6ac00149f8ca42fceabdf8d1eb0294ad09cfe",
+            "metadata": {}
+          },
+          {
+            "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "kind": "markdown",
+            "markdown": "1. Verify all four required checks on the merged [skill-control fix](https://github.com/ewq100/brn-rust/pull/185). A bounded formatting and passage-reveal audit found no concrete defect, so that code remains unchanged.",
+            "hash": "0afcf3d0f06dc48658dd5702f535b69c9be654984ebe89c4753908f0dd0274f8",
+            "metadata": {}
+          },
+          {
+            "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "kind": "markdown",
+            "markdown": "2. During the consolidated **18:00 Europe/Tallinn** Mac session, exercise ready saving/reopening, backup, recovery, grouped-review and saved-proposal Apply/Undo scenarios with synthetic data. Include the new unsent-draft close/reopen journey only on its matching reviewed and qualified build; defer excess scenarios beyond the bounded session.",
+            "hash": "4ff75a59d46dc0ff51b7d488b77efd684d123f35c36fcb923b35e8fca479e36d",
+            "metadata": {}
+          },
+          {
+            "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+            "kind": "markdown",
+            "markdown": "3. Continue useful Mac-first hardening within the existing campaign authorization and available allowance.",
+            "hash": "ccad0d6fcab11370a142ce18138a667e36a6c9a11b4ab96acfb7f144da9adb14",
+            "metadata": {}
+          },
+          {
+            "id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+            "kind": "markdown",
+            "markdown": "# Needs attention",
+            "hash": "04eebf7d145cc30ce6a5244f3720d7634e2e8d77932ca4dbf47464adfa04a038",
+            "metadata": {}
+          },
+          {
+            "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "kind": "markdown",
+            "markdown": "**No decision is needed from you now.** The CI correction and draft repair are merged with required follow-up checks passed. The skill-control fix is merged with its follow-up checks running. Optional Windows failures and evidence limits remain recorded. Actual Mac interaction stays in the 18:00 Tallinn batch; these repairs used synthetic data and no live account call.",
+            "hash": "d73332ca009b5de7d3946071625eca796413f40baf8d8ba83934e419d39848d5",
+            "metadata": {}
+          },
+          {
+            "id": "ab792d24-1c38-4ccf-b828-6b1aa85f376d",
+            "kind": "markdown",
+            "markdown": "# Detailed progress and sources",
+            "hash": "3de248572106b925cb138aab439a98b75e7fea95501695f9e048739e933fe7aa",
+            "metadata": {}
+          },
+          {
+            "id": "04a21101-9b82-42cb-8e5c-8ca4dfebdd19",
+            "kind": "markdown",
+            "markdown": "- [Latest published development overview](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/overview.md)",
+            "hash": "8e7b12b18ac7de995e169503436379d2da7866836ff8db73748c0d578af737a9",
+            "metadata": {}
+          },
+          {
+            "id": "eec2995a-1f28-4a4e-ba6b-91edb0b28390",
+            "kind": "markdown",
+            "markdown": "- [Overview on the integrated main branch](https://github.com/ewq100/brn-rust/blob/main/docs/work/overview.md)",
+            "hash": "dcc677e3449d63e7bb85ce3fb1f16e07f1461f302a339bc60cd72e9ae0e069fa",
+            "metadata": {}
+          },
+          {
+            "id": "7b2cec28-facf-42a2-ab1d-f4d5b6f4604d",
+            "kind": "markdown",
+            "markdown": "- [Open pull requests](https://github.com/ewq100/brn-rust/pulls)",
+            "hash": "314d1a4d53e3cf689bf2803ec2bdfe7ef55cb1f21c569bc5d1db9bef63a4c231",
+            "metadata": {}
+          },
+          {
+            "id": "a314237c-94fd-4b61-ae64-ee492b3a6764",
+            "kind": "markdown",
+            "markdown": "- [Campaign evidence on the development branch](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/evidence.md)",
+            "hash": "0a381cee9673a9f0188c270aa111778ab716a0a1fb3515b9b466c913c62832cf",
+            "metadata": {}
+          },
+          {
+            "id": "2fa06cc6-3b06-4a5b-ab78-7e52b5bc2779",
+            "kind": "markdown",
+            "markdown": "The repository task record remains authoritative. This Page is its remote summary; updates happen at meaningful campaign transitions, rather than through a live filesystem connection. GitHub links show their last published versions.",
+            "hash": "0b61abacbd968b4b209ebfec9e55fc3245a5e6d59cc5d202fbeca8517a1334fb",
+            "metadata": {}
+          }
+        ],
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "view": "editing"
+    },
+    "isError": false
+  },
+  "args": {
+    "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+    "operations": [
+      {
+        "op": "replace_block_markdown",
+        "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "expected_hash": "03d3a81303bc432d04a4d1e1a0765986165c4f4cce34e8bd1feab1dd4c2654f7",
+        "markdown": "The Mac CI correction, unsent-draft repair and inactive-Project skill-control fix are merged. All four required checks have now passed on each merged version. The next qualification is the consolidated **18:00 Tallinn Mac session**."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "expected_hash": "da83d72d4a1aabfc6e3fde0dc463a4188f9dfc4248460ca3a611fa6e4fb50bad",
+        "markdown": "Last refreshed: **20 October 2026 at 16:53 Europe/Tallinn**. This is a saved progress summary, not live activity."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+        "expected_hash": "c9dd09410c450a363620084bee15727874184ce55b877f7d86495658c2922f28",
+        "markdown": "- **Clearer skill choices:** [PR 185](https://github.com/ewq100/brn-rust/pull/185) is merged and all four required checks pass on its merged version. Inactive Projects no longer offer Enable choices that will be rejected. Inspection, disabling and removal of the exact installed package remain available. Actual Mac observation remains separate."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+        "expected_hash": "0afcf3d0f06dc48658dd5702f535b69c9be654984ebe89c4753908f0dd0274f8",
+        "markdown": "1. During the **18:00 Europe/Tallinn** Mac session, prioritize saving/reopening and the new unsent-draft recovery journey. The matching reviewed app, helpers, independent expected text and empty synthetic workspace are prepared; the app has not been launched."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "expected_hash": "4ff75a59d46dc0ff51b7d488b77efd684d123f35c36fcb923b35e8fca479e36d",
+        "markdown": "2. Use the remaining time in the same 30–45 minute batch for backup/recovery, grouped-review controls and the saved proposal's Apply/Undo. Defer excess scenarios explicitly and record actual visible and saved outcomes separately."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+        "expected_hash": "d73332ca009b5de7d3946071625eca796413f40baf8d8ba83934e419d39848d5",
+        "markdown": "**No decision is needed from you now.** All three fixes are merged with their required follow-up checks passed. Optional Windows failures and local evidence limits remain recorded. Actual Mac interaction remains queued for 18:00 Tallinn; preparation and automated checks do not establish native usability or owner acceptance."
+      }
+    ]
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"new_sequence\": 17,\n  \"operation_results\": [\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\",\n          \"hash\": \"6f590ecf7627fa928123a0702534b01a3fe7795874551028174960edf0a9714f\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\",\n        \"relative_position_base64\": \"AJuY17sCigJB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 0,\n      \"preceding_block_id\": null\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n          \"hash\": \"be780c1e17bcd4ca2c0d6e0aaedd2da8a3692397c732c9e829b6b87ae075b65b\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n        \"relative_position_base64\": \"AJuY17sC/QJB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 1,\n      \"preceding_block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"56db4892-0f38-4d2a-b5c2-1e13a86688ba\",\n          \"hash\": \"4b4c84b594334c53dc6bcdd713406d5efd9ba8e505935e9b48371db274aabd81\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"56db4892-0f38-4d2a-b5c2-1e13a86688ba\",\n        \"relative_position_base64\": \"AL7F5/kHxgxB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 2,\n      \"preceding_block_id\": \"b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\",\n          \"hash\": \"78ff734b57e9f939beedeb4893f539311560cd88b63d070585e0916337e34cf8\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\",\n        \"relative_position_base64\": \"AJuY17sCvw9B\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 3,\n      \"preceding_block_id\": \"ef0796cf-5c02-4944-b3b6-20eba4f85fb4\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"30420f5a-d95d-4521-87e6-d8fc7ee085ea\",\n          \"hash\": \"8ddb7d3c536ac30b2e2f3b3a6a28d401bbdf8e7f66e3d9dd00be95c118d7aced\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"30420f5a-d95d-4521-87e6-d8fc7ee085ea\",\n        \"relative_position_base64\": \"AJuY17sC+BBB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 4,\n      \"preceding_block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"2e6d8ee0-067d-42fd-89dc-177f822a8f9c\",\n          \"hash\": \"b1fb049e55fff78bc17bd5529affecbaf130e038ab5d2f319bfafc0f802673e1\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"2e6d8ee0-067d-42fd-89dc-177f822a8f9c\",\n        \"relative_position_base64\": \"AJuY17sC/BNB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 5,\n      \"preceding_block_id\": \"c9f112c2-d466-4ffd-afc6-fc5a171211dd\"\n    }\n  ],\n  \"through_sequence\": 17\n}"
+      },
+      {
+        "type": "text",
+        "text": "Show this Page in your response with this standalone preview:\n::page-preview{page_id=\"page_2300ce21dbb88191a290f861b9eb6f68\"}\nUse ordinary links for source citations."
+      }
+    ],
+    "structuredContent": {
+      "new_sequence": 17,
+      "through_sequence": 17,
+      "operation_results": [
+        {
+          "operation_index": 0,
+          "preceding_block_id": null,
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "relative_position_base64": "AJuY17sCigJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+              "hash": "6f590ecf7627fa928123a0702534b01a3fe7795874551028174960edf0a9714f"
+            }
+          ]
+        },
+        {
+          "operation_index": 1,
+          "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "relative_position_base64": "AJuY17sC/QJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "hash": "be780c1e17bcd4ca2c0d6e0aaedd2da8a3692397c732c9e829b6b87ae075b65b"
+            }
+          ]
+        },
+        {
+          "operation_index": 2,
+          "preceding_block_id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+            "relative_position_base64": "AL7F5/kHxgxB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+              "hash": "4b4c84b594334c53dc6bcdd713406d5efd9ba8e505935e9b48371db274aabd81"
+            }
+          ]
+        },
+        {
+          "operation_index": 3,
+          "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "relative_position_base64": "AJuY17sCvw9B"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+              "hash": "78ff734b57e9f939beedeb4893f539311560cd88b63d070585e0916337e34cf8"
+            }
+          ]
+        },
+        {
+          "operation_index": 4,
+          "preceding_block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "relative_position_base64": "AJuY17sC+BBB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+              "hash": "8ddb7d3c536ac30b2e2f3b3a6a28d401bbdf8e7f66e3d9dd00be95c118d7aced"
+            }
+          ]
+        },
+        {
+          "operation_index": 5,
+          "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "relative_position_base64": "AJuY17sC/BNB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+              "hash": "b1fb049e55fff78bc17bd5529affecbaf130e038ab5d2f319bfafc0f802673e1"
+            }
+          ]
+        }
+      ]
+    },
+    "isError": false
+  },
+  "readback": {
+    "content": [],
+    "structuredContent": {
+      "metadata": {
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "layout": "document",
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "preview": "The Mac CI correction, unsent-draft repair and inactive-Project skill-control fix are merged. All four required checks have now passed on each merged version. The next qualification is the consolidated **18:00 Tallinn Mac session**.\n\nLast r",
+        "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+        "owner_workspace_id": null,
+        "parent": {
+          "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+          "title": "BRN"
+        },
+        "drive_scope": "space",
+        "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+        "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+        "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "position": 1835500201638912,
+        "created_at": "2026-10-20T07:17:46.030410Z",
+        "updated_at": "2026-10-20T13:53:44.630569Z",
+        "deleted_at": null,
+        "current_sequence": 17,
+        "projection_through_sequence": 17,
+        "access": {
+          "can_read": true,
+          "can_comment": true,
+          "can_write": true,
+          "can_share": true,
+          "can_delete": true,
+          "sources": [
+            "library"
+          ]
+        },
+        "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "content": {
+        "schema_version": 2,
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+        "blocks": [
+          {
+            "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "kind": "markdown",
+            "markdown": "The Mac CI correction, unsent-draft repair and inactive-Project skill-control fix are merged. All four required checks have now passed on each merged version. The next qualification is the consolidated **18:00 Tallinn Mac session**.",
+            "hash": "6f590ecf7627fa928123a0702534b01a3fe7795874551028174960edf0a9714f",
+            "metadata": {}
+          },
+          {
+            "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "kind": "markdown",
+            "markdown": "Last refreshed: **20 October 2026 at 16:53 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+            "hash": "be780c1e17bcd4ca2c0d6e0aaedd2da8a3692397c732c9e829b6b87ae075b65b",
+            "metadata": {}
+          },
+          {
+            "id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+            "kind": "markdown",
+            "markdown": "- **Clearer skill choices:** [PR 185](https://github.com/ewq100/brn-rust/pull/185) is merged and all four required checks pass on its merged version. Inactive Projects no longer offer Enable choices that will be rejected. Inspection, disabling and removal of the exact installed package remain available. Actual Mac observation remains separate.",
+            "hash": "4b4c84b594334c53dc6bcdd713406d5efd9ba8e505935e9b48371db274aabd81",
+            "metadata": {}
+          },
+          {
+            "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "kind": "markdown",
+            "markdown": "1. During the **18:00 Europe/Tallinn** Mac session, prioritize saving/reopening and the new unsent-draft recovery journey. The matching reviewed app, helpers, independent expected text and empty synthetic workspace are prepared; the app has not been launched.",
+            "hash": "78ff734b57e9f939beedeb4893f539311560cd88b63d070585e0916337e34cf8",
+            "metadata": {}
+          },
+          {
+            "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "kind": "markdown",
+            "markdown": "2. Use the remaining time in the same 30–45 minute batch for backup/recovery, grouped-review controls and the saved proposal's Apply/Undo. Defer excess scenarios explicitly and record actual visible and saved outcomes separately.",
+            "hash": "8ddb7d3c536ac30b2e2f3b3a6a28d401bbdf8e7f66e3d9dd00be95c118d7aced",
+            "metadata": {}
+          },
+          {
+            "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "kind": "markdown",
+            "markdown": "**No decision is needed from you now.** All three fixes are merged with their required follow-up checks passed. Optional Windows failures and local evidence limits remain recorded. Actual Mac interaction remains queued for 18:00 Tallinn; preparation and automated checks do not establish native usability or owner acceptance.",
+            "hash": "b1fb049e55fff78bc17bd5529affecbaf130e038ab5d2f319bfafc0f802673e1",
+            "metadata": {}
+          }
+        ],
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "view": "editing",
+      "selection": {
+        "mode": "block_ids",
+        "selection_complete": true,
+        "whole_page_complete": false,
+        "page_block_count": 28,
+        "returned_block_count": 6,
+        "matched_block_count": 6,
+        "context_blocks": 0,
+        "query_matches": [],
+        "missing_block_ids": [],
+        "blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "block_index": 0,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "block_index": 1,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+            "block_index": 7,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "block_index": 17,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "block_index": 18,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "block_index": 21,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          }
+        ]
+      }
+    },
+    "isError": false
+  },
+  "verdict": "PASS all six guarded replacements applied and exact readback matched"
+}

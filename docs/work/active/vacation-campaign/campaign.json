@@ -95,7 +95,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T13:49:39.823351+00:00",
+    "observed_at": "2026-10-20T13:47:27+00:00",
     "remaining_percent": 88,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: actual12% used /88% remaining; fixed expiry, no owner pause",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:49:39.823351+00:00",
+    "observed_at": "2026-10-20T13:53:04.323375+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -226,8 +226,8 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Headless native-session preparation complete: unsigned app copies exactly match qualified28474 app/helpers and integrated75a66a74 product source; independent expected fixture bytes verified/copied. Fresh canonical /private/tmp data root empty; app not launched. Core hostedmain checks pending, actual Mac journeys remain separate.",
-        "observed_at": "2026-10-20T13:49:39.823351+00:00",
+        "activity": "Integrated75a66a74 has all four required main checks passed and matches reviewed28474 source. Headless unsigned app/helpers/expected fixture copies verified; fresh canonical /private/tmp data root empty, app not launched. Native observation and owner acceptance remain pending.",
+        "observed_at": "2026-10-20T13:53:04.323375+00:00",
         "origin": "observed",
         "next_action": "At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30\u201345minutes; defer excess explicitly.",
         "depends_on": [],
@@ -245,7 +245,7 @@
         "gates": {
           "implementation": "existing application; no new source fix selected",
           "checks": "Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change",
-          "integration": "use reviewed integrated source",
+          "integration": "PASS integrated75a66a74 matches reviewed28474 product source; all four required main checks passed. Confirm still current at native entry.",
           "native": "pending Save/reopen, backup and unsaved-recovery journeys",
           "owner_acceptance": "pending; native evidence does not imply owner acceptance"
         },
@@ -1083,12 +1083,12 @@
       {
         "id": "inactive-project-skill-controls",
         "title": "Show unavailable skill choices correctly in inactive Projects",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna implementation; independent Sol review/lead integration",
-        "activity": "PR185 normally merged75a66a74 after fresh strict protection, all four required exact-head7fa and preceding-main d2 checks passed. Entire resulting tree equals passing head. Required resulting-main39431384966 checks pending; proof classes and optional failures retained.",
-        "observed_at": "2026-10-20T13:34:38.974641+00:00",
+        "activity": "PR185 normally merged75a66a74; all four required exact-head and resulting-main39431384966 checks passed. Three optional Windows failures retained; optional Ubuntu combined build still running. Local proof classes and native/owner limits unchanged.",
+        "observed_at": "2026-10-20T13:53:04.323375+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four actual required resulting-main75a66a74 checks; preserve optional failures and keep actual native qualification separate.",
+        "next_action": "Revisit only on a concrete defect; native observation remains a separate queued gate.",
         "depends_on": [
           {
             "task": "writing-draft-recovery",
@@ -1096,9 +1096,7 @@
             "satisfied": true
           }
         ],
-        "resource_waits": [
-          "Required resulting-main75a66a74 checks."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md",
           "crates/brn-desktop/src/threads_skills.rs",
@@ -1113,12 +1111,14 @@
           "https://github.com/ewq100/brn-rust/pull/185",
           "docs/work/active/vacation-campaign/evidence/pr185-premerge.json",
           "docs/work/active/vacation-campaign/evidence/pr185-integration.json",
-          "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
+          "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json",
+          "docs/work/active/vacation-campaign/evidence/pr185-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json"
         ],
         "gates": {
           "implementation": "complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change",
           "checks": "PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.",
-          "integration": "Normal merge75a66a74 verified; all4required exact-head and preceding-main checks PASS; resulting-main39431384966 pending",
+          "integration": "PASS normal merge75a66a74, exact tree matches passing head7fa; all4required resulting-main checks PASS",
           "native": "Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -1173,7 +1173,7 @@
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. CI correction PR183 and draft repair PR184 merged with all four required main checks passed. Skill-control PR185 normally merged75a66a74; required main39431384966 pending. Actual Mac18:00Tallinn batch separate."
+    "owner_attention": "No owner decision requested. All four required main checks passed for CI correction PR183, draft repair PR184 and skill-control PR185. Prepared source-bound app/data for18:00Tallinn Mac qualification; no native pass or release claimed."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1182,19 +1182,18 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20T13:11:48.202Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-merged-pr185-published-update.json",
-    "latest_update_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
+    "last_refresh_at": "2026-10-20T13:53:44.630569Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:49:39.823351+00:00",
+    "observed_at": "2026-10-20T13:53:04.323375+00:00",
     "runtime_capacity": "4 total slots; lead only, all bounded helper turns completed",
     "build_slot": "free; headless packaging complete, no Rust build or app/account/native actor",
     "desktop_account_actor": "none; consolidated18Tallinn batch pending",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR185 normally merged75a66a74; required resulting-main39431384966 pending, no additional product task selected",
-    "wait_reason": "Required resulting-main39431384966 core checks running; Mac UI/retrieval checks passed. Native packaging prepared without launch; no additional source candidate selected.",
-    "resumption": "Existing ACTIVE recovery heartbeat resumes this same lead/chat; reconcile actual75a66a74 run39431384966 first. Daily18:00Tallinn native batch remains the next distinct ready interaction gate. Do not infer a live process from this saved record."
+    "integration": "PR185 required resulting-main39431384966 gates PASS; no open current product candidate",
+    "wait_reason": "Selected engineering outcomes integrated and required main checks passed. Next consequential gate is the authorized daily18:00Tallinn native batch; no source writer or new speculative dispatch selected.",
+    "resumption": "Daily native heartbeat uses this same lead/chat at18:00Tallinn; recheck source/gates/access and native-session-preflight-20261020 before launch. Existing engineering recovery heartbeat remains active; no competing actor or live process inferred."
   }
 }

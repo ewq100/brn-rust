@@ -62,8 +62,16 @@
     "-n",
     "--env",
     "BRN_LAUNCH_LOG_DIR=/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/launch-logs",
+    "--env",
+    "BRN_EMBEDDING_MODEL_DIR=",
     "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app"
   ],
   "launcher_environment_basis": "Local open usage explicitly documents --env VAR; queried --help, which is unsupported but printed usage. No launch occurred. Use explicit task log directory on every launch.",
-  "launch_logs": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/launch-logs"
+  "launch_logs": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/launch-logs",
+  "startup_source_check": {
+    "basis": "Source inspection only, no launch or runtime network proof",
+    "settings": "Fresh Workspace settings use Codex, credentials_dir None, maintenance false and delegation unchosen (crates/brn-threads-app/src/settings.rs). Default auth filename is derived as a path; no auth contents inspected/copied. Do not query or log Settings during Note checks.",
+    "automatic_catalogue": "auto_load_copilot_models requires Copilot plus credentials_dir Some, so fresh default is ineligible (threads_ui.rs:3414).",
+    "embedding": "Launch plan supplies an empty BRN_EMBEDDING_MODEL_DIR for this child only; embedding_model_from_env filters empty values (brn-threads-app/src/lib.rs:527). No model folder access/acquisition required."
+  }
 }

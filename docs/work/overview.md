@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. CI correction PR183 and draft repair PR184 merged with all four required main checks passed. Skill-control PR185 normally merged75a66a74; required main39431384966 pending. Actual Mac18:00Tallinn batch separate.
+**Owner attention:** No owner decision requested. All four required main checks passed for CI correction PR183, draft repair PR184 and skill-control PR185. Prepared source-bound app/data for18:00Tallinn Mac qualification; no native pass or release claimed.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,34 +9,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Show unavailable skill choices correctly in inactive Projects
-
-Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:34:38.974641+00:00
-Activity: PR185 normally merged75a66a74 after fresh strict protection, all four required exact-head7fa and preceding-main d2 checks passed. Entire resulting tree equals passing head. Required resulting-main39431384966 checks pending; proof classes and optional failures retained.
-Next: Inspect all four actual required resulting-main75a66a74 checks; preserve optional failures and keep actual native qualification separate.
-Depends on: writing-draft-recovery when PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (reported satisfied: true)
-Resource waits: Required resulting-main75a66a74 checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
-- **checks:** PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.
-- **integration:** Normal merge75a66a74 verified; all4required exact-head and preceding-main checks PASS; resulting-main39431384966 pending
-- **native:** Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md](active/vacation-campaign/evidence/inactive-skill-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr185-publication.json](active/vacation-campaign/evidence/pr185-publication.json), [https://github.com/ewq100/brn-rust/pull/185](https://github.com/ewq100/brn-rust/pull/185), [docs/work/active/vacation-campaign/evidence/pr185-premerge.json](active/vacation-campaign/evidence/pr185-premerge.json), [docs/work/active/vacation-campaign/evidence/pr185-integration.json](active/vacation-campaign/evidence/pr185-integration.json), [docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json](active/vacation-campaign/evidence/remote-pr185-merged-update.json)
-
-Attempts:
-
-- Pre-pin lead caller mapping found inactive availability also disabled valid workspace-wide Remove; author corrected separate exact-current-digest guard before final freeze.: Distinct scoped enablement from exact global removal; stale/wrong-digest removal remains inert. No final source-check claim invalidated because candidate was not frozen. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md))
-- Initial28474manifest retained only author check summaries and mutable artifact paths; original logs/copy requirements not satisfied.: Evidence-repair loop selected; preserve original manifest and transcript limits, rerun only unresolved proof with source/log bindings, then copy immutable artifacts. No false raw-log or final qualification claim. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json))
-- Recovered transcript receipts explicitly retain5 failedharness/implementation attempts and missing temporarytree/exitcode/rawstream limits; later focusedrepair raw4/0 confirmed frozen284. Original report had one stale no-reruns sentence. Artifact copies0444 lacked execute access.: Independent review accepted proportionateproofclasses; corrected only imported report, preserved originalarchive, and made separate0555 same-byte artifact copies. Sourcecause settled via service trace and actualrenderedcontrol test; no more unproductive harnessassumptions or productionrewrites. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json))
-
-</details>
+None recorded.
 
 ## Next
 
@@ -46,8 +19,8 @@ None recorded.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last observed: 2026-10-20T13:49:39.823351+00:00
-Activity: Headless native-session preparation complete: unsigned app copies exactly match qualified28474 app/helpers and integrated75a66a74 product source; independent expected fixture bytes verified/copied. Fresh canonical /private/tmp data root empty; app not launched. Core hostedmain checks pending, actual Mac journeys remain separate.
+Owner: development lead; single desktop actor · State: **blocked** · Last observed: 2026-10-20T13:53:04.323375+00:00
+Activity: Integrated75a66a74 has all four required main checks passed and matches reviewed28474 source. Headless unsigned app/helpers/expected fixture copies verified; fresh canonical /private/tmp data root empty, app not launched. Native observation and owner acceptance remain pending.
 Next: At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30–45minutes; defer excess explicitly.
 Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
 
@@ -58,7 +31,7 @@ Gates:
 
 - **implementation:** existing application; no new source fix selected
 - **checks:** Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change
-- **integration:** use reviewed integrated source
+- **integration:** PASS integrated75a66a74 matches reviewed28474 product source; all four required main checks passed. Confirm still current at native entry.
 - **native:** pending Save/reopen, backup and unsaved-recovery journeys
 - **owner acceptance:** pending; native evidence does not imply owner acceptance
 
@@ -96,14 +69,6 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
-
-### Show unavailable skill choices correctly in inactive Projects
-
-Owner: bounded Luna implementation; independent Sol review/lead integration
-
-Waiting:
-
-- resource: Required resulting-main75a66a74 checks.
 
 ## Completed
 
@@ -751,6 +716,34 @@ Attempts:
 
 </details>
 
+### Show unavailable skill choices correctly in inactive Projects
+
+Owner: bounded Luna implementation; independent Sol review/lead integration · State: **complete** · Last observed: 2026-10-20T13:53:04.323375+00:00
+Activity: PR185 normally merged75a66a74; all four required exact-head and resulting-main39431384966 checks passed. Three optional Windows failures retained; optional Ubuntu combined build still running. Local proof classes and native/owner limits unchanged.
+Next: Revisit only on a concrete defect; native observation remains a separate queued gate.
+Depends on: writing-draft-recovery when PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (reported satisfied: true)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
+- **checks:** PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.
+- **integration:** PASS normal merge75a66a74, exact tree matches passing head7fa; all4required resulting-main checks PASS
+- **native:** Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md](active/vacation-campaign/evidence/inactive-skill-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr185-publication.json](active/vacation-campaign/evidence/pr185-publication.json), [https://github.com/ewq100/brn-rust/pull/185](https://github.com/ewq100/brn-rust/pull/185), [docs/work/active/vacation-campaign/evidence/pr185-premerge.json](active/vacation-campaign/evidence/pr185-premerge.json), [docs/work/active/vacation-campaign/evidence/pr185-integration.json](active/vacation-campaign/evidence/pr185-integration.json), [docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json](active/vacation-campaign/evidence/remote-pr185-merged-update.json), [docs/work/active/vacation-campaign/evidence/pr185-resulting-main.json](active/vacation-campaign/evidence/pr185-resulting-main.json), [docs/work/active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json](active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json)
+
+Attempts:
+
+- Pre-pin lead caller mapping found inactive availability also disabled valid workspace-wide Remove; author corrected separate exact-current-digest guard before final freeze.: Distinct scoped enablement from exact global removal; stale/wrong-digest removal remains inert. No final source-check claim invalidated because candidate was not frozen. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md))
+- Initial28474manifest retained only author check summaries and mutable artifact paths; original logs/copy requirements not satisfied.: Evidence-repair loop selected; preserve original manifest and transcript limits, rerun only unresolved proof with source/log bindings, then copy immutable artifacts. No false raw-log or final qualification claim. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json))
+- Recovered transcript receipts explicitly retain5 failedharness/implementation attempts and missing temporarytree/exitcode/rawstream limits; later focusedrepair raw4/0 confirmed frozen284. Original report had one stale no-reruns sentence. Artifact copies0444 lacked execute access.: Independent review accepted proportionateproofclasses; corrected only imported report, preserved originalarchive, and made separate0555 same-byte artifact copies. Sourcecause settled via service trace and actualrenderedcontrol test; no more unproductive harnessassumptions or productionrewrites. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json))
+
+</details>
+
 ### Inspect formatting and passage reveal across note changes
 
 Owner: bounded Luna medium read-only helper; lead validates · State: **complete** · Last observed: 2026-10-20T13:22:45.843366+00:00
@@ -793,4 +786,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:49:39.823351+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:53:04.323375+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
