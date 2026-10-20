@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T09:41:32.173897+00:00",
-    "remaining_percent": 95,
-    "reset_unix": 1793083361,
-    "ordinary_work": "admitted: actual5%used/95%remaining rechecked; no owner pause, original expiry retained",
+    "observed_at": "2026-10-20T11:45:20+00:00",
+    "remaining_percent": 93,
+    "reset_unix": 1793083360,
+    "ordinary_work": "admitted: actual7%used/93%remaining; fixed expiry/no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T09:45:22.800409+00:00",
+    "observed_at": "2026-10-20T11:48:01.528904+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -607,28 +607,27 @@
       {
         "id": "export-publication-durability",
         "title": "Flush complete export folders before reporting success",
-        "state": "active",
+        "state": "complete",
         "owner": "development lead; Luna implementation and independent Sol reviews completed",
-        "activity": "PR181 normally merged20fcd738 after actual live protection/all4required exact-head checks and passing preceding main. Resulting-main checks pending.",
-        "observed_at": "2026-10-20T09:30:16.780781+00:00",
+        "activity": "All4required main20f jobs nowPASS after one diagnosed MacCore timeout retry. Original45m cancellation retained; no source repair attributed to retry.",
+        "observed_at": "2026-10-20T11:37:02.369505+00:00",
         "origin": "observed",
-        "next_action": "Inspect four required resulting-main jobs; compare exact production tree to reviewed0f64a034 and saved native artifact before reuse.",
+        "next_action": "Reuse reviewed integrated export source; actual native/power-loss qualification remains separate.",
         "depends_on": [],
-        "resource_waits": [
-          "Hosted resulting-main20fcd738; independent bounded headless work may continue."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-review.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json",
           "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json",
           "https://github.com/ewq100/brn-rust/pull/181",
-          "docs/work/active/vacation-campaign/evidence/pr181-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr181-integration.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json"
         ],
         "gates": {
           "implementation": "complete isolated0f64a034; app export source+README only",
           "checks": "PASS independent source/evidence reviews,6focused local tests,Clippy/fmt/nativebuild and all4required exact-head39392977994 checks; optional WindowsCore failed",
-          "integration": "normally merged20fcd7383662cd2f67607c3ce04194aed50809b5; all4required head passed, resulting-main pending",
+          "integration": "PASS normal merge20f and all4required resulting-main checks; original cancelled MacCore attempt retained",
           "native": "daily synthetic export journey separate; no power-loss qualification claim",
           "owner_acceptance": "not claimed"
         },
@@ -709,23 +708,25 @@
         "title": "Exercise Confirm done and its exact Undo in the desktop journey",
         "state": "active",
         "owner": "development lead; bounded Luna implementation and independent Sol high review completed",
-        "activity": "Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.",
-        "observed_at": "2026-10-20T09:45:22.800409+00:00",
+        "activity": "PR182 normally mergedbc8a08e6 after fresh live protection and all4required exact-head/preceding-main checks passed. Resulting-main39415372292 running.",
+        "observed_at": "2026-10-20T11:37:02.369505+00:00",
         "origin": "observed",
-        "next_action": "Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.",
+        "next_action": "Inspect all4required resulting-main jobs; preserve unrelated optional Windows failures.",
         "depends_on": [],
         "resource_waits": [
-          "Required hosted integration gates after publication."
+          "Required resulting-mainbc8 checks."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/action-history-audit.md",
           "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/action-completion-review.md"
+          "docs/work/active/vacation-campaign/evidence/action-completion-review.md",
+          "https://github.com/ewq100/brn-rust/pull/182",
+          "docs/work/active/vacation-campaign/evidence/pr182-premerge.json"
         ],
         "gates": {
           "implementation": "complete12679ef4; one test file +71lines, existing test count unchanged",
-          "checks": "PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained",
-          "integration": "pending independent review, required hosted gates and normal integration",
+          "checks": "PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed",
+          "integration": "Normal mergebc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4; resulting-main pending",
           "native": "toolkit checks are not OS interaction or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -762,9 +763,158 @@
           "owner_acceptance": "not requested"
         },
         "attempts": []
+      },
+      {
+        "id": "project-trash-audit",
+        "title": "Inspect Project deletion and Trash recovery safety",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; lead validates",
+        "activity": "Bounded audit found no actionable Project/Trash defect or consequential missing witness. Lead validated captured preview/full snapshot refusal and atomic stale-restore witness; no duplicate UI mirror test or new abstraction selected.",
+        "observed_at": "2026-10-20T09:48:47.861687+00:00",
+        "origin": "observed",
+        "next_action": "Retain existing checked-service witnesses; revisit only with a reproduced failure or new boundary risk.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_projects.rs",
+          "crates/brn-desktop/src/threads_projects_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/project-trash-audit.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable until evidenced defect selects a bounded correction",
+          "checks": "PASS bounded source/test inspection and lead validation only; no test/build/native execution",
+          "integration": "inapplicable to inspection",
+          "native": "not observed; actual controls remain separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Overview refused a task with empty evidence; previous valid overview preserved.",
+            "change": "Record actual source/test entry points before audit dispatch.",
+            "evidence": [
+              "scripts/render-work-overview.py"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mac-core-ci-time-budget",
+        "title": "Allow the complete Mac Core check to finish within a bounded job",
+        "state": "active",
+        "owner": "lead implementation; independent Sol source review completed",
+        "activity": "Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.",
+        "observed_at": "2026-10-20T11:48:01.528904+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json",
+          ".github/workflows/ci.yml",
+          "docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md"
+        ],
+        "gates": {
+          "implementation": "complete isolatedfe65b8ec; only CI timeout/comment",
+          "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
+          "integration": "Publication/required exact-head/resulting-main gates pending",
+          "native": "inapplicable CI resource policy only",
+          "owner_acceptance": "not requested; existing in-scope maintenance authority"
+        },
+        "attempts": [
+          {
+            "outcome": "Python YAML module unavailable in current interpreter.",
+            "change": "Used installed Ruby standard YAML parser without adding dependencies; reviewer independently compared parsed base/candidate.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mac-ci-cache-investigation",
+        "title": "Find why Mac CI recompiles converters and misses reuse",
+        "state": "complete",
+        "owner": "development lead plus two bounded read-only Luna medium helpers",
+        "activity": "Two bounded audits plus lead verified same-source cold45m08/warm14m46, earlier same-key hit then unavailable cache, PR-only duplicate storage and root-only graph pruning. Exact disappearance reason unknown; selected narrow main-only saves.",
+        "observed_at": "2026-10-20T11:37:02.369505+00:00",
+        "origin": "observed",
+        "next_action": "Review/publish bounded cache-save policy; broader converter caching needs archive-size/source-guard and warm-run evidence.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          ".github/actions/setup-rust/action.yml",
+          ".github/workflows/ci.yml",
+          "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json",
+          "docs/work/active/vacation-campaign/ci-cache-investigation.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-causes.md",
+          "docs/work/active/vacation-campaign/evidence/ci-compile-reuse.md"
+        ],
+        "gates": {
+          "implementation": "Investigation complete; bounded main-only save policy selected separately, broad helper caching deferred",
+          "checks": "PASS observed logs/cache inventory/pinned implementation and lead validation; one pair is not stable performance benchmark",
+          "integration": "inapplicable until concrete change selected",
+          "native": "inapplicable CI investigation",
+          "owner_acceptance": "owner directly selected investigation"
+        },
+        "attempts": []
+      },
+      {
+        "id": "ci-main-cache-save-policy",
+        "title": "Keep shared Rust caches without duplicate PR uploads",
+        "state": "active",
+        "owner": "lead implementation; independent Sol source review completed",
+        "activity": "Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.",
+        "observed_at": "2026-10-20T11:48:01.528904+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/ci-cache-investigation.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json",
+          ".github/actions/setup-rust/action.yml",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md"
+        ],
+        "gates": {
+          "implementation": "complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed",
+          "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
+          "integration": "Publication/required exact-head/resulting-main gates pending",
+          "native": "inapplicable CI policy only",
+          "owner_acceptance": "not requested; authorized campaign follow-up"
+        },
+        "attempts": []
+      },
+      {
+        "id": "merged-pr-cache-cleanup",
+        "title": "Retire disposable cache copies for merged PR182",
+        "state": "complete",
+        "owner": "development lead; exact-ID generated-cache maintenance",
+        "activity": "Removed four exact obsolete PR182 cache IDs after merged-state/ref/key/version revalidation:5886330190bytes. Readback shows all targets absent and all five preexisting main cache IDs retained.",
+        "observed_at": "2026-10-20T11:46:11.997400+00:00",
+        "origin": "observed",
+        "next_action": "Future PR-save suppression belongs to the reviewed CI candidate; no recurring broad cleanup selected.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/ci-cache-pr182-cleanup.json",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json"
+        ],
+        "gates": {
+          "implementation": "complete exact-ID generated-cache cleanup; no main/other-ref DELETE or storage/billing changes",
+          "checks": "PASS four successful DELETE outcomes and complete before/after inventory; configured storage-limit read unavailableHTTP402 retained",
+          "integration": "inapplicable disposablecachemaintenance",
+          "native": "inapplicable",
+          "owner_acceptance": "not requested; standing repository maintenance authority"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn."
+    "owner_attention": "No owner decision requested. PR182 normally merged; main checks running. Cache investigation complete, bounded cache-save policy and MacCore time allowance prepared for review/publication. Mac batch18:00Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -775,11 +925,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T09:45:22.800409+00:00",
+    "observed_at": "2026-10-20T11:37:02.369505+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "Bounded Luna writer/auditors and independent Sol reviewer completed; no active helper.",
-    "build_actor": "No owned build active; future builds must explicitly set jobs1; last test writer resource deviation recorded.",
+    "helpers": "Two bounded Luna research helpers completed. Lead composes one CI candidate; independent Sol review next.",
+    "build_actor": "No local build selected; preserve source-bound artifacts/targets and all hosted gates.",
     "desktop_account_actor": "no owned actor; no account call selected",
-    "stop": "Test-only witness; stop on production defect/scope growth. Main39401033547 required jobs pending."
+    "stop": "Reassess if cache cause cannot be distinguished from eviction/history; do not claim speedup without measured relevant run."
   }
 }

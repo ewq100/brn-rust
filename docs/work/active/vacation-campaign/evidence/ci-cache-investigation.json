@@ -1,0 +1,129 @@
+{
+  "observed_at": "2026-10-20T11:35:53.019632+00:00",
+  "runs": {
+    "earlier_warm_main": {
+      "id": 39392850688,
+      "job": 118528310157,
+      "source": "02445b283d85ac09d24f7ee7f111039a87b4dbb5",
+      "hit": "08:22:38Z exactkey"
+    },
+    "cold_main": {
+      "id": 39401033547,
+      "attempt": 1,
+      "job": 118555511333,
+      "source": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+      "seconds": 2708,
+      "result": "CANCELLED45mfinalization; functionalstepsPASS"
+    },
+    "warm_same_source": {
+      "id": 39401033547,
+      "attempt": 2,
+      "job": 118591050475,
+      "source": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+      "seconds": 886,
+      "result": "PASS"
+    },
+    "pr182": {
+      "id": 39403071180,
+      "job": 118562289078,
+      "source": "be2de8af21f787b15afb821bbcd7d8fc26039ecf",
+      "seconds": 2196,
+      "result": "PASS with coldcache"
+    }
+  },
+  "observations": {
+    "helper_cold_prepare_seconds": 899,
+    "helper_warm_prepare_seconds": 243,
+    "helper_cold_test_lint_seconds": 610,
+    "helper_warm_test_lint_seconds": 203,
+    "helper_test_body_seconds_approx": 1.8,
+    "cache_inventory_bytes": 8936986355,
+    "cache_inventory_count": 6,
+    "pr_scoped_bytes": 5886330190,
+    "helper_lock_tuples_absent_root_lock": 136,
+    "helper_crate_names_absent_root_lock": 82
+  },
+  "limits": [
+    "One same-source cold/warm pair; no controlled stable speedup claim",
+    "Exactkey restored earlier and later unavailable; eviction/deletion/backend reason unproven",
+    "82names absent rootlock is graphcomparison, not82observeddeletedartifactcount",
+    "Pinned README overstates manifest discovery; code/logs configure onlyrootworkspace, standalonehelperlocksnotautomaticallybound",
+    "Archive sizes for proposed full helpercache unmeasured; no cachedeletion or paidsettingschange"
+  ],
+  "selected_followup": {
+    "candidate": "4b50fc9684ad98236ac74b41f3ff5c0e96a77c8d",
+    "scope": "Main-only Rustcache saves, preserve PR restores/allkeydimensions/alltests; includes separatelyreviewedMacCore60mresourcebound",
+    "review": "pending complete composed candidate",
+    "tradeoff": "New dependency/profile PR reruns can staycolduntil main hasmatchingcache; no measured future speedup yet"
+  },
+  "raw_archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-main20f-mac-core-cancelled.log.gz",
+      "original_bytes": 865416,
+      "original_sha256": "75138a5355fb52b1095bbfba6d8abac09a9ade61afa79bcf2ec98b87fcd9ff12",
+      "archive_sha256": "29b966657849616a51d87d1b59d19ab0acf95f9bc9741a900bec0829ccb86eca"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-main20f-mac-core-retry.log.gz",
+      "original_bytes": 577312,
+      "original_sha256": "241f56ae18dfbe761685a0add8c7857c896cac111c20db34a52069187cbdcbe7",
+      "archive_sha256": "f8b916311074812c88ee51cd4d23e628d62d5bb5da3d4871e29e6e5bc947ac5b"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-pr182-mac-core.log.gz",
+      "original_bytes": 734133,
+      "original_sha256": "d749ca567a152c871be700ef8b4368cd9678015373cd59f9980ba01a728d41f8",
+      "archive_sha256": "217e1c60858ee0ed4505a114a296d2405753907b4a5e42d283a09a6a0d42248b"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-main02445-mac-core.log.gz",
+      "original_bytes": 500979,
+      "original_sha256": "cb92a7d65a931965b96ebfad8911e262336980d3d8c19a046db882a4938619ca",
+      "archive_sha256": "075808573f07e7ff069ae852acdfdab5c6b75d46961862e38a15ed5d4f7d256f"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-ci-cache-inventory.json.gz",
+      "original_bytes": 2371,
+      "original_sha256": "2cd163a871f2f196f3119000cbcfc177eb0a123004ff5958de3aa35518b57b29",
+      "archive_sha256": "f84e789af56edd9babd2c2c35a0e8e5c87263117c39e1d82abe2f40efba4970b"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-main20f-retry-jobs.json.gz",
+      "original_bytes": 30624,
+      "original_sha256": "3d1cfaaed021e41957e83a677832a42de6f943531e4ec4dc362df8b5a566aa1a",
+      "archive_sha256": "a385a3bf85abfd604de6c67c3299b5df7eb5e37ac7f28a58df82e5cd4cc93317"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-ci-cache-causes.md.gz",
+      "original_bytes": 7147,
+      "original_sha256": "c3075e4460d79b1a49cca4035f50127ea016fad0f8c4c58eb822913381000462",
+      "archive_sha256": "bb2e7f3732754df606d11e97a265c2db5fa15b5d796499aa326c48dbe5f6ccf1"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-ci-cache-causes-v2.md.gz",
+      "original_bytes": 8991,
+      "original_sha256": "89e634d9851ae86b982bffcaf9a1655f98399c2cd51aa4e46332805198f2d521",
+      "archive_sha256": "1e3caa7b6d39e9ece9a5a875982e9343541f72b94250723a0e8d17ae80dd185e"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-ci-cache-causes-v3.md.gz",
+      "original_bytes": 11097,
+      "original_sha256": "ef455aa9e1e644945a3f0998a0ba9347bacd5694e42ec4f2bccb92d4d1e836ee",
+      "archive_sha256": "a0f3952fccd4addff098821ca206efe2bfd45f8ed831320df9ebb678e1ce880f"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/brn-ci-compile-reuse.md.gz",
+      "original_bytes": 7850,
+      "original_sha256": "7d40003ae8f8ccd7d695d1bd2391a3b99df87d26b6e983cb72c225c167a3c3ec",
+      "archive_sha256": "8136daf8e671f0233c083f684a31f3fb3967ffa6ca10a95de4f434b316900439"
+    }
+  ],
+  "pinned_source_archive": {
+    "path": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/rust-cache-6323-source.tar.gz",
+    "sha256": "72fe615962596a99d9624cb16a1c599376ccda6f3845cd5295a35f0e3b3dff92"
+  },
+  "primary_sources": [
+    "https://github.com/Swatinem/rust-cache/tree/6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+    "https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching"
+  ]
+}
