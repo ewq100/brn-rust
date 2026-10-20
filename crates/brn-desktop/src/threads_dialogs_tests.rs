@@ -648,7 +648,19 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
     // The launcher closes first.
     press(cx, &f, "cmd-k");
     press(cx, &f, "escape");
-    cx.read(|cx| assert!(!f.view.read(cx).launcher_open));
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert!(!view.launcher_open);
+        assert_eq!(view.layout.focus(), Some(TileKind::Chat));
+        assert!(
+            view.composer.focus_handle(cx).is_focused(window),
+            "closing the launcher returns focus to the visible Chat composer"
+        );
+        assert!(
+            !view.launcher_query.focus_handle(cx).is_focused(window),
+            "the closed launcher query no longer owns focus"
+        );
+    });
     still_working(cx);
     // In Settings an open menu closes before Settings does.
     update(cx, &f, |view, window, cx| {
