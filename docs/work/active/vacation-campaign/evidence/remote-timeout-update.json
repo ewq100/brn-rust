@@ -1,0 +1,194 @@
+{
+  "observed_at": "2026-10-20T11:02:57.068Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "edit": {
+    "new_sequence": 9,
+    "through_sequence": 9,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "dbe532c19c3f30e2174f01a494848b82a0bad156b7bbc64535a1f3f26557c2b4"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "7272918463e1869f11f639d9b33ad97643701d5144b24192224a5047f9dc8390"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "relative_position_base64": "AMr6vegLqwhB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+            "hash": "9b82f46647b2e990229047463e8e4d65a3821225318f490b1be19b8e501b015d"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "687150b3e818056a78c0c15ba269796137c20d796b70537b2385cf395f65ad6e"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "623f028883e6c7a3dd33827ddb0b8917202155d8634e60639524976ad903cd4d"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": {
+    "metadata": {
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "layout": "document",
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "preview": "The completion-and-Undo candidate has passed independent review and all required pre-merge checks. Integration is waiting for a retry of an earlier Mac check that exceeded its time limit during finalization. The export fix is merged; actual",
+      "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+      "owner_workspace_id": null,
+      "parent": {
+        "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+        "title": "BRN"
+      },
+      "drive_scope": "space",
+      "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+      "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+      "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "position": 1835500201638912,
+      "created_at": "2026-10-20T07:17:46.030410Z",
+      "updated_at": "2026-10-20T11:02:09.620313Z",
+      "deleted_at": null,
+      "current_sequence": 9,
+      "projection_through_sequence": 9,
+      "access": {
+        "can_read": true,
+        "can_comment": true,
+        "can_write": true,
+        "can_share": true,
+        "can_delete": true,
+        "sources": [
+          "library"
+        ]
+      },
+      "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "content": {
+      "schema_version": 2,
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+      "blocks": [
+        {
+          "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "kind": "markdown",
+          "markdown": "Last refreshed: **20 October 2026 at 14:02 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+          "hash": "7272918463e1869f11f639d9b33ad97643701d5144b24192224a5047f9dc8390",
+          "metadata": {}
+        },
+        {
+          "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "kind": "markdown",
+          "markdown": "**No decision is needed from you now.** One required check on the merged export version exceeded its 45-minute limit after its functional steps passed; an exact-version retry is running. This is recorded as a cancellation, not a passing result. Optional Windows failures remain recorded. Actual Mac checks stay in the scheduled batch.",
+          "hash": "623f028883e6c7a3dd33827ddb0b8917202155d8634e60639524976ad903cd4d",
+          "metadata": {}
+        }
+      ],
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "view": "editing",
+    "selection": {
+      "mode": "search",
+      "selection_complete": true,
+      "whole_page_complete": false,
+      "page_block_count": 26,
+      "returned_block_count": 2,
+      "matched_block_count": 2,
+      "context_blocks": 0,
+      "query_matches": [
+        {
+          "query_index": 0,
+          "matched_block_count": 1,
+          "block_ids": [
+            "2e6d8ee0-067d-42fd-89dc-177f822a8f9c"
+          ]
+        },
+        {
+          "query_index": 1,
+          "matched_block_count": 1,
+          "block_ids": [
+            "a37e5801-b0c8-4330-800f-13d98b10338a"
+          ]
+        }
+      ],
+      "missing_block_ids": [],
+      "blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "block_index": 1,
+          "roles": [
+            "match"
+          ],
+          "query_indices": [
+            1
+          ]
+        },
+        {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "block_index": 19,
+          "roles": [
+            "match"
+          ],
+          "query_indices": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "limits": "Remote projection/readback only, no browser/mobile rendering observation"
+}

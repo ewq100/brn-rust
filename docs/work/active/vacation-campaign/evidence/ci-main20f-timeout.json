@@ -1,0 +1,229 @@
+{
+  "observed_at": "2026-10-20T10:59:09.035037+00:00",
+  "source": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+  "run": 39401033547,
+  "job": 118555511333,
+  "result": "CANCELLED: job exceeded45minute execution limit; all test/build/lint/journey steps and cleanup reported success",
+  "annotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ewq100/brn-rust/blob/20fcd7383662cd2f67607c3ce04194aed50809b5/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The job has exceeded the maximum execution time of 45m0s",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/ewq100/brn-rust/blob/20fcd7383662cd2f67607c3ce04194aed50809b5/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ],
+  "job_receipt": {
+    "id": 118555511333,
+    "run_id": 39401033547,
+    "workflow_name": "BRN CI",
+    "head_branch": "main",
+    "run_url": "https://api.github.com/repos/ewq100/brn-rust/actions/runs/39401033547",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOUumqvM8AAAAbmnWKJQ",
+    "head_sha": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+    "url": "https://api.github.com/repos/ewq100/brn-rust/actions/jobs/118555511333",
+    "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39401033547/job/118555511333",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-20T09:29:24Z",
+    "started_at": "2026-10-20T09:29:36Z",
+    "completed_at": "2026-10-20T10:14:44Z",
+    "name": "Core and CLI (macos-15)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-20T09:29:37Z",
+        "completed_at": "2026-10-20T09:29:38Z"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-20T09:29:38Z",
+        "completed_at": "2026-10-20T09:29:42Z"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-20T09:29:42Z",
+        "completed_at": "2026-10-20T09:30:10Z"
+      },
+      {
+        "name": "Check formatting",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-20T09:30:10Z",
+        "completed_at": "2026-10-20T09:30:10Z"
+      },
+      {
+        "name": "Check production provider retirement",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-20T09:30:10Z",
+        "completed_at": "2026-10-20T09:30:11Z"
+      },
+      {
+        "name": "Check production intake retirement",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-20T09:30:11Z",
+        "completed_at": "2026-10-20T09:30:11Z"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-20T09:30:11Z",
+        "completed_at": "2026-10-20T09:45:10Z"
+      },
+      {
+        "name": "Build the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-20T09:45:10Z",
+        "completed_at": "2026-10-20T09:47:35Z"
+      },
+      {
+        "name": "Lint the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-20T09:47:35Z",
+        "completed_at": "2026-10-20T09:48:44Z"
+      },
+      {
+        "name": "Test the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-20T09:48:44Z",
+        "completed_at": "2026-10-20T09:59:42Z"
+      },
+      {
+        "name": "Both document helpers normal API and restrictions",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-20T09:59:42Z",
+        "completed_at": "2026-10-20T10:09:52Z"
+      },
+      {
+        "name": "Scripted document CLI route (no live provider)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12,
+        "started_at": "2026-10-20T10:09:52Z",
+        "completed_at": "2026-10-20T10:10:33Z"
+      },
+      {
+        "name": "Test provider capability fixtures offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-20T10:10:33Z",
+        "completed_at": "2026-10-20T10:13:16Z"
+      },
+      {
+        "name": "Lint provider capability fixtures",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-20T10:13:16Z",
+        "completed_at": "2026-10-20T10:13:33Z"
+      },
+      {
+        "name": "Check CLI help on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-20T10:13:33Z",
+        "completed_at": "2026-10-20T10:13:33Z"
+      },
+      {
+        "name": "Check CLI help on Windows",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 16,
+        "started_at": "2026-10-20T10:13:33Z",
+        "completed_at": "2026-10-20T10:13:33Z"
+      },
+      {
+        "name": "Run offline end-to-end fixtures",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-20T10:13:33Z",
+        "completed_at": "2026-10-20T10:13:36Z"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 33,
+        "started_at": "2026-10-20T10:13:36Z",
+        "completed_at": "2026-10-20T10:14:37Z"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 34,
+        "started_at": "2026-10-20T10:14:37Z",
+        "completed_at": "2026-10-20T10:14:38Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 35,
+        "started_at": "2026-10-20T10:14:38Z",
+        "completed_at": "2026-10-20T10:14:42Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/118555511333",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 1000003176,
+    "runner_name": "GitHub Actions 1000003176",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "raw_archive": "docs/work/active/vacation-campaign/evidence/ci-main20f-mac-core-timeout.log.gz",
+  "raw_sha256": "75138a5355fb52b1095bbfba6d8abac09a9ade61afa79bcf2ec98b87fcd9ff12",
+  "archive_sha256": "29b966657849616a51d87d1b59d19ab0acf95f9bc9741a900bec0829ccb86eca",
+  "diagnosis": "Functional steps ended10:13:36Z after44min; cache save of993892067bytes finished10:14:37Z. Job limit45mfrom09:29:36Z exceeded during finalization. This is diagnosed resource timeout, not passing main job or fixed source.",
+  "next": "One bounded exact-source MacCore job rerun, no test/protection/timeout changes. Retain original cancellation. If repeats select independently reviewed CI resource correction; do not retry blindly.",
+  "rerun_requested_at": "2026-10-20T10:59:26.659565+00:00",
+  "rerun_command": "gh run rerun39401033547 --job118555511333",
+  "rerun_request_exit": 0
+}

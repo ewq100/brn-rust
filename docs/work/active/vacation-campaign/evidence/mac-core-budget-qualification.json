@@ -1,0 +1,30 @@
+{
+  "observed_at": "2026-10-20T11:02:57.170751+00:00",
+  "source": "fe65b8ec7f1be643108bb25fbbb5033a67683a76",
+  "base": "be2de8af21f787b15afb821bbcd7d8fc26039ecf",
+  "changed_paths": [
+    ".github/workflows/ci.yml"
+  ],
+  "source_scope": "MacCore45to60minutes plus finalization comment; all steps and other platform limits unchanged",
+  "independent_review": "mac-core-budget-review.md: PASS no actionable findings; parsed structural equality after restoring one scalar",
+  "checks": [
+    {
+      "command": "Ruby standard YAML load and job timeout inspection",
+      "result": "PASS; documentation15,MacCore expression60/30,nativeUI60,retrieval60"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 import yaml",
+      "result": "UNAVAILABLE ModuleNotFoundError; no acquisition, used installed Ruby standard YAML instead"
+    }
+  ],
+  "limits": [
+    "No Rust or production behavior change; no new test",
+    "No hosted source qualification yet; PR182 must integrate first",
+    "MacCore maximal runner allowance+15min; still bounded60, not guaranteed to fit every future job",
+    "Original45m cancellation retained; retry does not qualify new60m source"
+  ]
+}

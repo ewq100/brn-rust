@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. PR182 reviewed/local checks passed and published; exact-head checks running. Export PR181 merged, remaining main checks running. Mac batch18:00Tallinn.
+**Owner attention:** No owner decision requested. PR182 required head checks passed; preceding main has diagnosed45m MacCore finalization timeout, one bounded exact-source retry pending. Other required main jobs passed. Native batch18:00Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,10 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Flush complete export folders before reporting success
 
-Owner: development lead; Luna implementation and independent Sol reviews completed · State: **active** · Last observed: 2026-10-20T09:30:16.780781+00:00
-Activity: PR181 normally merged20fcd738 after actual live protection/all4required exact-head checks and passing preceding main. Resulting-main checks pending.
-Next: Inspect four required resulting-main jobs; compare exact production tree to reviewed0f64a034 and saved native artifact before reuse.
-Resource waits: Hosted resulting-main20fcd738; independent bounded headless work may continue.
+Owner: development lead; Luna implementation and independent Sol reviews completed · State: **active** · Last observed: 2026-10-20T10:59:26.659565+00:00
+Activity: Main20f required MacCore job cancelled at45minute execution limit during finalization; all functional steps passed. Original logs/annotation retained; one exact-source MacCore-only rerun requested after diagnosis.
+Next: Inspect bounded MacCore rerun. Do not call original main pass or infer a source repair. If timeout repeats, select reviewed resource correction.
+Resource waits: Required MacCore main20f rerun; all other3required main jobs passed.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -23,20 +23,20 @@ Gates:
 
 - **implementation:** complete isolated0f64a034; app export source+README only
 - **checks:** PASS independent source/evidence reviews,6focused local tests,Clippy/fmt/nativebuild and all4required exact-head39392977994 checks; optional WindowsCore failed
-- **integration:** normally merged20fcd7383662cd2f67607c3ce04194aed50809b5; all4required head passed, resulting-main pending
+- **integration:** Normal merge20f; main3requiredPASS/MacCoreCANCELLED45m, bounded rerun pending
 - **native:** daily synthetic export journey separate; no power-loss qualification claim
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md), [docs/work/active/vacation-campaign/evidence/export-durability-review.md](active/vacation-campaign/evidence/export-durability-review.md), [docs/work/active/vacation-campaign/evidence/export-durability-qualification.json](active/vacation-campaign/evidence/export-durability-qualification.json), [docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json](active/vacation-campaign/evidence/followthrough-candidate-review.json), [https://github.com/ewq100/brn-rust/pull/181](https://github.com/ewq100/brn-rust/pull/181), [docs/work/active/vacation-campaign/evidence/pr181-integration.json](active/vacation-campaign/evidence/pr181-integration.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md](active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md), [docs/work/active/vacation-campaign/evidence/export-durability-review.md](active/vacation-campaign/evidence/export-durability-review.md), [docs/work/active/vacation-campaign/evidence/export-durability-qualification.json](active/vacation-campaign/evidence/export-durability-qualification.json), [docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json](active/vacation-campaign/evidence/followthrough-candidate-review.json), [https://github.com/ewq100/brn-rust/pull/181](https://github.com/ewq100/brn-rust/pull/181), [docs/work/active/vacation-campaign/evidence/pr181-integration.json](active/vacation-campaign/evidence/pr181-integration.json), [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json)
 
 </details>
 
 ### Exercise Confirm done and its exact Undo in the desktop journey
 
-Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T09:46:26.130844+00:00
-Activity: Published reviewed source/evidence as PR182 headbe2de8af; all required exact-head checks queued39403071180. Head frozen while checks run.
-Next: Inspect preceding main20f and all4required exact-head39403071180 jobs, then fresh live protection before normal merge; resulting-main separately.
-Resource waits: Required hosted exact-head and preceding-main checks.
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T10:59:26.659565+00:00
+Activity: PR182be2de8af passed all4required exact-head checks. Integration held for diagnosed preceding-main MacCore timeout; one bounded retry pending.
+Next: Require actual preceding-main MacCore recovery, fresh protection and unchanged exact PRhead before normal merge, then inspect resulting-main separately.
+Resource waits: Preceding-main MacCore retry after diagnosed resource timeout.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -44,8 +44,8 @@ Resource waits: Required hosted exact-head and preceding-main checks.
 Gates:
 
 - **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
-- **checks:** PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained
-- **integration:** OPEN PR182headbe2de8af; required checks queued, normal merge pending
+- **checks:** PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed
+- **integration:** OPEN PR182be2de8af, all4required headPASS; preceding-main timeout retry pending
 - **native:** toolkit checks are not OS interaction or owner acceptance
 - **owner acceptance:** not claimed
 
@@ -54,6 +54,32 @@ Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](
 Attempts:
 
 - Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
+
+</details>
+
+### Allow the complete Mac Core check to finish within a bounded job
+
+Owner: development lead; independent Sol review required · State: **active** · Last observed: 2026-10-20T11:02:57.170751+00:00
+Activity: Isolatedfe65b8ec MacCore45to60m/comment correction parsed and independently reviewed with no actionable findings. Every step/context and other platform limit retained; source not yet published.
+Next: After PR182 normal integration, reconcile source and compose CI resource candidate; publish stable next PR and require actual head/main gates.
+Resource waits: PR182 integration sequence; original-main bounded retry running.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
+- **checks:** PASS installed Ruby YAML parse,whitespace and independent complete workflow/diff review; no Rust rerun for unchanged source
+- **integration:** pending source-stable next PR after current PR182 sequence
+- **native:** inapplicable CI resource policy only
+- **owner acceptance:** not requested; existing in-scope maintenance authority
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json)
+
+Attempts:
+
+- Python YAML module unavailable in current interpreter.: Used installed Ruby standard YAML parser without adding dependencies; reviewer independently compared parsed base/candidate. ([docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json))
 
 </details>
 
@@ -122,7 +148,7 @@ Owner: development lead; Luna implementation and independent Sol reviews complet
 
 Waiting:
 
-- resource: Hosted resulting-main20fcd738; independent bounded headless work may continue.
+- resource: Required MacCore main20f rerun; all other3required main jobs passed.
 
 ### Exercise Confirm done and its exact Undo in the desktop journey
 
@@ -130,7 +156,15 @@ Owner: development lead; bounded Luna implementation and independent Sol high re
 
 Waiting:
 
-- resource: Required hosted exact-head and preceding-main checks.
+- resource: Preceding-main MacCore retry after diagnosed resource timeout.
+
+### Allow the complete Mac Core check to finish within a bounded job
+
+Owner: development lead; independent Sol review required
+
+Waiting:
+
+- resource: PR182 integration sequence; original-main bounded retry running.
 
 ## Completed
 
@@ -567,4 +601,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T09:48:47.861687+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T11:02:57.170751+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
