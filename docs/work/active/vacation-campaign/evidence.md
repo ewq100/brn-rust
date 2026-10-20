@@ -598,3 +598,7 @@ All four required checks on exact integrated63345a8e passed in [run39421007719](
 ## PR184 normal integration —20October
 
 [Fresh premerge receipt](evidence/pr184-premerge.json) retains live strict protection, all four exact-head19d and preceding-main633 required successes and independent review applicability. PR184 normally merged asd2e0e298; [integration receipt](evidence/pr184-integration.json) verifies its whole tree equals passinghead19d. Resulting-main run39427446132 is pending and independent from premerge proof. Actual Mac draft close/reopen and owner acceptance remain separate; no release. The local reviewed284 skill candidate remains a separate outcome/publication.
+
+## Separate skill-control PR185 publication —20October
+
+[Publication receipt](evidence/pr185-publication.json) binds head7fa60a3e to independently reviewed/qualified28474 product source and integrated parentd2e0e298. Only the reviewed skill source/test delta is additional product code. Local raw focused and transcript-backed broader proof remain distinguished. Required exact-head and parent resulting-main checks are pending; no merge, native or owner acceptance is claimed. Head remains stable while CI runs.
