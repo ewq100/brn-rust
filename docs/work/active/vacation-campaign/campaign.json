@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:29:04.658699+00:00",
+    "observed_at": "2026-10-20T13:34:38.974641+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -226,10 +226,10 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Current integratedd2 product matches final reviewed2b836 ordinary native artifact; separate reviewed28474 skill candidate has byte-verified0555 app/helpers. Source-bound receipts retained. No actual Save/reopen/backup/recovery/Apply/Undo or MAC10 pass inferred.",
-        "observed_at": "2026-10-20T13:12:38.674333+00:00",
+        "activity": "Integrated75a66a74 product matches final reviewed28474 skill-control source, including final2b836 draft recovery. Separate0555 app/helpers set is byte-verified and executable; current hostedmain gates remain pending. No actual Mac journey pass inferred.",
+        "observed_at": "2026-10-20T13:34:38.974641+00:00",
         "origin": "reported",
-        "next_action": "At18:00Tallinn reconcile actual main/gates and select one matching reviewed qualified immutable set (prefer integrated source); use synthetic MAC01/03/04/08/09/10 within bounded batch, defer excess cases explicitly.",
+        "next_action": "At18:00Tallinn reconcile actual main/gates and immutable source/artifact; prioritize MAC01 and new MAC10 saving/draft close-reopen, then MAC03/04/08/09 within30\u201345minutes and defer excess explicitly.",
         "depends_on": [],
         "resource_waits": [
           "Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch."
@@ -243,7 +243,7 @@
         ],
         "gates": {
           "implementation": "existing application; no new source fix selected",
-          "checks": "Source-bound2b836 build/rawqualification and28474 focusedraw/transcript-backed build preserved; select currentactualsource at native entry",
+          "checks": "Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change",
           "integration": "use reviewed integrated source",
           "native": "pending Save/reopen, backup and unsaved-recovery journeys",
           "owner_acceptance": "pending; native evidence does not imply owner acceptance"
@@ -1084,10 +1084,10 @@
         "title": "Show unavailable skill choices correctly in inactive Projects",
         "state": "active",
         "owner": "bounded Luna implementation; independent Sol review/lead integration",
-        "activity": "PR185 published stablehead7fa60a3e against integratedd2e0e298. Entire producttree matches reviewed/qualified28474; obsoleteCI wait pointers cleared. Its required hostedchecks and parent resulting-main gates running; local proof classes retained.",
-        "observed_at": "2026-10-20T13:10:14.230799+00:00",
+        "activity": "PR185 normally merged75a66a74 after fresh strict protection, all four required exact-head7fa and preceding-main d2 checks passed. Entire resulting tree equals passing head. Required resulting-main39431384966 checks pending; proof classes and optional failures retained.",
+        "observed_at": "2026-10-20T13:34:38.974641+00:00",
         "origin": "observed",
-        "next_action": "Keep PR185 head stable, inspect all4actualrequiredhead checks plus parentd2requiredmain checks and freshprotection before normalmerge; inspect its resultingmain separately afterward.",
+        "next_action": "Inspect all four actual required resulting-main75a66a74 checks; preserve optional failures and keep actual native qualification separate.",
         "depends_on": [
           {
             "task": "writing-draft-recovery",
@@ -1096,7 +1096,7 @@
           }
         ],
         "resource_waits": [
-          "PR185 required exact-head checks and parentd2e0e298 resulting-main checks."
+          "Required resulting-main75a66a74 checks."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md",
@@ -1109,12 +1109,15 @@
           "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json",
           "docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md",
           "docs/work/active/vacation-campaign/evidence/pr185-publication.json",
-          "https://github.com/ewq100/brn-rust/pull/185"
+          "https://github.com/ewq100/brn-rust/pull/185",
+          "docs/work/active/vacation-campaign/evidence/pr185-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr185-integration.json",
+          "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
         ],
         "gates": {
           "implementation": "complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change",
           "checks": "PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.",
-          "integration": "PublishedPR185head7fa60a3e;4requiredexacthead and parentmain39427446132 pending before normalmerge",
+          "integration": "Normal merge75a66a74 verified; all4required exact-head and preceding-main checks PASS; resulting-main39431384966 pending",
           "native": "Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -1169,7 +1172,7 @@
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Draft repair PR184 merged with all four required main checks passed. Skill-control PR185 remains reviewed/locally checked, required exact-head checks running. Mac batch18:00Tallinn separate."
+    "owner_attention": "No owner decision requested. CI correction PR183 and draft repair PR184 merged with all four required main checks passed. Skill-control PR185 normally merged75a66a74; required main39431384966 pending. Actual Mac18:00Tallinn batch separate."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1179,22 +1182,16 @@
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
     "last_refresh_at": "2026-10-20T13:11:48.202Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-merged-pr185-published-update.json"
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr184-merged-pr185-published-update.json",
+    "latest_update_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:29:04.658699+00:00",
-    "runtime_capacity": "4 total slots; lead active, all helper turns completed",
+    "observed_at": "2026-10-20T13:34:38.974641+00:00",
+    "runtime_capacity": "4 total slots; lead only, all bounded helper turns completed",
     "build_slot": "free; no source writer/build/native/account actor",
     "desktop_account_actor": "none; consolidated18Tallinn batch pending",
-    "read_only_ci_watches": [
-      {
-        "run": 39427727099,
-        "kind": "PR185exacthead7fa60a3e",
-        "exec_session_id": 57863,
-        "output": "/tmp/brn-watch-pr185.log"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR185head7fa60a3e stable; progressrecords local only while hostedgates pending"
+    "integration": "PR185 normally merged75a66a74; required resulting-main39431384966 pending, no additional product task selected"
   }
 }

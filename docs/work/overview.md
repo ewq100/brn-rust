@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Draft repair PR184 merged with all four required main checks passed. Skill-control PR185 remains reviewed/locally checked, required exact-head checks running. Mac batch18:00Tallinn separate.
+**Owner attention:** No owner decision requested. CI correction PR183 and draft repair PR184 merged with all four required main checks passed. Skill-control PR185 normally merged75a66a74; required main39431384966 pending. Actual Mac18:00Tallinn batch separate.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,11 +11,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Show unavailable skill choices correctly in inactive Projects
 
-Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:10:14.230799+00:00
-Activity: PR185 published stablehead7fa60a3e against integratedd2e0e298. Entire producttree matches reviewed/qualified28474; obsoleteCI wait pointers cleared. Its required hostedchecks and parent resulting-main gates running; local proof classes retained.
-Next: Keep PR185 head stable, inspect all4actualrequiredhead checks plus parentd2requiredmain checks and freshprotection before normalmerge; inspect its resultingmain separately afterward.
+Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:34:38.974641+00:00
+Activity: PR185 normally merged75a66a74 after fresh strict protection, all four required exact-head7fa and preceding-main d2 checks passed. Entire resulting tree equals passing head. Required resulting-main39431384966 checks pending; proof classes and optional failures retained.
+Next: Inspect all four actual required resulting-main75a66a74 checks; preserve optional failures and keep actual native qualification separate.
 Depends on: writing-draft-recovery when PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (reported satisfied: true)
-Resource waits: PR185 required exact-head checks and parentd2e0e298 resulting-main checks.
+Resource waits: Required resulting-main75a66a74 checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -24,11 +24,11 @@ Gates:
 
 - **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
 - **checks:** PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.
-- **integration:** PublishedPR185head7fa60a3e;4requiredexacthead and parentmain39427446132 pending before normalmerge
+- **integration:** Normal merge75a66a74 verified; all4required exact-head and preceding-main checks PASS; resulting-main39431384966 pending
 - **native:** Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md](active/vacation-campaign/evidence/inactive-skill-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr185-publication.json](active/vacation-campaign/evidence/pr185-publication.json), [https://github.com/ewq100/brn-rust/pull/185](https://github.com/ewq100/brn-rust/pull/185)
+Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md](active/vacation-campaign/evidence/inactive-skill-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr185-publication.json](active/vacation-campaign/evidence/pr185-publication.json), [https://github.com/ewq100/brn-rust/pull/185](https://github.com/ewq100/brn-rust/pull/185), [docs/work/active/vacation-campaign/evidence/pr185-premerge.json](active/vacation-campaign/evidence/pr185-premerge.json), [docs/work/active/vacation-campaign/evidence/pr185-integration.json](active/vacation-campaign/evidence/pr185-integration.json), [docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json](active/vacation-campaign/evidence/remote-pr185-merged-update.json)
 
 Attempts:
 
@@ -46,9 +46,9 @@ None recorded.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T13:12:38.674333+00:00
-Activity: Current integratedd2 product matches final reviewed2b836 ordinary native artifact; separate reviewed28474 skill candidate has byte-verified0555 app/helpers. Source-bound receipts retained. No actual Save/reopen/backup/recovery/Apply/Undo or MAC10 pass inferred.
-Next: At18:00Tallinn reconcile actual main/gates and select one matching reviewed qualified immutable set (prefer integrated source); use synthetic MAC01/03/04/08/09/10 within bounded batch, defer excess cases explicitly.
+Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T13:34:38.974641+00:00
+Activity: Integrated75a66a74 product matches final reviewed28474 skill-control source, including final2b836 draft recovery. Separate0555 app/helpers set is byte-verified and executable; current hostedmain gates remain pending. No actual Mac journey pass inferred.
+Next: At18:00Tallinn reconcile actual main/gates and immutable source/artifact; prioritize MAC01 and new MAC10 saving/draft close-reopen, then MAC03/04/08/09 within30–45minutes and defer excess explicitly.
 Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
 
 <details>
@@ -57,7 +57,7 @@ Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main 
 Gates:
 
 - **implementation:** existing application; no new source fix selected
-- **checks:** Source-bound2b836 build/rawqualification and28474 focusedraw/transcript-backed build preserved; select currentactualsource at native entry
+- **checks:** Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change
 - **integration:** use reviewed integrated source
 - **native:** pending Save/reopen, backup and unsaved-recovery journeys
 - **owner acceptance:** pending; native evidence does not imply owner acceptance
@@ -103,7 +103,7 @@ Owner: bounded Luna implementation; independent Sol review/lead integration
 
 Waiting:
 
-- resource: PR185 required exact-head checks and parentd2e0e298 resulting-main checks.
+- resource: Required resulting-main75a66a74 checks.
 
 ## Completed
 
@@ -793,4 +793,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:29:04.658699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:34:38.974641+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
