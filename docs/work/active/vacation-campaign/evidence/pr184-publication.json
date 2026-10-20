@@ -1,0 +1,93 @@
+{
+  "observed_at": "2026-10-20T12:36:02.922793+00:00",
+  "pr": {
+    "baseRefOid": "63345a8ea55021009a636106b4249efb7fa966f4",
+    "headRefOid": "19d592c69223aa1f106e4c0f379dab868f13542b",
+    "isDraft": false,
+    "number": 184,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T12:35:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829466",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T12:35:19Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829987",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T12:35:20Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629830016",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T12:35:20Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829789",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T12:35:25Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829751",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T12:35:20Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829998",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T12:35:26Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39423419810/job/118629829790",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T12:35:24Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "url": "https://github.com/ewq100/brn-rust/pull/184"
+  },
+  "independent_review": [
+    "writing-draft-recovery-review-690.md",
+    "writing-draft-recovery-review-574.md",
+    "writing-draft-recovery-review-2b836.md",
+    "writing-draft-composition-review.md"
+  ],
+  "qualified_source": "2b8361480261eda65818b90cb50508c047a62031",
+  "production_comparison": "emptygitdiff qualified2b836 to published19d592c6 for crates/agent/Cargo/toolchain/tools",
+  "qualification": "writing-draft-recovery-2b836-qualification.json",
+  "gates": "published; exact-head hosted/native/owner pending; no merge claim"
+}

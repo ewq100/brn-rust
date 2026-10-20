@@ -1,0 +1,29 @@
+{
+  "observed_at": "2026-10-20T12:58:45.812028+00:00",
+  "candidate": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+  "original_manifest": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7/artifact-manifest.json",
+  "original_manifest_sha256": "b3cda778f0f40e4239de78bbba0faddb35dcb590b4616378fe0f07a760be1b2e",
+  "new_manifest": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/artifact-manifest.json",
+  "new_manifest_sha256": "2491fec99f095dcc6820e493b3cd1222f9f9eb9923f16f1576a6a397040ba8ee",
+  "copies": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-desktop",
+      "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d",
+      "mode": "0o555",
+      "executable_access": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "mode": "0o555",
+      "executable_access": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "mode": "0o555",
+      "executable_access": true
+    }
+  ],
+  "limits": "Bytes and execute permissions checked; not launched/native-observed/owner accepted. Original0444copies preserved unchanged."
+}

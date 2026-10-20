@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-20T12:40:21.939218+00:00",
+  "job": 118621632682,
+  "run": 39421007719,
+  "source": "63345a8ea55021009a636106b4249efb7fa966f4",
+  "raw_log": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/main633-mac-ui.log.gz",
+  "raw_sha256": "42ecfc62604795219ea767021c82ec3212b3c787bbb50e85fc343abf2fa66e77",
+  "compressed_sha256": "b497b36516bc9ca050ccc69790be274b7c28f130463c287ec0da25f16ce295a5",
+  "matches": [
+    "2026-10-20T12:16:51.5218920Z   save-if: true",
+    "2026-10-20T12:16:52.5663420Z Cache hit for: v0-rust-macOS-ARM64-native-ui-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-ui-Darwin-arm64-4b070e83-e97b446b",
+    "2026-10-20T12:17:31.0290220Z Cache restored successfully",
+    "2026-10-20T12:28:55.8112750Z Cache up-to-date."
+  ],
+  "prior_attempt": "gh refused terminal escape sequences even with captured stdout; --help verified --allow-escape-sequences. Corrected read captures bytes to gzip and strips ANSI before selected output; no raw terminal sequence emitted.",
+  "limits": "One actual completed Mac UI main job; not aggregate latency comparison or whole-run completion."
+}

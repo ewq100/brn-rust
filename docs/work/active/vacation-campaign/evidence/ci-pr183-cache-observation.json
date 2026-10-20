@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-10-20T12:41:07.169858+00:00",
+  "source": "1e6abb60fa4a94c6367fa1e983db379c4ef5bcd4",
+  "run": 39417554677,
+  "job": 118610163332,
+  "raw_log": "docs/work/active/vacation-campaign/evidence/ci-cache-raw/pr183-mac-core.log.gz",
+  "raw_sha256": "ffa3c00e54c68c1fa7767bea1ffe3cd1bf450aebea3b063aba5495b44605b5a8",
+  "compressed_sha256": "efb4ef64fe161452f798ae06fa3fd6f8acc50ac56f3f73639e612b60c88f40f1",
+  "matches": [
+    "2026-10-20T11:48:31.4416410Z   save-if: false",
+    "2026-10-20T11:48:32.8680060Z Cache hit for: v0-rust-macOS-ARM64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Darwin-arm64-4b070e83-e97b446b",
+    "2026-10-20T11:48:58.7408010Z Cache restored successfully"
+  ],
+  "limits": "Completed PR183 MacCore log confirms actual save-if input; no actual cache-write claim inferred without explicit log. No latency benchmark."
+}

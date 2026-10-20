@@ -18,6 +18,8 @@ bash scripts/verify-end-to-end.sh --retirement-only
 
 Choose a fresh absolute disposable output parent outside Git, already present and without symlink components. Supported storage, end-to-end and desktop-shell gates create one exclusive child containing an atomic `record.json` and combined `output.log`. Identity includes commit/tree or dirty-content snapshot, exact gate/features, start/end UTC, terminal state and exit code. Preserve retained evidence and avoid editing relevant paths during a gate.
 
+For direct focused commands, retain command/environment, source identity, exit status and output during execution too. Reconstructed transcript excerpts must disclose missing/truncated output and retrospective source bindings; they are not original raw logs.
+
 Passed, failed, interrupted and running are distinct. SIGINT/SIGTERM are forwarded to the gate group. An uncatchable kill can leave running, which is incomplete. `checkout_changed=true` invalidates the initial identity as proof for the final tree. Use synthetic inputs; keep private/provider payloads out of these logs.
 
 Reuse a result only with an explicit unchanged relevant-path/environment comparison and label it reused. Documentation-only changes need documentation checks; relevant code/manifests/features or unresolved failures require fresh checks. Evidence records do not decide relevance themselves.
@@ -66,5 +68,7 @@ cargo run -p brn-ai --features capability-spike --example provider-capabilities 
 Synthetic envelope/count/wire-order observations do not qualify live discovery or model availability. Real discovery returns processed model options; raw provider transport observation requires a separately scoped interface. Live examples follow the current assignment's provider authority.
 
 `scripts/qualification/threads-runtime/live-journeys.py` remains the current bounded runtime journey harness. The retired standalone Rig comparison remains at its fixed baseline and in [historical results](../archive/threads-rebuild/rig-decoder-comparison.md).
+
+For a native qualification artifact, preserve the source-bound original and copy the app plus its matching helpers. Read-only executable copies retain execute permission (for example0555); verify both hashes and executable access before marking the set ready to launch. A matching hash with0444 permissions is a retained file, not a runnable executable.
 
 Local app packaging/launcher helpers remain maintained; packaging is separate from signing/release. [Size reporting](size-report.md) measures explicitly supplied paths, not installed-size savings from source cleanup.
