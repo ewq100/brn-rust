@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T22:32:57.463793+00:00",
+    "observed_at": "2026-10-20T22:45:43.723930+00:00",
     "remaining_percent": 76,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual24%used/76%remaining ordinaryUsageAllowedtrue; no new account tests",
+    "ordinary_work": "capacity available: actual24%used/76%remaining ordinaryUsageAllowedtrue. No current eligible source correction selected after bounded audits; actual native access remains blocker. No new account tests.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T22:30:31.296513+00:00",
+    "observed_at": "2026-10-20T22:45:30.567515+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -382,7 +382,7 @@
         "activity": "Fresh two-group offline fixture and combined reviewed/local-qualified97e0d313 app prepared without launch. At18:00-period access recheck CUA again reports locked/automatic unlock unavailable; no group attempt or pass.",
         "observed_at": "2026-10-20T15:04:21.531870+00:00",
         "origin": "observed",
-        "next_action": "After unlock, use one consolidated matching97e0d313 source batch for MAC08 plus Notes/menu AX follow-up; earlier9b wrappers preserved unused. Do not repeat passing Save/recovery/backup/Apply-Undo.",
+        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
         "depends_on": [
           {
             "task": "review-group-fixture",
@@ -1183,7 +1183,7 @@
         "activity": "PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.",
         "observed_at": "2026-10-20T15:43:21.587928+00:00",
         "origin": "observed",
-        "next_action": "After changed Mac access, close prior verified-undone review app and execute source-identical integrated-main Notes/menu/group batch. No unchanged test/build replay.",
+        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
         "depends_on": [],
         "resource_waits": [
           "Actual corrected Notes controls require Mac unlock; existing manual unlock request pending."
@@ -1260,7 +1260,7 @@
         "activity": "PR187 merged4c50b614 and all4required resulting-main39450843453 checks PASS. Integrated tree matches qualified97e0d313. Actual corrected menu/Notes controls remain blocked by Mac lock.",
         "observed_at": "2026-10-20T16:21:40.307021+00:00",
         "origin": "observed",
-        "next_action": "After changed Mac access close prior undone test app, then execute matching prepared97 Notes/menu/group controls in one batch; no duplicate build/check replay.",
+        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
         "depends_on": [
           {
             "task": "note-list-accessibility",
@@ -1827,12 +1827,12 @@
       {
         "id": "launcher-focus-return-witness",
         "title": "Check typing returns to the chat after quick search closes",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna test author; lead qualification/integration; independent Sol review",
-        "activity": "PR193 normally merged9e2a81c0 with complete qualified-tree equivalence. Actual resulting-main39507624699 Mac UI required jobPASS; other3required stillrunning. No extra source change selected by completed audits.",
-        "observed_at": "2026-10-20T22:30:31.296513+00:00",
+        "activity": "PR193 normally merged9e2a81c0 with complete qualified-tree equivalence; all4required exact-head, preceding-main and resulting-main39507624699 checks PASS. Existing focus journey now catches omitted return-focus adapter without adding test cases or changing app behavior.",
+        "observed_at": "2026-10-20T22:45:30.567515+00:00",
         "origin": "observed",
-        "next_action": "Remain at actual resulting-main gate; inspect all4required completed results before marking complete, keep optional Windows failures visible.",
+        "next_action": "Complete. Reuse reviewed integrated witness and meaningful negative-control proof; actual OS focus remains separate. No duplicate build/test or speculative source task selected.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1845,12 +1845,13 @@
           "https://github.com/ewq100/brn-rust/pull/193",
           "docs/work/active/vacation-campaign/evidence/pr193-premerge.json",
           "docs/work/active/vacation-campaign/evidence/pr193-integration.json",
-          "docs/work/active/vacation-campaign/evidence/pr193-main-observation.json"
+          "docs/work/active/vacation-campaign/evidence/pr193-main-observation.json",
+          "docs/work/active/vacation-campaign/evidence/pr193-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete8912801c test-only existing journey extension",
           "checks": "PASS independent review, normal1/0, deliberate mutation0/1 caughtnewassertion, restored dialog10/0, strict alltargetlint/fmt/whitespace",
-          "integration": "PASS normal merge9e2a81c0 and entire-tree equality; resulting-main39507624699 four required pending",
+          "integration": "PASS normal merge9e2a81c0, complete qualified-tree equality, all4required resulting-main39507624699 checks",
           "native": "toolkit focus witness only; actual OS focus remains separate, no desktop/account action",
           "owner_acceptance": "not claimed"
         },
@@ -2010,21 +2011,15 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-mac-ci-body-timing-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T22:30:01.375510+00:00",
-    "runtime_capacity": "4total slots; only lead active, bounded audits complete",
-    "build_slot": "free; no local cargo/rustc process observed",
+    "observed_at": "2026-10-20T22:45:30.567515+00:00",
+    "runtime_capacity": "4total slots, only lead active; all requested helper tasks complete",
+    "build_slot": "free; no local build since restored focus qualification",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
-    "read_only_ci_watches": [
-      {
-        "run": 39507624699,
-        "session": 41755,
-        "purpose": "required resulting-main193 watch"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR193 normally merged9e2a81c0, exacttree21941d15 equals qualified891; resulting-main39507624699 pending",
-    "wait_reason": "Required resulting-main193 still running; no further source correction justified by completed audits; actual native controls await changed Mac access.",
-    "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
+    "integration": "PR193 normal merge9e2a81c0, full qualified-tree equality, all4required exact-head/preceding-main/resulting-main PASS; optional Windows failures retained",
+    "wait_reason": "No eligible source correction selected after completed audits. Three native scenarios await changed Mac access; deferred image/artifact expansion remains separately scoped. No active source writer/build/account/CI watch.",
+    "resumption": "Reconcile actual allowance/Git/open PRs/resources and task receipts on recovery. Continue useful authorized work if new evidence creates an eligible bounded outcome; native actor requires changed access and current source/artifact reconciliation.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",
     "fixture_worker_checkout": "clean e1b mac-test-roots preserved: managed archive refused pinned protection; no owner unblock needed",

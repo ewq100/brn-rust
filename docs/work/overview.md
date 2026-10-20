@@ -9,30 +9,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Check typing returns to the chat after quick search closes
-
-Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T22:30:31.296513+00:00
-Activity: PR193 normally merged9e2a81c0 with complete qualified-tree equivalence. Actual resulting-main39507624699 Mac UI required jobPASS; other3required stillrunning. No extra source change selected by completed audits.
-Next: Remain at actual resulting-main gate; inspect all4required completed results before marking complete, keep optional Windows failures visible.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete8912801c test-only existing journey extension
-- **checks:** PASS independent review, normal1/0, deliberate mutation0/1 caughtnewassertion, restored dialog10/0, strict alltargetlint/fmt/whitespace
-- **integration:** PASS normal merge9e2a81c0 and entire-tree equality; resulting-main39507624699 four required pending
-- **native:** toolkit focus witness only; actual OS focus remains separate, no desktop/account action
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md), [crates/brn-desktop/src/threads_dialogs_tests.rs](../../crates/brn-desktop/src/threads_dialogs_tests.rs), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md](active/vacation-campaign/evidence/launcher-focus-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json](active/vacation-campaign/evidence/launcher-focus-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz](active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/193](https://github.com/ewq100/brn-rust/pull/193), [docs/work/active/vacation-campaign/evidence/pr193-premerge.json](active/vacation-campaign/evidence/pr193-premerge.json), [docs/work/active/vacation-campaign/evidence/pr193-integration.json](active/vacation-campaign/evidence/pr193-integration.json), [docs/work/active/vacation-campaign/evidence/pr193-main-observation.json](active/vacation-campaign/evidence/pr193-main-observation.json)
-
-Attempts:
-
-- Temporary production mutation omitted only close_launcher visible-content focus adapter. Test compiled/executed and failed at new composer focus assertion,exit101; mutationunused-window warning retained.: EXIT trap restored exact production source before final normal checks. This is deliberate negative control, not an original production defect. ([docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md))
-
-</details>
+None recorded.
 
 ## Next
 
@@ -44,7 +21,7 @@ None recorded.
 
 Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T15:04:21.531870+00:00
 Activity: Fresh two-group offline fixture and combined reviewed/local-qualified97e0d313 app prepared without launch. At18:00-period access recheck CUA again reports locked/automatic unlock unavailable; no group attempt or pass.
-Next: After unlock, use one consolidated matching97e0d313 source batch for MAC08 plus Notes/menu AX follow-up; earlier9b wrappers preserved unused. Do not repeat passing Save/recovery/backup/Apply-Undo.
+Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
 Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
 Resource waits: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
 
@@ -71,7 +48,7 @@ Waiting:
 
 Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **blocked** · Last observed: 2026-10-20T15:43:21.587928+00:00
 Activity: PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.
-Next: After changed Mac access, close prior verified-undone review app and execute source-identical integrated-main Notes/menu/group batch. No unchanged test/build replay.
+Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
 Resource waits: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
 
 <details>
@@ -102,7 +79,7 @@ Waiting:
 
 Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **blocked** · Last observed: 2026-10-20T16:21:40.307021+00:00
 Activity: PR187 merged4c50b614 and all4required resulting-main39450843453 checks PASS. Integrated tree matches qualified97e0d313. Actual corrected menu/Notes controls remain blocked by Mac lock.
-Next: After changed Mac access close prior undone test app, then execute matching prepared97 Notes/menu/group controls in one batch; no duplicate build/check replay.
+Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
 Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
 Resource waits: Mac remains locked; existing manual unlock request pending.
 
@@ -1189,6 +1166,31 @@ Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-camp
 
 </details>
 
+### Check typing returns to the chat after quick search closes
+
+Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **complete** · Last observed: 2026-10-20T22:45:30.567515+00:00
+Activity: PR193 normally merged9e2a81c0 with complete qualified-tree equivalence; all4required exact-head, preceding-main and resulting-main39507624699 checks PASS. Existing focus journey now catches omitted return-focus adapter without adding test cases or changing app behavior.
+Next: Complete. Reuse reviewed integrated witness and meaningful negative-control proof; actual OS focus remains separate. No duplicate build/test or speculative source task selected.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete8912801c test-only existing journey extension
+- **checks:** PASS independent review, normal1/0, deliberate mutation0/1 caughtnewassertion, restored dialog10/0, strict alltargetlint/fmt/whitespace
+- **integration:** PASS normal merge9e2a81c0, complete qualified-tree equality, all4required resulting-main39507624699 checks
+- **native:** toolkit focus witness only; actual OS focus remains separate, no desktop/account action
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md), [crates/brn-desktop/src/threads_dialogs_tests.rs](../../crates/brn-desktop/src/threads_dialogs_tests.rs), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md](active/vacation-campaign/evidence/launcher-focus-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json](active/vacation-campaign/evidence/launcher-focus-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz](active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/193](https://github.com/ewq100/brn-rust/pull/193), [docs/work/active/vacation-campaign/evidence/pr193-premerge.json](active/vacation-campaign/evidence/pr193-premerge.json), [docs/work/active/vacation-campaign/evidence/pr193-integration.json](active/vacation-campaign/evidence/pr193-integration.json), [docs/work/active/vacation-campaign/evidence/pr193-main-observation.json](active/vacation-campaign/evidence/pr193-main-observation.json), [docs/work/active/vacation-campaign/evidence/pr193-resulting-main.json](active/vacation-campaign/evidence/pr193-resulting-main.json)
+
+Attempts:
+
+- Temporary production mutation omitted only close_launcher visible-content focus adapter. Test compiled/executed and failed at new composer focus assertion,exit101; mutationunused-window warning retained.: EXIT trap restored exact production source before final normal checks. This is deliberate negative control, not an original production defect. ([docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md))
+
+</details>
+
 ### Check why the latest Mac build time varies
 
 Owner: bounded Luna read-only CI observation; lead disposition · State: **complete** · Last observed: 2026-10-20T22:24:24.403269+00:00
@@ -1309,4 +1311,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:30:31.296513+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:45:30.567515+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
