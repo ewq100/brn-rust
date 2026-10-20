@@ -234,6 +234,166 @@
         "status": "in_progress"
       },
       "pause": "Required hosted head/main gates are pending. Selected independent source work/review/evidence/native-build preparation complete. Actual Mac scenarios belong to daily18:00batch. Existing recovery heartbeat remains active; no capacity stop or campaign completion."
+    },
+    {
+      "observed_at": "2026-10-20T09:29:16.315427+00:00",
+      "live_protection": {
+        "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection",
+        "required_status_checks": {
+          "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks",
+          "strict": true,
+          "contexts": [
+            "Core and CLI (ubuntu-24.04)",
+            "Core and CLI (macos-15)",
+            "Native UI build and state (macos-15)",
+            "Native retrieval and combined build (macos-15)"
+          ],
+          "contexts_url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks/contexts",
+          "checks": [
+            {
+              "context": "Core and CLI (ubuntu-24.04)",
+              "app_id": 15368
+            },
+            {
+              "context": "Core and CLI (macos-15)",
+              "app_id": 15368
+            },
+            {
+              "context": "Native UI build and state (macos-15)",
+              "app_id": 15368
+            },
+            {
+              "context": "Native retrieval and combined build (macos-15)",
+              "app_id": 15368
+            }
+          ]
+        },
+        "required_signatures": {
+          "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_signatures",
+          "enabled": false
+        },
+        "enforce_admins": {
+          "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/enforce_admins",
+          "enabled": true
+        },
+        "required_linear_history": {
+          "enabled": false
+        },
+        "allow_force_pushes": {
+          "enabled": false
+        },
+        "allow_deletions": {
+          "enabled": false
+        },
+        "block_creations": {
+          "enabled": false
+        },
+        "required_conversation_resolution": {
+          "enabled": false
+        },
+        "lock_branch": {
+          "enabled": false
+        },
+        "allow_fork_syncing": {
+          "enabled": false
+        }
+      },
+      "pr": {
+        "baseRefOid": "02445b283d85ac09d24f7ee7f111039a87b4dbb5",
+        "headRefOid": "7225c20877edcb5c4dd20d50d530095682d10c40",
+        "mergeStateStatus": "UNSTABLE",
+        "state": "OPEN",
+        "statusCheckRollup": [
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:23:22Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722258",
+            "name": "Documentation and tooling",
+            "startedAt": "2026-10-20T08:22:56Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:47:16Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722450",
+            "name": "Core and CLI (ubuntu-24.04)",
+            "startedAt": "2026-10-20T08:22:56Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:24:44Z",
+            "conclusion": "FAILURE",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722288",
+            "name": "Core and CLI (windows-2025)",
+            "startedAt": "2026-10-20T08:22:56Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:45:30Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722371",
+            "name": "Core and CLI (macos-15)",
+            "startedAt": "2026-10-20T08:23:00Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:31:08Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722254",
+            "name": "Native UI build and state (ubuntu-24.04)",
+            "startedAt": "2026-10-20T08:22:55Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T09:09:41Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722472",
+            "name": "Native UI build and state (macos-15)",
+            "startedAt": "2026-10-20T08:35:48Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          },
+          {
+            "__typename": "CheckRun",
+            "completedAt": "2026-10-20T08:37:06Z",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39392977994/job/118528722163",
+            "name": "Native retrieval and combined build (macos-15)",
+            "startedAt": "2026-10-20T08:23:01Z",
+            "status": "COMPLETED",
+            "workflowName": "BRN CI"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/pull/181"
+      },
+      "required_head": "PASS all required contexts",
+      "preceding_main": "02445b28 all four required39392850688 PASS; optional Windows failures retained",
+      "qualified_product_tree": "Exact reviewed0f64a034 equals published7225c208 in crates/agent/manifests/toolchain",
+      "normal_merge_authorized": true
+    },
+    {
+      "observed_at": "2026-10-20T09:30:16.780781+00:00",
+      "normal_merge": {
+        "headRefOid": "7225c20877edcb5c4dd20d50d530095682d10c40",
+        "mergeCommit": {
+          "oid": "20fcd7383662cd2f67607c3ce04194aed50809b5"
+        },
+        "mergedAt": "2026-10-20T09:29:21Z",
+        "state": "MERGED",
+        "url": "https://github.com/ewq100/brn-rust/pull/181"
+      },
+      "resulting_main": "20fcd738 pending actual required checks; no bypass"
     }
   ]
 }
