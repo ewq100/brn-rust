@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T21:59:43.953833+00:00",
+    "observed_at": "2026-10-20T22:13:05.440722+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1756,12 +1756,12 @@
       {
         "id": "architecture-status-routing",
         "title": "Keep architecture requirements separate from dated progress",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna read-only audit; lead documentation integration",
-        "activity": "PR192 normally merged2658f888 after all4required exact-head and all4preceding-main191 jobs plus fresh strict/admin protection PASS. Full merged tree equals reviewed/local-qualified0cc1. Required resulting-main39502704935 pending.",
-        "observed_at": "2026-10-20T21:44:45.956898+00:00",
+        "activity": "PR192 normally merged2658f888; exact full-tree equivalence and all four required resulting-main39502704935 jobs now PASS. Stale architecture pending claims replaced with concise current-work route while selected meaning/history/fidelity limits remain.",
+        "observed_at": "2026-10-20T22:13:05.440722+00:00",
         "origin": "observed",
-        "next_action": "Inspect four actual required resulting-main39502704935 jobs; retain optional failures separately, then complete current documentation outcome.",
+        "next_action": "Complete. Current work stays in campaign/overview; dated qualification handoffs remain supporting history. Protected completed worker retained without repeated archive attempt.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1775,12 +1775,13 @@
           "docs/work/active/vacation-campaign/evidence/architecture-status-qualification.json",
           "https://github.com/ewq100/brn-rust/pull/192",
           "docs/work/active/vacation-campaign/evidence/pr192-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr192-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr192-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr192-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete f409a029 one-file correction",
           "checks": "PASS independent complete-file review, exact SHAtransfer, docs625/2969links, overview/whitespace and all4required head192/preceding-main191",
-          "integration": "normal merge2658f888/full-tree equality PASS; required resulting-main39502704935 pending",
+          "integration": "PASS normal merge2658/full-tree equality/all four required resulting-main jobs",
           "native": "inapplicable to documentation routing",
           "owner_acceptance": "not claimed"
         },
@@ -1911,7 +1912,7 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-progress-organization.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T21:59:43.953833+00:00",
+    "observed_at": "2026-10-20T22:13:05.440722+00:00",
     "runtime_capacity": "4total slots; lead active; bounded Luna authors/research and Sol reviews complete",
     "build_slot": "free; final UI job41112 completedexit0, source restored clean891 and testharness pinned; no local build/actor",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
@@ -1928,12 +1929,12 @@
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR190/191 complete allrequired main; PR192 merged2658 allMacrequired PASS, Ubuntu core pending; PR193 stable891 requiredhead pending",
+    "integration": "PR190/191/192 allrequired head/main PASS; PR193 stable891 requiredhead Core Mac/Ubuntu pending, both Macinterfacejobs PASS",
     "wait_reason": "PR190 resulting-main and PR191 required head checks running; independent image-retention source study active; three actual Mac controls remain blocked.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",
     "fixture_worker_checkout": "clean e1b mac-test-roots preserved: managed archive refused pinned protection; no owner unblock needed",
-    "documentation_worker_checkout": "architecture-status-route clean0cc1 frozen merged candidate; keep until required main verification"
+    "documentation_worker_checkout": "architecture-status-route clean0cc1 completed after allrequired main192 PASS; retain under current pinned-task protection without repeated archive attempts"
   }
 }

@@ -9,31 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Keep architecture requirements separate from dated progress
-
-Owner: bounded Luna read-only audit; lead documentation integration · State: **active** · Last observed: 2026-10-20T21:44:45.956898+00:00
-Activity: PR192 normally merged2658f888 after all4required exact-head and all4preceding-main191 jobs plus fresh strict/admin protection PASS. Full merged tree equals reviewed/local-qualified0cc1. Required resulting-main39502704935 pending.
-Next: Inspect four actual required resulting-main39502704935 jobs; retain optional failures separately, then complete current documentation outcome.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete f409a029 one-file correction
-- **checks:** PASS independent complete-file review, exact SHAtransfer, docs625/2969links, overview/whitespace and all4required head192/preceding-main191
-- **integration:** normal merge2658f888/full-tree equality PASS; required resulting-main39502704935 pending
-- **native:** inapplicable to documentation routing
-- **owner acceptance:** not claimed
-
-Evidence: [docs/architecture/threads-target.md](../architecture/threads-target.md), [docs/architecture/overview.md](../architecture/overview.md), [docs/status.md](../status.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-implementation.md](active/vacation-campaign/evidence/architecture-status-implementation.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/architecture-status-review.md](active/vacation-campaign/evidence/architecture-status-review.md), [docs/work/active/vacation-campaign/evidence/architecture-status-qualification.json](active/vacation-campaign/evidence/architecture-status-qualification.json), [https://github.com/ewq100/brn-rust/pull/192](https://github.com/ewq100/brn-rust/pull/192), [docs/work/active/vacation-campaign/evidence/pr192-premerge.json](active/vacation-campaign/evidence/pr192-premerge.json), [docs/work/active/vacation-campaign/evidence/pr192-integration.json](active/vacation-campaign/evidence/pr192-integration.json)
-
-Attempts:
-
-- First whole docs check: one missing relative link in copied audit report; product-contract file links were valid.: Corrected imported report link relative to evidence directory, original compressed preserved. Final docs check651files/3162links0failures. ([docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz))
-
-</details>
-
 ### Check typing returns to the chat after quick search closes
 
 Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T21:59:43.953833+00:00
@@ -1168,6 +1143,31 @@ Attempts:
 
 </details>
 
+### Keep architecture requirements separate from dated progress
+
+Owner: bounded Luna read-only audit; lead documentation integration · State: **complete** · Last observed: 2026-10-20T22:13:05.440722+00:00
+Activity: PR192 normally merged2658f888; exact full-tree equivalence and all four required resulting-main39502704935 jobs now PASS. Stale architecture pending claims replaced with concise current-work route while selected meaning/history/fidelity limits remain.
+Next: Complete. Current work stays in campaign/overview; dated qualification handoffs remain supporting history. Protected completed worker retained without repeated archive attempt.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete f409a029 one-file correction
+- **checks:** PASS independent complete-file review, exact SHAtransfer, docs625/2969links, overview/whitespace and all4required head192/preceding-main191
+- **integration:** PASS normal merge2658/full-tree equality/all four required resulting-main jobs
+- **native:** inapplicable to documentation routing
+- **owner acceptance:** not claimed
+
+Evidence: [docs/architecture/threads-target.md](../architecture/threads-target.md), [docs/architecture/overview.md](../architecture/overview.md), [docs/status.md](../status.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-implementation.md](active/vacation-campaign/evidence/architecture-status-implementation.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/architecture-status-review.md](active/vacation-campaign/evidence/architecture-status-review.md), [docs/work/active/vacation-campaign/evidence/architecture-status-qualification.json](active/vacation-campaign/evidence/architecture-status-qualification.json), [https://github.com/ewq100/brn-rust/pull/192](https://github.com/ewq100/brn-rust/pull/192), [docs/work/active/vacation-campaign/evidence/pr192-premerge.json](active/vacation-campaign/evidence/pr192-premerge.json), [docs/work/active/vacation-campaign/evidence/pr192-integration.json](active/vacation-campaign/evidence/pr192-integration.json), [docs/work/active/vacation-campaign/evidence/pr192-resulting-main.json](active/vacation-campaign/evidence/pr192-resulting-main.json)
+
+Attempts:
+
+- First whole docs check: one missing relative link in copied audit report; product-contract file links were valid.: Corrected imported report link relative to evidence directory, original compressed preserved. Final docs check651files/3162links0failures. ([docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz))
+
+</details>
+
 ### Inspect keyboard focus when panels close or maximize
 
 Owner: bounded Luna read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T21:50:45.405384+00:00
@@ -1238,4 +1238,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T21:59:43.953833+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:13:05.440722+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
