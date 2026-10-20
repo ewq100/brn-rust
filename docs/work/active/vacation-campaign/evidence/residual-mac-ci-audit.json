@@ -1,0 +1,436 @@
+{
+  "repository": "ewq100/brn-rust",
+  "observed_at": "2026-10-20",
+  "github_api_calls": 2,
+  "current_pr190_run_queried": false,
+  "runs": [
+    {
+      "label": "pr189_head",
+      "id": 39465475559,
+      "created_at": "2026-10-20T17:22:14Z",
+      "run_started_at": "2026-10-20T17:22:14Z",
+      "head_sha": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+      "workflow_queue_seconds": 0,
+      "jobs": [
+        {
+          "name": "Core and CLI (macos-15)",
+          "runner_name": "GitHub Actions 1000003320",
+          "runner_id": 1000003320,
+          "head_sha": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+          "created_at": "2026-10-20T17:22:15Z",
+          "started_at": "2026-10-20T17:22:24Z",
+          "completed_at": "2026-10-20T17:38:37Z",
+          "conclusion": "success",
+          "job_queue_seconds": 9,
+          "job_seconds": 973,
+          "steps": [
+            {
+              "name": "Set up job",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 6,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run ./.github/actions/setup-rust",
+              "seconds": 46,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check formatting",
+              "seconds": 0,
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Check production provider retirement",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check production intake retirement",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare both locked document helper graphs",
+              "seconds": 143,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the default workspace",
+              "seconds": 18,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint the default workspace",
+              "seconds": 0,
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Test the default workspace",
+              "seconds": 337,
+              "conclusion": "success"
+            },
+            {
+              "name": "Both document helpers normal API and restrictions",
+              "seconds": 208,
+              "conclusion": "success"
+            },
+            {
+              "name": "Scripted document CLI route (no live provider)",
+              "seconds": 41,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test provider capability fixtures offline",
+              "seconds": 142,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint provider capability fixtures",
+              "seconds": 20,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check CLI help on Unix",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check CLI help on Windows",
+              "seconds": 0,
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Run offline end-to-end fixtures",
+              "seconds": 4,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run ./.github/actions/setup-rust",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "seconds": 4,
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "runner_name": "GitHub Actions 1000003321",
+          "runner_id": 1000003321,
+          "head_sha": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+          "created_at": "2026-10-20T17:22:15Z",
+          "started_at": "2026-10-20T17:22:21Z",
+          "completed_at": "2026-10-20T17:27:32Z",
+          "conclusion": "success",
+          "job_queue_seconds": 6,
+          "job_seconds": 311,
+          "steps": [
+            {
+              "name": "Set up job",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 4,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run ./.github/actions/setup-rust",
+              "seconds": 50,
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare both locked document helper graphs",
+              "seconds": 62,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test native retrieval without model assets",
+              "seconds": 6,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test current canonical search with the native retrieval feature",
+              "seconds": 92,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the native retrieval CLI",
+              "seconds": 12,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the combined native desktop",
+              "seconds": 19,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint the combined native desktop",
+              "seconds": 8,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test the combined native desktop state",
+              "seconds": 54,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run ./.github/actions/setup-rust",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "seconds": 0,
+              "conclusion": "success"
+            }
+          ]
+        }
+      ],
+      "workflow_conclusion": "failure",
+      "required_jobs_result": "PASS all four required contexts per archived receipt; optional Windows failures caused workflow-level failure"
+    },
+    {
+      "label": "pr189_resulting_main",
+      "id": 39469206851,
+      "created_at": "2026-10-20T17:47:59Z",
+      "run_started_at": "2026-10-20T17:47:59Z",
+      "head_sha": "a23f486b109c67e8d07c77800030e527b9a18002",
+      "workflow_queue_seconds": 0,
+      "jobs": [
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "runner_name": "GitHub Actions 1000003333",
+          "runner_id": 1000003333,
+          "head_sha": "a23f486b109c67e8d07c77800030e527b9a18002",
+          "created_at": "2026-10-20T17:48:00Z",
+          "started_at": "2026-10-20T17:48:14Z",
+          "completed_at": "2026-10-20T17:56:12Z",
+          "conclusion": "success",
+          "job_queue_seconds": 14,
+          "job_seconds": 478,
+          "steps": [
+            {
+              "name": "Set up job",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 5,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run ./.github/actions/setup-rust",
+              "seconds": 89,
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare both locked document helper graphs",
+              "seconds": 81,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test native retrieval without model assets",
+              "seconds": 9,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test current canonical search with the native retrieval feature",
+              "seconds": 143,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the native retrieval CLI",
+              "seconds": 24,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the combined native desktop",
+              "seconds": 32,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint the combined native desktop",
+              "seconds": 15,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test the combined native desktop state",
+              "seconds": 73,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run ./.github/actions/setup-rust",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "seconds": 3,
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "runner_name": "GitHub Actions 1000003332",
+          "runner_id": 1000003332,
+          "head_sha": "a23f486b109c67e8d07c77800030e527b9a18002",
+          "created_at": "2026-10-20T17:48:00Z",
+          "started_at": "2026-10-20T17:48:21Z",
+          "completed_at": "2026-10-20T18:05:57Z",
+          "conclusion": "success",
+          "job_queue_seconds": 21,
+          "job_seconds": 1056,
+          "steps": [
+            {
+              "name": "Set up job",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 5,
+              "conclusion": "success"
+            },
+            {
+              "name": "Run ./.github/actions/setup-rust",
+              "seconds": 58,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check formatting",
+              "seconds": 0,
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Check production provider retirement",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check production intake retirement",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare both locked document helper graphs",
+              "seconds": 155,
+              "conclusion": "success"
+            },
+            {
+              "name": "Build the default workspace",
+              "seconds": 22,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint the default workspace",
+              "seconds": 20,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test the default workspace",
+              "seconds": 367,
+              "conclusion": "success"
+            },
+            {
+              "name": "Both document helpers normal API and restrictions",
+              "seconds": 216,
+              "conclusion": "success"
+            },
+            {
+              "name": "Scripted document CLI route (no live provider)",
+              "seconds": 43,
+              "conclusion": "success"
+            },
+            {
+              "name": "Test provider capability fixtures offline",
+              "seconds": 138,
+              "conclusion": "success"
+            },
+            {
+              "name": "Lint provider capability fixtures",
+              "seconds": 18,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check CLI help on Unix",
+              "seconds": 0,
+              "conclusion": "success"
+            },
+            {
+              "name": "Check CLI help on Windows",
+              "seconds": 0,
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Run offline end-to-end fixtures",
+              "seconds": 3,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run ./.github/actions/setup-rust",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+              "seconds": 1,
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "seconds": 4,
+              "conclusion": "success"
+            }
+          ]
+        }
+      ],
+      "workflow_conclusion": "failure",
+      "required_jobs_result": "PASS all four required contexts per archived receipt; optional Windows failures caused workflow-level failure"
+    }
+  ],
+  "cache_evidence": {
+    "observed_run_step": "Both jobs report the composite step Run ./.github/actions/setup-rust; its elapsed time is recorded, but nested restore/save substeps are not exposed in these receipts.",
+    "mac_core_setup_rust_seconds": {
+      "pr189_head": 46,
+      "pr189_resulting_main": 58
+    },
+    "mac_retrieval_setup_rust_seconds": {
+      "pr189_head": 50,
+      "pr189_resulting_main": 89
+    },
+    "exact_cache_hit_or_upload_for_these_runs": "not present in the two local per-job receipts; do not infer from step duration or success",
+    "workflow_policy": "The pinned cache action retains restore paths and main-only save-if; lane is part of the cache key, so default and native-ui-native-retrieval are separate entries."
+  },
+  "limitations": [
+    "Source differs: PR head 57531c3 and resulting main a23f486b.",
+    "Four jobs ran on distinct hosted runner IDs; timing comparison is descriptive, not causal.",
+    "No current PR190 metadata query or poll was made."
+  ]
+}

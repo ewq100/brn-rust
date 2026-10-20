@@ -1,0 +1,112 @@
+{
+  "observed_at": "2026-10-20T20:32:00Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "f81aae56",
+  "edit": {
+    "new_sequence": 31,
+    "through_sequence": 31,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "2665720df1f367bd5e399a6b97114c27998f8fb9ceab1f4398e3be38d9f6b821"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+          "relative_position_base64": "AOLChJoJxgJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+            "hash": "ac9d0c3d811ca680c98096b98545cc94fe757649c16b125c5b2363654d44054e"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+          "relative_position_base64": "AJuY17sC5hFB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+            "hash": "077927983e8e7e56fd92c0952cc8ea229d103a1238ad5f66c1d14d717083acdc"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "1e1a837208e0849c99d8cd782aa38f22e0634ce3176d679fe071f8ba8ced468a"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [
+          "89ef15f7-63a3-420b-aba0-76b2c00bd62b"
+        ],
+        "continuation_position": {
+          "block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+          "relative_position_base64": "AKWk0LcDygdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+            "hash": "a88946569d63cf1132706ec8f645367534ac3d5b97f58689946894bf1b1d3476"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "exact": true
+    },
+    {
+      "id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+      "exact": true
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "exact": true
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "exact": true
+    },
+    {
+      "id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+      "exact": true
+    }
+  ],
+  "meaning": "PR190 local/review PASS; hosted pending, not merged. Corrected current restore-interface description; preserved other content."
+}

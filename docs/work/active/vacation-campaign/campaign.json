@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T20:21:43.830502+00:00",
-    "remaining_percent": 81,
+    "observed_at": "2026-10-20T20:34:06.573363+00:00",
+    "remaining_percent": 80,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual19%used/81%remaining; ordinaryUsageAllowedtrue; no ownerpause/fixedexpiry unchanged",
+    "ordinary_work": "admitted: actual20%used/80%remaining; ordinaryUsageAllowedtrue; fixed expiry and owner authorization unchanged",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T20:30:13.940822+00:00",
+    "observed_at": "2026-10-20T20:41:57.711673+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1634,6 +1634,67 @@
           }
         ],
         "resource_plan": "Requested Luna medium source/test author in isolated reusable worker; lead serializes shared target checks; independent Sol high complete-candidate review after source settles. No native/account/helper/model acquisition. Stop/reassess after two failed approaches or scope change; effective model/cost unavailable."
+      },
+      {
+        "id": "mac-mcp-test-roots",
+        "title": "Make core checks work with normal Mac temporary folders",
+        "state": "ready",
+        "owner": "bounded Luna fixture author; lead checks/integration; independent Sol review",
+        "activity": "One-file candidate4f665daa passes core219/0/1ignored under original inherited Mac TMPDIR, focused strict lint/fmt and complete independent review. All4previously failingMCP fixtures now exercise unchanged assertions.",
+        "observed_at": "2026-10-20T20:38:42.698685+00:00",
+        "origin": "observed",
+        "next_action": "Keep separate candidate qualified; after PR190 normal integration, incorporate then-current main without source edits, reconcile composed review/check applicability and publish one stable PR.",
+        "depends_on": [],
+        "resource_waits": [
+          "Integration owner serializes main updates. Hold publication until in-flight PR190 integration advances main, avoiding a duplicate required-CI run from a base that is about to change."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "complete4f665daa; seven lines added/four replaced in existing testfile",
+          "checks": "PASS core219/0/1ignored under default Mac TMPDIR, strict focused lint/fmt and independent review; original failure/reviewer evidence correction retained",
+          "integration": "not published/merged; preserve in-flight PR190 stable head, then publish on current main",
+          "native": "inapplicable fixture path setup; no UI/account action",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium author, then independent Sol high review; one serialized build slot. Fresh managed mac-test-roots checkout because existing notice/drain checkouts retain unrelated untracked evidence and export checkout is frozen PR190. Preserve all; no cleanup of those files. Stop/reassess if failures extend beyond the selected fixture scope."
+      },
+      {
+        "id": "residual-mac-ci-audit",
+        "title": "Measure the remaining Mac check time",
+        "state": "complete",
+        "owner": "bounded Luna read-only timing assessment; lead disposition",
+        "activity": "Bounded measurement of2completed runs complete; lead validated job/step timestamps. Mac Core16m13/17m36 led by default tests5m37/6m07, helper API3m28/3m36 and helper prep2m23/2m35. Mac Combined5m11/7m58; no controlled comparison or justified change.",
+        "observed_at": "2026-10-20T20:41:57.711673+00:00",
+        "origin": "observed",
+        "next_action": "Use existing current-run logs after completion if revisiting exact cache hit/prep costs. Do not remove gates, share caches or launch reruns from this uncontrolled sample.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/ci-cache-investigation.md",
+          "docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md",
+          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.json",
+          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz"
+        ],
+        "gates": {
+          "implementation": "complete bounded measurement; no code/config/CI change selected",
+          "checks": "PASS recorded metadata/source assessment; only2GitHub run-metadata reads, queue distinct from runtime, cache substep outcomes unknown",
+          "integration": "inapplicable unless concrete candidate later selected",
+          "native": "inapplicable CI timing evidence",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium audit, at most6 GitHub metadata reads, no builds/reruns/cache/config/account/native/nested changes. Distinguish queue/job/steps and uncontrolled comparisons; stop on completed bounded report."
       }
     ],
     "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
@@ -1646,19 +1707,26 @@
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
     "last_refresh_at": "2026-10-20 18:19:38 UTC",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr189-main-qualified-update.json"
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr190-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T20:30:13.940822+00:00",
-    "runtime_capacity": "4 total slots; lead active, Luna author and independent Sol reviewer completed",
-    "build_slot": "free; final local serial qualification session73630 completedexit0",
+    "observed_at": "2026-10-20T20:38:42.698685+00:00",
+    "runtime_capacity": "4total slots; onlylead active, all bounded helpers/reviews complete",
+    "build_slot": "free; default-temp core qualification session25957 completedexit0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39492291218,
+        "session": 56974,
+        "purpose": "PR190 read-only60second watch; completion is not required-gate proof"
+      }
+    ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "ReadyPR190 exact166d required CI39492291218 pending; qualified maina23 unchanged",
-    "wait_reason": "Reviewed draftPR190 local and hosted checks pending. Three native control tasks still wait changed Mac access.",
+    "wait_reason": "PR190 remaining2required Core/CLI hosted gates pending. Qualified Mac fixture candidate awaits integration turn. No new code change from bounded residual-CI assessment; three native controls remain blocked.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust at clean166d8232 codex/restore-source-refusal; no source writer active"
+    "worker_checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust at clean166d8232 codex/restore-source-refusal; no source writer active",
+    "fixture_worker_checkout": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust; clean basea23, codex/mac-mcp-test-roots"
   }
 }

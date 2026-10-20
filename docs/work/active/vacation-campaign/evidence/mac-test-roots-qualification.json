@@ -1,0 +1,30 @@
+{
+  "observed_at": "2026-10-20T20:38:42.698685+00:00",
+  "candidate": "4f665daa9fbc430fcf98b68dc029c892bb941fd2",
+  "base": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "state": "PASS local Mac default-temp qualification and independent full-candidate review",
+  "scope": "One test file, file-local canonical-parent helper + four existing fixture calls; assertions/production/guard/config/deps/test count unchanged",
+  "environment": {
+    "inherited_tmpdir": "Inherited Mac TMPDIR: /var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/",
+    "override": "none; fresh TempDir per test under canonical OS temp parent",
+    "toolchain": "pinned1.98.1 locked/offline/jobs1",
+    "target": "single lead-owned shared target; source-root compilation appears in log"
+  },
+  "checks": {
+    "core": "219passed0failed1existingignored; all4MCP cases reached/passed under inherited Mac temp environment",
+    "format": "PASS core pinned fmt --check",
+    "lint": "PASS core mcp_policy target strict Clippy",
+    "exit": 0
+  },
+  "original_failure": {
+    "receipt": "restore-source-refusal-qualification.json and raw archive first-green.log",
+    "result": "all4MCP tests failed before Store::open completed under same /var/folders default temp alias",
+    "source_binding": "Original failing166d MCP fixture and store guard files exactly equal basea23; restore-specific delta not reached at failure"
+  },
+  "review": "mac-test-roots-review.md no actionable findings",
+  "review_evidence_correction": "Initial reviewer missed composite setup action and incorrectly limited CI canonical TMPDIR to later E2E step. Lead validated setup action82-89 and workflow caller; corrected report plus original.md.gz retained. Source unchanged.",
+  "raw": "mac-test-roots-raw.tar.gz",
+  "raw_sha256": "9034ce96b52b5a64e39a8a61c0d62c5c64ff7f6ff14a882200558a06ea349877",
+  "integration": "not published/merged; preserve stable PR190 checks and publish this independent candidate from then-current main after in-flight integration, avoiding duplicate strict-base CI runs",
+  "limits": "Mac local core fixture qualification only; no new test/native/account/provider/global setup or other-platform claim"
+}

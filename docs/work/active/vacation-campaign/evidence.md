@@ -630,3 +630,11 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October: clearer invalid-backup refusal
 
 [Source audit](evidence/invalid-backup-error-audit.md) and lead validation selected the observed NOTADB error gap. [Candidate166d qualification](evidence/restore-source-refusal-qualification.json) preserves the expected regression failure and the separate inherited-temp-path failure; unchanged source then passes core219/0/1ignored, CLI23/0, strict lint and format on a canonical synthetic root. [Independent full-candidate review](evidence/restore-source-refusal-review.md) found no actionable issue. [PR190 publication](evidence/pr190-publication.json) retains initial draft/local-pending state; it is now ready with required hosted gates pending. Only source validation classifies NOTADB, before destination creation; other storage paths are unchanged. No native/account test or merge is claimed.
+
+## 20 October: default Mac test-folder portability
+
+[Actual failure diagnosis](evidence/mac-temp-fixture-audit.md) identified four existing MCP fixtures using symlinked OS temp aliases. [One-file candidate4f665daa](evidence/mac-test-roots-qualification.json) now passes core219/0/1ignored under the original default Mac TMPDIR, strict focused lint and format, with assertions and production guards unchanged. [Independent review](evidence/mac-test-roots-review.md) has no findings; its original mistaken CI-environment observation is retained separately and corrected from the actual composite-action caller. Publication waits for the in-flight PR190 main update to avoid a duplicate strict-base check run. No native/account test or merge is claimed.
+
+## 20 October: residual Mac CI measurement
+
+[Bounded existing-job assessment](evidence/residual-mac-ci-audit.md) retains actual queue/job/step timings and uncertainty for Mac Core and Combined after the separate UI cache improvement. Lead validated recorded timestamps and dominant steps; no causal speed claim or additional configuration/rerun selected. Required gates stay unchanged.
