@@ -1806,8 +1806,8 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20 21:25:05 UTC",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr191-merged-image-update.json"
+    "last_refresh_at": "2026-10-20 21:45:55 UTC",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr192-merged-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-20T21:45:18.667202+00:00",
@@ -1816,9 +1816,16 @@
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
+        "run": 39499436262,
+        "session": 10453,
+        "pid": 88373,
+        "purpose": "remaining optional main191 workflow completion watch; required4alreadyPASS"
+      },
+      {
         "run": 39502704935,
         "session": 49368,
-        "purpose": "PR192 resulting-main60secondread-onlywatch"
+        "pid": 89737,
+        "purpose": "required resulting-main192 watch"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
