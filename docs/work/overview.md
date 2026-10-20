@@ -9,28 +9,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Confirm checks after the Mac correction merged
-
-Owner: hosted checks; development lead inspects results · State: **active** · Last observed: 2026-10-20T05:10:37.356608+00:00
-Activity: PR176 merged; inspecting resulting-main checks at 1ea0ac87.
-Next: Record each actual required result and retain optional failures.
-Depends on: feedback-accessibility when Correction is normally merged so resulting-main checks exist. (reported satisfied: true)
-Resource waits: Hosted checks may still be running; no local build needed.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** inapplicable: verification only
-- **checks:** pending actual resulting-main jobs
-- **integration:** merge exists; post-merge verification pending
-- **native:** reuse unchanged qualified controls; no new native claim
-- **owner acceptance:** inapplicable to hosted verification
-
-Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff](https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff)
-
-</details>
+None recorded.
 
 ## Next
 
@@ -40,9 +19,9 @@ None recorded.
 
 ### Clearer instructions and one progress view
 
-Owner: development lead · State: **blocked** · Last observed: 2026-10-20T05:31:34.069809+00:00
+Owner: development lead · State: **blocked** · Last observed: 2026-10-20T05:34:13.914672+00:00
 Activity: Implemented, independently reviewed and published; only required hosted checks/normal merge/resulting-main verification remain.
-Next: Inspect actual PR178 checks and preceding-main checks; when all required gates pass, normal match-head merge c6666cb9 and inspect resulting-main. Reconcile a changed head/main first; no repeat implementation.
+Next: Finish required PR178 exact-head checks; preceding main is verified. Then inspect live protection and normal match-head merge c6666cb9, followed by resulting-main checks.
 Resource waits: External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run.
 
 <details>
@@ -51,7 +30,7 @@ Resource waits: External required hosted checks on frozen PR178 head c6666cb9. L
 Gates:
 
 - **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
-- **checks:** passed local final8 tests, view consistency,589 files/2740 links and whitespace; hosted checks pending
+- **checks:** local and hosted documentation/tooling passed; required Mac retrieval passed; remaining exact-head app checks are pending, inspect actual PR results before integration
 - **integration:** PR178 published; normal merge and resulting-main verification pending
 - **native:** inapplicable: development documentation/view only
 - **owner acceptance:** not requested; owner authorized implementation
@@ -68,14 +47,6 @@ Attempts:
 Waiting:
 
 - resource: External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run.
-
-### Confirm checks after the Mac correction merged
-
-Owner: hosted checks; development lead inspects results
-
-Waiting:
-
-- resource: Hosted checks may still be running; no local build needed.
 
 ### Check saving, reopening and backup in the real Mac app
 
@@ -108,9 +79,9 @@ Waiting:
 
 ### Mac feedback choices expose their selected state
 
-Owner: development lead · State: **complete** · Last observed: 2026-10-20T05:10:37.356608+00:00
-Activity: Reviewed correction normally merged as PR176; resulting-main checks still separate.
-Next: See resulting-main-checks before declaring integration fully verified.
+Owner: development lead · State: **complete** · Last observed: 2026-10-20T05:34:13.914672+00:00
+Activity: Reviewed Mac feedback correction normally merged as PR176; all four required resulting-main checks now passed.
+Next: Reuse qualified source; broader native/owner usability remains separate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -119,7 +90,7 @@ Gates:
 
 - **implementation:** complete; final writing.rs SHA b14e8bc9…932ffe8
 - **checks:** all four required exact-head checks passed at 7e41da52; optional Windows Core failed
-- **integration:** normally merged 1ea0ac875f6e7aa128ce21bde781075e87784fff; resulting-main pending
+- **integration:** verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed
 - **native:** captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records
 - **owner acceptance:** pending; no VoiceOver/IME/general usability claim
 
@@ -128,6 +99,28 @@ Evidence: [docs/work/active/vacation-campaign/evidence/feedback-inclusion-qualif
 Attempts:
 
 - Actual Mac check exposed missing selected-state accessibility metadata.: Added toggle metadata and model-suggestion context; both real control sequences then passed. ([docs/work/active/vacation-campaign/evidence/feedback-accessibility-qualification.json](active/vacation-campaign/evidence/feedback-accessibility-qualification.json))
+
+</details>
+
+### Confirm checks after the Mac correction merged
+
+Owner: hosted checks; development lead inspects results · State: **complete** · Last observed: 2026-10-20T05:34:13.914672+00:00
+Activity: All four required checks passed on merged Mac correction1ea0ac87.
+Next: Reuse verified main; keep optional Windows failures visible.
+Depends on: feedback-accessibility when Correction is normally merged so resulting-main checks exist. (reported satisfied: true)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: verification only
+- **checks:** passed: all four required resulting-main39373391210 jobs; optional Windows failed; optional Ubuntu retrieval still running at observation
+- **integration:** verified normal merge1ea0ac87
+- **native:** reuse unchanged qualified controls; no new native claim
+- **owner acceptance:** inapplicable to hosted verification
+
+Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff](https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff), [docs/work/active/vacation-campaign/evidence/pr176-integration.json](active/vacation-campaign/evidence/pr176-integration.json)
 
 </details>
 
@@ -188,4 +181,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T05:31:34.069809+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T05:34:13.914672+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
