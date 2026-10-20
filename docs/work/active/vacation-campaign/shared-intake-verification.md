@@ -1,0 +1,9 @@
+# Shared CLI and desktop intake verification
+
+The existing opt-in desktop witness checks a real public CLI-first workspace. On20October, sourceec9190d8 passed the existing test with a fresh synthetic Markdown file and explicit missing credential path. CLI intake persisted one chat, one owner instruction and one offline failed Run; desktop supply reused that chat and exact owner Message and persisted one further Run. Public before/after records contain6 then7 records,1 then2 Runs, and the same owner Message. The source file is unchanged and the configured auth file still does not exist.
+
+[Qualification](evidence/shared-intake-qualification.json) owns exact commands, toolchain/environment, source/binary hashes, assertions and lossless raw archive identities. The CLI build, init, configure, intake, before/after public records and explicit ignored test all passed. The test reports1passed/0failed/0ignored/333filtered. It remains opt-in in the default suite because it needs this shared fixture; no production source or test assertion changed.
+
+The first external orchestrator incorrectly parsed all default CLI stdout as JSON. The CLI had already completed successfully after printing its progress line. Parsing the single retained JSON object corrected the orchestration; the existing workspace/Run was reused without repeating intake. That original failure and correction remain in the receipt.
+
+This is an offline identity/persistence witness: the deliberately missing configured auth file causes ReconnectNeeded before credential reads or HTTP requests. It does not exercise the owner's account, successful AI work, conversion byte fidelity, actual Mac controls or owner acceptance. The existing block0.1.6 future-compiler warning remains. Source behavior and the default test's opt-in status are unchanged.

@@ -543,3 +543,10 @@ remaining; first unattended wake remains unobserved.
 - [Separate helper build-cache reclamation](evidence/helper-build-cache-reclamation.json): intermediate metadata/static caches only; exact qualified helper SHA values preserved. [Synthetic model-refresh diagnosis](evidence/native-fixture-model-refresh-diagnosis.json) explains the offline startup notice without claiming an AI run.
 
 - [Ordinary inclusion source review](evidence/feedback-inclusion-source-review.json) and [final qualification](evidence/feedback-inclusion-qualification.json): existing stacked-comments exclusion/capture1/0, strict affected lint/format/production build and actual final Mac inclusion on/off/on plus captured off/on/off pass;15 raw archives, no Note/comment/Run changes or account calls.
+
+
+## 20October headless follow-through
+
+- [Grouped Review source review](evidence/review-group-source-review.json), [qualification](evidence/review-group-qualification.json) and [receipt audit](evidence/review-group-receipt-audit.json) retain source465a6fad, original compiler failure/correction,333/0/1 desktop state suite and source-bound binaries; actual MAC-08 remains separate.
+- [Existing shared-intake witness](shared-intake-verification.md) and [qualification](evidence/shared-intake-qualification.json) retain the successful explicit public CLI→headless desktop1/0/0 check, unchanged owner Message, one added Run and the original external parser failure. No account/provider/native-control test occurred.
+- [Visibility integration receipt](evidence/visibility-adoption-integration.json) retains PR178 normal merge1009495d and all four required resulting-main checks passed; optional Windows failures remain visible. Current gates/next actions stay in campaign.json.

@@ -1,0 +1,437 @@
+{
+  "observed_at": "2026-10-20T07:13:50.680942+00:00",
+  "source_head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+  "result": "PASS: one explicit existing ignored witness,1passed/0failed/0ignored/333filtered; ordinary default suite still intentionally skips it",
+  "fixture": {
+    "source_head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+    "data": "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+    "source": "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/source.md",
+    "source_sha256": "41d5742bb829dfb30be0e4e6b30df51c37036133f7c50eb91b29317bce1cfe4e",
+    "chat": "ccef9fc1-a29c-45ef-8d29-24f57754b4b4:0",
+    "cli_response": {
+      "run": "ed36be5e-f07a-41f8-8c2b-df289ff08b2c:0",
+      "terminal": "Failed:ReconnectNeeded",
+      "answer": "",
+      "search": "available",
+      "notices": [],
+      "failure": {
+        "kind": "reconnect_needed",
+        "retry_after_seconds": null
+      },
+      "thread": "ccef9fc1-a29c-45ef-8d29-24f57754b4b4:0",
+      "reused_chat": false
+    },
+    "cli_binary_sha256": "88e8e1a15580b2ca3b4d8dfff38901ec4066d677b4ffc2b603de7bee030c1799",
+    "missing_auth_still_absent": true,
+    "source_bytes_unchanged": true,
+    "scope": "Explicit existing ignored cross-host test; public CLI creates persisted instruction/Run, desktop host reuses same chat/instruction and adds one Run.",
+    "limits": [
+      "Both configured Runs fail offline with missing explicit auth; no live account/provider call or AI success claim.",
+      "Headless toolkit test; no OS/native usability/owner acceptance."
+    ]
+  },
+  "checks": [
+    {
+      "name": "cli-build",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-j",
+        "1",
+        "-p",
+        "brn"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 28.19115229207091,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39606190080,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "cli-configure",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "--data-dir",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "configure",
+        "--provider",
+        "Codex",
+        "--model",
+        "gpt-6.1-sol",
+        "--effort",
+        "medium",
+        "--auth-file",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/missing-auth.json"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0129009580705315,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39682555904,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "cli-init",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "--data-dir",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "init",
+        "--purpose",
+        "test"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0133835838641971,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39682854912,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "cli-useful-intake",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "--data-dir",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "intake",
+        "--source",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/source.md",
+        "--intent",
+        "useful"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.012861958006397,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39682400256,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "desktop-shared-intake",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-j1",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left",
+        "--",
+        "--ignored",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 2.012259916868061,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39697670144,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+        "BRN_DWR_SHARED_DATA": "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "BRN_DWR_SHARED_SOURCE": "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/source.md",
+        "BRN_DWR_SHARED_CHAT": "ccef9fc1-a29c-45ef-8d29-24f57754b4b4:0"
+      }
+    },
+    {
+      "name": "records-after-desktop",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "--data-dir",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "records"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0126199161168188,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39697481728,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    },
+    {
+      "name": "records-before-desktop",
+      "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+      "source_sha256": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "fixture_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "command": [
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn",
+        "--data-dir",
+        "/Users/evokessler/.codex/worktrees/vacation-hardening/shared-intake-evidence/probe-01/workspace",
+        "records"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 1.0127919591031969,
+      "preflight_headroom_bytes": 2147483648,
+      "headroom_basis": "Existing cached native dependency graph and pinned artifacts; one UI metadata change and a developer-only fixture. Live1GiB stop guard retained.",
+      "lowest_free_bytes": 39698399232,
+      "stopped": null,
+      "environment": {
+        "RUSTUP_TOOLCHAIN": "1.98.1",
+        "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "CARGO_PROFILE_TEST_DEBUG": "0",
+        "RUST_TEST_THREADS": "1",
+        "TMPDIR": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T",
+        "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+        "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+      }
+    }
+  ],
+  "source_files": {
+    "crates/brn-desktop/src/threads_intake_tests.rs": "fff51738142cd824387723e6be5ca5bbe7de6f9bc56c92162dfdf790cf10583a",
+    "crates/brn/tests/source_locator.rs": "21b2043ef89e50e05040d247879598c223fc1fc108d4807ec2cdcd4978de77c6",
+    "crates/brn/src/main.rs": "10ce42027147dd4f906480de2b0adc3cdd74c9f7c8a756ea19d1c6c5db63055b",
+    "crates/brn/src/contract.rs": "5aa147450f161ed6eda0666efb26e657d99ea99207b217fb112ccb727948577a",
+    "crates/brn-ai/src/threads.rs": "42b59c2623da1c587104bd4f58637786c851c41d0e14f47d1173e1b72294a0a7",
+    "crates/brn-ai/src/codex_auth.rs": "a18dfe82e54833c6d2eb56ce907bc9fc23cbb0b4e0bdbb0ab3909e29fc5e5dba"
+  },
+  "durable_assertions": {
+    "before_records": 6,
+    "after_records": 7,
+    "runs_before": 1,
+    "runs_after": 2,
+    "same_chat": "ccef9fc1-a29c-45ef-8d29-24f57754b4b4:0",
+    "owner_message_exact_record_unchanged": true,
+    "both_runs_reference_same_owner_instruction": "ed36be5e-f07a-41f8-8c2b-df289ff08b2c:1",
+    "both_runs_failed_offline": true,
+    "synthetic_source_bytes_unchanged": true,
+    "missing_auth_remains_absent": true
+  },
+  "original_failure": {
+    "step": "parse CLI stdout after successful offline useful intake",
+    "error": "JSONDecodeError at first character",
+    "diagnosis": "The default interactive CLI prints Reading the document before its JSON result. No test or provider launch was retried.",
+    "correction": "Parse the single JSON object line from retained output; reuse the same persisted fixture and Run."
+  },
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-build.json.gz",
+      "raw_bytes": 1417,
+      "raw_sha256": "f651d85ff744ff094a0bcc0132a31b7cdb3d15355e8f79bc6da4479ad31d6b3d",
+      "gzip_bytes": 783,
+      "gzip_sha256": "4436429f29870ebd5c2ef2fe7ac3a85eada5a0ef8ede2f1ab0e88bb54a87df98"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-build.log.gz",
+      "raw_bytes": 884,
+      "raw_sha256": "6e75a36763329e39357de1e23a5380ed0fd90295ff9718ea0a985ce27031bcf1",
+      "gzip_bytes": 318,
+      "gzip_sha256": "40c6a5b3941a01716bea80331d683a8edad2044e20a7b8600fcc8ff3f2d76ce6"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-configure.json.gz",
+      "raw_bytes": 1773,
+      "raw_sha256": "7d3c3d1a7d75f3177fa5447668dfab22f06f7e38ed19a8e293d0c81e96baa58a",
+      "gzip_bytes": 869,
+      "gzip_sha256": "0689ef676315f34b9ac7635bdab5c88274831d5f6c682e8e2f16e304f9294f37"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-configure.log.gz",
+      "raw_bytes": 960,
+      "raw_sha256": "29fb8ebe49cf583d798a23b01f2a6d6bd30486909392e1dff3c47830b4a780f2",
+      "gzip_bytes": 517,
+      "gzip_sha256": "ccd7b48761b3617f23837bfc09cb078828d4cf4a58e0c604b8add349f7b57086"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-init.json.gz",
+      "raw_bytes": 1567,
+      "raw_sha256": "2e9f4eacae21f571888c9083a0729c283a1d71aba7d2f3dad42f8c8e015410b4",
+      "gzip_bytes": 818,
+      "gzip_sha256": "63077ef60bd59eabfd3dc295b254967502cc384515be19881b43f6fb471fbd4c"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-init.log.gz",
+      "raw_bytes": 354,
+      "raw_sha256": "61365c021baeaa0844f63d0082370a469d9acdefba3f77453dcd96f4a26946eb",
+      "gzip_bytes": 250,
+      "gzip_sha256": "670f0e542d853e4e8203e0cc0f33f5999d506704ce8644eef7506af3e6500bab"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-useful-intake.json.gz",
+      "raw_bytes": 1697,
+      "raw_sha256": "bf26d9f99e6179ce3076f84b4baad7e1c3385124341ca5e210880e049bd52907",
+      "gzip_bytes": 831,
+      "gzip_sha256": "1558c1163064c8372edf806a493439410c16484fe311b039f3b60f797883142c"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/cli-useful-intake.log.gz",
+      "raw_bytes": 290,
+      "raw_sha256": "451c03aae675a19df2a3080e5f91014abb5af7453e11f6289e67667621efd78b",
+      "gzip_bytes": 240,
+      "gzip_sha256": "3221369498bc16b139bfa4944b440506987d9b93b47b5d15f00d3e3fb1a31033"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/desktop-shared-intake.json.gz",
+      "raw_bytes": 1917,
+      "raw_sha256": "9b0991d101ceb50b2028efac79a6491bea9b0abc65142e6614a53b1796db6736",
+      "gzip_bytes": 958,
+      "gzip_sha256": "54df00cbab9f586c4fa7d950ab3044b3f84b2794b3de515cc2a9d5925d0ca22f"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/desktop-shared-intake.log.gz",
+      "raw_bytes": 596,
+      "raw_sha256": "a028868b12d9d18f4ef316cf2e90c9a848e50ba423168db014a8b1604dc81f27",
+      "gzip_bytes": 403,
+      "gzip_sha256": "81f13da092a48e5447697d174f855bc63774195f2f6eb3577c3dbcff9a1d5e62"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/fixture.json.gz",
+      "raw_bytes": 1314,
+      "raw_sha256": "2c1a49f55b069b10bf4251084b3b1db36e8a68348eff3d2d3bc034b19a827010",
+      "gzip_bytes": 736,
+      "gzip_sha256": "e44357bbcf62c499d0c83a9ccef76d22fdcb44bc2af2e0ecabaaf267ac03a794"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/initial-orchestration-failure.json.gz",
+      "raw_bytes": 376,
+      "raw_sha256": "9ff0389eda87a5ddcfaeaf96eb6ca74ca1a26463982e6e51a5b3ead775191dc0",
+      "gzip_bytes": 263,
+      "gzip_sha256": "4c83adb287b3ce5499fcadc715785f3ba4c4a42f9f62c190a40a20f91d47be69"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/records-after-desktop.json.gz",
+      "raw_bytes": 1554,
+      "raw_sha256": "6ef4dd5538b9e271014efa430a48e946751c894f8a72abb48bac0bd4c8b550d0",
+      "gzip_bytes": 815,
+      "gzip_sha256": "dfbb374d8fb2889e8784229afe5841c870b275ae5b706aa9640bf215ff5a94d2"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/records-after-desktop.log.gz",
+      "raw_bytes": 4083,
+      "raw_sha256": "df5ff254f29e189d45dc596560b476d2712bf975bf0782371529155ab8ea2369",
+      "gzip_bytes": 1398,
+      "gzip_sha256": "087f7d9157b7b60804dfb9292938dec6091abf3ed74cef6fe833efed706db76e"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/records-before-desktop.json.gz",
+      "raw_bytes": 1555,
+      "raw_sha256": "422fb2ecdc55eb5d0f83fdc4db1951bfdf01ac27a2499938d314b0920c4c8d67",
+      "gzip_bytes": 816,
+      "gzip_sha256": "6b0fdc12710f08f09274af29a5a6e239e539ccae2484e70dabe33dd2977851a4"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/records-before-desktop.log.gz",
+      "raw_bytes": 3053,
+      "raw_sha256": "a39714e4f167adfeaaaa5c04d28502a51d21c07abe07bb8bd6ccafe6aa5d9dc6",
+      "gzip_bytes": 1381,
+      "gzip_sha256": "5744ebcca5f75c24333b3c3732bc8638c96fdaa91547b04507e7983ab94c972e"
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/shared-intake-raw/run-check.py.gz",
+      "raw_bytes": 3284,
+      "raw_sha256": "78814cf215e5e7f2b08d428ed3d6905f35a395d4a148a7651b9626172f07b8fe",
+      "gzip_bytes": 1571,
+      "gzip_sha256": "98fbbe331a0b961f7254da796519043fac9cb9dafc371d5f5a5498bb806c4cf1"
+    }
+  ],
+  "limits": [
+    "No source change, no new feature and no added/deleted/unignored test.",
+    "Explicit missing configured auth produces offline ReconnectNeeded before auth reads/HTTP requests; no owner account/live provider test or successful model behavior.",
+    "Headless GPUI state host test; no actual Mac controls, OS accessibility or owner acceptance.",
+    "Document source conversion byte fidelity is outside this conversation/Run reuse witness.",
+    "Pinned block0.1.6 future-compiler warning retained."
+  ],
+  "resources": "Selected lead owns orchestration and evidence; one local build slot, cached pinned Rust1.98.1 locked/offline/jobs1,2GiB preflight/1GiB stop. Reused existing Luna bounded read-only route research; no additional helpers/live calls."
+}

@@ -1,0 +1,310 @@
+{
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+  "space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+  "title": "BRN Development Progress",
+  "readback_blocks": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "hash": "cc82c94796f26d586963af7e31930f402cc191bbed80683fdb01654d0ad10f06",
+      "kind": "markdown"
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "hash": "975053c77d5a8099b618807bb29e4baf65f0d2302240c146800afaada16d9ca9",
+      "kind": "markdown"
+    },
+    {
+      "id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "hash": "0b94a92ac9022c38eaed0510c4bd328eb8a95018eab19115e378074890d01161",
+      "kind": "markdown"
+    },
+    {
+      "id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+      "hash": "a64e87a62ce4e76aaa33a5db173dab93df564ed2bc22462b3b197bad009dd452",
+      "kind": "markdown"
+    },
+    {
+      "id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+      "hash": "88a4053c7d1d726345625b2e75bb67fe47e31f1e66e9d4585a569cb8a43b27bc",
+      "kind": "markdown"
+    },
+    {
+      "id": "f8fb7782-b39d-46ab-812c-295c2fac61bf",
+      "hash": "e5d073e0692c29e3c855fde23e8392ddc2ee376d4cbce33dc23f344aa2a51326",
+      "kind": "markdown"
+    },
+    {
+      "id": "77380e5e-999c-46fa-a874-e2d39599129d",
+      "hash": "b4a3ac4a730146cddaf330cb19a6a6194429c65621ed3d3cde337e4546d5efb4",
+      "kind": "markdown"
+    },
+    {
+      "id": "74fa4da1-a93d-4758-b530-a1e31b63945b",
+      "hash": "725e2b88b234f8b17917e51186bbc0a279fccabfdf20167d41ac5d8ff8da569e",
+      "kind": "markdown"
+    },
+    {
+      "id": "4bdbfc27-8f1a-45a0-968c-77a5b3177798",
+      "hash": "8191572699e474ec954a7ab89ec4f479f312d2c15c2e9cad8105bacb6c7c107c",
+      "kind": "markdown"
+    },
+    {
+      "id": "2270f693-b38a-45e5-99af-d12dc1024ddd",
+      "hash": "0e9a03a09237bf2171d664fb98d35806129aca673e98a80a5ab8944d8ada9810",
+      "kind": "markdown"
+    },
+    {
+      "id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "hash": "1758609d884f7781c216fe7ba0b6ac00149f8ca42fceabdf8d1eb0294ad09cfe",
+      "kind": "markdown"
+    },
+    {
+      "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+      "hash": "b6a5c2ec41af3493793641edf481f35a880c666c675d878be6bca50e9ecf4a17",
+      "kind": "markdown"
+    },
+    {
+      "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+      "hash": "ff87a3ed15bec2d184c320f7bbeb05188ae707c312e512c9ea5ad5453659af57",
+      "kind": "markdown"
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "hash": "ccad0d6fcab11370a142ce18138a667e36a6c9a11b4ab96acfb7f144da9adb14",
+      "kind": "markdown"
+    },
+    {
+      "id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+      "hash": "04eebf7d145cc30ce6a5244f3720d7634e2e8d77932ca4dbf47464adfa04a038",
+      "kind": "markdown"
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "hash": "52de7100b1086f75c01fbdaaac957ba015656d24b53a21b5d5b094d2080af780",
+      "kind": "markdown"
+    },
+    {
+      "id": "ab792d24-1c38-4ccf-b828-6b1aa85f376d",
+      "hash": "3de248572106b925cb138aab439a98b75e7fea95501695f9e048739e933fe7aa",
+      "kind": "markdown"
+    },
+    {
+      "id": "04a21101-9b82-42cb-8e5c-8ca4dfebdd19",
+      "hash": "8e7b12b18ac7de995e169503436379d2da7866836ff8db73748c0d578af737a9",
+      "kind": "markdown"
+    },
+    {
+      "id": "eec2995a-1f28-4a4e-ba6b-91edb0b28390",
+      "hash": "dcc677e3449d63e7bb85ce3fb1f16e07f1461f302a339bc60cd72e9ae0e069fa",
+      "kind": "markdown"
+    },
+    {
+      "id": "7b2cec28-facf-42a2-ab1d-f4d5b6f4604d",
+      "hash": "314d1a4d53e3cf689bf2803ec2bdfe7ef55cb1f21c569bc5d1db9bef63a4c231",
+      "kind": "markdown"
+    },
+    {
+      "id": "a314237c-94fd-4b61-ae64-ee492b3a6764",
+      "hash": "0a381cee9673a9f0188c270aa111778ab716a0a1fb3515b9b466c913c62832cf",
+      "kind": "markdown"
+    },
+    {
+      "id": "2fa06cc6-3b06-4a5b-ab78-7e52b5bc2779",
+      "hash": "0b61abacbd968b4b209ebfec9e55fc3245a5e6d59cc5d202fbeca8517a1334fb",
+      "kind": "markdown"
+    }
+  ],
+  "root_link_block": {
+    "id": "8182ee89-c170-4c7a-97c7-e197d0e870d7",
+    "kind": "markdown",
+    "markdown": "| Page | What it is for |\n| --- | --- |\n| [BRN Development Progress](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68) | Current development results, work underway, next steps and blockers, refreshed from the repository campaign. |\n| [BRN Roadmap](https://chatgpt.com/space/page_4775ae96ed4881919f5bf4ec5d3251c4) | Proposed Now, Next, and Later outcomes and the conditions for moving forward. |\n| [BRN Backlog and Kanban](https://chatgpt.com/space/page_404d57ff28d48191800ffc3421d8d851) | The canonical item list and board, with sources, next actions, and completion conditions. |\n| [BRN Decisions](https://chatgpt.com/space/page_c5a19649e8f0819193298fc64122ac62) | Recorded preferences, product direction, open choices, and superseded decisions. |",
+    "hash": "0fe3bd65513be56f6aab0de031d7b8c2b790b67115f342429dc670c37bad9f04",
+    "metadata": {}
+  },
+  "creation": "confirmed by returned metadata and subsequent readback",
+  "timestamp_edit": {
+    "new_sequence": 1,
+    "through_sequence": 1,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "975053c77d5a8099b618807bb29e4baf65f0d2302240c146800afaada16d9ca9"
+          }
+        ]
+      }
+    ]
+  },
+  "root_edit": {
+    "new_sequence": 2,
+    "through_sequence": 2,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "49997d97-13e3-4773-a9aa-7950f151d286",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "8182ee89-c170-4c7a-97c7-e197d0e870d7",
+          "relative_position_base64": "ANTjzs8B1htB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "8182ee89-c170-4c7a-97c7-e197d0e870d7",
+            "hash": "0fe3bd65513be56f6aab0de031d7b8c2b790b67115f342429dc670c37bad9f04"
+          }
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "Saved content and home-page link verified by connector readback; rendered browser/mobile layout not observed.",
+    "Remote summary updated at meaningful campaign transitions by existing local lead; no live filesystem sync, new hosted controller or additional schedule.",
+    "Existing Space membership inherited; no sharing, credential or model settings changed."
+  ],
+  "authority": "Owner20October2026 asked to link local progress pages to GPT Space for remote access; existing campaign visibility/development authorization retained.",
+  "observed_at": "2026-10-20T07:19:49.288497+00:00",
+  "source_head": "b740a0a776f1a9053cb1bf43f06f32bd8103d600",
+  "source_task_observation": "2026-10-20T07:15:13.743308+00:00",
+  "local_validation": {
+    "first_result": "invalid work overview: tasks[10] missing required fields: attempts",
+    "correction": "Added required attempts history; original valid overview was preserved by renderer.",
+    "final_checks": "PASS: overview regeneration/consistency,591Markdown files/2779local links/0failures, git diff --check"
+  },
+  "later_updates": [
+    {
+      "observed_at": "2026-10-20T07:39:20.018472+00:00",
+      "source_head": "ac2c2cf63fa6678a31be5783adec8be37f32cdb5",
+      "meaningful_transition": "PR179 normal merge and bounded state audits complete; writing harness preparation selected, no live launch",
+      "edit": {
+        "new_sequence": 2,
+        "through_sequence": 2,
+        "operation_results": [
+          {
+            "operation_index": 0,
+            "preceding_block_id": null,
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+              "relative_position_base64": "AJuY17sCigJB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+                "hash": "dde4bc394c430680cca0700b623992892ae2d407c79f2b66e7b89fe7863a4984"
+              }
+            ]
+          },
+          {
+            "operation_index": 1,
+            "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "relative_position_base64": "AJuY17sC/QJB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+                "hash": "7691c685f753ce7381e8aabfce6cc16d49607e3a6ee0c86c988cbbf7ebcc4262"
+              }
+            ]
+          },
+          {
+            "operation_index": 2,
+            "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+              "relative_position_base64": "AJuY17sCtAVB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+                "hash": "1366c6cf1af1a8d1f5bc3408f9d0343113a081999643bbbb9c21af9b2561661f"
+              }
+            ]
+          },
+          {
+            "operation_index": 3,
+            "preceding_block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+              "relative_position_base64": "AJuY17sC2gdB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+                "hash": "097e248bd6104c0fb361ca85bca9724bda83aea25becb47bc34101d7adba0ed0"
+              }
+            ]
+          },
+          {
+            "operation_index": 4,
+            "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+              "relative_position_base64": "AJuY17sCvw9B"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+                "hash": "bc8fec96501478b60b2318538e8dd3ce74b0b386524620a48364e797c3d1cf6c"
+              }
+            ]
+          },
+          {
+            "operation_index": 5,
+            "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+              "relative_position_base64": "AJuY17sC/BNB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+                "hash": "e3525a43017362a55cb6ef42ec11a4b5d9b7c22440c0b312dd4733aed386f611"
+              }
+            ]
+          },
+          {
+            "operation_index": 6,
+            "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+            "created_block_ids": [
+              "be092af6-810b-41e5-bbc1-9f87a6455b00",
+              "880224ef-8cd0-4093-8e73-a31055808d93"
+            ],
+            "continuation_position": {
+              "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+              "relative_position_base64": "AMDFnPYCuApB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+                "hash": "701105e456182e10c61531e484f040dfaa05245a75ca44e2b6ef5a6653931005"
+              },
+              {
+                "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+                "hash": "0e50040f6d8f91c7b6bbb1ac74fb4071354ac727d6848bb122a288b4ec1dc377"
+              }
+            ]
+          }
+        ]
+      },
+      "readback": "PASS:24blocks, merged179 status and pending post-merge/native gates retained",
+      "rendering": "Not observed; connector saved content only"
+    }
+  ]
+}
