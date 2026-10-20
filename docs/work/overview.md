@@ -9,37 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Explain when a restore source is not a BRN backup
-
-Owner: bounded Luna read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T20:52:14.435306+00:00
-Activity: PR190 normally merged9c18bc5f after all4required exact-head and all4preceding-main checks plus live strict/admin protection PASS. Whole merged tree equals reviewed166d. Required resulting-main39495469734 pending.
-Next: Inspect actual resulting-main39495469734 required jobs; record all optional failures and qualify completion separately from merge. Continue independent qualified fixture integration in parallel.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change
-- **checks:** PASS local/review and all4required exact-head166d + preceding-maina23; optional headWindowsCore failure retained
-- **integration:** normal merge9c18bc5f; exact fulltree equality PASS; four required resulting-main gates pending
-- **native:** inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz](active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md](active/vacation-campaign/evidence/restore-source-refusal-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md](active/vacation-campaign/evidence/restore-source-refusal-review.md), [docs/work/active/vacation-campaign/evidence/pr190-publication.json](active/vacation-campaign/evidence/pr190-publication.json), [https://github.com/ewq100/brn-rust/pull/190](https://github.com/ewq100/brn-rust/pull/190), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr190-premerge.json](active/vacation-campaign/evidence/pr190-premerge.json), [docs/work/active/vacation-campaign/evidence/pr190-integration.json](active/vacation-campaign/evidence/pr190-integration.json)
-
-Attempts:
-
-- Expected regression FAIL1/0/43filtered,exit101: old literal non-SQLite source produces Sqlite rather than UnsafeDirectory. No target or source repair.: Classify only NOTADB during restore source validation before staging, using existing refusal taxonomy. Other SQLite/I/O errors unchanged. ([docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
-- First broad core gate passed preceding binaries but failed4 MCP policy cases at fixture open: inherited /var/folders TMPDIR traverses a symlink refused by DataFolder. CLI/lint commands did not run because script stopped.: Preserve raw first gate; rerun unchanged166d candidate with fresh explicit canonical /private/tmp root for test tempfiles. Do not weaken path guard or alter product/tests. ([docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
-
-</details>
-
 ### Make core checks work with normal Mac temporary folders
 
-Owner: bounded Luna fixture author; lead checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T20:55:59.461303+00:00
-Activity: Qualified current-main compositione1b0958f published as PR191. Sole patch exactly equals reviewed4f665; final default-Mac core219/0/1ignored, strict focused lint/fmt PASS again after composition. Required head39495969395 and preceding-main19039495469734 checks running in parallel.
-Next: Keep head stable; inspect actual required exact-head191 and preceding-main190 results plus fresh protection before normal merge, then verify resulting-main191 separately.
+Owner: bounded Luna fixture author; lead checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T21:20:39.473121+00:00
+Activity: PR191 normally mergedce220bd1 after all4required exact-head and all4preceding-main plus fresh strict/admin protection PASS. Whole merged tree equals reviewed/qualifiede1b. Separate resulting-main39499436262 queued.
+Next: Inspect all four actual required resulting-main39499436262 jobs before qualification complete. Preserve optional Windows failure and exact review/qualification transfer.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -47,12 +21,37 @@ Next: Keep head stable; inspect actual required exact-head191 and preceding-main
 Gates:
 
 - **implementation:** completee1b0958f on main9c18; one file patch exactly equals reviewed4f665
-- **checks:** PASS finalcomposed core219/0/1ignored on default Mac TMPDIR, focused strict lint/fmt, independent review exactpatchtransfer; required hosted head191/main190 pending
-- **integration:** PR191 published stablee1b0958f; not merged
+- **checks:** PASS local composed219/0/1ignored, focused lint/fmt, independent exactpatchreview transfer, all4required head and preceding-main
+- **integration:** normal mergece220bd1, whole-tree equality PASS; required resulting-main39499436262 pending
 - **native:** inapplicable fixture path setup; no UI/account action
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md](active/vacation-campaign/evidence/mac-temp-fixture-audit.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-implementation.md](active/vacation-campaign/evidence/mac-test-roots-implementation.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md](active/vacation-campaign/evidence/mac-test-roots-review.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz](active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json](active/vacation-campaign/evidence/mac-test-roots-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json](active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr191-publication.json](active/vacation-campaign/evidence/pr191-publication.json), [https://github.com/ewq100/brn-rust/pull/191](https://github.com/ewq100/brn-rust/pull/191)
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md](active/vacation-campaign/evidence/mac-temp-fixture-audit.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-implementation.md](active/vacation-campaign/evidence/mac-test-roots-implementation.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md](active/vacation-campaign/evidence/mac-test-roots-review.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz](active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json](active/vacation-campaign/evidence/mac-test-roots-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json](active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr191-publication.json](active/vacation-campaign/evidence/pr191-publication.json), [https://github.com/ewq100/brn-rust/pull/191](https://github.com/ewq100/brn-rust/pull/191), [docs/work/active/vacation-campaign/evidence/pr191-premerge.json](active/vacation-campaign/evidence/pr191-premerge.json), [docs/work/active/vacation-campaign/evidence/pr191-integration.json](active/vacation-campaign/evidence/pr191-integration.json)
+
+</details>
+
+### Keep architecture requirements separate from dated progress
+
+Owner: bounded Luna read-only audit; lead documentation integration · State: **active** · Last observed: 2026-10-20T21:23:37.994595+00:00
+Activity: Reviewed exact one-file correction published as PR192 on main191, head0cc1a400. Exact full-file SHA9921a3b7 equals independent review; docs625/2969links, overview/whitespace PASS. Required head and preceding-main checks pending.
+Next: Hold stable0cc1; inspect exact required head39499647752 and preceding-main19139499436262 plus live protection before normal merge, then resulting-main separately.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete f409a029 one-file correction
+- **checks:** PASS independent review and docs651/3162links, overview/whitespace; original imported-audit relative-link failure corrected, preserved
+- **integration:** PR192 published stable0cc1 on ce220; not merged
+- **native:** inapplicable to documentation routing
+- **owner acceptance:** not claimed
+
+Evidence: [docs/architecture/threads-target.md](../architecture/threads-target.md), [docs/architecture/overview.md](../architecture/overview.md), [docs/status.md](../status.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-implementation.md](active/vacation-campaign/evidence/architecture-status-implementation.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/architecture-status-review.md](active/vacation-campaign/evidence/architecture-status-review.md), [docs/work/active/vacation-campaign/evidence/architecture-status-qualification.json](active/vacation-campaign/evidence/architecture-status-qualification.json), [https://github.com/ewq100/brn-rust/pull/192](https://github.com/ewq100/brn-rust/pull/192)
+
+Attempts:
+
+- First whole docs check: one missing relative link in copied audit report; product-contract file links were valid.: Corrected imported report link relative to evidence directory, original compressed preserved. Final docs check651files/3162links0failures. ([docs/work/active/vacation-campaign/evidence/architecture-status-audit.md](active/vacation-campaign/evidence/architecture-status-audit.md), [docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz](active/vacation-campaign/evidence/architecture-status-audit-original.md.gz))
 
 </details>
 
@@ -1071,6 +1070,32 @@ Evidence: [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json
 
 </details>
 
+### Explain when a restore source is not a BRN backup
+
+Owner: bounded Luna read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T21:17:02.969268+00:00
+Activity: PR190 normally merged9c18; all four required resulting-main39495469734 checks now PASS. Exact merged/full candidate tree previously verified; optional Windows failures retained.
+Next: Complete; preserve source/error-classification and original failure receipts. Other prepared Mac controls remain separate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change
+- **checks:** PASS local/review and all4required exact-head166d + preceding-maina23; optional headWindowsCore failure retained
+- **integration:** PASS normal merge9c18, exact whole-tree equality and all four required resulting-main jobs
+- **native:** inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz](active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md](active/vacation-campaign/evidence/restore-source-refusal-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md](active/vacation-campaign/evidence/restore-source-refusal-review.md), [docs/work/active/vacation-campaign/evidence/pr190-publication.json](active/vacation-campaign/evidence/pr190-publication.json), [https://github.com/ewq100/brn-rust/pull/190](https://github.com/ewq100/brn-rust/pull/190), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr190-premerge.json](active/vacation-campaign/evidence/pr190-premerge.json), [docs/work/active/vacation-campaign/evidence/pr190-integration.json](active/vacation-campaign/evidence/pr190-integration.json), [docs/work/active/vacation-campaign/evidence/pr190-resulting-main.json](active/vacation-campaign/evidence/pr190-resulting-main.json)
+
+Attempts:
+
+- Expected regression FAIL1/0/43filtered,exit101: old literal non-SQLite source produces Sqlite rather than UnsafeDirectory. No target or source repair.: Classify only NOTADB during restore source validation before staging, using existing refusal taxonomy. Other SQLite/I/O errors unchanged. ([docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
+- First broad core gate passed preceding binaries but failed4 MCP policy cases at fixture open: inherited /var/folders TMPDIR traverses a symlink refused by DataFolder. CLI/lint commands did not run because script stopped.: Preserve raw first gate; rerun unchanged166d candidate with fresh explicit canonical /private/tmp root for test tempfiles. Do not weaken path guard or alter product/tests. ([docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
+
+</details>
+
 ### Measure the remaining Mac check time
 
 Owner: bounded Luna read-only timing assessment; lead disposition · State: **complete** · Last observed: 2026-10-20T20:48:35.576668+00:00
@@ -1089,6 +1114,32 @@ Gates:
 - **owner acceptance:** not claimed
 
 Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json](active/vacation-campaign/evidence/pr189-resulting-main.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md](active/vacation-campaign/evidence/residual-mac-ci-audit.md), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.json](active/vacation-campaign/evidence/residual-mac-ci-audit.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz](active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json)
+
+</details>
+
+### Check the existing offline path for embedded images
+
+Owner: bounded Luna source pre-research; lead contract/qualification disposition · State: **complete** · Last observed: 2026-10-20T21:24:06.464183+00:00
+Activity: Bounded investigation complete with independent evidence review, no actionable findings. SDK exact PNG bytes demonstrated; alternative policy fails checked BRN projection on layout/pixel dimensions. Two failed attempts preserved, temporary source restored, current production defaults unchanged.
+Next: Deferred image-retention candidate: revisit only when separately selected. Resolve layout/pixel and drawing/placeholder semantics, policy/provenance identity and actual restricted-host qualification before adoption; no third run or owner blocker for other hardening.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** no production change; temporary proof source archived and restored
+- **checks:** FAIL alternative-config BRN asset qualification; PASS independent interpretation review and source/fixture hash checks; no later link/asset assertions reached
+- **integration:** inapplicable: no production candidate selected or merged
+- **native:** not attempted; actual image bytes/rendering remain separate qualifications
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json](active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json), [docs/work/active/vacation-campaign/evidence/image-retention-preresearch.md](active/vacation-campaign/evidence/image-retention-preresearch.md), [docs/work/active/vacation-campaign/evidence/image-retention-proof.json](active/vacation-campaign/evidence/image-retention-proof.json), [docs/work/active/vacation-campaign/evidence/image-retention-proof.md](active/vacation-campaign/evidence/image-retention-proof.md), [docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz](active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/image-retention-proof-packet.md](active/vacation-campaign/evidence/image-retention-proof-packet.md), [docs/work/active/vacation-campaign/evidence/image-retention-proof-review.md](active/vacation-campaign/evidence/image-retention-proof-review.md)
+
+Attempts:
+
+- First temporary test exit101: SDK returns2image entries, expected1; actualembedded PNG exact bytes/hash butlayoutdimensions547x197 vs pixel940x340. Count expectation does not distinguish placeholder.: Second diagnostic adds checked projection/validation metadata before unchanged original assertions; no normalization or policy/guard change. ([docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz](active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz))
+- Second and final run exit101, same countassertion; diagnostic checked projection refuses document image dimensions/budget. No usable BRN asset envelope.: Stop bounded witness. Archive patches/logs/metadata, restore temporary source; retain owned build target outside checkout. Production defaults remain. ([docs/work/active/vacation-campaign/evidence/image-retention-proof.json](active/vacation-campaign/evidence/image-retention-proof.json), [docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz](active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz))
 
 </details>
 
@@ -1116,4 +1167,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T20:55:59.461303+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T21:24:06.464183+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

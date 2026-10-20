@@ -1,0 +1,82 @@
+{
+  "observed_at": "2026-10-20T21:22:06.025959+00:00",
+  "source": "9c18bc5f5aab0944335c2d5614b3f3009d8401b1",
+  "worker": "export-durability on codex/image-retention-proof",
+  "production_change": "none; only a temporary test-local alternative image config, no canonical save",
+  "first_attempt": {
+    "session": 52667,
+    "exit": 101,
+    "tests": {
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "filtered": 7
+    },
+    "build_seconds": 144,
+    "test_seconds": 0.05,
+    "failure": "raw SDK image entry count2 vs expected1; count expectation conflates one embedded image with all SDK placeholders"
+  },
+  "diagnostic_attempt": {
+    "session": 66709,
+    "exit": 101,
+    "tests": {
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "filtered": 7
+    },
+    "test_seconds": 0.06,
+    "change": "Add early checked projection/validation metadata before original assertions; original later call and all expectations unchanged",
+    "projection": {
+      "projection_error": "document image dimensions/budget"
+    }
+  },
+  "sdk_metadata": {
+    "errors": [],
+    "result_count": 1,
+    "images": [
+      {
+        "image_index": 0,
+        "source_path": "media/image1.png",
+        "format": "png",
+        "width": 547,
+        "height": 197,
+        "bytes": 13308,
+        "sha256": "86e6c9325de51d5c6b84dfd5aad8f5b4d09cfccc447a1626f8be3380e7700599",
+        "ocr_result_present": false
+      },
+      {
+        "image_index": 1,
+        "source_path": null,
+        "format": "png",
+        "width": null,
+        "height": null,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "ocr_result_present": false
+      }
+    ]
+  },
+  "independent_fixture": {
+    "source_sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+    "embedded_png_sha256": "86e6c9325de51d5c6b84dfd5aad8f5b4d09cfccc447a1626f8be3380e7700599",
+    "embedded_png_bytes": 13308,
+    "png_header_dimensions": [
+      940,
+      340
+    ],
+    "inspection": "Python zipfile + SHA256 + raw PNG IHDR, no production helper normalization"
+  },
+  "result": "FAIL alternative-config BRN asset qualification; exact SDK PNG byte capability demonstrated, existing checked projector refuses dimension mismatch",
+  "limits": [
+    "in-process SDK only, not restricted subprocess or protocol",
+    "no production CLI/native/store/backup qualification",
+    "no model/provider/account/network acquisition; locked offline build",
+    "extra empty SDK placeholder is not by itself proof of SDK defect",
+    "two attempts retained; no test weakening, projector repair or third conversion"
+  ],
+  "resource_plan": "requested Luna bounded source/test author; lead owns jobs1 pinned1.98.1 offline build; independent Sol interpretation review complete, no actionable findings; no effective model cost available",
+  "independent_review": "image-retention-proof-review.md",
+  "retained_build_target": "/private/tmp/brn-image-retention-proof-20261020/build-target",
+  "source_after": "Temporary test restored; worker clean at9c18; no production diff"
+}

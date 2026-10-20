@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-20T21:23:37.994595+00:00",
+  "candidate": "0cc1a4007e8e1bedd97f31e650e2446ac7373841",
+  "base": "ce220bd1b122a98fd3f14a590d564fd46f93ed26",
+  "files": [
+    "docs/architecture/threads-target.md"
+  ],
+  "reviewed_file_sha256": "9921a3b7fcc893fe243f134478673103bf732a46d5a8ba5f6786da81be3caa8d",
+  "review_transfer": "Exact full-file hash equals independently reviewed WIP at lead5a181090; original committed deltaf409 unchanged when cherry-picked onto main191. No claim of a new reviewer run on0cc1.",
+  "checks": {
+    "markdown_files": 625,
+    "local_links": 2969,
+    "failures": 0,
+    "overview": "PASS --check",
+    "whitespace": "PASS"
+  },
+  "runtime": "No code/runtime prompt changes; no Rust checks repeated locally",
+  "hosted": "required exact-head39499647752 and preceding-main39499436262 pending",
+  "pr": "https://github.com/ewq100/brn-rust/pull/192"
+}

@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T20:52:14.435306+00:00",
+    "observed_at": "2026-10-20T21:09:15.785686+00:00",
     "remaining_percent": 79,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual21%used/79%remaining; ordinaryUsageAllowedtrue; no ownerpause, fixed expiry unchanged",
+    "ordinary_work": "admitted: fresh native21%used/79%remaining and ordinaryUsageAllowedtrue before image pre-research; expiry unchanged",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T20:55:59.461303+00:00",
+    "observed_at": "2026-10-20T21:24:06.464183+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1590,12 +1590,12 @@
       {
         "id": "invalid-backup-error-audit",
         "title": "Explain when a restore source is not a BRN backup",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna read-only audit; lead disposition",
-        "activity": "PR190 normally merged9c18bc5f after all4required exact-head and all4preceding-main checks plus live strict/admin protection PASS. Whole merged tree equals reviewed166d. Required resulting-main39495469734 pending.",
-        "observed_at": "2026-10-20T20:52:14.435306+00:00",
+        "activity": "PR190 normally merged9c18; all four required resulting-main39495469734 checks now PASS. Exact merged/full candidate tree previously verified; optional Windows failures retained.",
+        "observed_at": "2026-10-20T21:17:02.969268+00:00",
         "origin": "observed",
-        "next_action": "Inspect actual resulting-main39495469734 required jobs; record all optional failures and qualify completion separately from merge. Continue independent qualified fixture integration in parallel.",
+        "next_action": "Complete; preserve source/error-classification and original failure receipts. Other prepared Mac controls remain separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1609,12 +1609,13 @@
           "docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json",
           "docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr190-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr190-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr190-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr190-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change",
           "checks": "PASS local/review and all4required exact-head166d + preceding-maina23; optional headWindowsCore failure retained",
-          "integration": "normal merge9c18bc5f; exact fulltree equality PASS; four required resulting-main gates pending",
+          "integration": "PASS normal merge9c18, exact whole-tree equality and all four required resulting-main jobs",
           "native": "inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate",
           "owner_acceptance": "not claimed"
         },
@@ -1642,10 +1643,10 @@
         "title": "Make core checks work with normal Mac temporary folders",
         "state": "active",
         "owner": "bounded Luna fixture author; lead checks/integration; independent Sol review",
-        "activity": "Qualified current-main compositione1b0958f published as PR191. Sole patch exactly equals reviewed4f665; final default-Mac core219/0/1ignored, strict focused lint/fmt PASS again after composition. Required head39495969395 and preceding-main19039495469734 checks running in parallel.",
-        "observed_at": "2026-10-20T20:55:59.461303+00:00",
+        "activity": "PR191 normally mergedce220bd1 after all4required exact-head and all4preceding-main plus fresh strict/admin protection PASS. Whole merged tree equals reviewed/qualifiede1b. Separate resulting-main39499436262 queued.",
+        "observed_at": "2026-10-20T21:20:39.473121+00:00",
         "origin": "observed",
-        "next_action": "Keep head stable; inspect actual required exact-head191 and preceding-main190 results plus fresh protection before normal merge, then verify resulting-main191 separately.",
+        "next_action": "Inspect all four actual required resulting-main39499436262 jobs before qualification complete. Preserve optional Windows failure and exact review/qualification transfer.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1660,12 +1661,14 @@
           "docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json",
           "docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr191-publication.json",
-          "https://github.com/ewq100/brn-rust/pull/191"
+          "https://github.com/ewq100/brn-rust/pull/191",
+          "docs/work/active/vacation-campaign/evidence/pr191-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr191-integration.json"
         ],
         "gates": {
           "implementation": "completee1b0958f on main9c18; one file patch exactly equals reviewed4f665",
-          "checks": "PASS finalcomposed core219/0/1ignored on default Mac TMPDIR, focused strict lint/fmt, independent review exactpatchtransfer; required hosted head191/main190 pending",
-          "integration": "PR191 published stablee1b0958f; not merged",
+          "checks": "PASS local composed219/0/1ignored, focused lint/fmt, independent exactpatchreview transfer, all4required head and preceding-main",
+          "integration": "normal mergece220bd1, whole-tree equality PASS; required resulting-main39499436262 pending",
           "native": "inapplicable fixture path setup; no UI/account action",
           "owner_acceptance": "not claimed"
         },
@@ -1700,6 +1703,94 @@
         },
         "attempts": [],
         "resource_plan": "One requested Luna medium audit, at most6 GitHub metadata reads, no builds/reruns/cache/config/account/native/nested changes. Distinguish queue/job/steps and uncontrolled comparisons; stop on completed bounded report."
+      },
+      {
+        "id": "image-retention-preresearch",
+        "title": "Check the existing offline path for embedded images",
+        "state": "complete",
+        "owner": "bounded Luna source pre-research; lead contract/qualification disposition",
+        "activity": "Bounded investigation complete with independent evidence review, no actionable findings. SDK exact PNG bytes demonstrated; alternative policy fails checked BRN projection on layout/pixel dimensions. Two failed attempts preserved, temporary source restored, current production defaults unchanged.",
+        "observed_at": "2026-10-20T21:24:06.464183+00:00",
+        "origin": "observed",
+        "next_action": "Deferred image-retention candidate: revisit only when separately selected. Resolve layout/pixel and drawing/placeholder semantics, policy/provenance identity and actual restricted-host qualification before adoption; no third run or owner blocker for other hardening.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json",
+          "docs/work/active/vacation-campaign/evidence/image-retention-preresearch.md",
+          "docs/work/active/vacation-campaign/evidence/image-retention-proof.json",
+          "docs/work/active/vacation-campaign/evidence/image-retention-proof.md",
+          "docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/image-retention-proof-packet.md",
+          "docs/work/active/vacation-campaign/evidence/image-retention-proof-review.md"
+        ],
+        "gates": {
+          "implementation": "no production change; temporary proof source archived and restored",
+          "checks": "FAIL alternative-config BRN asset qualification; PASS independent interpretation review and source/fixture hash checks; no later link/asset assertions reached",
+          "integration": "inapplicable: no production candidate selected or merged",
+          "native": "not attempted; actual image bytes/rendering remain separate qualifications",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "First temporary test exit101: SDK returns2image entries, expected1; actualembedded PNG exact bytes/hash butlayoutdimensions547x197 vs pixel940x340. Count expectation does not distinguish placeholder.",
+            "change": "Second diagnostic adds checked projection/validation metadata before unchanged original assertions; no normalization or policy/guard change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz"
+            ]
+          },
+          {
+            "outcome": "Second and final run exit101, same countassertion; diagnostic checked projection refuses document image dimensions/budget. No usable BRN asset envelope.",
+            "change": "Stop bounded witness. Archive patches/logs/metadata, restore temporary source; retain owned build target outside checkout. Production defaults remain.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/image-retention-proof.json",
+              "docs/work/active/vacation-campaign/evidence/image-retention-proof-raw.tar.gz"
+            ]
+          }
+        ],
+        "resource_plan": "One requested Luna medium temporary test author, lead single offline jobs1 build; no new dependencies/models/providers/native/account, no production defaults or persisted canonical records. Small fixture capability only; stop on dimension/link validation mismatch and preserve exact cause."
+      },
+      {
+        "id": "architecture-status-routing",
+        "title": "Keep architecture requirements separate from dated progress",
+        "state": "active",
+        "owner": "bounded Luna read-only audit; lead documentation integration",
+        "activity": "Reviewed exact one-file correction published as PR192 on main191, head0cc1a400. Exact full-file SHA9921a3b7 equals independent review; docs625/2969links, overview/whitespace PASS. Required head and preceding-main checks pending.",
+        "observed_at": "2026-10-20T21:23:37.994595+00:00",
+        "origin": "observed",
+        "next_action": "Hold stable0cc1; inspect exact required head39499647752 and preceding-main19139499436262 plus live protection before normal merge, then resulting-main separately.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/architecture/threads-target.md",
+          "docs/architecture/overview.md",
+          "docs/status.md",
+          "docs/work/active/vacation-campaign/evidence/architecture-status-audit.md",
+          "docs/work/active/vacation-campaign/evidence/architecture-status-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz",
+          "docs/work/active/vacation-campaign/evidence/architecture-status-review.md",
+          "docs/work/active/vacation-campaign/evidence/architecture-status-qualification.json",
+          "https://github.com/ewq100/brn-rust/pull/192"
+        ],
+        "gates": {
+          "implementation": "complete f409a029 one-file correction",
+          "checks": "PASS independent review and docs651/3162links, overview/whitespace; original imported-audit relative-link failure corrected, preserved",
+          "integration": "PR192 published stable0cc1 on ce220; not merged",
+          "native": "inapplicable to documentation routing",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "First whole docs check: one missing relative link in copied audit report; product-contract file links were valid.",
+            "change": "Corrected imported report link relative to evidence directory, original compressed preserved. Final docs check651files/3162links0failures.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/architecture-status-audit.md",
+              "docs/work/active/vacation-campaign/evidence/architecture-status-audit-original.md.gz"
+            ]
+          }
+        ],
+        "resource_plan": "One existing Luna helper, bounded local source/records only; no nested work, product edits, builds, account/native actions or web search."
       }
     ],
     "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
@@ -1715,28 +1806,29 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr190-merged-pr191-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T20:55:59.461303+00:00",
-    "runtime_capacity": "4total slots; onlylead active, all bounded helpers/reviews complete",
-    "build_slot": "free; final composed fixture qualification session36846 completedexit0",
+    "observed_at": "2026-10-20T21:23:37.994595+00:00",
+    "runtime_capacity": "4total slots; lead active; bounded author/review helpers complete",
+    "build_slot": "free; proof sessions52667/66709 both completedexit101, temporary source restored clean9c18; owned build target retained /private/tmp/brn-image-retention-proof-20261020/build-target",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
-        "run": 39495469734,
-        "session": 7784,
-        "purpose": "PR190 resulting-main60secondread-onlywatch"
+        "run": 39499436262,
+        "session": 10453,
+        "purpose": "PR191 resulting-main60secondread-onlywatch"
       },
       {
-        "run": 39495969395,
-        "session": 3615,
-        "purpose": "PR191 exact-head60secondread-onlywatch"
+        "run": 39499647752,
+        "session": 44075,
+        "purpose": "PR192 exact-head60secondread-onlywatch"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR190 merged9c18, resulting-main gates pending; PR191 stablee1b exact-head gates pending; one integration owner waits actual both sets",
-    "wait_reason": "Required external checks are running; both selected implementation/review/local gates finished. Three native checks remain blocked by last observed access limitation.",
+    "integration": "PR190 complete including all4required main; PR191 mergedce220 main pending; PR192 stable0cc1 head pending",
+    "wait_reason": "PR190 resulting-main and PR191 required head checks running; independent image-retention source study active; three actual Mac controls remain blocked.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust at clean166d8232 codex/restore-source-refusal; no source writer active",
-    "fixture_worker_checkout": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust clean e1b0958f codex/mac-mcp-test-roots, PR191 source frozen"
+    "worker_checkout": "export-durability clean9c18 on codex/image-retention-proof after archived temporary witness; frozen166d retained as existing ref",
+    "fixture_worker_checkout": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust clean e1b0958f codex/mac-mcp-test-roots, PR191 source frozen",
+    "documentation_worker_checkout": "/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust clean0cc1a400 codex/architecture-status-route; PR192 frozen"
   }
 }
