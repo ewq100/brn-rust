@@ -162,7 +162,7 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let canonical_records_unchanged = initial
         .iter()
         .map(|seed| app.store.record(&seed.record.id))
-        .collect::<Result<Vec<_>, _>>()?
+        .collect::<std::result::Result<Vec<_>, _>>()?
         .iter()
         .zip(&initial)
         .all(|(record, seed)| record.as_ref() == Some(&seed.record));
