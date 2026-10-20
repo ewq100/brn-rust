@@ -37,9 +37,9 @@ Attempts:
 
 ### Expose readable Needs you menu choices to Mac accessibility
 
-Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:17:20.165336+00:00
-Activity: PR187 published767f7a73 after normal parentPR186 merge. Complete tree identical to independently reviewed/local-qualified97e0d313; no source changes in unpublished rebase. Head39446784967 and preceding-main39446661224 checks running.
-Next: Hold published767f7a73 stable; inspect all4required exact-head and preceding-main gates before any normal merge. Native outer menu name remains separate pending access.
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:40:09.362422+00:00
+Activity: PR187767f7a73 all4required exact-head checks PASS. Preceding mergedmain ea223ef1 all3Mac checks PASS, UbuntuCore pending. Optional Windows failure retained. No merge yet.
+Next: Inspect final required preceding-main UbuntuCore gate; only then fresh protection/head/main reconciliation and normal merge. Actual Mac outer menu name remains pending access.
 Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
 
 <details>
@@ -49,11 +49,11 @@ Gates:
 
 - **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
 - **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
-- **integration:** PR187 OPEN767f7a73; all4required head and preceding-main pending; no merge
+- **integration:** PR187 all4required exact-head PASS; normal merge blocked by pending preceding-main UbuntuCore
 - **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json)
 
 </details>
 
@@ -918,4 +918,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:28:00.621255+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:40:09.362422+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
