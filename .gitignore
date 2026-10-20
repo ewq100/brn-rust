@@ -1,4 +1,5 @@
 /target/
+/.brn-ci-document-helpers/
 
 .DS_Store
 
