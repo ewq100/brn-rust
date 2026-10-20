@@ -556,3 +556,5 @@ remaining; first unattended wake remains unobserved.
 [Writing verification](writing-account-verification.md) and [source-bound qualification](evidence/writing-account-qualification.json) retain the failed pre-dispatch metadata layout, corrected independent reviews, lossless source/build/launch archives and successful exact frozen-request proposal. Original/sentinel/pending-comment records remain unchanged; no Apply/Undo or native acceptance is claimed. [The ledger](evidence/codex-ai-test-ledger.json) owns dated counts and actual launches.
 
 [Backup/export audit](evidence/2026-10-20-backup-failure-audit.md) identified missing export directory flushes by source inspection. The current task record owns its selected correction and current gates; the audit alone is not executed qualification.
+
+[Export qualification](evidence/export-durability-qualification.json) preserves the six focused passing tests, full logs and toolchain warning for reviewed source0f64a034. [Independent source review](evidence/export-durability-review.md) and [evidence review](evidence/writing-evidence-review.md) passed; current publication/merge gates remain in the task record.

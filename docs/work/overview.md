@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Grouped review verified on main; bounded writing proposal passed. Export correction independently reviewed; remote-progress integration awaits required checks.
+**Owner attention:** No owner decision requested. Grouped review verified on main; bounded writing proposal passed; progress records normally merged with resulting-main checks pending. Reviewed export correction ready for hosted checks.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -34,9 +34,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](a
 
 ### Flush complete export folders before reporting success
 
-Owner: bounded Luna medium writer; lead integration; independent Sol review follows · State: **active** · Last observed: 2026-10-20T08:18:03.635242+00:00
-Activity: Reviewed0f64a034 production tree locally composed with reviewed writing evidence; exact source unchanged. Awaiting PR180 required gates before publication; no main merge claimed.
-Next: Reconcile PR180 integration, then publish this reviewed export correction with supporting current evidence; inspect actual required checks before normal merge.
+Owner: bounded Luna medium writer; lead integration; independent Sol review follows · State: **active** · Last observed: 2026-10-20T08:22:45.967629+00:00
+Activity: Reviewed export source0f64a034 and reviewed writing/evidence records composed without product changes; main02445b28 reconciled after PR180 normal merge. Candidate ready for publication.
+Next: Publish the complete reviewed follow-through candidate, then keep head stable while all required hosted jobs run. Normal merge waits for actual required head and preceding-main evidence.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -45,7 +45,7 @@ Gates:
 
 - **implementation:** complete isolated0f64a034; app export source+README only
 - **checks:** PASS independent complete0f64review;2new+3existing+1roundtrip,all-targetClippy/fmt. Raw Cargo exit integers not separately captured through helper tee; passing Cargo summaries/logs retained.
-- **integration:** pending publication/exact-head required hosted checks and normal merge; independent source review0f64a034 passed
+- **integration:** ready for publication; exact reviewed source unchanged. Independent source/evidence reviews passed; required hosted head/merge/main gates pending.
 - **native:** daily synthetic export journey separate; no power-loss qualification claim
 - **owner acceptance:** not claimed
 
@@ -445,4 +445,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T08:22:13.912839+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T08:22:45.967629+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
