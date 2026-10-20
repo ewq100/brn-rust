@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. PR182 normally merged; main checks running. Cache investigation complete, bounded cache-save policy and MacCore time allowance prepared for review/publication. Mac batch18:00Tallinn.
+**Owner attention:** No owner decision requested. Investigation complete;5.89GB obsolete PR caches removed, main caches retained. Reviewed PR183 awaits required checks; PR182 merged with resulting-main checks running. Mac interaction18:00Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -37,9 +37,10 @@ Attempts:
 
 ### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
-Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
-Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:49:11.790264+00:00
+Activity: Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.
+Next: Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.
+Resource waits: PR183 required exact-head checks and preceding-mainbc8 checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -48,11 +49,11 @@ Gates:
 
 - **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Publication/required exact-head/resulting-main gates pending
+- **integration:** PR183 open at1e6abb60; required exact-head/main checks pending; no merge
 - **native:** inapplicable CI resource policy only
 - **owner acceptance:** not requested; existing in-scope maintenance authority
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json)
 
 Attempts:
 
@@ -62,9 +63,10 @@ Attempts:
 
 ### Keep shared Rust caches without duplicate PR uploads
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
-Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
-Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:49:11.790264+00:00
+Activity: Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.
+Next: Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.
+Resource waits: PR183 required exact-head checks and preceding-mainbc8 checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -73,11 +75,11 @@ Gates:
 
 - **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Publication/required exact-head/resulting-main gates pending
+- **integration:** PR183 open at1e6abb60; required exact-head/main checks pending; no merge
 - **native:** inapplicable CI policy only
 - **owner acceptance:** not requested; authorized campaign follow-up
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json)
 
 </details>
 
@@ -147,6 +149,22 @@ Owner: development lead; bounded Luna implementation and independent Sol high re
 Waiting:
 
 - resource: Required resulting-mainbc8 checks.
+
+### Allow the complete Mac Core check to finish within a bounded job
+
+Owner: lead implementation; independent Sol source review completed
+
+Waiting:
+
+- resource: PR183 required exact-head checks and preceding-mainbc8 checks.
+
+### Keep shared Rust caches without duplicate PR uploads
+
+Owner: lead implementation; independent Sol source review completed
+
+Waiting:
+
+- resource: PR183 required exact-head checks and preceding-mainbc8 checks.
 
 ## Completed
 
@@ -646,4 +664,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T11:48:01.528904+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T11:49:11.790264+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
