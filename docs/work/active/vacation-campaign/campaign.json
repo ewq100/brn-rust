@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:36:02.922793+00:00",
+    "observed_at": "2026-10-20T12:44:05.024068+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -799,12 +799,12 @@
       {
         "id": "mac-core-ci-time-budget",
         "title": "Allow the complete Mac Core check to finish within a bounded job",
-        "state": "active",
+        "state": "complete",
         "owner": "lead implementation; independent Sol source review completed",
-        "activity": "PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.",
-        "observed_at": "2026-10-20T12:16:42.598235+00:00",
+        "activity": "PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.",
+        "observed_at": "2026-10-20T12:44:05.024068+00:00",
         "origin": "observed",
-        "next_action": "Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.",
+        "next_action": "Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.",
         "depends_on": [],
         "resource_waits": [
           "Required resulting-main63345a8e checks."
@@ -819,12 +819,13 @@
           "https://github.com/ewq100/brn-rust/pull/183",
           "docs/work/active/vacation-campaign/evidence/pr183-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr183-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr183-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr183-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete isolatedfe65b8ec; only CI timeout/comment",
           "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
-          "integration": "Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending",
+          "integration": "PASS normalmerge63345a8e after4head/preceding-main; all4resulting-main39421007719 requiredchecksPASS",
           "native": "inapplicable CI resource policy only",
           "owner_acceptance": "not requested; existing in-scope maintenance authority"
         },
@@ -870,12 +871,12 @@
       {
         "id": "ci-main-cache-save-policy",
         "title": "Keep shared Rust caches without duplicate PR uploads",
-        "state": "active",
+        "state": "complete",
         "owner": "lead implementation; independent Sol source review completed",
-        "activity": "PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.",
-        "observed_at": "2026-10-20T12:16:42.598235+00:00",
+        "activity": "PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.",
+        "observed_at": "2026-10-20T12:44:05.024068+00:00",
         "origin": "observed",
-        "next_action": "Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.",
+        "next_action": "Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.",
         "depends_on": [],
         "resource_waits": [
           "Required resulting-main63345a8e checks."
@@ -889,12 +890,15 @@
           "https://github.com/ewq100/brn-rust/pull/183",
           "docs/work/active/vacation-campaign/evidence/pr183-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr183-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr183-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr183-integration.json",
+          "docs/work/active/vacation-campaign/evidence/ci-pr183-cache-observation.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main633-cache-observation.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed",
           "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
-          "integration": "Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending",
+          "integration": "PASS normalmerge63345a8e after4head/preceding-main; all4resulting-main39421007719 requiredchecksPASS",
           "native": "inapplicable CI policy only",
           "owner_acceptance": "not requested; authorized campaign follow-up"
         },
@@ -1099,7 +1103,7 @@
         "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Draft recovery PR184 is reviewed/local-qualified and running hosted checks; PR183 merged, required main checks pending. Tiny inactive-Project skill affordance fix selected. Native batch remains18:00 Tallinn."
+    "owner_attention": "No owner decision requested. CI correction complete: PR183 and all4required resulting-main checks pass. Draft recovery PR184 awaits hosted checks; tiny inactive-Project skill correction in progress. Native batch remains18:00Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",

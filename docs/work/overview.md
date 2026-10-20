@@ -1,61 +1,13 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Draft recovery PR184 is reviewed/local-qualified and running hosted checks; PR183 merged, required main checks pending. Tiny inactive-Project skill affordance fix selected. Native batch remains18:00 Tallinn.
+**Owner attention:** No owner decision requested. CI correction complete: PR183 and all4required resulting-main checks pass. Draft recovery PR184 awaits hosted checks; tiny inactive-Project skill correction in progress. Native batch remains18:00Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
 ## Working on
-
-### Allow the complete Mac Core check to finish within a bounded job
-
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
-Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
-Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
-Resource waits: Required resulting-main63345a8e checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
-- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
-- **native:** inapplicable CI resource policy only
-- **owner acceptance:** not requested; existing in-scope maintenance authority
-
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
-
-Attempts:
-
-- Python YAML module unavailable in current interpreter.: Used installed Ruby standard YAML parser without adding dependencies; reviewer independently compared parsed base/candidate. ([docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json))
-
-</details>
-
-### Keep shared Rust caches without duplicate PR uploads
-
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
-Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
-Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
-Resource waits: Required resulting-main63345a8e checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
-- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
-- **native:** inapplicable CI policy only
-- **owner acceptance:** not requested; authorized campaign follow-up
-
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
-
-</details>
 
 ### Preserve unsent drafts when a note creates its writing conversation
 
@@ -164,22 +116,6 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
-
-### Allow the complete Mac Core check to finish within a bounded job
-
-Owner: lead implementation; independent Sol source review completed
-
-Waiting:
-
-- resource: Required resulting-main63345a8e checks.
-
-### Keep shared Rust caches without duplicate PR uploads
-
-Owner: lead implementation; independent Sol source review completed
-
-Waiting:
-
-- resource: Required resulting-main63345a8e checks.
 
 ## Completed
 
@@ -644,6 +580,32 @@ Attempts:
 
 </details>
 
+### Allow the complete Mac Core check to finish within a bounded job
+
+Owner: lead implementation; independent Sol source review completed · State: **complete** · Last observed: 2026-10-20T12:44:05.024068+00:00
+Activity: PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.
+Next: Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.
+Resource waits: Required resulting-main63345a8e checks.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
+- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
+- **integration:** PASS normalmerge63345a8e after4head/preceding-main; all4resulting-main39421007719 requiredchecksPASS
+- **native:** inapplicable CI resource policy only
+- **owner acceptance:** not requested; existing in-scope maintenance authority
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json), [docs/work/active/vacation-campaign/evidence/pr183-resulting-main.json](active/vacation-campaign/evidence/pr183-resulting-main.json)
+
+Attempts:
+
+- Python YAML module unavailable in current interpreter.: Used installed Ruby standard YAML parser without adding dependencies; reviewer independently compared parsed base/candidate. ([docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json))
+
+</details>
+
 ### Find why Mac CI recompiles converters and misses reuse
 
 Owner: development lead plus two bounded read-only Luna medium helpers · State: **complete** · Last observed: 2026-10-20T11:37:02.369505+00:00
@@ -662,6 +624,28 @@ Gates:
 - **owner acceptance:** owner directly selected investigation
 
 Evidence: [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [docs/work/active/vacation-campaign/evidence/ci-cache-causes.md](active/vacation-campaign/evidence/ci-cache-causes.md), [docs/work/active/vacation-campaign/evidence/ci-compile-reuse.md](active/vacation-campaign/evidence/ci-compile-reuse.md)
+
+</details>
+
+### Keep shared Rust caches without duplicate PR uploads
+
+Owner: lead implementation; independent Sol source review completed · State: **complete** · Last observed: 2026-10-20T12:44:05.024068+00:00
+Activity: PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.
+Next: Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.
+Resource waits: Required resulting-main63345a8e checks.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
+- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
+- **integration:** PASS normalmerge63345a8e after4head/preceding-main; all4resulting-main39421007719 requiredchecksPASS
+- **native:** inapplicable CI policy only
+- **owner acceptance:** not requested; authorized campaign follow-up
+
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json), [docs/work/active/vacation-campaign/evidence/ci-pr183-cache-observation.json](active/vacation-campaign/evidence/ci-pr183-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main633-cache-observation.json](active/vacation-campaign/evidence/ci-main633-cache-observation.json), [docs/work/active/vacation-campaign/evidence/pr183-resulting-main.json](active/vacation-campaign/evidence/pr183-resulting-main.json)
 
 </details>
 
@@ -771,4 +755,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:36:02.922793+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:44:05.024068+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

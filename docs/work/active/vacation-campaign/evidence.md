@@ -586,3 +586,7 @@ The [general Search audit](evidence/general-search-audit.md) and lead validation
 ## Final draft recovery source2b836 —20October
 
 [Final qualification](evidence/writing-draft-recovery-2b836-qualification.json) retains the valid574 dismissal red, the separately invalid zero-test attempt, complete final notice18 and desktop340/0/1, strict lint, format and ordinary native build. [Independent final review](evidence/writing-draft-recovery-review-2b836.md) verifies both earlier P2 findings fixed and no remaining actionable finding. Unchanged core storage11 is reused. All original candidates/logs and separate immutable apps remain preserved; actual Mac MAC-10, hosted exact-head checks, integration and owner acceptance remain separate gates. No account test or private data was used.
+
+## PR183 resulting-main verification —20October
+
+All four required checks on exact integrated63345a8e passed in [run39421007719](https://github.com/ewq100/brn-rust/actions/runs/39421007719); [full receipt](evidence/pr183-resulting-main.json) retains actual jobs and three optional Windows failures. The cache policy’s actual PR false/main true inputs and restoration are retained in the [PR log receipt](evidence/ci-pr183-cache-observation.json) and [main log receipt](evidence/ci-main633-cache-observation.json). This completes the bounded CI policy/timeout slice, without a future speed guarantee, release or native acceptance claim.

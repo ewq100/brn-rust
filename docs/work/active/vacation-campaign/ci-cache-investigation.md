@@ -34,3 +34,18 @@ Lead owns any further converter-cache experiment. Revisit if cache-policy runs s
 ## Exact obsolete-cache cleanup
 
 After PR182 merged, four exact PR182-only cache IDs were removed following ref/key/version and merged-state revalidation. Readback confirmed all four absent and all five preexisting main cache IDs retained:5,886,330,190bytes removed. The [before/after receipt](evidence/ci-cache-pr182-cleanup.json) retains each outcome. A later inventory had grown to10,478,024,387bytes; the configured storage-limit read returned HTTP402, so the actual configured limit remains unknown. No storage/billing settings changed. Cleanup does not establish what caused the earlier cache disappearance.
+
+
+## Actual cache-policy inputs after integration
+
+The completed PR183 Mac Core log records `save-if: false` and a successful cache
+restore; the completed resulting-main633 Mac UI log records `save-if: true`, a
+successful restore and `Cache up-to-date.` at finalization. These observations
+confirm that PR restoration remains available and the main-only save condition
+reaches the pinned action. The main sample did not need a new upload. They are
+not a controlled speed comparison or proof of future cache retention.
+[PR log receipt](evidence/ci-pr183-cache-observation.json) and
+[main log receipt](evidence/ci-main633-cache-observation.json) retain exact jobs,
+source, compressed raw logs and hashes. The initial log reader refused ANSI bytes;
+the corrected read captured them to a file and stripped control sequences before
+selected display. This was a log-access limitation, not a failed CI check.
