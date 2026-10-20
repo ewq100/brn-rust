@@ -102,26 +102,26 @@
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
-      "state": "approved; in progress"
+      "state": "approved; unfinished adoption waits only for PR178 integration gates"
     },
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T05:18:26.961320+00:00",
+    "observed_at": "2026-10-20T05:31:34.069809+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
         "id": "visibility-adoption",
         "title": "Clearer instructions and one progress view",
-        "state": "active",
+        "state": "blocked",
         "owner": "development lead",
-        "activity": "Adoption implemented and independently reviewed; published as PR178. Required hosted checks are now running.",
-        "observed_at": "2026-10-20T05:18:26.961320+00:00",
+        "activity": "Implemented, independently reviewed and published; only required hosted checks/normal merge/resulting-main verification remain.",
+        "observed_at": "2026-10-20T05:31:34.069809+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four actual exact-head required checks, normal merge when passed, then inspect resulting-main checks.",
+        "next_action": "Inspect actual PR178 checks and preceding-main checks; when all required gates pass, normal match-head merge c6666cb9 and inspect resulting-main. Reconcile a changed head/main first; no repeat implementation.",
         "depends_on": [],
         "resource_waits": [
-          "Hosted exact-head checks for PR178; no new implementation or local build needed."
+          "External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/visibility-adoption.md",
@@ -132,7 +132,8 @@
           "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json",
           "https://github.com/ewq100/brn-rust/pull/178",
           "docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json",
-          "docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-integration.json"
         ],
         "gates": {
           "implementation": "complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged",
