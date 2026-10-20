@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Reuse converter dependencies without mixing build identities
 
-Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T16:21:40.307021+00:00
-Activity: PR1883342d791 required UbuntuCore/MacUI/MacRetrieval PASS; MacCore still running helper checks. Completed MacUI new cache identity explicitly cold:2031s total,754s helper preparation, save-iffalse and all3expected target paths observed. Preceding-main4c50b614 all4required PASS; no merge yet.
-Next: Wait for final required MacCore; fresh live protection/exact-head/main reconciliation before normal merge. After all resulting-main required checks and first MacUI cache publication, rerun that one MacUI job once to observe actual warm behavior. Preserve first cold run and optional failures.
+Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T16:29:05.371942+00:00
+Activity: PR188 normally merged6622443e after all4required exact-head and preceding-main PASS. Complete integrated tree matches reviewed/passing3342d791. First resulting-main39457653809 running; no hosted cache publication or warm speedup yet.
+Next: Inspect all4required resulting-main39457653809 checks and completed MacUI cache save log/size. After those gates, rerun that one MacUI job once on same source to verify actual warm hit/checks/timings; stop/reassess on failure or unexpected upload/identity.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,11 +22,11 @@ Gates:
 
 - **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
 - **checks:** PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending; hosted3of4requiredPASS, MacCorepending; performance pending first main upload/size and one justified same-source MacUI warm rerun; cold2031s observation is not speedup
-- **integration:** PR188 OPEN3342d791; exact-head and preceding-main required gates pending; no merge
+- **integration:** PASS authorized normal merge6622443e and exact tree equivalence; all4head/preceding-mainPASS; resulting-main39457653809 pending
 - **native:** inapplicable: development CI only
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json), [docs/work/active/vacation-campaign/evidence/pr188-premerge.json](active/vacation-campaign/evidence/pr188-premerge.json), [docs/work/active/vacation-campaign/evidence/pr188-integration.json](active/vacation-campaign/evidence/pr188-integration.json)
 
 Attempts:
 
@@ -974,4 +974,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T16:21:40.307021+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T16:29:05.371942+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

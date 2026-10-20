@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-20T16:27:49.798463+00:00",
+  "pr": {
+    "headRefOid": "3342d7913f93aaa42a15505eb3e44bb59620429a",
+    "mergeCommit": {
+      "oid": "6622443ee47d3cc6564b160b6f686f3dfcbbfa36"
+    },
+    "mergedAt": "2026-10-20T16:27:47Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/188"
+  },
+  "resulting_main": "6622443ee47d3cc6564b160b6f686f3dfcbbfa36",
+  "complete_tree_equivalence": "PASS identical to passing reviewed3342d791 candidate",
+  "runs": [],
+  "resulting_main_gates": "pending; inspect separately",
+  "performance": "pending first main MacUI cache publication/size and one same-source warm rerun; firstPR cold run preserved"
+}

@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T15:43:21.587928+00:00",
+    "observed_at": "2026-10-20T16:29:05.371942+00:00",
     "remaining_percent": 83,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual17% used /83% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual17% used /83% remaining; ordinaryUsageAllowedtrue; fixed expiry/no pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T16:21:40.307021+00:00",
+    "observed_at": "2026-10-20T16:29:05.371942+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1333,10 +1333,10 @@
         "title": "Reuse converter dependencies without mixing build identities",
         "state": "active",
         "owner": "bounded Luna implementation; lead qualification/integration; independent Sol review",
-        "activity": "PR1883342d791 required UbuntuCore/MacUI/MacRetrieval PASS; MacCore still running helper checks. Completed MacUI new cache identity explicitly cold:2031s total,754s helper preparation, save-iffalse and all3expected target paths observed. Preceding-main4c50b614 all4required PASS; no merge yet.",
-        "observed_at": "2026-10-20T16:21:40.307021+00:00",
+        "activity": "PR188 normally merged6622443e after all4required exact-head and preceding-main PASS. Complete integrated tree matches reviewed/passing3342d791. First resulting-main39457653809 running; no hosted cache publication or warm speedup yet.",
+        "observed_at": "2026-10-20T16:29:05.371942+00:00",
         "origin": "observed",
-        "next_action": "Wait for final required MacCore; fresh live protection/exact-head/main reconciliation before normal merge. After all resulting-main required checks and first MacUI cache publication, rerun that one MacUI job once to observe actual warm behavior. Preserve first cold run and optional failures.",
+        "next_action": "Inspect all4required resulting-main39457653809 checks and completed MacUI cache save log/size. After those gates, rerun that one MacUI job once on same source to verify actual warm hit/checks/timings; stop/reassess on failure or unexpected upload/identity.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1347,12 +1347,14 @@
           "docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz",
           "https://github.com/ewq100/brn-rust/pull/188",
           "docs/work/active/vacation-campaign/evidence/pr188-publication.json",
-          "docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json"
+          "docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json",
+          "docs/work/active/vacation-campaign/evidence/pr188-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr188-integration.json"
         ],
         "gates": {
           "implementation": "PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key",
           "checks": "PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending; hosted3of4requiredPASS, MacCorepending; performance pending first main upload/size and one justified same-source MacUI warm rerun; cold2031s observation is not speedup",
-          "integration": "PR188 OPEN3342d791; exact-head and preceding-main required gates pending; no merge",
+          "integration": "PASS authorized normal merge6622443e and exact tree equivalence; all4head/preceding-mainPASS; resulting-main39457653809 pending",
           "native": "inapplicable: development CI only",
           "owner_acceptance": "not claimed"
         },
@@ -1459,18 +1461,18 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20T15:55:01Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-stale-qualification-update.json"
+    "last_refresh_at": "2026-10-20T16:24:00Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-navigation-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T16:21:40.307021+00:00",
+    "observed_at": "2026-10-20T16:29:05.371942+00:00",
     "runtime_capacity": "4 total slots; lead only; bounded helpers completed",
     "build_slot": "free; CLI pinned build completed11.35s and immutable555 artifact archived; no local cargo job",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR1874c50 all4resulting-mainPASS; PR1883342d791 3of4requiredPASS, MacCorepending",
-    "wait_reason": "Only unresolved eligible source gate is current remote MacCore check; native scenarios require changed Mac access. No local builds/helpers/account runs.",
+    "integration": "PR188 merged6622443e; resulting-main39457653809 running; all helpers/builds done",
+    "wait_reason": "First new-main CI/cache publication is the active external gate. Native actor remains blocked by locked Mac; no new account runs or source writer.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

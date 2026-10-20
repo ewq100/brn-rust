@@ -1,0 +1,60 @@
+{
+  "observed_at": "2026-10-20 16:24:08 UTC",
+  "source_commit": "1cb19af8",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 25,
+  "edit_receipt": {
+    "new_sequence": 25,
+    "through_sequence": 25,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "2f41b02ab601629898d0655dca212e27580a5d7191ecd98d0119fb6669b78d83"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "4f87b016105cbd970833f7dc7f44f655f8c63c534e83a1da90610c94282ddf71"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "kind": "markdown",
+      "markdown": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The Notes navigation and menu accessibility corrections are merged in [PR 186](https://github.com/ewq100/brn-rust/pull/186) and [PR 187](https://github.com/ewq100/brn-rust/pull/187). Both passed every required check before and after merging. Actual corrected accessibility controls still need Mac observation.",
+      "hash": "2f41b02ab601629898d0655dca212e27580a5d7191ecd98d0119fb6669b78d83",
+      "metadata": {}
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 19:24 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "4f87b016105cbd970833f7dc7f44f655f8c63c534e83a1da90610c94282ddf71",
+      "metadata": {}
+    }
+  ],
+  "limits": "Only saved progress summary refreshed; actual corrected native controls remain pending."
+}
