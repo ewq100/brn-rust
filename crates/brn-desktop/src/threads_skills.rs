@@ -47,6 +47,7 @@ impl ThreadsUi {
             .as_ref()
             .and_then(|id| self.records.iter().find(|r| &r.id == id))
             .map(|r| (r.id.clone(), r.version, r.archived));
+        let inactive_project = context.as_ref().is_some_and(|(_, _, archived)| *archived);
         let stamp = SkillStamp {
             policy: self.settings.skills.clone(),
             project: context,
@@ -79,8 +80,10 @@ impl ThreadsUi {
                             digest: info.digest.clone(),
                             enabled: false,
                             selected: false,
-                            available: true,
-                            unavailable: None,
+                            available: !inactive_project,
+                            unavailable: inactive_project.then(|| {
+                                "This Project is inactive; inspect the package, but it cannot be enabled or selected here.".into()
+                            }),
                         });
                     }
                 }
@@ -252,6 +255,12 @@ impl ThreadsUi {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub(super) fn skills_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let project = self.skill_project();
+        let inactive_project = self
+            .skill_view
+            .stamp
+            .as_ref()
+            .and_then(|stamp| stamp.project.as_ref())
+            .is_some_and(|(_, _, archived)| *archived);
         let mut panel=div().id("skills-settings").flex().flex_col().gap_3()
             .child(section("Instruction skills — current scope"))
             .child(metadata(project.as_ref().map_or("Scope: general chats".into(),|p|format!("Scope: Project {p}"))))
@@ -311,7 +320,7 @@ impl ThreadsUi {
                         if skill.enabled { "Disable" } else { "Enable" },
                     ),
                 ];
-                if stale_digest.is_some() {
+                if stale_digest.is_some() && !inactive_project {
                     choices.push((
                         SkillAction::AdoptCurrent,
                         "adopt-current",
@@ -342,6 +351,8 @@ impl ThreadsUi {
                             .disabled(match action {
                                 SkillAction::Disable | SkillAction::Inspect => false,
                                 SkillAction::AdoptCurrent => current_package.is_none(),
+                                SkillAction::Remove => !current_package
+                                    .is_some_and(|package| package.digest == skill.digest),
                                 _ => !skill.available,
                             })
                             .on_click(cx.listener(move |this, _, _, cx| {

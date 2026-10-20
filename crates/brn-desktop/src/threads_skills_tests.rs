@@ -264,6 +264,272 @@ fn native_inventory_can_enable_one_package_in_each_scope_without_copying_policy(
 }
 
 #[gpui_kit::test]
+fn native_inactive_project_skill_rows_are_unavailable_without_rejected_enable_choices(
+    cx: &mut TestAppContext,
+) {
+    cx.update(gpui_kit::init);
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("workspace");
+    let inventory_package = root.path().join("inventory-package");
+    let stale_package = root.path().join("stale-package");
+    std::fs::create_dir(&inventory_package).unwrap();
+    std::fs::create_dir(&stale_package).unwrap();
+    std::fs::write(
+        inventory_package.join("SKILL.md"),
+        "---\nname: inactive-inventory-review\ndescription: Inactive inventory fixture.\n---\nInventory instruction fixture.\n",
+    )
+    .unwrap();
+    std::fs::write(
+        stale_package.join("SKILL.md"),
+        "---\nname: inactive-stale-review\ndescription: Inactive stale fixture.\n---\nStale instruction fixture.\n",
+    )
+    .unwrap();
+    let mut workspace = Workspace::open(&data).unwrap();
+    focus_tests::configure_offline_fixture(&mut workspace);
+    let inventory = workspace.install_skill(&inventory_package).unwrap();
+    let stale = workspace.install_skill(&stale_package).unwrap();
+    let project = workspace
+        .project_command(
+            "inactive-skill-controls-project",
+            ProjectCommand::Create {
+                title: "Inactive skill controls".into(),
+            },
+        )
+        .unwrap()
+        .writes[0]
+        .after
+        .id
+        .clone();
+
+    let stale_digest = "0".repeat(64);
+    let operation = workspace
+        .store
+        .allocate_operation("inactive-stale-skill-control-fixture")
+        .unwrap();
+    workspace
+        .store
+        .change_skill_policy(
+            &operation,
+            &brn_threads_app::SkillPolicyChange::Set(brn_threads_app::SkillBinding {
+                id: stale.id.clone(),
+                digest: stale_digest.clone(),
+                project: Some(project.clone()),
+                enabled: true,
+                selected: false,
+            }),
+            &brn_threads_app::HostAuthority::owner("synthetic stale skill fixture"),
+        )
+        .unwrap();
+    let preview = workspace.project_delete_preview(&project).unwrap();
+    workspace
+        .project_command(
+            "archive-inactive-skill-controls-project",
+            ProjectCommand::Delete {
+                preview,
+                actions: std::collections::BTreeMap::new(),
+            },
+        )
+        .unwrap();
+    let policy_before = workspace.settings().unwrap().skills;
+    assert!(workspace.store.record(&project).unwrap().unwrap().archived);
+
+    let (window, view) = cx.update(|cx| {
+        gpui_kit::open_window(
+            WindowOptions {
+                window_bounds: Some(WindowBounds::Windowed(Bounds::new(
+                    point(px(0.), px(0.)),
+                    size(px(1400.), px(1600.)),
+                ))),
+                ..Default::default()
+            },
+            cx,
+            |window, cx| {
+                cx.new(|cx| {
+                    let mut ui = ThreadsUi::new(workspace, data.clone(), window, cx);
+                    ui.poll = None;
+                    ui.layout.open(TileKind::Settings);
+                    ui.settings_section = SettingsSection::Skills;
+                    ui.selected_project = Some(project.clone());
+                    ui.refresh_skills();
+                    ui
+                })
+            },
+        )
+        .unwrap()
+    });
+    cx.run_until_parked();
+
+    let mut notice_before = String::new();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, _| {
+            assert_eq!(ui.skill_view.project.as_deref(), Some(project.as_str()));
+            notice_before = ui.notice.text().to_owned();
+        });
+        window.render_frame(cx);
+        assert!(
+            window
+                .find("skill-enable-installed:inactive-inventory-review")
+                .visible()
+        );
+        window.click("skill-enable-installed:inactive-inventory-review", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, _| {
+            assert_eq!(ui.workspace.settings().unwrap().skills, policy_before);
+            assert_eq!(
+                ui.notice.text(),
+                notice_before,
+                "an unavailable inventory row must not dispatch a rejected enable action"
+            );
+            let inventory_row = ui
+                .skill_view
+                .rows
+                .iter()
+                .find(|row| row.id == inventory.id)
+                .unwrap();
+            assert!(!inventory_row.available);
+            assert!(
+                inventory_row
+                    .unavailable
+                    .as_deref()
+                    .unwrap()
+                    .contains("inactive")
+            );
+            assert!(!inventory_row.enabled && !inventory_row.selected);
+
+            let stale_row = ui
+                .skill_view
+                .rows
+                .iter()
+                .find(|row| row.id == stale.id)
+                .unwrap();
+            assert!(!stale_row.available && stale_row.enabled && !stale_row.selected);
+        });
+        window.render_frame(cx);
+        assert!(
+            window
+                .try_find("skill-adopt-current-installed:inactive-stale-review")
+                .is_none(),
+            "stale current bytes must not offer an enable action in an inactive Project"
+        );
+        assert!(
+            window
+                .find("skill-inspect-installed:inactive-stale-review")
+                .visible()
+        );
+        assert!(
+            window
+                .find("skill-enable-installed:inactive-stale-review")
+                .visible()
+        );
+        window.click("skill-inspect-installed:inactive-stale-review", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, _| {
+            assert!(
+                ui.skill_view
+                    .inspection
+                    .as_deref()
+                    .unwrap()
+                    .contains("Stale instruction fixture")
+            );
+            assert_eq!(ui.workspace.settings().unwrap().skills, policy_before);
+        });
+        window.render_frame(cx);
+        assert_eq!(
+            window
+                .find("skill-enable-installed:inactive-stale-review")
+                .label(),
+            Some("Disable")
+        );
+        window.click("skill-enable-installed:inactive-stale-review", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, _, cx| {
+        view.update(cx, |ui, _| {
+            let binding = ui
+                .workspace
+                .settings()
+                .unwrap()
+                .skills
+                .into_iter()
+                .find(|binding| {
+                    binding.id == stale.id && binding.project.as_deref() == Some(project.as_str())
+                })
+                .unwrap();
+            assert_eq!(binding.digest, stale_digest);
+            assert!(!binding.enabled && !binding.selected);
+        });
+    })
+    .unwrap();
+
+    let mut stale_remove_notice = String::new();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, _| {
+            stale_remove_notice = ui.notice.text().to_owned()
+        });
+        window.render_frame(cx);
+        assert!(
+            window
+                .find("skill-remove-installed:inactive-stale-review")
+                .visible()
+        );
+        window.click("skill-remove-installed:inactive-stale-review", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, window, cx| {
+        view.update(cx, |ui, _| {
+            assert_eq!(ui.notice.text(), stale_remove_notice);
+            assert_eq!(
+                ui.workspace
+                    .inspect_skill("inactive-stale-review")
+                    .unwrap()
+                    .info
+                    .digest,
+                stale.digest
+            );
+        });
+        window.render_frame(cx);
+        assert!(
+            window
+                .find("skill-remove-installed:inactive-inventory-review")
+                .visible()
+        );
+        window.click("skill-remove-installed:inactive-inventory-review", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(window, |_, _, cx| {
+        view.update(cx, |ui, _| {
+            assert!(
+                ui.workspace
+                    .inspect_skill("inactive-inventory-review")
+                    .is_err()
+            );
+            let binding = ui
+                .workspace
+                .settings()
+                .unwrap()
+                .skills
+                .into_iter()
+                .find(|binding| {
+                    binding.id == stale.id && binding.project.as_deref() == Some(project.as_str())
+                })
+                .unwrap();
+            assert_eq!(binding.digest, stale_digest);
+            assert!(!binding.enabled && !binding.selected);
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
     cx: &mut TestAppContext,
 ) {
