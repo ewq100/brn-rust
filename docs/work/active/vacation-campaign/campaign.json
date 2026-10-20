@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T08:18:03.635242+00:00",
+    "observed_at": "2026-10-20T08:22:13.912839+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -554,10 +554,10 @@
         "title": "Integrate remote progress routing and verification records",
         "state": "active",
         "owner": "development lead; independent Sol high review completed",
-        "activity": "PR180 head f8e72538 remains frozen while required checks run; preceding PR179 main now passed all four required jobs.",
-        "observed_at": "2026-10-20T08:10:49.158833+00:00",
+        "activity": "PR180 normally merged02445b28 after complete review/live protection/all4required exact-head passes. Resulting-main checks pending.",
+        "observed_at": "2026-10-20T08:22:13.912839+00:00",
         "origin": "observed",
-        "next_action": "Inspect four required exact-head jobs and preceding product main; refresh live protection before authorized normal merge, then inspect resulting main.",
+        "next_action": "Inspect four required resulting-main jobs for02445b28 separately; keep optional Windows failures visible.",
         "depends_on": [
           {
             "task": "review-group-toggle",
@@ -566,7 +566,7 @@
           }
         ],
         "resource_waits": [
-          "PR180 required head jobs pending; preceding product main179 required checks now all passed."
+          "Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/remote-cycle-review.md",
@@ -576,8 +576,8 @@
         ],
         "gates": {
           "implementation": "complete documentation-only candidate; no runtime prompt/script/dependency/product changes",
-          "checks": "passed independent complete da4397a2 review and final renderer/link/whitespace checks; required hosted head jobs pending",
-          "integration": "published PR180 f8e725385e56172e2ac654409d5af3e20352e1c8; required head/main gates pending",
+          "checks": "PASS independent complete docs review and all4required head39388373395 checks; optional WindowsCore failed",
+          "integration": "normally merged02445b283d85ac09d24f7ee7f111039a87b4dbb5; required resulting-main pending",
           "native": "inapplicable: documentation projection; mobile/browser rendering remains unobserved",
           "owner_acceptance": "not requested; owner authorized remote progress access"
         },

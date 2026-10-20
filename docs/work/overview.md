@@ -11,11 +11,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Integrate remote progress routing and verification records
 
-Owner: development lead; independent Sol high review completed · State: **active** · Last observed: 2026-10-20T08:10:49.158833+00:00
-Activity: PR180 head f8e72538 remains frozen while required checks run; preceding PR179 main now passed all four required jobs.
-Next: Inspect four required exact-head jobs and preceding product main; refresh live protection before authorized normal merge, then inspect resulting main.
+Owner: development lead; independent Sol high review completed · State: **active** · Last observed: 2026-10-20T08:22:13.912839+00:00
+Activity: PR180 normally merged02445b28 after complete review/live protection/all4required exact-head passes. Resulting-main checks pending.
+Next: Inspect four required resulting-main jobs for02445b28 separately; keep optional Windows failures visible.
 Depends on: review-group-toggle when PR179 normally merged so documentation can build on the integrated source. (reported satisfied: true)
-Resource waits: PR180 required head jobs pending; preceding product main179 required checks now all passed.
+Resource waits: Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -23,8 +23,8 @@ Resource waits: PR180 required head jobs pending; preceding product main179 requ
 Gates:
 
 - **implementation:** complete documentation-only candidate; no runtime prompt/script/dependency/product changes
-- **checks:** passed independent complete da4397a2 review and final renderer/link/whitespace checks; required hosted head jobs pending
-- **integration:** published PR180 f8e725385e56172e2ac654409d5af3e20352e1c8; required head/main gates pending
+- **checks:** PASS independent complete docs review and all4required head39388373395 checks; optional WindowsCore failed
+- **integration:** normally merged02445b283d85ac09d24f7ee7f111039a87b4dbb5; required resulting-main pending
 - **native:** inapplicable: documentation projection; mobile/browser rendering remains unobserved
 - **owner acceptance:** not requested; owner authorized remote progress access
 
@@ -118,7 +118,7 @@ Owner: development lead; independent Sol high review completed
 
 Waiting:
 
-- resource: PR180 required head jobs pending; preceding product main179 required checks now all passed.
+- resource: Hosted resulting-main checks; export publication may proceed, its merge waits for actual applicable main evidence.
 
 ## Completed
 
@@ -445,4 +445,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T08:18:03.635242+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T08:22:13.912839+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
