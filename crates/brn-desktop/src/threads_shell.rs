@@ -1100,6 +1100,8 @@ impl ThreadsUi {
                                         .max_w(px(380.))
                                         .min_w_0()
                                         .truncate()
+                                        .role(gpui_kit::Role::Label)
+                                        .aria_value(text.clone())
                                         .aria_label(text.clone())
                                         .tooltip(move |window, cx| {
                                             Tooltip::new(tooltip.clone()).build(window, cx)

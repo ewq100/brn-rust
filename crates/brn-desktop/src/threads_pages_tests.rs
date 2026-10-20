@@ -262,6 +262,11 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
             item.label(),
             Some(format!("Delivery update · {FAILURE}").as_str())
         );
+        assert_eq!(item.role(), Some(gpui_kit::Role::Label));
+        assert_eq!(
+            item.value(),
+            Some(format!("Delivery update · {FAILURE}").as_str())
+        );
         assert!(
             item.bounds().size.height < px(28.),
             "one line: {:?}",
@@ -355,6 +360,11 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
     update(cx, &f, |view, window, cx| {
         view.apply_layout(Preset::Write, window, cx);
         view.show_tile(TileKind::Notes, window, cx);
+        view.search.clone().update(cx, |input, cx| {
+            input.set_value("A protected decision with a long title", window, cx);
+            input.focus(window, cx);
+        });
+        cx.notify();
     });
     on_window(cx, &f, |window, _| {
         let row = format!("note-{note}");
@@ -362,13 +372,23 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
         let lock = window.find(format!("{row}-protected")).bounds();
         assert!(frame.size.width < px(200.), "the narrow list: {frame:?}");
         assert!(lock.size.width > px(8.) && lock.right() <= frame.right() + px(0.5));
+        assert!(label(window, &row).starts_with("A protected decision with a long title"));
         assert!(
             label(window, &row).ends_with("· Protected"),
             "{}",
             label(window, &row)
         );
+        assert_eq!(
+            window.find(row.clone()).role(),
+            Some(gpui_kit::Role::Button)
+        );
         assert_eq!(label(window, format!("{row}-protected")), "Protected");
     });
+
+    cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), None));
+    press(cx, &f, "tab");
+    press(cx, &f, "space");
+    cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
 /// U7: a chat that needs you leaves Recent chats, and in each Needs-you
