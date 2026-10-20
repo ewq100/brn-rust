@@ -290,10 +290,11 @@ fn retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_n
         })
         .expect("attachment receipt retains its figure asset");
     assert!(!asset.bytes.is_empty());
-    assert!(r
-        .writes
-        .iter()
-        .any(|write| matches!(write.after.data, RecordData::Source(_))));
+    assert!(
+        r.writes
+            .iter()
+            .any(|write| matches!(write.after.data, RecordData::Source(_)))
+    );
     assert!(r.writes.iter().any(|write| matches!(
         &write.after.data,
         RecordData::Link(link) if link.relation == "attachment"
