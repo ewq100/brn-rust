@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T15:47:52.088362+00:00",
+    "observed_at": "2026-10-20T15:54:37.285362+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1407,6 +1407,34 @@
         },
         "attempts": [],
         "resource_plan": "Lead alone for consequential restore boundary; no helpers needed for simple supported command/comparison. One cached build slot, max6minutes before reassessment, stop below1GiB; current free~21GiB. Pinned1.98.1, jobs1,debug0,incremental0; synthetic original data untouched."
+      },
+      {
+        "id": "saved-proposal-stale-cli",
+        "title": "Confirm a saved AI proposal cannot overwrite a later saved edit",
+        "state": "complete",
+        "owner": "lead qualification; bounded Luna command/fixture preflight",
+        "activity": "PASS actual production CLI fresh restored clone, prepared original candidate, explicit later Unicode edit savedv2, single Apply returned Stale/exit3 with exact Note/Comment version conflicts. All11table digests unchanged by refusal; later text and candidate request/state retained; Run_count1 Completed unchanged; original fixture/snapshot hashes retained. No fresh AI generation.",
+        "observed_at": "2026-10-20T15:54:37.285362+00:00",
+        "origin": "observed",
+        "next_action": "Reuse source-bound stale-Apply proof; actual Mac conflict messaging remains separate. No new product change or duplicate test selected.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
+          "crates/brn/README.md",
+          "docs/work/active/vacation-campaign/evidence/saved-proposal-cli-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/saved-proposal-stale-cli.json",
+          "docs/work/active/vacation-campaign/evidence/saved-proposal-stale-cli-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "qualification only; no new product code selected",
+          "checks": "PASS supported begin-edit/update-buffer/Save/Apply sequence, token-out0600withheld, no open recovery, expectedStale3, exact later Note, all11tables unchanged afterApply, original/candidate/Run identity preserved",
+          "integration": "inapplicable unless reproduced defect selects candidate",
+          "native": "headless check only; no actual UI or owner acceptance claim",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium fresh context for command/source preflight only while lead owns fresh clone and actual commands. One helper within4slots; no account/native/build/cache operations. One bounded stale-apply scenario; stop rather than invent unsupported command or change guard."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."

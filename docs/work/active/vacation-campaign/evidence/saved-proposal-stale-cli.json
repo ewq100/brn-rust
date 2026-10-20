@@ -1,0 +1,86 @@
+{
+  "observed_at": "2026-10-20T15:52:56.230487+00:00",
+  "binary": "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+  "binary_sha256": "b5fe8083b3c877dc3de8aa661af203b30f54b4e6352951813bc6a47c7dc54529",
+  "fresh_workspace": "/private/tmp/brn-native-20261020T134854Z/stale-proposal-cli",
+  "operation": "7571d9e7-71f7-432f-9d9c-d3fad71589a0",
+  "prepared_request_hash": "824e53c11aaccf9ecf5901ff94b73644da6f33d75435ca36aae800bcee6d4ba9",
+  "later_note_version": 2,
+  "later_note_exact_utf8": "Later owner edit \u00b7 \u00f5un\nKeep cobalt boats and this new sentence.",
+  "later_note_sha256": "d7ec98885d2476dc5d47334c124a9b5a1df72e740d20d23af456546e6aaf08f1",
+  "stale_apply_exit": 3,
+  "stale_apply_status": "stale",
+  "conflict": [
+    {
+      "id": "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0",
+      "kind": "Note",
+      "version": 2,
+      "archived": false,
+      "open_edit": false
+    },
+    {
+      "id": "6d668736-493b-4423-b5de-80e1307efc4a:0",
+      "kind": "Comment",
+      "version": 2,
+      "archived": false,
+      "open_edit": false
+    }
+  ],
+  "all_table_rows_unchanged_after_stale_apply": {
+    "tables": {
+      "candidate_targets": {
+        "rows": 1,
+        "sha256": "c9ac550e62d0c95b86e7b657b800ee856db6093d8186413d323041dd09d6c1e4"
+      },
+      "chat_drafts": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "derivation_inputs": {
+        "rows": 13,
+        "sha256": "fee5d60a2fdd2fc1f2d33216a08bad6b628ddbfc3ebf2852875b600a2365008a"
+      },
+      "edit_session_bindings": {
+        "rows": 1,
+        "sha256": "1313bf22e4c0854c28f99eae812bd71f9d1f35450c686ff82dfeb7c49aa0647e"
+      },
+      "edit_sessions": {
+        "rows": 1,
+        "sha256": "25c5aaac4c1fd275c881511f3a5b3ea60062b883e2b37ebb057d49733e5bcd3f"
+      },
+      "operations": {
+        "rows": 16,
+        "sha256": "84c1d0acd1dc309fa7c615c7308ab0b86faee05fba3fb902f12b88e7735efb83"
+      },
+      "receipt_actors": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "receipts": {
+        "rows": 15,
+        "sha256": "a8855ca9820a4739fc0d7788480616eb7c6c93964cba5d49394d88f299ed4548"
+      },
+      "records": {
+        "rows": 14,
+        "sha256": "08569d4e22d2d20217a79ed796e422ed32e400c494614f21d9116383d003c6df"
+      },
+      "revisions": {
+        "rows": 21,
+        "sha256": "10dd126f7e3b2fe539019c1e6ffd9ca96e9f9b1e5bc09553e49857279600a293"
+      },
+      "workspace_profile": {
+        "rows": 1,
+        "sha256": "1564bd382838087f43e5bb9b1f2152093f75441351e0c8f0291dd56dcf076547"
+      }
+    },
+    "runs": 1,
+    "run_state": "Completed"
+  },
+  "candidate_operation_unchanged": true,
+  "original_fixture_and_snapshot_unchanged": true,
+  "token_file_mode": "0600; authority bytes never read/logged/archived",
+  "no_new_run": true,
+  "limits": "Supported production CLI edit/Save/stale Apply on fresh restored synthetic saved proposal. No fresh AI generation. Does not establish actual Mac conflict controls, live provider cancellation, owner acceptance or unexamined candidate boundaries.",
+  "source": "Reused immutable555 CLI b5fe8083 built at18e604f0 with all crates byte-identical to integrated4c50b614; see mac-backup-cli-restore.json",
+  "raw_sha256": "f89e546e983932a8f9618ffc0e5b73f08369981ddf49130b7400b3d1e29a6ef6"
+}

@@ -920,6 +920,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-202610
 
 </details>
 
+### Confirm a saved AI proposal cannot overwrite a later saved edit
+
+Owner: lead qualification; bounded Luna command/fixture preflight · State: **complete** · Last observed: 2026-10-20T15:54:37.285362+00:00
+Activity: PASS actual production CLI fresh restored clone, prepared original candidate, explicit later Unicode edit savedv2, single Apply returned Stale/exit3 with exact Note/Comment version conflicts. All11table digests unchanged by refusal; later text and candidate request/state retained; Run_count1 Completed unchanged; original fixture/snapshot hashes retained. No fresh AI generation.
+Next: Reuse source-bound stale-Apply proof; actual Mac conflict messaging remains separate. No new product change or duplicate test selected.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** qualification only; no new product code selected
+- **checks:** PASS supported begin-edit/update-buffer/Save/Apply sequence, token-out0600withheld, no open recovery, expectedStale3, exact later Note, all11tables unchanged afterApply, original/candidate/Run identity preserved
+- **integration:** inapplicable unless reproduced defect selects candidate
+- **native:** headless check only; no actual UI or owner acceptance claim
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn/README.md](../../crates/brn/README.md), [docs/work/active/vacation-campaign/evidence/saved-proposal-cli-preflight.md](active/vacation-campaign/evidence/saved-proposal-cli-preflight.md), [docs/work/active/vacation-campaign/evidence/saved-proposal-stale-cli.json](active/vacation-campaign/evidence/saved-proposal-stale-cli.json), [docs/work/active/vacation-campaign/evidence/saved-proposal-stale-cli-raw.tar.gz](active/vacation-campaign/evidence/saved-proposal-stale-cli-raw.tar.gz)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -944,4 +965,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:47:52.088362+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:54:37.285362+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
