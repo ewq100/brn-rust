@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Make visible note rows discoverable to Mac accessibility
 
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:04:21.531870+00:00
-Activity: PR1869b0b13e1 required Mac UI and Mac retrieval/combined checks PASS; Ubuntu/Mac Core still running, optional Windows Core failed. Stable head preserved. Native AX remains blocked by confirmed Mac lock.
-Next: Hold PR186 head9b0b13e1 stable while required hosted checks run. Matching555 app/fresh synthetic Note clone prepared without launch for MAC11 after unlock; close prior undone review app first. Normal merge only after actual gates; resulting-main separately.
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:17:20.165336+00:00
+Activity: PR186 normally merged ea223ef1 after all four required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified9b0b13e1. Resulting-main39446661224 running; actual corrected Mac controls pending access.
+Next: Inspect required resulting-main39446661224 independently; native MAC11 after access returns using byte-identical qualified artifact.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,11 +22,11 @@ Gates:
 
 - **implementation:** PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1
 - **checks:** PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained
-- **integration:** PR186 OPEN9b0b13e1, required head39441912609 pending; no merge
+- **integration:** PASS authorized normal mergeea223ef1; exact-head all4PASS; resulting-main39446661224 pending
 - **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/pr186-premerge.json](active/vacation-campaign/evidence/pr186-premerge.json), [docs/work/active/vacation-campaign/evidence/pr186-integration.json](active/vacation-campaign/evidence/pr186-integration.json)
 
 Attempts:
 
@@ -37,10 +37,10 @@ Attempts:
 
 ### Expose readable Needs you menu choices to Mac accessibility
 
-Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:00:42.183458+00:00
-Activity: Local source97e0d313 committed, not pushed/published. Two semantic attributes plus retained role/value witness; meaningful red then focused/Home-keyboard PASS, desktop341/0/1, strict lint/format/ordinary build PASS. Independent source review found no blocking issue; native computed outer name remains pending.
-Next: Wait for normal PR186 merge, reconcile actual source/main and publication parent, then publish this separate reviewed candidate. Preserve exact source/artifact hashes; required head/main gates and actual Mac AX separate.
-Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: false)
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:17:20.165336+00:00
+Activity: PR187 published767f7a73 after normal parentPR186 merge. Complete tree identical to independently reviewed/local-qualified97e0d313; no source changes in unpublished rebase. Head39446784967 and preceding-main39446661224 checks running.
+Next: Hold published767f7a73 stable; inspect all4required exact-head and preceding-main gates before any normal merge. Native outer menu name remains separate pending access.
+Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -49,11 +49,11 @@ Gates:
 
 - **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
 - **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
-- **integration:** not published; genuine prerequisite PR186 normal merge unsatisfied
+- **integration:** PR187 OPEN767f7a73; all4required head and preceding-main pending; no merge
 - **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json)
 
 </details>
 
@@ -827,6 +827,31 @@ Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-202610
 
 </details>
 
+### Measure the remaining converter build cost after a cache hit
+
+Owner: bounded Luna medium source/log audit; lead disposition · State: **complete** · Last observed: 2026-10-20T15:17:20.165336+00:00
+Activity: Exact-hit Mac UI785s includes404s converter preparation. Bounded pinned-source audit completed; lead found recursive root cleaner makes initial nested-target proposal unsafe. Follow-up confirms overlap; proposed distinct helper targets outside root target. No configuration adopted.
+Next: Select narrowly scoped separate cache-layout experiment only with nonoverlapping targets, explicit helper identity key and pruning/boundary proof. No speed/storage claim yet.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no new cache or check change selected
+- **checks:** PASS bounded source/log/size audit; unsafe nested mapping rejected before implementation. No cache/build mutation.
+- **integration:** inapplicable until a separate candidate is selected and qualified
+- **native:** inapplicable: development feedback cost only
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md)
+
+Attempts:
+
+- Initial proposed multi-workspace targets nested beneath root target would be pruned by root graph first.: Rejected before implementation; require structurally nonoverlapping target paths. Preserve original audit and follow-up correction. ([docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -846,9 +871,9 @@ graph TD
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
   t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
-  t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (not satisfied)| t34
+  t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:04:21.531870+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:17:20.165336+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

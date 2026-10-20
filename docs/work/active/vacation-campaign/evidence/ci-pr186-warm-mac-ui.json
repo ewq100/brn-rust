@@ -1,0 +1,135 @@
+{
+  "observed_at": "2026-10-20T15:09:27.658971+00:00",
+  "source": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+  "run": 39441912609,
+  "job": {
+    "completed_at": "2026-10-20T14:57:12Z",
+    "conclusion": "success",
+    "head_sha": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+    "name": "Native UI build and state (macos-15)",
+    "run_id": 39441912609,
+    "started_at": "2026-10-20T14:44:07Z",
+    "status": "completed",
+    "steps": [
+      {
+        "completed_at": "2026-10-20T14:44:09Z",
+        "conclusion": "success",
+        "name": "Set up job",
+        "started_at": "2026-10-20T14:44:08Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:44:14Z",
+        "conclusion": "success",
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "started_at": "2026-10-20T14:44:09Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:45:42Z",
+        "conclusion": "success",
+        "name": "Run ./.github/actions/setup-rust",
+        "started_at": "2026-10-20T14:44:14Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:52:26Z",
+        "conclusion": "success",
+        "name": "Prepare both locked document helper graphs",
+        "started_at": "2026-10-20T14:45:42Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:52:49Z",
+        "conclusion": "success",
+        "name": "Build reusable writing UI on Unix",
+        "started_at": "2026-10-20T14:52:26Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:53:05Z",
+        "conclusion": "success",
+        "name": "Lint reusable writing UI on Unix",
+        "started_at": "2026-10-20T14:52:49Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:54:18Z",
+        "conclusion": "success",
+        "name": "Test reusable writing UI on Unix",
+        "started_at": "2026-10-20T14:53:05Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:54:36Z",
+        "conclusion": "success",
+        "name": "Build the desktop with native UI",
+        "started_at": "2026-10-20T14:54:18Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:54:45Z",
+        "conclusion": "success",
+        "name": "Lint native UI",
+        "started_at": "2026-10-20T14:54:36Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:55:22Z",
+        "conclusion": "success",
+        "name": "Test native UI state",
+        "started_at": "2026-10-20T14:54:45Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:55:35Z",
+        "conclusion": "success",
+        "name": "Lint native Unix widgets",
+        "started_at": "2026-10-20T14:55:22Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:04Z",
+        "conclusion": "success",
+        "name": "Test native Unix widgets",
+        "started_at": "2026-10-20T14:55:35Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:04Z",
+        "conclusion": "success",
+        "name": "Exercise the desktop headless driver on Unix",
+        "started_at": "2026-10-20T14:57:04Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:04Z",
+        "conclusion": "skipped",
+        "name": "Exercise the desktop headless driver on Windows",
+        "started_at": "2026-10-20T14:57:04Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:05Z",
+        "conclusion": "success",
+        "name": "Post Run ./.github/actions/setup-rust",
+        "started_at": "2026-10-20T14:57:04Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:06Z",
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "started_at": "2026-10-20T14:57:05Z"
+      },
+      {
+        "completed_at": "2026-10-20T14:57:10Z",
+        "conclusion": "success",
+        "name": "Complete job",
+        "started_at": "2026-10-20T14:57:06Z"
+      }
+    ]
+  },
+  "cache_restore_evidence": [
+    "2026-10-20T14:44:32.3752520Z Cache hit for: v0-rust-macOS-ARM64-native-ui-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-ui-Darwin-arm64-4b070e83-e97b446b",
+    "2026-10-20T14:45:30.7958860Z Cache restored successfully",
+    "2026-10-20T14:45:30.8637630Z Restored from cache key \"v0-rust-macOS-ARM64-native-ui-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-ui-Darwin-arm64-4b070e83-e97b446b\" full match: true."
+  ],
+  "job_seconds": 785.0,
+  "helper_preparation_seconds": 404.0,
+  "helper_preparation_fraction": 0.5146496815286624,
+  "conclusion": "Exact cache hit and successful Mac UI job; helper preparation still404/785seconds (51.5%). This triggers the existing bounded helper-cache research condition, not an adopted cache change or causal speed guarantee.",
+  "raw": {
+    "path": "docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.raw.log.gz",
+    "sha256": "5435f2b9c8df10b1500d15eee753f2eab6be53006040c7ee74eb3f830a041789",
+    "raw_sha256": "52ee6ced1f580d82bd899ebc78295a39bc6aee602ab69671e8efc4404ca74d33",
+    "raw_bytes": 137142
+  },
+  "retrieval": "Completed-job logs via gh api; first CLI read refused ANSI; corrected capture allowed escapes only to raw file, stripped ANSI before selected display. This is log-reader behavior, not failed CI.",
+  "limits": "One actual source/job, no controlled comparison. Does not establish why earlier cache disappeared or that a broader target archive is safe."
+}

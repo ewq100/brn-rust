@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-20T15:15:13.721539+00:00",
+  "pr": {
+    "headRefOid": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+    "mergeCommit": {
+      "oid": "ea223ef1c123c2402651236450df7541f825608a"
+    },
+    "mergedAt": "2026-10-20T15:14:59Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/186"
+  },
+  "resulting_main": "ea223ef1c123c2402651236450df7541f825608a",
+  "complete_tree_equivalence": "PASS no diff against locally qualified and independently reviewed9b0b13e1",
+  "resulting_main_runs": [
+    {
+      "conclusion": "",
+      "databaseId": 39446661224,
+      "event": "push",
+      "headSha": "ea223ef1c123c2402651236450df7541f825608a",
+      "name": "BRN CI",
+      "status": "in_progress",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39446661224"
+    }
+  ],
+  "resulting_main_gates": "pending; inspect independently",
+  "native": "corrected controls pending access; original defect observed"
+}
