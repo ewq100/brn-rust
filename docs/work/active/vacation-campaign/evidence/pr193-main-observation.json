@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-20T22:30:31.296513+00:00",
+  "source": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "run": 39507624699,
+  "required": [
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "in_progress",
+      "conclusion": "",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39507624699/job/118920413740"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "in_progress",
+      "conclusion": "",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39507624699/job/118920414196"
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "status": "in_progress",
+      "conclusion": "",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39507624699/job/118920414293"
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39507624699/job/118920414351"
+    }
+  ],
+  "limits": "Partial observation, not a complete resulting-main pass"
+}

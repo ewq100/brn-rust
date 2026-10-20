@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Check typing returns to the chat after quick search closes
 
-Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T22:22:58.573532+00:00
-Activity: PR193 normally merged9e2a81c0 after all4exact-head and preceding-main required checks, live strict/admin protection and clean source. Complete integrated tree equals reviewed/local-qualified891. Exact resulting-main39507624699 running.
-Next: Inspect exact integrated identity and resulting-main four required jobs separately; retain optional failures.
+Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T22:30:31.296513+00:00
+Activity: PR193 normally merged9e2a81c0 with complete qualified-tree equivalence. Actual resulting-main39507624699 Mac UI required jobPASS; other3required stillrunning. No extra source change selected by completed audits.
+Next: Remain at actual resulting-main gate; inspect all4required completed results before marking complete, keep optional Windows failures visible.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -26,7 +26,7 @@ Gates:
 - **native:** toolkit focus witness only; actual OS focus remains separate, no desktop/account action
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md), [crates/brn-desktop/src/threads_dialogs_tests.rs](../../crates/brn-desktop/src/threads_dialogs_tests.rs), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md](active/vacation-campaign/evidence/launcher-focus-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json](active/vacation-campaign/evidence/launcher-focus-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz](active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/193](https://github.com/ewq100/brn-rust/pull/193), [docs/work/active/vacation-campaign/evidence/pr193-premerge.json](active/vacation-campaign/evidence/pr193-premerge.json), [docs/work/active/vacation-campaign/evidence/pr193-integration.json](active/vacation-campaign/evidence/pr193-integration.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md), [crates/brn-desktop/src/threads_dialogs_tests.rs](../../crates/brn-desktop/src/threads_dialogs_tests.rs), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md](active/vacation-campaign/evidence/launcher-focus-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json](active/vacation-campaign/evidence/launcher-focus-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz](active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/193](https://github.com/ewq100/brn-rust/pull/193), [docs/work/active/vacation-campaign/evidence/pr193-premerge.json](active/vacation-campaign/evidence/pr193-premerge.json), [docs/work/active/vacation-campaign/evidence/pr193-integration.json](active/vacation-campaign/evidence/pr193-integration.json), [docs/work/active/vacation-campaign/evidence/pr193-main-observation.json](active/vacation-campaign/evidence/pr193-main-observation.json)
 
 Attempts:
 
@@ -1309,4 +1309,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:30:01.375510+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:30:31.296513+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
