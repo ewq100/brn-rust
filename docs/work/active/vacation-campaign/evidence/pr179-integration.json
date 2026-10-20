@@ -361,6 +361,98 @@
       },
       "production_tree_matches_qualified_465a6fad": true,
       "qualification": "Required resulting-main still pending; actual Mac and owner acceptance separate."
+    },
+    {
+      "observed_at": "2026-10-20T08:10:49.158833+00:00",
+      "resulting_main": {
+        "headSha": "b0eb18d7db7560269fa18d96c5bbf92eee1f40da",
+        "status": "completed",
+        "conclusion": "failure",
+        "jobs": [
+          {
+            "name": "Native UI build and state (ubuntu-24.04)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509783932",
+            "startedAt": "2026-10-20T07:32:45Z",
+            "completedAt": "2026-10-20T07:50:01Z"
+          },
+          {
+            "name": "Native retrieval and combined build (windows-2025)",
+            "status": "completed",
+            "conclusion": "failure",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784218",
+            "startedAt": "2026-10-20T07:32:44Z",
+            "completedAt": "2026-10-20T07:37:23Z"
+          },
+          {
+            "name": "Core and CLI (macos-15)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784319",
+            "startedAt": "2026-10-20T07:32:52Z",
+            "completedAt": "2026-10-20T08:09:25Z"
+          },
+          {
+            "name": "Native retrieval and combined build (ubuntu-24.04)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784329",
+            "startedAt": "2026-10-20T07:32:45Z",
+            "completedAt": "2026-10-20T07:42:24Z"
+          },
+          {
+            "name": "Core and CLI (windows-2025)",
+            "status": "completed",
+            "conclusion": "failure",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784374",
+            "startedAt": "2026-10-20T07:32:44Z",
+            "completedAt": "2026-10-20T07:35:02Z"
+          },
+          {
+            "name": "Native UI build and state (macos-15)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784413",
+            "startedAt": "2026-10-20T07:32:50Z",
+            "completedAt": "2026-10-20T07:44:55Z"
+          },
+          {
+            "name": "Native retrieval and combined build (macos-15)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784497",
+            "startedAt": "2026-10-20T07:32:49Z",
+            "completedAt": "2026-10-20T07:55:13Z"
+          },
+          {
+            "name": "Documentation and tooling",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784518",
+            "startedAt": "2026-10-20T07:32:45Z",
+            "completedAt": "2026-10-20T07:33:12Z"
+          },
+          {
+            "name": "Native UI build and state (windows-2025)",
+            "status": "completed",
+            "conclusion": "failure",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784738",
+            "startedAt": "2026-10-20T07:32:45Z",
+            "completedAt": "2026-10-20T07:37:37Z"
+          },
+          {
+            "name": "Core and CLI (ubuntu-24.04)",
+            "status": "completed",
+            "conclusion": "success",
+            "url": "https://github.com/ewq100/brn-rust/actions/runs/39387204718/job/118509784993",
+            "startedAt": "2026-10-20T07:32:45Z",
+            "completedAt": "2026-10-20T07:45:41Z"
+          }
+        ]
+      },
+      "required_result": "PASS all four required; overall run FAILURE from three optional Windows failures, preserved",
+      "production_identity": "Merged production tree matches previously qualified source465a6fad; native controls remain separate."
     }
   ]
 }

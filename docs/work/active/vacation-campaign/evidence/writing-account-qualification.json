@@ -1,0 +1,216 @@
+{
+  "observed_at": "2026-10-20T08:08:15.363275+00:00",
+  "product_source": "b0eb18d7db7560269fa18d96c5bbf92eee1f40da",
+  "lead_checkout_head": "f8e725385e56172e2ac654409d5af3e20352e1c8",
+  "product_tree_unchanged": "crates, agent, Cargo.toml/Cargo.lock/toolchain unchanged in lead; export correction isolated elsewhere",
+  "harness_source_sha256": "ead7ab6f903d2f5094783fb6275cc75b9a5b05a9420a853cc8dd6d823416ae3b",
+  "binary_sha256": "a3abe44d89d64d849f1406b4d73e72ead75919e9fe202c21a664962706a47e7e",
+  "binary": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/artifacts/writing-a3abe44d89d64d84",
+  "reviews": [
+    "writing-harness-initial-review.md",
+    "writing-harness-final-review.md",
+    "writing-harness-sidecar-review.md"
+  ],
+  "review_limits": "First final guard review missed DATA metadata incompatibility; actual refused launch retained. Sidecar final review passed. README chronology corrected after nonblocking note; source/binary unchanged.",
+  "attempts": [
+    {
+      "id": "e77bcbb1-088e-4e2c-a0d4-23f7cea00e1b",
+      "outcome": "failed before provider dispatch; manifest inside DATA correctly refused",
+      "counts_as_attempt": true
+    },
+    {
+      "id": "8879f1e2-6e62-4fe1-8690-5ddd01891d78",
+      "outcome": "passed one exact useful frozen-v2 whole-note candidate via production runtime",
+      "counts_as_attempt": true
+    }
+  ],
+  "session_count": 2,
+  "tallinn_day_count": 2,
+  "runtime_result": {
+    "attempt_id": "8879f1e2-6e62-4fe1-8690-5ddd01891d78",
+    "terminal": "Completed",
+    "run_id": "59341f8b-d40a-4b02-9111-1cd2fab85a83:0",
+    "run_state": "Completed",
+    "model": "gpt-6-luna",
+    "tool_round_budget": 4,
+    "saved_outcome": "one useful frozen-request whole-note proposal",
+    "candidate_operations": [
+      "7571d9e7-71f7-432f-9d9c-d3fad71589a0"
+    ],
+    "candidate_note_ids": [
+      "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0"
+    ],
+    "trace": {
+      "rounds": 3,
+      "max_rounds": 4,
+      "model_turns": 4,
+      "elapsed_ms": 8154,
+      "usage": {
+        "input": 33055,
+        "output": 368,
+        "cached_input": 23040
+      }
+    },
+    "failure_kind": null,
+    "deadline_fired": false,
+    "upstream_cancellation_confirmed": false
+  },
+  "workspace": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace",
+  "manifest": {
+    "format": 1,
+    "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace",
+    "note_id": "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0",
+    "note_version": 1,
+    "note_markdown": "The harbor draft describes cobalt boats crossing the bay at dawn.",
+    "note_record_sha256": "104c025626bbc3155ad6ec26d351bb94043115d7da8c7bb7a032ad5992740d4a",
+    "sentinel_id": "1b2ce6f6-5f5d-44cd-b196-2c5a83746633:0",
+    "sentinel_version": 1,
+    "sentinel_markdown": "Unrelated synthetic record: amber lantern remains unchanged.",
+    "sentinel_record_sha256": "01f592d47cb3aeda9eb21dc741a05cea7c2a09e59fcc6d5181620a3a7cd93266",
+    "writing_thread": "87851669-3c60-46fa-bbe4-99063b5f3ca7:0",
+    "comment_id": "6d668736-493b-4423-b5de-80e1307efc4a:0",
+    "comment_version": 1,
+    "comment_record_sha256": "85496731111a33607906dfac4da0e6db294368b28f853f7bfdadbcabba17f320",
+    "request_message": "7d8f434d-4f74-4f0f-802c-bc21d246ed5c:0",
+    "request_sha256": "b263dac7aa2ece7e29e83f2fe0428782532f0719cc666044a424558fc0b1361f",
+    "phrase": "cobalt boats",
+    "replacement": "teal boats",
+    "original_expected_candidate": "The harbor draft describes teal boats crossing the bay at dawn.",
+    "binary_sha256": "a3abe44d89d64d849f1406b4d73e72ead75919e9fe202c21a664962706a47e7e",
+    "source_sha256": "ead7ab6f903d2f5094783fb6275cc75b9a5b05a9420a853cc8dd6d823416ae3b",
+    "result": {
+      "attempt_id": "8879f1e2-6e62-4fe1-8690-5ddd01891d78",
+      "terminal": "Completed",
+      "run_id": "59341f8b-d40a-4b02-9111-1cd2fab85a83:0",
+      "run_state": "Completed",
+      "model": "gpt-6-luna",
+      "tool_round_budget": 4,
+      "saved_outcome": "one useful frozen-request whole-note proposal",
+      "candidate_operations": [
+        "7571d9e7-71f7-432f-9d9c-d3fad71589a0"
+      ],
+      "candidate_note_ids": [
+        "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0"
+      ],
+      "trace": {
+        "rounds": 3,
+        "max_rounds": 4,
+        "model_turns": 4,
+        "elapsed_ms": 8154,
+        "usage": {
+          "input": 33055,
+          "output": 368,
+          "cached_input": 23040
+        }
+      },
+      "failure_kind": null,
+      "deadline_fired": false,
+      "upstream_cancellation_confirmed": false
+    }
+  },
+  "offline_probes": [
+    "fresh prepare and normal no-upgrade reopen passed",
+    "existing DATA refused with all exact files including sibling sidecar unchanged",
+    "after live success verify passed",
+    "test-only manifest deadline flag injected: verify refused exit2; exact original restored, genuine verify passed; zero additional provider calls"
+  ],
+  "canonical_state": "Original Note, unrelated sentinel and captured pending Comment retain exact original record digests/versions; one unapplied candidate only. No Apply or Undo performed.",
+  "allowance_before": {
+    "observed_at": "2026-10-20T08:06:24.590Z",
+    "used_percent": 3,
+    "remaining_percent": 97,
+    "reset_unix": 1793083360
+  },
+  "allowance_after": {
+    "observed_at": "2026-10-20T08:07:09.402Z",
+    "used_percent": 3,
+    "remaining_percent": 97,
+    "reset_unix": 1793083360
+  },
+  "usage_limits": "Trace reports configured/persisted gpt-6-luna, low effort, 3 of4 rounds,4modelturns, usage exact below. No dollar estimate or independent provider model attestation. Initial scenario strings below8KiB; runtime system/tool context adds tokens.",
+  "deadline": "180second client supported cancellation +5second settlement,190second outer watchdog; neither fired. No upstream cancellation claim.",
+  "native": "pending actual OS review/Apply/Undo in daily consolidated Mac batch; no owner acceptance",
+  "archives": [
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-account-raw/harness-final.tar.gz",
+      "sha256": "c4dfd84ae450f8bdff775838daeb1f85ac74f76d98515ac3913c9a2e793e98b9",
+      "bytes": 35312,
+      "entries": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/main.rs",
+        "README.md",
+        "compile.log",
+        "feature-tree.log",
+        "build-binding.json",
+        "offline-prepare-refusal.log",
+        "offline-prepare-reopen.log"
+      ]
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-account-raw/harness-before-sidecar.tar.gz",
+      "sha256": "636b69858d5b2b6decd8a5c995ae148d6af43f9083e202e4f4761a3f6bcb3e22",
+      "bytes": 33951,
+      "entries": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/main.rs",
+        "README.md",
+        "compile.log",
+        "feature-tree.log",
+        "build-binding.json"
+      ]
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-account-raw/harness-before-guard-fix.tar.gz",
+      "sha256": "6f19cd66afb70d818dc7bdfe76caf42cffc7ccdeb58b39233b814a9ff39a41cc",
+      "bytes": 33236,
+      "entries": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/main.rs",
+        "README.md",
+        "compile.log",
+        "feature-tree.log",
+        "build-binding.json"
+      ]
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-account-raw/launch-first.tar.gz",
+      "sha256": "decbd537c0d73f825980e8063b1a847a66fe81481911eaa96a67b5445658d3a5",
+      "bytes": 2134,
+      "entries": [
+        "prepare.stdout",
+        "prepare.stderr",
+        "manifest-before-run.json",
+        "existing-root-refusal.json",
+        "reservation.json",
+        "launch.json",
+        "run.stdout",
+        "run.stderr"
+      ]
+    },
+    {
+      "path": "docs/work/active/vacation-campaign/evidence/writing-account-raw/launch-corrected.tar.gz",
+      "sha256": "4f4b8f0414089c86db41b73682aaa782a3897eba7ca428d1b1376c2a24395fd5",
+      "bytes": 3172,
+      "entries": [
+        "prepare.stdout",
+        "prepare.stderr",
+        "manifest-before-run.json",
+        "manifest-after-run.json",
+        "existing-root-refusal.json",
+        "reservation.json",
+        "launch.json",
+        "run.stdout",
+        "run.stderr",
+        "verify.stdout",
+        "verify.stderr",
+        "deadline-verdict-probe.json",
+        "workspace.harness-evidence/dispatch.json",
+        "workspace.harness-evidence/result.json"
+      ]
+    }
+  ],
+  "database_retention": "Fresh synthetic database retained outside repository for native follow-through; no canonical SQL repair/migration, no credentials/auth material copied. No raw provider responses archived."
+}
