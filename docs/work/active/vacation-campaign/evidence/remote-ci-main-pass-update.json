@@ -1,0 +1,343 @@
+{
+  "before": {
+    "metadata": {
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "layout": "document",
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "preview": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); checks on the resulting main version are running. The unsent-draft recovery repair is independently reviewed, passes local checks and is published in ",
+      "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+      "owner_workspace_id": null,
+      "parent": {
+        "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+        "title": "BRN"
+      },
+      "drive_scope": "space",
+      "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+      "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+      "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "position": 1835500201638912,
+      "created_at": "2026-10-20T07:17:46.030410Z",
+      "updated_at": "2026-10-20T12:37:37.551237Z",
+      "deleted_at": null,
+      "current_sequence": 13,
+      "projection_through_sequence": 13,
+      "access": {
+        "can_read": true,
+        "can_comment": true,
+        "can_write": true,
+        "can_share": true,
+        "can_delete": true,
+        "sources": [
+          "library"
+        ]
+      },
+      "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "content": {
+      "schema_version": 2,
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+      "blocks": [
+        {
+          "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "kind": "markdown",
+          "markdown": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); checks on the resulting main version are running. The unsent-draft recovery repair is independently reviewed, passes local checks and is published in [PR 184](https://github.com/ewq100/brn-rust/pull/184), awaiting required automated checks. A small inactive-Project skill-control issue is being corrected separately.",
+          "hash": "24f9cffc6a448df0a957745ca4b6f1f82a6f1935b6d2f35e82b844f9e794aba2",
+          "metadata": {}
+        },
+        {
+          "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "kind": "markdown",
+          "markdown": "Last refreshed: **20 October 2026 at 15:38 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+          "hash": "661e9cc9ba6c97f4d8c40285b802570b13c481bf22f0bf044532ed6429c97129",
+          "metadata": {}
+        },
+        {
+          "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "kind": "markdown",
+          "markdown": "1. Verify the required main checks for [PR 183](https://github.com/ewq100/brn-rust/pull/183) and exact-version checks for the separate [draft repair](https://github.com/ewq100/brn-rust/pull/184) before normal integration. Separately fix misleading skill Enable choices in inactive Projects; the underlying service already refuses these writes safely.",
+          "hash": "43880b9600c017aa98f0a012cc20696ca214c2458ed1788e5d70886f4788a8fd",
+          "metadata": {}
+        },
+        {
+          "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "kind": "markdown",
+          "markdown": "**No decision is needed from you now.** PR 183 is merged with required main checks pending; PR 184 is reviewed and locally checked, with hosted checks running. Optional Windows failures remain recorded. Actual Mac interaction remains separate; no owner data or live account call was used for the draft repair.",
+          "hash": "685c34aa043a10255a245e2fb8c97037d75f91b197a6e24c7b222f73c8229c90",
+          "metadata": {}
+        }
+      ],
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "view": "editing",
+    "selection": {
+      "mode": "block_ids",
+      "selection_complete": true,
+      "whole_page_complete": false,
+      "page_block_count": 27,
+      "returned_block_count": 4,
+      "matched_block_count": 4,
+      "context_blocks": 0,
+      "query_matches": [],
+      "missing_block_ids": [],
+      "blocks": [
+        {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "block_index": 0,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "block_index": 1,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "block_index": 16,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "block_index": 20,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        }
+      ]
+    }
+  },
+  "request": {
+    "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+    "operations": [
+      {
+        "op": "replace_block_markdown",
+        "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "expected_hash": "24f9cffc6a448df0a957745ca4b6f1f82a6f1935b6d2f35e82b844f9e794aba2",
+        "markdown": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); all four required checks now pass on the resulting main version. The unsent-draft recovery repair is independently reviewed, passes local checks and is published in [PR 184](https://github.com/ewq100/brn-rust/pull/184), awaiting required automated checks. A small inactive-Project skill-control issue is being corrected separately."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "expected_hash": "661e9cc9ba6c97f4d8c40285b802570b13c481bf22f0bf044532ed6429c97129",
+        "markdown": "Last refreshed: **20 October 2026 at 15:46 Europe/Tallinn**. This is a saved progress summary, not live activity."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+        "expected_hash": "43880b9600c017aa98f0a012cc20696ca214c2458ed1788e5d70886f4788a8fd",
+        "markdown": "1. The CI correction’s required main checks passed. Verify exact-version checks for the separate [draft repair](https://github.com/ewq100/brn-rust/pull/184) before normal integration. Separately fix misleading skill Enable choices in inactive Projects; the underlying service already refuses these writes safely."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+        "expected_hash": "685c34aa043a10255a245e2fb8c97037d75f91b197a6e24c7b222f73c8229c90",
+        "markdown": "**No decision is needed from you now.** PR 183 is merged with all four required main checks passing; PR 184 is reviewed and locally checked, with hosted checks running. Optional Windows failures remain recorded. Actual Mac interaction remains separate; no owner data or live account call was used for the draft repair."
+      }
+    ]
+  },
+  "result": {
+    "new_sequence": 14,
+    "through_sequence": 14,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "5ebcafb6218853ec921c5e98ac5dd1758c22e6da281a33b689060f5fd81ace63"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "7274b13d3d25b36473b5ac614089b489009d959500ee62dee62afc9c4c63840a"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "300622f467e6dd85231eb98052b5e8d0a6ab37a0732b1f33e979523199bb7f02"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "b708985a29519580c4b142ff79110eced322d5aaaa447c3dd2f3af6ffa6ae756"
+          }
+        ]
+      }
+    ]
+  },
+  "changes": {
+    "759f74e2-e735-43cb-b86c-10adf022daf9": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); all four required checks now pass on the resulting main version. The unsent-draft recovery repair is independently reviewed, passes local checks and is published in [PR 184](https://github.com/ewq100/brn-rust/pull/184), awaiting required automated checks. A small inactive-Project skill-control issue is being corrected separately.",
+    "a37e5801-b0c8-4330-800f-13d98b10338a": "Last refreshed: **20 October 2026 at 15:46 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+    "05adb36d-8363-4195-bd53-82b4e5f6734a": "1. The CI correction’s required main checks passed. Verify exact-version checks for the separate [draft repair](https://github.com/ewq100/brn-rust/pull/184) before normal integration. Separately fix misleading skill Enable choices in inactive Projects; the underlying service already refuses these writes safely.",
+    "2e6d8ee0-067d-42fd-89dc-177f822a8f9c": "**No decision is needed from you now.** PR 183 is merged with all four required main checks passing; PR 184 is reviewed and locally checked, with hosted checks running. Optional Windows failures remain recorded. Actual Mac interaction remains separate; no owner data or live account call was used for the draft repair."
+  },
+  "readback": {
+    "metadata": {
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "layout": "document",
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "preview": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); all four required checks now pass on the resulting main version. The unsent-draft recovery repair is independently reviewed, passes local checks and i",
+      "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+      "owner_workspace_id": null,
+      "parent": {
+        "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+        "title": "BRN"
+      },
+      "drive_scope": "space",
+      "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+      "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+      "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "position": 1835500201638912,
+      "created_at": "2026-10-20T07:17:46.030410Z",
+      "updated_at": "2026-10-20T12:47:03.524599Z",
+      "deleted_at": null,
+      "current_sequence": 14,
+      "projection_through_sequence": 14,
+      "access": {
+        "can_read": true,
+        "can_comment": true,
+        "can_write": true,
+        "can_share": true,
+        "can_delete": true,
+        "sources": [
+          "library"
+        ]
+      },
+      "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "content": {
+      "schema_version": 2,
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+      "blocks": [
+        {
+          "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "kind": "markdown",
+          "markdown": "The Mac CI correction is merged in [PR 183](https://github.com/ewq100/brn-rust/pull/183); all four required checks now pass on the resulting main version. The unsent-draft recovery repair is independently reviewed, passes local checks and is published in [PR 184](https://github.com/ewq100/brn-rust/pull/184), awaiting required automated checks. A small inactive-Project skill-control issue is being corrected separately.",
+          "hash": "5ebcafb6218853ec921c5e98ac5dd1758c22e6da281a33b689060f5fd81ace63",
+          "metadata": {}
+        },
+        {
+          "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "kind": "markdown",
+          "markdown": "Last refreshed: **20 October 2026 at 15:46 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+          "hash": "7274b13d3d25b36473b5ac614089b489009d959500ee62dee62afc9c4c63840a",
+          "metadata": {}
+        },
+        {
+          "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "kind": "markdown",
+          "markdown": "1. The CI correction’s required main checks passed. Verify exact-version checks for the separate [draft repair](https://github.com/ewq100/brn-rust/pull/184) before normal integration. Separately fix misleading skill Enable choices in inactive Projects; the underlying service already refuses these writes safely.",
+          "hash": "300622f467e6dd85231eb98052b5e8d0a6ab37a0732b1f33e979523199bb7f02",
+          "metadata": {}
+        },
+        {
+          "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "kind": "markdown",
+          "markdown": "**No decision is needed from you now.** PR 183 is merged with all four required main checks passing; PR 184 is reviewed and locally checked, with hosted checks running. Optional Windows failures remain recorded. Actual Mac interaction remains separate; no owner data or live account call was used for the draft repair.",
+          "hash": "b708985a29519580c4b142ff79110eced322d5aaaa447c3dd2f3af6ffa6ae756",
+          "metadata": {}
+        }
+      ],
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "view": "editing",
+    "selection": {
+      "mode": "block_ids",
+      "selection_complete": true,
+      "whole_page_complete": false,
+      "page_block_count": 27,
+      "returned_block_count": 4,
+      "matched_block_count": 4,
+      "context_blocks": 0,
+      "query_matches": [],
+      "missing_block_ids": [],
+      "blocks": [
+        {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "block_index": 0,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "block_index": 1,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "block_index": 16,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "block_index": 20,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        }
+      ]
+    }
+  },
+  "verification": "All4 guarded replacements match exact readback.",
+  "observed_at": "2026-10-20T12:47:13.712Z"
+}

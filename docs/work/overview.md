@@ -39,22 +39,27 @@ Attempts:
 
 ### Show unavailable skill choices correctly in inactive Projects
 
-Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T12:36:02.922793+00:00
-Activity: Lead validated inventory-only rows advertise Enable in archived Project despite checked service refusal; stale-digest Enable current version also bypasses availability in render. Selected a tiny UI-only correction with active/global and inspect/clear behavior retained.
-Next: Isolate writer after frozen draft publication; reproduce inactive inventory/control sequence, correct displayed availability and disable enable/select/adopt-current in inactive scope, then final affected checks and independent review.
+Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T12:54:01.127912+00:00
+Activity: Clean28474ab7 implements two-file UI correction; independent complete source/caller review PASS. Author reports focused4, desktop341/0/1, lint/fmt/build pass, but original command/log receipts and immutable copies were not saved; bounded evidence repair in progress before publication.
+Next: Preserve actual original transcript results or honest gaps, record final proof repair only where needed, copy source-bound immutable app/helpers, and get targeted receipt review before composing/publishing separate skill fix.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** selected UI correction; no schema/provider/runtime prompt or service authorization change
-- **checks:** pending meaningful old-source witness and final affected qualification
-- **integration:** separate candidate; preserve PR184 stablehead and actualnormalmerge gates
+- **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
+- **checks:** Independent source PASS; author-reported4/341/0/1/lint/build need inspectable receipt recovery; qualification pending
+- **integration:** not composed/published; PR184 head19d592c6 stable while hosted checks run
 - **native:** not observed; later changed-control case may be queued after qualification
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json)
+
+Attempts:
+
+- Pre-pin lead caller mapping found inactive availability also disabled valid workspace-wide Remove; author corrected separate exact-current-digest guard before final freeze.: Distinct scoped enablement from exact global removal; stale/wrong-digest removal remains inert. No final source-check claim invalidated because candidate was not frozen. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md))
+- Initial28474manifest retained only author check summaries and mutable artifact paths; original logs/copy requirements not satisfied.: Evidence-repair loop selected; preserve original manifest and transcript limits, rerun only unresolved proof with source/log bindings, then copy immutable artifacts. No false raw-log or final qualification claim. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json))
 
 </details>
 
@@ -755,4 +760,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:44:05.024068+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:54:01.127912+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -1,0 +1,42 @@
+{
+  "kind": "brn-desktop-native-ui-artifact-manifest",
+  "source": {
+    "branch": "codex/inactive-project-skill-controls",
+    "commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+    "base": "19d592c69223aa1f106e4c0f379dab868f13542b",
+    "tree_clean": true,
+    "commit_diff_sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987",
+    "changed_files": [
+      "crates/brn-desktop/src/threads_skills.rs",
+      "crates/brn-desktop/src/threads_skills_tests.rs"
+    ]
+  },
+  "toolchain": "Rust 1.98.1",
+  "verification": {
+    "pre_fix_rendered_click": "failed as expected: enabled inactive-project inventory action set notice to invalid request: enabled skill requires a current active Project; policy unchanged",
+    "focused_skills": "passed: 4 passed, 0 failed",
+    "full_desktop": "passed: 341 passed, 0 failed, 1 ignored",
+    "strict_all_target_clippy": "passed with -D warnings",
+    "workspace_fmt_check": "passed",
+    "git_diff_check": "passed",
+    "ordinary_native_ui_build": "passed"
+  },
+  "artifacts": [
+    {
+      "name": "brn-desktop",
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+      "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d"
+    },
+    {
+      "name": "brn-xberg-helper",
+      "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "name": "brn-xberg-helper-brn",
+      "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "launched": false
+}
