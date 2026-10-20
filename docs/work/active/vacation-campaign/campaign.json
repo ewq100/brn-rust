@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T16:29:05.371942+00:00",
-    "remaining_percent": 83,
+    "observed_at": "2026-10-20T17:13:19.627177+00:00",
+    "remaining_percent": 82,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual17% used /83% remaining; ordinaryUsageAllowedtrue; fixed expiry/no pause",
+    "ordinary_work": "admitted: actual18% used /82% remaining; ordinaryUsageAllowedtrue; fixed expiry/no pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T16:29:05.371942+00:00",
+    "observed_at": "2026-10-20T17:14:10.555818+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1333,10 +1333,10 @@
         "title": "Reuse converter dependencies without mixing build identities",
         "state": "active",
         "owner": "bounded Luna implementation; lead qualification/integration; independent Sol review",
-        "activity": "PR188 normally merged6622443e after all4required exact-head and preceding-main PASS. Complete integrated tree matches reviewed/passing3342d791. First resulting-main39457653809 running; no hosted cache publication or warm speedup yet.",
-        "observed_at": "2026-10-20T16:29:05.371942+00:00",
+        "activity": "PR188 main all4 required PASS and first combined cache upload1.90GB saved. Single reserved same-source MacUI rerun dispatched successfully: run39457653809 attempt2, newUIjob118771060685 queued; no other rerun.",
+        "observed_at": "2026-10-20T17:14:10.555818+00:00",
         "origin": "observed",
-        "next_action": "Inspect all4required resulting-main39457653809 checks and completed MacUI cache save log/size. After those gates, rerun that one MacUI job once on same source to verify actual warm hit/checks/timings; stop/reassess on failure or unexpected upload/identity.",
+        "next_action": "Inspect exactly this warm attempt for actual full cache hit/key, helper source guard, checks and timings. No second dispatch on miss or uncertainty.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1349,12 +1349,15 @@
           "docs/work/active/vacation-campaign/evidence/pr188-publication.json",
           "docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json",
           "docs/work/active/vacation-campaign/evidence/pr188-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr188-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr188-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main188-cold-mac-ui.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main188-warm-validation-reservation.json"
         ],
         "gates": {
           "implementation": "PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key",
-          "checks": "PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending; hosted3of4requiredPASS, MacCorepending; performance pending first main upload/size and one justified same-source MacUI warm rerun; cold2031s observation is not speedup",
-          "integration": "PASS authorized normal merge6622443e and exact tree equivalence; all4head/preceding-mainPASS; resulting-main39457653809 pending",
+          "checks": "PASS local independent qualification and all4 required hosted head/main checks. Actual first-main cold upload successful; warm performance pending one reserved same-source rerun.",
+          "integration": "PASS authorized normal merge6622443e and all4 exact-head/preceding-main/resulting-main checks; optional Windows failures retained.",
           "native": "inapplicable: development CI only",
           "owner_acceptance": "not claimed"
         },
@@ -1450,6 +1453,31 @@
         },
         "attempts": [],
         "resource_plan": "Requested Luna medium fresh context for command/source preflight only while lead owns fresh clone and actual commands. One helper within4slots; no account/native/build/cache operations. One bounded stale-apply scenario; stop rather than invent unsupported command or change guard."
+      },
+      {
+        "id": "asset-backup-cli-preflight",
+        "title": "Check recovery of a backup containing a real attachment",
+        "state": "active",
+        "owner": "bounded Luna command/source preflight; lead selects and qualifies",
+        "activity": "Selected missing consequential asset-rich recovery witness after exact record-only Mac backup/CLI restore passed. Bounded public-command preflight assigned, no data/build/source/account/native operation dispatched.",
+        "observed_at": "2026-10-20T17:14:10.555818+00:00",
+        "origin": "observed",
+        "next_action": "Validate supported fresh synthetic asset creation/backup/restore route and existing coverage. Run one bounded real CLI qualification only if supported; no SQL/credential repair.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/development/verification.md",
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json"
+        ],
+        "gates": {
+          "implementation": "preflight only; no product change",
+          "checks": "pending supported route and genuine coverage assessment",
+          "integration": "inapplicable until concrete defect selects candidate",
+          "native": "not observed; headless qualification proposed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium fresh context for read-only CLI/contract route, no nested helper/build/data/account/native operations. Lead owns consequential selection/execution."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1465,14 +1493,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr188-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T16:29:05.371942+00:00",
-    "runtime_capacity": "4 total slots; lead only; bounded helpers completed",
+    "observed_at": "2026-10-20T17:14:10.555818+00:00",
+    "runtime_capacity": "4total slots; lead plus one bounded Luna read-only asset-backup command preflight; no nested workers/builds.",
     "build_slot": "free; CLI pinned build completed11.35s and immutable555 artifact archived; no local cargo job",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR188 merged6622443e; resulting-main39457653809 running; all helpers/builds done",
-    "wait_reason": "First new-main CI/cache publication is the active external gate. Native actor remains blocked by locked Mac; no new account runs or source writer.",
+    "integration": "All4PR188 resulting-main attempt1 PASS; single MacUI warm attempt2 queued118771060685.",
+    "wait_reason": "Actual warm CI validation queued; Mac locked. Lead saves first-main proof while helper inspects a distinct asset-rich recovery gap.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

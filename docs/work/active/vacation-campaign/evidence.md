@@ -606,3 +606,7 @@ All four required checks on exact integrated63345a8e passed in [run39421007719](
 ## Separate skill-control PR185 publication —20October
 
 [Publication receipt](evidence/pr185-publication.json) binds head7fa60a3e to independently reviewed/qualified28474 product source and integrated parentd2e0e298. Only the reviewed skill source/test delta is additional product code. Local raw focused and transcript-backed broader proof remain distinguished. Required exact-head and parent resulting-main checks are pending; no merge, native or owner acceptance is claimed. Head remains stable while CI runs.
+
+## 20 October: PR188 resulting-main and first cache publication
+
+[All four required resulting-main gates passed](evidence/pr188-resulting-main.json). Optional Windows failures remain visible. The [first Mac UI run](evidence/ci-main188-cold-mac-ui.json) uploaded a 1,902,323,274-byte combined cache with successful completion; this is distinct from the helper-only local estimate. One [reserved same-source Mac UI validation](evidence/ci-main188-warm-validation-reservation.json) was dispatched after those gates. Warm reuse and performance remain pending.
