@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T18:25:26.658917+00:00",
+    "observed_at": "2026-10-20T20:21:43.830502+00:00",
     "remaining_percent": 81,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: actual19%used/81%remaining; ordinaryUsageAllowedtrue; no ownerpause/fixedexpiry unchanged",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T18:18:15.577322+00:00",
+    "observed_at": "2026-10-20T20:30:13.940822+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1586,6 +1586,54 @@
         },
         "attempts": [],
         "resource_plan": "One Luna medium existing-receipt/source assessment completed; lead validated exact steps/priority. No source,build,CIrerun,cache,account,native or nested actions. Actual modelcost/effectiveconfiguration unexposed."
+      },
+      {
+        "id": "invalid-backup-error-audit",
+        "title": "Explain when a restore source is not a BRN backup",
+        "state": "active",
+        "owner": "bounded Luna read-only audit; lead disposition",
+        "activity": "PR190 marked ready at stable166d8232. Final local core219/0/1ignored, CLI agent_contract23/0, strict core+CLI all-target lint and format PASS; independent complete-candidate review no findings. Required hosted CI39492291218 pending.",
+        "observed_at": "2026-10-20T20:30:13.940822+00:00",
+        "origin": "observed",
+        "next_action": "Inspect actual required exact-head CI and live protection plus preceding-main; normal merge only after all required gates, then inspect resulting-main separately. Keep source head stable.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json",
+          "docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md",
+          "docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md",
+          "docs/work/active/vacation-campaign/evidence/pr190-publication.json",
+          "https://github.com/ewq100/brn-rust/pull/190",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change",
+          "checks": "PASS local core219/0/1ignored, CLI23/0, strict all-target lint/fmt and independent review; four required hosted exact-head gates pending",
+          "integration": "readyPR190 at stable166d8232; not merged",
+          "native": "inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Expected regression FAIL1/0/43filtered,exit101: old literal non-SQLite source produces Sqlite rather than UnsafeDirectory. No target or source repair.",
+            "change": "Classify only NOTADB during restore source validation before staging, using existing refusal taxonomy. Other SQLite/I/O errors unchanged.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json",
+              "docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md"
+            ]
+          },
+          {
+            "outcome": "First broad core gate passed preceding binaries but failed4 MCP policy cases at fixture open: inherited /var/folders TMPDIR traverses a symlink refused by DataFolder. CLI/lint commands did not run because script stopped.",
+            "change": "Preserve raw first gate; rerun unchanged166d candidate with fresh explicit canonical /private/tmp root for test tempfiles. Do not weaken path guard or alter product/tests.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md"
+            ]
+          }
+        ],
+        "resource_plan": "Requested Luna medium source/test author in isolated reusable worker; lead serializes shared target checks; independent Sol high complete-candidate review after source settles. No native/account/helper/model acquisition. Stop/reassess after two failed approaches or scope change; effective model/cost unavailable."
       }
     ],
     "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
@@ -1601,15 +1649,16 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr189-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T18:25:26.658917+00:00",
-    "runtime_capacity": "4total slots; onlylead, allhelperscomplete atobservation",
-    "build_slot": "free; no owned localbuild/writer",
+    "observed_at": "2026-10-20T20:30:13.940822+00:00",
+    "runtime_capacity": "4 total slots; lead active, Luna author and independent Sol reviewer completed",
+    "build_slot": "free; final local serial qualification session73630 completedexit0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "All four PR189 resulting-main gates PASS at exacta23f486b; entireBRN CI complete with optionalWindows failures retained.",
-    "wait_reason": "All selected headless engineering/review/integration/main gates complete; no concrete new headless candidate from bounded audits. Three prepared real Mac control checks wait changed availability. This is a capability wait, not quota/ownerpause or batch pacing.",
+    "integration": "ReadyPR190 exact166d required CI39492291218 pending; qualified maina23 unchanged",
+    "wait_reason": "Reviewed draftPR190 local and hosted checks pending. Three native control tasks still wait changed Mac access.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
-    "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json"
+    "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
+    "worker_checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust at clean166d8232 codex/restore-source-refusal; no source writer active"
   }
 }

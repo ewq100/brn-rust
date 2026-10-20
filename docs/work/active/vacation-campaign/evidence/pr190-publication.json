@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-20T20:29:21.622637+00:00",
+  "pr": 190,
+  "url": "https://github.com/ewq100/brn-rust/pull/190",
+  "draft": true,
+  "head": "166d823232b1d4b7785630f90e99cb899999f60f",
+  "base": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "files": [
+    "crates/brn-threads-core/src/restore.rs",
+    "crates/brn/README.md",
+    "crates/brn/src/contract.rs",
+    "crates/brn/tests/agent_contract.rs"
+  ],
+  "independent_review": "restore-source-refusal-review.md: no actionable findings",
+  "local_checks": "Core passes on canonical temporary root; full CLI/lint still running. Original environment failure preserved separately.",
+  "hosted": {
+    "run_id": 39492291218,
+    "head": "166d823232b1d4b7785630f90e99cb899999f60f",
+    "state": "all required contexts in progress at observation"
+  },
+  "integration": "not merged; no bypass or aggregate-green assumption",
+  "source_stability": "Keep candidate head stable; lead progress records live in separate campaign branch so publishing them does not restart PR checks."
+}

@@ -1,0 +1,173 @@
+{
+  "observed_at": "2026-10-20T20:30:13.940822+00:00",
+  "candidate": "166d823232b1d4b7785630f90e99cb899999f60f",
+  "base": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "toolchain": "rustc1.98.1(48a229cea2026-09-01)",
+  "state": "PASS local final checks and complete independent source review",
+  "core": {
+    "passed": 219,
+    "failed": 0,
+    "ignored": 1,
+    "groups": [
+      [
+        43,
+        0,
+        1
+      ],
+      [
+        5,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        11,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        0
+      ],
+      [
+        45,
+        0,
+        0
+      ],
+      [
+        9,
+        0,
+        0
+      ],
+      [
+        7,
+        0,
+        0
+      ],
+      [
+        5,
+        0,
+        0
+      ],
+      [
+        8,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        14,
+        0,
+        0
+      ],
+      [
+        11,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        0
+      ],
+      [
+        13,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        0
+      ],
+      [
+        8,
+        0,
+        0
+      ],
+      [
+        6,
+        0,
+        0
+      ],
+      [
+        12,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "cli_agent_contract": {
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0
+  },
+  "format": "PASS core+CLI pinned cargo fmt --check before final checks",
+  "lint": "PASS cargo clippy -p brn-threads-core -p brn --all-targets --locked --offline --jobs1 -- -D warnings",
+  "exit": 0,
+  "regression": {
+    "command": "red.sh",
+    "result": "Expected FAIL0passed1failed43filteredexit101 on old production + strengthened existing test; core error was Sqlite instead of UnsafeDirectory",
+    "source_binding": "basea23 with only test-section extensions; commands/diff observed by lead before production edit; raw log itself does not embed commit hash"
+  },
+  "first_broad_attempt": {
+    "exit": 101,
+    "failure": "4 MCP policy cases refused inherited /var/folders temporary fixture paths as symlinked; later CLI/lint commands not reached",
+    "diagnosis": "test tempfile::tempdir() used inherited symlink-path TMPDIR; actual DataFolder safeguard refused it before candidate logic",
+    "change": "unchanged166d candidate rerun with fresh explicit canonical /private/tmp root TMPDIR/TMP/TEMP; no source/test/guard weakening"
+  },
+  "final_temporary_root": "Synthetic test root: /private/tmp/brn-restore-refusal-checks.1lofXi",
+  "helper_identity": {
+    "stock": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+    "adapted": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+    "placement": "Existing qualified sibling helpers in shared target/debug; no acquisition"
+  },
+  "review": "restore-source-refusal-review.md no actionable findings, exact166d source; review first-attempt observations preserved",
+  "raw": "restore-source-refusal-raw.tar.gz",
+  "raw_sha256": "96701f98980e0fddc7ecbcb4dabc7f926318938c88b98173c46abbdc9ea4d049",
+  "limits": "Local Mac deterministic CLI/core only. No account generation, native database-restore control (none implemented), owner acceptance, merge or release claim. Required hosted exact-head and resulting-main checks remain separate."
+}

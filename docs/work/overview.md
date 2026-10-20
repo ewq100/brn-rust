@@ -9,7 +9,31 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-None recorded.
+### Explain when a restore source is not a BRN backup
+
+Owner: bounded Luna read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T20:30:13.940822+00:00
+Activity: PR190 marked ready at stable166d8232. Final local core219/0/1ignored, CLI agent_contract23/0, strict core+CLI all-target lint and format PASS; independent complete-candidate review no findings. Required hosted CI39492291218 pending.
+Next: Inspect actual required exact-head CI and live protection plus preceding-main; normal merge only after all required gates, then inspect resulting-main separately. Keep source head stable.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change
+- **checks:** PASS local core219/0/1ignored, CLI23/0, strict all-target lint/fmt and independent review; four required hosted exact-head gates pending
+- **integration:** readyPR190 at stable166d8232; not merged
+- **native:** inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz](active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md](active/vacation-campaign/evidence/restore-source-refusal-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md](active/vacation-campaign/evidence/restore-source-refusal-review.md), [docs/work/active/vacation-campaign/evidence/pr190-publication.json](active/vacation-campaign/evidence/pr190-publication.json), [https://github.com/ewq100/brn-rust/pull/190](https://github.com/ewq100/brn-rust/pull/190), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz)
+
+Attempts:
+
+- Expected regression FAIL1/0/43filtered,exit101: old literal non-SQLite source produces Sqlite rather than UnsafeDirectory. No target or source repair.: Classify only NOTADB during restore source validation before staging, using existing refusal taxonomy. Other SQLite/I/O errors unchanged. ([docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
+- First broad core gate passed preceding binaries but failed4 MCP policy cases at fixture open: inherited /var/folders TMPDIR traverses a symlink refused by DataFolder. CLI/lint commands did not run because script stopped.: Preserve raw first gate; rerun unchanged166d candidate with fresh explicit canonical /private/tmp root for test tempfiles. Do not weaken path guard or alter product/tests. ([docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
+
+</details>
 
 ## Next
 
@@ -1050,4 +1074,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T18:18:15.577322+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T20:30:13.940822+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

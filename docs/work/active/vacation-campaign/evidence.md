@@ -626,3 +626,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October: scheduled Mac access recheck18:25UTC
 
 [Fresh reconciliation and actual control result](evidence/native-access-recheck-20261020T1825.json) retain unchanged main/open PRs, completed helpers, no active build and81% ordinary allowance. The Mac control tool again reports locked and automatic unlock unavailable. MAC-08/11/12 were not attempted; existing manual unlock request remains pending. No repeated passing journey, new account run, data mutation or native success. Original app remains open after verified Undo; close normally after access returns before any prepared fixture launch.
+
+## 20 October: clearer invalid-backup refusal
+
+[Source audit](evidence/invalid-backup-error-audit.md) and lead validation selected the observed NOTADB error gap. [Candidate166d qualification](evidence/restore-source-refusal-qualification.json) preserves the expected regression failure and the separate inherited-temp-path failure; unchanged source then passes core219/0/1ignored, CLI23/0, strict lint and format on a canonical synthetic root. [Independent full-candidate review](evidence/restore-source-refusal-review.md) found no actionable issue. [PR190 publication](evidence/pr190-publication.json) retains initial draft/local-pending state; it is now ready with required hosted gates pending. Only source validation classifies NOTADB, before destination creation; other storage paths are unchanged. No native/account test or merge is claimed.
