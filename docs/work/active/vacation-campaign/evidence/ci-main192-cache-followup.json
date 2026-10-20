@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-20T22:24:24.403269+00:00",
+  "source": "2658f8883b47f224b02ed428055efaaba1bb47a4",
+  "run": 39502704935,
+  "job": 118904878361,
+  "result": "PASS completed-job log retrieved after workflow completion; exact full cache restoration confirmed",
+  "cache_bytes": 1902323274,
+  "cache_result": "full exact-key hit",
+  "job_duration_seconds": 434,
+  "helper_duration_seconds": 97,
+  "selected_log_lines": [
+    "Native UI build and state (macos-15)\tRun ./.github/actions/setup-rust\t2026-10-20T21:46:28.4341780Z Cache hit for: v0-rust-macOS-ARM64-native-ui-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-native-ui-Darwin-arm64-4b070e83-bf6157b2",
+    "Native UI build and state (macos-15)\tRun ./.github/actions/setup-rust\t2026-10-20T21:47:12.0887370Z Cache Size: ~1814 MB (1902323274 B)",
+    "Native UI build and state (macos-15)\tRun ./.github/actions/setup-rust\t2026-10-20T21:47:31.7428450Z Cache restored successfully",
+    "Native UI build and state (macos-15)\tRun ./.github/actions/setup-rust\t2026-10-20T21:47:31.8026130Z Restored from cache key \"v0-rust-macOS-ARM64-native-ui-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-native-ui-Darwin-arm64-4b070e83-bf6157b2\" full match: true."
+  ],
+  "log_sha256": "b99df1b106c9b515d9b2786c6bb6d787563f6a9e70089bbc8db470bf2dbed357",
+  "raw": "ci-main192-completed-mac-ui.log.gz",
+  "prior": "ci-main192-cache-observation.json",
+  "limits": "Earlier refusal and unresolved-at-that-time observation preserved. One new successful read after changed completion condition, no rerun/cache/config action. Timing pair uncontrolled, no future speed guarantee."
+}

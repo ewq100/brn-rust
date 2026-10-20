@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T22:22:58.573532+00:00",
+    "observed_at": "2026-10-20T22:24:46.843846+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1869,10 +1869,10 @@
         "title": "Check why the latest Mac build time varies",
         "state": "complete",
         "owner": "bounded Luna read-only CI observation; lead disposition",
-        "activity": "Completed main192 MacUI job7m14 and helper preparation1m37 measured; PR192 same-tree job8m15/helper1m35, proven1.902GB full cache hit. Main log unavailable while whole run inprogress; first client failure retained, no retry or inferred cache status.",
-        "observed_at": "2026-10-20T21:58:10.031818+00:00",
+        "activity": "After overall workflow completed, one lead follow-up log read confirmed main192 MacUI exact1.902GB full cache hit; measured job7m14/helper1m37 retained. Earlier unavailable-log observation and original client error remain unchanged historical evidence.",
+        "observed_at": "2026-10-20T22:24:24.403269+00:00",
         "origin": "observed",
-        "next_action": "No CI/config change justified. Retain actual completed timings and cache uncertainty; retrieve current main log only after a meaningful new completion condition if needed. No extra rerun or cache mutation.",
+        "next_action": "Complete. Actual cache reuse confirmed on head/main192; no further CI/config change justified. Revisit only on a concrete diagnosed regression.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1880,11 +1880,13 @@
           "docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json",
           "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.md",
           "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.json",
-          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-followup.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main192-completed-mac-ui.log.gz"
         ],
         "gates": {
           "implementation": "observation only; no CI/source configuration change",
-          "checks": "PASS bounded metadata/log observation with explicit unresolved main cache status; no performance causal claim",
+          "checks": "PASS bounded observation and subsequent actual completed-log cache confirmation; no performance causal or native claim",
           "integration": "inapplicable unless justified separate candidate",
           "native": "inapplicable; hosted build is not native usability",
           "owner_acceptance": "not claimed"
@@ -1903,23 +1905,23 @@
       {
         "id": "lifecycle-test-retirement-audit",
         "title": "Check for redundant lifecycle tests",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium read-only audit; lead disposition",
-        "activity": "Read-only bounded inventory of test protection after shared Note/Review lifecycle migration.",
-        "observed_at": "2026-10-20T22:22:58.573532+00:00",
+        "activity": "Read-only audit found no justified retirement: shared Note/Review lifecycle protection is through independent host integration, while desktop tests cover distinct production wiring, drafts, stale context, controls and Undo. Lead verified all inspected source unchanged from reported baseline to integrated current source.",
+        "observed_at": "2026-10-20T22:24:46.843846+00:00",
         "origin": "observed",
-        "next_action": "Return bounded evidence and actionable findings or no-change decision; any source correction requires separate selected task/review.",
+        "next_action": "Retain existing tests. Revisit only for a concrete pair with the same host boundary, failure mode and durable evidence; no deletion quota or speculative follow-up.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "crates/brn-writing-ui/README.md",
-          "docs/work/active/vacation-campaign/workflows.md"
+          "docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md",
+          "crates/brn-writing-ui/README.md"
         ],
         "gates": {
-          "implementation": "source inspection only; no changes selected",
-          "checks": "pending bounded audit",
-          "integration": "inapplicable unless separate candidate selected",
-          "native": "not attempted; Mac access remains separate",
+          "implementation": "no source change selected",
+          "checks": "PASS bounded source inspection plus lead unchanged-source comparison; no test executions claimed",
+          "integration": "inapplicable, no deletion candidate",
+          "native": "not attempted; distinct host tests are not OS qualification",
           "owner_acceptance": "not claimed"
         },
         "attempts": [],

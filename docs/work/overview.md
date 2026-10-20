@@ -34,27 +34,6 @@ Attempts:
 
 </details>
 
-### Check for redundant lifecycle tests
-
-Owner: bounded Luna medium read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T22:22:58.573532+00:00
-Activity: Read-only bounded inventory of test protection after shared Note/Review lifecycle migration.
-Next: Return bounded evidence and actionable findings or no-change decision; any source correction requires separate selected task/review.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** source inspection only; no changes selected
-- **checks:** pending bounded audit
-- **integration:** inapplicable unless separate candidate selected
-- **native:** not attempted; Mac access remains separate
-- **owner acceptance:** not claimed
-
-Evidence: [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md), [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md)
-
-</details>
-
 ### Check project removal and restoration boundaries
 
 Owner: bounded Luna medium read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T22:22:58.573532+00:00
@@ -1233,9 +1212,9 @@ Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-camp
 
 ### Check why the latest Mac build time varies
 
-Owner: bounded Luna read-only CI observation; lead disposition · State: **complete** · Last observed: 2026-10-20T21:58:10.031818+00:00
-Activity: Completed main192 MacUI job7m14 and helper preparation1m37 measured; PR192 same-tree job8m15/helper1m35, proven1.902GB full cache hit. Main log unavailable while whole run inprogress; first client failure retained, no retry or inferred cache status.
-Next: No CI/config change justified. Retain actual completed timings and cache uncertainty; retrieve current main log only after a meaningful new completion condition if needed. No extra rerun or cache mutation.
+Owner: bounded Luna read-only CI observation; lead disposition · State: **complete** · Last observed: 2026-10-20T22:24:24.403269+00:00
+Activity: After overall workflow completed, one lead follow-up log read confirmed main192 MacUI exact1.902GB full cache hit; measured job7m14/helper1m37 retained. Earlier unavailable-log observation and original client error remain unchanged historical evidence.
+Next: Complete. Actual cache reuse confirmed on head/main192; no further CI/config change justified. Revisit only on a concrete diagnosed regression.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -1243,16 +1222,37 @@ Next: No CI/config change justified. Retain actual completed timings and cache u
 Gates:
 
 - **implementation:** observation only; no CI/source configuration change
-- **checks:** PASS bounded metadata/log observation with explicit unresolved main cache status; no performance causal claim
+- **checks:** PASS bounded observation and subsequent actual completed-log cache confirmation; no performance causal or native claim
 - **integration:** inapplicable unless justified separate candidate
 - **native:** inapplicable; hosted build is not native usability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/pr192-premerge.json](active/vacation-campaign/evidence/pr192-premerge.json), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.md](active/vacation-campaign/evidence/ci-main192-cache-observation.md), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.json](active/vacation-campaign/evidence/ci-main192-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz](active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz)
+Evidence: [docs/work/active/vacation-campaign/evidence/pr192-premerge.json](active/vacation-campaign/evidence/pr192-premerge.json), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.md](active/vacation-campaign/evidence/ci-main192-cache-observation.md), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.json](active/vacation-campaign/evidence/ci-main192-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz](active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-followup.json](active/vacation-campaign/evidence/ci-main192-cache-followup.json), [docs/work/active/vacation-campaign/evidence/ci-main192-completed-mac-ui.log.gz](active/vacation-campaign/evidence/ci-main192-completed-mac-ui.log.gz)
 
 Attempts:
 
 - Completed mainMacUI log request refused by gh client while overallworkflow stillrunning; no main cache key/hit result available.: Retain first error and metadata; no retry, use only actual job/step durations and separately proven PR192 full-hit log. ([docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz](active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz))
+
+</details>
+
+### Check for redundant lifecycle tests
+
+Owner: bounded Luna medium read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T22:24:46.843846+00:00
+Activity: Read-only audit found no justified retirement: shared Note/Review lifecycle protection is through independent host integration, while desktop tests cover distinct production wiring, drafts, stale context, controls and Undo. Lead verified all inspected source unchanged from reported baseline to integrated current source.
+Next: Retain existing tests. Revisit only for a concrete pair with the same host boundary, failure mode and durable evidence; no deletion quota or speculative follow-up.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** no source change selected
+- **checks:** PASS bounded source inspection plus lead unchanged-source comparison; no test executions claimed
+- **integration:** inapplicable, no deletion candidate
+- **native:** not attempted; distinct host tests are not OS qualification
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md](active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md), [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md)
 
 </details>
 
@@ -1280,4 +1280,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:22:58.573532+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:24:46.843846+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
