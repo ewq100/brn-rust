@@ -1,0 +1,135 @@
+{
+  "observed_at": "2026-10-20 18:19:38 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "ae14582ad1cb8cfc421a9390d50c58dd23e44ad3",
+  "reason": "PR189 exact resulting-main four required gates passed. Move completed task into completed improvements, retain original script-failure link and image-import gap; three native controls remain blocked on access.",
+  "edit": {
+    "new_sequence": 30,
+    "through_sequence": 30,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+        "created_block_ids": [
+          "8789161e-d007-4e11-b0d1-63a856386c09"
+        ],
+        "continuation_position": {
+          "block_id": "8789161e-d007-4e11-b0d1-63a856386c09",
+          "relative_position_base64": "AMbvlKsJkgZB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "8789161e-d007-4e11-b0d1-63a856386c09",
+            "hash": "9b1564646d4f1fb626a523a8f632f21cea824f57d504f3e15fd1c463d6351388"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": null,
+        "affected_blocks": []
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "e7c49f32323fe54668461a60fd076cdfc53cf526e9bd935889dc5a5eee9865bc"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "78f72aa0ab430258fac891b77276c7d328a59ec88e605feb7d97a5fe89ad8fcd"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+          "relative_position_base64": "AJuY17sC5hFB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+            "hash": "8f9dc384eae3d38b435c4d08def23a6f423d29fbdce71a63e91239f574c8eb47"
+          }
+        ]
+      },
+      {
+        "operation_index": 5,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "4b22439d85b7cc08ae269c1020138323724fdb57f8c4518b18dc3d80a5449722"
+          }
+        ]
+      }
+    ]
+  },
+  "verified": true,
+  "deleted_outdated_owned_block": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+  "verified_blocks": [
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 21:19 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "e7c49f32323fe54668461a60fd076cdfc53cf526e9bd935889dc5a5eee9865bc",
+      "metadata": {}
+    },
+    {
+      "id": "8789161e-d007-4e11-b0d1-63a856386c09",
+      "kind": "markdown",
+      "markdown": "- **Stored attachment recovery checked:** [PR 189](https://github.com/ewq100/brn-rust/pull/189) strengthens the existing test to compare exact stored attachment bytes and source information after reopening and restoring. It is merged and all four required checks passed before and after merging. This uses synthetic stored data; the tested document import reported missing image bytes, so image importing remains separate. [Verification](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json), [merge record including a local verification-script mistake](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/evidence/pr189-integration.json).",
+      "hash": "9b1564646d4f1fb626a523a8f632f21cea824f57d504f3e15fd1c463d6351388",
+      "metadata": {}
+    },
+    {
+      "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+      "kind": "markdown",
+      "markdown": "1. When Mac access returns, finish grouped review and verify the corrected Notes rows and readable menu choices in one matching-app session. Saving, recovery, backup and proposal Apply/Undo need no unchanged repeat.",
+      "hash": "78f72aa0ab430258fac891b77276c7d328a59ec88e605feb7d97a5fe89ad8fcd",
+      "metadata": {}
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "kind": "markdown",
+      "markdown": "2. Continue useful Mac-first hardening within the existing campaign authorization and available allowance.",
+      "hash": "8f9dc384eae3d38b435c4d08def23a6f423d29fbdce71a63e91239f574c8eb47",
+      "metadata": {}
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "kind": "markdown",
+      "markdown": "**Please unlock the Mac when convenient.** Computer control reported that the Mac was locked and automatic unlock was unavailable. The current headless checks are complete; three prepared Mac control checks await access. The saved-proposal test app remains open after verified Undo; it will be closed through normal controls when access returns. Full VoiceOver/IME usability, Mac restore controls and owner acceptance remain separate from the passing checks.",
+      "hash": "4b22439d85b7cc08ae269c1020138323724fdb57f8c4518b18dc3d80a5449722",
+      "metadata": {}
+    }
+  ]
+}
