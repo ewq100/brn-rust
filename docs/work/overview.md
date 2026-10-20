@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Reproduced first-writing-conversation draft recovery failure is under focused repair. Reviewed PR183 awaits required checks; PR182 merged with final main check running. Mac interaction remains 18:00 Tallinn.
+**Owner attention:** No owner decision requested. PR183 normally merged; required resulting-main checks pending. Draft690 passes local qualification; independent review is checking recovery warning survival after background completion. Mac batch remains18:00 Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,38 +9,12 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Exercise Confirm done and its exact Undo in the desktop journey
-
-Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T11:37:02.369505+00:00
-Activity: PR182 normally mergedbc8a08e6 after fresh live protection and all4required exact-head/preceding-main checks passed. Resulting-main39415372292 running.
-Next: Inspect all4required resulting-main jobs; preserve unrelated optional Windows failures.
-Resource waits: Required resulting-mainbc8 checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
-- **checks:** PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed
-- **integration:** Normal mergebc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4; resulting-main pending
-- **native:** toolkit checks are not OS interaction or owner acceptance
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md), [https://github.com/ewq100/brn-rust/pull/182](https://github.com/ewq100/brn-rust/pull/182), [docs/work/active/vacation-campaign/evidence/pr182-premerge.json](active/vacation-campaign/evidence/pr182-premerge.json)
-
-Attempts:
-
-- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
-
-</details>
-
 ### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:49:11.790264+00:00
-Activity: Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.
-Next: Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.
-Resource waits: PR183 required exact-head checks and preceding-mainbc8 checks.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
+Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
+Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
+Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -49,11 +23,11 @@ Gates:
 
 - **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** PR183 open at1e6abb60; required exact-head/main checks pending; no merge
+- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
 - **native:** inapplicable CI resource policy only
 - **owner acceptance:** not requested; existing in-scope maintenance authority
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
 
 Attempts:
 
@@ -63,10 +37,10 @@ Attempts:
 
 ### Keep shared Rust caches without duplicate PR uploads
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:49:11.790264+00:00
-Activity: Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.
-Next: Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.
-Resource waits: PR183 required exact-head checks and preceding-mainbc8 checks.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
+Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
+Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
+Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -75,27 +49,27 @@ Gates:
 
 - **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** PR183 open at1e6abb60; required exact-head/main checks pending; no merge
+- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
 - **native:** inapplicable CI policy only
 - **owner acceptance:** not requested; authorized campaign follow-up
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
 
 </details>
 
 ### Preserve unsent drafts when a note creates its writing conversation
 
-Owner: lead decision/integration; bounded Sol high implementation; independent Sol review required · State: **active** · Last observed: 2026-10-20T12:05:34.406920+00:00
-Activity: Actual old-source recovery failure confirmed. Lead accepted one atomic draft transfer in existing Store chat recovery: exact optional source/target generation guards, occupied-target refusal, target text and source tombstone in one transaction; UI updates only after committed result. No schema or normal-send/contextual-edit changes.
-Next: Implement safe durable handoff through existing draft ownership; prove reopened exact text and stale/collision/failure preservation; independent complete review before publication.
+Owner: lead decision/integration; bounded Sol high implementation; independent Sol review required · State: **active** · Last observed: 2026-10-20T12:13:49.910622+00:00
+Activity: Frozen clean implementation 690c2c3f: atomic Store draft transfer plus coherent UI/editor adoption. Same original recovery regression PASS 1; focused desktop draft family PASS 22. Complete independent Sol review overlaps sequential final checks and ordinary native build.
+Next: Validate independent findings and final broad checks/build receipts; integrate only after review and actual required gates. Preserve original red proof and stable PR183 head.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** pending exercised old-source failure; no correction yet
-- **checks:** Old-source FAIL confirmed and archived; candidate checks pending
+- **implementation:** complete local 690c2c3f; 11 paths, no schema/dependency/provider/runtime prompt change
+- **checks:** PASS focused original1 and draft22, four new Store cases, fmt/diff; final chat_storage/desktop/lint/build pending; independent review running
 - **integration:** pending complete independent source review and required hosted gates; PR183 head remains stable
 - **native:** not observed; synthetic toolkit test is separate from OS interaction
 - **owner acceptance:** not claimed
@@ -167,21 +141,13 @@ Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
-### Exercise Confirm done and its exact Undo in the desktop journey
-
-Owner: development lead; bounded Luna implementation and independent Sol high review completed
-
-Waiting:
-
-- resource: Required resulting-mainbc8 checks.
-
 ### Allow the complete Mac Core check to finish within a bounded job
 
 Owner: lead implementation; independent Sol source review completed
 
 Waiting:
 
-- resource: PR183 required exact-head checks and preceding-mainbc8 checks.
+- resource: Required resulting-main63345a8e checks.
 
 ### Keep shared Rust caches without duplicate PR uploads
 
@@ -189,7 +155,7 @@ Owner: lead implementation; independent Sol source review completed
 
 Waiting:
 
-- resource: PR183 required exact-head checks and preceding-mainbc8 checks.
+- resource: Required resulting-main63345a8e checks.
 
 ## Completed
 
@@ -583,6 +549,31 @@ Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](
 
 </details>
 
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **complete** · Last observed: 2026-10-20T12:14:36.811083+00:00
+Activity: PR182 normally merged bc8a08e6; all four required resulting-main checks now PASS. Optional Windows failures retained.
+Next: Reuse verified integrated source; actual Mac controls and owner acceptance remain separate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
+- **checks:** PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed
+- **integration:** PASS normal merge bc8a08e6 plus all four required resulting-main39415372292 checks
+- **native:** toolkit checks are not OS interaction or owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md), [https://github.com/ewq100/brn-rust/pull/182](https://github.com/ewq100/brn-rust/pull/182), [docs/work/active/vacation-campaign/evidence/pr182-premerge.json](active/vacation-campaign/evidence/pr182-premerge.json), [docs/work/active/vacation-campaign/evidence/pr182-resulting-main.json](active/vacation-campaign/evidence/pr182-resulting-main.json)
+
+Attempts:
+
+- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
+
+</details>
+
 ### Route older agent-first results to current task facts
 
 Owner: development lead; mechanical routing inspection · State: **complete** · Last observed: 2026-10-20T09:45:22.800409+00:00
@@ -731,4 +722,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:05:34.406920+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:16:42.598235+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

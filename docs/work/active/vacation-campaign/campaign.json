@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:05:34.406920+00:00",
+    "observed_at": "2026-10-20T12:16:42.598235+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -706,27 +706,26 @@
       {
         "id": "action-completion-witness",
         "title": "Exercise Confirm done and its exact Undo in the desktop journey",
-        "state": "active",
+        "state": "complete",
         "owner": "development lead; bounded Luna implementation and independent Sol high review completed",
-        "activity": "PR182 normally mergedbc8a08e6 after fresh live protection and all4required exact-head/preceding-main checks passed. Resulting-main39415372292 running.",
-        "observed_at": "2026-10-20T11:37:02.369505+00:00",
+        "activity": "PR182 normally merged bc8a08e6; all four required resulting-main checks now PASS. Optional Windows failures retained.",
+        "observed_at": "2026-10-20T12:14:36.811083+00:00",
         "origin": "observed",
-        "next_action": "Inspect all4required resulting-main jobs; preserve unrelated optional Windows failures.",
+        "next_action": "Reuse verified integrated source; actual Mac controls and owner acceptance remain separate.",
         "depends_on": [],
-        "resource_waits": [
-          "Required resulting-mainbc8 checks."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/action-history-audit.md",
           "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json",
           "docs/work/active/vacation-campaign/evidence/action-completion-review.md",
           "https://github.com/ewq100/brn-rust/pull/182",
-          "docs/work/active/vacation-campaign/evidence/pr182-premerge.json"
+          "docs/work/active/vacation-campaign/evidence/pr182-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr182-resulting-main.json"
         ],
         "gates": {
           "implementation": "complete12679ef4; one test file +71lines, existing test count unchanged",
           "checks": "PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed",
-          "integration": "Normal mergebc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4; resulting-main pending",
+          "integration": "PASS normal merge bc8a08e6 plus all four required resulting-main39415372292 checks",
           "native": "toolkit checks are not OS interaction or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -802,13 +801,13 @@
         "title": "Allow the complete Mac Core check to finish within a bounded job",
         "state": "active",
         "owner": "lead implementation; independent Sol source review completed",
-        "activity": "Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.",
-        "observed_at": "2026-10-20T11:49:11.790264+00:00",
+        "activity": "PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.",
+        "observed_at": "2026-10-20T12:16:42.598235+00:00",
         "origin": "observed",
-        "next_action": "Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.",
+        "next_action": "Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.",
         "depends_on": [],
         "resource_waits": [
-          "PR183 required exact-head checks and preceding-mainbc8 checks."
+          "Required resulting-main63345a8e checks."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json",
@@ -818,12 +817,14 @@
           "docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md",
           "docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md",
           "https://github.com/ewq100/brn-rust/pull/183",
-          "docs/work/active/vacation-campaign/evidence/pr183-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr183-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-integration.json"
         ],
         "gates": {
           "implementation": "complete isolatedfe65b8ec; only CI timeout/comment",
           "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
-          "integration": "PR183 open at1e6abb60; required exact-head/main checks pending; no merge",
+          "integration": "Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending",
           "native": "inapplicable CI resource policy only",
           "owner_acceptance": "not requested; existing in-scope maintenance authority"
         },
@@ -871,13 +872,13 @@
         "title": "Keep shared Rust caches without duplicate PR uploads",
         "state": "active",
         "owner": "lead implementation; independent Sol source review completed",
-        "activity": "Published reviewed candidate1e6abb60 as PR183; hosted run39417554677 queued/running. No normal merge or future timing result yet.",
-        "observed_at": "2026-10-20T11:49:11.790264+00:00",
+        "activity": "PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.",
+        "observed_at": "2026-10-20T12:16:42.598235+00:00",
         "origin": "observed",
-        "next_action": "Inspect four required exact-head checks and preceding-mainbc8, then recheck live protection/exact head before normal merge; inspect resulting-main separately.",
+        "next_action": "Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.",
         "depends_on": [],
         "resource_waits": [
-          "PR183 required exact-head checks and preceding-mainbc8 checks."
+          "Required resulting-main63345a8e checks."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/ci-cache-investigation.md",
@@ -886,12 +887,14 @@
           "docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md",
           "docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md",
           "https://github.com/ewq100/brn-rust/pull/183",
-          "docs/work/active/vacation-campaign/evidence/pr183-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr183-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr183-integration.json"
         ],
         "gates": {
           "implementation": "complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed",
           "checks": "PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace",
-          "integration": "PR183 open at1e6abb60; required exact-head/main checks pending; no merge",
+          "integration": "Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending",
           "native": "inapplicable CI policy only",
           "owner_acceptance": "not requested; authorized campaign follow-up"
         },
@@ -978,10 +981,10 @@
         "title": "Preserve unsent drafts when a note creates its writing conversation",
         "state": "active",
         "owner": "lead decision/integration; bounded Sol high implementation; independent Sol review required",
-        "activity": "Actual old-source recovery failure confirmed. Lead accepted one atomic draft transfer in existing Store chat recovery: exact optional source/target generation guards, occupied-target refusal, target text and source tombstone in one transaction; UI updates only after committed result. No schema or normal-send/contextual-edit changes.",
-        "observed_at": "2026-10-20T12:05:34.406920+00:00",
+        "activity": "Frozen clean implementation 690c2c3f: atomic Store draft transfer plus coherent UI/editor adoption. Same original recovery regression PASS 1; focused desktop draft family PASS 22. Complete independent Sol review overlaps sequential final checks and ordinary native build.",
+        "observed_at": "2026-10-20T12:13:49.910622+00:00",
         "origin": "observed",
-        "next_action": "Implement safe durable handoff through existing draft ownership; prove reopened exact text and stale/collision/failure preservation; independent complete review before publication.",
+        "next_action": "Validate independent findings and final broad checks/build receipts; integrate only after review and actual required gates. Preserve original red proof and stable PR183 head.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -992,8 +995,8 @@
           "crates/brn-threads-core/src/chat.rs"
         ],
         "gates": {
-          "implementation": "pending exercised old-source failure; no correction yet",
-          "checks": "Old-source FAIL confirmed and archived; candidate checks pending",
+          "implementation": "complete local 690c2c3f; 11 paths, no schema/dependency/provider/runtime prompt change",
+          "checks": "PASS focused original1 and draft22, four new Store cases, fmt/diff; final chat_storage/desktop/lint/build pending; independent review running",
           "integration": "pending complete independent source review and required hosted gates; PR183 head remains stable",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
@@ -1009,7 +1012,7 @@
         ]
       }
     ],
-    "owner_attention": "No owner decision requested. Reproduced first-writing-conversation draft recovery failure is under focused repair. Reviewed PR183 awaits required checks; PR182 merged with final main check running. Mac interaction remains 18:00 Tallinn."
+    "owner_attention": "No owner decision requested. PR183 normally merged; required resulting-main checks pending. Draft690 passes local qualification; independent review is checking recovery warning survival after background completion. Mac batch remains18:00 Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1020,11 +1023,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T12:01:02.736355+00:00",
+    "observed_at": "2026-10-20T12:13:49.910622+00:00",
     "lead": "existing selected lead retained; one integration owner",
-    "helpers": "Luna regression author completed meaningful old-source failure; consequential draft recovery correction assigned to fresh Sol high worker. Independent reviewer will be separate.",
-    "build_actor": "Shared local build slot transfers to one Sol worker; source and logs from old failure retained.",
+    "helpers": "One Sol high source author owns final sequential checks/build; separate independent Sol high reviewer reads complete690 plus lead records. Luna audits completed. Three active slots incl lead, runtime max4.",
+    "build_actor": "Exclusive shared local target belongs to source author; reviewer read-only; immutable native artifacts preserved.",
     "desktop_account_actor": "None; native batch remains 18:00 Tallinn.",
-    "stop": "One reviewable draft-recovery outcome. Preserve generations and other destinations; no new schema/provider/runtime prompts. Reassess scope after two failed approaches or an unresolved product decision."
+    "stop": "Reassess on review finding or final check failure; no publication of new source until candidate is qualified and reviewed. PR183 stable exact-head gates remain separate."
   }
 }

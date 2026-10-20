@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-10-20T12:16:42.598235+00:00",
+  "pr": {
+    "headRefOid": "1e6abb60fa4a94c6367fa1e983db379c4ef5bcd4",
+    "mergeCommit": {
+      "oid": "63345a8ea55021009a636106b4249efb7fa966f4"
+    },
+    "mergedAt": "2026-10-20T12:16:22Z",
+    "state": "MERGED"
+  },
+  "merge_method": "normal gh pr merge --merge --match-head-commit; no bypass/admin/force",
+  "source_comparison": "PASS entire resulting tree exactly equals reviewed/passing publication head1e6abb60",
+  "resulting_main_runs": [
+    {
+      "conclusion": "",
+      "databaseId": 39421007719,
+      "event": "push",
+      "headSha": "63345a8ea55021009a636106b4249efb7fa966f4",
+      "status": "in_progress"
+    }
+  ],
+  "resulting_main_verdict": "PENDING applicable required resulting-main checks; not inferred from pre-merge results",
+  "premerge_receipt": "pr183-premerge.json",
+  "native": "inapplicable CI policy; draft690 and native qualification separate"
+}
