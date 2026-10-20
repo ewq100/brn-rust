@@ -1,6 +1,6 @@
 # Read-only Mac observation recipe
 
-This supports MAC-01 and MAC-04 in [the native queue](native-queue.md), using only
+This supports MAC-01, MAC-04 and MAC-10 in [the native queue](native-queue.md), using only
 the explicitly recorded new synthetic workspace. It is prepared from source;
 no Mac action or native data store has been observed with it yet.
 
@@ -86,3 +86,25 @@ no canonical write or bootstrap/repair, not a filesystem with no lock activity.
 It qualifies an already-durable draft, not unprocessed input, crash/power-loss
 recovery, IME, accessibility or owner acceptance. Recheck schema/source before using
 this recipe after a relevant change.
+
+
+## Observe MAC-10 composer handoff
+
+Use the same short read-only transaction and explicit synthetic root. Record the
+Note and writing Thread IDs from the actual journey; do not infer success from a
+thread title. Alongside the existing canonical Note/sentinel checks, select only
+that pair's `chat_drafts` rows (`destination`, `generation`, `text`). Decode each
+`destination` with JSON: the source is `{"Note":[NOTE_ID,null]}`, and the target is
+`{"Thread":THREAD_ID}`. [Destination serialization](../../../../crates/brn-desktop/src/threads_state.rs)
+and [draft storage](../../../../crates/brn-threads-core/src/chat.rs) own this format;
+recheck them if source changes.
+
+Before OS close, require a source tombstone with empty text and a present target
+whose exact UTF-8 bytes/hash match [the independently prepared composer fixture](native-fixtures/composer-unsent.txt).
+Retain actual generations; do not guess their numbers or count autosave events.
+Close the reader before OS close/relaunch, then require the same exact target text
+and unchanged canonical Note/sentinel. Record any generation changes instead of
+silently normalizing them. The actual composer must visibly recover the text too.
+Do not run Send/Rewrite, repair SQL or seed the expected row to make the check pass.
+This qualifies normal close/reopen after a durable handoff, not crash/power loss,
+unprocessed keyboard input or a failure-injected native storage scenario.
