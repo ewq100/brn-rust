@@ -112,6 +112,106 @@
         "cached_input": 0
       },
       "qualification": "exact-note-reading-qualification.json"
+    },
+    {
+      "id": "e77bcbb1-088e-4e2c-a0d4-23f7cea00e1b",
+      "session": "2026-10-20-writing-01",
+      "tallinn_date": "2026-10-20",
+      "reserved_at_utc": "2026-10-20T08:01:03.178889+00:00",
+      "status": "failed",
+      "scenario": "One frozen v2 whole-note rewrite with one exact captured comment; original and sentinel unchanged, proposal only",
+      "provider": "Codex existing account",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "binary_sha256": "e8c79ae9b1c2434696fb615416f6e0180c0adeeb06d85f146bbff11a627c353e",
+      "harness_source_sha256": "61ec649ebaa6e6b0099a4fe55ef86dd7b581d325642d0bbd07753458914c4d56",
+      "binary_qualified_product_source": "b0eb18d7db7560269fa18d96c5bbf92eee1f40da",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-01/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-01",
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-20T08:00:43.225Z",
+        "used_percent": 3,
+        "remaining_percent": 97,
+        "reset_unix": 1793083360
+      },
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false,
+      "started_at_utc": "2026-10-20T08:01:14.491190+00:00",
+      "finished_at_utc": "2026-10-20T08:01:17.139727+00:00",
+      "elapsed_seconds": 2.6484362080227584,
+      "exit_code": 2,
+      "outer_watchdog_fired": false,
+      "account_transport_succeeded": false,
+      "task_passed": false,
+      "provider_dispatch_observed": false,
+      "diagnosis": "Harness manifest.json was placed inside canonical DATA, so normal reopen correctly refused unexpected directory entry. Failure occurs before prepare_thread_run and before durable dispatch marker/provider spawn. No account request observed. Counts conservatively as attempted launch; no retry of this fixture.",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-01/launch.json",
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-20T08:02:11.833545+00:00",
+        "used_percent": 3,
+        "remaining_percent": 97,
+        "reset_unix": 1793083360
+      }
+    },
+    {
+      "id": "8879f1e2-6e62-4fe1-8690-5ddd01891d78",
+      "session": "2026-10-20-writing-01",
+      "tallinn_date": "2026-10-20",
+      "reserved_at_utc": "2026-10-20T08:06:43.218717+00:00",
+      "status": "passed",
+      "scenario": "Diagnosed harness layout repair; same one-comment frozen v2 whole-note proposal on fresh data, no Apply",
+      "provider": "Codex existing account",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "binary_sha256": "a3abe44d89d64d849f1406b4d73e72ead75919e9fe202c21a664962706a47e7e",
+      "harness_source_sha256": "ead7ab6f903d2f5094783fb6275cc75b9a5b05a9420a853cc8dd6d823416ae3b",
+      "binary_qualified_product_source": "b0eb18d7db7560269fa18d96c5bbf92eee1f40da",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02",
+      "harness_sidecar_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace.harness-evidence",
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-20T08:06:24.590Z",
+        "used_percent": 3,
+        "remaining_percent": 97,
+        "reset_unix": 1793083360
+      },
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false,
+      "started_at_utc": "2026-10-20T08:06:43.246920+00:00",
+      "finished_at_utc": "2026-10-20T08:06:54.126002+00:00",
+      "elapsed_seconds": 10.878940708003938,
+      "exit_code": 0,
+      "outer_watchdog_fired": false,
+      "account_transport_succeeded": true,
+      "provider_dispatch_observed": true,
+      "task_passed": true,
+      "original_note_unchanged": true,
+      "sentinel_note_unchanged": true,
+      "captured_comment_unchanged_and_pending": true,
+      "candidate_unapplied": true,
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace.harness-evidence/result.json",
+      "run_id": "59341f8b-d40a-4b02-9111-1cd2fab85a83:0",
+      "candidate_operations": [
+        "7571d9e7-71f7-432f-9d9c-d3fad71589a0"
+      ],
+      "usage": {
+        "input": 33055,
+        "output": 368,
+        "cached_input": 23040
+      },
+      "runtime_rounds": 3,
+      "model_turns": 4,
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-20T08:07:09.402Z",
+        "used_percent": 3,
+        "remaining_percent": 97,
+        "reset_unix": 1793083360
+      },
+      "qualification": "writing-account-qualification.json"
     }
   ]
 }

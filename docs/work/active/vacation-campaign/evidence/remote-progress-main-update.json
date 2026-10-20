@@ -1,0 +1,73 @@
+{
+  "observed_at": "2026-10-20T08:15:46.725Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "main_and_export_review_update": {
+    "new_sequence": 5,
+    "through_sequence": 5,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "349884ed87dce51fda81a8a0769d4f9d56bf5ea3cef6c541bfce2c8ef4294403"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+          "relative_position_base64": "AJuY17sCtAVB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "hash": "da291186a9cf8333bf222f6d1a8db89aae20da39ff72c1cffd113c8be67f4e8f"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "relative_position_base64": "AMfr2vgBqwdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "hash": "6dffcdd2495fca3dbeb9841c019f24115239770ef675d170e03418dafa398a12"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "9f4181949712c4db80c611a4020ac37cf1d2d28a00dccdf12a7da77b0ebf1a4f"
+          }
+        ]
+      }
+    ]
+  },
+  "readback_verified": true,
+  "limits": "Content and target verified through connector; browser/mobile rendering unobserved. No membership or schedule changes."
+}

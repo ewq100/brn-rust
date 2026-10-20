@@ -550,3 +550,11 @@ remaining; first unattended wake remains unobserved.
 - [Grouped Review source review](evidence/review-group-source-review.json), [qualification](evidence/review-group-qualification.json) and [receipt audit](evidence/review-group-receipt-audit.json) retain source465a6fad, original compiler failure/correction,333/0/1 desktop state suite and source-bound binaries; actual MAC-08 remains separate.
 - [Existing shared-intake witness](shared-intake-verification.md) and [qualification](evidence/shared-intake-qualification.json) retain the successful explicit public CLI→headless desktop1/0/0 check, unchanged owner Message, one added Run and the original external parser failure. No account/provider/native-control test occurred.
 - [Visibility integration receipt](evidence/visibility-adoption-integration.json) retains PR178 normal merge1009495d and all four required resulting-main checks passed; optional Windows failures remain visible. Current gates/next actions stay in campaign.json.
+
+## 20 October — bounded account writing and export follow-through
+
+[Writing verification](writing-account-verification.md) and [source-bound qualification](evidence/writing-account-qualification.json) retain the failed pre-dispatch metadata layout, corrected independent reviews, lossless source/build/launch archives and successful exact frozen-request proposal. Original/sentinel/pending-comment records remain unchanged; no Apply/Undo or native acceptance is claimed. [The ledger](evidence/codex-ai-test-ledger.json) owns dated counts and actual launches.
+
+[Backup/export audit](evidence/2026-10-20-backup-failure-audit.md) identified missing export directory flushes by source inspection. The current task record owns its selected correction and current gates; the audit alone is not executed qualification.
+
+[Export qualification](evidence/export-durability-qualification.json) preserves the six focused passing tests, full logs and toolchain warning for reviewed source0f64a034. [Independent source review](evidence/export-durability-review.md) and [evidence review](evidence/writing-evidence-review.md) passed; current publication/merge gates remain in the task record.

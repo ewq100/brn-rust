@@ -1,0 +1,156 @@
+{
+  "observed_at": "2026-10-20T08:11:45.149Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "mid_update": {
+    "new_sequence": 3,
+    "through_sequence": 3,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+          "relative_position_base64": "AJuY17sC2gdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "hash": "30ef67e047ec5f21dad4932cf8ad959396f4f8f312deb9ad7e6dc76ed41eea89"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "e5a097e8536f9ce85216dd6cb148fd067ee4996e2c31959c6ad5c1b402fb1e8d"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMDFnPYCuApB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "e51715faa7692c0a5bb9dd6dac158ee4d8b58bd10b8ac69daf8e8402a9f50b1c"
+          }
+        ]
+      }
+    ]
+  },
+  "writing_success_update": {
+    "new_sequence": 4,
+    "through_sequence": 4,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "fcf8465a1edddac3834fff5a32e27117cbc839159cc517aa8479b1ad7427e497"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "dc832dc21af68ed47a77291a43a0ac34ac30c2ddfa8757a11581b95dd355ebdf"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+          "relative_position_base64": "AJuY17sC2gdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "hash": "1dde32895bd3e4c33f42508964938205178bb71c5d7697b88cd3ac8298ffd383"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "a2402ed523c524abce09625db0cc2a76cc7121f649522330dba2395a6510dc40"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "ae10b99c77e2b10966be3747fb48e3abb41591d7e7067be7884fa02c9c2f8d37"
+          }
+        ]
+      },
+      {
+        "operation_index": 5,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [
+          "5d6eed6f-b069-42e1-b21f-925dea91dfa6"
+        ],
+        "continuation_position": {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "relative_position_base64": "AMfr2vgBqwdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "hash": "10e8ae2d71ce378f438ce0cfa3d1a622fed95bc8de349ad3427e483774e76e83"
+          }
+        ]
+      }
+    ]
+  },
+  "readback_verified": true,
+  "limits": "Saved content verified; browser/mobile rendering not observed. Existing Page/membership preserved; no new schedule."
+}

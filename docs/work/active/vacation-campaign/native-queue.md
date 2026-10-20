@@ -2,6 +2,12 @@
 
 Scenario definitions and source-bound historical observations live here. Current task readiness, admission and next action live in [campaign state](campaign.json) and [overview](../../overview.md); reconcile actual source/artifact at execution.
 
+## Source-bound writing proposal ready — 20 October
+
+MAC-09 is ready for the consolidated native session after the lead reconciles its current task and actual artifact. [One bounded account writing proposal](writing-account-verification.md) passed normal runtime and exact source-preservation verification on production source `b0eb18d7` (lead product tree unchanged). The successful synthetic workspace and immutable harness/binary identities are in [qualification](evidence/writing-account-qualification.json). Test metadata is outside DATA. Do not use the preserved first failed fixture, regenerate AI output or infer native success from this check.
+
+MAC-09: open the successful fresh synthetic workspace (or a separately recorded synthetic clone, preserving the original) with a qualified source-matching production desktop. Open its saved writing thread and proposal through actual controls. Confirm the only proposed text difference is `cobalt boats` → `teal boats`, then Apply through the normal review controls. Supported read-only inspection should show exact expected Note bytes and retained provenance; the unrelated sentinel remains unchanged. Undo through actual controls; supported inspection must show the exact original Note text as a new eligible revision and unchanged unrelated state. Record actual Comment handling according to the displayed selected feedback; do not assume a model suggestion is an owner choice. No account call is needed. If export source changes before this batch, reconcile production identity and applicable qualified artifacts rather than silently relabeling an older binary.
+
 ## Historical actual observation —19October
 
 MAC-07 model-suggestion review was exercised early in one consolidated Mac batch.

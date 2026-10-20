@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-20T08:18:03.635242+00:00",
+  "local_composed_commit": "d9187bdd3eef185eeac9b50484fabe1188adb499",
+  "remote_pr180_head_unchanged": "f8e725385e56172e2ac654409d5af3e20352e1c8",
+  "production_review": {
+    "candidate": "0f64a0344eac23edb43403034bf3e0deae87655c",
+    "review": "export-durability-review.md",
+    "complete_production_tree_identical": true,
+    "qualification": "export-durability-qualification.json"
+  },
+  "evidence_review": {
+    "candidate": "4f6a070d0442a0280e92c693236a9fb1ac642b5a plus explicit dirty export receipt/current-state supplement",
+    "review": "writing-evidence-review.md",
+    "scope": "All writing source archives/launch receipts/ledger/native route and export logs/qualification reviewed; no consequential findings",
+    "mechanical_correction": "Removed stale export pending-independent-review phrase; corrected current gate wording only"
+  },
+  "composition": "Nonrewriting local merge of two disjoint source/evidence outcomes, no conflict or new production changes. Subsequent queue source audit and current gate receipts are operational observations; lead checks/rendering/links apply. No new independent product behavior beyond exact reviewed0f64 source.",
+  "integration": "local composition only; PR180 remote remains frozen. Publish after reviewed PR180 normal integration, then actual required head/main checks. Not merged into main."
+}

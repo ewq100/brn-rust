@@ -3,7 +3,7 @@
 On19October2026 the owner explicitly authorized using their existing Codex account
 for AI tests, including native AI testing, with reasonable limits. This updates
 the earlier live-provider exclusion only for bounded Codex-account qualification.
-The [campaign](plan.md) remains the execution/expiry/merge authority. Three bounded command-line probes have now run: [initial qualification](evidence/codex-ai-smoke-qualification.json) preserves a failed natural request and a successful explicit-ID diagnostic; [the schema clarification qualification](evidence/exact-note-reading-qualification.json) preserves a successful natural-request probe after reviewed metadata changes. The current test session is closed at3 attempts. Actual native AI testing remains pending.
+The [campaign](plan.md) remains the execution/expiry/merge authority. The19October command-line session is retained in [initial qualification](evidence/codex-ai-smoke-qualification.json) and [schema clarification qualification](evidence/exact-note-reading-qualification.json). The [attempt ledger](evidence/codex-ai-test-ledger.json) owns dated launches, session/day counts and outcomes; historical session closure does not describe a later session. Actual native AI testing remains a separate gate.
 
 ## Limits and execution
 

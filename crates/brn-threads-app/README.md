@@ -79,6 +79,9 @@ complete state into an explicit fresh directory; search is rebuilt after opening
 restored state. Backup publication stages a standalone validated database and
 exclusively publishes the complete file, so a failed or interrupted copy cannot
 appear at the requested final filename. Existing destinations remain untouched.
+On Unix, export flushes the staged asset and snapshot directories before
+publication and the destination parent after rename. If the final parent flush
+fails, export reports the error while preserving the complete published snapshot.
 
 The core uses schema10. Supported schema3–9 workspaces upgrade only after a
 verified external pre-upgrade backup; restoring an older backup upgrades only its
