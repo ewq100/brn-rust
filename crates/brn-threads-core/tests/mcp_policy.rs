@@ -1,5 +1,8 @@
 use brn_threads_core::*;
 use serde_json::json;
+fn root() -> tempfile::TempDir {
+    tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
+}
 fn checked(store: &mut Store, data: RecordData) -> Record {
     let op = store
         .allocate_operation(&uuid::Uuid::new_v4().to_string())
@@ -138,7 +141,7 @@ fn run(store: &mut Store, chat: &str) -> String {
 }
 #[test]
 fn policy_is_explicit_replay_bound_preserves_configure_and_fences_current_runs() {
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let mut store = Store::open(root.path().join("data")).unwrap();
     initial(&mut store);
     assert!(settings(&store).mcp.is_none());
@@ -193,7 +196,7 @@ fn policy_is_explicit_replay_bound_preserves_configure_and_fences_current_runs()
 }
 #[test]
 fn exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh() {
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let mut store = Store::open(root.path().join("data")).unwrap();
     initial(&mut store);
     let p = policy(vec![McpAccess::General]);
@@ -326,7 +329,7 @@ fn exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh() {
 }
 #[test]
 fn private_and_project_access_are_explicit_and_raw_owner_policy_is_bounded() {
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let mut store = Store::open(root.path().join("data")).unwrap();
     initial(&mut store);
     set(&mut store, &policy(vec![McpAccess::General]));
@@ -408,7 +411,7 @@ fn private_and_project_access_are_explicit_and_raw_owner_policy_is_bounded() {
 
 #[test]
 fn still_valid_grant_cannot_cross_store_reopen_or_unchanged_backup_restore() {
-    let root = tempfile::tempdir().unwrap();
+    let root = root();
     let data = root.path().join("data");
     let mut store = Store::open(&data).unwrap();
     initial(&mut store);
