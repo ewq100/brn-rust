@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-20T21:44:45.956898+00:00",
+  "worktree": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust",
+  "source": "e1b0958f01718cba9bdb21944f8e4c6bc5759cc3",
+  "preflight": "clean, no ignored files, all4required resulting-main191 PASS",
+  "attempt": "managed archive_worktree with retainedPR191 association",
+  "result": "NOT ARCHIVED: tool reports This worktree is protected by a pinned task or workspace.",
+  "disposition": "Preserve attached worktree; no unpin/forced deletion/repeated attempt or owner action required for product work."
+}

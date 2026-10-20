@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-20T21:43:58.684870+00:00",
+  "result": "PASS normal merge and whole-tree equality; resulting-main pending",
+  "pr": {
+    "headRefOid": "0cc1a4007e8e1bedd97f31e650e2446ac7373841",
+    "mergeCommit": {
+      "oid": "2658f8883b47f224b02ed428055efaaba1bb47a4"
+    },
+    "mergedAt": "2026-10-20T21:43:46Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/192"
+  },
+  "qualified_candidate": "0cc1a4007e8e1bedd97f31e650e2446ac7373841",
+  "merged_tree": "8b1325a88193525e893b5c2c032b8fa350d72d77",
+  "normal_merge": "Separate gh pr merge192 --merge --match-head-commit0cc1 after explicit live premerge PASS, no bypass",
+  "premerge_receipt": "pr192-premerge.json",
+  "resulting_main": "pending distinct exact-merge BRN CI run"
+}

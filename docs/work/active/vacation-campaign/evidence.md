@@ -654,3 +654,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October21:24UTC: bounded alternative image-policy witness
 
 [Source research](evidence/image-retention-preresearch.md) identified an offline SDK route. The [actual two-attempt witness](evidence/image-retention-proof.json) recovers exact PNG bytes but fails BRN projection on layout/pixel dimensions; the original raw-count assertion also conflates a retained file with an empty SDK placeholder. Both failures and diagnostic changes are retained, with no green substitution. [Disposition and limits](evidence/image-retention-proof.md) keep current published defaults and qualification boundaries; no production candidate, subprocess/store/native/account proof or new owner decision is claimed.
+
+## 20 October21:44UTC: Mac fixture main verified, documentation correction merged
+
+[All four required main191 jobs](evidence/pr191-resulting-main.json) pass; optional failures remain in the receipt. [Managed cleanup](evidence/mac-test-roots-cleanup.json) was refused because the clean worker is pinned; it remains preserved without forced removal. [Fresh PR192 gate](evidence/pr192-premerge.json) passes actual strict/admin protection and both complete required sets before a separate normal merge. [Merged tree2658f888](evidence/pr192-integration.json) exactly equals qualified0cc1; resulting-main39502704935 remains a separate pending gate.
