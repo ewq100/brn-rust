@@ -599,6 +599,8 @@ impl ThreadsUi {
                 .on_click(
                     cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
                 )
+                .role(gpui_kit::Role::Button)
+                .tab_index(0)
                 .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
         };
         let frame = |header: gpui_kit::Div, body: gpui_kit::AnyElement| {
