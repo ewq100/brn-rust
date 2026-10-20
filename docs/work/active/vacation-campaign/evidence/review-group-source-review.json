@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-20T07:03:28.562163+00:00",
+  "reviewer": "independent fresh-context gpt-6.1-sol high requested",
+  "result": "PASS,no further source/contract findings after complete final rereview",
+  "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+  "sha256": {
+    "ui": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+    "fixture": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+    "lock": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89"
+  },
+  "original_review": "b0fa50eb and9aca1082 source-only pass; missed compiler type alias issue. Actual build caught it.",
+  "correction_review": "465a6fad complete fixture re-read; std::result::Result avoids core alias; UI unchanged",
+  "pinned_evidence": "gpui-component0.7.3 button.rs stores Some(bool) and maps to aria_toggled; gpui-pre0.3.9 metadata store; qualification remains separate",
+  "limits": [
+    "Reviewer ran no builds/native/provider calls",
+    "Native AX and owner acceptance pending"
+  ]
+}

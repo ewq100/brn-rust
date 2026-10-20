@@ -61,7 +61,8 @@
     "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
-    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
+    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification.",
+    "current_batch": "Two fresh-context Luna medium workers: developer fixture and UI metadata, isolated file/worktree ownership; Sol lead and independent Sol review when candidate ready. Actual4 total slots, single build slot controlled by lead. Stop/reassess on two failed approaches or scope/invariant ambiguity."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json",
   "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
@@ -95,19 +96,19 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T05:18:26.961320+00:00",
-    "remaining_percent": 4,
-    "reset_unix": 1792874447,
-    "ordinary_work": "wait for verified capacity above floor",
+    "observed_at": "2026-10-20T06:45:18.405208+00:00",
+    "remaining_percent": 100,
+    "reset_unix": 1793083361,
+    "ordinary_work": "admitted: verified allowance0%used/100%remaining; original floor and expiry retained",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
-      "state": "approved; in progress"
+      "state": "historical reserve exception; ordinary admission restored by verified renewed capacity"
     },
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T05:18:26.961320+00:00",
+    "observed_at": "2026-10-20T07:05:09.863171+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -115,13 +116,13 @@
         "title": "Clearer instructions and one progress view",
         "state": "active",
         "owner": "development lead",
-        "activity": "Adoption implemented and independently reviewed; published as PR178. Required hosted checks are now running.",
-        "observed_at": "2026-10-20T05:18:26.961320+00:00",
+        "activity": "PR178 normally merged1009495d after all four required exact-head checks passed; observing resulting-main checks.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four actual exact-head required checks, normal merge when passed, then inspect resulting-main checks.",
+        "next_action": "Verify all required resulting-main jobs for1009495d, retain optional Windows failures, then close adoption.",
         "depends_on": [],
         "resource_waits": [
-          "Hosted exact-head checks for PR178; no new implementation or local build needed."
+          "Hosted resulting-main checks; independent hardening can continue."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/visibility-adoption.md",
@@ -132,12 +133,13 @@
           "docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json",
           "https://github.com/ewq100/brn-rust/pull/178",
           "docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json",
-          "docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/visibility-adoption-integration.json"
         ],
         "gates": {
           "implementation": "complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged",
-          "checks": "passed local final8 tests, view consistency,589 files/2740 links and whitespace; hosted checks pending",
-          "integration": "PR178 published; normal merge and resulting-main verification pending",
+          "checks": "passed: final local/independent review and all four required exact-head39374194546 checks; optional Windows Core failed",
+          "integration": "normally merged1009495db414f63141d17a8f67a8bad3df087892; required resulting-main verification pending",
           "native": "inapplicable: development documentation/view only",
           "owner_acceptance": "not requested; owner authorized implementation"
         },
@@ -164,10 +166,10 @@
         "title": "Mac feedback choices expose their selected state",
         "state": "complete",
         "owner": "development lead",
-        "activity": "Reviewed correction normally merged as PR176; resulting-main checks still separate.",
-        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "activity": "Reviewed Mac feedback correction normally merged as PR176; all four required resulting-main checks now passed.",
+        "observed_at": "2026-10-20T05:34:13.914672+00:00",
         "origin": "observed",
-        "next_action": "See resulting-main-checks before declaring integration fully verified.",
+        "next_action": "Reuse qualified source; broader native/owner usability remains separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -178,7 +180,7 @@
         "gates": {
           "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
-          "integration": "normally merged 1ea0ac875f6e7aa128ce21bde781075e87784fff; resulting-main pending",
+          "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
           "owner_acceptance": "pending; no VoiceOver/IME/general usability claim"
         },
@@ -195,12 +197,12 @@
       {
         "id": "resulting-main-checks",
         "title": "Confirm checks after the Mac correction merged",
-        "state": "active",
+        "state": "complete",
         "owner": "hosted checks; development lead inspects results",
-        "activity": "PR176 merged; inspecting resulting-main checks at 1ea0ac87.",
-        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "activity": "All four required checks passed on merged Mac correction1ea0ac87.",
+        "observed_at": "2026-10-20T05:34:13.914672+00:00",
         "origin": "observed",
-        "next_action": "Record each actual required result and retain optional failures.",
+        "next_action": "Reuse verified main; keep optional Windows failures visible.",
         "depends_on": [
           {
             "task": "feedback-accessibility",
@@ -208,16 +210,15 @@
             "satisfied": true
           }
         ],
-        "resource_waits": [
-          "Hosted checks may still be running; no local build needed."
-        ],
+        "resource_waits": [],
         "evidence": [
-          "https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff"
+          "https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff",
+          "docs/work/active/vacation-campaign/evidence/pr176-integration.json"
         ],
         "gates": {
           "implementation": "inapplicable: verification only",
-          "checks": "pending actual resulting-main jobs",
-          "integration": "merge exists; post-merge verification pending",
+          "checks": "passed: all four required resulting-main39373391210 jobs; optional Windows failed; optional Ubuntu retrieval still running at observation",
+          "integration": "verified normal merge1ea0ac87",
           "native": "reuse unchanged qualified controls; no new native claim",
           "owner_acceptance": "inapplicable to hosted verification"
         },
@@ -228,14 +229,13 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Prepared scenarios remain; previously passing feedback journeys need no replay.",
-        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "activity": "Prepared Save/reopen/backup/recovery scenarios can use source-bound qualified production; ordinary allowance available.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
         "origin": "reported",
-        "next_action": "After ordinary capacity returns, qualify ready synthetic scenarios in one consolidated Mac session.",
+        "next_action": "Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.",
         "depends_on": [],
         "resource_waits": [
-          "Ordinary campaign admission: reserve exception covers visibility adoption only.",
-          "Single desktop/build slot must be free; confirm actual access and artifact identity."
+          "Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md"
@@ -304,8 +304,106 @@
           "owner_acceptance": "not claimed"
         },
         "attempts": []
+      },
+      {
+        "id": "review-group-fixture",
+        "title": "Prepare grouped-review test workspace",
+        "state": "active",
+        "owner": "development lead",
+        "activity": "Final combined source465a6fad independently reviewed and locally qualified; preparing publication.",
+        "observed_at": "2026-10-20T07:05:09.863171+00:00",
+        "origin": "observed",
+        "next_action": "Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/review-group-native-preparation.md",
+          "docs/work/active/vacation-campaign/review-group-accessibility.md",
+          "docs/work/active/vacation-campaign/evidence/review-group-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/review-group-source-review.json"
+        ],
+        "gates": {
+          "implementation": "candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification",
+          "checks": "passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained",
+          "integration": "not yet published; required head/main gates pending",
+          "native": "pending MAC-08 actual OS toggle observation; headless tests do not establish native usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "First build failed E0107: wildcard-imported core Result has one type parameter.",
+            "change": "Qualified std::result::Result in the reopen collection; corrected build and public fixture assertions pass.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/review-group-qualification.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "review-group-toggle",
+        "title": "Expose grouped Include/Omit selection to accessibility tools",
+        "state": "active",
+        "owner": "development lead",
+        "activity": "Final combined source465a6fad independently reviewed and locally qualified; preparing publication.",
+        "observed_at": "2026-10-20T07:05:09.863171+00:00",
+        "origin": "observed",
+        "next_action": "Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/review-group-native-preparation.md",
+          "crates/brn-writing-ui/src/writing.rs",
+          "docs/work/active/vacation-campaign/review-group-accessibility.md",
+          "docs/work/active/vacation-campaign/evidence/review-group-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/review-group-source-review.json"
+        ],
+        "gates": {
+          "implementation": "candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification",
+          "checks": "passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained",
+          "integration": "not yet published; required head/main gates pending",
+          "native": "pending MAC-08 actual OS toggle observation; headless tests do not establish native usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "review-group-native",
+        "title": "Check grouped review controls on the Mac",
+        "state": "blocked",
+        "owner": "single native actor in consolidated batch",
+        "activity": "MAC-08 scenario and immutable source-bound desktop/fixture binaries ready for scheduled actual control observation.",
+        "observed_at": "2026-10-20T07:05:09.863171+00:00",
+        "origin": "reported",
+        "next_action": "Run MAC-08 during consolidated native session, then retain actual AX states and unchanged canonical data separately from source/build checks.",
+        "depends_on": [
+          {
+            "task": "review-group-fixture",
+            "condition": "Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks.",
+            "satisfied": true
+          },
+          {
+            "task": "review-group-toggle",
+            "condition": "Corrected UI source reviewed and ordinary production binary qualified.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [
+          "Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/review-group-qualification.json"
+        ],
+        "gates": {
+          "implementation": "scenario prepared; no new product feature",
+          "checks": "matching source/binary/fixture must be confirmed at session start",
+          "integration": "prefer then-current reviewed main; candidate observations kept separate",
+          "native": "pending actual true/false/true pressed-state and unchanged data",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Remaining external waits are checks or capacity."
+    "owner_attention": "No owner decision requested. Ordinary work resumed after verified renewed allowance."
   }
 }

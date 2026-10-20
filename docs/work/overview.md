@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Remaining external waits are checks or capacity.
+**Owner attention:** No owner decision requested. Ordinary work resumed after verified renewed allowance.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,10 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Clearer instructions and one progress view
 
-Owner: development lead · State: **active** · Last observed: 2026-10-20T05:18:26.961320+00:00
-Activity: Adoption implemented and independently reviewed; published as PR178. Required hosted checks are now running.
-Next: Inspect all four actual exact-head required checks, normal merge when passed, then inspect resulting-main checks.
-Resource waits: Hosted exact-head checks for PR178; no new implementation or local build needed.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T06:45:18.405208+00:00
+Activity: PR178 normally merged1009495d after all four required exact-head checks passed; observing resulting-main checks.
+Next: Verify all required resulting-main jobs for1009495d, retain optional Windows failures, then close adoption.
+Resource waits: Hosted resulting-main checks; independent hardening can continue.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,12 +22,12 @@ Resource waits: Hosted exact-head checks for PR178; no new implementation or loc
 Gates:
 
 - **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
-- **checks:** passed local final8 tests, view consistency,589 files/2740 links and whitespace; hosted checks pending
-- **integration:** PR178 published; normal merge and resulting-main verification pending
+- **checks:** passed: final local/independent review and all four required exact-head39374194546 checks; optional Windows Core failed
+- **integration:** normally merged1009495db414f63141d17a8f67a8bad3df087892; required resulting-main verification pending
 - **native:** inapplicable: development documentation/view only
 - **owner acceptance:** not requested; owner authorized implementation
 
-Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json), [https://github.com/ewq100/brn-rust/pull/178](https://github.com/ewq100/brn-rust/pull/178), [docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json](active/vacation-campaign/evidence/visibility-adoption-review.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json](active/vacation-campaign/evidence/visibility-adoption-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json), [https://github.com/ewq100/brn-rust/pull/178](https://github.com/ewq100/brn-rust/pull/178), [docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json](active/vacation-campaign/evidence/visibility-adoption-review.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json](active/vacation-campaign/evidence/visibility-adoption-qualification.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-integration.json](active/vacation-campaign/evidence/visibility-adoption-integration.json)
 
 Attempts:
 
@@ -36,26 +36,49 @@ Attempts:
 
 </details>
 
-### Confirm checks after the Mac correction merged
+### Prepare grouped-review test workspace
 
-Owner: hosted checks; development lead inspects results · State: **active** · Last observed: 2026-10-20T05:10:37.356608+00:00
-Activity: PR176 merged; inspecting resulting-main checks at 1ea0ac87.
-Next: Record each actual required result and retain optional failures.
-Depends on: feedback-accessibility when Correction is normally merged so resulting-main checks exist. (reported satisfied: true)
-Resource waits: Hosted checks may still be running; no local build needed.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
+Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
+Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** inapplicable: verification only
-- **checks:** pending actual resulting-main jobs
-- **integration:** merge exists; post-merge verification pending
-- **native:** reuse unchanged qualified controls; no new native claim
-- **owner acceptance:** inapplicable to hosted verification
+- **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
+- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
+- **integration:** not yet published; required head/main gates pending
+- **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
+- **owner acceptance:** not claimed
 
-Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff](https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff)
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
+
+Attempts:
+
+- First build failed E0107: wildcard-imported core Result has one type parameter.: Qualified std::result::Result in the reopen collection; corrected build and public fixture assertions pass. ([docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json))
+
+</details>
+
+### Expose grouped Include/Omit selection to accessibility tools
+
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
+Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
+Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
+- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
+- **integration:** not yet published; required head/main gates pending
+- **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
 
 </details>
 
@@ -71,22 +94,14 @@ Owner: development lead
 
 Waiting:
 
-- resource: Hosted exact-head checks for PR178; no new implementation or local build needed.
-
-### Confirm checks after the Mac correction merged
-
-Owner: hosted checks; development lead inspects results
-
-Waiting:
-
-- resource: Hosted checks may still be running; no local build needed.
+- resource: Hosted resulting-main checks; independent hardening can continue.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T05:10:37.356608+00:00
-Activity: Prepared scenarios remain; previously passing feedback journeys need no replay.
-Next: After ordinary capacity returns, qualify ready synthetic scenarios in one consolidated Mac session.
-Resource waits: Ordinary campaign admission: reserve exception covers visibility adoption only.; Single desktop/build slot must be free; confirm actual access and artifact identity.
+Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T06:45:18.405208+00:00
+Activity: Prepared Save/reopen/backup/recovery scenarios can use source-bound qualified production; ordinary allowance available.
+Next: Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.
+Resource waits: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -105,16 +120,42 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 
 Waiting:
 
-- resource: Ordinary campaign admission: reserve exception covers visibility adoption only.
-- resource: Single desktop/build slot must be free; confirm actual access and artifact identity.
+- resource: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
+
+### Check grouped review controls on the Mac
+
+Owner: single native actor in consolidated batch · State: **blocked** · Last reported: 2026-10-20T07:05:09.863171+00:00
+Activity: MAC-08 scenario and immutable source-bound desktop/fixture binaries ready for scheduled actual control observation.
+Next: Run MAC-08 during consolidated native session, then retain actual AX states and unchanged canonical data separately from source/build checks.
+Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
+Resource waits: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** scenario prepared; no new product feature
+- **checks:** matching source/binary/fixture must be confirmed at session start
+- **integration:** prefer then-current reviewed main; candidate observations kept separate
+- **native:** pending actual true/false/true pressed-state and unchanged data
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json)
+
+</details>
+
+Waiting:
+
+- resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
 ## Completed
 
 ### Mac feedback choices expose their selected state
 
-Owner: development lead · State: **complete** · Last observed: 2026-10-20T05:10:37.356608+00:00
-Activity: Reviewed correction normally merged as PR176; resulting-main checks still separate.
-Next: See resulting-main-checks before declaring integration fully verified.
+Owner: development lead · State: **complete** · Last observed: 2026-10-20T05:34:13.914672+00:00
+Activity: Reviewed Mac feedback correction normally merged as PR176; all four required resulting-main checks now passed.
+Next: Reuse qualified source; broader native/owner usability remains separate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -123,7 +164,7 @@ Gates:
 
 - **implementation:** complete; final writing.rs SHA b14e8bc9…932ffe8
 - **checks:** all four required exact-head checks passed at 7e41da52; optional Windows Core failed
-- **integration:** normally merged 1ea0ac875f6e7aa128ce21bde781075e87784fff; resulting-main pending
+- **integration:** verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed
 - **native:** captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records
 - **owner acceptance:** pending; no VoiceOver/IME/general usability claim
 
@@ -132,6 +173,28 @@ Evidence: [docs/work/active/vacation-campaign/evidence/feedback-inclusion-qualif
 Attempts:
 
 - Actual Mac check exposed missing selected-state accessibility metadata.: Added toggle metadata and model-suggestion context; both real control sequences then passed. ([docs/work/active/vacation-campaign/evidence/feedback-accessibility-qualification.json](active/vacation-campaign/evidence/feedback-accessibility-qualification.json))
+
+</details>
+
+### Confirm checks after the Mac correction merged
+
+Owner: hosted checks; development lead inspects results · State: **complete** · Last observed: 2026-10-20T05:34:13.914672+00:00
+Activity: All four required checks passed on merged Mac correction1ea0ac87.
+Next: Reuse verified main; keep optional Windows failures visible.
+Depends on: feedback-accessibility when Correction is normally merged so resulting-main checks exist. (reported satisfied: true)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: verification only
+- **checks:** passed: all four required resulting-main39373391210 jobs; optional Windows failed; optional Ubuntu retrieval still running at observation
+- **integration:** verified normal merge1ea0ac87
+- **native:** reuse unchanged qualified controls; no new native claim
+- **owner acceptance:** inapplicable to hosted verification
+
+Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff](https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff), [docs/work/active/vacation-campaign/evidence/pr176-integration.json](active/vacation-campaign/evidence/pr176-integration.json)
 
 </details>
 
@@ -187,9 +250,14 @@ Evidence: [docs/work/active/vacation-campaign/evidence.md](active/vacation-campa
 graph TD
   t1["Mac feedback choices expose their selected state"]
   t2["Confirm checks after the Mac correction merged"]
+  t6["Prepare grouped-review test workspace"]
+  t7["Expose grouped Include/Omit selection to accessibility tools"]
+  t8["Check grouped review controls on the Mac"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
+  t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
+  t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T05:18:26.961320+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:05:09.863171+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

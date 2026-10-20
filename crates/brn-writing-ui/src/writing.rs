@@ -2426,6 +2426,7 @@ impl<T: 'static> WritingView<'_, T> {
                 groups = groups.child(
                     pill(format!("review-group-{id}"), label.clone())
                         .selected(included)
+                        .toggled(included)
                         .disabled(blocked.is_some())
                         .when_some(blocked, |toggle, why| {
                             toggle
