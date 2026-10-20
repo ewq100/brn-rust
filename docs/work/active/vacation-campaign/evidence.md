@@ -618,3 +618,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October: required Ubuntu feedback assessment
 
 [Bounded existing-receipt/source audit](evidence/ubuntu-required-gate-cache-audit.md) distinguishes exact helper cache inclusion from uncontrolled job durations. Lead validated23m47/18m53/24m46 Ubuntu Core observations; they establish no timing regression. Linux helpers are outside its root-only cache; old nested targets only partially retained root-graph crates. No configuration change selected under Mac-first priority and unknown cache headroom; revisit on comparable cache evidence and bounded storage/retention assessment.
+
+## 20 October: attachment witness integration and resulting-main
+
+[PR189 integration](evidence/pr189-integration.json) retains the original local aggregate-status assertion and dependent-shell sequencing failure. All four exact-head and preceding-main required jobs had passed; GitHub enforced normal protection, no bypass was used, and the complete merged tree equals reviewed57531. [Resulting-main39469206851](evidence/pr189-resulting-main.json) now independently passes all four required contexts at a23f486b; three optional Windows failures remain. The exact stored-attachment witness is complete; production image extraction and actual Mac controls remain separate.

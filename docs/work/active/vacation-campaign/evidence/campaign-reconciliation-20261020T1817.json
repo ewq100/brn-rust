@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-10-20T18:18:15.577322+00:00",
+  "lead_before_record": "a8a07fe3ea87aa45850118e728021df8f632f4e7",
+  "branch": "codex/agent-first-followthrough",
+  "integrated_main": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "worker": {
+    "branch": "codex/retained-asset-restore-witness",
+    "head": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+    "clean": true,
+    "published_pr": 189,
+    "state": "normally merged, complete treeequivalent main"
+  },
+  "open_prs": [
+    {
+      "headRefName": "docs/visible-development-context-2026-10-19",
+      "isDraft": true,
+      "number": 177
+    },
+    {
+      "headRefName": "work/passage-comment-geometry",
+      "isDraft": true,
+      "number": 149
+    },
+    {
+      "headRefName": "ux/design-handbook",
+      "isDraft": true,
+      "number": 112
+    },
+    {
+      "headRefName": "codex/h4-docx-reader-evaluation",
+      "isDraft": false,
+      "number": 84
+    },
+    {
+      "headRefName": "codex/h1-integration-record",
+      "isDraft": false,
+      "number": 82
+    },
+    {
+      "headRefName": "codex/h5-cli-parsing-evaluation",
+      "isDraft": false,
+      "number": 80
+    }
+  ],
+  "task_states": {
+    "complete": 40,
+    "blocked": 3
+  },
+  "unrelated_changes": "none observed in lead/worker; pending lead docs/receipt writes are task-owned",
+  "agents": "All bounded helpers completed; only lead active at observation",
+  "builds": "no owned local build; focused qualification completed",
+  "ci": "All4 required head/main checks PASS for PR189; all10mainjobs complete. Three optional Windows failures retained. All readonly watch sessions2479/68632/18506 completed.",
+  "app_process": {
+    "pid": 63750,
+    "state": "S",
+    "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/writing-review/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+    "observation": "stillopen afterverifiedUndo; no new desktop/account action"
+  },
+  "native_access": "Last CUAcheck15:04UTC reported locked/automaticunlockunavailable; existing manualunlock request pending. No repeated unchanged accessattempt; no current lockstate re-observation claimed.",
+  "allowance": {
+    "used_percent": 19,
+    "remaining_percent": 81,
+    "ordinary_usage_allowed": true,
+    "reset_unix": 1793083360,
+    "secondary": "unavailable, not assumed unlimited",
+    "paid_credit_balance_zero": "does not override observed ordinary allowance"
+  },
+  "next": "Three prepared actual Mac controls remain selected/blocked on access. No concrete ready headless candidate after bounded source/CI/recovery assessments; no extra source/AI/cache experiment selected. Existing campaign/expiry/schedules unchanged."
+}

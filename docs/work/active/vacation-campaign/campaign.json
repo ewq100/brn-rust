@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T17:48:49.226853+00:00",
-    "remaining_percent": 82,
+    "observed_at": "2026-10-20T18:18:15.577322+00:00",
+    "remaining_percent": 81,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted actual18%used/82%remaining, ordinaryUsageAllowedtrue; no pause/expiry",
+    "ordinary_work": "admitted: actual19%used/81%remaining; ordinaryUsageAllowedtrue; no ownerpause/fixedexpiry unchanged",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:53:25.228251+00:00",
+    "observed_at": "2026-10-20T18:18:15.577322+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1505,12 +1505,12 @@
       {
         "id": "retained-asset-restore-witness",
         "title": "Check exact stored attachment data after reopen and restore",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna one-test implementation; lead qualification/integration",
-        "activity": "PR189 normally mergeda23f486b after all4head+all4preceding-main requiredPASS; complete merged tree equals57531. Local aggregate-CLEAN assertion failed on optionalWindows UNSTABLE and shell continued; original failure/reconstructed receipt retained transparently. Resulting-main pending.",
-        "observed_at": "2026-10-20T17:48:49.226853+00:00",
+        "activity": "PR189 normally mergeda23f486b, complete tree equals57531; all4required head/preceding-main/resulting-main39469206851PASS. Existing test now checks exact storedAsset/provenance/links afterreopen/restore. Original localpremerge assertion/shell-continuation failure retained; optionalWindows failures visible.",
+        "observed_at": "2026-10-20T18:16:16.040057+00:00",
         "origin": "observed",
-        "next_action": "Inspect resulting-main BRN CI39469206851 on exacta23f486b for all4required contexts; only then mark integrated verification complete. No source changes or repeated local checks.",
+        "next_action": "Reuse strengthened existing persistence witness; no unchanged rerun or new test. Real image-producing conversion/native controls remain in their distinct qualification gaps.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1523,12 +1523,13 @@
           "https://github.com/ewq100/brn-rust/pull/189",
           "docs/work/active/vacation-campaign/evidence/pr189-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr189-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr189-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr189-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS local57531c3d, one existing test; nonemptyAsset/Source/Link preconditions and full receipt record equality after reopen/restore.",
-          "checks": "PASS independent complete-candidate Sol review; focused1/0/0/8filtered,strict chat-targetlint,finalfmt,diff. Hostedpending.",
-          "integration": "Normalmergea23f486b/source treeequal57531; all4head+all4preceding-mainPASS and required protection enforced. Local premerge script failure retained; separate resulting-mainpending.",
+          "checks": "PASS independent Sol review, focused1/0/0/8filtered,strictchatlint/fmt, all4required hostedhead and resulting-main. Original environment/format/merge-script failures retained.",
+          "integration": "PASS normalmergea23f486b with full-tree equality57531; all4head+all4preceding-main+all4resulting-main39469206851PASS. No bypass; local evidence-script failure transparently retained.",
           "native": "inapplicable test-only shared-service guarantee; no image-conversion/native claim",
           "owner_acceptance": "not claimed"
         },
@@ -1587,7 +1588,7 @@
         "resource_plan": "One Luna medium existing-receipt/source assessment completed; lead validated exact steps/priority. No source,build,CIrerun,cache,account,native or nested actions. Actual modelcost/effectiveconfiguration unexposed."
       }
     ],
-    "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
+    "owner_attention": "Three prepared Mac control checks need access. Last CUA check15:04UTC reported locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app lastconfirmed open18:17UTC after verifiedUndo."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1600,21 +1601,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr189-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T17:53:25.228251+00:00",
-    "runtime_capacity": "4total; lead only, all bounded helpers completed",
-    "build_slot": "free; focused test/strictlint/fmt completed57531, no local build",
-    "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
-    "read_only_ci_watches": [
-      {
-        "run": 39469206851,
-        "session": 18506,
-        "log": "/tmp/brn-pr189-main-watch.log",
-        "scope": "read-only resulting-main watch; exact job outcomes own verification"
-      }
-    ],
+    "observed_at": "2026-10-20T18:18:15.577322+00:00",
+    "runtime_capacity": "4total slots; onlylead, allhelperscomplete atobservation",
+    "build_slot": "free; no owned localbuild/writer",
+    "desktop_account_actor": "PID63750 confirmed18:17UTC stillopen task writing-review app afterverifiedUndo. No new desktop/accountaction; lastCUA denial15:04 remains unresolved; OSclose afteraccessreturns.",
+    "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR189 normalmergea23f486b; resulting-main BRNCI39469206851 running. PR188 warm experiment complete.",
-    "wait_reason": "Only current engineering gate is PR189 resulting-main verification. Native Notes/menu/group scenarios await changed Mac availability; source-only audits selected no further concrete candidate.",
+    "integration": "All four PR189 resulting-main gates PASS at exacta23f486b; entireBRN CI complete with optionalWindows failures retained.",
+    "wait_reason": "All selected headless engineering/review/integration/main gates complete; no concrete new headless candidate from bounded audits. Three prepared real Mac control checks wait changed availability. This is a capability wait, not quota/ownerpause or batch pacing.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }
