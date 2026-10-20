@@ -262,6 +262,11 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
             item.label(),
             Some(format!("Delivery update · {FAILURE}").as_str())
         );
+        assert_eq!(item.role(), Some(gpui_kit::Role::Label));
+        assert_eq!(
+            item.value(),
+            Some(format!("Delivery update · {FAILURE}").as_str())
+        );
         assert!(
             item.bounds().size.height < px(28.),
             "one line: {:?}",
