@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:14:10.555818+00:00",
+    "observed_at": "2026-10-20T17:18:30.466516+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1457,27 +1457,72 @@
       {
         "id": "asset-backup-cli-preflight",
         "title": "Check recovery of a backup containing a real attachment",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna command/source preflight; lead selects and qualifies",
-        "activity": "Selected missing consequential asset-rich recovery witness after exact record-only Mac backup/CLI restore passed. Bounded public-command preflight assigned, no data/build/source/account/native operation dispatched.",
-        "observed_at": "2026-10-20T17:14:10.555818+00:00",
+        "activity": "Bounded diagnosis complete: fixed normal extraction policy disables image-data work; one real DOCX import honestly records missing-byte gaps and emits noAssets. Source-backed stop retained; no second conversion or converter policy change selected.",
+        "observed_at": "2026-10-20T17:18:30.466516+00:00",
         "origin": "observed",
-        "next_action": "Validate supported fresh synthetic asset creation/backup/restore route and existing coverage. Run one bounded real CLI qualification only if supported; no SQL/credential repair.",
+        "next_action": "Asset-bearing public CLI acceptance stays incomplete. Revisit when a separately qualified image-retention path is selected; current source-policy/resource bounds must be preserved. Strengthen existing shared-service backup witness for stored Asset bytes as a distinct bounded test task.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/development/verification.md",
-          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json"
+          "docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md"
         ],
         "gates": {
           "implementation": "preflight only; no product change",
-          "checks": "pending supported route and genuine coverage assessment",
+          "checks": "PASS bounded source diagnosis and safe-stop behavior; asset-bearing production CLI round-trip INCOMPLETE, no backup/restore attempted.",
           "integration": "inapplicable until concrete defect selects candidate",
           "native": "not observed; headless qualification proposed",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "First syntheticDOCX import retained no image bytes; cannot exercise asset-bearing backup/restore.",
+            "change": "Source diagnosis confirms intentional current helper image-data policy; preserve explicit partial-import evidence. Do not broaden converter capabilities to obtain a fixture.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json"
+            ]
+          },
+          {
+            "outcome": "Imported helper follow-up used a temporary-file Markdown link that repository link checking rejected.",
+            "change": "Preserved original gzip; routed link to committed original-output archive. Clarified future task selection follows existing owner authority, no inferred extra approval gate.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup-original.md.gz",
+              "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md"
+            ]
+          }
+        ],
         "resource_plan": "One requested Luna medium fresh context for read-only CLI/contract route, no nested helper/build/data/account/native operations. Lead owns consequential selection/execution."
+      },
+      {
+        "id": "retained-asset-restore-witness",
+        "title": "Check exact stored attachment data after reopen and restore",
+        "state": "active",
+        "owner": "bounded Luna one-test implementation; lead qualification/integration",
+        "activity": "Build-ready: extend existing byte-bearing shared-service attachment/restart/restore test, which currently checks only privacy after restore. Current public conversion does not yield image bytes; this separately checks canonical retained-data fidelity.",
+        "observed_at": "2026-10-20T17:18:30.466516+00:00",
+        "origin": "observed",
+        "next_action": "Extend only existing attachment test to assert nonempty Asset fixture and exact original attachment receipt records after reopen and restore. No new test/harness, production code or converter policy change. Run focused existing case, independent review and required integration gates.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-app/tests/chat.rs",
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md"
+        ],
+        "gates": {
+          "implementation": "pending one existing test assertion extension",
+          "checks": "pending focused test and complete small-candidate review",
+          "integration": "pending existing normal integration requirements",
+          "native": "inapplicable test-only shared-service guarantee; no image-conversion/native claim",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested bounded Luna medium implementation of one existing test with explicit expected exact-data outcome; lead single build slot, one consequential Sol high review. Max2helpers within4slots, no nested workers/account/native/build by author. Stop/reassess on source need beyond test or missing artifact identity."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1489,15 +1534,23 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20 16:30:28 UTC",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr188-merged-update.json"
+    "last_refresh_at": "2026-10-20 17:14:47 UTC",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr188-main-qualified-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-20T17:14:10.555818+00:00",
-    "runtime_capacity": "4total slots; lead plus one bounded Luna read-only asset-backup command preflight; no nested workers/builds.",
+    "runtime_capacity": "4slots; lead plus one bounded Luna test author, later one independent reviewer. Shared build free.",
     "build_slot": "free; CLI pinned build completed11.35s and immutable555 artifact archived; no local cargo job",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39457653809,
+        "attempt": 2,
+        "session": 2479,
+        "log": "/tmp/brn-main188-warm-watch.log",
+        "scope": "read-only watch; inspect actual required job/cache receipts, not watcher verdict"
+      }
+    ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "All4PR188 resulting-main attempt1 PASS; single MacUI warm attempt2 queued118771060685.",
     "wait_reason": "Actual warm CI validation queued; Mac locked. Lead saves first-main proof while helper inspects a distinct asset-rich recovery gap.",

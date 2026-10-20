@@ -34,24 +34,24 @@ Attempts:
 
 </details>
 
-### Check recovery of a backup containing a real attachment
+### Check exact stored attachment data after reopen and restore
 
-Owner: bounded Luna command/source preflight; lead selects and qualifies · State: **active** · Last observed: 2026-10-20T17:14:10.555818+00:00
-Activity: Selected missing consequential asset-rich recovery witness after exact record-only Mac backup/CLI restore passed. Bounded public-command preflight assigned, no data/build/source/account/native operation dispatched.
-Next: Validate supported fresh synthetic asset creation/backup/restore route and existing coverage. Run one bounded real CLI qualification only if supported; no SQL/credential repair.
+Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:18:30.466516+00:00
+Activity: Build-ready: extend existing byte-bearing shared-service attachment/restart/restore test, which currently checks only privacy after restore. Current public conversion does not yield image bytes; this separately checks canonical retained-data fidelity.
+Next: Extend only existing attachment test to assert nonempty Asset fixture and exact original attachment receipt records after reopen and restore. No new test/harness, production code or converter policy change. Run focused existing case, independent review and required integration gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** preflight only; no product change
-- **checks:** pending supported route and genuine coverage assessment
-- **integration:** inapplicable until concrete defect selects candidate
-- **native:** not observed; headless qualification proposed
+- **implementation:** pending one existing test assertion extension
+- **checks:** pending focused test and complete small-candidate review
+- **integration:** pending existing normal integration requirements
+- **native:** inapplicable test-only shared-service guarantee; no image-conversion/native claim
 - **owner acceptance:** not claimed
 
-Evidence: [docs/development/verification.md](../development/verification.md), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json](active/vacation-campaign/evidence/mac-backup-cli-restore.json)
+Evidence: [crates/brn-threads-app/tests/chat.rs](../../crates/brn-threads-app/tests/chat.rs), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md)
 
 </details>
 
@@ -971,6 +971,32 @@ Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-202610
 
 </details>
 
+### Check recovery of a backup containing a real attachment
+
+Owner: bounded Luna command/source preflight; lead selects and qualifies · State: **complete** · Last observed: 2026-10-20T17:18:30.466516+00:00
+Activity: Bounded diagnosis complete: fixed normal extraction policy disables image-data work; one real DOCX import honestly records missing-byte gaps and emits noAssets. Source-backed stop retained; no second conversion or converter policy change selected.
+Next: Asset-bearing public CLI acceptance stays incomplete. Revisit when a separately qualified image-retention path is selected; current source-policy/resource bounds must be preserved. Strengthen existing shared-service backup witness for stored Asset bytes as a distinct bounded test task.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** preflight only; no product change
+- **checks:** PASS bounded source diagnosis and safe-stop behavior; asset-bearing production CLI round-trip INCOMPLETE, no backup/restore attempted.
+- **integration:** inapplicable until concrete defect selects candidate
+- **native:** not observed; headless qualification proposed
+- **owner acceptance:** not claimed
+
+Evidence: [docs/development/verification.md](../development/verification.md), [docs/work/active/vacation-campaign/evidence/mac-backup-cli-restore.json](active/vacation-campaign/evidence/mac-backup-cli-restore.json), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight.md](active/vacation-campaign/evidence/asset-backup-cli-preflight.md), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json](active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image-raw.tar.gz](active/vacation-campaign/evidence/asset-backup-cli-no-retained-image-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md)
+
+Attempts:
+
+- First syntheticDOCX import retained no image bytes; cannot exercise asset-bearing backup/restore.: Source diagnosis confirms intentional current helper image-data policy; preserve explicit partial-import evidence. Do not broaden converter capabilities to obtain a fixture. ([docs/work/active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json](active/vacation-campaign/evidence/asset-backup-cli-no-retained-image.json))
+- Imported helper follow-up used a temporary-file Markdown link that repository link checking rejected.: Preserved original gzip; routed link to committed original-output archive. Clarified future task selection follows existing owner authority, no inferred extra approval gate. ([docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup-original.md.gz](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup-original.md.gz), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -995,4 +1021,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:14:10.555818+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:18:30.466516+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

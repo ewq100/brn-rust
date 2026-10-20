@@ -1,0 +1,165 @@
+{
+  "observed_at": "2026-10-20T17:17:09.169538+00:00",
+  "result": "INCOMPLETE: no real retained Asset emitted; stopped before backup/restore as reserved",
+  "commands": [
+    {
+      "label": "01-init",
+      "command": [
+        "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/source",
+        "init",
+        "--purpose",
+        "test"
+      ],
+      "exit": 0,
+      "seconds": 0.013
+    },
+    {
+      "label": "02-converter-ai-off",
+      "command": [
+        "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/source",
+        "document-conversion",
+        "--converter",
+        "xberg",
+        "--ai",
+        "off"
+      ],
+      "exit": 0,
+      "seconds": 0.007
+    },
+    {
+      "label": "03-chat",
+      "command": [
+        "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/source",
+        "thread-start",
+        "--title",
+        "Synthetic figure backup chat",
+        "--key",
+        "asset-chat-1"
+      ],
+      "exit": 0,
+      "seconds": 0.006
+    },
+    {
+      "label": "04-import",
+      "command": [
+        "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/source",
+        "intake",
+        "--source",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/synthetic-figure.docx",
+        "--intent",
+        "chat",
+        "--thread",
+        "516c1f84-8ed1-4793-9bf6-3898ef2e95ab:0",
+        "--title",
+        "Synthetic figure attachment",
+        "--key",
+        "asset-import-1"
+      ],
+      "exit": 0,
+      "seconds": 0.206
+    },
+    {
+      "label": "05-records",
+      "command": [
+        "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-asset-backup-20261020T1720Z/source",
+        "records"
+      ],
+      "exit": 0,
+      "seconds": 0.007
+    }
+  ],
+  "preflight": {
+    "root": "/private/tmp/brn-asset-backup-20261020T1720Z",
+    "fixture_original": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-threads-intake/tests/fixtures/luna/footnotes.docx",
+    "fixture_sha256": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+    "binary": "/Users/evokessler/.codex/artifacts/brn-backup-restore/20261020T1546Z/brn",
+    "binary_sha256": "b5fe8083b3c877dc3de8aa661af203b30f54b4e6352951813bc6a47c7dc54529",
+    "helper_sha256": {
+      "BRN_XBERG_HELPER": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "BRN_XBERG_HELPER_BRN": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    },
+    "chat_id": "516c1f84-8ed1-4793-9bf6-3898ef2e95ab:0",
+    "record_count": 7,
+    "sample_record_keys": [
+      "id",
+      "version",
+      "archived",
+      "data"
+    ]
+  },
+  "record_kinds": [
+    "Thread",
+    "Source",
+    "Note",
+    "Link",
+    "Link",
+    "Settings",
+    "ChatControl"
+  ],
+  "source": {
+    "id": "ee056bff-793c-4b85-8467-780f1707b9bf:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Source": {
+        "chat": "516c1f84-8ed1-4793-9bf6-3898ef2e95ab:0",
+        "locator": "/private/tmp/brn-asset-backup-20261020T1720Z/synthetic-figure.docx",
+        "label": "Synthetic figure attachment",
+        "observed_at": "Unix seconds 1792516579",
+        "external_version": "d753d9a98afe1771c0d0488871e322900ac97f74a5390feb9911fcadc9a0fc4c",
+        "outcome": "Unchecked",
+        "gaps": [
+          "document: image 0: SDK returned no retained image bytes",
+          "document: image 1: SDK returned no retained image bytes",
+          "document: SDK Markdown contains image references without retained bytes; external content was not fetched"
+        ],
+        "report": {
+          "conversion": {
+            "settings": {
+              "converter": "xberg",
+              "ai": false
+            },
+            "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+          },
+          "status": "Unchecked",
+          "issues": [
+            {
+              "kind": "Limitation",
+              "locator": "document",
+              "detail": "image 0: SDK returned no retained image bytes"
+            },
+            {
+              "kind": "Limitation",
+              "locator": "document",
+              "detail": "image 1: SDK returned no retained image bytes"
+            },
+            {
+              "kind": "Limitation",
+              "locator": "document",
+              "detail": "SDK Markdown contains image references without retained bytes; external content was not fetched"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "source_fixture_media": "DOCX contains13,308-byte inline PNG; fixture ZIP read only",
+  "limits": "Successful explicit-partial import is not asset-backup success. No AI/account/network/model acquisition or SQL repair; follow-up source diagnosis pending. Original output retained.",
+  "raw_archive": "asset-backup-cli-no-retained-image-raw.tar.gz",
+  "raw_archive_sha256": "37f1a40f34bb4d934053540ae3bac8b28ef1c49d19b0b0deae3bcd9a8fd28b4f"
+}
