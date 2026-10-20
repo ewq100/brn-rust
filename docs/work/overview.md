@@ -79,6 +79,29 @@ Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacati
 
 </details>
 
+### Integrate remote progress routing and verification records
+
+Owner: development lead; independent Sol high review completed · State: **active** · Last observed: 2026-10-20T07:43:03.886006+00:00
+Activity: Complete documentation candidate da4397a2 independently reviewed without findings; adding only review receipt and current gate observations before publication. No product source changes.
+Next: Publish reviewed docs, keep the PR head stable during required checks, then inspect live protection/exact-head and preceding-main gates before normal merge.
+Depends on: review-group-toggle when PR179 normally merged so documentation can build on the integrated source. (reported satisfied: true)
+Resource waits: Required hosted checks after publication; preceding product main39387204718 must be reconciled before further integration.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete documentation-only candidate; no runtime prompt/script/dependency/product changes
+- **checks:** passed independent complete da4397a2 review,17raw archives verified,renderer/link/whitespace checks; required head CI pending publication
+- **integration:** pending publication and four required exact-head/then-main gates
+- **native:** inapplicable: documentation projection; mobile/browser rendering remains unobserved
+- **owner acceptance:** not requested; owner authorized remote progress access
+
+Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](active/vacation-campaign/evidence/remote-cycle-review.md), [https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -161,6 +184,14 @@ Owner: lead account actor; Luna medium external harness writer; independent Sol 
 Waiting:
 
 - resource: Single local build slot owned by external harness compile; lead alone owns any later account actor.
+
+### Integrate remote progress routing and verification records
+
+Owner: development lead; independent Sol high review completed
+
+Waiting:
+
+- resource: Required hosted checks after publication; preceding product main39387204718 must be reconciled before further integration.
 
 ## Completed
 
@@ -363,11 +394,13 @@ graph TD
   t6["Prepare grouped-review test workspace"]
   t7["Expose grouped Include/Omit selection to accessibility tools"]
   t8["Check grouped review controls on the Mac"]
+  t13["Integrate remote progress routing and verification records"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
+  t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T07:38:20.326804+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:43:03.886006+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

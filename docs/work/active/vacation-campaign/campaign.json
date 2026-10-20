@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T07:38:20.326804+00:00",
+    "observed_at": "2026-10-20T07:43:03.886006+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -524,6 +524,38 @@
           "integration": "inapplicable to route research",
           "native": "Apply/Undo and actual controls reserved for consolidated Mac batch",
           "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "progress-record-integration",
+        "title": "Integrate remote progress routing and verification records",
+        "state": "active",
+        "owner": "development lead; independent Sol high review completed",
+        "activity": "Complete documentation candidate da4397a2 independently reviewed without findings; adding only review receipt and current gate observations before publication. No product source changes.",
+        "observed_at": "2026-10-20T07:43:03.886006+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed docs, keep the PR head stable during required checks, then inspect live protection/exact-head and preceding-main gates before normal merge.",
+        "depends_on": [
+          {
+            "task": "review-group-toggle",
+            "condition": "PR179 normally merged so documentation can build on the integrated source.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [
+          "Required hosted checks after publication; preceding product main39387204718 must be reconciled before further integration."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/remote-cycle-review.md",
+          "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+        ],
+        "gates": {
+          "implementation": "complete documentation-only candidate; no runtime prompt/script/dependency/product changes",
+          "checks": "passed independent complete da4397a2 review,17raw archives verified,renderer/link/whitespace checks; required head CI pending publication",
+          "integration": "pending publication and four required exact-head/then-main gates",
+          "native": "inapplicable: documentation projection; mobile/browser rendering remains unobserved",
+          "owner_acceptance": "not requested; owner authorized remote progress access"
         },
         "attempts": []
       }
