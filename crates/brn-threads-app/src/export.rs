@@ -15,6 +15,14 @@ pub struct ExportManifest {
     pub files: Vec<ExportFile>,
 }
 pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
+    publish_with_directory_flush(store, destination, sync_directory)
+}
+
+fn publish_with_directory_flush(
+    store: &Store,
+    destination: &Path,
+    mut flush_directory: impl FnMut(&Path) -> std::io::Result<()>,
+) -> AppResult<ExportManifest> {
     if !destination.is_absolute() {
         return Err(AppError::Invalid(
             "Choose an absolute fresh export destination".into(),
@@ -111,8 +119,19 @@ pub fn publish(store: &Store, destination: &Path) -> AppResult<ExportManifest> {
         fs::File::open(stage.path().join(&file.path))?.sync_all()?;
     }
     fs::File::open(stage.path().join("manifest.json"))?.sync_all()?;
+    flush_directory(&stage.path().join("assets"))?;
+    flush_directory(stage.path())?;
     rename_exclusive(stage.path(), destination)?;
+    flush_directory(parent)?;
     Ok(manifest)
+}
+
+fn sync_directory(path: &Path) -> std::io::Result<()> {
+    #[cfg(unix)]
+    fs::File::open(path)?.sync_all()?;
+    #[cfg(not(unix))]
+    let _ = path;
+    Ok(())
 }
 fn portable_markdown(
     record: &Record,
@@ -207,4 +226,83 @@ fn rename_exclusive(source: &Path, destination: &Path) -> std::io::Result<()> {
     }
     // Windows directory rename refuses an existing target.
     fs::rename(source, destination)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use brn_threads_core::Store;
+
+    #[test]
+    fn directory_flush_failure_before_publication_cleans_stage_and_keeps_destination_absent() {
+        let root =
+            tempfile::tempdir_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+        let store = Store::open(root.path().join("source")).unwrap();
+        let destination = root.path().join("snapshot");
+        let mut calls = 0;
+
+        let result = publish_with_directory_flush(&store, &destination, |_| {
+            calls += 1;
+            if calls == 2 {
+                Err(std::io::Error::other(
+                    "injected staged-directory flush failure",
+                ))
+            } else {
+                Ok(())
+            }
+        });
+
+        assert!(result.is_err());
+        assert!(!destination.exists());
+        assert!(std::fs::read_dir(root.path()).unwrap().all(|entry| {
+            !entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".brn-export-")
+        }));
+    }
+
+    #[test]
+    fn parent_flush_failure_reports_error_and_preserves_complete_published_snapshot() {
+        let root =
+            tempfile::tempdir_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+        let mut workspace = Workspace::open(root.path().join("source")).unwrap();
+        workspace
+            .new_note("Synthetic export", "Complete published body")
+            .unwrap();
+        let destination = root.path().join("snapshot");
+        let mut calls = 0;
+
+        let result = publish_with_directory_flush(&workspace.store, &destination, |_| {
+            calls += 1;
+            if calls == 3 {
+                Err(std::io::Error::other(
+                    "injected parent-directory flush failure",
+                ))
+            } else {
+                Ok(())
+            }
+        });
+
+        assert!(result.is_err());
+        assert_eq!(calls, 3);
+        assert!(destination.join("assets").is_dir());
+        let manifest: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(destination.join("manifest.json")).unwrap())
+                .unwrap();
+        assert_eq!(manifest["format"], "BRN Threads Markdown snapshot 1");
+        let files = manifest["files"].as_array().unwrap();
+        assert_eq!(files.len(), 1);
+        let markdown =
+            std::fs::read_to_string(destination.join(files[0]["path"].as_str().unwrap())).unwrap();
+        assert!(markdown.contains("Complete published body"));
+        assert!(std::fs::read_dir(root.path()).unwrap().all(|entry| {
+            !entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".brn-export-")
+        }));
+    }
 }
