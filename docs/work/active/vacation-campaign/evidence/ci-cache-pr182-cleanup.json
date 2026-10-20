@@ -1,0 +1,232 @@
+{
+  "selected_at": "2026-10-20T11:42:54.052197+00:00",
+  "authority": "Current campaign scope includes routine repository maintenance; only obsolete regenerable caches from this merged campaignPR, no ownerdata/credentials/billing/protection/source action",
+  "pr": {
+    "mergeCommit": {
+      "oid": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4"
+    },
+    "mergedAt": "2026-10-20T11:29:57Z",
+    "state": "MERGED"
+  },
+  "before": {
+    "total_count": 9,
+    "actions_caches": [
+      {
+        "id": 9214048343,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-native-ui-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-native-ui-Windows_NT-x64-c16cbc5d-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:37:44.529873Z",
+        "created_at": "2026-10-20T11:37:44.529873Z",
+        "size_in_bytes": 729240886
+      },
+      {
+        "id": 9213920326,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-native-ui-native-retrieval-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-native-retrieval-Windows_NT-x64-2bb55b73-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:34:50.685906Z",
+        "created_at": "2026-10-20T11:34:50.685906Z",
+        "size_in_bytes": 413225839
+      },
+      {
+        "id": 9213901107,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-default-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-headless-Windows_NT-x64-2bb55b73-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:34:24.620415Z",
+        "created_at": "2026-10-20T11:34:24.620415Z",
+        "size_in_bytes": 398571307
+      },
+      {
+        "id": 9210073779,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-macOS-ARM64-native-ui-native-retrieval-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-retrieval-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T11:30:26.914837Z",
+        "created_at": "2026-10-20T10:03:58.755956Z",
+        "size_in_bytes": 2056764098
+      },
+      {
+        "id": 9210519464,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-macOS-ARM64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T11:30:24.164074Z",
+        "created_at": "2026-10-20T10:14:36.882031Z",
+        "size_in_bytes": 993892067
+      },
+      {
+        "id": 9210861322,
+        "ref": "refs/pull/182/merge",
+        "key": "v0-rust-macOS-ARM64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T10:22:35.787954Z",
+        "created_at": "2026-10-20T10:22:35.787954Z",
+        "size_in_bytes": 993827117
+      },
+      {
+        "id": 9210754746,
+        "ref": "refs/pull/182/merge",
+        "key": "v0-rust-macOS-ARM64-native-ui-native-retrieval-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-retrieval-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T10:20:12.739953Z",
+        "created_at": "2026-10-20T10:20:12.739953Z",
+        "size_in_bytes": 2056865284
+      },
+      {
+        "id": 9210458167,
+        "ref": "refs/pull/182/merge",
+        "key": "v0-rust-Linux-X64-native-ui-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-ui-Linux-x64-432a64c5-e97b446b",
+        "version": "a8267c3c6b934ec895a9b9aff55ae8882621ff5197e6abab558a925ac799832a",
+        "last_accessed_at": "2026-10-20T10:13:02.706564Z",
+        "created_at": "2026-10-20T10:13:02.706564Z",
+        "size_in_bytes": 1813935416
+      },
+      {
+        "id": 9210442681,
+        "ref": "refs/pull/182/merge",
+        "key": "v0-rust-Linux-X64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Linux-x64-432a64c5-e97b446b",
+        "version": "a8267c3c6b934ec895a9b9aff55ae8882621ff5197e6abab558a925ac799832a",
+        "last_accessed_at": "2026-10-20T10:12:37.201089Z",
+        "created_at": "2026-10-20T10:12:37.201089Z",
+        "size_in_bytes": 1021702373
+      }
+    ]
+  },
+  "targets": [
+    {
+      "id": 9210861322,
+      "ref": "refs/pull/182/merge",
+      "key": "v0-rust-macOS-ARM64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Darwin-arm64-4b070e83-e97b446b",
+      "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+      "last_accessed_at": "2026-10-20T10:22:35.787954Z",
+      "created_at": "2026-10-20T10:22:35.787954Z",
+      "size_in_bytes": 993827117
+    },
+    {
+      "id": 9210754746,
+      "ref": "refs/pull/182/merge",
+      "key": "v0-rust-macOS-ARM64-native-ui-native-retrieval-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-retrieval-Darwin-arm64-4b070e83-e97b446b",
+      "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+      "last_accessed_at": "2026-10-20T10:20:12.739953Z",
+      "created_at": "2026-10-20T10:20:12.739953Z",
+      "size_in_bytes": 2056865284
+    },
+    {
+      "id": 9210458167,
+      "ref": "refs/pull/182/merge",
+      "key": "v0-rust-Linux-X64-native-ui-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-ui-Linux-x64-432a64c5-e97b446b",
+      "version": "a8267c3c6b934ec895a9b9aff55ae8882621ff5197e6abab558a925ac799832a",
+      "last_accessed_at": "2026-10-20T10:13:02.706564Z",
+      "created_at": "2026-10-20T10:13:02.706564Z",
+      "size_in_bytes": 1813935416
+    },
+    {
+      "id": 9210442681,
+      "ref": "refs/pull/182/merge",
+      "key": "v0-rust-Linux-X64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Linux-x64-432a64c5-e97b446b",
+      "version": "a8267c3c6b934ec895a9b9aff55ae8882621ff5197e6abab558a925ac799832a",
+      "last_accessed_at": "2026-10-20T10:12:37.201089Z",
+      "created_at": "2026-10-20T10:12:37.201089Z",
+      "size_in_bytes": 1021702373
+    }
+  ],
+  "guard": "Exact immutablecacheIDs with ref refs/pull/182/merge and key/version captured before DELETE; no main/otherrefs selected",
+  "configured_storage_limit": "GET unavailableHTTP402; no billing or storage-setting changes",
+  "operations": [
+    {
+      "id": 9210861322,
+      "at": "2026-10-20T11:45:44.950058+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "removed_bytes_if_success": 993827117
+    },
+    {
+      "id": 9210754746,
+      "at": "2026-10-20T11:45:45.380975+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "removed_bytes_if_success": 2056865284
+    },
+    {
+      "id": 9210458167,
+      "at": "2026-10-20T11:45:45.850944+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "removed_bytes_if_success": 1813935416
+    },
+    {
+      "id": 9210442681,
+      "at": "2026-10-20T11:45:46.362676+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "removed_bytes_if_success": 1021702373
+    }
+  ],
+  "result": "PASS: exact four obsolete PR182 cache IDs absent after cleanup; no main/other-ref DELETE issued. Concurrent cache creation/eviction is not attributed to this cleanup.",
+  "revalidated_at": "2026-10-20T11:45:44.380247+00:00",
+  "after": {
+    "total_count": 5,
+    "actions_caches": [
+      {
+        "id": 9214048343,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-native-ui-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-native-ui-Windows_NT-x64-c16cbc5d-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:37:44.529873Z",
+        "created_at": "2026-10-20T11:37:44.529873Z",
+        "size_in_bytes": 729240886
+      },
+      {
+        "id": 9213920326,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-native-ui-native-retrieval-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-native-retrieval-Windows_NT-x64-2bb55b73-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:34:50.685906Z",
+        "created_at": "2026-10-20T11:34:50.685906Z",
+        "size_in_bytes": 413225839
+      },
+      {
+        "id": 9213901107,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-Windows-X64-default-c5b0b6ebb6f85995a06c13c08bf3c6f36b70eb89ec935faba5ad70ff8216730b-headless-Windows_NT-x64-2bb55b73-6be4801a",
+        "version": "d1713b8760d501804b0cce44c324d12e399fe0c675e5c5efc0bb6a6db97f32e2",
+        "last_accessed_at": "2026-10-20T11:34:24.620415Z",
+        "created_at": "2026-10-20T11:34:24.620415Z",
+        "size_in_bytes": 398571307
+      },
+      {
+        "id": 9210073779,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-macOS-ARM64-native-ui-native-retrieval-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-native-retrieval-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T11:30:26.914837Z",
+        "created_at": "2026-10-20T10:03:58.755956Z",
+        "size_in_bytes": 2056764098
+      },
+      {
+        "id": 9210519464,
+        "ref": "refs/heads/main",
+        "key": "v0-rust-macOS-ARM64-default-5a66b8f201466561d7851c798b00c2796cf6bda4a5bdd2ccdaa75199b511198a-headless-Darwin-arm64-4b070e83-e97b446b",
+        "version": "e857199e23170322a5620af27c7b1da15f65e9944620e76c6c18f352eeb22296",
+        "last_accessed_at": "2026-10-20T11:30:24.164074Z",
+        "created_at": "2026-10-20T10:14:36.882031Z",
+        "size_in_bytes": 993892067
+      }
+    ]
+  },
+  "successful_removed_bytes": 5886330190,
+  "main_cache_ids_retained": [
+    9210073779,
+    9210519464,
+    9213901107,
+    9213920326,
+    9214048343
+  ],
+  "completed_at": "2026-10-20T11:45:46.765016+00:00"
+}

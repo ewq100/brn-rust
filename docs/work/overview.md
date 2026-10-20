@@ -37,10 +37,9 @@ Attempts:
 
 ### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: development lead; independent Sol review required · State: **active** · Last observed: 2026-10-20T11:02:57.170751+00:00
-Activity: Isolatedfe65b8ec MacCore45to60m/comment correction parsed and independently reviewed with no actionable findings. Every step/context and other platform limit retained; source not yet published.
-Next: After PR182 normal integration, reconcile source and compose CI resource candidate; publish stable next PR and require actual head/main gates.
-Resource waits: PR182 integration sequence; original-main bounded retry running.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:42:54.052197+00:00
+Activity: Resource sourcefe65b8ec included in composed1938a849 CI candidate with main-only cache saves. PR182 already mergedbc8; original-main retry passed. Source review found only stale task pointers, corrected here.
+Next: Recheck corrected current record/overview, publish composed CI candidate and inspect required exact-head/main gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -48,8 +47,8 @@ Resource waits: PR182 integration sequence; original-main bounded retry running.
 Gates:
 
 - **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
-- **checks:** PASS installed Ruby YAML parse,whitespace and independent complete workflow/diff review; no Rust rerun for unchanged source
-- **integration:** pending source-stable next PR after current PR182 sequence
+- **checks:** PASS installed Ruby YAML parse/structural review; source reviewno CIissue, current-record finding fixed pending targeted recheck
+- **integration:** Composed1938a849 source; publication/requiredhead/main checks pending
 - **native:** inapplicable CI resource policy only
 - **owner acceptance:** not requested; existing in-scope maintenance authority
 
@@ -63,9 +62,9 @@ Attempts:
 
 ### Keep shared Rust caches without duplicate PR uploads
 
-Owner: lead implementation; independent Sol review pending · State: **active** · Last observed: 2026-10-20T11:37:02.369505+00:00
-Activity: Prepared4b50fc96 main-only cache saves; PR restores/key dimensions and all checks unchanged. Combined with reviewed60mMacCore allowance to avoid duplicate hosted gate runs.
-Next: Review complete composed source/evidence, publish stable CI candidate, inspect exact-head and resulting-main gates before claiming verified improvement.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:42:54.052197+00:00
+Activity: Complete1938a849 source/evidence review found no CI code issue; one stale MacCore task wait corrected. Main-only cache writes/source4b50fc96 prepared; head publication follows targeted recheck.
+Next: Recheck corrected task reconciliation/cleanup receipt, publish stable CI candidate, inspect exact-head and resulting-main gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -73,12 +72,12 @@ Next: Review complete composed source/evidence, publish stable CI candidate, ins
 Gates:
 
 - **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
-- **checks:** PASS Ruby YAML parsing/diff; pending complete independent review/hosted behavior
+- **checks:** PASS YAML parse and independent complete source review; stale current-record finding valid/fixed, targeted recheck pending
 - **integration:** pending normal reviewed publication/gates
 - **native:** inapplicable CI policy only
 - **owner acceptance:** not requested; authorized campaign follow-up
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md)
 
 </details>
 
@@ -148,14 +147,6 @@ Owner: development lead; bounded Luna implementation and independent Sol high re
 Waiting:
 
 - resource: Required resulting-mainbc8 checks.
-
-### Allow the complete Mac Core check to finish within a bounded job
-
-Owner: development lead; independent Sol review required
-
-Waiting:
-
-- resource: PR182 integration sequence; original-main bounded retry running.
 
 ## Completed
 
@@ -616,6 +607,27 @@ Evidence: [.github/actions/setup-rust/action.yml](../../.github/actions/setup-ru
 
 </details>
 
+### Retire disposable cache copies for merged PR182
+
+Owner: development lead; exact-ID generated-cache maintenance · State: **complete** · Last observed: 2026-10-20T11:46:11.997400+00:00
+Activity: Removed four exact obsolete PR182 cache IDs after merged-state/ref/key/version revalidation:5886330190bytes. Readback shows all targets absent and all five preexisting main cache IDs retained.
+Next: Future PR-save suppression belongs to the reviewed CI candidate; no recurring broad cleanup selected.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete exact-ID generated-cache cleanup; no main/other-ref DELETE or storage/billing changes
+- **checks:** PASS four successful DELETE outcomes and complete before/after inventory; configured storage-limit read unavailableHTTP402 retained
+- **integration:** inapplicable disposablecachemaintenance
+- **native:** inapplicable
+- **owner acceptance:** not requested; standing repository maintenance authority
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-pr182-cleanup.json](active/vacation-campaign/evidence/ci-cache-pr182-cleanup.json), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -634,4 +646,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T11:37:02.369505+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T11:46:11.997400+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

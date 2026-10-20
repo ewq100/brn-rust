@@ -30,3 +30,7 @@ The same candidate includes the separately reviewed Mac Core45→60minute job al
 ## Deferred experiment and trigger
 
 Lead owns any further converter-cache experiment. Revisit if cache-policy runs still show converter compilation dominating warm Mac CI. First measure bounded archive size and cold/warm behavior, bind both helper locks/patch/source/engine identities, and prove current regeneration and target/source refusals survive. Raw unpruned helper targets could worsen storage pressure. Cross-engine target sharing currently crosses an explicit guard and is unqualified. No broad raw cache, producer framework, extra infrastructure or test removal is selected by this investigation.
+
+## Exact obsolete-cache cleanup
+
+After PR182 merged, four exact PR182-only cache IDs were removed following ref/key/version and merged-state revalidation. Readback confirmed all four absent and all five preexisting main cache IDs retained:5,886,330,190bytes removed. The [before/after receipt](evidence/ci-cache-pr182-cleanup.json) retains each outcome. A later inventory had grown to10,478,024,387bytes; the configured storage-limit read returned HTTP402, so the actual configured limit remains unknown. No storage/billing settings changed. Cleanup does not establish what caused the earlier cache disappearance.

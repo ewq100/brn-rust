@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T11:28:41.813023+00:00",
-    "remaining_percent": 94,
+    "observed_at": "2026-10-20T11:45:20+00:00",
+    "remaining_percent": 93,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual6%used/94%remaining; fixed expiry/no owner pause",
+    "ordinary_work": "admitted: actual7%used/93%remaining; fixed expiry/no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T11:37:02.369505+00:00",
+    "observed_at": "2026-10-20T11:46:11.997400+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -801,15 +801,13 @@
         "id": "mac-core-ci-time-budget",
         "title": "Allow the complete Mac Core check to finish within a bounded job",
         "state": "active",
-        "owner": "development lead; independent Sol review required",
-        "activity": "Isolatedfe65b8ec MacCore45to60m/comment correction parsed and independently reviewed with no actionable findings. Every step/context and other platform limit retained; source not yet published.",
-        "observed_at": "2026-10-20T11:02:57.170751+00:00",
+        "owner": "lead implementation; independent Sol source review completed",
+        "activity": "Resource sourcefe65b8ec included in composed1938a849 CI candidate with main-only cache saves. PR182 already mergedbc8; original-main retry passed. Source review found only stale task pointers, corrected here.",
+        "observed_at": "2026-10-20T11:42:54.052197+00:00",
         "origin": "observed",
-        "next_action": "After PR182 normal integration, reconcile source and compose CI resource candidate; publish stable next PR and require actual head/main gates.",
+        "next_action": "Recheck corrected current record/overview, publish composed CI candidate and inspect required exact-head/main gates.",
         "depends_on": [],
-        "resource_waits": [
-          "PR182 integration sequence; original-main bounded retry running."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json",
           ".github/workflows/ci.yml",
@@ -818,8 +816,8 @@
         ],
         "gates": {
           "implementation": "complete isolatedfe65b8ec; only CI timeout/comment",
-          "checks": "PASS installed Ruby YAML parse,whitespace and independent complete workflow/diff review; no Rust rerun for unchanged source",
-          "integration": "pending source-stable next PR after current PR182 sequence",
+          "checks": "PASS installed Ruby YAML parse/structural review; source reviewno CIissue, current-record finding fixed pending targeted recheck",
+          "integration": "Composed1938a849 source; publication/requiredhead/main checks pending",
           "native": "inapplicable CI resource policy only",
           "owner_acceptance": "not requested; existing in-scope maintenance authority"
         },
@@ -866,24 +864,49 @@
         "id": "ci-main-cache-save-policy",
         "title": "Keep shared Rust caches without duplicate PR uploads",
         "state": "active",
-        "owner": "lead implementation; independent Sol review pending",
-        "activity": "Prepared4b50fc96 main-only cache saves; PR restores/key dimensions and all checks unchanged. Combined with reviewed60mMacCore allowance to avoid duplicate hosted gate runs.",
-        "observed_at": "2026-10-20T11:37:02.369505+00:00",
+        "owner": "lead implementation; independent Sol source review completed",
+        "activity": "Complete1938a849 source/evidence review found no CI code issue; one stale MacCore task wait corrected. Main-only cache writes/source4b50fc96 prepared; head publication follows targeted recheck.",
+        "observed_at": "2026-10-20T11:42:54.052197+00:00",
         "origin": "observed",
-        "next_action": "Review complete composed source/evidence, publish stable CI candidate, inspect exact-head and resulting-main gates before claiming verified improvement.",
+        "next_action": "Recheck corrected task reconciliation/cleanup receipt, publish stable CI candidate, inspect exact-head and resulting-main gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/ci-cache-investigation.md",
           "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json",
-          ".github/actions/setup-rust/action.yml"
+          ".github/actions/setup-rust/action.yml",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md"
         ],
         "gates": {
           "implementation": "complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed",
-          "checks": "PASS Ruby YAML parsing/diff; pending complete independent review/hosted behavior",
+          "checks": "PASS YAML parse and independent complete source review; stale current-record finding valid/fixed, targeted recheck pending",
           "integration": "pending normal reviewed publication/gates",
           "native": "inapplicable CI policy only",
           "owner_acceptance": "not requested; authorized campaign follow-up"
+        },
+        "attempts": []
+      },
+      {
+        "id": "merged-pr-cache-cleanup",
+        "title": "Retire disposable cache copies for merged PR182",
+        "state": "complete",
+        "owner": "development lead; exact-ID generated-cache maintenance",
+        "activity": "Removed four exact obsolete PR182 cache IDs after merged-state/ref/key/version revalidation:5886330190bytes. Readback shows all targets absent and all five preexisting main cache IDs retained.",
+        "observed_at": "2026-10-20T11:46:11.997400+00:00",
+        "origin": "observed",
+        "next_action": "Future PR-save suppression belongs to the reviewed CI candidate; no recurring broad cleanup selected.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/ci-cache-pr182-cleanup.json",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json"
+        ],
+        "gates": {
+          "implementation": "complete exact-ID generated-cache cleanup; no main/other-ref DELETE or storage/billing changes",
+          "checks": "PASS four successful DELETE outcomes and complete before/after inventory; configured storage-limit read unavailableHTTP402 retained",
+          "integration": "inapplicable disposablecachemaintenance",
+          "native": "inapplicable",
+          "owner_acceptance": "not requested; standing repository maintenance authority"
         },
         "attempts": []
       }
