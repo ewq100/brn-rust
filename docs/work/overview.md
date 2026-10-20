@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Check exact stored attachment data after reopen and restore
 
-Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:23:00.159823+00:00
-Activity: Reviewed/local-qualified57531c3d published stable asPR189 and attached. Exactly one existing test file; no production changes. Hosted required gates pending.
-Next: Inspect all4 exact-head required checks, live protection and preceding-main latestattempt before normalmerge; then inspect resulting-main independently.
+Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:48:49.226853+00:00
+Activity: PR189 normally mergeda23f486b after all4head+all4preceding-main requiredPASS; complete merged tree equals57531. Local aggregate-CLEAN assertion failed on optionalWindows UNSTABLE and shell continued; original failure/reconstructed receipt retained transparently. Resulting-main pending.
+Next: Inspect actual new a23f486b main run and all4 required results. Keep head source stable; future dependent mutations separated from successful gate results/fail-fast shell.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,16 +22,17 @@ Gates:
 
 - **implementation:** PASS local57531c3d, one existing test; nonemptyAsset/Source/Link preconditions and full receipt record equality after reopen/restore.
 - **checks:** PASS independent complete-candidate Sol review; focused1/0/0/8filtered,strict chat-targetlint,finalfmt,diff. Hostedpending.
-- **integration:** PR189 published57531c3d; pending four required exact-head/current-main gates and authorized normal merge.
+- **integration:** Normalmergea23f486b/source treeequal57531; all4head+all4preceding-mainPASS and required protection enforced. Local premerge script failure retained; separate resulting-mainpending.
 - **native:** inapplicable test-only shared-service guarantee; no image-conversion/native claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-app/tests/chat.rs](../../crates/brn-threads-app/tests/chat.rs), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-review.md](active/vacation-campaign/evidence/retained-asset-restore-review.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-implementation.md](active/vacation-campaign/evidence/retained-asset-restore-implementation.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz](active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/189](https://github.com/ewq100/brn-rust/pull/189), [docs/work/active/vacation-campaign/evidence/pr189-publication.json](active/vacation-campaign/evidence/pr189-publication.json)
+Evidence: [crates/brn-threads-app/tests/chat.rs](../../crates/brn-threads-app/tests/chat.rs), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-review.md](active/vacation-campaign/evidence/retained-asset-restore-review.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-implementation.md](active/vacation-campaign/evidence/retained-asset-restore-implementation.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz](active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/189](https://github.com/ewq100/brn-rust/pull/189), [docs/work/active/vacation-campaign/evidence/pr189-publication.json](active/vacation-campaign/evidence/pr189-publication.json), [docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json), [docs/work/active/vacation-campaign/evidence/pr189-integration.json](active/vacation-campaign/evidence/pr189-integration.json)
 
 Attempts:
 
 - Initial formatter invocation could not locate pinned cargo-fmt without pin directory in PATH; corrected environment then exposed actual formatting delta.: Preserved both logs, applied only rustfmt delta to same test, committed57531 before qualification/review. No toolchain install or product change. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
 - Overview guard rejected temporary absolute evidence pointers; previous valid overview preserved.: Saved original formatter outcomes in repository-relative qualification receipt and routed task to that authority. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
+- AssertionError: expected aggregate mergeStateStatus CLEAN, actual UNSTABLE from optional Windows failures; Dependent shell sequence lacked fail-fast; subsequent normal --match-head merge ran after failed local assertion. No admin/bypass/auto merge flag used.: No code rollback indicated: complete merged tree equals independently reviewed/local+hosted-qualified57531. Retain original failure, reconstruct saved pre-merge observation receipt transparently; future dependent mutations use separate successful gate tool result or fail-fast shell. ([docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json), [docs/work/active/vacation-campaign/evidence/pr189-integration.json](active/vacation-campaign/evidence/pr189-integration.json))
 
 </details>
 
@@ -1026,4 +1027,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:26:55.760472+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:48:49.226853+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

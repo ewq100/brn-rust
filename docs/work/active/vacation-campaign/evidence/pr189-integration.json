@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-10-20T17:48:49.226853+00:00",
+  "merge": {
+    "headRefOid": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+    "mergeCommit": {
+      "oid": "a23f486b109c67e8d07c77800030e527b9a18002"
+    },
+    "mergedAt": "2026-10-20T17:47:56Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/189"
+  },
+  "candidate": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+  "qualified_tree": "524a28259e771cd609af02b27d02aa5a496ebcdd",
+  "integrated_tree": "524a28259e771cd609af02b27d02aa5a496ebcdd",
+  "tree_equal": true,
+  "required_head_and_preceding_main": "all4+all4 PASS as original observations, revalidated from complete receipts",
+  "normal_merge_command": "gh pr merge189 --merge --match-head-commit57531c3d",
+  "execution_failure": {
+    "original_error": "AssertionError: expected aggregate mergeStateStatus CLEAN, actual UNSTABLE from optional Windows failures",
+    "execution_error": "Dependent shell sequence lacked fail-fast; subsequent normal --match-head merge ran after failed local assertion. No admin/bypass/auto merge flag used.",
+    "actual_policy": "All four exact-head and preceding-main required jobs PASS, strict required protection/enforce_admins true, branch/source matched reviewed candidate; GitHub accepted normal merge.",
+    "disposition": "No code rollback indicated: complete merged tree equals independently reviewed/local+hosted-qualified57531. Retain original failure, reconstruct saved pre-merge observation receipt transparently; future dependent mutations use separate successful gate tool result or fail-fast shell.",
+    "limits": "Receipt reconstruction after merge is not a claim that original local validation script succeeded before merge."
+  },
+  "resulting_main": "pending separate new run"
+}

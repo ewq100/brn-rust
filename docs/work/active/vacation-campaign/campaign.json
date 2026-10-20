@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T17:13:19.627177+00:00",
+    "observed_at": "2026-10-20T17:48:49.226853+00:00",
     "remaining_percent": 82,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual18% used /82% remaining; ordinaryUsageAllowedtrue; fixed expiry/no pause",
+    "ordinary_work": "admitted actual18%used/82%remaining, ordinaryUsageAllowedtrue; no pause/expiry",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:26:55.760472+00:00",
+    "observed_at": "2026-10-20T17:48:49.226853+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1507,10 +1507,10 @@
         "title": "Check exact stored attachment data after reopen and restore",
         "state": "active",
         "owner": "bounded Luna one-test implementation; lead qualification/integration",
-        "activity": "Reviewed/local-qualified57531c3d published stable asPR189 and attached. Exactly one existing test file; no production changes. Hosted required gates pending.",
-        "observed_at": "2026-10-20T17:23:00.159823+00:00",
+        "activity": "PR189 normally mergeda23f486b after all4head+all4preceding-main requiredPASS; complete merged tree equals57531. Local aggregate-CLEAN assertion failed on optionalWindows UNSTABLE and shell continued; original failure/reconstructed receipt retained transparently. Resulting-main pending.",
+        "observed_at": "2026-10-20T17:48:49.226853+00:00",
         "origin": "observed",
-        "next_action": "Inspect all4 exact-head required checks, live protection and preceding-main latestattempt before normalmerge; then inspect resulting-main independently.",
+        "next_action": "Inspect actual new a23f486b main run and all4 required results. Keep head source stable; future dependent mutations separated from successful gate results/fail-fast shell.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1521,12 +1521,14 @@
           "docs/work/active/vacation-campaign/evidence/retained-asset-restore-implementation.md",
           "docs/work/active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz",
           "https://github.com/ewq100/brn-rust/pull/189",
-          "docs/work/active/vacation-campaign/evidence/pr189-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr189-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr189-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr189-integration.json"
         ],
         "gates": {
           "implementation": "PASS local57531c3d, one existing test; nonemptyAsset/Source/Link preconditions and full receipt record equality after reopen/restore.",
           "checks": "PASS independent complete-candidate Sol review; focused1/0/0/8filtered,strict chat-targetlint,finalfmt,diff. Hostedpending.",
-          "integration": "PR189 published57531c3d; pending four required exact-head/current-main gates and authorized normal merge.",
+          "integration": "Normalmergea23f486b/source treeequal57531; all4head+all4preceding-mainPASS and required protection enforced. Local premerge script failure retained; separate resulting-mainpending.",
           "native": "inapplicable test-only shared-service guarantee; no image-conversion/native claim",
           "owner_acceptance": "not claimed"
         },
@@ -1543,6 +1545,14 @@
             "change": "Saved original formatter outcomes in repository-relative qualification receipt and routed task to that authority.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json"
+            ]
+          },
+          {
+            "outcome": "AssertionError: expected aggregate mergeStateStatus CLEAN, actual UNSTABLE from optional Windows failures; Dependent shell sequence lacked fail-fast; subsequent normal --match-head merge ran after failed local assertion. No admin/bypass/auto merge flag used.",
+            "change": "No code rollback indicated: complete merged tree equals independently reviewed/local+hosted-qualified57531. Retain original failure, reconstruct saved pre-merge observation receipt transparently; future dependent mutations use separate successful gate tool result or fail-fast shell.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/pr189-premerge.json",
+              "docs/work/active/vacation-campaign/evidence/pr189-integration.json"
             ]
           }
         ],
@@ -1562,21 +1572,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ci-warm-measurement-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T17:26:55.760472+00:00",
+    "observed_at": "2026-10-20T17:48:49.226853+00:00",
     "runtime_capacity": "4total; lead only, Luna author and independent Sol reviewer completed",
     "build_slot": "free; focused test/strictlint/fmt completed57531, no local build",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
-    "read_only_ci_watches": [
-      {
-        "run": 39465475559,
-        "session": 68632,
-        "log": "/tmp/brn-pr189-head-watch.log",
-        "scope": "read-only; actual job/protection results own gates"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR188 cache experiment complete; allrequired mainPASS after singlewarmrepeat. PR189 exacthead57531 hosted gatespending.",
-    "wait_reason": "PR189 four hostedrequired gates next. Nativecontrols blocked unchangedMaclock. No localbuild/account/writer.",
+    "integration": "PR189 normally mergeda23f486b, qualified complete tree equal57531; all4head/preceding-mainPASS, new resulting-main pending.",
+    "wait_reason": "Inspect new resulting-main checks; native controls remain pending changedMacavailability. No source/localbuild/account actors.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }
