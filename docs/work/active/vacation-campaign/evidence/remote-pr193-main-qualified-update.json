@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-20T22:46:41.898Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 42,
+  "source_commit": "97dad7680b34985dc0cb975459c58a02c68ea578",
+  "result": "PASS all5atomic guarded operations applied; full36block readback, original35blocks/metadata preserved, PR193 moved under Completed work only after all4required resulting-main PASS",
+  "created_current_status_block": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+  "limits": "Saved projection; native MAC08/11/12 observation pending actual access, no active source/build/account test."
+}
