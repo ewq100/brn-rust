@@ -36,27 +36,6 @@ Attempts:
 
 </details>
 
-### Assess the slower required build gate after Mac cache reuse improved
-
-Owner: bounded Luna read-only timing/cache-boundary audit; lead disposition · State: **active** · Last observed: 2026-10-20T17:50:50.801543+00:00
-Activity: PR189 head requiredUbuntuCore24m46 vsMacCore16m13. Selected bounded existing-receipt/source assessment of incidental non-Mac helper path movement; no source change or experiment rerun selected.
-Next: Compare existing step receipts and exact old/new cache inclusion. Distinguish changed retention boundary from uncontrolled timing causality; assess Mac-priority/storage/complexity tradeoffs before any follow-up selection.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** audit only; no Linux feature/cache expansion selected
-- **checks:** pending bounded actual-receipt/source comparison
-- **integration:** inapplicable unless concrete candidate selected
-- **native:** inapplicable CI assessment only
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json](active/vacation-campaign/evidence/pr187-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json](active/vacation-campaign/evidence/pr188-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json)
-
-</details>
-
 ## Next
 
 None recorded.
@@ -1024,6 +1003,27 @@ Attempts:
 
 </details>
 
+### Assess the slower required build gate after Mac cache reuse improved
+
+Owner: bounded Luna read-only timing/cache-boundary audit; lead disposition · State: **complete** · Last observed: 2026-10-20T17:53:25.228251+00:00
+Activity: Bounded Luna audit and lead receipt/source validation complete. UbuntuCore observations23m47/18m53/24m46 and helper8m13/6m21/8m41 are uncontrolled; no proven timing regression. New Linux helper targets outside root cache, old nested path only partially retained root-graph crates. No change selected under Mac-first/unknown-storage priority.
+Next: Revisit required-Ubuntu helper caching only with comparable hit/miss and bounded cache-volume/retention evidence. Avoid speculative path reversal or extra archives; existing required checks remain unchanged.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no Linux feature/cache expansion selected
+- **checks:** PASS bounded recorded-step/source/retention assessment; no benchmark/rerun/config change. Lead confirmed original job IDs/durations and qualified deferral.
+- **integration:** inapplicable unless concrete candidate selected
+- **native:** inapplicable CI assessment only
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json](active/vacation-campaign/evidence/pr187-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json](active/vacation-campaign/evidence/pr188-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json), [docs/work/active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit.md](active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit-original.md.gz](active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit-original.md.gz)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1048,4 +1048,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:50:50.801543+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:53:25.228251+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

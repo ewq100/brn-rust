@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:50:50.801543+00:00",
+    "observed_at": "2026-10-20T17:53:25.228251+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1561,28 +1561,30 @@
       {
         "id": "ubuntu-required-gate-cache-audit",
         "title": "Assess the slower required build gate after Mac cache reuse improved",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna read-only timing/cache-boundary audit; lead disposition",
-        "activity": "PR189 head requiredUbuntuCore24m46 vsMacCore16m13. Selected bounded existing-receipt/source assessment of incidental non-Mac helper path movement; no source change or experiment rerun selected.",
-        "observed_at": "2026-10-20T17:50:50.801543+00:00",
+        "activity": "Bounded Luna audit and lead receipt/source validation complete. UbuntuCore observations23m47/18m53/24m46 and helper8m13/6m21/8m41 are uncontrolled; no proven timing regression. New Linux helper targets outside root cache, old nested path only partially retained root-graph crates. No change selected under Mac-first/unknown-storage priority.",
+        "observed_at": "2026-10-20T17:53:25.228251+00:00",
         "origin": "observed",
-        "next_action": "Compare existing step receipts and exact old/new cache inclusion. Distinguish changed retention boundary from uncontrolled timing causality; assess Mac-priority/storage/complexity tradeoffs before any follow-up selection.",
+        "next_action": "Revisit required-Ubuntu helper caching only with comparable hit/miss and bounded cache-volume/retention evidence. Avoid speculative path reversal or extra archives; existing required checks remain unchanged.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json",
           "docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json",
-          "docs/work/active/vacation-campaign/evidence/pr189-premerge.json"
+          "docs/work/active/vacation-campaign/evidence/pr189-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit.md",
+          "docs/work/active/vacation-campaign/evidence/ubuntu-required-gate-cache-audit-original.md.gz"
         ],
         "gates": {
           "implementation": "audit only; no Linux feature/cache expansion selected",
-          "checks": "pending bounded actual-receipt/source comparison",
+          "checks": "PASS bounded recorded-step/source/retention assessment; no benchmark/rerun/config change. Lead confirmed original job IDs/durations and qualified deferral.",
           "integration": "inapplicable unless concrete candidate selected",
           "native": "inapplicable CI assessment only",
           "owner_acceptance": "not claimed"
         },
         "attempts": [],
-        "resource_plan": "One economical Luna medium read-only existing receipts/source audit while lead verifies main. No build/rerun/account/cache/API/native/source/nested action; max1helper within4slots. Stop on unsupported causal/storage claim."
+        "resource_plan": "One Luna medium existing-receipt/source assessment completed; lead validated exact steps/priority. No source,build,CIrerun,cache,account,native or nested actions. Actual modelcost/effectiveconfiguration unexposed."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1594,18 +1596,25 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20 17:27:35 UTC",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ci-warm-measurement-update.json"
+    "last_refresh_at": "2026-10-20 17:51:52 UTC",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr189-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T17:50:50.801543+00:00",
-    "runtime_capacity": "4total slots; lead plus one bounded Luna existing CI receipt/source assessment",
+    "observed_at": "2026-10-20T17:53:25.228251+00:00",
+    "runtime_capacity": "4total; lead only, all bounded helpers completed",
     "build_slot": "free; focused test/strictlint/fmt completed57531, no local build",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39469206851,
+        "session": 18506,
+        "log": "/tmp/brn-pr189-main-watch.log",
+        "scope": "read-only resulting-main watch; exact job outcomes own verification"
+      }
+    ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR189 normalmergea23f486b; resulting-main BRNCI39469206851 running. PR188 warm experiment complete.",
-    "wait_reason": "Resulting-main required gates running; Macnative controls wait changedavailability. One independent read-only gate-cost audit, no source/build/account/desktop action.",
+    "wait_reason": "Only current engineering gate is PR189 resulting-main verification. Native Notes/menu/group scenarios await changed Mac availability; source-only audits selected no further concrete candidate.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }
