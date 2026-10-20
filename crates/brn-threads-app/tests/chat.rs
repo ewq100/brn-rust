@@ -281,6 +281,24 @@ fn retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_n
         .unwrap()
         .after
         .clone();
+    let asset = r
+        .writes
+        .iter()
+        .find_map(|write| match &write.after.data {
+            RecordData::Asset(asset) => Some(asset),
+            _ => None,
+        })
+        .expect("attachment receipt retains its figure asset");
+    assert!(!asset.bytes.is_empty());
+    assert!(
+        r.writes
+            .iter()
+            .any(|write| matches!(write.after.data, RecordData::Source(_)))
+    );
+    assert!(r.writes.iter().any(|write| matches!(
+        &write.after.data,
+        RecordData::Link(link) if link.relation == "attachment"
+    )));
     w.attach_full("other", &other, "Other file", &converted())
         .unwrap();
     assert!(w.notes().unwrap().is_empty());
@@ -313,6 +331,20 @@ fn retained_attachment_is_private_after_restart_then_keep_and_undo_change_same_n
         root.path().canonicalize().unwrap().join("restored"),
     )
     .unwrap();
+    for write in &r.writes {
+        assert_eq!(
+            w.store.record(&write.after.id).unwrap().as_ref(),
+            Some(&write.after),
+            "source reopen must preserve attachment receipt record {}",
+            write.after.id
+        );
+        assert_eq!(
+            restored.record(&write.after.id).unwrap().as_ref(),
+            Some(&write.after),
+            "restore must preserve attachment receipt record {}",
+            write.after.id
+        );
+    }
     assert!(!restored.record_visible_in_chat(&note.id, None).unwrap());
     let ApplyOutcome::Applied(kept) = w.keep_in_brn("keep", &note.id, note.version).unwrap() else {
         panic!()
