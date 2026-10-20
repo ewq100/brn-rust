@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:00:02.078069+00:00",
+    "observed_at": "2026-10-20T13:06:27.339045+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -806,9 +806,7 @@
         "origin": "observed",
         "next_action": "Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.",
         "depends_on": [],
-        "resource_waits": [
-          "Required resulting-main63345a8e checks."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json",
           ".github/workflows/ci.yml",
@@ -878,9 +876,7 @@
         "origin": "observed",
         "next_action": "Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.",
         "depends_on": [],
-        "resource_waits": [
-          "Required resulting-main63345a8e checks."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/ci-cache-investigation.md",
           "docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json",
@@ -985,12 +981,14 @@
         "title": "Preserve unsent drafts when a note creates its writing conversation",
         "state": "active",
         "owner": "lead integration; independent Sol review completed; bounded implementation complete",
-        "activity": "Reviewed and local-qualified final2b836 source published in PR184 head19d592c6; actual source equals qualified candidate. Hosted exact-head checks pending; immutable native artifact retained, not launched.",
-        "observed_at": "2026-10-20T12:36:02.922793+00:00",
+        "activity": "PR184 normally mergedd2e0e298 after fresh strict protection, all4required exact-head19d and preceding-main633 checks PASS. Entire resultingtree equals passinghead19d; newmain39427446132 checks running. Actual Mac/owner acceptance separate.",
+        "observed_at": "2026-10-20T13:06:27.339045+00:00",
         "origin": "observed",
-        "next_action": "Keep PR184 head stable; inspect all required exact-head checks and resulting-main633 before any authorized normal merge. Native MAC-10 remains queued.",
+        "next_action": "Inspect all4required resulting-main d2e0e298 run39427446132; preserve optionalfailures and nativeMAC10 queue.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Required resulting-main d2e0e298 checks."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md",
           "crates/brn-desktop/src/threads_ui.rs",
@@ -1005,12 +1003,14 @@
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json",
           "docs/work/active/vacation-campaign/evidence/pr184-publication.json",
           "https://github.com/ewq100/brn-rust/pull/184",
-          "docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md"
+          "docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md",
+          "docs/work/active/vacation-campaign/evidence/pr184-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr184-integration.json"
         ],
         "gates": {
           "implementation": "complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes",
           "checks": "PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused",
-          "integration": "PR184 published head19d592c6; all actual required exact-head gates and current-main reconciliation pending",
+          "integration": "Normalmerged2e0e298 verified;4requiredheadPASS, resulting-main39427446132 pending",
           "native": "not observed; synthetic toolkit test is separate from OS interaction",
           "owner_acceptance": "not claimed"
         },
@@ -1083,11 +1083,17 @@
         "title": "Show unavailable skill choices correctly in inactive Projects",
         "state": "active",
         "owner": "bounded Luna implementation; independent Sol review/lead integration",
-        "activity": "Frozen28474ab7 source and receipt review PASS within disclosed limits. Raw focused4/0 exit0; broader341/0/1/lint/build successes are reconstructed transcript excerpts. Original5failures/hash gaps preserved. Separate runnable0555 artifact set fixes lost execute bits without source/rebuild.",
-        "observed_at": "2026-10-20T13:00:02.078069+00:00",
+        "activity": "Composed7a234ee6 exact qualified28474 source; independent source/receipt/compositionPASS, minor obsolete waits cleared. ParentPR184 now normally merged; separate skill-control PR ready for final source/main reconciliation and publication.",
+        "observed_at": "2026-10-20T13:06:27.339045+00:00",
         "origin": "observed",
-        "next_action": "After PR184 normal merge, compose unchanged qualified28474 source and reviewed records, verify actual source identity; publish separate skill-control PR with original proof limits and required hosted gates.",
-        "depends_on": [],
+        "next_action": "Reconcile integrated d2e0e298 ancestry without product change, publish separate reviewed skill-control candidate; keep its exact-head checks and parent resulting-main gates distinct before integration.",
+        "depends_on": [
+          {
+            "task": "writing-draft-recovery",
+            "condition": "PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration.",
+            "satisfied": true
+          }
+        ],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md",
@@ -1097,12 +1103,13 @@
           "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md",
           "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md",
           "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json"
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json",
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md"
         ],
         "gates": {
           "implementation": "complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change",
           "checks": "PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.",
-          "integration": "not composed/published; PR184 head19d592c6 stable while hosted checks run",
+          "integration": "ParentPR184merged; separate publication/headchecks pending; parentmain39427446132 must pass before next normalmerge",
           "native": "Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -1132,7 +1139,7 @@
         ]
       }
     ],
-    "owner_attention": "No owner decision requested. CI correction complete: PR183 and all4required resulting-main checks pass. Draft recovery PR184 awaits hosted checks; tiny inactive-Project skill correction in progress. Native batch remains18:00Tallinn."
+    "owner_attention": "No owner decision requested. PR184 draft recovery normally merged; required resulting-main checks running. Separate reviewed inactive-Project skill fix ready for publication. Actual Mac batch remains18Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",

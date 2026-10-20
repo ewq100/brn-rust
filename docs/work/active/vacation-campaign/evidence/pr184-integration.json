@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-20T13:05:45.150837+00:00",
+  "pr": {
+    "headRefOid": "19d592c69223aa1f106e4c0f379dab868f13542b",
+    "mergeCommit": {
+      "oid": "d2e0e298386778dfca90559719f720c4e0eddbbd"
+    },
+    "mergedAt": "2026-10-20T13:05:17Z",
+    "number": 184,
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/184"
+  },
+  "observed_origin_main": "d2e0e298386778dfca90559719f720c4e0eddbbd",
+  "normal_merge_command": "gh pr merge184 --merge --match-head-commit19d592c69223aa1f106e4c0f379dab868f13542b",
+  "entire_resulting_tree_equals_passing_head": true,
+  "resulting_main_runs": [
+    {
+      "conclusion": "",
+      "databaseId": 39427446132,
+      "event": "push",
+      "headSha": "d2e0e298386778dfca90559719f720c4e0eddbbd",
+      "status": "in_progress",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/39427446132"
+    }
+  ],
+  "resulting_main_verdict": "pending allactualrequiredchecks; no premerge success substitution",
+  "native_owner": "notobserved/accepted; norelease"
+}

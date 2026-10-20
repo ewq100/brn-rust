@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. CI correction complete: PR183 and all4required resulting-main checks pass. Draft recovery PR184 awaits hosted checks; tiny inactive-Project skill correction in progress. Native batch remains18:00Tallinn.
+**Owner attention:** No owner decision requested. PR184 draft recovery normally merged; required resulting-main checks running. Separate reviewed inactive-Project skill fix ready for publication. Actual Mac batch remains18Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,9 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Preserve unsent drafts when a note creates its writing conversation
 
-Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **active** · Last observed: 2026-10-20T12:36:02.922793+00:00
-Activity: Reviewed and local-qualified final2b836 source published in PR184 head19d592c6; actual source equals qualified candidate. Hosted exact-head checks pending; immutable native artifact retained, not launched.
-Next: Keep PR184 head stable; inspect all required exact-head checks and resulting-main633 before any authorized normal merge. Native MAC-10 remains queued.
+Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **active** · Last observed: 2026-10-20T13:06:27.339045+00:00
+Activity: PR184 normally mergedd2e0e298 after fresh strict protection, all4required exact-head19d and preceding-main633 checks PASS. Entire resultingtree equals passinghead19d; newmain39427446132 checks running. Actual Mac/owner acceptance separate.
+Next: Inspect all4required resulting-main d2e0e298 run39427446132; preserve optionalfailures and nativeMAC10 queue.
+Resource waits: Required resulting-main d2e0e298 checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,11 +23,11 @@ Gates:
 
 - **implementation:** complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes
 - **checks:** PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused
-- **integration:** PR184 published head19d592c6; all actual required exact-head gates and current-main reconciliation pending
+- **integration:** Normalmerged2e0e298 verified;4requiredheadPASS, resulting-main39427446132 pending
 - **native:** not observed; synthetic toolkit test is separate from OS interaction
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/pr184-publication.json](active/vacation-campaign/evidence/pr184-publication.json), [https://github.com/ewq100/brn-rust/pull/184](https://github.com/ewq100/brn-rust/pull/184), [docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md](active/vacation-campaign/evidence/writing-draft-composition-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/pr184-publication.json](active/vacation-campaign/evidence/pr184-publication.json), [https://github.com/ewq100/brn-rust/pull/184](https://github.com/ewq100/brn-rust/pull/184), [docs/work/active/vacation-campaign/evidence/writing-draft-composition-review.md](active/vacation-campaign/evidence/writing-draft-composition-review.md), [docs/work/active/vacation-campaign/evidence/pr184-premerge.json](active/vacation-campaign/evidence/pr184-premerge.json), [docs/work/active/vacation-campaign/evidence/pr184-integration.json](active/vacation-campaign/evidence/pr184-integration.json)
 
 Attempts:
 
@@ -39,9 +40,10 @@ Attempts:
 
 ### Show unavailable skill choices correctly in inactive Projects
 
-Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:00:02.078069+00:00
-Activity: Frozen28474ab7 source and receipt review PASS within disclosed limits. Raw focused4/0 exit0; broader341/0/1/lint/build successes are reconstructed transcript excerpts. Original5failures/hash gaps preserved. Separate runnable0555 artifact set fixes lost execute bits without source/rebuild.
-Next: After PR184 normal merge, compose unchanged qualified28474 source and reviewed records, verify actual source identity; publish separate skill-control PR with original proof limits and required hosted gates.
+Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:06:27.339045+00:00
+Activity: Composed7a234ee6 exact qualified28474 source; independent source/receipt/compositionPASS, minor obsolete waits cleared. ParentPR184 now normally merged; separate skill-control PR ready for final source/main reconciliation and publication.
+Next: Reconcile integrated d2e0e298 ancestry without product change, publish separate reviewed skill-control candidate; keep its exact-head checks and parent resulting-main gates distinct before integration.
+Depends on: writing-draft-recovery when PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (reported satisfied: true)
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -50,11 +52,11 @@ Gates:
 
 - **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
 - **checks:** PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.
-- **integration:** not composed/published; PR184 head19d592c6 stable while hosted checks run
+- **integration:** ParentPR184merged; separate publication/headchecks pending; parentmain39427446132 must pass before next normalmerge
 - **native:** Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-composition-review.md](active/vacation-campaign/evidence/inactive-skill-composition-review.md)
 
 Attempts:
 
@@ -122,6 +124,14 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+
+### Preserve unsent drafts when a note creates its writing conversation
+
+Owner: lead integration; independent Sol review completed; bounded implementation complete
+
+Waiting:
+
+- resource: Required resulting-main d2e0e298 checks.
 
 ## Completed
 
@@ -591,7 +601,6 @@ Attempts:
 Owner: lead implementation; independent Sol source review completed · State: **complete** · Last observed: 2026-10-20T12:44:05.024068+00:00
 Activity: PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.
 Next: Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.
-Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -638,7 +647,6 @@ Evidence: [.github/actions/setup-rust/action.yml](../../.github/actions/setup-ru
 Owner: lead implementation; independent Sol source review completed · State: **complete** · Last observed: 2026-10-20T12:44:05.024068+00:00
 Activity: PR183 merged63345a8e; all4required exact-head and resulting-main39421007719 checks PASS. Optional3Windows failures retained. Actual cache-policy inputs/restore observations saved; no future speed/retention guarantee.
 Next: Use measured investigation for future cache experiments only when evidence warrants; retain required gate meaning and normal60minuteMacCore bound.
-Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -753,12 +761,15 @@ graph TD
   t7["Expose grouped Include/Omit selection to accessibility tools"]
   t8["Check grouped review controls on the Mac"]
   t13["Integrate remote progress routing and verification records"]
+  t28["Preserve unsent drafts when a note creates its writing conversation"]
+  t30["Show unavailable skill choices correctly in inactive Projects"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
   t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
+  t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:00:02.078069+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:06:27.339045+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
