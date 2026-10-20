@@ -46,9 +46,9 @@ None recorded.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T13:34:38.974641+00:00
-Activity: Integrated75a66a74 product matches final reviewed28474 skill-control source, including final2b836 draft recovery. Separate0555 app/helpers set is byte-verified and executable; current hostedmain gates remain pending. No actual Mac journey pass inferred.
-Next: At18:00Tallinn reconcile actual main/gates and immutable source/artifact; prioritize MAC01 and new MAC10 saving/draft close-reopen, then MAC03/04/08/09 within30–45minutes and defer excess explicitly.
+Owner: development lead; single desktop actor · State: **blocked** · Last observed: 2026-10-20T13:49:39.823351+00:00
+Activity: Headless native-session preparation complete: unsigned app copies exactly match qualified28474 app/helpers and integrated75a66a74 product source; independent expected fixture bytes verified/copied. Fresh canonical /private/tmp data root empty; app not launched. Core hostedmain checks pending, actual Mac journeys remain separate.
+Next: At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30–45minutes; defer excess explicitly.
 Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
 
 <details>
@@ -62,7 +62,7 @@ Gates:
 - **native:** pending Save/reopen, backup and unsaved-recovery journeys
 - **owner acceptance:** pending; native evidence does not imply owner acceptance
 
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json](active/vacation-campaign/evidence/export-native-build-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json)
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json](active/vacation-campaign/evidence/export-native-build-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json](active/vacation-campaign/evidence/native-session-preflight-20261020.json)
 
 </details>
 
@@ -793,4 +793,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:34:38.974641+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:49:39.823351+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-10-20T13:48:54.368121+00:00",
+  "source": "75a66a74986792e882d1eb28c549ccacf8e7a807",
+  "qualified_worker": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+  "production_tree_comparison": "PASS no differences",
+  "artifact_manifest": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/artifact-manifest.json",
+  "artifact_manifest_sha256": "2491fec99f095dcc6820e493b3cd1222f9f9eb9923f16f1576a6a397040ba8ee",
+  "packager_source": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+  "packager_sha256": "e9a46666b2af103c8d8250607392d2c1d74e818d7f9ddfaa9497a02ba2639c16",
+  "command": [
+    "bash",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+    "--output",
+    "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app",
+    "--binary",
+    "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-desktop",
+    "--xberg-helper",
+    "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-xberg-helper",
+    "--xberg-helper-brn",
+    "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7-executable/brn-xberg-helper-brn",
+    "--data-dir",
+    "/private/tmp/brn-native-20261020T134854Z/data"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 0.429,
+  "log": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/packaging.log",
+  "log_sha256": "2e1eb21964786c3293508fb76d61faf10d017251125a0c7432ee6ef91586f475",
+  "app": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app",
+  "artifacts": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+      "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d",
+      "mode": "0o555",
+      "executable": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "mode": "0o555",
+      "executable": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "mode": "0o555",
+      "executable": true
+    }
+  ],
+  "launcher": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/MacOS/BRN-Threads",
+    "sha256": "283bd2629926334c3d0ee07c8edbbe33243e5e6f90d499d0dc5bf568ee716ae3"
+  },
+  "data_dir": "/private/tmp/brn-native-20261020T134854Z/data",
+  "data_canonical": "/private/tmp/brn-native-20261020T134854Z/data",
+  "data_empty_before_launch": true,
+  "expected_fixtures": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/expected/manifest.json",
+  "launched": false,
+  "native_observed": false,
+  "limits": "Headless local unsigned packaging only; no signing/release, app/helper execution, Store/bootstrap, account or CUA action. Main required core checks pending. At actual native entry reconcile source/main/access and set BRN_LAUNCH_LOG_DIR to a task-owned evidence directory, avoiding default shared launcher log.",
+  "planned_launch_argv": [
+    "/usr/bin/open",
+    "-n",
+    "--env",
+    "BRN_LAUNCH_LOG_DIR=/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/launch-logs",
+    "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app"
+  ],
+  "launcher_environment_basis": "Local open usage explicitly documents --env VAR; queried --help, which is unsupported but printed usage. No launch occurred. Use explicit task log directory on every launch.",
+  "launch_logs": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/launch-logs"
+}

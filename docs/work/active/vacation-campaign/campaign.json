@@ -95,7 +95,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T13:20:43.597062+00:00",
+    "observed_at": "2026-10-20T13:49:39.823351+00:00",
     "remaining_percent": 88,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: actual12% used /88% remaining; fixed expiry, no owner pause",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:34:38.974641+00:00",
+    "observed_at": "2026-10-20T13:49:39.823351+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -226,10 +226,10 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Integrated75a66a74 product matches final reviewed28474 skill-control source, including final2b836 draft recovery. Separate0555 app/helpers set is byte-verified and executable; current hostedmain gates remain pending. No actual Mac journey pass inferred.",
-        "observed_at": "2026-10-20T13:34:38.974641+00:00",
-        "origin": "reported",
-        "next_action": "At18:00Tallinn reconcile actual main/gates and immutable source/artifact; prioritize MAC01 and new MAC10 saving/draft close-reopen, then MAC03/04/08/09 within30\u201345minutes and defer excess explicitly.",
+        "activity": "Headless native-session preparation complete: unsigned app copies exactly match qualified28474 app/helpers and integrated75a66a74 product source; independent expected fixture bytes verified/copied. Fresh canonical /private/tmp data root empty; app not launched. Core hostedmain checks pending, actual Mac journeys remain separate.",
+        "observed_at": "2026-10-20T13:49:39.823351+00:00",
+        "origin": "observed",
+        "next_action": "At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30\u201345minutes; defer excess explicitly.",
         "depends_on": [],
         "resource_waits": [
           "Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch."
@@ -239,7 +239,8 @@
           "docs/work/active/vacation-campaign/writing-account-verification.md",
           "docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json"
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json",
+          "docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json"
         ],
         "gates": {
           "implementation": "existing application; no new source fix selected",
@@ -1186,14 +1187,14 @@
     "latest_update_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:35:29.488371+00:00",
+    "observed_at": "2026-10-20T13:49:39.823351+00:00",
     "runtime_capacity": "4 total slots; lead only, all bounded helper turns completed",
-    "build_slot": "free; no local source writer/build/native/account actor",
+    "build_slot": "free; headless packaging complete, no Rust build or app/account/native actor",
     "desktop_account_actor": "none; consolidated18Tallinn batch pending",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR185 normally merged75a66a74; required resulting-main39431384966 pending, no additional product task selected",
-    "wait_reason": "Genuine external required-CI wait on resulting-main39431384966. All selected source work integrated or bounded audits complete; no new speculative dispatch selected. Old head/main watchers exited and were reaped.",
+    "wait_reason": "Required resulting-main39431384966 core checks running; Mac UI/retrieval checks passed. Native packaging prepared without launch; no additional source candidate selected.",
     "resumption": "Existing ACTIVE recovery heartbeat resumes this same lead/chat; reconcile actual75a66a74 run39431384966 first. Daily18:00Tallinn native batch remains the next distinct ready interaction gate. Do not infer a live process from this saved record."
   }
 }
