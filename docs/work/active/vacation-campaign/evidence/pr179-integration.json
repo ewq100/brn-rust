@@ -1,0 +1,90 @@
+{
+  "observed_at": "2026-10-20T07:15:13.743308+00:00",
+  "pr": {
+    "headRefOid": "ec9190d835217beca08ef9af77a4458fdb252d54",
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T07:06:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491247",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T07:06:06Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491342",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T07:06:06Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T07:08:30Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491242",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T07:06:05Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491234",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T07:06:10Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491362",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T07:06:06Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500491305",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T07:06:13Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39384349312/job/118500490903",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T07:06:11Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "url": "https://github.com/ewq100/brn-rust/pull/179"
+  },
+  "source_qualification": "docs/work/active/vacation-campaign/evidence/review-group-qualification.json",
+  "source_review": "docs/work/active/vacation-campaign/evidence/review-group-source-review.json",
+  "receipt_audit": "docs/work/active/vacation-campaign/evidence/review-group-receipt-audit.json",
+  "preceding_main": "1009495db414f63141d17a8f67a8bad3df087892: all four required resulting-main checks passed in visibility-adoption-integration.json",
+  "live_protection": "pending reinspection immediately before authorized normal merge",
+  "merge": "pending; required exact-head checks still running",
+  "resulting_main": "pending; not merged",
+  "pause": "Only known eligible source integration gates now wait on external CI; prepared actual Mac journeys use the daily consolidated batch. No local build/desktop/account actor active. Progress-only records saved locally, deliberately not pushed onto frozen PR179 head. Resume by checking exact-head results/protection, normal merge when eligible, then inspect resulting main separately."
+}

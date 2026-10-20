@@ -1,0 +1,380 @@
+{
+  "audit": "review-group receipt integrity audit",
+  "observed_at": "2026-10-20T07:07:32.275780+00:00",
+  "result": "PASS",
+  "scope": "paperwork and evidence integrity only; no builds, tests, UI, provider/account calls, or repository edits",
+  "repository": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+  "head": "ec9190d835217beca08ef9af77a4458fdb252d54",
+  "origin_main_observed": "1009495db414f63141d17a8f67a8bad3df087892",
+  "qualification_source": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+  "independent_source_review": "PASS,no further source/contract findings after complete final rereview",
+  "diff_scope": ".../examples/native_review_groups_fixture.rs       | 246 ++++++++++\n crates/brn-writing-ui/src/writing.rs               |   1 +\n docs/work/active/vacation-campaign/campaign.json   | 166 +++++--\n docs/work/active/vacation-campaign/checkpoint.md   |   4 +\n .../evidence/pr176-integration.json                | 106 ++++-\n .../evidence/review-group-qualification.json       | 526 +++++++++++++++++++++\n .../review-group-raw/affected-lint.json.gz         | Bin 0 -> 859 bytes\n .../evidence/review-group-raw/affected-lint.log.gz | Bin 0 -> 329 bytes\n .../review-group-raw/desktop-native-tests.json.gz  | Bin 0 -> 817 bytes\n .../review-group-raw/desktop-native-tests.log.gz   | Bin 0 -> 8773 bytes\n .../fixture-build-corrected.json.gz                | Bin 0 -> 823 bytes\n .../fixture-build-corrected.log.gz                 | Bin 0 -> 160 bytes\n .../review-group-raw/fixture-build.json.gz         | Bin 0 -> 816 bytes\n .../evidence/review-group-raw/fixture-build.log.gz | Bin 0 -> 1042 bytes\n .../fixture-positive-manifest.json.gz              | Bin 0 -> 1177 bytes\n .../review-group-raw/fixture-positive.json.gz      | Bin 0 -> 813 bytes\n .../review-group-raw/fixture-positive.log.gz       | Bin 0 -> 135 bytes\n .../fixture-refusal-assertions.json.gz             | Bin 0 -> 341 bytes\n .../fixture-refuse-directory.json.gz               | Bin 0 -> 823 bytes\n .../fixture-refuse-directory.log.gz                | Bin 0 -> 84 bytes\n .../review-group-raw/fixture-refuse-file.json.gz   | Bin 0 -> 816 bytes\n .../review-group-raw/fixture-refuse-file.log.gz    | Bin 0 -> 84 bytes\n .../fixture-refuse-relative.json.gz                | Bin 0 -> 811 bytes\n .../fixture-refuse-relative.log.gz                 | Bin 0 -> 77 bytes\n .../evidence/review-group-raw/format.json.gz       | Bin 0 -> 773 bytes\n .../evidence/review-group-raw/format.log.gz        | Bin 0 -> 20 bytes\n .../review-group-raw/production-native.json.gz     | Bin 0 -> 806 bytes\n .../review-group-raw/production-native.log.gz      | Bin 0 -> 314 bytes\n .../evidence/review-group-raw/run-check.py.gz      | Bin 0 -> 1524 bytes\n .../evidence/review-group-source-review.json       |  18 +\n .../evidence/visibility-adoption-integration.json  | 278 +++++++++++\n docs/work/active/vacation-campaign/native-queue.md |   1 +\n .../review-group-accessibility.md                  |  15 +\n docs/work/overview.md                              | 148 ++++--\n 34 files changed, 1434 insertions(+), 75 deletions(-)",
+  "source_sha256_observed": {
+    "ui": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+    "fixture": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+    "lock": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89"
+  },
+  "source_sha256_matches_receipts": true,
+  "check_snapshots": [
+    {
+      "check": "affected-lint",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "desktop-native-tests",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-build-corrected",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-build",
+      "head": "d47de5ee9af9e3bf432f166bba0ba7f4337b0234",
+      "exit": 101,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "a481e0cced3ea75946427852338c572e5605cffdb63e4bc723decf7c7b0ffd83",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-positive",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-refuse-directory",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 1,
+      "expected_exit": 1,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-refuse-file",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 1,
+      "expected_exit": 1,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "fixture-refuse-relative",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 1,
+      "expected_exit": 1,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "format",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    },
+    {
+      "check": "production-native",
+      "head": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+      "exit": 0,
+      "expected_exit": 0,
+      "source_sha256_observed": "659fdb985a0ba4b8b8042067bd2c0683f29861a5bfa550d9b13c587bef624b1e",
+      "source_sha256_matches": true,
+      "fixture_sha256_observed": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+      "fixture_sha256_matches": true
+    }
+  ],
+  "archives": [
+    {
+      "file": "affected-lint.json.gz",
+      "compressed_bytes": 859,
+      "compressed_sha256": "7ba0668921a4deefc9f597fb1da91ebdd5a12768d14a33235776e074b5580cc0",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1632,
+      "raw_sha256": "b5bf13d314dd07b3e70d4a552d5c92748b2e71f1bc55dc014a97bd01a66b907d",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "affected-lint.log.gz",
+      "compressed_bytes": 329,
+      "compressed_sha256": "f13809ec99d2ad662905c92bf7d4ba3f35e86a98662ee765fe66b46531d96af4",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 666,
+      "raw_sha256": "d860c7f150cd85a0f0de18ea309d998b898a1a27e6b31c6893a4d7f9d8f18957",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "desktop-native-tests.json.gz",
+      "compressed_bytes": 817,
+      "compressed_sha256": "4aef6ee2bd3f53d19e0ce79793de943a69affe44538106ec77bb18ed7957436f",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1489,
+      "raw_sha256": "454d41eeb8c211e7345f6dadc83104d06ede3574031ffac82141acc45e2ec015",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "desktop-native-tests.log.gz",
+      "compressed_bytes": 8773,
+      "compressed_sha256": "cad85482e37d5ce1053ae0a856d8ba494f7b163c1da06a1daebe063138136939",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 34617,
+      "raw_sha256": "ddb73f1be0e4a653f0096541931c83730dcc67772644c7b4575d1db51ca82a00",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-build-corrected.json.gz",
+      "compressed_bytes": 823,
+      "compressed_sha256": "7d625b428839911b3dd953d629399cf49a15b10bcdbcf7f78072013a6d269c25",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1496,
+      "raw_sha256": "d665c357a33474128d6caf2be5f664aecdcf92fb736dfef75613025128307dfd",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-build-corrected.log.gz",
+      "compressed_bytes": 160,
+      "compressed_sha256": "5e12b1b5dbfbb553e56edfa1c554261d5210bf514dc9a889978beb6ab75ca868",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 184,
+      "raw_sha256": "c3aad3db9116c5fb9056c7cb72bc1ad60ee8c2c4e38bebb0b74a1550647914cd",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-build.json.gz",
+      "compressed_bytes": 816,
+      "compressed_sha256": "4e03ab45ad30b8b85b64e55dc254218ce5bd1d9de8131cf6cacf1e9eb7a32f87",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1488,
+      "raw_sha256": "db9616cf357f1020763b87ef4984be880cf408845300c96f0d2697fc1259b4f8",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-build.log.gz",
+      "compressed_bytes": 1042,
+      "compressed_sha256": "1cda5074026c280bcfa2f7341b459b62f36dfc4cb0938fc478e3d062343a662d",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 3220,
+      "raw_sha256": "0774aed7173e40d8b940125cdb448087b4a53f09e7debe6fdaef6e28ec3038ee",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-positive.json.gz",
+      "compressed_bytes": 813,
+      "compressed_sha256": "99d3c0c164309621efd6c57709068d55dc256925dbf632a4dda89782a88a1bdf",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1563,
+      "raw_sha256": "49e735f563f8871723a4c1738765c7de05778a7211fa0a0944f21132dc023d00",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-positive.log.gz",
+      "compressed_bytes": 135,
+      "compressed_sha256": "5174fdbe3c2140bd8ef405371146c5a37fae2eb61cf54acfcf212c06aa2fcb5c",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 247,
+      "raw_sha256": "1f3b01f1dd985a413d6fd6a27127741d20cf30e91df39d4525a0519416d36533",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refusal-assertions.json.gz",
+      "compressed_bytes": 341,
+      "compressed_sha256": "eb5110c6b9e462b24b3b73f347dfe3b183b1905a38a1a3da33d0ac22fe7c94fd",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 858,
+      "raw_sha256": "dfddd9ab4424f7db90b8c1587c617b0bd053ed3e32250ff2c016edfb5d90db72",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-directory.json.gz",
+      "compressed_bytes": 823,
+      "compressed_sha256": "a8495379fb27dc7844e4aa1ecc22b2124d7ba92f48ac95faf139d634619490bf",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1571,
+      "raw_sha256": "c3daffab7ed2d2c45871265019b48a923806b6cb354d164b13d2ddf43c283853",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-directory.log.gz",
+      "compressed_bytes": 84,
+      "compressed_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 68,
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-file.json.gz",
+      "compressed_bytes": 816,
+      "compressed_sha256": "0495815fb7b8d0ae2c74a718dbba8239dd85d5da5050aa90d8ef45967967c403",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1561,
+      "raw_sha256": "208ad340ed8453a4072bac01dbb5d404557b11f12e90adfc123cce6783c50b5a",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-file.log.gz",
+      "compressed_bytes": 84,
+      "compressed_sha256": "d33bbc485cdfa26dfab0ba9f66c9df17a5dbc57eefec595433b098c3add7f376",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 68,
+      "raw_sha256": "631b7b13872862622f2cf3e89c346da69c3045cb00f04bd13ddee48baa94e09c",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-relative.json.gz",
+      "compressed_bytes": 811,
+      "compressed_sha256": "beb7b5af832dd70b3de63fcb495a55d5b47ca51aaaf6ac6ff407dc41bace388e",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1507,
+      "raw_sha256": "c87208684d3e4d19e16bace95225f83d8210a4204bf522a35ac98f75f4c4b3ac",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-refuse-relative.log.gz",
+      "compressed_bytes": 77,
+      "compressed_sha256": "188c1c60cd839f698acce0177b2b127e9e44a92519512bbeba41f4081afe91e5",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 58,
+      "raw_sha256": "09debea8eb0da04ad7b04b176ad4fb957dea175ffcaf8e906c59051168f6fb8e",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "format.json.gz",
+      "compressed_bytes": 773,
+      "compressed_sha256": "fdbe7b32c2e16dbedc7b487513d4488a67b2c32ed69904839138816e36fab24d",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1378,
+      "raw_sha256": "91c4ba28c1fa9c99b8c449ed99dae2440f82f0532626baa6d729d29eaad5a042",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "format.log.gz",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "production-native.json.gz",
+      "compressed_bytes": 806,
+      "compressed_sha256": "2b59128d4e71871bae5372129536a1a5453f0da8938c876a055816ed740b7634",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 1468,
+      "raw_sha256": "1b974534937ce58006908f58f9fc9fb2dfaac4cfc1558f1b4c0f0d153728764b",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "production-native.log.gz",
+      "compressed_bytes": 314,
+      "compressed_sha256": "a84945c1ed67e53e6acd8b2f765031a58c175936f86c15f818164f332c093c14",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 541,
+      "raw_sha256": "eea5bebcda20c2eb6919d2f4be76f1f76ab2426fb22fcbfb6dd894474a50194f",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "run-check.py.gz",
+      "compressed_bytes": 1524,
+      "compressed_sha256": "5c3da1af9b219a8ff90ac0929fef7f7469888554a97f8663828e84e2e28854bc",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 3168,
+      "raw_sha256": "31c77f4d3142db98fa080eeeae4d7f64324d0cdf4cd8c38498f40f5009444516",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    },
+    {
+      "file": "fixture-positive-manifest.json.gz",
+      "compressed_bytes": 1177,
+      "compressed_sha256": "df8334bc85d53d7ef20e5dab75b95f66829d96bc79a42f941f67d1ec8116982f",
+      "compressed_sha256_matches": true,
+      "raw_bytes": 5098,
+      "raw_sha256": "89b7d859c08e6029e0a7c14cf33718940fa19dac2977561810df93ae3df5e7a5",
+      "raw_size_matches": true,
+      "raw_sha256_matches": true
+    }
+  ],
+  "immutable_binaries": [
+    {
+      "name": "desktop",
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/desktop-465a6fad-5ff2e9776b504f3c",
+      "bytes": 165763040,
+      "sha256": "5ff2e9776b504f3cf4601c5bc27fa86ab805c9a4b1cf02e369b2707af75ea54e",
+      "bytes_match": true,
+      "sha256_match": true,
+      "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6"
+    },
+    {
+      "name": "fixture",
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/fixture-465a6fad-a7aec2243ba4e52b",
+      "bytes": 9732384,
+      "sha256": "a7aec2243ba4e52bbb0730eb03e615987a3c32c79da12f92fc3421fba9ea1fb2",
+      "bytes_match": true,
+      "sha256_match": true,
+      "source": "465a6fadd3058fe7690bbad52444bee7f9a577f6"
+    }
+  ],
+  "claims_reviewed": {
+    "initial_E0107_failure_preserved_and_corrected_build_passes": true,
+    "desktop_test_result": "333 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out",
+    "native_owner_and_integration_gates_separate": true,
+    "generated_overview_matches_pending_gate_states": true,
+    "no_zero_test_success_claim_found": true
+  },
+  "findings": []
+}

@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Ordinary work resumed after verified renewed allowance.
+**Owner attention:** No owner decision requested. Required hosted checks are running; prepared real Mac checks use the daily batch.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,38 +9,12 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Clearer instructions and one progress view
-
-Owner: development lead · State: **active** · Last observed: 2026-10-20T06:45:18.405208+00:00
-Activity: PR178 normally merged1009495d after all four required exact-head checks passed; observing resulting-main checks.
-Next: Verify all required resulting-main jobs for1009495d, retain optional Windows failures, then close adoption.
-Resource waits: Hosted resulting-main checks; independent hardening can continue.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
-- **checks:** passed: final local/independent review and all four required exact-head39374194546 checks; optional Windows Core failed
-- **integration:** normally merged1009495db414f63141d17a8f67a8bad3df087892; required resulting-main verification pending
-- **native:** inapplicable: development documentation/view only
-- **owner acceptance:** not requested; owner authorized implementation
-
-Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json), [https://github.com/ewq100/brn-rust/pull/178](https://github.com/ewq100/brn-rust/pull/178), [docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json](active/vacation-campaign/evidence/visibility-adoption-review.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json](active/vacation-campaign/evidence/visibility-adoption-qualification.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-integration.json](active/vacation-campaign/evidence/visibility-adoption-integration.json)
-
-Attempts:
-
-- Preflight complete; stopped at ordinary reserve floor.: Owner explicitly approved using reserve for this adoption; implementation resumed. ([docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json))
-- Independent review found readiness was inferred from overall task completion and overlapping skill review rules.: Explicit prerequisite-condition satisfaction now controls readiness; skill review triggers and inputs aligned with governing workflow. ([scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json))
-
-</details>
-
 ### Prepare grouped-review test workspace
 
-Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
-Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
-Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:15:13.743308+00:00
+Activity: Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.
+Next: Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.
+Resource waits: Hosted PR179 checks; remote head frozen while progress records stay local.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -49,11 +23,11 @@ Gates:
 
 - **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
 - **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
-- **integration:** not yet published; required head/main gates pending
+- **integration:** published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending
 - **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json), [https://github.com/ewq100/brn-rust/pull/179](https://github.com/ewq100/brn-rust/pull/179), [docs/work/active/vacation-campaign/evidence/review-group-receipt-audit.json](active/vacation-campaign/evidence/review-group-receipt-audit.json), [docs/work/active/vacation-campaign/evidence/pr179-integration.json](active/vacation-campaign/evidence/pr179-integration.json)
 
 Attempts:
 
@@ -63,9 +37,10 @@ Attempts:
 
 ### Expose grouped Include/Omit selection to accessibility tools
 
-Owner: development lead · State: **active** · Last observed: 2026-10-20T07:05:09.863171+00:00
-Activity: Final combined source465a6fad independently reviewed and locally qualified; preparing publication.
-Next: Publish a reviewable candidate, inspect all exact-head required checks and normal merge when eligible.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:15:13.743308+00:00
+Activity: Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.
+Next: Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.
+Resource waits: Hosted PR179 checks; remote head frozen while progress records stay local.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -74,11 +49,11 @@ Gates:
 
 - **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
 - **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
-- **integration:** not yet published; required head/main gates pending
+- **integration:** published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending
 - **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json)
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json), [https://github.com/ewq100/brn-rust/pull/179](https://github.com/ewq100/brn-rust/pull/179), [docs/work/active/vacation-campaign/evidence/review-group-receipt-audit.json](active/vacation-campaign/evidence/review-group-receipt-audit.json), [docs/work/active/vacation-campaign/evidence/pr179-integration.json](active/vacation-campaign/evidence/pr179-integration.json)
 
 </details>
 
@@ -87,14 +62,6 @@ Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md
 None recorded.
 
 ## Needs attention
-
-### Clearer instructions and one progress view
-
-Owner: development lead
-
-Waiting:
-
-- resource: Hosted resulting-main checks; independent hardening can continue.
 
 ### Check saving, reopening and backup in the real Mac app
 
@@ -121,6 +88,22 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
+
+### Prepare grouped-review test workspace
+
+Owner: development lead
+
+Waiting:
+
+- resource: Hosted PR179 checks; remote head frozen while progress records stay local.
+
+### Expose grouped Include/Omit selection to accessibility tools
+
+Owner: development lead
+
+Waiting:
+
+- resource: Hosted PR179 checks; remote head frozen while progress records stay local.
 
 ### Check grouped review controls on the Mac
 
@@ -150,6 +133,32 @@ Waiting:
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
 ## Completed
+
+### Clearer instructions and one progress view
+
+Owner: development lead · State: **complete** · Last observed: 2026-10-20T07:12:17.611061+00:00
+Activity: Progress view and instruction consolidation normally merged as PR178; all four required resulting-main checks passed.
+Next: Use the concise startup route and maintain current tasks; detailed guidance loads only when relevant.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
+- **checks:** passed: local and independent review, all four required exact-head and resulting-main checks; optional Windows failures retained
+- **integration:** verified normal merge1009495db414f63141d17a8f67a8bad3df087892; all four required main checks passed
+- **native:** inapplicable: development documentation/view only
+- **owner acceptance:** not requested; owner authorized implementation
+
+Evidence: [docs/work/active/vacation-campaign/visibility-adoption.md](active/vacation-campaign/visibility-adoption.md), [docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json), [https://github.com/ewq100/brn-rust/pull/177](https://github.com/ewq100/brn-rust/pull/177), [docs/work/active/vacation-campaign/instruction-audit.md](active/vacation-campaign/instruction-audit.md), [docs/work/active/vacation-campaign/evidence/visibility-automation-adoption.json](active/vacation-campaign/evidence/visibility-automation-adoption.json), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json), [https://github.com/ewq100/brn-rust/pull/178](https://github.com/ewq100/brn-rust/pull/178), [docs/work/active/vacation-campaign/evidence/visibility-adoption-review.json](active/vacation-campaign/evidence/visibility-adoption-review.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-qualification.json](active/vacation-campaign/evidence/visibility-adoption-qualification.json), [docs/work/active/vacation-campaign/evidence/visibility-adoption-integration.json](active/vacation-campaign/evidence/visibility-adoption-integration.json)
+
+Attempts:
+
+- Preflight complete; stopped at ordinary reserve floor.: Owner explicitly approved using reserve for this adoption; implementation resumed. ([docs/work/active/vacation-campaign/evidence/visibility-adoption-preflight.json](active/vacation-campaign/evidence/visibility-adoption-preflight.json))
+- Independent review found readiness was inferred from overall task completion and overlapping skill review rules.: Explicit prerequisite-condition satisfaction now controls readiness; skill review triggers and inputs aligned with governing workflow. ([scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/work/active/vacation-campaign/evidence/writing-plans-adoption.json](active/vacation-campaign/evidence/writing-plans-adoption.json))
+
+</details>
 
 ### Mac feedback choices expose their selected state
 
@@ -244,6 +253,31 @@ Evidence: [docs/work/active/vacation-campaign/evidence.md](active/vacation-campa
 
 </details>
 
+### Check that command-line and desktop imports reuse the same conversation
+
+Owner: development lead; single local build actor · State: **complete** · Last observed: 2026-10-20T07:13:50.680942+00:00
+Activity: Existing public CLI-to-desktop shared-intake witness passed1/0/0 using fresh synthetic offline data; same chat and exact owner Message, one additional Run.
+Next: Reuse source-bound qualification; preserve the opt-in default test and keep real Mac/AI usefulness checks separate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: exercising existing test and public routes; no source change selected
+- **checks:** passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes
+- **integration:** inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen
+- **native:** headless toolkit only; actual OS interaction not exercised
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_intake_tests.rs](../../crates/brn-desktop/src/threads_intake_tests.rs), [docs/work/active/vacation-campaign/shared-intake-verification.md](active/vacation-campaign/shared-intake-verification.md), [docs/work/active/vacation-campaign/evidence/shared-intake-qualification.json](active/vacation-campaign/evidence/shared-intake-qualification.json)
+
+Attempts:
+
+- Default CLI printed a progress line before JSON, so the external orchestration parser failed after a successful offline intake.: Parse the single retained JSON result line and reuse the same fixture; no duplicate intake/Run. ([docs/work/active/vacation-campaign/evidence/shared-intake-qualification.json](active/vacation-campaign/evidence/shared-intake-qualification.json))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -260,4 +294,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T07:05:09.863171+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:15:13.743308+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
