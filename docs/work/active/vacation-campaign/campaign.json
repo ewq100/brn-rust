@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T09:41:32.173897+00:00",
+    "observed_at": "2026-10-20T09:45:22.800409+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -708,22 +708,23 @@
         "id": "action-completion-witness",
         "title": "Exercise Confirm done and its exact Undo in the desktop journey",
         "state": "active",
-        "owner": "bounded Luna medium writer; lead integration and independent Sol review",
-        "activity": "Frozen test-only12679ef4 extends existing Waiting/Undo journey through Confirm done and exact receipt Undo. Focused and333/0/1 full toolkit suite, strict lint,fmt,diff passed; independent Sol review active.",
-        "observed_at": "2026-10-20T09:41:32.173897+00:00",
+        "owner": "development lead; bounded Luna implementation and independent Sol high review completed",
+        "activity": "Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.",
+        "observed_at": "2026-10-20T09:45:22.800409+00:00",
         "origin": "observed",
-        "next_action": "Resolve independent review, compose complete source/evidence candidate and inspect applicable hosted gates before normal integration.",
+        "next_action": "Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.",
         "depends_on": [],
         "resource_waits": [
-          "Independent review; no shared build held."
+          "Required hosted integration gates after publication."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/action-history-audit.md",
-          "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/action-completion-review.md"
         ],
         "gates": {
           "implementation": "complete12679ef4; one test file +71lines, existing test count unchanged",
-          "checks": "PASS focused1/333filtered, full desktop333/0/1,strict lint,format,diff; original test-authoring failures retained; independent review pending",
+          "checks": "PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained",
           "integration": "pending independent review, required hosted gates and normal integration",
           "native": "toolkit checks are not OS interaction or owner acceptance",
           "owner_acceptance": "not claimed"
@@ -737,6 +738,30 @@
             ]
           }
         ]
+      },
+      {
+        "id": "historical-authority-routing",
+        "title": "Route older agent-first results to current task facts",
+        "state": "complete",
+        "owner": "development lead; mechanical routing inspection",
+        "activity": "Marked two older comparison/reconciliation pages as19October history and routed current work to overview/campaign instead of checkpoint. Supplied plan and dated results preserved.",
+        "observed_at": "2026-10-20T09:45:22.800409+00:00",
+        "origin": "observed",
+        "next_action": "Use concise current startup route; consult historical results only when relevant.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/agent-first-simplification/reconciliation.md",
+          "docs/work/active/agent-first-simplification/outcome-comparison.md"
+        ],
+        "gates": {
+          "implementation": "complete two-page routing/label correction only",
+          "checks": "PASS lead mechanical diff inspection, overview current,606Markdown files/2844local links,whitespace; independent review inapplicable to routing labels only, source candidate separately reviewed",
+          "integration": "pending reviewed witness publication; no production behavior or standing authority change",
+          "native": "inapplicable documentation-only",
+          "owner_acceptance": "not requested"
+        },
+        "attempts": []
       }
     ],
     "owner_attention": "No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn."
@@ -750,10 +775,10 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T09:41:32.173897+00:00",
+    "observed_at": "2026-10-20T09:45:22.800409+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "Luna test writer completed; fresh-context Sol high independent review of frozen12679ef4. Timing/audit helpers completed.",
-    "build_actor": "No active owned build; single shared slot available.",
+    "helpers": "Bounded Luna writer/auditors and independent Sol reviewer completed; no active helper.",
+    "build_actor": "No owned build active; future builds must explicitly set jobs1; last test writer resource deviation recorded.",
     "desktop_account_actor": "no owned actor; no account call selected",
     "stop": "Test-only witness; stop on production defect/scope growth. Main39401033547 required jobs pending."
   }

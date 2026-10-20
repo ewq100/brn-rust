@@ -20,7 +20,7 @@
     "focused.log": "Raw first compiled failure: Actions lookup while History focused; not cargo selector output. Helper run-record mapping was inaccurate.",
     "focused-rerun.log": "Raw second compiled failure: expected original version1 instead of actual restored version3.",
     "fmt.log": "Original formatter failure retained.",
-    "selector_failure": "Reported direct cargo +1.98.1 selector error101; raw output not located in these files. Do not claim archived."
+    "selector_failure": "Worker confirmed transcript-only exit101, overwritten by compiled rerun; original raw selector output not archived."
   },
   "raw_archives": [
     {
@@ -94,6 +94,19 @@
     "Headless toolkit control callbacks and canonical data/receipt assertions; no OS/native interaction or owner acceptance",
     "No production change, account call or extra test attribute",
     "Existing block0.1.6 future-incompatibility warning retained",
-    "Independent source review pending; integration pending required hosted checks"
-  ]
+    "Complete-candidate independent review passed; integration pending required hosted checks"
+  ],
+  "independent_review": {
+    "candidate": "a5cf01304dbe5d8b6da353cd46512f6b343fd6a0",
+    "base": "20fcd7383662cd2f67607c3ce04194aed50809b5",
+    "result": "PASS no actionable findings; full28-path candidate reviewed",
+    "report": "docs/work/active/vacation-campaign/evidence/action-completion-review.md"
+  },
+  "resource_deviation": {
+    "reported_at": "2026-10-20T09:45:22.799470+00:00",
+    "actual": "Worker confirms no -j1 or CARGO_BUILD_JOBS: Cargo default jobserver; RUST_TEST_THREADS=1 limited tests only. No competing shared-target build.",
+    "required": "Campaign cached builds require jobs1.",
+    "disposition": "Resource instruction missed; source and passing functional outcomes remain applicable. No rerun solely to recreate logs or claim prior serialization. Future owned builds must explicitly enforce jobs1.",
+    "exit_capture": "Worker reports pipefail active; result summaries prove actual pass/fail. Exact shell exits for compiled commands were not separately retained; selector101 captured only in tool transcript."
+  }
 }

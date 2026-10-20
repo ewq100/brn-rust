@@ -33,10 +33,10 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure
 
 ### Exercise Confirm done and its exact Undo in the desktop journey
 
-Owner: bounded Luna medium writer; lead integration and independent Sol review · State: **active** · Last observed: 2026-10-20T09:41:32.173897+00:00
-Activity: Frozen test-only12679ef4 extends existing Waiting/Undo journey through Confirm done and exact receipt Undo. Focused and333/0/1 full toolkit suite, strict lint,fmt,diff passed; independent Sol review active.
-Next: Resolve independent review, compose complete source/evidence candidate and inspect applicable hosted gates before normal integration.
-Resource waits: Independent review; no shared build held.
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T09:45:22.800409+00:00
+Activity: Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.
+Next: Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.
+Resource waits: Required hosted integration gates after publication.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -44,12 +44,12 @@ Resource waits: Independent review; no shared build held.
 Gates:
 
 - **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
-- **checks:** PASS focused1/333filtered, full desktop333/0/1,strict lint,format,diff; original test-authoring failures retained; independent review pending
+- **checks:** PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained
 - **integration:** pending independent review, required hosted gates and normal integration
 - **native:** toolkit checks are not OS interaction or owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md)
 
 Attempts:
 
@@ -126,11 +126,11 @@ Waiting:
 
 ### Exercise Confirm done and its exact Undo in the desktop journey
 
-Owner: bounded Luna medium writer; lead integration and independent Sol review
+Owner: development lead; bounded Luna implementation and independent Sol high review completed
 
 Waiting:
 
-- resource: Independent review; no shared build held.
+- resource: Required hosted integration gates after publication.
 
 ## Completed
 
@@ -503,6 +503,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](
 
 </details>
 
+### Route older agent-first results to current task facts
+
+Owner: development lead; mechanical routing inspection · State: **complete** · Last observed: 2026-10-20T09:45:22.800409+00:00
+Activity: Marked two older comparison/reconciliation pages as19October history and routed current work to overview/campaign instead of checkpoint. Supplied plan and dated results preserved.
+Next: Use concise current startup route; consult historical results only when relevant.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete two-page routing/label correction only
+- **checks:** PASS lead mechanical diff inspection, overview current,606Markdown files/2844local links,whitespace; independent review inapplicable to routing labels only, source candidate separately reviewed
+- **integration:** pending reviewed witness publication; no production behavior or standing authority change
+- **native:** inapplicable documentation-only
+- **owner acceptance:** not requested
+
+Evidence: [docs/work/active/agent-first-simplification/reconciliation.md](active/agent-first-simplification/reconciliation.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -521,4 +542,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T09:41:32.173897+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T09:45:22.800409+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

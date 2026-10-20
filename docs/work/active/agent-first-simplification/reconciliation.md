@@ -1,6 +1,10 @@
 # Agent-first workstream reconciliation
 
-Current19October follow-through: PR172/173 all four required head/main checks
+Historical comparison and implementation evidence from 19 October 2026. For current assignment, next steps and gates, follow [the overview](../../overview.md) → the selected task in [campaign state](../vacation-campaign/campaign.json). [The campaign plan](../vacation-campaign/plan.md) owns scope and limits; [the workflow](../../../development/workflow.md) owns the development cycle. Historical “current” and “pending” statements below describe their recorded source/time and do not assign work.
+
+## Historical 19 October follow-through
+
+Recorded19October follow-through: PR172/173 all four required head/main checks
 passed; PR174 merged7fb5 after all four head checks, resulting-main39254538056
 pending. [Actual Mac review](../vacation-campaign/evidence/native-mac-review-qualification.json)
 passed visible suggestion/unchecked selection/Apply/Undo/reopen and exposed an
@@ -8,8 +12,7 @@ open AX selected-state defect now selected for repair. Three bounded existing
 Codex-account CLI probes completed: natural request failure from omitted ID
 suffix, explicit-ID success, revised-schema natural-request success. All preserved
 Note bytes/no candidate. Native AI and broader semantic/owner journeys remain
-pending. [Current checkpoint](../vacation-campaign/checkpoint.md) supersedes older
-pending snapshots below; they remain dated implementation history.
+pending. [Checkpoint](../vacation-campaign/checkpoint.md) supplies machine resumption pointers; current task facts belong to the linked campaign state. The snapshots below remain dated implementation history.
 
 
 Owner selected this workstream on19October2026 by asking the lead to integrate
@@ -18,7 +21,7 @@ is preserved byte-for-byte; its dated references are historical evidence, not
 current Git instructions. [The Mac campaign](../vacation-campaign/plan.md) remains
 the single execution, resource, schedule, expiry and integration authority.
 
-## Baseline, ownership and priority
+## Historical baseline, ownership and priority
 
 Current main689ab234 is PR172, normally merged from checkedb8735ea1 after all four required head checks passed; resulting-main checks are pending. PR171 main39240783382 passed all four required jobs. Optional Windows Core failed at the PR head. PR170 resulting-main39236565242 passed all four required jobs; optional Windows jobs failed. PR169 resulting-main
 39232087600 passed all four required jobs; optional Windows jobs failed.
@@ -43,7 +46,7 @@ It changes no schema or production behavior. Historical source fb1b2100 built
 offline with its own lock and the pinned toolchain; the real old CLI creates the
 synthetic fixtures. Baseline/corrected results remain separate.
 
-| Milestone | Current disposition and next gate |
+| Milestone | Recorded disposition and next gate |
 |---|---|
 | M0 rules/reconciliation | Complete527 independently approved after restart/inventory corrections; normally merged PR171, all four required resulting-main checks passed. |
 | M1 argument correction | [Candidate7b3](argument-correction.md) independently approved; runtime505/0/2, strict lint/format pass. Combined19efe runtime505/desktop327/CLI15/journeys8 plus native lint/format/production pass; normally merged PR171, all four required resulting-main checks passed. |
