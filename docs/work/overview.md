@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn.
+**Owner attention:** No owner decision requested. PR182 reviewed/local checks passed and published; exact-head checks running. Export PR181 merged, remaining main checks running. Mac batch18:00Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -33,10 +33,10 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure
 
 ### Exercise Confirm done and its exact Undo in the desktop journey
 
-Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T09:45:22.800409+00:00
-Activity: Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.
-Next: Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.
-Resource waits: Required hosted integration gates after publication.
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T09:46:26.130844+00:00
+Activity: Published reviewed source/evidence as PR182 headbe2de8af; all required exact-head checks queued39403071180. Head frozen while checks run.
+Next: Inspect preceding main20f and all4required exact-head39403071180 jobs, then fresh live protection before normal merge; resulting-main separately.
+Resource waits: Required hosted exact-head and preceding-main checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -45,11 +45,11 @@ Gates:
 
 - **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
 - **checks:** PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained
-- **integration:** pending independent review, required hosted gates and normal integration
+- **integration:** OPEN PR182headbe2de8af; required checks queued, normal merge pending
 - **native:** toolkit checks are not OS interaction or owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md), [https://github.com/ewq100/brn-rust/pull/182](https://github.com/ewq100/brn-rust/pull/182)
 
 Attempts:
 
@@ -130,7 +130,7 @@ Owner: development lead; bounded Luna implementation and independent Sol high re
 
 Waiting:
 
-- resource: Required hosted integration gates after publication.
+- resource: Required hosted exact-head and preceding-main checks.
 
 ## Completed
 
@@ -524,6 +524,31 @@ Evidence: [docs/work/active/agent-first-simplification/reconciliation.md](active
 
 </details>
 
+### Inspect Project deletion and Trash recovery safety
+
+Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:48:47.861687+00:00
+Activity: Bounded audit found no actionable Project/Trash defect or consequential missing witness. Lead validated captured preview/full snapshot refusal and atomic stale-restore witness; no duplicate UI mirror test or new abstraction selected.
+Next: Retain existing checked-service witnesses; revisit only with a reproduced failure or new boundary risk.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable until evidenced defect selects a bounded correction
+- **checks:** PASS bounded source/test inspection and lead validation only; no test/build/native execution
+- **integration:** inapplicable to inspection
+- **native:** not observed; actual controls remain separate
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [crates/brn-desktop/src/threads_projects_tests.rs](../../crates/brn-desktop/src/threads_projects_tests.rs), [docs/work/active/vacation-campaign/evidence/project-trash-audit.md](active/vacation-campaign/evidence/project-trash-audit.md)
+
+Attempts:
+
+- Overview refused a task with empty evidence; previous valid overview preserved.: Record actual source/test entry points before audit dispatch. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -542,4 +567,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T09:45:22.800409+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T09:48:47.861687+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

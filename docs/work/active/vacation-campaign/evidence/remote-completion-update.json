@@ -1,0 +1,235 @@
+{
+  "observed_at": "2026-10-20T09:48:47.798Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "edit": {
+    "new_sequence": 8,
+    "through_sequence": 8,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "8ddd0cb5c9a5beeab96426138adf0016bd05f4159a12c1853e06aaa4d269dc65"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "7792e432fab7d0d60b3b71e9afb2b7399cac7a63ef60b82c355e0b523ec65e54"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMDFnPYCuApB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "a08c0ec428e2e41ba024b26a2bb9741a3d24d74711a7b88ee0e004610ec8eb4d"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "f58d76917862292dab5cb58606010d615179340293af2d759627c866a6751e7f"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "374de39e2ee0cac629a741fac065cf886cc42999d781888d35332d0a5d74a37b"
+          }
+        ]
+      },
+      {
+        "operation_index": 5,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [
+          "aee8eb3a-9d3f-492c-898b-d52eb25891ad"
+        ],
+        "continuation_position": {
+          "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "relative_position_base64": "AMr6vegLqwhB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+            "hash": "0d02747ab4c73acf299b5b852a69dbe9e4f9a4962abcce7759b50d534ef42485"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": {
+    "metadata": {
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "layout": "document",
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "preview": "The export reliability fix is merged. A further completion-and-Undo check has passed independent review and local checks and is awaiting automated integration checks. Actual Mac interaction remains queued for the evening session.\n\nLast refr",
+      "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+      "owner_workspace_id": null,
+      "parent": {
+        "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+        "title": "BRN"
+      },
+      "drive_scope": "space",
+      "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+      "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+      "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "position": 1835500201638912,
+      "created_at": "2026-10-20T07:17:46.030410Z",
+      "updated_at": "2026-10-20T09:47:21.702822Z",
+      "deleted_at": null,
+      "current_sequence": 8,
+      "projection_through_sequence": 8,
+      "access": {
+        "can_read": true,
+        "can_comment": true,
+        "can_write": true,
+        "can_share": true,
+        "can_delete": true,
+        "sources": [
+          "library"
+        ]
+      },
+      "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "content": {
+      "schema_version": 2,
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+      "blocks": [
+        {
+          "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "kind": "markdown",
+          "markdown": "Last refreshed: **20 October 2026 at 12:47 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+          "hash": "7792e432fab7d0d60b3b71e9afb2b7399cac7a63ef60b82c355e0b523ec65e54",
+          "metadata": {}
+        },
+        {
+          "id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "kind": "markdown",
+          "markdown": "- **Completion and Undo checked:** [PR 182](https://github.com/ewq100/brn-rust/pull/182) extends the existing desktop journey to confirm completion, verify its saved evidence, and undo that exact change. All 333 desktop tests passed, with one existing ignored test. Independent review passed; automated integration checks remain pending.",
+          "hash": "0d02747ab4c73acf299b5b852a69dbe9e4f9a4962abcce7759b50d534ef42485",
+          "metadata": {}
+        },
+        {
+          "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "kind": "markdown",
+          "markdown": "- **Safeguards and check costs inspected:** bounded Save, preview and recovery audits found no actionable defect in the inspected paths. Measured check timings did not justify removing tests or weakening required checks. Older planning pages now point clearly to current task facts.",
+          "hash": "a08c0ec428e2e41ba024b26a2bb9741a3d24d74711a7b88ee0e004610ec8eb4d",
+          "metadata": {}
+        }
+      ],
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "view": "editing",
+    "selection": {
+      "mode": "search",
+      "selection_complete": true,
+      "whole_page_complete": false,
+      "page_block_count": 26,
+      "returned_block_count": 3,
+      "matched_block_count": 3,
+      "context_blocks": 0,
+      "query_matches": [
+        {
+          "query_index": 0,
+          "matched_block_count": 1,
+          "block_ids": [
+            "aee8eb3a-9d3f-492c-898b-d52eb25891ad"
+          ]
+        },
+        {
+          "query_index": 1,
+          "matched_block_count": 1,
+          "block_ids": [
+            "a37e5801-b0c8-4330-800f-13d98b10338a"
+          ]
+        },
+        {
+          "query_index": 2,
+          "matched_block_count": 1,
+          "block_ids": [
+            "880224ef-8cd0-4093-8e73-a31055808d93"
+          ]
+        }
+      ],
+      "missing_block_ids": [],
+      "blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "block_index": 1,
+          "roles": [
+            "match"
+          ],
+          "query_indices": [
+            1
+          ]
+        },
+        {
+          "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "block_index": 3,
+          "roles": [
+            "match"
+          ],
+          "query_indices": [
+            0
+          ]
+        },
+        {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "block_index": 13,
+          "roles": [
+            "match"
+          ],
+          "query_indices": [
+            2
+          ]
+        }
+      ]
+    }
+  },
+  "scope": "PR182 completion witness, historical routing and measured check costs; current main/required checks pending; projection only; rendered browser/mobile not observed"
+}

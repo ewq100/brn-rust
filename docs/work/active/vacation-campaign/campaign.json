@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T09:41:32.173897+00:00",
+    "observed_at": "2026-10-20T09:46:26.130844+00:00",
     "remaining_percent": 95,
-    "reset_unix": 1793083361,
-    "ordinary_work": "admitted: actual5%used/95%remaining rechecked; no owner pause, original expiry retained",
+    "reset_unix": 1793083360,
+    "ordinary_work": "admitted: actual5%used/95%remaining; original expiry/no owner pause reconciled",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T09:45:22.800409+00:00",
+    "observed_at": "2026-10-20T09:48:47.861687+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -709,23 +709,24 @@
         "title": "Exercise Confirm done and its exact Undo in the desktop journey",
         "state": "active",
         "owner": "development lead; bounded Luna implementation and independent Sol high review completed",
-        "activity": "Complete candidatea5cf0130 independently reviewed with no actionable findings; Confirm done/receipt Undo witness passed focused/full toolkit/lint/format checks. Published integration gates next.",
-        "observed_at": "2026-10-20T09:45:22.800409+00:00",
+        "activity": "Published reviewed source/evidence as PR182 headbe2de8af; all required exact-head checks queued39403071180. Head frozen while checks run.",
+        "observed_at": "2026-10-20T09:46:26.130844+00:00",
         "origin": "observed",
-        "next_action": "Publish stable reviewed source/evidence head, inspect preceding-main and exact-head required checks before normal integration.",
+        "next_action": "Inspect preceding main20f and all4required exact-head39403071180 jobs, then fresh live protection before normal merge; resulting-main separately.",
         "depends_on": [],
         "resource_waits": [
-          "Required hosted integration gates after publication."
+          "Required hosted exact-head and preceding-main checks."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/action-history-audit.md",
           "docs/work/active/vacation-campaign/evidence/action-completion-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/action-completion-review.md"
+          "docs/work/active/vacation-campaign/evidence/action-completion-review.md",
+          "https://github.com/ewq100/brn-rust/pull/182"
         ],
         "gates": {
           "implementation": "complete12679ef4; one test file +71lines, existing test count unchanged",
           "checks": "PASS complete independent review,focused1/333filtered,desktop333/0/1,strict lint,format,diff; original authoring failures and resource deviation retained",
-          "integration": "pending independent review, required hosted gates and normal integration",
+          "integration": "OPEN PR182headbe2de8af; required checks queued, normal merge pending",
           "native": "toolkit checks are not OS interaction or owner acceptance",
           "owner_acceptance": "not claimed"
         },
@@ -762,9 +763,42 @@
           "owner_acceptance": "not requested"
         },
         "attempts": []
+      },
+      {
+        "id": "project-trash-audit",
+        "title": "Inspect Project deletion and Trash recovery safety",
+        "state": "complete",
+        "owner": "bounded read-only Luna medium helper; lead validates",
+        "activity": "Bounded audit found no actionable Project/Trash defect or consequential missing witness. Lead validated captured preview/full snapshot refusal and atomic stale-restore witness; no duplicate UI mirror test or new abstraction selected.",
+        "observed_at": "2026-10-20T09:48:47.861687+00:00",
+        "origin": "observed",
+        "next_action": "Retain existing checked-service witnesses; revisit only with a reproduced failure or new boundary risk.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_projects.rs",
+          "crates/brn-desktop/src/threads_projects_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/project-trash-audit.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable until evidenced defect selects a bounded correction",
+          "checks": "PASS bounded source/test inspection and lead validation only; no test/build/native execution",
+          "integration": "inapplicable to inspection",
+          "native": "not observed; actual controls remain separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Overview refused a task with empty evidence; previous valid overview preserved.",
+            "change": "Record actual source/test entry points before audit dispatch.",
+            "evidence": [
+              "scripts/render-work-overview.py"
+            ]
+          }
+        ]
       }
     ],
-    "owner_attention": "No owner decision requested. Progress records verified on main; reviewed export correction normally merged, resulting-main checks pending. Actual Mac batch remains18:00Tallinn."
+    "owner_attention": "No owner decision requested. PR182 reviewed/local checks passed and published; exact-head checks running. Export PR181 merged, remaining main checks running. Mac batch18:00Tallinn."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -775,11 +809,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T09:45:22.800409+00:00",
+    "observed_at": "2026-10-20T09:48:47.861687+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "Bounded Luna writer/auditors and independent Sol reviewer completed; no active helper.",
-    "build_actor": "No owned build active; future builds must explicitly set jobs1; last test writer resource deviation recorded.",
+    "helpers": "All owned bounded helpers completed; no local build/desktop/account actor. Hosted exact-head/main checks running.",
+    "build_actor": "No local build owned; PR182head frozen for hosted gates.",
     "desktop_account_actor": "no owned actor; no account call selected",
-    "stop": "Test-only witness; stop on production defect/scope growth. Main39401033547 required jobs pending."
+    "stop": "No additional evidenced headless correction selected after scoped audits; wait for actual hosted integration gates. Native scenarios retain18:00batch."
   }
 }
