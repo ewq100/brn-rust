@@ -9,33 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Expose readable Needs you menu choices to Mac accessibility
-
-Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:43:21.587928+00:00
-Activity: PR187 normally merged4c50b614 after all4required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified97e0d313. Resulting-main39450843453 running; native outer-name observation still pending access.
-Next: Inspect all4required resulting-main39450843453 checks separately. Actual corrected Notes/menu/group batch uses source-identical prepared97 ordinary artifact after unlock.
-Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
-- **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
-- **integration:** PASS authorized normal merge4c50b614; all4head/preceding-main PASS; resulting-main39450843453 pending
-- **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json), [docs/work/active/vacation-campaign/evidence/pr187-premerge.json](active/vacation-campaign/evidence/pr187-premerge.json), [docs/work/active/vacation-campaign/evidence/pr187-integration.json](active/vacation-campaign/evidence/pr187-integration.json)
-
-</details>
-
 ### Reuse converter dependencies without mixing build identities
 
-Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:43:21.587928+00:00
-Activity: PR188 published3342d791 after source-identical unpublished CI-only rebase onto merged4c50b614. Reviewed three-file configuration/local qualification unchanged; all4required exact-head39450894628 and preceding-main39450843453 gates running. No speedup/upload claim.
-Next: Hold3342d791 stable; inspect actual hosted setup/cache path/key execution and required head/preceding-main gates before any normal merge. First main upload/later warm behavior remain separate.
+Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T16:21:40.307021+00:00
+Activity: PR1883342d791 required UbuntuCore/MacUI/MacRetrieval PASS; MacCore still running helper checks. Completed MacUI new cache identity explicitly cold:2031s total,754s helper preparation, save-iffalse and all3expected target paths observed. Preceding-main4c50b614 all4required PASS; no merge yet.
+Next: Wait for final required MacCore; fresh live protection/exact-head/main reconciliation before normal merge. After all resulting-main required checks and first MacUI cache publication, rerun that one MacUI job once to observe actual warm behavior. Preserve first cold run and optional failures.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -43,12 +21,16 @@ Next: Hold3342d791 stable; inspect actual hosted setup/cache path/key execution 
 Gates:
 
 - **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
-- **checks:** PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending
+- **checks:** PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending; hosted3of4requiredPASS, MacCorepending; performance pending first main upload/size and one justified same-source MacUI warm rerun; cold2031s observation is not speedup
 - **integration:** PR188 OPEN3342d791; exact-head and preceding-main required gates pending; no merge
 - **native:** inapplicable: development CI only
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json)
+
+Attempts:
+
+- Overview refresh rejected an unsupported extra performance gate key; last valid overview preserved.: Keep fixed five-gate schema; performance measurement remains in checks/next action and dated receipt. No product/check policy changed. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/work/active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json](active/vacation-campaign/evidence/ci-pr188-cold-mac-ui.json))
 
 </details>
 
@@ -115,6 +97,33 @@ Attempts:
 Waiting:
 
 - resource: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
+
+### Expose readable Needs you menu choices to Mac accessibility
+
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **blocked** · Last observed: 2026-10-20T16:21:40.307021+00:00
+Activity: PR187 merged4c50b614 and all4required resulting-main39450843453 checks PASS. Integrated tree matches qualified97e0d313. Actual corrected menu/Notes controls remain blocked by Mac lock.
+Next: After changed Mac access close prior undone test app, then execute matching prepared97 Notes/menu/group controls in one batch; no duplicate build/check replay.
+Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
+Resource waits: Mac remains locked; existing manual unlock request pending.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
+- **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
+- **integration:** PASS normal merge4c50b614; all4required exact-head/preceding-main/resulting-main checks PASS
+- **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json), [docs/work/active/vacation-campaign/evidence/pr187-premerge.json](active/vacation-campaign/evidence/pr187-premerge.json), [docs/work/active/vacation-campaign/evidence/pr187-integration.json](active/vacation-campaign/evidence/pr187-integration.json), [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json](active/vacation-campaign/evidence/pr187-resulting-main.json)
+
+</details>
+
+Waiting:
+
+- resource: Mac remains locked; existing manual unlock request pending.
 
 ## Completed
 
@@ -965,4 +974,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:54:37.285362+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T16:21:40.307021+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
