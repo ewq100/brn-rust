@@ -1,0 +1,224 @@
+{
+  "prepared_at": "2026-10-20T15:02:12.669923+00:00",
+  "source": "97e0d3130945dd540e94807fefe82c7aa611f954",
+  "qualification": "Combined locally-qualified and independently-reviewed candidate includes9b0b13e1 Notes fix plus97e0d313 menu semantics; unpublished/not main, required hosted checks separate",
+  "note_menu": {
+    "app": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/BRN Threads.app",
+    "data_dir": "/private/tmp/brn-native-20261020T134854Z/note-menu-review",
+    "command": [
+      "bash",
+      "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+      "--output",
+      "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/BRN Threads.app",
+      "--binary",
+      "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/brn-desktop",
+      "--xberg-helper",
+      "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "--xberg-helper-brn",
+      "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "--data-dir",
+      "/private/tmp/brn-native-20261020T134854Z/note-menu-review"
+    ],
+    "exit": 0,
+    "binaries": [
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+        "sha256": "f6cb86992b4289a3b2e755f7dacb811dc2ab53a06b9006b7c7fc956b470cfaa7",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "mode": "0o555"
+      }
+    ],
+    "original_launcher_sha256": "ab85e9fbbc480045a53d08ad233bffc69b958bdae7babe3ad73f35348334a538",
+    "actual_launcher_sha256": "b073dc6e7c2b9fa3bad2649d556fd697540914b22135ca8fc6c76872159e915e",
+    "launched": false
+  },
+  "group_review": {
+    "app": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/group-review/BRN Threads.app",
+    "data_dir": "/private/tmp/brn-native-20261020T134854Z/group-review/workspace",
+    "command": [
+      "bash",
+      "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+      "--output",
+      "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/group-review/BRN Threads.app",
+      "--binary",
+      "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/brn-desktop",
+      "--xberg-helper",
+      "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "--xberg-helper-brn",
+      "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "--data-dir",
+      "/private/tmp/brn-native-20261020T134854Z/group-review/workspace"
+    ],
+    "exit": 0,
+    "binaries": [
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/group-review/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+        "sha256": "f6cb86992b4289a3b2e755f7dacb811dc2ab53a06b9006b7c7fc956b470cfaa7",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/group-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/group-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "mode": "0o555"
+      }
+    ],
+    "original_launcher_sha256": "230ddf0ee80ba768c2c34c65ad2a8ebd7cd4b6e172a3346cb4d3afd9573d45f8",
+    "actual_launcher_sha256": "03bfcb5606abf7800a81729bc03c4b515d71acd4d5803e295563a3eb1abf38b3",
+    "launched": false
+  },
+  "source_fixture": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-writing-evidence/2026-10-20-writing-02/workspace",
+  "source_hashes_before": {
+    "threads.sqlite3": "64aeb1a6ca201e03919a9bafff7bfb686a5cebb33fb6c8907317d6b1e0ce0a89",
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+  },
+  "source_hashes_after": {
+    "threads.sqlite3": "64aeb1a6ca201e03919a9bafff7bfb686a5cebb33fb6c8907317d6b1e0ce0a89",
+    ".brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+  },
+  "clone_method": "SQLite read-only source online backup plus marker only; original and previous actual Apply/Undo clone preserved. No credential/derived/runtime files copied.",
+  "observer": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/note-menu-review/observe-writing.py",
+    "sha256": "8101d60b7a10bc0f268e9c8fb9d3a127f200e80e803c8920723860251ea4eed4",
+    "mode": "Task-only constant root, SQLiteURI ro/query_only/short transaction; notes/sentinel/comment, exact candidate request hash, receipt identities and Run count; no bootstrap/repair"
+  },
+  "baseline": {
+    "observed_at": "2026-10-20T15:02:11.874548+00:00",
+    "mode": "SQLite mode=ro/query_only/short transaction; no bootstrap/repair",
+    "phase": "before-native",
+    "records": {
+      "note": {
+        "id": "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0",
+        "version": 1,
+        "body_sha256": "104c025626bbc3155ad6ec26d351bb94043115d7da8c7bb7a032ad5992740d4a",
+        "record": {
+          "id": "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Note": {
+              "title": "Synthetic cobalt boats rewrite",
+              "markdown": "The harbor draft describes cobalt boats crossing the bay at dawn.",
+              "protected": false,
+              "confirmed": false,
+              "superseded_by": null,
+              "import": null
+            }
+          }
+        }
+      },
+      "sentinel": {
+        "id": "1b2ce6f6-5f5d-44cd-b196-2c5a83746633:0",
+        "version": 1,
+        "body_sha256": "01f592d47cb3aeda9eb21dc741a05cea7c2a09e59fcc6d5181620a3a7cd93266",
+        "record": {
+          "id": "1b2ce6f6-5f5d-44cd-b196-2c5a83746633:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Note": {
+              "title": "Synthetic unrelated sentinel",
+              "markdown": "Unrelated synthetic record: amber lantern remains unchanged.",
+              "protected": false,
+              "confirmed": false,
+              "superseded_by": null,
+              "import": null
+            }
+          }
+        }
+      },
+      "comment": {
+        "id": "6d668736-493b-4423-b5de-80e1307efc4a:0",
+        "version": 1,
+        "body_sha256": "85496731111a33607906dfac4da0e6db294368b28f853f7bfdadbcabba17f320",
+        "record": {
+          "id": "6d668736-493b-4423-b5de-80e1307efc4a:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Comment": {
+              "note": "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6:0",
+              "base_version": 1,
+              "quote": "cobalt boats",
+              "range": [
+                27,
+                39
+              ],
+              "mapped_version": null,
+              "mapped_range": null,
+              "body": "Replace only \u2018cobalt boats\u2019 with \u2018teal boats\u2019; preserve every other character.",
+              "unresolved": false
+            }
+          }
+        }
+      }
+    },
+    "receipt_operations": [
+      "1b2ce6f6-5f5d-44cd-b196-2c5a83746633",
+      "378e3d12-10fd-4288-8c19-84dc2278ecbb",
+      "59341f8b-d40a-4b02-9111-1cd2fab85a83",
+      "6d668736-493b-4423-b5de-80e1307efc4a",
+      "7ba88d27-c221-4681-baec-3f857d8b2034",
+      "7d8f434d-4f74-4f0f-802c-bc21d246ed5c",
+      "87851669-3c60-46fa-bbe4-99063b5f3ca7",
+      "88d24b7f-a249-4e7d-ab9d-0b5bc1bfe4f6",
+      "a027ddaf-339b-489c-b16e-c8eff9e4b4e3",
+      "b4811db1-60fe-4854-b8c2-fcca03c3224c",
+      "bb557287-3754-4a5e-b811-232695e7f7db",
+      "cc0f9ba9-f964-4b65-8774-eb6a17fbba02",
+      "d8467075-7b35-4591-966b-ce56f641c6a3",
+      "dc99c9f2-f4ed-4858-a125-caa2f272ec8a"
+    ],
+    "compensations": [],
+    "candidate_prepared": {
+      "operation": "7571d9e7-71f7-432f-9d9c-d3fad71589a0",
+      "request_sha256": "824e53c11aaccf9ecf5901ff94b73644da6f33d75435ca36aae800bcee6d4ba9"
+    },
+    "run_count": 1
+  },
+  "actor": "lead sole desktop actor; prior writing-review app63750 remains open after verified Undo, close through OS controls before any new launch",
+  "resource_wait": "Mac locked; automatic unlock unavailable, manual unlock requested; no CUA relaunch attempt",
+  "scenarios": {
+    "MAC-11": "Notes Recent/Linked/All named actionable rows, exact named activation and filter Tab/Space; preserve saved Note, Comment, candidate and sentinel. Do not repeat Save/recovery/Apply/Undo journeys.",
+    "MAC-12": "Needs you actionable outer MenuItem full computed name; activate named item to exact saved writing context, inspect one-line/truncation visually. Existing keyboard route if time. No Apply, Send, Rewrite, Retry or new AI run; VoiceOver/IME/owner acceptance separate.",
+    "MAC-08": "Separate offline group fixture, actual included true-false-true on one group while other remains included, canonical Actions/candidate unchanged, no Apply."
+  },
+  "account_runs": 0,
+  "launched": false,
+  "supersedes_planned_artifacts": "Earlier9b0b13e1 app wrappers remain preserved, not launched; prefer one combined97 source for this new consolidated native follow-up after actual access/source readiness reconciliation.",
+  "raw_preparation": {
+    "path": "docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-raw.tar.gz",
+    "sha256": "1619bed221e758b3c6689ea1ea6d5edb78f677d6eb41a783ceff917568ce30f4",
+    "files": [
+      {
+        "path": "fixture.json",
+        "bytes": 1445,
+        "sha256": "c7d22d9ab90a0bd24a9124ee557be77303acfea8fce70ee1abd09eb6b0ed45c2"
+      },
+      {
+        "path": "before-native.json",
+        "bytes": 3136,
+        "sha256": "2566b5f5080c55f67cb5bfe99a5a4a21e1ff9f16aebdb4a9a5f946d769c72d19"
+      },
+      {
+        "path": "observe-writing.py",
+        "bytes": 1850,
+        "sha256": "8101d60b7a10bc0f268e9c8fb9d3a127f200e80e803c8920723860251ea4eed4"
+      }
+    ],
+    "scope": "Only narrow task observer, expected synthetic IDs/text and read-only baseline; no database, owner log, credentials or binary."
+  }
+}

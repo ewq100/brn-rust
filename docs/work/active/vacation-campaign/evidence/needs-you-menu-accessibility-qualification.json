@@ -1,0 +1,110 @@
+{
+  "observed_at": "2026-10-20T14:58:51.551823+00:00",
+  "source": "97e0d3130945dd540e94807fefe82c7aa611f954",
+  "baseline": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+  "source_sha256": {
+    "crates/brn-desktop/src/threads_shell.rs": "d2afc2a7e1e7b4751341b3ce593114203e45635be9f0a261f6e1caa056e3c0db",
+    "crates/brn-desktop/src/threads_pages_tests.rs": "83ccba33b6061d572945a08f25123b78f92b2d0f4a06be171fa5985345727b6a"
+  },
+  "scope": "Existing custom Needs you line exposes semantic Label/full value for maintained AccessKit MenuItem computed naming; existing renderer/layout/tooltip/handler retained; no framework/dependency/runtime/data change",
+  "implementation": "two semantic attributes, existing long-line witness extended by role/value assertions",
+  "checks": {
+    "before_fix": "FAIL expected: RoleNone versus Label, exit101; new-witness-before-fix test hash5f885 differs from pristine9b0f428 and finalfmt83cc; pre-execution command/hash records retained",
+    "focused": "PASS1/0",
+    "home_keyboard_route": "PASS1/0",
+    "desktop": "PASS341/0/1; existing shared CLI-intake fixture ignored without explicit inputs",
+    "strict_all_target_clippy": "PASS0",
+    "format": "PASS0, formatting applied before final gates",
+    "ordinary_native_ui_build": "PASS0; no test-support feature in ordinary binary"
+  },
+  "resource": {
+    "requested_worker": "Luna medium, fresh context; effective model not independently observed",
+    "requested_review": "Sol high, fresh context; independent read-only report",
+    "build": "one shared cached target, locked/offline/jobs1, pinned1.98.1",
+    "prebuild_available_KiB": 23933532,
+    "lowest_observed_available_KiB": 23512520,
+    "stop_below_GiB": 1,
+    "live_minimum": "lowest reported observation, not a continuous minimum claim"
+  },
+  "review": {
+    "path": "docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md",
+    "sha256": "b810e9083b2596df3d2966f5472a0dd9e6c9d438829088867039c420ac553a81",
+    "verdict": "PASS bounded source; no blocking findings; actual Mac AX/VoiceOver pending"
+  },
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-needs-you-menu-accessibility/97e0d313/brn-desktop",
+    "sha256": "f6cb86992b4289a3b2e755f7dacb811dc2ab53a06b9006b7c7fc956b470cfaa7",
+    "bytes": 165876256,
+    "mode": "0o555",
+    "source": "97e0d3130945dd540e94807fefe82c7aa611f954"
+  },
+  "raw": {
+    "path": "docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-raw.tar.gz",
+    "sha256": "a2bc9e6d96f153e3a823fcc0b145434277faff3d98aac0dba0eeb1b089b2c338",
+    "bytes": 37607,
+    "files": [
+      {
+        "path": "brn-needs-you-menu-ax-build.log",
+        "bytes": 418,
+        "sha256": "cf7a1138e420ccf073f1e16f7015eb1c137dd8e884564f9081886a6cf5a5c89d"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-clippy.log",
+        "bytes": 418,
+        "sha256": "ad056c8965b9cb23441e0c182ff485d11e8ef5a86b785baad9351a4ea37dc5fc"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-desktop-all.log",
+        "bytes": 35365,
+        "sha256": "02ee8e99e0f161c7136f0f96cf1c598d0ded76640af10c0d724b864f0a76426e"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-fmt.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-focused.log",
+        "bytes": 775,
+        "sha256": "c40a61211e49325dd96aaf0787130e406dd5afc5ab3dd200a82cb5e23edb22cf"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-keyboard.log",
+        "bytes": 754,
+        "sha256": "2a205dfcc5a313c01d7b10d16e53aa29384c4e36a45a81c904b96369d3e65e15"
+      },
+      {
+        "path": "brn-needs-you-menu-ax-prefx.log",
+        "bytes": 1276,
+        "sha256": "0948d33cb4950f2d78e6418bc558bcc325b4ce1c3b069171cf29ea29d561a318"
+      },
+      {
+        "path": "candidate.patch",
+        "bytes": 1530,
+        "sha256": "f5160330b8a78e1135fc7839f04be6ee0a871b156a51bcc397586e5ee767e84d"
+      },
+      {
+        "path": "execution-commands-and-results.txt",
+        "bytes": 4417,
+        "sha256": "44987b0c73737353c30b6310750cc5dc0286c8a3292ff1a7378fceb7327009ea"
+      },
+      {
+        "path": "threads_pages_tests.rs",
+        "bytes": 48164,
+        "sha256": "83ccba33b6061d572945a08f25123b78f92b2d0f4a06be171fa5985345727b6a"
+      },
+      {
+        "path": "threads_shell.rs",
+        "bytes": 72731,
+        "sha256": "d2afc2a7e1e7b4751341b3ce593114203e45635be9f0a261f6e1caa056e3c0db"
+      }
+    ]
+  },
+  "integration": "private local candidate; do not publish until parentPR186 normally merges and exact main/source composition is reconciled; all required hosted head/main gates separate",
+  "limits": [
+    "Widget witness proves Label node role/value plus retained layout/click/keyboard, not native outer MenuItem name.",
+    "Active dependency/macOS adapter source supports computed naming; actual AX/VoiceOver, focus appearance and owner acceptance remain pending.",
+    "No account/AI call, owner data or credential action.",
+    "Pinned block0.1.6 future incompatibility warning retained."
+  ]
+}

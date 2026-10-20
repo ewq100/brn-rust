@@ -179,5 +179,48 @@
   "sqlite_user_version": 10,
   "read_only_integrity": "ok",
   "account_runs": 0,
-  "native": "pending; use then-current qualified desktop and record actual boolean pressed sequence plus unchanged canonical data; old generator is not current desktop proof"
+  "native": "pending; use then-current qualified desktop and record actual boolean pressed sequence plus unchanged canonical data; old generator is not current desktop proof",
+  "desktop_preparation": {
+    "prepared_at": "2026-10-20T14:52:26.220280+00:00",
+    "source": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+    "qualification": "reviewed/local-qualified candidate, hosted head checks pending; not main/native observation",
+    "app": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/group-review/BRN Threads.app",
+    "manifest": [
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/group-review/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+        "sha256": "baa72d5715749e23678511f3da6929bf6c22008431988172ebfebcbf7bb1f7b9",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/group-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "mode": "0o555"
+      },
+      {
+        "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/group-review/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "mode": "0o555"
+      }
+    ],
+    "command": [
+      "bash",
+      "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/scripts/make-macos-app.sh",
+      "--output",
+      "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/group-review/BRN Threads.app",
+      "--binary",
+      "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/brn-desktop",
+      "--xberg-helper",
+      "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "--xberg-helper-brn",
+      "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "--data-dir",
+      "/private/tmp/brn-native-20261020T134854Z/group-review/workspace"
+    ],
+    "launcher_original_sha256": "230ddf0ee80ba768c2c34c65ad2a8ebd7cd4b6e172a3346cb4d3afd9573d45f8",
+    "launcher_actual_sha256": "edc1601169acaf0651956893b7f94251ce3b833236f4987ec9354a31183b9857",
+    "launcher_environment": "task logs and no embedding folder",
+    "launched": false,
+    "account_runs": 0,
+    "actor": "close prior verified-undone writing-review app before any launch; lead sole desktop actor"
+  }
 }

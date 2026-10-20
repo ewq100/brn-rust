@@ -1,5 +1,7 @@
 # Historical campaign evidence
 
+20October navigation corrections: [Notes qualification](evidence/note-row-accessibility-qualification.json), [menu qualification](evidence/needs-you-menu-accessibility-qualification.json) and [combined native preparation](evidence/combined-navigation-native-preparation-20261020.json). Required hosted/integration and actual Mac gates remain separate in the current task record.
+
 20October actual Mac session: [source-bound results](evidence/native-mac-session-20261020.json), [narrow raw receipts](evidence/native-mac-20261020-raw.tar.gz) and [Notes-row source audit](evidence/note-row-accessibility-audit.md). Five distinct control journeys passed; grouped review deferred by Mac lock. No new account run or broad usability/owner acceptance claim.
 
 Dated results below preserve observations for their recorded source/time. They are not startup instructions or a current task queue. Use [the overview](../../overview.md) and [current task record](campaign.json); load detailed receipts only for a relevant question.

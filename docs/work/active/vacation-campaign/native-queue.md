@@ -20,6 +20,27 @@ bounded correction task. Do not replay these unchanged passing journeys merely
 because a later daily heartbeat arrives. Earlier preparation states below are
 historical; current actions and resource waits live in campaign.json.
 
+## Consolidated navigation follow-up prepared20October
+
+[Combined source97e0d313 preparation](evidence/combined-navigation-native-preparation-20261020.json)
+now binds one independently reviewed/local-qualified ordinary binary to two task
+wrappers: a fresh untouched clone of the successful synthetic writing proposal for
+MAC-11 Notes rows and MAC-12 Needs you menu naming, plus the fresh offline MAC-08
+two-group workspace. [Narrow raw observer and baseline](evidence/combined-navigation-native-preparation-raw.tar.gz)
+are retained; no app has launched. Earlier9b0b wrappers remain preserved unused.
+This is candidate preparation, not merged-main or native proof.
+
+MAC-12 requires the **actionable outer MenuItem** to have its full title/reason
+name through actual Mac AX, followed by named activation to the exact writing
+context and bounded visual truncation/one-line checks. A child Label snapshot alone
+does not pass this scenario. No Apply/Undo replay, Send, Retry, Rewrite or new AI
+run is needed. Full VoiceOver/IME and owner acceptance stay separate.
+
+The18:00-period actual access recheck again reported the Mac locked and automatic
+unlock unavailable. Manual unlock was already requested; do not create a competing
+actor or keep retrying unchanged host access. Reconcile actual accessibility and
+the original open verified-undone app before resumption.
+
 ## MAC-11 Notes-row accessibility follow-up
 
 [Reviewed candidate9b0b13e1 preparation](evidence/note-row-native-preparation-20261020.json)

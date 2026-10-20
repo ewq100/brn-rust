@@ -11,8 +11,8 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Make visible note rows discoverable to Mac accessibility
 
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:44:34.704044+00:00
-Activity: Reviewed source-only PR186 published at9b0b13e1; local checks PASS. Hosted required run39441912609 queued/running; keep exact PR head stable. Native AX recheck pending locked Mac.
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:04:21.531870+00:00
+Activity: PR1869b0b13e1 required Mac UI and Mac retrieval/combined checks PASS; Ubuntu/Mac Core still running, optional Windows Core failed. Stable head preserved. Native AX remains blocked by confirmed Mac lock.
 Next: Hold PR186 head9b0b13e1 stable while required hosted checks run. Matching555 app/fresh synthetic Note clone prepared without launch for MAC11 after unlock; close prior undone review app first. Normal merge only after actual gates; resulting-main separately.
 
 <details>
@@ -26,7 +26,7 @@ Gates:
 - **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
 
 Attempts:
 
@@ -35,24 +35,25 @@ Attempts:
 
 </details>
 
-### Inspect the accessibility name of Needs you menu choices
+### Expose readable Needs you menu choices to Mac accessibility
 
-Owner: bounded Luna medium read-only audit; lead validates · State: **active** · Last observed: 2026-10-20T14:44:52.326268+00:00
-Activity: During MAC09, the visible saved-proposal Needs you menu choice required coordinate activation while AX exposed its heading. Inspect custom menu-row naming against the active pinned component; no additional native pass or source fix inferred.
-Next: Trace exact custom menu item wrapper/child roles and name, retained rendering/keyboard tests; report smallest source-supported correction only if concrete. No builds, desktop/account activity or source edits.
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:00:42.183458+00:00
+Activity: Local source97e0d313 committed, not pushed/published. Two semantic attributes plus retained role/value witness; meaningful red then focused/Home-keyboard PASS, desktop341/0/1, strict lint/format/ordinary build PASS. Independent source review found no blocking issue; native computed outer name remains pending.
+Next: Wait for normal PR186 merge, reconcile actual source/main and publication parent, then publish this separate reviewed candidate. Preserve exact source/artifact hashes; required head/main gates and actual Mac AX separate.
+Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: false)
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** audit only, no correction selected
-- **checks:** bounded static inspection pending; actual symptom from current-session CUA observation
-- **integration:** inapplicable unless separate verified candidate selected
-- **native:** choice visible; coordinate activation succeeded, no named choice in AX observation; not full VoiceOver qualification
+- **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
+- **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
+- **integration:** not published; genuine prerequisite PR186 normal merge unsatisfied
+- **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn-desktop/src/threads_shell.rs](../../crates/brn-desktop/src/threads_shell.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
 
 </details>
 
@@ -64,11 +65,11 @@ None recorded.
 
 ### Check grouped review controls on the Mac
 
-Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T14:35:30.093059+00:00
-Activity: Fresh offline MAC08 fixture generated at canonical task root with hash-pinned qualified generator; two unapplied groups/public reopen and read-only integrity pass. Actual Mac remains locked, no group control attempt.
-Next: After actual access returns, close verified undone writing-review clone through OS controls, then run fresh MAC08 without repeating passing cases.
+Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T15:04:21.531870+00:00
+Activity: Fresh two-group offline fixture and combined reviewed/local-qualified97e0d313 app prepared without launch. At18:00-period access recheck CUA again reports locked/automatic unlock unavailable; no group attempt or pass.
+Next: After unlock, use one consolidated matching97e0d313 source batch for MAC08 plus Notes/menu AX follow-up; earlier9b wrappers preserved unused. Do not repeat passing Save/recovery/backup/Apply-Undo.
 Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
-Resource waits: Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first.
+Resource waits: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -81,13 +82,13 @@ Gates:
 - **native:** pending actual true/false/true pressed-state and unchanged data
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/native-group-review-preparation-20261020.json](active/vacation-campaign/evidence/native-group-review-preparation-20261020.json)
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/native-group-review-preparation-20261020.json](active/vacation-campaign/evidence/native-group-review-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
 
 </details>
 
 Waiting:
 
-- resource: Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first.
+- resource: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
 
 ## Completed
 
@@ -805,6 +806,27 @@ Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/th
 
 </details>
 
+### Inspect the accessibility name of Needs you menu choices
+
+Owner: bounded Luna medium read-only audit; lead validates · State: **complete** · Last observed: 2026-10-20T14:50:56.699620+00:00
+Activity: Bounded Luna audit plus lead active dependency check confirms custom menu line is generic and cannot supply the outer MenuItem computed name. Pinned AccessKit supports descendant Label VALUE; select two-line semantic-label adapter preserving existing layout/tooltip/handler.
+Next: Implement separately selected semantic-label fix with retained long-line/click/keyboard witnesses; no component fork or generic menu framework.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; separate bounded repair selected
+- **checks:** PASS bounded source inspection, not native requalification
+- **integration:** inapplicable unless separate verified candidate selected
+- **native:** choice visible; coordinate activation succeeded, no named choice in AX observation; not full VoiceOver qualification
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [crates/brn-desktop/src/threads_shell.rs](../../crates/brn-desktop/src/threads_shell.rs), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -817,13 +839,16 @@ graph TD
   t13["Integrate remote progress routing and verification records"]
   t28["Preserve unsent drafts when a note creates its writing conversation"]
   t30["Show unavailable skill choices correctly in inactive Projects"]
+  t32["Make visible note rows discoverable to Mac accessibility"]
+  t34["Expose readable Needs you menu choices to Mac accessibility"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
   t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
+  t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (not satisfied)| t34
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T14:44:52.326268+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:04:21.531870+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
