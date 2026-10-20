@@ -1,0 +1,344 @@
+{
+  "purpose": "Read-only Mac Native UI cache observation; no rerun or cache mutation.",
+  "source": {
+    "pr192_head_sha": "0cc1a4007e8e1bedd97f31e650e2446ac7373841",
+    "main_merge_sha": "2658f8883b47f224b02ed428055efaaba1bb47a4",
+    "tree_equivalence_receipt": "PASS normal merge and whole-tree equality; resulting-main pending",
+    "receipt_paths": [
+      "docs/work/active/vacation-campaign/evidence/pr192-premerge.json",
+      "docs/work/active/vacation-campaign/evidence/pr192-integration.json"
+    ],
+    "pr192_premerge_receipt_sha256": "0d9c600792a02ea073e895612576b81dc967009f2472936c0e0dbaffc1f57db8",
+    "integration_receipt_sha256": "d99dd3f3d6af257837ff2a04591c8311cf2af84df315e5c515a66638007f1bfd"
+  },
+  "pr192": {
+    "run_id": 39499647752,
+    "job_id": 118893584792,
+    "job": "Native UI build and state (macos-15)",
+    "conclusion": "success",
+    "started_at": "2026-10-20T21:21:15Z",
+    "completed_at": "2026-10-20T21:29:30Z",
+    "queue_seconds": null,
+    "queue_limit_reason": "receipt lacks job created/queued timestamp",
+    "job_duration_seconds": 495,
+    "steps": [
+      {
+        "name": "Set up job",
+        "number": 1,
+        "start": "2026-10-20T21:21:16Z",
+        "end": "2026-10-20T21:21:17Z",
+        "duration_seconds": 1,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "start": "2026-10-20T21:21:17Z",
+        "end": "2026-10-20T21:21:22Z",
+        "duration_seconds": 5,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "number": 3,
+        "start": "2026-10-20T21:21:22Z",
+        "end": "2026-10-20T21:23:04Z",
+        "duration_seconds": 102,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "number": 4,
+        "start": "2026-10-20T21:23:04Z",
+        "end": "2026-10-20T21:24:39Z",
+        "duration_seconds": 95,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build reusable writing UI on Unix",
+        "number": 5,
+        "start": "2026-10-20T21:24:39Z",
+        "end": "2026-10-20T21:25:04Z",
+        "duration_seconds": 25,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint reusable writing UI on Unix",
+        "number": 6,
+        "start": "2026-10-20T21:25:04Z",
+        "end": "2026-10-20T21:25:19Z",
+        "duration_seconds": 15,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test reusable writing UI on Unix",
+        "number": 7,
+        "start": "2026-10-20T21:25:19Z",
+        "end": "2026-10-20T21:26:33Z",
+        "duration_seconds": 74,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build the desktop with native UI",
+        "number": 8,
+        "start": "2026-10-20T21:26:33Z",
+        "end": "2026-10-20T21:26:54Z",
+        "duration_seconds": 21,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint native UI",
+        "number": 9,
+        "start": "2026-10-20T21:26:54Z",
+        "end": "2026-10-20T21:27:03Z",
+        "duration_seconds": 9,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test native UI state",
+        "number": 10,
+        "start": "2026-10-20T21:27:03Z",
+        "end": "2026-10-20T21:27:41Z",
+        "duration_seconds": 38,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint native Unix widgets",
+        "number": 11,
+        "start": "2026-10-20T21:27:41Z",
+        "end": "2026-10-20T21:27:54Z",
+        "duration_seconds": 13,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test native Unix widgets",
+        "number": 12,
+        "start": "2026-10-20T21:27:54Z",
+        "end": "2026-10-20T21:29:23Z",
+        "duration_seconds": 89,
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Unix",
+        "number": 13,
+        "start": "2026-10-20T21:29:23Z",
+        "end": "2026-10-20T21:29:23Z",
+        "duration_seconds": 0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Windows",
+        "number": 14,
+        "start": "2026-10-20T21:29:23Z",
+        "end": "2026-10-20T21:29:23Z",
+        "duration_seconds": 0,
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "number": 27,
+        "start": "2026-10-20T21:29:23Z",
+        "end": "2026-10-20T21:29:24Z",
+        "duration_seconds": 1,
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 28,
+        "start": "2026-10-20T21:29:24Z",
+        "end": "2026-10-20T21:29:24Z",
+        "duration_seconds": 0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "number": 29,
+        "start": "2026-10-20T21:29:24Z",
+        "end": "2026-10-20T21:29:28Z",
+        "duration_seconds": 4,
+        "conclusion": "success"
+      }
+    ],
+    "cache": {
+      "save_if": false,
+      "restore_key": "v0-rust-macOS-ARM64-native-ui-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-native-ui-Darwin-arm64-4b070e83",
+      "full_key": "v0-rust-macOS-ARM64-native-ui-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-native-ui-Darwin-arm64-4b070e83-bf6157b2",
+      "full_match": true,
+      "size_bytes": 1902323274,
+      "size_display": "~1814 MB",
+      "restore_action_duration_ms": 76057,
+      "evidence": "/tmp/brn-ci-main192-cache-observation/pr192-mac-ui.log"
+    },
+    "raw_log_sha256": "f4477aed51a90c70ea8a3b38729b7d3c22b9496b6c540f4d0791c916e41acc6c",
+    "raw_log_bytes": 195954
+  },
+  "main": {
+    "run_id": 39502704935,
+    "job_id": 118904878361,
+    "head_sha": "2658f8883b47f224b02ed428055efaaba1bb47a4",
+    "job": "Native UI build and state (macos-15)",
+    "status": "completed",
+    "conclusion": "success",
+    "job_created_at": "2026-10-20T21:46:01Z",
+    "started_at": "2026-10-20T21:46:05Z",
+    "completed_at": "2026-10-20T21:53:19Z",
+    "queue_seconds": 4,
+    "job_duration_seconds": 434,
+    "runner_label": [
+      "macos-15"
+    ],
+    "runner_id": 1000003384,
+    "steps": [
+      {
+        "name": "Set up job",
+        "number": 1,
+        "start": "2026-10-20T21:46:06Z",
+        "end": "2026-10-20T21:46:06Z",
+        "duration_seconds": 0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "start": "2026-10-20T21:46:06Z",
+        "end": "2026-10-20T21:46:11Z",
+        "duration_seconds": 5,
+        "conclusion": "success"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "number": 3,
+        "start": "2026-10-20T21:46:11Z",
+        "end": "2026-10-20T21:47:40Z",
+        "duration_seconds": 89,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "number": 4,
+        "start": "2026-10-20T21:47:40Z",
+        "end": "2026-10-20T21:49:17Z",
+        "duration_seconds": 97,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build reusable writing UI on Unix",
+        "number": 5,
+        "start": "2026-10-20T21:49:17Z",
+        "end": "2026-10-20T21:49:32Z",
+        "duration_seconds": 15,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint reusable writing UI on Unix",
+        "number": 6,
+        "start": "2026-10-20T21:49:32Z",
+        "end": "2026-10-20T21:49:42Z",
+        "duration_seconds": 10,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test reusable writing UI on Unix",
+        "number": 7,
+        "start": "2026-10-20T21:49:42Z",
+        "end": "2026-10-20T21:50:44Z",
+        "duration_seconds": 62,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build the desktop with native UI",
+        "number": 8,
+        "start": "2026-10-20T21:50:44Z",
+        "end": "2026-10-20T21:50:59Z",
+        "duration_seconds": 15,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint native UI",
+        "number": 9,
+        "start": "2026-10-20T21:50:59Z",
+        "end": "2026-10-20T21:51:06Z",
+        "duration_seconds": 7,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test native UI state",
+        "number": 10,
+        "start": "2026-10-20T21:51:06Z",
+        "end": "2026-10-20T21:51:39Z",
+        "duration_seconds": 33,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint native Unix widgets",
+        "number": 11,
+        "start": "2026-10-20T21:51:39Z",
+        "end": "2026-10-20T21:51:50Z",
+        "duration_seconds": 11,
+        "conclusion": "success"
+      },
+      {
+        "name": "Test native Unix widgets",
+        "number": 12,
+        "start": "2026-10-20T21:51:50Z",
+        "end": "2026-10-20T21:53:13Z",
+        "duration_seconds": 83,
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Unix",
+        "number": 13,
+        "start": "2026-10-20T21:53:13Z",
+        "end": "2026-10-20T21:53:13Z",
+        "duration_seconds": 0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Windows",
+        "number": 14,
+        "start": "2026-10-20T21:53:13Z",
+        "end": "2026-10-20T21:53:13Z",
+        "duration_seconds": 0,
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "number": 27,
+        "start": "2026-10-20T21:53:13Z",
+        "end": "2026-10-20T21:53:14Z",
+        "duration_seconds": 1,
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 28,
+        "start": "2026-10-20T21:53:14Z",
+        "end": "2026-10-20T21:53:14Z",
+        "duration_seconds": 0,
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "number": 29,
+        "start": "2026-10-20T21:53:14Z",
+        "end": "2026-10-20T21:53:17Z",
+        "duration_seconds": 3,
+        "conclusion": "success"
+      }
+    ],
+    "cache": null,
+    "cache_status": "unresolved: log download refused while overall workflow remained in progress; no retry",
+    "job_metadata_source": "/tmp/brn-ci-main192-cache-observation/main-jobs.json",
+    "job_metadata_raw_sha256": "e2b3a7f61d7940887aa61dd8c9a789f1696eab9912ffb838356db51076ac43d8",
+    "log_download_error_source": "/tmp/brn-ci-main192-cache-observation/main-mac-ui-download-error.txt",
+    "log_file_bytes": 0
+  },
+  "prior_warm_comparator": {
+    "source": "docs/work/active/vacation-campaign/ci-cache-investigation.md:79-88",
+    "commit_prefix": "6622443e",
+    "job_seconds": 383,
+    "helper_preparation_seconds": 83,
+    "limits": "same-source pair but different actual runners; no controlled benchmark"
+  },
+  "interpretation": "No measured cache miss or full hit is available for the latest main job. The main cache state, key, size, restore and finalization remain unresolved. The PR192 comparator is independently proven full-hit but still prepares and compiles both locked helper graphs. Do not infer the main cache state from that PR hit or timings."
+}

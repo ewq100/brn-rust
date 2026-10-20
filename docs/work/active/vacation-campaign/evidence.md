@@ -658,3 +658,9 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October21:44UTC: Mac fixture main verified, documentation correction merged
 
 [All four required main191 jobs](evidence/pr191-resulting-main.json) pass; optional failures remain in the receipt. [Managed cleanup](evidence/mac-test-roots-cleanup.json) was refused because the clean worker is pinned; it remains preserved without forced removal. [Fresh PR192 gate](evidence/pr192-premerge.json) passes actual strict/admin protection and both complete required sets before a separate normal merge. [Merged tree2658f888](evidence/pr192-integration.json) exactly equals qualified0cc1; resulting-main39502704935 remains a separate pending gate.
+
+## 20 October UTC: focus-return witness and bounded CI observation
+
+[Layout/focus audit](evidence/layout-focus-audit.md) found coherent existing state and no source-backed defect. [One existing Escape journey](evidence/launcher-focus-witness-qualification.json) was extended to inspect actual Chat composer focus after closing quick search, preserving canonical Run/queue assertions and test count. Independent review found no findings; normal1/0 passes, deliberate omitted-focus-call mutation fails at the new assertion, restored related dialog10/0 and strict lint/fmt pass. PR193 is published, not merged; [exact attempts](evidence/launcher-focus-witness-raw.tar.gz) preserve original mutation warnings and the existing block0.1.6 future compatibility warning. This is toolkit, not native OS/owner evidence.
+
+[Latest completed Mac UI observation](evidence/ci-main192-cache-observation.md) records main7m14 and helper1m37 versus exact-tree PR8m15/helper1m35. The PR log proves a1.902GB full cache hit; main log is unavailable until whole-workflow completion, with first refusal retained. No inferred miss/hit, speed guarantee, rerun or cache/config mutation.

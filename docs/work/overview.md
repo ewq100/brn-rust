@@ -34,6 +34,31 @@ Attempts:
 
 </details>
 
+### Check typing returns to the chat after quick search closes
+
+Owner: bounded Luna test author; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T21:59:43.953833+00:00
+Activity: Reviewed stable8912801c published as PR193 after normal1/0, meaningful omitted-focus mutation0/1expected, final restored dialog10/0 plus strict alltarget lint/packagefmt/whitespace PASS. Existing test count unchanged. Required head39504631537 and preceding-main19239502704935 pending.
+Next: Keep891 stable; inspect all four exact-head193 and preceding-main192 required results plus fresh protection before normal merge, then resulting-main separately. No new native case for unchanged production controls.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete8912801c test-only existing journey extension
+- **checks:** PASS independent review, normal1/0, deliberate mutation0/1 caughtnewassertion, restored dialog10/0, strict alltargetlint/fmt/whitespace
+- **integration:** PR193 published stable891 onmain2658; required hostedhead/main pending, not merged
+- **native:** toolkit focus witness only; actual OS focus remains separate, no desktop/account action
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md), [crates/brn-desktop/src/threads_dialogs_tests.rs](../../crates/brn-desktop/src/threads_dialogs_tests.rs), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md](active/vacation-campaign/evidence/launcher-focus-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json](active/vacation-campaign/evidence/launcher-focus-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz](active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/193](https://github.com/ewq100/brn-rust/pull/193)
+
+Attempts:
+
+- Temporary production mutation omitted only close_launcher visible-content focus adapter. Test compiled/executed and failed at new composer focus assertion,exit101; mutationunused-window warning retained.: EXIT trap restored exact production source before final normal checks. This is deliberate negative control, not an original production defect. ([docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md](active/vacation-campaign/evidence/launcher-focus-witness-review.md))
+
+</details>
+
 ## Next
 
 None recorded.
@@ -1143,6 +1168,52 @@ Attempts:
 
 </details>
 
+### Inspect keyboard focus when panels close or maximize
+
+Owner: bounded Luna read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T21:50:45.405384+00:00
+Activity: Bounded source audit found no reachable layout/focus defect. Empty panels are intentional/recoverable; pure transitions and common host focus adapter are coherent. Existing launcher Escape witness does not inspect returned focused control.
+Next: Retain existing layout implementation; extend one existing Escape journey for concrete chat-focus restoration witness in a separate selected task. No blanket state/refactor/test expansion.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** read-only audit; no correction selected
+- **checks:** source/test inspection only; no executed/native pass
+- **integration:** inapplicable unless actual correction selected
+- **native:** not attempted; actual control/accessibility/IME remains separate
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md), [crates/brn-desktop/src/threads_layout.rs](../../crates/brn-desktop/src/threads_layout.rs), [crates/brn-desktop/src/threads_focus_tests.rs](../../crates/brn-desktop/src/threads_focus_tests.rs), [docs/work/active/vacation-campaign/evidence/layout-focus-audit.md](active/vacation-campaign/evidence/layout-focus-audit.md)
+
+</details>
+
+### Check why the latest Mac build time varies
+
+Owner: bounded Luna read-only CI observation; lead disposition · State: **complete** · Last observed: 2026-10-20T21:58:10.031818+00:00
+Activity: Completed main192 MacUI job7m14 and helper preparation1m37 measured; PR192 same-tree job8m15/helper1m35, proven1.902GB full cache hit. Main log unavailable while whole run inprogress; first client failure retained, no retry or inferred cache status.
+Next: No CI/config change justified. Retain actual completed timings and cache uncertainty; retrieve current main log only after a meaningful new completion condition if needed. No extra rerun or cache mutation.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** observation only; no CI/source configuration change
+- **checks:** PASS bounded metadata/log observation with explicit unresolved main cache status; no performance causal claim
+- **integration:** inapplicable unless justified separate candidate
+- **native:** inapplicable; hosted build is not native usability
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/pr192-premerge.json](active/vacation-campaign/evidence/pr192-premerge.json), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.md](active/vacation-campaign/evidence/ci-main192-cache-observation.md), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.json](active/vacation-campaign/evidence/ci-main192-cache-observation.json), [docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz](active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz)
+
+Attempts:
+
+- Completed mainMacUI log request refused by gh client while overallworkflow stillrunning; no main cache key/hit result available.: Retain first error and metadata; no retry, use only actual job/step durations and separately proven PR192 full-hit log. ([docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz](active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1167,4 +1238,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T21:44:45.956898+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T21:59:43.953833+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

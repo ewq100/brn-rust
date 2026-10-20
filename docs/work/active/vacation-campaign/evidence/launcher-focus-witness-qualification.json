@@ -1,0 +1,59 @@
+{
+  "observed_at": "2026-10-20T21:59:00.250092+00:00",
+  "candidate": "8912801c24f5f3a3ec4fb55bb8e5d74b118dba51",
+  "base": "2658f8883b47f224b02ed428055efaaba1bb47a4",
+  "result": "PASS local final source checks and independent review; required hosted checks pending",
+  "files": [
+    "crates/brn-desktop/src/threads_dialogs_tests.rs"
+  ],
+  "source_sha256": {
+    "dialog_test": "3aef40eeddff4df6b26275f7ec79931435478ce8640519a163db300346778381",
+    "production_ui_restored": "d0019bf1ca01aa7768d6b675b6a77880cf94330ab808b7200812642436e322da"
+  },
+  "normal_focused": {
+    "session": 30319,
+    "exit": 0,
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 341
+  },
+  "negative_control": {
+    "session": 64594,
+    "exit": 101,
+    "passed": 0,
+    "failed": 1,
+    "ignored": 0,
+    "filtered": 341,
+    "mutation": "Omit only close_launcher focus_tile_contents call; source restored via EXIT trap",
+    "actual_failure": "new composer FocusHandle focus assertion",
+    "qualification": "deliberate mutation, not an original production bug; unused-window warning retained"
+  },
+  "final_restored": {
+    "session": 41112,
+    "exit": 0,
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 332,
+    "strict_lint": "PASS native-ui,native-test-support alltargets -Dwarnings",
+    "format": "PASS pinned cargo fmt -p brn-desktop -- --check",
+    "whitespace": "PASS",
+    "worker_clean": true
+  },
+  "test_count": "existing test extended, no additional test case",
+  "review": "launcher-focus-witness-review.md complete actual candidate; no findings",
+  "toolchain": "pinned1.98.1, locked/offline/jobs1, one shared target build slot",
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-launcher-focus-witness/8912801c/brn_desktop-5976492de41793be",
+    "sha256": "74260c063189e27f16c24abff12126b4d15a83b22005b4fe4197064af1ce5917",
+    "bytes": 78188816,
+    "kind": "synthetic toolkit test harness, not production/native application qualification"
+  },
+  "limits": [
+    "Headless toolkit only; native OS focus/IME/rendering/owner acceptance not established",
+    "author standalone rustfmt without package edition showed unrelated differences; correct package-format check PASS; original author report retained",
+    "existing block0.1.6 future Rust compatibility warning remains",
+    "no production, runtime prompt, dependency, schema, provider/account or new model change"
+  ]
+}

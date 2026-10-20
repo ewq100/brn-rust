@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T21:45:18.667202+00:00",
-    "remaining_percent": 78,
+    "observed_at": "2026-10-20T21:54:58.254328+00:00",
+    "remaining_percent": 77,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: fresh native22%used/78%remaining, ordinaryUsageAllowedtrue; expiry unchanged, no new account tests",
+    "ordinary_work": "admitted: actual native23%used/77%remaining ordinaryUsageAllowedtrue; no new account tests",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T21:44:45.956898+00:00",
+    "observed_at": "2026-10-20T21:59:43.953833+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1795,6 +1795,107 @@
           }
         ],
         "resource_plan": "One existing Luna helper, bounded local source/records only; no nested work, product edits, builds, account/native actions or web search."
+      },
+      {
+        "id": "layout-focus-audit",
+        "title": "Inspect keyboard focus when panels close or maximize",
+        "state": "complete",
+        "owner": "bounded Luna read-only audit; lead disposition",
+        "activity": "Bounded source audit found no reachable layout/focus defect. Empty panels are intentional/recoverable; pure transitions and common host focus adapter are coherent. Existing launcher Escape witness does not inspect returned focused control.",
+        "observed_at": "2026-10-20T21:50:45.405384+00:00",
+        "origin": "observed",
+        "next_action": "Retain existing layout implementation; extend one existing Escape journey for concrete chat-focus restoration witness in a separate selected task. No blanket state/refactor/test expansion.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md",
+          "crates/brn-desktop/src/threads_layout.rs",
+          "crates/brn-desktop/src/threads_focus_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/layout-focus-audit.md"
+        ],
+        "gates": {
+          "implementation": "read-only audit; no correction selected",
+          "checks": "source/test inspection only; no executed/native pass",
+          "integration": "inapplicable unless actual correction selected",
+          "native": "not attempted; actual control/accessibility/IME remains separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One existing requested Luna medium helper; exact bounded source audit only, no edits/builds/native/account/web/nested work; independent Sol review only if a consequential candidate is selected."
+      },
+      {
+        "id": "launcher-focus-return-witness",
+        "title": "Check typing returns to the chat after quick search closes",
+        "state": "active",
+        "owner": "bounded Luna test author; lead qualification/integration; independent Sol review",
+        "activity": "Reviewed stable8912801c published as PR193 after normal1/0, meaningful omitted-focus mutation0/1expected, final restored dialog10/0 plus strict alltarget lint/packagefmt/whitespace PASS. Existing test count unchanged. Required head39504631537 and preceding-main19239502704935 pending.",
+        "observed_at": "2026-10-20T21:59:43.953833+00:00",
+        "origin": "observed",
+        "next_action": "Keep891 stable; inspect all four exact-head193 and preceding-main192 required results plus fresh protection before normal merge, then resulting-main separately. No new native case for unchanged production controls.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/layout-focus-audit.md",
+          "crates/brn-desktop/src/threads_dialogs_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/launcher-focus-witness-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md",
+          "docs/work/active/vacation-campaign/evidence/launcher-focus-witness-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/launcher-focus-witness-raw.tar.gz",
+          "https://github.com/ewq100/brn-rust/pull/193"
+        ],
+        "gates": {
+          "implementation": "complete8912801c test-only existing journey extension",
+          "checks": "PASS independent review, normal1/0, deliberate mutation0/1 caughtnewassertion, restored dialog10/0, strict alltargetlint/fmt/whitespace",
+          "integration": "PR193 published stable891 onmain2658; required hostedhead/main pending, not merged",
+          "native": "toolkit focus witness only; actual OS focus remains separate, no desktop/account action",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Temporary production mutation omitted only close_launcher visible-content focus adapter. Test compiled/executed and failed at new composer focus assertion,exit101; mutationunused-window warning retained.",
+            "change": "EXIT trap restored exact production source before final normal checks. This is deliberate negative control, not an original production defect.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/launcher-focus-witness-review.md"
+            ]
+          }
+        ],
+        "resource_plan": "One requested Luna medium isolated test-only author; lead single shared UI build slot with exact changed-source identity; independent Sol complete-delta review; no new deps/provider/model/native/data changes. At most one diagnosed negative control and final normal qualification; preserve failures."
+      },
+      {
+        "id": "ci-main192-cache-observation",
+        "title": "Check why the latest Mac build time varies",
+        "state": "complete",
+        "owner": "bounded Luna read-only CI observation; lead disposition",
+        "activity": "Completed main192 MacUI job7m14 and helper preparation1m37 measured; PR192 same-tree job8m15/helper1m35, proven1.902GB full cache hit. Main log unavailable while whole run inprogress; first client failure retained, no retry or inferred cache status.",
+        "observed_at": "2026-10-20T21:58:10.031818+00:00",
+        "origin": "observed",
+        "next_action": "No CI/config change justified. Retain actual completed timings and cache uncertainty; retrieve current main log only after a meaningful new completion condition if needed. No extra rerun or cache mutation.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/pr192-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.md",
+          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation.json",
+          "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "observation only; no CI/source configuration change",
+          "checks": "PASS bounded metadata/log observation with explicit unresolved main cache status; no performance causal claim",
+          "integration": "inapplicable unless justified separate candidate",
+          "native": "inapplicable; hosted build is not native usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Completed mainMacUI log request refused by gh client while overallworkflow stillrunning; no main cache key/hit result available.",
+            "change": "Retain first error and metadata; no retry, use only actual job/step durations and separately proven PR192 full-hit log.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/ci-main192-cache-observation-raw.tar.gz"
+            ]
+          }
+        ],
+        "resource_plan": "One existing requested Luna medium helper; at most3GitHub read-only calls (one current run metadata and two completed job logs), existing receipts for comparison; no reruns/cache/billing/infra writes, no nested agents/web/account/native."
       }
     ],
     "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
@@ -1810,30 +1911,28 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr192-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T21:45:18.667202+00:00",
-    "runtime_capacity": "4total slots; lead active; bounded author/review helpers complete",
-    "build_slot": "free; proof sessions52667/66709 both completedexit101, temporary source restored clean9c18; owned build target retained /private/tmp/brn-image-retention-proof-20261020/build-target",
+    "observed_at": "2026-10-20T21:59:43.953833+00:00",
+    "runtime_capacity": "4total slots; lead active; bounded Luna authors/research and Sol reviews complete",
+    "build_slot": "free; final UI job41112 completedexit0, source restored clean891 and testharness pinned; no local build/actor",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
-        "run": 39499436262,
-        "session": 10453,
-        "pid": 88373,
-        "purpose": "remaining optional main191 workflow completion watch; required4alreadyPASS"
-      },
-      {
         "run": 39502704935,
         "session": 49368,
-        "pid": 89737,
         "purpose": "required resulting-main192 watch"
+      },
+      {
+        "run": 39504631537,
+        "session": 45553,
+        "purpose": "required exact-head193 watch"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR190/191 allrequired head/main PASS; PR192 normally merged2658/full-tree PASS; resulting-main39502704935 pending",
+    "integration": "PR190/191 complete allrequired main; PR192 merged2658 allMacrequired PASS, Ubuntu core pending; PR193 stable891 requiredhead pending",
     "wait_reason": "PR190 resulting-main and PR191 required head checks running; independent image-retention source study active; three actual Mac controls remain blocked.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean9c18 on codex/image-retention-proof after archived temporary witness; frozen166d retained as existing ref",
+    "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",
     "fixture_worker_checkout": "clean e1b mac-test-roots preserved: managed archive refused pinned protection; no owner unblock needed",
     "documentation_worker_checkout": "architecture-status-route clean0cc1 frozen merged candidate; keep until required main verification"
   }
