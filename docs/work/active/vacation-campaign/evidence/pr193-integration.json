@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-20T22:22:42.127719+00:00",
+  "pr": {
+    "headRefOid": "8912801c24f5f3a3ec4fb55bb8e5d74b118dba51",
+    "mergeCommit": {
+      "oid": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822"
+    },
+    "mergedAt": "2026-10-20T22:22:25Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/193"
+  },
+  "result": "PASS normal merge and complete qualified-tree equivalence; resulting-main required checks pending",
+  "integrated_commit": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "qualified_candidate": "8912801c24f5f3a3ec4fb55bb8e5d74b118dba51",
+  "qualified_tree": "21941d15076f81ba9b752e8ab28b156c48902753",
+  "integrated_tree": "21941d15076f81ba9b752e8ab28b156c48902753",
+  "origin_main": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "premerge": "pr193-premerge.json",
+  "limits": "No admin/bypass/auto merge, release, native or owner acceptance claim."
+}
