@@ -1245,7 +1245,7 @@ fn an_open_stacked_draft_keeps_the_whole_writing_bar_at_900x600(cx: &mut TestApp
     commented(cx, &f, false);
     // Offline the request is saved and no AI starts: Retry saved rewrite
     // becomes the bar's primary.
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     for notice in [false, true] {
         if notice {
             update(cx, &f, |view, _, _| {
@@ -1566,7 +1566,7 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
 fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppContext) {
     let f = fixture(cx, 900., 600., TEXT);
     commented(cx, &f, false);
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
     on_window(cx, &f, |window, cx| {
         window.click("inspect-rewrite-inputs", cx)
@@ -1612,7 +1612,7 @@ fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppCont
 fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut TestAppContext) {
     let f = fixture(cx, 900., 600., TEXT);
     let thread = commented(cx, &f, false);
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     let reason = "Run failed: Synthetic provider stopped before finishing the rewrite.";
     failed_rewrite(cx, &f, &thread, reason);
     update(cx, &f, |view, _, cx| {
@@ -1751,7 +1751,7 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
     // reply join the rows that never hide.
     let f = fixture(cx, 900., 600., TEXT);
     let thread = commented(cx, &f, false);
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     failed_rewrite(
         cx,
         &f,

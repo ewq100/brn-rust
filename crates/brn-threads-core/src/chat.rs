@@ -604,6 +604,81 @@ impl ChatCommand {
 }
 
 impl Store {
+    /// Move host composer recovery only if both generations still match and
+    /// the destination is empty. Source clearing and target persistence commit
+    /// together; retained empty rows fence delayed saves from the old composer.
+    pub fn transfer_chat_draft(
+        &mut self,
+        source: &str,
+        source_generation: Option<u64>,
+        destination: &str,
+        destination_generation: Option<u64>,
+        text: &str,
+    ) -> Result<(ChatDraft, ChatDraft)> {
+        if source == destination
+            || [source, destination]
+                .iter()
+                .any(|key| key.is_empty() || key.len() > 1024)
+            || text.len() > 128 * 1024
+        {
+            return Err(Error::Invalid(
+                "distinct bounded composer destinations and text required".into(),
+            ));
+        }
+        let next = |generation: Option<u64>| {
+            generation
+                .unwrap_or_default()
+                .checked_add(1)
+                .ok_or_else(|| Error::Invalid("composer recovery counter exhausted".into()))
+                .and_then(crate::integer)
+        };
+        let source_next = next(source_generation)?;
+        let destination_next = next(destination_generation)?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        for (key, expected, must_be_empty) in [
+            (source, source_generation, false),
+            (destination, destination_generation, true),
+        ] {
+            let prior: Option<(u64, String)> = tx
+                .query_row(
+                    "SELECT generation,text FROM chat_drafts WHERE destination=?1",
+                    [key],
+                    |r| Ok((crate::read_u64(r, 0)?, r.get(1)?)),
+                )
+                .optional()?;
+            if prior.as_ref().map(|(generation, _)| *generation) != expected {
+                return Err(Error::Invalid(
+                    "composer recovery generation is stale".into(),
+                ));
+            }
+            if must_be_empty && prior.is_some_and(|(_, text)| !text.is_empty()) {
+                return Err(Error::Invalid(
+                    "destination already has a composer draft".into(),
+                ));
+            }
+        }
+        for (key, generation, value) in [
+            (destination, destination_next, text),
+            (source, source_next, ""),
+        ] {
+            tx.execute("INSERT INTO chat_drafts(destination,generation,text) VALUES(?1,?2,?3) ON CONFLICT(destination) DO UPDATE SET generation=excluded.generation,text=excluded.text", params![key,generation,value])?;
+        }
+        tx.commit()?;
+        Ok((
+            ChatDraft {
+                destination: source.into(),
+                generation: source_next as u64,
+                text: String::new(),
+            },
+            ChatDraft {
+                destination: destination.into(),
+                generation: destination_next as u64,
+                text: text.into(),
+            },
+        ))
+    }
     pub fn chat_drafts(&self) -> Result<Vec<ChatDraft>> {
         let mut query = self
             .conn

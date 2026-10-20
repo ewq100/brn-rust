@@ -602,7 +602,7 @@ fn a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note(cx: &mut T
         view.refresh();
         view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
         // Offline: the request is saved and no AI starts.
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         thread
     });
     record_rewrite_run(cx, &f, RunState::Working, "Started elsewhere");
@@ -663,7 +663,7 @@ fn the_note_leaves_stop_to_the_chat_card_only_while_that_card_shows_it(cx: &mut 
         view.refresh();
         view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
         // Offline: the request is saved and no AI starts.
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         thread
     });
     record_rewrite_run(cx, &f, RunState::Working, "Started elsewhere");
@@ -755,7 +755,7 @@ fn a_linked_chat_whose_newest_request_is_a_rewrite_leaves_continue_to_the_note(
             .unwrap();
         view.refresh();
         view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         thread
     });
     record_rewrite_run(cx, &f, RunState::Failed, FAILURE);

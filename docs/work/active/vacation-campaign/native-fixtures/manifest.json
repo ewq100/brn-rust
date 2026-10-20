@@ -3,7 +3,8 @@
   "scenarios": {
     "MAC-01": "Type initial, Save; replace with final, Save; navigate and close/reopen; canonical must equal save-final with no recovery session.",
     "MAC-03": "Backup after final Save; canonical remains save-final.",
-    "MAC-04": "Replace editor with unsaved-recovery, no Save. Read-only check before close must confirm exact durable draft/base/session and unchanged save-final canonical; after OS relaunch verify both again."
+    "MAC-04": "Replace editor with unsaved-recovery, no Save. Read-only check before close must confirm exact durable draft/base/session and unchanged save-final canonical; after OS relaunch verify both again.",
+    "MAC-10": "Fresh saved Note without writing thread: type exact unsent composer text, add first passage comment through normal controls without sending AI, then OS close/reopen. Composer and read-only target draft must preserve exact bytes; canonical Note and unrelated sentinel unchanged."
   },
   "fixtures": [
     {
@@ -23,6 +24,12 @@
       "utf8_bytes": 152,
       "sha256": "81e6224b4042ad42b4f68549095ec221cb8df312eb5cd39715b30f127a723529",
       "terminal_lf": true
+    },
+    {
+      "file": "composer-unsent.txt",
+      "utf8_bytes": 50,
+      "sha256": "ceddb0fd3ca4fcf29044f4b41ea943ef549770f106a756173655cd3f7b9eec76",
+      "terminal_lf": false
     }
   ],
   "rules": [

@@ -1,0 +1,621 @@
+{
+  "observed_at": "2026-10-20T12:18:06.804422+00:00",
+  "candidate": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+  "qualification": {
+    "recorded_utc": "2026-10-20T12:14:58.695348+00:00",
+    "outcome": "Durable Note-to-writing-Thread composer handoff",
+    "baseline": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+    "candidate": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+    "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "branch": "codex/writing-draft-recovery",
+    "clean_worktree": true,
+    "final_diff_sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56",
+    "changed_files": {
+      "crates/brn-desktop/README.md": "c48ef3cdc8ff996410cb973c06aa233cd21d50db01f46e3a4bd12246ca1503c4",
+      "crates/brn-desktop/src/threads_chat_tests.rs": "3b2133ac9c5fb34ea3d8b7ee99d8b6bfeca30e1aacc19bb97885dde080d1115b",
+      "crates/brn-desktop/src/threads_polish_tests.rs": "df7873b7a8f7e4b4c9c1fb0d46bd2a3510bde910e44e25d4d8bdc3b8d0f87476",
+      "crates/brn-desktop/src/threads_review_tests.rs": "6018be822edd918e35a9302645dad044130992cb3c0b709ca9159a2c39ce2447",
+      "crates/brn-desktop/src/threads_shell.rs": "981df2353b7bef200fd548a72fd8af4ec5c023e2ceb7d0802feb43ea11c915a7",
+      "crates/brn-desktop/src/threads_ui.rs": "fe80810a5197cd917490227b49a22afa5f5f5ac5f000030f03eb3f44cfb913b8",
+      "crates/brn-desktop/src/threads_workbench_tests.rs": "25c3f6318c81c465e9e46832ad9c2e7461754b4f647fdb51d40454b465fece68",
+      "crates/brn-desktop/src/threads_writing_tests.rs": "68eb52457cc8de9ff29cd98bbbe09238668e815856ffab4e7db4cdb71633af10",
+      "crates/brn-threads-core/README.md": "26e6e9dda151cf3469815ff3475abcbec0db0cdf55bf501524417dc355b61ac7",
+      "crates/brn-threads-core/src/chat.rs": "2b52771ee2e2f134dd0fb51a2e8c3fe4a64c912fb0aa9007840ad2447a22d6c9",
+      "crates/brn-threads-core/tests/chat_storage.rs": "f926c97eeb30d71e4d20b64e87943ce26adcc394de88fc05a997590e2f6a4f55"
+    },
+    "attempts": [
+      {
+        "record": "/tmp/brn-draft-recovery-impl-01-format.json",
+        "log": "/tmp/brn-draft-recovery-impl-01-format.log",
+        "log_sha256": "7c9a42329342b62e4aad6d4f2d3477ce4a6db6b97c3a748dd881bbebe1711f8d",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "8ddc9d3bee6decce004d4b94cddcdce2ae7b6d58139b73ecd5d1f178325016e5",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-02-core-transfer.json",
+        "log": "/tmp/brn-draft-recovery-impl-02-core-transfer.log",
+        "log_sha256": "af6b93d22a66e20b0f3fe31adaa08232b8bd98174fb32cb3db1d1706cad11a5e",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "-p",
+          "brn-threads-core",
+          "--test",
+          "chat_storage",
+          "composer_transfer"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "1062c87a752ec10f30ff6df624607994a12f60dc47a3abfb1fc0c913fdc72383",
+        "elapsed_seconds": 21.07
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-03-original-regression.json",
+        "log": "/tmp/brn-draft-recovery-impl-03-original-regression.log",
+        "log_sha256": "7cc5c9a23054750156fc86b3949beda59794e3c07cdf6d89fa5344b1f7fda917",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "adding_passage_feedback_keeps_the_document_and_does_not_start_ai"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "1062c87a752ec10f30ff6df624607994a12f60dc47a3abfb1fc0c913fdc72383",
+        "elapsed_seconds": 102.28
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-04-format.json",
+        "log": "/tmp/brn-draft-recovery-impl-04-format.log",
+        "log_sha256": "2b7e264e689995a7b8a9f451da9a43bedfbe8bc4de885e2fbfc8a1a28783a441",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "c662d827fc90befec07fe249c55a97192a28e0f18237a0520f632da6ffc99191",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-05-desktop-drafts.json",
+        "log": "/tmp/brn-draft-recovery-impl-05-desktop-drafts.log",
+        "log_sha256": "451e47300ae9e340cbb585d051c5d30d1a5de42dd94eb0fb047c4b97de497728",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "draft"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "5d33c05d759949a46937e45f979b011ae3f3e2b33a909c965328e5055c815827",
+        "elapsed_seconds": 51.15
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-06-format.json",
+        "log": "/tmp/brn-draft-recovery-impl-06-format.log",
+        "log_sha256": "5a65626d173cb7589bdcd0ef064191a3b59704facdd7da3bf8f234d43f5a3e5c",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "446582f59eb2c34e47a6ba0c54f874281518a355d3af582be798239df269e4db",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-07-final-desktop-drafts.json",
+        "log": "/tmp/brn-draft-recovery-impl-07-final-desktop-drafts.log",
+        "log_sha256": "848d2299533ca2ba08aca2a379f9e7e8b729c114ce76b1f19c9d82b35488acba",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "draft"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56",
+        "elapsed_seconds": 51.14
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-08-final-original-regression.json",
+        "log": "/tmp/brn-draft-recovery-impl-08-final-original-regression.log",
+        "log_sha256": "7375eaa2e05f9fd638d1481a3ce1341859a125466e7c8eb80a4fa2ddbba81785",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "adding_passage_feedback_keeps_the_document_and_does_not_start_ai"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-09-final-format.json",
+        "log": "/tmp/brn-draft-recovery-impl-09-final-format.log",
+        "log_sha256": "96862f47aa457c3d2ba5ba77ccf1b4b2e9f316ec7ebbb11461d177a30c0ad199",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "head": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+        "patch_sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-10-final-chat-storage.json",
+        "log": "/tmp/brn-draft-recovery-impl-10-final-chat-storage.log",
+        "log_sha256": "0223ef368397e4a42dcb8d64c53006d6d48318bd14b4747f4c73cee691bb36ed",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "-p",
+          "brn-threads-core",
+          "--test",
+          "chat_storage"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 3.01
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-11-final-desktop-suite.json",
+        "log": "/tmp/brn-draft-recovery-impl-11-final-desktop-suite.log",
+        "log_sha256": "3d170a5098eb991d42119461d3879ad56ddd040e3ed03c55774ccaac00746754",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 18.06
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-12-final-clippy.json",
+        "log": "/tmp/brn-draft-recovery-impl-12-final-clippy.log",
+        "log_sha256": "8cc309158caa2e3fd350fff7dd157b61d629086dcfd9a3a91299822e1ed51c3c",
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "-p",
+          "brn-threads-core",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 12.03
+      },
+      {
+        "record": "/tmp/brn-draft-recovery-impl-13-ordinary-native-build.json",
+        "log": "/tmp/brn-draft-recovery-impl-13-ordinary-native-build.log",
+        "log_sha256": "ab904ba556551e3117241a71d597f99b4c43495c42ee5ca867abe5af20be57f6",
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui",
+          "-p",
+          "brn-desktop"
+        ],
+        "exit_code": 0,
+        "head": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+        "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elapsed_seconds": 18.06
+      }
+    ],
+    "final_results": {
+      "same_original_regression": "1 passed; old production failed twice at exact reopened composer assertion",
+      "draft_filter": "22 passed",
+      "chat_storage": "11 passed",
+      "desktop_suite": "336 passed, 0 failed, 1 existing ignored",
+      "strict_affected_clippy": "passed",
+      "format": "passed",
+      "diff_check": "passed",
+      "ordinary_native_ui_build": "passed"
+    },
+    "existing_ignored": "threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left: needs CLI-provided BRN_DWR_SHARED_* fixtures",
+    "existing_warning": "block0.1.6 future Rust incompatibility; ordinary Cargo advisory, strict affected Clippy passed",
+    "artifact": {
+      "created_utc": "20261020T121434Z",
+      "candidate_commit": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+      "candidate_tree": "280d92609b8d0f512170453eb3789bb6d64e12a8",
+      "branch": "codex/writing-draft-recovery",
+      "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+      "clean_worktree_observed": true,
+      "ordinary_native_build_record": "/tmp/brn-draft-recovery-impl-13-ordinary-native-build.json",
+      "ordinary_native_build_log_sha256": "ab904ba556551e3117241a71d597f99b4c43495c42ee5ca867abe5af20be57f6",
+      "features": [
+        "native-ui"
+      ],
+      "toolchain": "1.98.1-aarch64-apple-darwin",
+      "app": {
+        "original": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+        "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T121434Z-690c2c3f/brn-desktop",
+        "sha256": "6d220deea6fe5196fc1df8c7cf9c694982349df45313b7003b5f6f2651441144",
+        "size_bytes": 165796672
+      },
+      "helpers": [
+        {
+          "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T121434Z-690c2c3f/brn-xberg-helper",
+          "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+          "size_bytes": 131732512,
+          "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/tools/xberg-intake-helper",
+          "build_identity": "backend=xberg\nengine_identity=xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d\n",
+          "current_source_files_sha256": {
+            "Cargo.toml": "2f45d3df9291736a1c19c5466c34ac8898ffe7a29df7238c19fd782b7400e4f9",
+            "Cargo.lock": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+            "build-identity.txt": "b47231eb31790574819516bbf34cf409476c57e9f35333f157f6f0bbc6f3bcdc",
+            "src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0"
+          },
+          "matching_existing_build_receipts": [
+            {
+              "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-20261019T063628Z-97481.sha256",
+              "text": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper\n",
+              "sha256": "85eefb5e07c4f6957a34620cbe4632255288ad9f395ef36820150c2eb4bb44a9"
+            }
+          ]
+        },
+        {
+          "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+          "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T121434Z-690c2c3f/brn-xberg-helper-brn",
+          "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+          "size_bytes": 131924176,
+          "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/target/xberg-adapted/workspace",
+          "build_identity": "backend=xberg_brn\nengine_identity=xberg/1.3.10/brn/524a4d3bb6a9eeae95f586bc71a9330bd2ba7e43af1e1c681e16eb01896bb490\n",
+          "current_source_files_sha256": {
+            "Cargo.toml": "4f0d1b323b540b2b36be85b173573f7d1c5e59578c67abe07cdb005b7c135c6b",
+            "Cargo.lock": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+            "build-identity.txt": "4da5e806586ac00048db3c5460ff09593c6056ff90b9c8c7817f8587a907e5d8"
+          },
+          "matching_existing_build_receipts": [
+            {
+              "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-brn-20261019T063912Z-97481.sha256",
+              "text": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn\n",
+              "sha256": "3d99a14ffc54e4ad37e6d36d6d742137234482ebd43a2b17ce6b36d4dacbe086"
+            }
+          ]
+        }
+      ],
+      "limits": [
+        "Built but not launched or native-observed",
+        "Independent review pending lead disposition",
+        "No owner acceptance, publication, integration or release claim",
+        "Helper copies reuse supplied source-bound build receipts; no helper rebuild performed"
+      ]
+    },
+    "gates": {
+      "implemented": "complete",
+      "automated_verification": "passed",
+      "independent_review": "pending lead-owned read-only review",
+      "native_observation": "pending later Mac session; no app launched",
+      "owner_acceptance": "not claimed",
+      "integration": "not authorized here; local commit only"
+    },
+    "history": [
+      "Original red evidence preserved at /tmp/brn-draft-recovery-attempts/attempt-{1,2}-old-source.log and /tmp/brn-draft-recovery-reproduction.md.",
+      "All implementation Cargo attempts passed; no failed implementation build/test approach.",
+      "Intermediate draft run22/0 checked a temporary displayed-empty-target refusal. Lead identified the recovery gap before final qualification; final source restores the empty displayed editor, and refuses occupied live typing. Intermediate logs and patches retained.",
+      "An initial README patch hunk did not match context and applied no changes; corrected the hunk before verification."
+    ],
+    "limits": [
+      "No schema or dependencies added; no normal send/queue/contextual-edit changes",
+      "No private/existing owner data, live provider, account/model/prompt changes, native interaction, push, PR, merge or release",
+      "Full core test suite is left to hosted qualification; complete affected chat_storage family and desktop suite passed locally",
+      "SQLite fault injection demonstrates rollback on a synthetic source-clear abort; no OS power-loss qualification"
+    ]
+  },
+  "archive": {
+    "path": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/candidate-690-implementation.tar.gz",
+    "sha256": "9d3e999d61e4fae10fc296b2b9bf8f349deee8a8d67846c937545323125af32d",
+    "files": [
+      {
+        "name": "brn-draft-recovery-impl-01-format.diff",
+        "bytes": 24725,
+        "sha256": "8ddc9d3bee6decce004d4b94cddcdce2ae7b6d58139b73ecd5d1f178325016e5"
+      },
+      {
+        "name": "brn-draft-recovery-impl-01-format.json",
+        "bytes": 1968,
+        "sha256": "e2746dcf14f2f8ae369506dac8b638b311fff7fb8e2f84336872cdaa2202a03c"
+      },
+      {
+        "name": "brn-draft-recovery-impl-01-format.log",
+        "bytes": 1789,
+        "sha256": "7c9a42329342b62e4aad6d4f2d3477ce4a6db6b97c3a748dd881bbebe1711f8d"
+      },
+      {
+        "name": "brn-draft-recovery-impl-02-core-transfer.diff",
+        "bytes": 27145,
+        "sha256": "1062c87a752ec10f30ff6df624607994a12f60dc47a3abfb1fc0c913fdc72383"
+      },
+      {
+        "name": "brn-draft-recovery-impl-02-core-transfer.json",
+        "bytes": 2106,
+        "sha256": "35c37672b99e4c3c58fdc4f2046b9059e5ae7bbd43ece856c5b337c2ecdb8744"
+      },
+      {
+        "name": "brn-draft-recovery-impl-02-core-transfer.log",
+        "bytes": 3109,
+        "sha256": "af6b93d22a66e20b0f3fe31adaa08232b8bd98174fb32cb3db1d1706cad11a5e"
+      },
+      {
+        "name": "brn-draft-recovery-impl-03-original-regression.diff",
+        "bytes": 27145,
+        "sha256": "1062c87a752ec10f30ff6df624607994a12f60dc47a3abfb1fc0c913fdc72383"
+      },
+      {
+        "name": "brn-draft-recovery-impl-03-original-regression.json",
+        "bytes": 2170,
+        "sha256": "63e6370fa0c5c7629909fc56bd7cf406a5ad7700e422b1aa15a83d90b96e791e"
+      },
+      {
+        "name": "brn-draft-recovery-impl-03-original-regression.log",
+        "bytes": 3214,
+        "sha256": "7cc5c9a23054750156fc86b3949beda59794e3c07cdf6d89fa5344b1f7fda917"
+      },
+      {
+        "name": "brn-draft-recovery-impl-04-format.diff",
+        "bytes": 29628,
+        "sha256": "c662d827fc90befec07fe249c55a97192a28e0f18237a0520f632da6ffc99191"
+      },
+      {
+        "name": "brn-draft-recovery-impl-04-format.json",
+        "bytes": 1968,
+        "sha256": "f507eeff67ab5c94d24619ca651ce5426e28b15fa9390b29821b7b6595eb1620"
+      },
+      {
+        "name": "brn-draft-recovery-impl-04-format.log",
+        "bytes": 1789,
+        "sha256": "2b7e264e689995a7b8a9f451da9a43bedfbe8bc4de885e2fbfc8a1a28783a441"
+      },
+      {
+        "name": "brn-draft-recovery-impl-05-desktop-drafts.diff",
+        "bytes": 29827,
+        "sha256": "5d33c05d759949a46937e45f979b011ae3f3e2b33a909c965328e5055c815827"
+      },
+      {
+        "name": "brn-draft-recovery-impl-05-desktop-drafts.json",
+        "bytes": 2110,
+        "sha256": "0fc01cbea105970977664d3d1dffa3dd5de1ec7d31e293813a8878fd0f411295"
+      },
+      {
+        "name": "brn-draft-recovery-impl-05-desktop-drafts.log",
+        "bytes": 4926,
+        "sha256": "451e47300ae9e340cbb585d051c5d30d1a5de42dd94eb0fb047c4b97de497728"
+      },
+      {
+        "name": "brn-draft-recovery-impl-06-format.diff",
+        "bytes": 42835,
+        "sha256": "446582f59eb2c34e47a6ba0c54f874281518a355d3af582be798239df269e4db"
+      },
+      {
+        "name": "brn-draft-recovery-impl-06-format.json",
+        "bytes": 1968,
+        "sha256": "89ee4965e4486fc662c503c46478848ddc65b807335f664de371b0ff35a7c630"
+      },
+      {
+        "name": "brn-draft-recovery-impl-06-format.log",
+        "bytes": 1789,
+        "sha256": "5a65626d173cb7589bdcd0ef064191a3b59704facdd7da3bf8f234d43f5a3e5c"
+      },
+      {
+        "name": "brn-draft-recovery-impl-07-final-desktop-drafts.diff",
+        "bytes": 42880,
+        "sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56"
+      },
+      {
+        "name": "brn-draft-recovery-impl-07-final-desktop-drafts.json",
+        "bytes": 2110,
+        "sha256": "3826b9411c9abe4fee184048c12f0b25a0ad20df33deccf1be7b9d02f1215975"
+      },
+      {
+        "name": "brn-draft-recovery-impl-07-final-desktop-drafts.log",
+        "bytes": 4927,
+        "sha256": "848d2299533ca2ba08aca2a379f9e7e8b729c114ce76b1f19c9d82b35488acba"
+      },
+      {
+        "name": "brn-draft-recovery-impl-08-final-original-regression.diff",
+        "bytes": 42880,
+        "sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56"
+      },
+      {
+        "name": "brn-draft-recovery-impl-08-final-original-regression.json",
+        "bytes": 2168,
+        "sha256": "d98575d4e7feecce9cb45a335062711a6cad352acbdc8798b64cf3b68ac45ba3"
+      },
+      {
+        "name": "brn-draft-recovery-impl-08-final-original-regression.log",
+        "bytes": 2624,
+        "sha256": "7375eaa2e05f9fd638d1481a3ce1341859a125466e7c8eb80a4fa2ddbba81785"
+      },
+      {
+        "name": "brn-draft-recovery-impl-09-final-format.diff",
+        "bytes": 42880,
+        "sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56"
+      },
+      {
+        "name": "brn-draft-recovery-impl-09-final-format.json",
+        "bytes": 1993,
+        "sha256": "733218af6d5782e8d2f58c7fe94b3531a380581a4f6a414ba5c1e92abeff3037"
+      },
+      {
+        "name": "brn-draft-recovery-impl-09-final-format.log",
+        "bytes": 1806,
+        "sha256": "96862f47aa457c3d2ba5ba77ccf1b4b2e9f316ec7ebbb11461d177a30c0ad199"
+      },
+      {
+        "name": "brn-draft-recovery-impl-10-final-chat-storage.diff",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "brn-draft-recovery-impl-10-final-chat-storage.json",
+        "bytes": 2080,
+        "sha256": "abb0b82603e0a9f88aa651e28c38716b0a3b53c7675e233cf1e7a826bb0ab238"
+      },
+      {
+        "name": "brn-draft-recovery-impl-10-final-chat-storage.log",
+        "bytes": 3036,
+        "sha256": "0223ef368397e4a42dcb8d64c53006d6d48318bd14b4747f4c73cee691bb36ed"
+      },
+      {
+        "name": "brn-draft-recovery-impl-11-final-desktop-suite.diff",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "brn-draft-recovery-impl-11-final-desktop-suite.json",
+        "bytes": 2097,
+        "sha256": "362809573a7cbda97d2f12e728a74f436f48a6b719d30e36fc0e92e7b0fef023"
+      },
+      {
+        "name": "brn-draft-recovery-impl-11-final-desktop-suite.log",
+        "bytes": 36672,
+        "sha256": "3d170a5098eb991d42119461d3879ad56ddd040e3ed03c55774ccaac00746754"
+      },
+      {
+        "name": "brn-draft-recovery-impl-12-final-clippy.diff",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "brn-draft-recovery-impl-12-final-clippy.json",
+        "bytes": 2190,
+        "sha256": "89554414dad31f670b8b340e153f72fe883097656566104808d357d77d13aa9b"
+      },
+      {
+        "name": "brn-draft-recovery-impl-12-final-clippy.log",
+        "bytes": 2851,
+        "sha256": "8cc309158caa2e3fd350fff7dd157b61d629086dcfd9a3a91299822e1ed51c3c"
+      },
+      {
+        "name": "brn-draft-recovery-impl-13-ordinary-native-build.diff",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "brn-draft-recovery-impl-13-ordinary-native-build.json",
+        "bytes": 2078,
+        "sha256": "c55699f8a172c32a330fba1b56b08db0f93c400fef0bc6ef04751f1af4c9ca5d"
+      },
+      {
+        "name": "brn-draft-recovery-impl-13-ordinary-native-build.log",
+        "bytes": 3124,
+        "sha256": "ab904ba556551e3117241a71d597f99b4c43495c42ee5ca867abe5af20be57f6"
+      },
+      {
+        "name": "brn-draft-recovery-impl-final.diff",
+        "bytes": 42880,
+        "sha256": "5b9f6e2415776e9f78c2c6de180a38f6e57d1c3db4ffdac409eccb75523eec56"
+      },
+      {
+        "name": "brn-draft-recovery-impl-native-artifact.json",
+        "bytes": 4239,
+        "sha256": "2c13af97b644f7a05a31ebd89bd8e42e970f4645e9e95b2dcebeb02aa9b290c7"
+      },
+      {
+        "name": "brn-draft-recovery-impl-qualification.json",
+        "bytes": 16776,
+        "sha256": "2c4d817f1cf797a90c70ebe6a1a1cebdc1fad05be9c1e00a4cbda017eb0cdced"
+      },
+      {
+        "name": "brn-draft-recovery-impl-report.md",
+        "bytes": 3463,
+        "sha256": "5499a8dbf493edc6c088aa79b5e3e4dfed2d7be717d783afd61c88404bde6491"
+      },
+      {
+        "name": "brn-draft-recovery-impl-run.py",
+        "bytes": 2386,
+        "sha256": "90680387287baa389ee6ec0b38d98c09ec1a3ded1a5cf0df151f115ececa72b7"
+      }
+    ]
+  },
+  "review": {
+    "result": "ONE P2 pending correction; otherwise no actionable Store/draft source issue",
+    "report": "writing-draft-recovery-review-690.md",
+    "lead_disposition": "VALID/FIX: Rewrite may admit worker before adoption refusal; later Finished unconditionally calls complete_work, replacing a warning that asks owner to keep open/copy unresolved draft. Existing offline no-worker test does not exercise this ordering.",
+    "next": "Exercise actual synthetic worker completion before correction; preserve recovery attention through background status without weakening existing work-result provenance."
+  },
+  "native": "Immutable690 app is qualified build only, not native observed; not final reviewed source while P2 remains."
+}

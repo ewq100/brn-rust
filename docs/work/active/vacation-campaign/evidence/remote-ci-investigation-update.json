@@ -1,0 +1,375 @@
+{
+  "before": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "kind": "markdown",
+      "markdown": "The completion-and-Undo candidate has passed independent review and all required pre-merge checks. Integration is waiting for a retry of an earlier Mac check that exceeded its time limit during finalization. The export fix is merged; actual Mac interaction remains queued for the evening session.",
+      "hash": "dbe532c19c3f30e2174f01a494848b82a0bad156b7bbc64535a1f3f26557c2b4",
+      "metadata": {}
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 14:02 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "7272918463e1869f11f639d9b33ad97643701d5144b24192224a5047f9dc8390",
+      "metadata": {}
+    },
+    {
+      "id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+      "kind": "markdown",
+      "markdown": "- **Completion and Undo checked:** [PR 182](https://github.com/ewq100/brn-rust/pull/182) extends the existing desktop journey to confirm completion, verify its saved evidence, and undo that exact change. The local suite passed 333 tests, with one existing ignored test. Independent review and all four required pre-merge checks passed; merge is pending recovery of the earlier main check.",
+      "hash": "9b82f46647b2e990229047463e8e4d65a3821225318f490b1be19b8e501b015d",
+      "metadata": {}
+    },
+    {
+      "id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+      "kind": "markdown",
+      "markdown": "- **More reliable export completion:** [PR 181](https://github.com/ewq100/brn-rust/pull/181) is merged after all required pre-merge checks passed. Six focused tests and the matching production Mac build passed; checks on the resulting main version are running.",
+      "hash": "28a42338c4b94240cdfe9dd44954c99b578625c9b3cb917ce00cb918773a5da9",
+      "metadata": {}
+    },
+    {
+      "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+      "kind": "markdown",
+      "markdown": "- **Safeguards and check costs inspected:** bounded Save, preview and recovery audits found no actionable defect in the inspected paths. Measured check timings did not justify removing tests or weakening required checks. Older planning pages now point clearly to current task facts.",
+      "hash": "a08c0ec428e2e41ba024b26a2bb9741a3d24d74711a7b88ee0e004610ec8eb4d",
+      "metadata": {}
+    },
+    {
+      "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+      "kind": "markdown",
+      "markdown": "1. Check the single retry of the earlier Mac job, then integrate the completion-and-Undo candidate through the normal gates. A small Mac job time-budget adjustment is under independent review; it preserves every check. The Project/Trash source audit found no actionable defect or missing consequential safeguard.",
+      "hash": "687150b3e818056a78c0c15ba269796137c20d796b70537b2385cf395f65ad6e",
+      "metadata": {}
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "kind": "markdown",
+      "markdown": "**No decision is needed from you now.** One required check on the merged export version exceeded its 45-minute limit after its functional steps passed; an exact-version retry is running. This is recorded as a cancellation, not a passing result. Optional Windows failures remain recorded. Actual Mac checks stay in the scheduled batch.",
+      "hash": "623f028883e6c7a3dd33827ddb0b8917202155d8634e60639524976ad903cd4d",
+      "metadata": {}
+    }
+  ],
+  "request": {
+    "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+    "operations": [
+      {
+        "op": "replace_block_markdown",
+        "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "expected_hash": "dbe532c19c3f30e2174f01a494848b82a0bad156b7bbc64535a1f3f26557c2b4",
+        "markdown": "The Mac CI investigation found that rebuilding missing cached files caused most of the delay: the same source took about45 minutes cold and15 minutes with its cache. A reviewed correction is published in [PR183](https://github.com/ewq100/brn-rust/pull/183); required checks are queued. The completion-and-Undo checks are merged, with checks on the resulting main version still running."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "expected_hash": "7272918463e1869f11f639d9b33ad97643701d5144b24192224a5047f9dc8390",
+        "markdown": "Last refreshed: **20 October2026 at14:49 Europe/Tallinn**. This is a saved progress summary, not live activity."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+        "expected_hash": "9b82f46647b2e990229047463e8e4d65a3821225318f490b1be19b8e501b015d",
+        "markdown": "- **Completion and Undo checked:** [PR182](https://github.com/ewq100/brn-rust/pull/182) is merged after independent review and all four required pre-merge checks passed. It extends the existing desktop journey to confirm completion, verify its saved evidence, and undo that exact change. Checks on the resulting main version are still running; actual Mac interaction remains separate."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+        "expected_hash": "28a42338c4b94240cdfe9dd44954c99b578625c9b3cb917ce00cb918773a5da9",
+        "markdown": "- **More reliable export completion:** [PR181](https://github.com/ewq100/brn-rust/pull/181) is merged and all four required checks now pass on its resulting main version. The original Mac45-minute cancellation is preserved alongside the successful exact-source retry. Actual Mac export and broader durability observation remain separate."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+        "expected_hash": "a08c0ec428e2e41ba024b26a2bb9741a3d24d74711a7b88ee0e004610ec8eb4d",
+        "markdown": "- **Mac CI investigation and cleanup:** missing cached build files and converter compilation dominate the inspected delay; converter test execution itself took about two seconds. Removed5.89GB of obsolete caches belonging to merged PR182, preserving all five main caches. The earlier cache’s disappearance remains unexplained. [Investigation and evidence](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/ci-cache-investigation.md)."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+        "expected_hash": "687150b3e818056a78c0c15ba269796137c20d796b70537b2385cf395f65ad6e",
+        "markdown": "1. Verify [PR183](https://github.com/ewq100/brn-rust/pull/183) through the required checks before normal integration. It preserves every check, saves new shared caches only from main and gives the Mac job a bounded60-minute allowance. Independent review passed; no future speedup is claimed yet. The Project/Trash source audit found no actionable defect."
+      },
+      {
+        "op": "replace_block_markdown",
+        "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+        "expected_hash": "623f028883e6c7a3dd33827ddb0b8917202155d8634e60639524976ad903cd4d",
+        "markdown": "**No decision is needed from you now.** PR183 awaits required hosted checks and normal integration; PR182’s resulting-main checks are still running. Optional Windows failures remain recorded. Actual Mac interaction stays in the18:00Tallinn batch."
+      }
+    ]
+  },
+  "result": {
+    "new_sequence": 10,
+    "through_sequence": 10,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": null,
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "relative_position_base64": "AJuY17sCigJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "hash": "5c63808fec94e7535149676bcb4c72aac1b186b2b3fc11484e92cc370716a6eb"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "35b7fdf3f208cdedc5c12305573530e5db512988ba04bc9807010d8ebced5763"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "relative_position_base64": "AMr6vegLqwhB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+            "hash": "b67425950ceb14d7059f3b3a1f04bf3082c6060a364d812f8232e51f9261a2d2"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "relative_position_base64": "AMfr2vgBqwdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+            "hash": "e1898b97affb47e962722dc0198fc0d5f0c09575481c100e3c51199f3136a878"
+          }
+        ]
+      },
+      {
+        "operation_index": 4,
+        "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "relative_position_base64": "AMDFnPYCuApB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+            "hash": "dcf21c987dda38cb9f6ba4182a99afcb309c5d9dce0f7737a754ff601a9b7741"
+          }
+        ]
+      },
+      {
+        "operation_index": 5,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "relative_position_base64": "AJuY17sCvw9B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "hash": "cce318cb5bca2ab7685c678973115d139ca147cc3a4633905c1e501997c9441c"
+          }
+        ]
+      },
+      {
+        "operation_index": 6,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "11936f1c05dc6bfb3c95677fd90b36c1a3ced0a04a958ea72e59e1dc181fb949"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": {
+    "metadata": {
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "layout": "document",
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "preview": "The Mac CI investigation found that rebuilding missing cached files caused most of the delay: the same source took about45 minutes cold and15 minutes with its cache. A reviewed correction is published in [PR183](https://github.com/ewq100/br",
+      "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+      "owner_workspace_id": null,
+      "parent": {
+        "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+        "title": "BRN"
+      },
+      "drive_scope": "space",
+      "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+      "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+      "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+      "position": 1835500201638912,
+      "created_at": "2026-10-20T07:17:46.030410Z",
+      "updated_at": "2026-10-20T11:48:41.122370Z",
+      "deleted_at": null,
+      "current_sequence": 10,
+      "projection_through_sequence": 10,
+      "access": {
+        "can_read": true,
+        "can_comment": true,
+        "can_write": true,
+        "can_share": true,
+        "can_delete": true,
+        "sources": [
+          "library"
+        ]
+      },
+      "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "content": {
+      "schema_version": 2,
+      "symbol": null,
+      "title": "BRN Development Progress",
+      "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+      "blocks": [
+        {
+          "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "kind": "markdown",
+          "markdown": "The Mac CI investigation found that rebuilding missing cached files caused most of the delay: the same source took about45 minutes cold and15 minutes with its cache. A reviewed correction is published in [PR183](https://github.com/ewq100/brn-rust/pull/183); required checks are queued. The completion-and-Undo checks are merged, with checks on the resulting main version still running.",
+          "hash": "5c63808fec94e7535149676bcb4c72aac1b186b2b3fc11484e92cc370716a6eb",
+          "metadata": {}
+        },
+        {
+          "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "kind": "markdown",
+          "markdown": "Last refreshed: **20 October2026 at14:49 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+          "hash": "35b7fdf3f208cdedc5c12305573530e5db512988ba04bc9807010d8ebced5763",
+          "metadata": {}
+        },
+        {
+          "id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "kind": "markdown",
+          "markdown": "- **Completion and Undo checked:** [PR182](https://github.com/ewq100/brn-rust/pull/182) is merged after independent review and all four required pre-merge checks passed. It extends the existing desktop journey to confirm completion, verify its saved evidence, and undo that exact change. Checks on the resulting main version are still running; actual Mac interaction remains separate.",
+          "hash": "b67425950ceb14d7059f3b3a1f04bf3082c6060a364d812f8232e51f9261a2d2",
+          "metadata": {}
+        },
+        {
+          "id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "kind": "markdown",
+          "markdown": "- **More reliable export completion:** [PR181](https://github.com/ewq100/brn-rust/pull/181) is merged and all four required checks now pass on its resulting main version. The original Mac45-minute cancellation is preserved alongside the successful exact-source retry. Actual Mac export and broader durability observation remain separate.",
+          "hash": "e1898b97affb47e962722dc0198fc0d5f0c09575481c100e3c51199f3136a878",
+          "metadata": {}
+        },
+        {
+          "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "kind": "markdown",
+          "markdown": "- **Mac CI investigation and cleanup:** missing cached build files and converter compilation dominate the inspected delay; converter test execution itself took about two seconds. Removed5.89GB of obsolete caches belonging to merged PR182, preserving all five main caches. The earlier cache’s disappearance remains unexplained. [Investigation and evidence](https://github.com/ewq100/brn-rust/blob/codex/agent-first-followthrough/docs/work/active/vacation-campaign/ci-cache-investigation.md).",
+          "hash": "dcf21c987dda38cb9f6ba4182a99afcb309c5d9dce0f7737a754ff601a9b7741",
+          "metadata": {}
+        },
+        {
+          "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "kind": "markdown",
+          "markdown": "1. Verify [PR183](https://github.com/ewq100/brn-rust/pull/183) through the required checks before normal integration. It preserves every check, saves new shared caches only from main and gives the Mac job a bounded60-minute allowance. Independent review passed; no future speedup is claimed yet. The Project/Trash source audit found no actionable defect.",
+          "hash": "cce318cb5bca2ab7685c678973115d139ca147cc3a4633905c1e501997c9441c",
+          "metadata": {}
+        },
+        {
+          "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "kind": "markdown",
+          "markdown": "**No decision is needed from you now.** PR183 awaits required hosted checks and normal integration; PR182’s resulting-main checks are still running. Optional Windows failures remain recorded. Actual Mac interaction stays in the18:00Tallinn batch.",
+          "hash": "11936f1c05dc6bfb3c95677fd90b36c1a3ced0a04a958ea72e59e1dc181fb949",
+          "metadata": {}
+        }
+      ],
+      "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+    },
+    "view": "editing",
+    "selection": {
+      "mode": "block_ids",
+      "selection_complete": true,
+      "whole_page_complete": false,
+      "page_block_count": 26,
+      "returned_block_count": 7,
+      "matched_block_count": 7,
+      "context_blocks": 0,
+      "query_matches": [],
+      "missing_block_ids": [],
+      "blocks": [
+        {
+          "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "block_index": 0,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "block_index": 1,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "block_index": 3,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+          "block_index": 6,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+          "block_index": 13,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "block_index": 15,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        },
+        {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "block_index": 19,
+          "roles": [
+            "match"
+          ],
+          "query_indices": []
+        }
+      ]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. PR182 normally merged; main checks running. Cache investigation complete, bounded cache-save policy and MacCore time allowance prepared for review/publication. Mac batch18:00Tallinn.
+**Owner attention:** No owner decision requested. PR183 merged; required resulting-main checks pending. Draft repair reviewed/local-qualified and ready for separate publication; bounded Skills audit read-only. Mac batch remains18:00 Tallinn.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,37 +9,12 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Exercise Confirm done and its exact Undo in the desktop journey
-
-Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **active** · Last observed: 2026-10-20T11:37:02.369505+00:00
-Activity: PR182 normally mergedbc8a08e6 after fresh live protection and all4required exact-head/preceding-main checks passed. Resulting-main39415372292 running.
-Next: Inspect all4required resulting-main jobs; preserve unrelated optional Windows failures.
-Resource waits: Required resulting-mainbc8 checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
-- **checks:** PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed
-- **integration:** Normal mergebc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4; resulting-main pending
-- **native:** toolkit checks are not OS interaction or owner acceptance
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md), [https://github.com/ewq100/brn-rust/pull/182](https://github.com/ewq100/brn-rust/pull/182), [docs/work/active/vacation-campaign/evidence/pr182-premerge.json](active/vacation-campaign/evidence/pr182-premerge.json)
-
-Attempts:
-
-- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
-
-</details>
-
 ### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
-Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
-Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
+Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
+Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
+Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -48,11 +23,11 @@ Gates:
 
 - **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Publication/required exact-head/resulting-main gates pending
+- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
 - **native:** inapplicable CI resource policy only
 - **owner acceptance:** not requested; existing in-scope maintenance authority
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
 
 Attempts:
 
@@ -62,9 +37,10 @@ Attempts:
 
 ### Keep shared Rust caches without duplicate PR uploads
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
-Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
-Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T12:16:42.598235+00:00
+Activity: PR183 normally merged as63345a8e after fresh strict protection and all four required exact-head/preceding-main checks passed. Resulting tree exactly matches passing head1e6abb60; resulting-main checks pending.
+Next: Inspect all required resulting-main633 checks; retain optional failures and actual cache-save observations without claiming a benchmark.
+Resource waits: Required resulting-main63345a8e checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -73,11 +49,64 @@ Gates:
 
 - **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
 - **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
-- **integration:** Publication/required exact-head/resulting-main gates pending
+- **integration:** Normal merge63345a8e verified; all four required head checks PASS; resulting-main pending
 - **native:** inapplicable CI policy only
 - **owner acceptance:** not requested; authorized campaign follow-up
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md), [https://github.com/ewq100/brn-rust/pull/183](https://github.com/ewq100/brn-rust/pull/183), [docs/work/active/vacation-campaign/evidence/pr183-publication.json](active/vacation-campaign/evidence/pr183-publication.json), [docs/work/active/vacation-campaign/evidence/pr183-premerge.json](active/vacation-campaign/evidence/pr183-premerge.json), [docs/work/active/vacation-campaign/evidence/pr183-integration.json](active/vacation-campaign/evidence/pr183-integration.json)
+
+</details>
+
+### Preserve unsent drafts when a note creates its writing conversation
+
+Owner: lead integration; independent Sol review completed; bounded implementation complete · State: **active** · Last observed: 2026-10-20T12:33:11.472595+00:00
+Activity: Final clean2b836148 passes notice18, desktop340/0/1, strict lint, ordinary native build; core storage11 reused unchanged. Independent complete/targeted reviews PASS; both P2 corrections verified and original red/invalid attempts retained.
+Next: Compose exact qualified source with lead records, verify source equality and documentation, publish separate draft-recovery PR; inspect exact-head required checks before normal integration.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete local2b836148 atomic generation-checked transfer and scoped recovery attention; no schema/dependency/provider/prompt changes
+- **checks:** PASS independent690/574/2b836 scope reviews, final notice18 desktop340/0/1, strict lint/fmt/native build; unchanged11storage reused
+- **integration:** pending separate publication and all actual required exact-head gates; source not yet inmain
+- **native:** not observed; synthetic toolkit test is separate from OS interaction
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_context_actions.rs](../../crates/brn-desktop/src/threads_context_actions.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json), [crates/brn-threads-core/src/chat.rs](../../crates/brn-threads-core/src/chat.rs), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-690-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-574-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json)
+
+Attempts:
+
+- Compiled old source failed at fresh-view exact-draft assertion twice; final witness also retains unrelated Note and Thread draft.: Selected safe atomic transfer instead of in-memory-only adoption; candidate execution and independent review remain pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-qualification.json))
+- Independent690 review found recovery warning can be replaced by asynchronous worker completion; local offline case had no worker.: Valid/fix selected. Prove actual completion path, keep unresolved recovery attention distinct from remembered work result; final candidate/review pending. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-690.md](active/vacation-campaign/evidence/writing-draft-recovery-review-690.md))
+- 574 independently fixes prior asynchronous warning overwrite but recovery Dismiss also clears a separate hidden Ordinary error. Original574 checks339/0/1 and native artifact retained.: Lead verified source/caller consequence; tiny scoped dismissal correction, preserve normal remembered work hide/restore. No general sticky-error redesign. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-574.md](active/vacation-campaign/evidence/writing-draft-recovery-review-574.md))
+- Compiled574 plus regression failed1/101 at missing ordinary error; first zero-test filter invalid and retained. Final2b836 witness/final gates pass; independent review no remaining findings.: Dismiss acknowledges only visible scoped recovery while preserving a separate ordinary error; remembered work lifecycle unchanged. Misreported chat digest corrected from actualgit; original artifacts preserved. ([docs/work/active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md](active/vacation-campaign/evidence/writing-draft-recovery-review-2b836.md), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json))
+
+</details>
+
+### Inspect stale skill choices and scope changes
+
+Owner: bounded Luna source audit; lead disposition · State: **active** · Last observed: 2026-10-20T12:31:36.744155+00:00
+Activity: Selected the remaining Skills UI/service handoff for one bounded read-only audit; developer configuration remains separate from shipped runtime prompts.
+Next: Trace refresh/install/inspect/enable/select/remove and delayed folder-picker scope; report concrete accepted-behavior defects or bounded no-finding result with exact source references.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no product change selected
+- **checks:** source/caller/test mapping pending; no build dispatch
+- **integration:** inapplicable unless a later verified defect selects a separate candidate
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs)
+
+Attempts:
+
+- Overview refresh refused missing required attempts field; last valid page preserved.: Supplied explicit attempt history and reran record validation; no product or gate changed. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py))
 
 </details>
 
@@ -140,13 +169,21 @@ Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
 
-### Exercise Confirm done and its exact Undo in the desktop journey
+### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: development lead; bounded Luna implementation and independent Sol high review completed
+Owner: lead implementation; independent Sol source review completed
 
 Waiting:
 
-- resource: Required resulting-mainbc8 checks.
+- resource: Required resulting-main63345a8e checks.
+
+### Keep shared Rust caches without duplicate PR uploads
+
+Owner: lead implementation; independent Sol source review completed
+
+Waiting:
+
+- resource: Required resulting-main63345a8e checks.
 
 ## Completed
 
@@ -540,6 +577,31 @@ Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](
 
 </details>
 
+### Exercise Confirm done and its exact Undo in the desktop journey
+
+Owner: development lead; bounded Luna implementation and independent Sol high review completed · State: **complete** · Last observed: 2026-10-20T12:14:36.811083+00:00
+Activity: PR182 normally merged bc8a08e6; all four required resulting-main checks now PASS. Optional Windows failures retained.
+Next: Reuse verified integrated source; actual Mac controls and owner acceptance remain separate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete12679ef4; one test file +71lines, existing test count unchanged
+- **checks:** PASS complete independent review/local checks and all4required exact-head39403071180; optional WindowsCore failed
+- **integration:** PASS normal merge bc8a08e6 plus all four required resulting-main39415372292 checks
+- **native:** toolkit checks are not OS interaction or owner acceptance
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/action-history-audit.md](active/vacation-campaign/evidence/action-history-audit.md), [docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json), [docs/work/active/vacation-campaign/evidence/action-completion-review.md](active/vacation-campaign/evidence/action-completion-review.md), [https://github.com/ewq100/brn-rust/pull/182](https://github.com/ewq100/brn-rust/pull/182), [docs/work/active/vacation-campaign/evidence/pr182-premerge.json](active/vacation-campaign/evidence/pr182-premerge.json), [docs/work/active/vacation-campaign/evidence/pr182-resulting-main.json](active/vacation-campaign/evidence/pr182-resulting-main.json)
+
+Attempts:
+
+- Test authoring initially looked for Tasks controls while History was focused, then incorrectly expected Undo to reuse the original record version.: Navigate actual Tasks view explicitly and bind receipt.before to actual restored record (version3). Final checks pass; no production defect found. ([docs/work/active/vacation-campaign/evidence/action-completion-qualification.json](active/vacation-campaign/evidence/action-completion-qualification.json))
+
+</details>
+
 ### Route older agent-first results to current task facts
 
 Owner: development lead; mechanical routing inspection · State: **complete** · Last observed: 2026-10-20T09:45:22.800409+00:00
@@ -628,6 +690,48 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-pr182-cleanup.js
 
 </details>
 
+### Inspect stale search results across view and scope changes
+
+Owner: bounded read-only Luna medium helper; development lead validates · State: **complete** · Last observed: 2026-10-20T11:56:42.338154+00:00
+Activity: Luna bounded source/test audit and lead validation found no actionable Search/launcher defect. Request identity guards reject stale completion; existing witnesses cover supersession and independent paging.
+Next: No new mirror test or refactor selected; revisit on a concrete failure.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inspection only; no source change selected
+- **checks:** PASS bounded inspection only; tests not executed
+- **integration:** inapplicable until a concrete candidate exists
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [crates/brn-desktop/src/threads_pages_tests.rs](../../crates/brn-desktop/src/threads_pages_tests.rs), [docs/work/active/vacation-campaign/evidence/general-search-audit.md](active/vacation-campaign/evidence/general-search-audit.md)
+
+</details>
+
+### Inspect drafts and attachments when switching conversations
+
+Owner: bounded read-only Luna medium helper; development lead validates · State: **complete** · Last observed: 2026-10-20T11:56:42.338154+00:00
+Activity: Initial navigation/send/attachment pass found no issue. Lead follow-up isolated a distinct first-writing-chat draft adoption persistence gap; supplemental audit confirmed source-supported restart risk.
+Next: Selected writing-draft-recovery task owns reproduction and correction; preserve both original and supplemental audit.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inspection only; no source change selected
+- **checks:** Bounded source inspection; recovery defect requires a disposable view-recreation witness before implementation
+- **integration:** inapplicable until a concrete candidate exists
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_state.rs](../../crates/brn-desktop/src/threads_state.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/composer-draft-adoption-audit.md](active/vacation-campaign/evidence/composer-draft-adoption-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -646,4 +750,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T11:48:01.528904+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T12:33:11.472595+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

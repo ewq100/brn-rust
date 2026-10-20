@@ -1,0 +1,466 @@
+{
+  "observed_at": "2026-10-20T12:30:21.302308+00:00",
+  "candidate": "2b8361480261eda65818b90cb50508c047a62031",
+  "parent": "5744d102573134474c38ae1352ea1abfccb53567",
+  "base": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+  "source_delta": "only threads_notice.rs",
+  "delta_sha256": "46deb8fa3d5f3ad37e42050d6c579147bd3dafb5c7028ed9426898ffef7af8c2",
+  "archive": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/candidate-2b836-dismissal.tar.gz",
+  "archive_sha256": "a14400104bfbada82f8d667ab7aabf9d3632a0718e9a45e4c9874fab8099f199",
+  "files": [
+    {
+      "name": "brn-draft-dismiss-scope-01-old-source-red.diff",
+      "sha256": "8426ae0dde3b181d843c00a06c3d7e3359d459cd4e3aa25a6635f43fb0a4b5dc",
+      "size": 1177
+    },
+    {
+      "name": "brn-draft-dismiss-scope-01-old-source-red.json",
+      "sha256": "7f33ce6b9f7b339c65da4e86ccd5bd61cd874f4a90d22f30038104325340e315",
+      "size": 2027
+    },
+    {
+      "name": "brn-draft-dismiss-scope-01-old-source-red.log",
+      "sha256": "cebfcb8a7012248d854be79d9c69922dbeb4c8aadedeb25bb81cbf75b2d84a62",
+      "size": 680
+    },
+    {
+      "name": "brn-draft-dismiss-scope-01-old-source-red.rs",
+      "sha256": "71f53fc25ca92d9d2c99f0c33bef3e82421f68c3e9d8b148978cfac42430f57b",
+      "size": 7144
+    },
+    {
+      "name": "brn-draft-dismiss-scope-02-old-source-red.diff",
+      "sha256": "8426ae0dde3b181d843c00a06c3d7e3359d459cd4e3aa25a6635f43fb0a4b5dc",
+      "size": 1177
+    },
+    {
+      "name": "brn-draft-dismiss-scope-02-old-source-red.json",
+      "sha256": "e0df8e539b8fe730e5054e006c004f8e1df3cdd9868c77478f9d0e2c01d608eb",
+      "size": 2264
+    },
+    {
+      "name": "brn-draft-dismiss-scope-02-old-source-red.log",
+      "sha256": "3ba5e93193bce34ae5bc12f95e9da504aac8c9e568e232e9396a1b72723d4c65",
+      "size": 1368
+    },
+    {
+      "name": "brn-draft-dismiss-scope-02-old-source-red.rs",
+      "sha256": "71f53fc25ca92d9d2c99f0c33bef3e82421f68c3e9d8b148978cfac42430f57b",
+      "size": 7144
+    },
+    {
+      "name": "brn-draft-dismiss-scope-03-candidate.diff",
+      "sha256": "46deb8fa3d5f3ad37e42050d6c579147bd3dafb5c7028ed9426898ffef7af8c2",
+      "size": 1708
+    },
+    {
+      "name": "brn-draft-dismiss-scope-04-final-notice-focus.json",
+      "sha256": "6f7bc9d3b066ef4d81afd1f0b4d4487d7fe361bbe4eb2f73c51e9a60e4029ddf",
+      "size": 2193
+    },
+    {
+      "name": "brn-draft-dismiss-scope-04-final-notice-focus.log",
+      "sha256": "2ca55b4b3dd6104ae2c3dcb723baad44aebfd8fc29003c61cfaa8445cea05934",
+      "size": 2480
+    },
+    {
+      "name": "brn-draft-dismiss-scope-05-final-desktop-suite.json",
+      "sha256": "888d2fbaa514750e6d9bdbd7a2d60ca7223432a51b3ac6236707a11e7036885b",
+      "size": 2180
+    },
+    {
+      "name": "brn-draft-dismiss-scope-05-final-desktop-suite.log",
+      "sha256": "f90bfe6e46f8cdc5c755ac8269339ad4af90e1c13010aeda24c3c163eef7803b",
+      "size": 35244
+    },
+    {
+      "name": "brn-draft-dismiss-scope-06-final-clippy.json",
+      "sha256": "0597f09afd8dbaa9e0bcb7595abf0ef67ecf02f308191a0657c3c3f6186b7066",
+      "size": 2107
+    },
+    {
+      "name": "brn-draft-dismiss-scope-06-final-clippy.log",
+      "sha256": "42457b3418c4ce8971d7f7d3f3823f2010feeff5beab8a20b56578eccdf10e09",
+      "size": 418
+    },
+    {
+      "name": "brn-draft-dismiss-scope-07-final-ordinary-native-build.json",
+      "sha256": "d7d532b2b9cbfe3d3e8fcd0b90a87456d1cfe35328a7ede126e3162d65495924",
+      "size": 2029
+    },
+    {
+      "name": "brn-draft-dismiss-scope-07-final-ordinary-native-build.log",
+      "sha256": "697a6b1f403062a8f5faedd9a2d027672d4c7846fbc4dda7ddbac10a004f2a96",
+      "size": 418
+    },
+    {
+      "name": "brn-draft-dismiss-scope-08-final-source.rs",
+      "sha256": "4e4c40eb3da46d742de43d6ebf4db7df25a8525f242cba78289f55c54441cc72",
+      "size": 7371
+    }
+  ],
+  "original_records": [
+    {
+      "name": "brn-draft-dismiss-scope-01-old-source-red.json",
+      "content": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "dismiss_preserving_a_distinct_ordinary_error"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "5744d102573134474c38ae1352ea1abfccb53567",
+        "patch_sha256": "8426ae0dde3b181d843c00a06c3d7e3359d459cd4e3aa25a6635f43fb0a4b5dc",
+        "exit_code": 0,
+        "elapsed_seconds": 49.44,
+        "free_before_bytes": 27526103040,
+        "free_after_bytes": 27523448832,
+        "expected_behavioral_red": false
+      },
+      "actual_log_sha256": "cebfcb8a7012248d854be79d9c69922dbeb4c8aadedeb25bb81cbf75b2d84a62"
+    },
+    {
+      "name": "brn-draft-dismiss-scope-02-old-source-red.json",
+      "content": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "dismissing_recovery_preserves_a_distinct_ordinary_error_for_acknowledgement"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "5744d102573134474c38ae1352ea1abfccb53567",
+        "patch_sha256": "8426ae0dde3b181d843c00a06c3d7e3359d459cd4e3aa25a6635f43fb0a4b5dc",
+        "exit_code": 101,
+        "elapsed_seconds": 0.32,
+        "free_before_bytes": 27521335296,
+        "free_after_bytes": 27520999424,
+        "expected_behavioral_red": true,
+        "test_count_line": "running 1 test",
+        "evidence": "Expected failure: after recovery Dismiss, text was empty instead of the preserved ordinary error."
+      },
+      "actual_log_sha256": "3ba5e93193bce34ae5bc12f95e9da504aac8c9e568e232e9396a1b72723d4c65"
+    },
+    {
+      "name": "brn-draft-dismiss-scope-04-final-notice-focus.json",
+      "content": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "notice"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "2b8361480261eda65818b90cb50508c047a62031",
+        "dirty_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit_code": 0,
+        "elapsed_seconds": 47.62,
+        "free_before_bytes": 27519365120,
+        "free_after_bytes": 27519262720,
+        "test_summary": [
+          "running 18 tests",
+          "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 323 filtered out; finished in 0.25s"
+        ]
+      },
+      "actual_log_sha256": "2ca55b4b3dd6104ae2c3dcb723baad44aebfd8fc29003c61cfaa8445cea05934"
+    },
+    {
+      "name": "brn-draft-dismiss-scope-05-final-desktop-suite.json",
+      "content": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "2b8361480261eda65818b90cb50508c047a62031",
+        "dirty_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit_code": 0,
+        "elapsed_seconds": 17.04,
+        "free_before_bytes": 27519246336,
+        "free_after_bytes": 27516948480,
+        "test_summary": [
+          "running 341 tests",
+          "test result: ok. 340 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 16.76s"
+        ]
+      },
+      "actual_log_sha256": "f90bfe6e46f8cdc5c755ac8269339ad4af90e1c13010aeda24c3c163eef7803b"
+    },
+    {
+      "name": "brn-draft-dismiss-scope-06-final-clippy.json",
+      "content": {
+        "command": [
+          "cargo",
+          "clippy",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui,native-test-support",
+          "-p",
+          "brn-desktop",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "2b8361480261eda65818b90cb50508c047a62031",
+        "dirty_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit_code": 0,
+        "elapsed_seconds": 4.61,
+        "free_before_bytes": 27516936192,
+        "free_after_bytes": 27516985344,
+        "test_summary": []
+      },
+      "actual_log_sha256": "42457b3418c4ce8971d7f7d3f3823f2010feeff5beab8a20b56578eccdf10e09"
+    },
+    {
+      "name": "brn-draft-dismiss-scope-07-final-ordinary-native-build.json",
+      "content": {
+        "command": [
+          "cargo",
+          "build",
+          "--locked",
+          "--offline",
+          "--jobs",
+          "1",
+          "--features",
+          "native-ui",
+          "-p",
+          "brn-desktop"
+        ],
+        "overrides": {
+          "PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/homebrew/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/evokessler/.codex/tmp/arg0/codex-arg0bZFPbj:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/evokessler/.bun/bin:/Users/evokessler/.local/bin:/opt/homebrew/sbin:/Users/evokessler/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+          "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+          "CARGO_INCREMENTAL": "0",
+          "CARGO_PROFILE_DEV_DEBUG": "0",
+          "CARGO_PROFILE_TEST_DEBUG": "0",
+          "RUST_TEST_THREADS": "1",
+          "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+          "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+          "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn"
+        },
+        "head": "2b8361480261eda65818b90cb50508c047a62031",
+        "dirty_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit_code": 0,
+        "elapsed_seconds": 5.43,
+        "free_before_bytes": 27516968960,
+        "free_after_bytes": 27516338176,
+        "test_summary": []
+      },
+      "actual_log_sha256": "697a6b1f403062a8f5faedd9a2d027672d4c7846fbc4dda7ddbac10a004f2a96"
+    }
+  ],
+  "artifact_manifest": {
+    "created_utc": "20261020T122939Z",
+    "candidate_commit": "2b8361480261eda65818b90cb50508c047a62031",
+    "candidate_tree": "d0f6def33bd5b35fe64bfd507bfde4c1ff0cf7b4",
+    "prior_candidate_preserved": "5744d102573134474c38ae1352ea1abfccb53567",
+    "earlier_candidate_preserved": "690c2c3f31a0f11e3405f2f2d0479be024190eb8",
+    "branch": "codex/writing-draft-recovery",
+    "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "clean_worktree_observed": true,
+    "ordinary_native_build_record": "/tmp/brn-draft-dismiss-scope-07-final-ordinary-native-build.json",
+    "ordinary_native_build_log_sha256": "697a6b1f403062a8f5faedd9a2d027672d4c7846fbc4dda7ddbac10a004f2a96",
+    "features": [
+      "native-ui"
+    ],
+    "toolchain": "1.98.1-aarch64-apple-darwin",
+    "source_file": {
+      "path": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-desktop/src/threads_notice.rs",
+      "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/threads_notice.rs",
+      "sha256": "4e4c40eb3da46d742de43d6ebf4db7df25a8525f242cba78289f55c54441cc72"
+    },
+    "app": {
+      "original": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+      "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/brn-desktop",
+      "sha256": "8afa2e8ca481ec8e7d116b774d4abf3073e9fca9c8b4078977626cadb657bd7e",
+      "size_bytes": 165874224
+    },
+    "helpers": [
+      {
+        "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+        "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "size_bytes": 131732512,
+        "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/tools/xberg-intake-helper",
+        "build_identity": "backend=xberg\nengine_identity=xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d\n",
+        "current_source_files_sha256": {
+          "Cargo.toml": "2f45d3df9291736a1c19c5466c34ac8898ffe7a29df7238c19fd782b7400e4f9",
+          "Cargo.lock": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+          "build-identity.txt": "b47231eb31790574819516bbf34cf409476c57e9f35333f157f6f0bbc6f3bcdc",
+          "src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0"
+        },
+        "matching_existing_build_receipts": [
+          {
+            "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-20261019T063628Z-97481.sha256",
+            "text": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper\n",
+            "sha256": "85eefb5e07c4f6957a34620cbe4632255288ad9f395ef36820150c2eb4bb44a9"
+          }
+        ]
+      },
+      {
+        "original": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+        "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "size_bytes": 131924176,
+        "source_root_binding": "/Users/evokessler/.codex/worktrees/notice-state/brn-rust/target/xberg-adapted/workspace",
+        "build_identity": "backend=xberg_brn\nengine_identity=xberg/1.3.10/brn/524a4d3bb6a9eeae95f586bc71a9330bd2ba7e43af1e1c681e16eb01896bb490\n",
+        "current_source_files_sha256": {
+          "Cargo.toml": "4f0d1b323b540b2b36be85b173573f7d1c5e59578c67abe07cdb005b7c135c6b",
+          "Cargo.lock": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+          "build-identity.txt": "4da5e806586ac00048db3c5460ff09593c6056ff90b9c8c7817f8587a907e5d8"
+        },
+        "matching_existing_build_receipts": [
+          {
+            "path": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/receipts/brn-xberg-helper-brn-20261019T063912Z-97481.sha256",
+            "text": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc  /Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn\n",
+            "sha256": "3d99a14ffc54e4ad37e6d36d6d742137234482ebd43a2b17ce6b36d4dacbe086"
+          }
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "record": "/tmp/brn-draft-dismiss-scope-04-final-notice-focus.json",
+        "log": "/tmp/brn-draft-dismiss-scope-04-final-notice-focus.log",
+        "record_sha256": "6f7bc9d3b066ef4d81afd1f0b4d4487d7fe361bbe4eb2f73c51e9a60e4029ddf",
+        "log_sha256": "2ca55b4b3dd6104ae2c3dcb723baad44aebfd8fc29003c61cfaa8445cea05934"
+      },
+      {
+        "record": "/tmp/brn-draft-dismiss-scope-05-final-desktop-suite.json",
+        "log": "/tmp/brn-draft-dismiss-scope-05-final-desktop-suite.log",
+        "record_sha256": "888d2fbaa514750e6d9bdbd7a2d60ca7223432a51b3ac6236707a11e7036885b",
+        "log_sha256": "f90bfe6e46f8cdc5c755ac8269339ad4af90e1c13010aeda24c3c163eef7803b"
+      },
+      {
+        "record": "/tmp/brn-draft-dismiss-scope-06-final-clippy.json",
+        "log": "/tmp/brn-draft-dismiss-scope-06-final-clippy.log",
+        "record_sha256": "0597f09afd8dbaa9e0bcb7595abf0ef67ecf02f308191a0657c3c3f6186b7066",
+        "log_sha256": "42457b3418c4ce8971d7f7d3f3823f2010feeff5beab8a20b56578eccdf10e09"
+      },
+      {
+        "record": "/tmp/brn-draft-dismiss-scope-07-final-ordinary-native-build.json",
+        "log": "/tmp/brn-draft-dismiss-scope-07-final-ordinary-native-build.log",
+        "record_sha256": "d7d532b2b9cbfe3d3e8fcd0b90a87456d1cfe35328a7ede126e3162d65495924",
+        "log_sha256": "697a6b1f403062a8f5faedd9a2d027672d4c7846fbc4dda7ddbac10a004f2a96"
+      }
+    ],
+    "limits": [
+      "Built but not launched or native-observed",
+      "Independent review pending lead disposition",
+      "No owner acceptance, publication, integration or release claim",
+      "Unchanged supplied helpers/source-file bindings verified against preserved 5744 manifest; no helper rebuild performed"
+    ]
+  },
+  "artifact_manifest_path": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/manifest.json",
+  "artifact_manifest_sha256": "e2c6bd441b04b6279be9d586cf58c52052f16ba662d632acac750024f3bb56f7",
+  "checks": {
+    "old_source_01": "invalid zero-test filter; retained, not proof",
+    "old_source_02": "meaningful1test behavioral failure exit101 before correction",
+    "final_notice": "18 passed",
+    "final_desktop": "340 passed/0 failed/1 existing ignored",
+    "strict_all_target_lint": "PASS",
+    "format_and_diff": "PASS",
+    "ordinary_native_ui_build": "PASS",
+    "unchanged_core_storage": "690qualification11 reused; core tree identical574/2b836"
+  },
+  "limits": [
+    "Independent final review/report pending at receipt creation",
+    "No native app launch; actual Mac interaction and owner acceptance pending",
+    "No account/provider/credential/private data actions",
+    "Existing ignored shared CLI intake fixture and block0.1.6 advisory retained",
+    "No publication/integration/release in worker"
+  ],
+  "qualification_notes": [
+    "Author chat message contained an incorrect final digest suffix; lead recomputed actual git binary diff SHA shown above. Original artifacts/messages are not rewritten.",
+    "Original01 expected_behavioral_red marker was intent; command exited0 with zero tests. Invalid attempt retained, only02 establishes red behavior."
+  ],
+  "lead_reconciliation": {
+    "immutable_app_and_helper_hashes": "PASS recomputed all3",
+    "core_source_690_to_final": "identical; reuse11storagechecks",
+    "source_delta_digest": "PASS recomputed actualgit",
+    "final_receipt_source": "all4final commands pin clean2b836; no reviewer rerun implied"
+  }
+}

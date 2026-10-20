@@ -1,0 +1,47 @@
+{
+  "observed_at": "2026-10-20T12:01:02.736355+00:00",
+  "base": "bc8a08e64b0dc1e2b33ff181dfdb54b62f59f5e4",
+  "worker_branch": "codex/writing-draft-recovery",
+  "scope": "actual comment creates/adopts writing chat; fresh disposable Workspace/view loses exact unsent draft without intermediate edit/navigation",
+  "old_source_result": "FAIL meaningful recovery assertion twice, original/final test variants retained; compilation successful, no harness failure",
+  "test_file_sha256": "12492a9d61d14b1018e98a46bf9a18de51c2abdc3fb4c7306cb7835ad53c0ce9",
+  "reproduction_patch_sha256": "b9fc6a28a9e4c6be1f2e002b7dd1aca2c137f9c5cbcf0f92bd1abe6f66731864",
+  "lead_validation": "Read complete test diff and final original log: expected exact Unicode/multiline draft, actual empty after fresh view; unrelated data assertions retained. New view is a deterministic toolkit recovery witness, not OS process close.",
+  "archives": [
+    {
+      "source_name": "brn-draft-recovery-reproduction.md",
+      "path": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/brn-draft-recovery-reproduction.md.gz",
+      "original_bytes": 3054,
+      "original_sha256": "8246f476e1903566de15badf7cc39d6332550397c90d77fbc0eb28b35675623a",
+      "archive_sha256": "5e706ab967ddfe25e4d752c2a377270026729d28e92bcbc3cb086554546a3134"
+    },
+    {
+      "source_name": "brn-draft-recovery-patch.diff",
+      "path": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/brn-draft-recovery-patch.diff.gz",
+      "original_bytes": 4540,
+      "original_sha256": "b9fc6a28a9e4c6be1f2e002b7dd1aca2c137f9c5cbcf0f92bd1abe6f66731864",
+      "archive_sha256": "0e1af636006f581c96888c77f37f8fa194188332f693869497e411fb88d9faea"
+    },
+    {
+      "source_name": "attempt-1-old-source.log",
+      "path": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/attempt-1-old-source.log.gz",
+      "original_bytes": 1453,
+      "original_sha256": "97d12f74466c5c38a09d67deac2965bdd53df6108bab0023a8299a1c54e3e4d8",
+      "archive_sha256": "539085a1fab0901d97b152a3f0509ed631b9195be9667b488b04add0104d951c"
+    },
+    {
+      "source_name": "attempt-2-old-source.log",
+      "path": "docs/work/active/vacation-campaign/evidence/draft-recovery-raw/attempt-2-old-source.log.gz",
+      "original_bytes": 1453,
+      "original_sha256": "f4ba2236d024f2e6143be1e834c2587f0c5a36e69e332c591b039f4ff878231e",
+      "archive_sha256": "508bcc66d9d475a768db49856a1a89382668b832bf1458ab759b9e4c86565006"
+    }
+  ],
+  "implementation": "pending; no production correction yet",
+  "limits": [
+    "No native/owner acceptance",
+    "No account/provider call",
+    "No inspection/migration of owner workspace",
+    "One shared build slot; pinned1.98.1 locked/offline/jobs1 and existing helpers"
+  ]
+}

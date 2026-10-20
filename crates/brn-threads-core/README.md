@@ -69,6 +69,12 @@ retain the ordering tombstone, so delayed recovery writes cannot resurrect a
 guard. Delayed generations cannot overwrite newer typing. Successful Save retry
 returns its receipt; stale Save preserves the user's buffer.
 
+Composer recovery keeps only the latest text per host destination. A draft
+transfer checks both exact optional generations (absence differs from generation
+zero) and refuses an occupied target under the SQLite writer lock. Target text
+and the source's empty generation tombstone commit together, so failed or stale
+handoffs preserve both destinations and delayed source saves remain fenced.
+
 `undo(compensation_operation, original_operation, authority)` constructs an
 immutable atomic compensation from the original receipt's actual write set. It
 checks precisely the resulting versions of those records. A new unrelated link
