@@ -1,0 +1,302 @@
+{
+  "started_at": "2026-10-20T14:10:16.358482+00:00",
+  "owner_authority": "Owner20October: You can start the Mac work. Early consolidated session authorized.",
+  "source": "75a66a74986792e882d1eb28c549ccacf8e7a807",
+  "app": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app",
+  "artifacts": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+      "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d",
+      "mode": "0o555",
+      "executable": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "mode": "0o555",
+      "executable": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN Threads.app/Contents/Resources/bin/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "mode": "0o555",
+      "executable": true
+    }
+  ],
+  "data_dir": "/private/tmp/brn-native-20261020T134854Z/data",
+  "preflight_receipt": "docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json",
+  "preflight_sha256": "28fdb52182a5efeefc869ecafa150e558f5bb498e0e053410d282b9108fb91ed",
+  "actor": "lead, sole CUA Mac actor; no account tests or build",
+  "startup_observation": {
+    "initial_launch": "CUA getApp(path) automatically launched correct explicit synthetic app; fresh empty UI observed before any Note creation. Planned open --env command was not executed.",
+    "closure": "CUA observation reacquisition can reopen a closed target; final OS close followed by listApps showed no BRN entry. Subsequent reopen must be explicit and read-only checker runs while closed.",
+    "launcher_adjustment": "Two task-only environment exports added to generated local launcher so subsequent CUA launches use task logs and no inherited embedding-model folder; no product source or binary change.",
+    "original_launcher_copy": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/BRN-Threads.original",
+    "original_launcher_sha256": "283bd2629926334c3d0ee07c8edbbe33243e5e6f90d499d0dc5bf568ee716ae3",
+    "actual_launcher_sha256": "2ef6ea870428016d57c629384c97f2adde870cbc3c9163458c3ffb2d84f659e7",
+    "syntax_check": "bash -n PASS, no launch"
+  },
+  "scenarios": {
+    "MAC-01": {
+      "verdict": "PASS actual Mac Save/navigation/OS close/reopen plus exact read-only text/version and no open edit session",
+      "actions": [
+        "New note through actual controls; typed title; paste independent initial fixture; Cmd+S",
+        "Select all and paste final fixture; Cmd+S; Saved banner and v3 visible",
+        "Create/save unrelated sentinel note; Notes list coordinate click returns to first note",
+        "OS window close; CUA app inventory empty and owned desktop process absent; explicit relaunch; Notes list click opens saved note",
+        "AX editor value and screenshot show final Unicode/multiline content; read-only canonical exact hash/version and empty session checked"
+      ],
+      "note_id": "71f94453-7c29-4379-88d8-b569a595805a:0",
+      "canonical_sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e",
+      "receipts": [
+        "mac01-preclose.json",
+        "mac01-closed.json",
+        "mac01-reopened.json"
+      ],
+      "limits": "Real paste/keyboard/controls; not IME or VoiceOver qualification. Screenshot/AX observed in chat; no PNG export."
+    },
+    "MAC-10": {
+      "verdict": "PASS actual first-comment adoption and normal OS close/reopen; exact draft and canonical/sentinel retained",
+      "actions": [
+        "Confirmed no linked writing Thread; unsent exact composer fixture persisted under Note generation1",
+        "Selected whole saved passage with Cmd+A and Cmd+/; posted one synthetic comment without Send or Rewrite",
+        "Before any further composer edit/navigation, read-only source Note tombstone generation2 and target Thread draft generation1 held exact50bytes",
+        "OS close inventory empty; closed-state read-only check; explicit relaunch and open Note normally",
+        "AX composer and screenshot show original multiline draft; read-only draft rows and generations exactly match post-comment"
+      ],
+      "thread_id": "0281eeab-53c1-4d7e-8182-e04c81b60b94:0",
+      "draft_sha256": "ceddb0fd3ca4fcf29044f4b41ea943ef549770f106a756173655cd3f7b9eec76",
+      "receipts": [
+        "mac10-before-comment.json",
+        "mac10-after-comment.json",
+        "mac10-closed.json",
+        "mac10-reopened.json"
+      ],
+      "original_attempts": [
+        "CUA selectText unsupported selected-text-range setter after composer paste; fresh AX confirmed paste applied. Switched to actual keyboard selection and verified highlighted source before posting."
+      ],
+      "limits": "Already-durable handoff and normal close/reopen, not crash/power-loss or unprocessed input. No account run."
+    },
+    "MAC-03": {
+      "verdict": "PASS actual full-backup completion, repeated Dismiss/Last work status restoration, readable exact synthetic backup",
+      "actions": [
+        "Settings Data Change folder; OS chooser Cmd+Shift+G to explicit empty task backup destination",
+        "Create full backup; visible green Full backup created.",
+        "Dismiss and Layout Last work status twice; identical success text/severity restored, exactly one backup file",
+        "Read-only SQLite integrity ok; exact Note versions/text and draft rows match before backup; primary state unchanged"
+      ],
+      "backup_sha256": "111f1d1f904461ff9ee6ea09ab21118de6de60ac8bddae2ec84220c1755d4211",
+      "receipts": [
+        "mac03-before-backup.json",
+        "mac03-after-restorations.json",
+        "mac03-backup-readable.json"
+      ],
+      "limits": "Readable backup, not an exercised restore. OS picker initially showed remembered folder metadata; no owner content opened or retained in receipts."
+    },
+    "MAC-04": {
+      "verdict": "PASS actual unsaved Unicode/multiline recovery after normal OS close/reopen; canonical bytes/version unchanged",
+      "actions": [
+        "Paste independent unsaved-recovery fixture without Save; visible Unsaved edit recoverable",
+        "Read-only exact durable open edit session confirmed before close, canonical v3 still saved fixture",
+        "OS close and empty BRN inventory; closed-state read-only check",
+        "Explicit relaunch and normal Note navigation; editor AX and screenshot show exact unsaved fixture; session/base/generation unchanged"
+      ],
+      "session": "f667eb74-fc1c-4ecd-be78-035aad5ad4a1",
+      "base": 3,
+      "generation": 1,
+      "draft_sha256": "81e6224b4042ad42b4f68549095ec221cb8df312eb5cd39715b30f127a723529",
+      "receipts": [
+        "mac04-preclose.json",
+        "mac04-closed.json",
+        "mac04-reopened.json"
+      ],
+      "limits": "Already durable edit and normal close/reopen, not crash/power-loss or unprocessed input. Original synthetic workspace retains the unsaved edit; not discarded or repaired."
+    },
+    "MAC-09": {
+      "verdict": "PASS actual saved proposal Result/Apply/Undo, exact read-only records and exact compensation identity; final app close deferred by Mac lock",
+      "actions": [
+        "Read-only SQLite online backup of original successful synthetic fixture into fresh task root; only marker copied, original file hashes unchanged",
+        "Open Needs you writing item then Review rewrite; inspect cobalt to teal diff and Result text",
+        "Leave Model suggests addressed OFF; Apply2changes; visible Note v2 exact teal text, Comment remains pending/tied to v1",
+        "Click actual applied rewrite Undo; visible Note v3 original cobalt text, Comment still pending; read-only exact compensation undo_of matches candidate"
+      ],
+      "candidate_operation": "7571d9e7-71f7-432f-9d9c-d3fad71589a0",
+      "undo_operation": "f1e239e9-42e5-4ed0-9526-ca3a80abd8e6",
+      "account_runs_this_session": 0,
+      "receipts": [
+        "writing-review/fixture.json",
+        "writing-review/before-apply.json",
+        "writing-review/after-apply.json",
+        "writing-review/apply-checks.json",
+        "writing-review/after-undo.json",
+        "writing-review/undo-checks.json"
+      ],
+      "limits": "No generation, Send, Retry, Rewrite or account contact. Original fixture preserved. Close not completed: CUA next observation reported Mac locked and automatic unlock unavailable; running task app retained."
+    },
+    "MAC-08": {
+      "verdict": "DEFERRED: Mac locked before remaining grouped review scenario; no attempt or pass claimed",
+      "next": "Resume with fresh source-bound fixture when native control access returns; do not repeat unchanged passing cases."
+    }
+  },
+  "limits": [
+    "No account calls, Send or Rewrite planned.",
+    "Actual CUA AX/screenshot observations are in this chat; no screenshot file export yet.",
+    "Initial no-Note launch used generated default log environment; no owner log content read, credentials copied or owner workspace opened."
+  ],
+  "observer": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-native-session/20261020T134854Z/observe.py",
+    "sha256": "85d9b2007c53b86acce0552fd903c66fd3a332556935f742868796cd0963e3cc",
+    "mode": "Task-owned synthetic root only; SQLite URI mode=ro/query_only/short transaction; reads only exact Notes, relevant Links/Threads and drafts; writes evidence outside data."
+  },
+  "last_observed_at": "2026-10-20T14:31:29.738152+00:00",
+  "accessibility_finding": {
+    "observed": "Visible clickable Notes Recent/Linked/All rows absent from actual Mac AX tree; neighboring filter, M/S and Create Topics controls exposed. Coordinate navigation succeeded.",
+    "source_audit": "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md",
+    "disposition": "Notes-only role/focus candidate selected; no fix or native qualification claimed yet",
+    "limits": "AX/screenshot observed in CUA transcript, no exported PNG, no full VoiceOver claim."
+  },
+  "desktop_stop": {
+    "observed_at": "2026-10-20T14:29:00+00:00",
+    "tool_result": "The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.",
+    "state": "writing-review app still open after verified Undo; primary app closed earlier; one actor retained, no further CUA attempts; manual unlock requested",
+    "native_batch": "Interrupted by physical-host access after five distinct passing scenarios, no competing actor."
+  },
+  "raw_evidence": {
+    "path": "docs/work/active/vacation-campaign/evidence/native-mac-20261020-raw.tar.gz",
+    "sha256": "f6953fff0f11867b950e582d4b23b77a2e94fe8c23088c86841ea495e08881c8",
+    "bytes": 7011,
+    "files": [
+      {
+        "path": "expected/composer-unsent.txt",
+        "bytes": 50,
+        "sha256": "ceddb0fd3ca4fcf29044f4b41ea943ef549770f106a756173655cd3f7b9eec76"
+      },
+      {
+        "path": "expected/manifest.json",
+        "bytes": 2101,
+        "sha256": "ae1bef0ad38920e2dfb85eecbe8970fba0152d9a6fad82781aa8779bf0fae128"
+      },
+      {
+        "path": "expected/save-final.txt",
+        "bytes": 126,
+        "sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e"
+      },
+      {
+        "path": "expected/save-initial.txt",
+        "bytes": 78,
+        "sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25"
+      },
+      {
+        "path": "expected/unsaved-recovery.txt",
+        "bytes": 152,
+        "sha256": "81e6224b4042ad42b4f68549095ec221cb8df312eb5cd39715b30f127a723529"
+      },
+      {
+        "path": "observations/mac01-closed.json",
+        "bytes": 478,
+        "sha256": "251c12b02bf875de1e45209c8ff0946fb142d8d6caeb9e8eac6cb9da4fcb4f00"
+      },
+      {
+        "path": "observations/mac01-preclose.json",
+        "bytes": 869,
+        "sha256": "14764785e6029f9c1964e6af13939c8e9d712277de83c4caa7e98cab60b16c11"
+      },
+      {
+        "path": "observations/mac01-reopened.json",
+        "bytes": 965,
+        "sha256": "b9f9291a4716ccc8213f228aa18b36dc9e1f5af3ad9bc9f06820f75cfc6505a3"
+      },
+      {
+        "path": "observations/mac03-after-restorations.json",
+        "bytes": 1746,
+        "sha256": "4a2e38939bed0561da0f94af81f90369eb2579e938688404c65776c7d84d230b"
+      },
+      {
+        "path": "observations/mac03-backup-readable.json",
+        "bytes": 715,
+        "sha256": "e9fb6d2cbdcbb7ce354febbd8e7fa7c61498fe0ae1e6d0ee5f928ce7054b1fa1"
+      },
+      {
+        "path": "observations/mac03-before-backup.json",
+        "bytes": 1741,
+        "sha256": "4dbf304cf7ef43e29c49d9a70dc0493053b0452f0174d548c0b882506b39a70a"
+      },
+      {
+        "path": "observations/mac04-closed.json",
+        "bytes": 2130,
+        "sha256": "72f594e1648a1f19928d5d6cf7a68b2732db2b9333807dd86ff5bef3155d8cbf"
+      },
+      {
+        "path": "observations/mac04-preclose.json",
+        "bytes": 2132,
+        "sha256": "fd9f71a0293df0bd7a4791b818ce51adff8a8e800487b6a68ba1cb50bbc73fa7"
+      },
+      {
+        "path": "observations/mac04-reopened.json",
+        "bytes": 2132,
+        "sha256": "147d4585ca9d2c6dcc18bba5fa6176960ff421d8989fb21499dae10311bec501"
+      },
+      {
+        "path": "observations/mac10-after-comment.json",
+        "bytes": 1741,
+        "sha256": "987c22516a6f1a407f4d687870ca03147e1e9e8be6e0fa31024107ea06c9d2a7"
+      },
+      {
+        "path": "observations/mac10-before-comment.json",
+        "bytes": 1288,
+        "sha256": "eb5e69fc03265a6db3adb0be1f1b582636b0a337ec51f799f581cff02ec8c77c"
+      },
+      {
+        "path": "observations/mac10-closed.json",
+        "bytes": 1734,
+        "sha256": "ea9851aaad1b1374d821d2d22f309257b0c9f4f4047d16fa773efda87a2f8988"
+      },
+      {
+        "path": "observations/mac10-reopened.json",
+        "bytes": 1736,
+        "sha256": "91cd1666adac8f2bb742fe619f31abbc04927afef233c08e3fa4de5449263721"
+      },
+      {
+        "path": "observe.py",
+        "bytes": 2856,
+        "sha256": "85d9b2007c53b86acce0552fd903c66fd3a332556935f742868796cd0963e3cc"
+      },
+      {
+        "path": "writing-review/after-apply.json",
+        "bytes": 3043,
+        "sha256": "4a5edc27f0fad8374feb53e42eb5fa3622e1e330b237abc2a2061e0250301bc8"
+      },
+      {
+        "path": "writing-review/after-undo.json",
+        "bytes": 3211,
+        "sha256": "bc831d920975c53ea2bfef1dd0570b0a949087e5469ae400fde317ab2a1fa9de"
+      },
+      {
+        "path": "writing-review/apply-checks.json",
+        "bytes": 287,
+        "sha256": "363dd193d1d078e9013cbfe23e23c676b9e07f5240c5111040a95a1d41daad80"
+      },
+      {
+        "path": "writing-review/before-apply.json",
+        "bytes": 2958,
+        "sha256": "6370a133b8d823549fa6aaa16717138ad1f298a7e46405fbaa20507441eb1f9e"
+      },
+      {
+        "path": "writing-review/fixture.json",
+        "bytes": 3119,
+        "sha256": "bee11a32f5d52851923889aec36a65b96b6b9241e14d6f2c36d0299e7544a138"
+      },
+      {
+        "path": "writing-review/observe-writing.py",
+        "bytes": 1631,
+        "sha256": "7ed1c90ab98c2cba299d7042da4818be4a4cfecb25092f716c6edc6ff1f47f61"
+      },
+      {
+        "path": "writing-review/undo-checks.json",
+        "bytes": 196,
+        "sha256": "79d8aeddbf81cab2c10c0159e6bbd818e48f2fb7815be3dd9b730fd8dd255d26"
+      }
+    ],
+    "exclusions": "No DB, runtime/provider/owner logs, credentials, binaries or incidental OS picker metadata. Actual screenshot/AX observations retained in chat, not exported."
+  }
+}

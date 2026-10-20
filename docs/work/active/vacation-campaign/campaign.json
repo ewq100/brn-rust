@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T13:47:27+00:00",
-    "remaining_percent": 88,
-    "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual12% used /88% remaining; fixed expiry, no owner pause",
+    "observed_at": "2026-10-20T14:29:58.905747+00:00",
+    "remaining_percent": 86,
+    "reset_unix": 1793083361,
+    "ordinary_work": "admitted: actual14% used /86% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:53:04.323375+00:00",
+    "observed_at": "2026-10-20T14:31:29.738152+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -224,29 +224,28 @@
       {
         "id": "mac-journeys",
         "title": "Check saving, reopening and backup in the real Mac app",
-        "state": "blocked",
+        "state": "complete",
         "owner": "development lead; single desktop actor",
-        "activity": "Integrated75a66a74 has all four required main checks passed and matches reviewed28474 source. Headless unsigned app/helpers/expected fixture copies verified; fresh canonical /private/tmp data root empty, app not launched. Native observation and owner acceptance remain pending.",
-        "observed_at": "2026-10-20T13:53:04.323375+00:00",
+        "activity": "Actual Mac MAC01 Save/reopen, MAC10 first-comment draft transfer/reopen, MAC03 backup/status restoration and MAC04 unsaved recovery PASS on integrated75a66a74; exact read-only bytes/versions/generations and unrelated sentinel retained.",
+        "observed_at": "2026-10-20T14:31:29.738152+00:00",
         "origin": "observed",
-        "next_action": "At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30\u201345minutes; defer excess explicitly.",
+        "next_action": "Reuse these source-bound observations; repeat only after relevant change or unresolved risk. Grouped review and accessibility correction have separate tasks.",
         "depends_on": [],
-        "resource_waits": [
-          "Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
           "docs/work/active/vacation-campaign/writing-account-verification.md",
           "docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json",
           "docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json",
           "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json",
-          "docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json"
+          "docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json",
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json"
         ],
         "gates": {
           "implementation": "existing application; no new source fix selected",
           "checks": "Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change",
           "integration": "PASS integrated75a66a74 matches reviewed28474 product source; all four required main checks passed. Confirm still current at native entry.",
-          "native": "pending Save/reopen, backup and unsaved-recovery journeys",
+          "native": "PASS four selected journeys through actual controls plus read-only exact-data evidence; no owner acceptance, full VoiceOver/IME, power-loss or backup-restore claim",
           "owner_acceptance": "pending; native evidence does not imply owner acceptance"
         },
         "attempts": []
@@ -379,10 +378,10 @@
         "title": "Check grouped review controls on the Mac",
         "state": "blocked",
         "owner": "single native actor in consolidated batch",
-        "activity": "MAC-08 scenario and immutable source-bound desktop/fixture binaries ready for scheduled actual control observation.",
-        "observed_at": "2026-10-20T07:05:09.863171+00:00",
-        "origin": "reported",
-        "next_action": "Run MAC-08 during consolidated native session, then retain actual AX states and unchanged canonical data separately from source/build checks.",
+        "activity": "All source/fixture prerequisites retained; grouped review not attempted before Mac lock interrupted early session.",
+        "observed_at": "2026-10-20T14:31:29.738152+00:00",
+        "origin": "observed",
+        "next_action": "After actual access returns, close verified undone writing-review clone through OS controls, then run fresh MAC08 without repeating passing cases.",
         "depends_on": [
           {
             "task": "review-group-fixture",
@@ -396,7 +395,7 @@
           }
         ],
         "resource_waits": [
-          "Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor."
+          "Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
@@ -505,10 +504,10 @@
         "title": "Qualify a bounded real-account writing proposal",
         "state": "complete",
         "owner": "development lead; independent Sol guard review passed",
-        "activity": "Bounded real-account frozen-v2 writing proposal passed: exact requested phrase change, original/sentinel/comment unchanged; pending candidate only. First pre-dispatch failure and corrected sidecar review retained.",
-        "observed_at": "2026-10-20T08:08:15.363275+00:00",
+        "activity": "Bounded account generation previously passed; actual Mac saved-proposal review/Apply/Undo now PASS with zero new account calls; original synthetic fixture unchanged.",
+        "observed_at": "2026-10-20T14:31:29.738152+00:00",
         "origin": "observed",
-        "next_action": "Reuse successful synthetic fixture for real Mac review/Apply/Undo in consolidated daily batch; no extra generation needed.",
+        "next_action": "Reuse generation/native receipts; no further account run needed for this scenario.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -519,13 +518,14 @@
           "docs/work/active/vacation-campaign/evidence/writing-harness-final-review.md",
           "docs/work/active/vacation-campaign/evidence/writing-harness-sidecar-review.md",
           "docs/work/active/vacation-campaign/evidence/writing-account-qualification.json",
-          "docs/work/active/vacation-campaign/writing-account-verification.md"
+          "docs/work/active/vacation-campaign/writing-account-verification.md",
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json"
         ],
         "gates": {
           "implementation": "complete external developer consumer only; no production command/framework/prompt changes",
           "checks": "passed corrected independent review, fresh prepare/reopen/refusal, one production Luna/low run and read-only exact candidate/record verification; deadline-verdict probe refused",
           "integration": "inapplicable to external harness; repository evidence pending later reviewed publication",
-          "native": "pending actual Mac review/Apply/Undo; headless live usefulness is not OS input or owner acceptance",
+          "native": "PASS MAC09 saved proposal Result/Apply/Undo on integrated75a66a74; exact original restored as v3; unselected Comment and sentinel unchanged, exact compensation, no new Run. Final app closure deferred by Mac lock.",
           "owner_acceptance": "not claimed"
         },
         "attempts": [
@@ -1171,9 +1171,34 @@
           "owner_acceptance": "not claimed"
         },
         "attempts": []
+      },
+      {
+        "id": "note-list-accessibility",
+        "title": "Make visible note rows discoverable to Mac accessibility",
+        "state": "active",
+        "owner": "bounded Luna medium implementation; lead disposition/integration; independent Sol review",
+        "activity": "Source audit confirms local ListRow already names rows but leaves a generic nonfocusable Div. Select Notes-only role/focus correction; preserve Home and shared component semantics. Actual native node pruning remains to be rechecked.",
+        "observed_at": "2026-10-20T14:29:58.905747+00:00",
+        "origin": "observed",
+        "next_action": "Implement Notes-only actionable/focusable rows and one meaningful existing widget witness; no shared component redesign. Stop/reassess after two failed approaches.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
+          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md"
+        ],
+        "gates": {
+          "implementation": "selected bounded bug fix at Notes note_row seam",
+          "checks": "native omission reproduced; static source/framework trace supports role/focus gap; candidate checks pending",
+          "integration": "pending if a candidate is selected",
+          "native": "visible rows absent from actual Mac AX snapshot; full VoiceOver usability not tested",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Owner permits small Luna implementation. Requested Luna medium, fresh context; independent Sol high review afterward; max2 helpers within4 total slots. Lead alone writes campaign docs and owns integration; helper only Notes renderer/tests in export-durability checkout. No build until lead grants shared target; no desktop/account actor."
       }
     ],
-    "owner_attention": "No owner decision requested. All four required main checks passed for CI correction PR183, draft repair PR184 and skill-control PR185. Prepared source-bound app/data for18:00Tallinn Mac qualification; no native pass or release claimed."
+    "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -1186,14 +1211,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:53:04.323375+00:00",
-    "runtime_capacity": "4 total slots; lead only, all bounded helper turns completed",
-    "build_slot": "free; headless packaging complete, no Rust build or app/account/native actor",
-    "desktop_account_actor": "none; consolidated18Tallinn batch pending",
+    "observed_at": "2026-10-20T14:29:58.905747+00:00",
+    "runtime_capacity": "4 slots; lead plus bounded Luna writer, no nested delegation",
+    "build_slot": "free; writer source/test edits only until lead grants",
+    "desktop_account_actor": "writing-review app remains open after verified Undo; desktop locked, no further CUA actions or account tests",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR185 required resulting-main39431384966 gates PASS; no open current product candidate",
-    "wait_reason": "Selected engineering outcomes integrated and required main checks passed. Next consequential gate is the authorized daily18:00Tallinn native batch; no source writer or new speculative dispatch selected.",
-    "resumption": "Daily native heartbeat uses this same lead/chat at18:00Tallinn; recheck source/gates/access and native-session-preflight-20261020 before launch. Existing engineering recovery heartbeat remains active; no competing actor or live process inferred."
+    "wait_reason": "Mac manual unlock required for further native work; headless work admitted",
+    "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

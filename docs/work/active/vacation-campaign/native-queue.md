@@ -2,6 +2,24 @@
 
 Scenario definitions and source-bound historical observations live here. Current task readiness, admission and next action live in [campaign state](campaign.json) and [overview](../../overview.md); reconcile actual source/artifact at execution.
 
+## Actual Mac observation —20 October
+
+Owner started the consolidated session early. On integrated source `75a66a74`,
+[the session receipt](evidence/native-mac-session-20261020.json) records actual
+MAC-01 Save/reopen, MAC-10 first-comment unsent-draft transfer/reopen, MAC-03 full
+backup and repeated status restoration, MAC-04 durable unsaved-edit recovery,
+and MAC-09 saved proposal Result/Apply/Undo passes with exact read-only evidence.
+The unselected Comment and unrelated sentinel stayed unchanged; no new AI run.
+The original successful account fixture is unchanged. No backup restore, crash,
+IME, full VoiceOver or owner-acceptance claim is made.
+
+Mac lock then prevented further observation/closure; MAC-08 was not attempted.
+The task clone remains open after verified Undo; reconcile the sole desktop actor
+before resuming. A reproduced missing Notes-row AX-node issue has a separate
+bounded correction task. Do not replay these unchanged passing journeys merely
+because a later daily heartbeat arrives. Earlier preparation states below are
+historical; current actions and resource waits live in campaign.json.
+
 ## Source-bound writing proposal ready — 20 October
 
 MAC-09 is ready for the consolidated native session after the lead reconciles its current task and actual artifact. [One bounded account writing proposal](writing-account-verification.md) passed normal runtime and exact source-preservation verification on production source `b0eb18d7` (lead product tree unchanged). The successful synthetic workspace and immutable harness/binary identities are in [qualification](evidence/writing-account-qualification.json). Test metadata is outside DATA. Do not use the preserved first failed fixture, regenerate AI output or infer native success from this check.

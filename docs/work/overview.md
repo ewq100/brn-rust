@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. All four required main checks passed for CI correction PR183, draft repair PR184 and skill-control PR185. Prepared source-bound app/data for18:00Tallinn Mac qualification; no native pass or release claimed.
+**Owner attention:** Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,7 +9,26 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-None recorded.
+### Make visible note rows discoverable to Mac accessibility
+
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:29:58.905747+00:00
+Activity: Source audit confirms local ListRow already names rows but leaves a generic nonfocusable Div. Select Notes-only role/focus correction; preserve Home and shared component semantics. Actual native node pruning remains to be rechecked.
+Next: Implement Notes-only actionable/focusable rows and one meaningful existing widget witness; no shared component redesign. Stop/reassess after two failed approaches.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** selected bounded bug fix at Notes note_row seam
+- **checks:** native omission reproduced; static source/framework trace supports role/focus gap; candidate checks pending
+- **integration:** pending if a candidate is selected
+- **native:** visible rows absent from actual Mac AX snapshot; full VoiceOver usability not tested
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md)
+
+</details>
 
 ## Next
 
@@ -17,39 +36,13 @@ None recorded.
 
 ## Needs attention
 
-### Check saving, reopening and backup in the real Mac app
-
-Owner: development lead; single desktop actor · State: **blocked** · Last observed: 2026-10-20T13:53:04.323375+00:00
-Activity: Integrated75a66a74 has all four required main checks passed and matches reviewed28474 source. Headless unsigned app/helpers/expected fixture copies verified; fresh canonical /private/tmp data root empty, app not launched. Native observation and owner acceptance remain pending.
-Next: At18:00Tallinn reconcile actual main/gates/access, use native-session-preflight-20261020 receipt and task-specific launch log environment. Prioritize MAC01/MAC10, then backup/recovery within30–45minutes; defer excess explicitly.
-Resource waits: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** existing application; no new source fix selected
-- **checks:** Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change
-- **integration:** PASS integrated75a66a74 matches reviewed28474 product source; all four required main checks passed. Confirm still current at native entry.
-- **native:** pending Save/reopen, backup and unsaved-recovery journeys
-- **owner acceptance:** pending; native evidence does not imply owner acceptance
-
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json](active/vacation-campaign/evidence/export-native-build-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json](active/vacation-campaign/evidence/native-session-preflight-20261020.json)
-
-</details>
-
-Waiting:
-
-- resource: Daily18:00Tallinn consolidated native actor; actual source/main must be reconciled before launch.
-
 ### Check grouped review controls on the Mac
 
-Owner: single native actor in consolidated batch · State: **blocked** · Last reported: 2026-10-20T07:05:09.863171+00:00
-Activity: MAC-08 scenario and immutable source-bound desktop/fixture binaries ready for scheduled actual control observation.
-Next: Run MAC-08 during consolidated native session, then retain actual AX states and unchanged canonical data separately from source/build checks.
+Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T14:31:29.738152+00:00
+Activity: All source/fixture prerequisites retained; grouped review not attempted before Mac lock interrupted early session.
+Next: After actual access returns, close verified undone writing-review clone through OS controls, then run fresh MAC08 without repeating passing cases.
 Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
-Resource waits: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+Resource waits: Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -68,7 +61,7 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 
 Waiting:
 
-- resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+- resource: Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first.
 
 ## Completed
 
@@ -142,6 +135,27 @@ Gates:
 - **owner acceptance:** inapplicable to hosted verification
 
 Evidence: [https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff](https://github.com/ewq100/brn-rust/commit/1ea0ac875f6e7aa128ce21bde781075e87784fff), [docs/work/active/vacation-campaign/evidence/pr176-integration.json](active/vacation-campaign/evidence/pr176-integration.json)
+
+</details>
+
+### Check saving, reopening and backup in the real Mac app
+
+Owner: development lead; single desktop actor · State: **complete** · Last observed: 2026-10-20T14:31:29.738152+00:00
+Activity: Actual Mac MAC01 Save/reopen, MAC10 first-comment draft transfer/reopen, MAC03 backup/status restoration and MAC04 unsaved recovery PASS on integrated75a66a74; exact read-only bytes/versions/generations and unrelated sentinel retained.
+Next: Reuse these source-bound observations; repeat only after relevant change or unresolved risk. Grouped review and accessibility correction have separate tasks.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** existing application; no new source fix selected
+- **checks:** Reviewed28474 source, rawfocused4/0 plus explicitly transcript-backed broader341/0/1/lint/build; source/binary/helper receipts retained; no extra rebuild needed absent relevant change
+- **integration:** PASS integrated75a66a74 matches reviewed28474 product source; all four required main checks passed. Confirm still current at native entry.
+- **native:** PASS four selected journeys through actual controls plus read-only exact-data evidence; no owner acceptance, full VoiceOver/IME, power-loss or backup-restore claim
+- **owner acceptance:** pending; native evidence does not imply owner acceptance
+
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/export-native-build-qualification.json](active/vacation-campaign/evidence/export-native-build-qualification.json), [docs/work/active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json](active/vacation-campaign/evidence/writing-draft-recovery-2b836-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json), [docs/work/active/vacation-campaign/evidence/native-session-preflight-20261020.json](active/vacation-campaign/evidence/native-session-preflight-20261020.json), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json)
 
 </details>
 
@@ -310,9 +324,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-save-recovery-
 
 ### Qualify a bounded real-account writing proposal
 
-Owner: development lead; independent Sol guard review passed · State: **complete** · Last observed: 2026-10-20T08:08:15.363275+00:00
-Activity: Bounded real-account frozen-v2 writing proposal passed: exact requested phrase change, original/sentinel/comment unchanged; pending candidate only. First pre-dispatch failure and corrected sidecar review retained.
-Next: Reuse successful synthetic fixture for real Mac review/Apply/Undo in consolidated daily batch; no extra generation needed.
+Owner: development lead; independent Sol guard review passed · State: **complete** · Last observed: 2026-10-20T14:31:29.738152+00:00
+Activity: Bounded account generation previously passed; actual Mac saved-proposal review/Apply/Undo now PASS with zero new account calls; original synthetic fixture unchanged.
+Next: Reuse generation/native receipts; no further account run needed for this scenario.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -322,10 +336,10 @@ Gates:
 - **implementation:** complete external developer consumer only; no production command/framework/prompt changes
 - **checks:** passed corrected independent review, fresh prepare/reopen/refusal, one production Luna/low run and read-only exact candidate/record verification; deadline-verdict probe refused
 - **integration:** inapplicable to external harness; repository evidence pending later reviewed publication
-- **native:** pending actual Mac review/Apply/Undo; headless live usefulness is not OS input or owner acceptance
+- **native:** PASS MAC09 saved proposal Result/Apply/Undo on integrated75a66a74; exact original restored as v3; unselected Comment and sentinel unchanged, exact compensation, no new Run. Final app closure deferred by Mac lock.
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/vacation-campaign/evidence/2026-10-20-writing-route.md](active/vacation-campaign/evidence/2026-10-20-writing-route.md), [docs/work/active/vacation-campaign/evidence/writing-harness-initial-review.md](active/vacation-campaign/evidence/writing-harness-initial-review.md), [docs/work/active/vacation-campaign/evidence/writing-harness-final-review.md](active/vacation-campaign/evidence/writing-harness-final-review.md), [docs/work/active/vacation-campaign/evidence/writing-harness-sidecar-review.md](active/vacation-campaign/evidence/writing-harness-sidecar-review.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/vacation-campaign/evidence/2026-10-20-writing-route.md](active/vacation-campaign/evidence/2026-10-20-writing-route.md), [docs/work/active/vacation-campaign/evidence/writing-harness-initial-review.md](active/vacation-campaign/evidence/writing-harness-initial-review.md), [docs/work/active/vacation-campaign/evidence/writing-harness-final-review.md](active/vacation-campaign/evidence/writing-harness-final-review.md), [docs/work/active/vacation-campaign/evidence/writing-harness-sidecar-review.md](active/vacation-campaign/evidence/writing-harness-sidecar-review.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/writing-account-verification.md](active/vacation-campaign/writing-account-verification.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json)
 
 Attempts:
 
@@ -786,4 +800,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:53:04.323375+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T14:31:29.738152+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
