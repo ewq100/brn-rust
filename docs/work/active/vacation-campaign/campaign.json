@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T07:12:17.611061+00:00",
+    "observed_at": "2026-10-20T07:36:27.202196+00:00",
     "remaining_percent": 99,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: verified allowance1%used/99%remaining; original floor and expiry retained",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T07:19:49.288497+00:00",
+    "observed_at": "2026-10-20T07:36:27.202196+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -308,13 +308,13 @@
         "title": "Prepare grouped-review test workspace",
         "state": "active",
         "owner": "development lead",
-        "activity": "Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.",
-        "observed_at": "2026-10-20T07:15:13.743308+00:00",
+        "activity": "PR179 normally merged b0eb18d7 after independent review and all four required exact-head checks; resulting-main39387204718 pending.",
+        "observed_at": "2026-10-20T07:36:27.202196+00:00",
         "origin": "observed",
-        "next_action": "Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.",
+        "next_action": "Inspect all four required resulting-main jobs; retain optional Windows failures and keep real Mac qualification separate.",
         "depends_on": [],
         "resource_waits": [
-          "Hosted PR179 checks; remote head frozen while progress records stay local."
+          "Hosted resulting-main39387204718; independent bounded work can continue."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/review-group-native-preparation.md",
@@ -327,8 +327,8 @@
         ],
         "gates": {
           "implementation": "candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification",
-          "checks": "passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained",
-          "integration": "published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending",
+          "checks": "passed: independent review/local qualification and all four required exact-head39384349312 checks; optional Windows Core failed",
+          "integration": "normally merged b0eb18d7db7560269fa18d96c5bbf92eee1f40da; required resulting-main pending",
           "native": "pending MAC-08 actual OS toggle observation; headless tests do not establish native usability",
           "owner_acceptance": "not claimed"
         },
@@ -347,13 +347,13 @@
         "title": "Expose grouped Include/Omit selection to accessibility tools",
         "state": "active",
         "owner": "development lead",
-        "activity": "Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.",
-        "observed_at": "2026-10-20T07:15:13.743308+00:00",
+        "activity": "PR179 normally merged b0eb18d7 after independent review and all four required exact-head checks; resulting-main39387204718 pending.",
+        "observed_at": "2026-10-20T07:36:27.202196+00:00",
         "origin": "observed",
-        "next_action": "Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.",
+        "next_action": "Inspect all four required resulting-main jobs; retain optional Windows failures and keep real Mac qualification separate.",
         "depends_on": [],
         "resource_waits": [
-          "Hosted PR179 checks; remote head frozen while progress records stay local."
+          "Hosted resulting-main39387204718; independent bounded work can continue."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/review-group-native-preparation.md",
@@ -367,8 +367,8 @@
         ],
         "gates": {
           "implementation": "candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification",
-          "checks": "passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained",
-          "integration": "published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending",
+          "checks": "passed: independent review/local qualification and all four required exact-head39384349312 checks; optional Windows Core failed",
+          "integration": "normally merged b0eb18d7db7560269fa18d96c5bbf92eee1f40da; required resulting-main pending",
           "native": "pending MAC-08 actual OS toggle observation; headless tests do not establish native usability",
           "owner_acceptance": "not claimed"
         },
@@ -475,9 +475,57 @@
             ]
           }
         ]
+      },
+      {
+        "id": "state-gap-triage",
+        "title": "Inspect remaining Save and run-preview coordination risks",
+        "state": "complete",
+        "owner": "lead with two bounded read-only Luna medium helpers",
+        "activity": "Two independent-scope source audits found no actionable defect: existing Save/recovery generation guards and run-preview identity gates cover inspected sequences. Retained existing checks without speculative refactors or extra tests.",
+        "observed_at": "2026-10-20T07:36:27.202196+00:00",
+        "origin": "observed",
+        "next_action": "Use existing witnesses and pending actual Mac scenarios; revisit these boundaries only if new evidence exposes a defect.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/2026-10-20-save-recovery-audit.md",
+          "docs/work/active/vacation-campaign/evidence/2026-10-20-run-preview-audit.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: no correction selected; no source edits",
+          "checks": "source inspection only; helpers ran no tests/builds/account/native calls",
+          "integration": "audit records saved locally; no product integration needed",
+          "native": "pending existing Mac scenarios; source audit is not native proof",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "writing-account-route",
+        "title": "Find a bounded real-account writing check",
+        "state": "active",
+        "owner": "lead; read-only route research by Luna medium",
+        "activity": "Checking the existing v2 synthetic writing/comment route and normal runtime budget/deadline controls; no account attempt reserved or launched.",
+        "observed_at": "2026-10-20T07:36:27.202196+00:00",
+        "origin": "observed",
+        "next_action": "Validate a supported normal route and safeguards before reserving one distinct writing attempt; otherwise retain a concrete pending test.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/codex-ai-testing.md",
+          "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json"
+        ],
+        "gates": {
+          "implementation": "research only; no new production feature selected",
+          "checks": "pending route validation; ledger still has no20October launches",
+          "integration": "inapplicable to route research",
+          "native": "Apply/Undo and actual controls reserved for consolidated Mac batch",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Required hosted checks are running; prepared real Mac checks use the daily batch."
+    "owner_attention": "No owner decision requested. Grouped-review change merged; resulting-main checks run while bounded follow-through continues."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -486,5 +534,13 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
+  },
+  "resource_observation": {
+    "observed_at": "2026-10-20T07:36:27.202196+00:00",
+    "lead": "existing selected lead retained",
+    "helpers": "Two Luna medium read-only source audits completed; one Luna medium bounded writing-route research active; no nested helpers. Four runtime slots total including lead.",
+    "build_actor": "none at observation; one serialized slot retained",
+    "desktop_account_actor": "none active; only lead may launch a reserved live attempt",
+    "stop": "No speculative refactor from source audit; writing research stops at one supported route or a named capability gap. Original quota/expiry and account policy govern dispatch."
   }
 }

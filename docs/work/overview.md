@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Required hosted checks are running; prepared real Mac checks use the daily batch.
+**Owner attention:** No owner decision requested. Grouped-review change merged; resulting-main checks run while bounded follow-through continues.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,10 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Prepare grouped-review test workspace
 
-Owner: development lead · State: **active** · Last observed: 2026-10-20T07:15:13.743308+00:00
-Activity: Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.
-Next: Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.
-Resource waits: Hosted PR179 checks; remote head frozen while progress records stay local.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:36:27.202196+00:00
+Activity: PR179 normally merged b0eb18d7 after independent review and all four required exact-head checks; resulting-main39387204718 pending.
+Next: Inspect all four required resulting-main jobs; retain optional Windows failures and keep real Mac qualification separate.
+Resource waits: Hosted resulting-main39387204718; independent bounded work can continue.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,8 +22,8 @@ Resource waits: Hosted PR179 checks; remote head frozen while progress records s
 Gates:
 
 - **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
-- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
-- **integration:** published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending
+- **checks:** passed: independent review/local qualification and all four required exact-head39384349312 checks; optional Windows Core failed
+- **integration:** normally merged b0eb18d7db7560269fa18d96c5bbf92eee1f40da; required resulting-main pending
 - **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
@@ -37,10 +37,10 @@ Attempts:
 
 ### Expose grouped Include/Omit selection to accessibility tools
 
-Owner: development lead · State: **active** · Last observed: 2026-10-20T07:15:13.743308+00:00
-Activity: Published PR179 at unchanged ec9190d8; required hosted checks running. No local build/desktop/account actor active.
-Next: Resume after hosted results change; inspect all exact-head required checks and live protection, normally merge when eligible, then verify resulting main.
-Resource waits: Hosted PR179 checks; remote head frozen while progress records stay local.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T07:36:27.202196+00:00
+Activity: PR179 normally merged b0eb18d7 after independent review and all four required exact-head checks; resulting-main39387204718 pending.
+Next: Inspect all four required resulting-main jobs; retain optional Windows failures and keep real Mac qualification separate.
+Resource waits: Hosted resulting-main39387204718; independent bounded work can continue.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -48,12 +48,33 @@ Resource waits: Hosted PR179 checks; remote head frozen while progress records s
 Gates:
 
 - **implementation:** candidate complete; UI659fdb98 and fixturee64c1fac source hashes in qualification
-- **checks:** passed: fixture/reopen/refusals,333desktop state tests (1existing ignored),affected strict lint,format,ordinary native build; initial fixture E0107 retained
-- **integration:** published PR179 ec9190d835217beca08ef9af77a4458fdb252d54; required head/main gates pending
+- **checks:** passed: independent review/local qualification and all four required exact-head39384349312 checks; optional Windows Core failed
+- **integration:** normally merged b0eb18d7db7560269fa18d96c5bbf92eee1f40da; required resulting-main pending
 - **native:** pending MAC-08 actual OS toggle observation; headless tests do not establish native usability
 - **owner acceptance:** not claimed
 
 Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [docs/work/active/vacation-campaign/review-group-accessibility.md](active/vacation-campaign/review-group-accessibility.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/review-group-source-review.json](active/vacation-campaign/evidence/review-group-source-review.json), [https://github.com/ewq100/brn-rust/pull/179](https://github.com/ewq100/brn-rust/pull/179), [docs/work/active/vacation-campaign/evidence/review-group-receipt-audit.json](active/vacation-campaign/evidence/review-group-receipt-audit.json), [docs/work/active/vacation-campaign/evidence/pr179-integration.json](active/vacation-campaign/evidence/pr179-integration.json)
+
+</details>
+
+### Find a bounded real-account writing check
+
+Owner: lead; read-only route research by Luna medium · State: **active** · Last observed: 2026-10-20T07:36:27.202196+00:00
+Activity: Checking the existing v2 synthetic writing/comment route and normal runtime budget/deadline controls; no account attempt reserved or launched.
+Next: Validate a supported normal route and safeguards before reserving one distinct writing attempt; otherwise retain a concrete pending test.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** research only; no new production feature selected
+- **checks:** pending route validation; ledger still has no20October launches
+- **integration:** inapplicable to route research
+- **native:** Apply/Undo and actual controls reserved for consolidated Mac batch
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json)
 
 </details>
 
@@ -95,7 +116,7 @@ Owner: development lead
 
 Waiting:
 
-- resource: Hosted PR179 checks; remote head frozen while progress records stay local.
+- resource: Hosted resulting-main39387204718; independent bounded work can continue.
 
 ### Expose grouped Include/Omit selection to accessibility tools
 
@@ -103,7 +124,7 @@ Owner: development lead
 
 Waiting:
 
-- resource: Hosted PR179 checks; remote head frozen while progress records stay local.
+- resource: Hosted resulting-main39387204718; independent bounded work can continue.
 
 ### Check grouped review controls on the Mac
 
@@ -303,6 +324,27 @@ Attempts:
 
 </details>
 
+### Inspect remaining Save and run-preview coordination risks
+
+Owner: lead with two bounded read-only Luna medium helpers · State: **complete** · Last observed: 2026-10-20T07:36:27.202196+00:00
+Activity: Two independent-scope source audits found no actionable defect: existing Save/recovery generation guards and run-preview identity gates cover inspected sequences. Retained existing checks without speculative refactors or extra tests.
+Next: Use existing witnesses and pending actual Mac scenarios; revisit these boundaries only if new evidence exposes a defect.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inapplicable: no correction selected; no source edits
+- **checks:** source inspection only; helpers ran no tests/builds/account/native calls
+- **integration:** audit records saved locally; no product integration needed
+- **native:** pending existing Mac scenarios; source audit is not native proof
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/2026-10-20-save-recovery-audit.md](active/vacation-campaign/evidence/2026-10-20-save-recovery-audit.md), [docs/work/active/vacation-campaign/evidence/2026-10-20-run-preview-audit.md](active/vacation-campaign/evidence/2026-10-20-run-preview-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -319,4 +361,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T07:19:49.288497+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:36:27.202196+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
