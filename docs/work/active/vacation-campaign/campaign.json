@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T08:17:09.406438+00:00",
+    "observed_at": "2026-10-20T08:18:03.635242+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -611,8 +611,8 @@
         "title": "Flush complete export folders before reporting success",
         "state": "active",
         "owner": "bounded Luna medium writer; lead integration; independent Sol review follows",
-        "activity": "Independent complete-source review0f64a034 passed with no actionable findings. Six focused tests, Clippy/fmt passed; logs and nonfatal toolchain warning retained.",
-        "observed_at": "2026-10-20T08:13:26.429177+00:00",
+        "activity": "Reviewed0f64a034 production tree locally composed with reviewed writing evidence; exact source unchanged. Awaiting PR180 required gates before publication; no main merge claimed.",
+        "observed_at": "2026-10-20T08:18:03.635242+00:00",
         "origin": "observed",
         "next_action": "Reconcile PR180 integration, then publish this reviewed export correction with supporting current evidence; inspect actual required checks before normal merge.",
         "depends_on": [],
@@ -620,7 +620,8 @@
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/2026-10-20-backup-failure-audit.md",
           "docs/work/active/vacation-campaign/evidence/export-durability-review.md",
-          "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/export-durability-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/followthrough-candidate-review.json"
         ],
         "gates": {
           "implementation": "complete isolated0f64a034; app export source+README only",
@@ -634,20 +635,20 @@
       {
         "id": "queue-recovery-audit",
         "title": "Inspect saved-message recovery after Stop and restart",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded read-only Luna medium helper; lead validates",
-        "activity": "Inspect durable claim/Message/Run association and late worker settlement through Stop/Resume/restart while hosted integration gates run. Existing merged identity/drain fixes remain the baseline.",
-        "observed_at": "2026-10-20T08:17:09.406438+00:00",
+        "activity": "Bounded source audit found no consequential saved-message/Stop/Resume/orphan recovery defect or missing witness. Existing durable identity/fence/replay tests cover inspected boundary.",
+        "observed_at": "2026-10-20T08:18:03.635242+00:00",
         "origin": "observed",
-        "next_action": "Record one actionable consequential gap or explicit none with existing witnesses; no speculative framework or app execution.",
+        "next_action": "Retain existing witnesses; select further correction only if concrete failure or new risk appears.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/architecture/invariants.md"
+          "docs/work/active/vacation-campaign/evidence/2026-10-20-queue-recovery-audit.md"
         ],
         "gates": {
           "implementation": "inapplicable: inspection only until an evidenced defect selects repair",
-          "checks": "pending source and existing-witness audit; no tests executed",
+          "checks": "complete source inspection only; no tests/app execution",
           "integration": "inapplicable to audit",
           "native": "actual Stop/restart usability remains separate",
           "owner_acceptance": "not claimed"
@@ -666,11 +667,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T08:17:09.406438+00:00",
+    "observed_at": "2026-10-20T08:18:03.635242+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "One bounded read-only Luna medium queue recovery audit; independent code and evidence publication reviews completed",
-    "build_actor": "none; serialized target free",
+    "helpers": "all bounded source and independent reviews completed; no helper/build/desktop/account actor active",
+    "build_actor": "none; candidate source remains exact qualified0f64a034",
     "desktop_account_actor": "none; no further AI generation selected",
-    "stop": "One focused harness repair; reassess after another failed approach, no blind retries. Backup audit stops at bounded source boundary. Original account quotas/expiry retained."
+    "stop": "Hosted PR180 required checks are the immediate integration gate; native scenarios wait for daily consolidated session. No speculative changes or extra account calls."
   }
 }
