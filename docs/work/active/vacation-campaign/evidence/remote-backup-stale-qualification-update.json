@@ -1,0 +1,96 @@
+{
+  "observed_at": "2026-10-20 15:56:20 UTC",
+  "source_commit": "51c3e0b7",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 24,
+  "edit_receipt": {
+    "new_sequence": 24,
+    "through_sequence": 24,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+        "created_block_ids": [
+          "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+          "bc0ab520-bc6b-4b71-99b1-b8dabdf3e602"
+        ],
+        "continuation_position": {
+          "block_id": "bc0ab520-bc6b-4b71-99b1-b8dabdf3e602",
+          "relative_position_base64": "AOLChJoJ1wRB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+            "hash": "f56c0402c6ea58e639c53b08e5708d809b570a4778ccb4dde3a1df257e0b63bc"
+          },
+          {
+            "block_id": "bc0ab520-bc6b-4b71-99b1-b8dabdf3e602",
+            "hash": "35ea549da494a9bd06d60fd6a120be1cdc74daa3fab5b9dd4a5c8c7b94043dd9"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "22ca401ce17e48ecad0e8e9151ce860570f5f52b64b684f13e0d2dd6b10a0065"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+          "relative_position_base64": "AJuY17sC/BNB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "hash": "78e3d2062f41c7ef699d63fe6032182a15a733ba4de5bf8345f71d760d81d511"
+          }
+        ]
+      }
+    ]
+  },
+  "readback": [
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "kind": "markdown",
+      "markdown": "Last refreshed: **20 October 2026 at 18:55 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+      "hash": "22ca401ce17e48ecad0e8e9151ce860570f5f52b64b684f13e0d2dd6b10a0065",
+      "metadata": {}
+    },
+    {
+      "id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+      "kind": "markdown",
+      "markdown": "- **Backup recovery checked:** the backup created through the Mac app restored successfully into a fresh test folder through the supported command line. Every saved database row matched; the originals stayed unchanged. A second restore correctly refused to overwrite the existing copy. Mac restore controls remain untested.",
+      "hash": "f56c0402c6ea58e639c53b08e5708d809b570a4778ccb4dde3a1df257e0b63bc",
+      "metadata": {}
+    },
+    {
+      "id": "bc0ab520-bc6b-4b71-99b1-b8dabdf3e602",
+      "kind": "markdown",
+      "markdown": "- **Later edits protected:** after a later edit was saved, the older saved AI proposal was refused as stale. The newer text and every database row remained unchanged by that refusal; the original proposal and completed Run were preserved. No new AI generation was used.",
+      "hash": "35ea549da494a9bd06d60fd6a120be1cdc74daa3fab5b9dd4a5c8c7b94043dd9",
+      "metadata": {}
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "kind": "markdown",
+      "markdown": "**Please unlock the Mac when convenient.** Computer control reported that the Mac was locked and automatic unlock was unavailable. Headless development continues. The saved-proposal test app remains open after verified Undo; it will be closed through normal controls when access returns. Full VoiceOver/IME usability, Mac restore controls and owner acceptance remain separate from the passing checks.",
+      "hash": "78e3d2062f41c7ef699d63fe6032182a15a733ba4de5bf8345f71d760d81d511",
+      "metadata": {}
+    }
+  ],
+  "limits": "Saved remote owner summary; not a live source or owner acceptance."
+}
