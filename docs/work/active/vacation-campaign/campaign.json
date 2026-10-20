@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:48:49.226853+00:00",
+    "observed_at": "2026-10-20T17:50:50.801543+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1510,7 +1510,7 @@
         "activity": "PR189 normally mergeda23f486b after all4head+all4preceding-main requiredPASS; complete merged tree equals57531. Local aggregate-CLEAN assertion failed on optionalWindows UNSTABLE and shell continued; original failure/reconstructed receipt retained transparently. Resulting-main pending.",
         "observed_at": "2026-10-20T17:48:49.226853+00:00",
         "origin": "observed",
-        "next_action": "Inspect actual new a23f486b main run and all4 required results. Keep head source stable; future dependent mutations separated from successful gate results/fail-fast shell.",
+        "next_action": "Inspect resulting-main BRN CI39469206851 on exacta23f486b for all4required contexts; only then mark integrated verification complete. No source changes or repeated local checks.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1557,6 +1557,32 @@
           }
         ],
         "resource_plan": "Requested bounded Luna medium implementation of one existing test with explicit expected exact-data outcome; lead single build slot, one consequential Sol high review. Max2helpers within4slots, no nested workers/account/native/build by author. Stop/reassess on source need beyond test or missing artifact identity."
+      },
+      {
+        "id": "ubuntu-required-gate-cache-audit",
+        "title": "Assess the slower required build gate after Mac cache reuse improved",
+        "state": "active",
+        "owner": "bounded Luna read-only timing/cache-boundary audit; lead disposition",
+        "activity": "PR189 head requiredUbuntuCore24m46 vsMacCore16m13. Selected bounded existing-receipt/source assessment of incidental non-Mac helper path movement; no source change or experiment rerun selected.",
+        "observed_at": "2026-10-20T17:50:50.801543+00:00",
+        "origin": "observed",
+        "next_action": "Compare existing step receipts and exact old/new cache inclusion. Distinguish changed retention boundary from uncontrolled timing causality; assess Mac-priority/storage/complexity tradeoffs before any follow-up selection.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr189-premerge.json"
+        ],
+        "gates": {
+          "implementation": "audit only; no Linux feature/cache expansion selected",
+          "checks": "pending bounded actual-receipt/source comparison",
+          "integration": "inapplicable unless concrete candidate selected",
+          "native": "inapplicable CI assessment only",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One economical Luna medium read-only existing receipts/source audit while lead verifies main. No build/rerun/account/cache/API/native/source/nested action; max1helper within4slots. Stop on unsupported causal/storage claim."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1572,14 +1598,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ci-warm-measurement-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T17:48:49.226853+00:00",
-    "runtime_capacity": "4total; lead only, Luna author and independent Sol reviewer completed",
+    "observed_at": "2026-10-20T17:50:50.801543+00:00",
+    "runtime_capacity": "4total slots; lead plus one bounded Luna existing CI receipt/source assessment",
     "build_slot": "free; focused test/strictlint/fmt completed57531, no local build",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR189 normally mergeda23f486b, qualified complete tree equal57531; all4head/preceding-mainPASS, new resulting-main pending.",
-    "wait_reason": "Inspect new resulting-main checks; native controls remain pending changedMacavailability. No source/localbuild/account actors.",
+    "integration": "PR189 normalmergea23f486b; resulting-main BRNCI39469206851 running. PR188 warm experiment complete.",
+    "wait_reason": "Resulting-main required gates running; Macnative controls wait changedavailability. One independent read-only gate-cost audit, no source/build/account/desktop action.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

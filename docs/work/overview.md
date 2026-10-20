@@ -13,7 +13,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:48:49.226853+00:00
 Activity: PR189 normally mergeda23f486b after all4head+all4preceding-main requiredPASS; complete merged tree equals57531. Local aggregate-CLEAN assertion failed on optionalWindows UNSTABLE and shell continued; original failure/reconstructed receipt retained transparently. Resulting-main pending.
-Next: Inspect actual new a23f486b main run and all4 required results. Keep head source stable; future dependent mutations separated from successful gate results/fail-fast shell.
+Next: Inspect resulting-main BRN CI39469206851 on exacta23f486b for all4required contexts; only then mark integrated verification complete. No source changes or repeated local checks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -33,6 +33,27 @@ Attempts:
 - Initial formatter invocation could not locate pinned cargo-fmt without pin directory in PATH; corrected environment then exposed actual formatting delta.: Preserved both logs, applied only rustfmt delta to same test, committed57531 before qualification/review. No toolchain install or product change. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
 - Overview guard rejected temporary absolute evidence pointers; previous valid overview preserved.: Saved original formatter outcomes in repository-relative qualification receipt and routed task to that authority. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
 - AssertionError: expected aggregate mergeStateStatus CLEAN, actual UNSTABLE from optional Windows failures; Dependent shell sequence lacked fail-fast; subsequent normal --match-head merge ran after failed local assertion. No admin/bypass/auto merge flag used.: No code rollback indicated: complete merged tree equals independently reviewed/local+hosted-qualified57531. Retain original failure, reconstruct saved pre-merge observation receipt transparently; future dependent mutations use separate successful gate tool result or fail-fast shell. ([docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json), [docs/work/active/vacation-campaign/evidence/pr189-integration.json](active/vacation-campaign/evidence/pr189-integration.json))
+
+</details>
+
+### Assess the slower required build gate after Mac cache reuse improved
+
+Owner: bounded Luna read-only timing/cache-boundary audit; lead disposition · State: **active** · Last observed: 2026-10-20T17:50:50.801543+00:00
+Activity: PR189 head requiredUbuntuCore24m46 vsMacCore16m13. Selected bounded existing-receipt/source assessment of incidental non-Mac helper path movement; no source change or experiment rerun selected.
+Next: Compare existing step receipts and exact old/new cache inclusion. Distinguish changed retention boundary from uncontrolled timing causality; assess Mac-priority/storage/complexity tradeoffs before any follow-up selection.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no Linux feature/cache expansion selected
+- **checks:** pending bounded actual-receipt/source comparison
+- **integration:** inapplicable unless concrete candidate selected
+- **native:** inapplicable CI assessment only
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json](active/vacation-campaign/evidence/pr187-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr188-resulting-main.json](active/vacation-campaign/evidence/pr188-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr189-premerge.json](active/vacation-campaign/evidence/pr189-premerge.json)
 
 </details>
 
@@ -1027,4 +1048,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:48:49.226853+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:50:50.801543+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
