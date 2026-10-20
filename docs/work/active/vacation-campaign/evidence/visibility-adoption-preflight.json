@@ -1,0 +1,323 @@
+{
+  "observed_at_utc": "2026-10-20T04:49:49.357639+00:00",
+  "scope": "bounded read-only preflight under new owner request; no adoption implementation, config edit, build, merge, app or account test",
+  "report": {
+    "pr": 177,
+    "draft": true,
+    "commit": "255d2c8c490756e7c988ea513748707e7ba719df",
+    "path": "docs/work/active/agent-first-simplification/visible-development-cycle.md",
+    "sha256": "107376cf9a22bf543a1b1aaa6fa4448cf0d2274ab70b80de69851603b82dd971",
+    "bytes": 38181,
+    "full_report_read": true
+  },
+  "lead_head_before_preflight": "cce1c166c45f0fb5a1e0de3ebdf6c1d0446c4ea2",
+  "working_tree_before_preflight": "clean",
+  "main": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
+  "allowance": {
+    "used_percent": 95,
+    "remaining_percent": 5,
+    "reported_reset_unix": 1792874447,
+    "budget_exception": "requested from owner; no answer received; no inferred waiver"
+  },
+  "configuration_inventory": [
+    {
+      "path": "/Users/evokessler/.codex/AGENTS.md",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "empty": true
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/AGENTS.md",
+      "bytes": 6382,
+      "sha256": "047d39dce60f6a435fafb55004ea3280cd43184feff51ea4dd5ca140384a4fde",
+      "empty": false
+    },
+    {
+      "path": "/Users/evokessler/Documents/Codex/brn-rust/AGENTS.md",
+      "bytes": 2997,
+      "sha256": "baa6bc88bf2b289ece51cb014e90722dcf0a882243167c60c46850c4630d8bb8",
+      "empty": false
+    }
+  ],
+  "development_skill_inventory": [
+    {
+      "path": "/Users/evokessler/.agents/skills/developing-product-feature/SKILL.md",
+      "description": "Use when the user requests end-to-end development or continuation through verified integration.",
+      "bytes": 3362,
+      "sha256": "5e2a3d5c2230cda980eef77b117ae765325325841adfef5bbf1a896832ab096e",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/implementing-product-tasks/SKILL.md",
+      "description": "Use when an explicitly selected Build-ready task needs implementation, or an accepted behavior needs a concrete bug fix.",
+      "bytes": 2697,
+      "sha256": "f62ba5cd6862dc1cc82f4ea18045d51d7ad17a3db6db22d2a4b293585513a7ef",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/improving-product-architecture/SKILL.md",
+      "description": "Use when the user selects an architecture investigation for a concrete problem or changed area.",
+      "bytes": 1932,
+      "sha256": "8c326b1205f09c1a9ab4d30c5849f581e7bdf862c2060f0966db575f8fe3e01e",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/integrating-product-changes/SKILL.md",
+      "description": "Use when selected work needs acceptance, authorized integration, post-merge verification or a durable lead handoff.",
+      "bytes": 3556,
+      "sha256": "03b7b4aeae51fe1521ed7bd3e2f94b96b1768a62cdd17895c43cd7c10dd81d18",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/learning-from-development/SKILL.md",
+      "description": "Use when the user selects a retrospective after a meaningful batch or an observed recurring development problem.",
+      "bytes": 1411,
+      "sha256": "3fd233b2c3d6d62d5bbca59241628e6540f608dfe101069c5351f5b43d8d2043",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/modeling-product-domain/SKILL.md",
+      "description": "Use when product terms, relationships or invariants are ambiguous, or a glossary or decision record needs correction.",
+      "bytes": 1876,
+      "sha256": "364a2e1805eb4431a2ec6d87dfe5d1b92524472ef3a9acb3fdec177c1c65e811",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/product-discovery-interview/SKILL.md",
+      "description": "Use when important user-visible product behavior is unresolved and needs owner decisions before technical planning.",
+      "bytes": 1884,
+      "sha256": "1ddbf3438546d379b7bf70bc73fdd7fee15b09956d3a8d1887aa2d72a7acd278",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/reviewing-product-candidates/SKILL.md",
+      "description": "Use when a candidate needs independent review, or review findings need validation and disposition.",
+      "bytes": 2723,
+      "sha256": "b9e1f9b34308ac8fe8d19e7a0bd6c583124fdfc1922268c82407fd7f099eced0",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/slicing-product-tasks/SKILL.md",
+      "description": "Use when a specification or accepted outcome needs small executable tasks, readiness states and a dependency map.",
+      "bytes": 2161,
+      "sha256": "8dc54b10cdc5c41d6cb20db83bc4151ce50575564ee3de6f5eeebfa713bfaaf9",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.agents/skills/writing-product-specs/SKILL.md",
+      "description": "Use when accepted requirements or a defined engineering problem need an executable technical specification.",
+      "bytes": 1884,
+      "sha256": "c9ddc7ecbdc64d5c950cd31f54443939cf8ca4d012c6979d70c5e335cdc9bc00",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.codex/skills/rust-code-review/SKILL.md",
+      "description": "\"Rust Code review checklist and decision framework for Rust PRs, derived from rust-best-practices.\"",
+      "bytes": 4060,
+      "sha256": "2214939d9c13f850e09109b9b813351ac5638b5ab7aeecf48931e3f339c89c84",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    },
+    {
+      "path": "/Users/evokessler/.codex/skills/writing-plans/SKILL.md",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+      "bytes": 14367,
+      "sha256": "caf13a1dce5f09527ea4b2c0986c386fc9ab73b0afee77c6d8f8e78707ab1a91",
+      "scope": "metadata inventoried; only task-selected entry instructions read"
+    }
+  ],
+  "git_observations": {
+    "176": {
+      "headRefName": "codex/feedback-accessibility",
+      "headRefOid": "7e41da520e610c56ac18f8b4ffe7ded305855077",
+      "isDraft": false,
+      "number": 176,
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "name": "Documentation and tooling",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844216"
+        },
+        {
+          "name": "Core and CLI (ubuntu-24.04)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844490"
+        },
+        {
+          "name": "Core and CLI (windows-2025)",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844193"
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844248"
+        },
+        {
+          "name": "Native UI build and state (ubuntu-24.04)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844206"
+        },
+        {
+          "name": "Native UI build and state (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083844532"
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39259702950/job/118083843822"
+        }
+      ]
+    },
+    "177": {
+      "headRefName": "docs/visible-development-context-2026-10-19",
+      "headRefOid": "255d2c8c490756e7c988ea513748707e7ba719df",
+      "isDraft": true,
+      "number": 177,
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "name": "Documentation and tooling",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935289"
+        },
+        {
+          "name": "Core and CLI (ubuntu-24.04)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935285"
+        },
+        {
+          "name": "Core and CLI (windows-2025)",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935112"
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935359"
+        },
+        {
+          "name": "Native UI build and state (ubuntu-24.04)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306934920"
+        },
+        {
+          "name": "Native UI build and state (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935342"
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39324564853/job/118306935303"
+        }
+      ]
+    },
+    "pr175_main": {
+      "conclusion": "failure",
+      "headSha": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
+      "jobs": [
+        {
+          "name": "Documentation and tooling",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native UI build and state (windows-2025)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native retrieval and combined build (windows-2025)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Core and CLI (windows-2025)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Native retrieval and combined build (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native UI build and state (macos-15)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native UI build and state (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Core and CLI (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "local_config": {
+    "path": "/Users/evokessler/.codex/config.toml",
+    "present_keys": [
+      "notify",
+      "model",
+      "model_context_window",
+      "model_reasoning_effort",
+      "approval_policy",
+      "approvals_reviewer",
+      "sandbox_mode",
+      "service_tier",
+      "marketplaces",
+      "plugins",
+      "features",
+      "mcp_servers",
+      "shell_environment_policy",
+      "desktop",
+      "projects",
+      "memories"
+    ],
+    "instruction_overrides": {},
+    "configured_model": "gpt-6.1-sol",
+    "configured_reasoning": "high",
+    "limits": "File configuration is not proof of effective runtime model/context; credentials, environment values and auth files excluded."
+  },
+  "project_config_presence": {
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/.codex/config.toml": false,
+    "/Users/evokessler/Documents/Codex/brn-rust/.codex/config.toml": false
+  },
+  "remaining_audit": [
+    "Read task-selected skill bodies/references, inspect relevant nested profile/project instruction overrides if present, audit both saved automation prompts against compact reading route.",
+    "Host-supplied instructions, skill metadata, memory summary and conversation/heartbeat context are outside repository control; local file inventory cannot prove total injected prompt size.",
+    "No measured token savings or model-quality/performance claim."
+  ]
+}

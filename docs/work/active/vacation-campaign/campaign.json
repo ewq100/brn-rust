@@ -18,13 +18,13 @@
   ],
   "remote_jobs_launched": [],
   "next_wake": "Recovery heartbeat only: verify actual allowance/reset; do not dispatch work or account tests at the5% reserve. Known reported reset1792874447; no purchases/reset redemption.",
-  "last_checkpoint_at_utc": "2026-10-19T13:26:28.136838+00:00",
+  "last_checkpoint_at_utc": "2026-10-20T04:49:49.357639+00:00",
   "current_session_jobs": [],
   "integration_status": "PR163-174 all four required head/main checks passed. PR175 normally merged9cecd00b after all four exact-head required checks; resulting-main39259077134 pending. Optional Windows failures retained.",
-  "next_eligible_work": "After verified capacity returns, inspect fresh remote/head and resume175 resulting-main and frozen176 required head/main gates; normal match-head merges only. Then distinct queued native Save/reopen/backup/unsaved recovery and source-bound group-choice preparation. No new source or AI work at5% reserve.",
+  "next_eligible_work": "Visibility/instruction adoption is the newest selected task, pending explicit reserve exception or reset. Read visibility-adoption.md. After adoption resume existing campaign; PR175 required main gates and PR176 required head gates have now passed, no reimplementation/rebuild.",
   "last_qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
   "source_delta_after_qualification": "No production change since final source87. Entire production delta vs actual main9ce is12lines in writing.rs: owner-feedback toggle metadata and conditional model context. Both independently reviewed, targeted tests/lint/format/native build and actual Mac toggle states pass.",
-  "active_work": "No active build, app or account run. PR176 frozen7e41 published/attached; source/local/native qualification and independent receipt audit passed. Last observed175 resulting-main39259077134 and176 exact-head checks pending. Reserve-floor handoff saved.",
+  "active_work": "Bounded read-only report/configuration preflight completed; new implementation remains at5% reserve pending owner choice. Existing source, local changes and frozen PR176 preserved.",
   "continuation_baseline": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
@@ -127,5 +127,16 @@
     "account_calls": 0,
     "correction_receipt": "evidence/feedback-inclusion-qualification.json"
   },
-  "resource_batch": "Reserve-floor checkpoint: no active build/UI/account run; bounded Luna research asked to return current findings and stop. No new delegation/work until fresh allowance above reserve."
+  "resource_batch": "Reserve-floor checkpoint: no active build/UI/account run; bounded Luna research asked to return current findings and stop. No new delegation/work until fresh allowance above reserve.",
+  "visibility_adoption": {
+    "selected_by": "owner request20October2026",
+    "reference_pr": 177,
+    "reference_commit": "255d2c8c490756e7c988ea513748707e7ba719df",
+    "state": "selected; bounded preflight complete; implementation waiting for reserve override or verified reset",
+    "record": "visibility-adoption.md",
+    "audit": "evidence/visibility-adoption-preflight.json",
+    "owner": "existing lead",
+    "next_action": "Resolve pending budget choice; then finish actual instruction audit, consolidate rules, single current-fact owners and smallest read-only owner view, review/validate/integrate, resume campaign.",
+    "constraints": "Existing5% reserve, fixed expiry, integration and account-test limits retained. No new worker, build, config edit or merge authorized by inference at reserve."
+  }
 }
