@@ -39,9 +39,9 @@ Attempts:
 
 ### Show unavailable skill choices correctly in inactive Projects
 
-Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T12:54:01.127912+00:00
-Activity: Clean28474ab7 implements two-file UI correction; independent complete source/caller review PASS. Author reports focused4, desktop341/0/1, lint/fmt/build pass, but original command/log receipts and immutable copies were not saved; bounded evidence repair in progress before publication.
-Next: Preserve actual original transcript results or honest gaps, record final proof repair only where needed, copy source-bound immutable app/helpers, and get targeted receipt review before composing/publishing separate skill fix.
+Owner: bounded Luna implementation; independent Sol review/lead integration · State: **active** · Last observed: 2026-10-20T13:00:02.078069+00:00
+Activity: Frozen28474ab7 source and receipt review PASS within disclosed limits. Raw focused4/0 exit0; broader341/0/1/lint/build successes are reconstructed transcript excerpts. Original5failures/hash gaps preserved. Separate runnable0555 artifact set fixes lost execute bits without source/rebuild.
+Next: After PR184 normal merge, compose unchanged qualified28474 source and reviewed records, verify actual source identity; publish separate skill-control PR with original proof limits and required hosted gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -49,17 +49,18 @@ Next: Preserve actual original transcript results or honest gaps, record final p
 Gates:
 
 - **implementation:** complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change
-- **checks:** Independent source PASS; author-reported4/341/0/1/lint/build need inspectable receipt recovery; qualification pending
+- **checks:** PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.
 - **integration:** not composed/published; PR184 head19d592c6 stable while hosted checks run
-- **native:** not observed; later changed-control case may be queued after qualification
+- **native:** Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md](active/vacation-campaign/evidence/skill-catalog-ui-audit.md), [crates/brn-desktop/src/threads_skills.rs](../../crates/brn-desktop/src/threads_skills.rs), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md](active/vacation-campaign/evidence/inactive-skill-controls-qualification.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json](active/vacation-campaign/evidence/inactive-skill-controls-qualification.json), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json)
 
 Attempts:
 
 - Pre-pin lead caller mapping found inactive availability also disabled valid workspace-wide Remove; author corrected separate exact-current-digest guard before final freeze.: Distinct scoped enablement from exact global removal; stale/wrong-digest removal remains inert. No final source-check claim invalidated because candidate was not frozen. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md](active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md))
 - Initial28474manifest retained only author check summaries and mutable artifact paths; original logs/copy requirements not satisfied.: Evidence-repair loop selected; preserve original manifest and transcript limits, rerun only unresolved proof with source/log bindings, then copy immutable artifacts. No false raw-log or final qualification claim. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json](active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json))
+- Recovered transcript receipts explicitly retain5 failedharness/implementation attempts and missing temporarytree/exitcode/rawstream limits; later focusedrepair raw4/0 confirmed frozen284. Original report had one stale no-reruns sentence. Artifact copies0444 lacked execute access.: Independent review accepted proportionateproofclasses; corrected only imported report, preserved originalarchive, and made separate0555 same-byte artifact copies. Sourcecause settled via service trace and actualrenderedcontrol test; no more unproductive harnessassumptions or productionrewrites. ([docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md](active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md), [docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json](active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json))
 
 </details>
 
@@ -760,4 +761,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T12:54:01.127912+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:00:02.078069+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

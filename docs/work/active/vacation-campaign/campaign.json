@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T12:35:22+00:00",
-    "remaining_percent": 90,
+    "observed_at": "2026-10-20T13:01:13.224708+00:00",
+    "remaining_percent": 89,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual10% used /90% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual11% used /89% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T12:54:01.127912+00:00",
+    "observed_at": "2026-10-20T13:00:02.078069+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1083,23 +1083,27 @@
         "title": "Show unavailable skill choices correctly in inactive Projects",
         "state": "active",
         "owner": "bounded Luna implementation; independent Sol review/lead integration",
-        "activity": "Clean28474ab7 implements two-file UI correction; independent complete source/caller review PASS. Author reports focused4, desktop341/0/1, lint/fmt/build pass, but original command/log receipts and immutable copies were not saved; bounded evidence repair in progress before publication.",
-        "observed_at": "2026-10-20T12:54:01.127912+00:00",
+        "activity": "Frozen28474ab7 source and receipt review PASS within disclosed limits. Raw focused4/0 exit0; broader341/0/1/lint/build successes are reconstructed transcript excerpts. Original5failures/hash gaps preserved. Separate runnable0555 artifact set fixes lost execute bits without source/rebuild.",
+        "observed_at": "2026-10-20T13:00:02.078069+00:00",
         "origin": "observed",
-        "next_action": "Preserve actual original transcript results or honest gaps, record final proof repair only where needed, copy source-bound immutable app/helpers, and get targeted receipt review before composing/publishing separate skill fix.",
+        "next_action": "After PR184 normal merge, compose unchanged qualified28474 source and reviewed records, verify actual source identity; publish separate skill-control PR with original proof limits and required hosted gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/skill-catalog-ui-audit.md",
           "crates/brn-desktop/src/threads_skills.rs",
           "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-review-28474.md",
-          "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json"
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json",
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md",
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md",
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json"
         ],
         "gates": {
           "implementation": "complete local28474ab7; inactive scoped enable/adoption blocked, exact global Remove preserved; no checkedservice/core/prompt change",
-          "checks": "Independent source PASS; author-reported4/341/0/1/lint/build need inspectable receipt recovery; qualification pending",
+          "checks": "PASS independent source+receipt assessment; rawfocused4/0; broader341/0/1/lint/fmt/build transcript-backed. Originalcounterfactual/hash gaps retained; no extra broad rerun needed.",
           "integration": "not composed/published; PR184 head19d592c6 stable while hosted checks run",
-          "native": "not observed; later changed-control case may be queued after qualification",
+          "native": "Not observed; separate byte-identical0555 artifact set executable access verified, no launch or owner acceptance",
           "owner_acceptance": "not claimed"
         },
         "attempts": [
@@ -1115,6 +1119,14 @@
             "change": "Evidence-repair loop selected; preserve original manifest and transcript limits, rerun only unresolved proof with source/log bindings, then copy immutable artifacts. No false raw-log or final qualification claim.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-original-manifest.json"
+            ]
+          },
+          {
+            "outcome": "Recovered transcript receipts explicitly retain5 failedharness/implementation attempts and missing temporarytree/exitcode/rawstream limits; later focusedrepair raw4/0 confirmed frozen284. Original report had one stale no-reruns sentence. Artifact copies0444 lacked execute access.",
+            "change": "Independent review accepted proportionateproofclasses; corrected only imported report, preserved originalarchive, and made separate0555 same-byte artifact copies. Sourcecause settled via service trace and actualrenderedcontrol test; no more unproductive harnessassumptions or productionrewrites.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md",
+              "docs/work/active/vacation-campaign/evidence/inactive-skill-artifact-permission-repair.json"
             ]
           }
         ]
@@ -1133,10 +1145,10 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ci-main-pass-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T12:54:01.127912+00:00",
-    "runtime_capacity": "4 total slots; lead + Luna evidence repair; independent reviewer source review completed",
-    "build_slot": "Luna skill_catalog_audit owns serialized sharedtarget for missing-proof recovery only; source28474frozen",
-    "desktop_account_actor": "none; daily18:00Tallinn batch pending",
-    "integration": "PR184stable19d592c6 hosted checks pending; skillsnotpublished"
+    "observed_at": "2026-10-20T13:00:02.078069+00:00",
+    "runtime_capacity": "4 total slots; lead active, implementation/review completed",
+    "build_slot": "released;28474source frozen and qualifiedwithinexplicitproofclasses",
+    "desktop_account_actor": "none; daily18Tallinn pending",
+    "integration": "PR184 stable19d592c6 hosted Core checks pending; skillcandidate separate/unpublished"
   }
 }

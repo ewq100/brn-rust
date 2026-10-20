@@ -1,0 +1,344 @@
+{
+  "observed_at": "2026-10-20T13:00:02.078069+00:00",
+  "candidate": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+  "base": "19d592c69223aa1f106e4c0f379dab868f13542b",
+  "delta_sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987",
+  "archive": "docs/work/active/vacation-campaign/evidence/skill-controls-raw/candidate-28474-qualification.tar.gz",
+  "archive_sha256": "45e1706c8ebf8088b1dc6798e378d34d14bfb9220e1cd049e9d7cbc69e3bcb36",
+  "files": [
+    {
+      "name": "brn-inactive-skill-controls-28474ab7-artifact-manifest.json",
+      "size": 1785,
+      "sha256": "93929b2a25cb48d1dbb3e3d042040eb8cb79ac47cd5dbaf41a807bffdde08ce0"
+    },
+    {
+      "name": "brn-inactive-skill-controls-attempt-disabled-observation-1.json",
+      "size": 1121,
+      "sha256": "9c1e3f3e3961edf06efe9eb4811bf2330938ed03874a922e5921d3124cab9b50"
+    },
+    {
+      "name": "brn-inactive-skill-controls-attempt-disabled-observation-1.log",
+      "size": 382,
+      "sha256": "298f0ec6052ccfb72d73d4f5520ce5d9f927919d61ec0948dbfbbd1edcbf28f8"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-clippy.json",
+      "size": 1367,
+      "sha256": "77432402a8e165b7c79212ce38f104cfceabb71454fb4507654a18d5a71634c1"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-clippy.log",
+      "size": 413,
+      "sha256": "580c1ea24649f6cef2ccd89f6df567c1b02c0490bcbbc34ae0cc1a113aa7eaa3"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-focused-repair-rerun.json",
+      "size": 1662,
+      "sha256": "c06c1eb03d22c587c0dc440025ef76fd9e7e07786c4cd4d27934bc4bdd7563ae"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-focused-repair-rerun.log",
+      "size": 1006,
+      "sha256": "5563178c77e23cc7be691ae0c86ee46f170b65bef4a0f8226822a19c89d53639"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-focused-repair-rerun.raw.log",
+      "size": 1006,
+      "sha256": "5563178c77e23cc7be691ae0c86ee46f170b65bef4a0f8226822a19c89d53639"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-focused.json",
+      "size": 2074,
+      "sha256": "bc0d4eee5de794beea60047024db8c9f3d7589d2ca4ffd67075f8bb8b7a18b1c"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-focused.log",
+      "size": 649,
+      "sha256": "e2c2a91a865f6ee36a67a3c194a5ca32de21b50f865235ce2f8bc38c7f58728b"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-format-diff.json",
+      "size": 812,
+      "sha256": "5fb13586175d0515b4a3328f07e039c7c069330af30cac0a06d1c271ba809024"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-format-diff.log",
+      "size": 338,
+      "sha256": "0b085971bec5a6343be995247b695a895609cdfaa90752f6ceb75eaa592e4d76"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-full-desktop.json",
+      "size": 1454,
+      "sha256": "94137426a13d7a3288526fd258bac9c21cf2530a8f6e8ae364b9bf3333006dc3"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-full-desktop.log",
+      "size": 430,
+      "sha256": "7a5114f3c793a9497a0579b9ed7f389795d48096adcce129e69290bf0bb1ea55"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-native-build.json",
+      "size": 1608,
+      "sha256": "a9cfdc6f67a09ff975d77bf99c25821ac2a69236f6415063ec9b2dbf4562d116"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final-native-build.log",
+      "size": 405,
+      "sha256": "2093c6eb72033de3f99f1e577fa4a5f89879f2575175491b157bdcee3fe31cea"
+    },
+    {
+      "name": "brn-inactive-skill-controls-final.patch",
+      "size": 12903,
+      "sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987"
+    },
+    {
+      "name": "brn-inactive-skill-controls-original-attempts.json",
+      "size": 3206,
+      "sha256": "b2a8f88925b9b6b0e3ebbd2f0bbf00c07a6eb91ac3fb382034fd27c78b0a15ea"
+    },
+    {
+      "name": "brn-inactive-skill-controls-original-attempts.log",
+      "size": 982,
+      "sha256": "c8b425d8da67980f54c3cd4eecfee52f8514bfaa8e3b1f2204e1024ecc5c04d0"
+    },
+    {
+      "name": "brn-inactive-skill-controls-original-red.json",
+      "size": 2692,
+      "sha256": "193117d886f71acfd4e94515bf8dd373c70eea6825e55a5871aee43a137600a6"
+    },
+    {
+      "name": "brn-inactive-skill-controls-original-red.log",
+      "size": 877,
+      "sha256": "85cad53510bda0057a1830db25f319a4f992d96a993c32d64f4768594a99bd0d"
+    },
+    {
+      "name": "brn-inactive-skill-controls-prepin-remove-feedback.json",
+      "size": 1745,
+      "sha256": "d9dd463e2735a7a8b75f37fc7614638fe3169a4dc0a8c75595db72f89b797556"
+    },
+    {
+      "name": "brn-inactive-skill-controls-prepin-remove-feedback.log",
+      "size": 762,
+      "sha256": "e41dd3ec431d5712a838bc4cd13f095472aa7f265dfb721a4fa9c191c9f5ea74"
+    },
+    {
+      "name": "brn-inactive-skill-controls-qualification.md",
+      "size": 6363,
+      "sha256": "ef28e315056e39bda80c3ca8b59f15c3adcb1d72755c25267f7e91a2b84d706d"
+    },
+    {
+      "name": "brn-inactive-skill-controls-receipt-review.md",
+      "size": 6002,
+      "sha256": "a39fba99312ea4438ae0cd095af108f03ddd90b0aa85515f0b8da683744d64b6"
+    },
+    {
+      "name": "brn-inactive-skill-controls-review.md",
+      "size": 6496,
+      "sha256": "9b5a0958ce92a9623a3f7b5e7855e5c697d81516af623302d6fad68b7a4b9989"
+    },
+    {
+      "name": "brn-inactive-skill-controls-source-binding.json",
+      "size": 1629,
+      "sha256": "1e6a7da06beee1346fdde4716220177e28e52613c6cad9d762ec12996f32562a"
+    }
+  ],
+  "source_binding": {
+    "receipt_type": "source_binding_record",
+    "capture_type": "current_git_objects_and_file_hashes_read_after_commit",
+    "base": {
+      "commit": "19d592c69223aa1f106e4c0f379dab868f13542b",
+      "tree_sha1": "cfefa28782eafa8cd1db3fd06b333a9451813fa5",
+      "threads_skills_rs_sha256": "14e3eab63cac327ad428ce400e9c4dd306d3869538d1e88c4eea6c83a104bdb4",
+      "threads_skills_tests_rs_sha256": "381a60b0663e8b6ec2f4cd3b1cb1716c918101697e5606d02a79807ff3046c8c"
+    },
+    "final": {
+      "commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "tree_sha1": "a50370a20a83144f94da8ae43de4a459f9934007",
+      "commit_diff_sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987",
+      "patch_path": "/tmp/brn-inactive-skill-controls-final.patch",
+      "patch_sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987",
+      "threads_skills_rs_sha256": "26d007c9a3248f6efdb3b0a111ff055225625fb21a4f67336d47a8e35eb8a861",
+      "threads_skills_tests_rs_sha256": "bde44aaa7be99d941e58505dadc793d40c9ae31374016694790c5a4eab57b5f2",
+      "changed_files": [
+        "crates/brn-desktop/src/threads_skills.rs",
+        "crates/brn-desktop/src/threads_skills_tests.rs"
+      ],
+      "tree_clean": true
+    },
+    "intermediate_pre_remove_feedback_state": {
+      "status": "not frozen as a git ref or content-addressed patch",
+      "source_hash": null,
+      "test_hash": null,
+      "limitation": "The scope of the change and follow-up test result can be reconstructed from this turn transcript, but exact pre-feedback file bytes/hash were not saved. Final commit includes the Remove correction and is the only frozen candidate."
+    }
+  },
+  "raw_focused_repair": {
+    "receipt_type": "raw_execution_receipt",
+    "attempt": "focused-skills-evidence-repair-rerun-after-freeze",
+    "cwd": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+    "tree_clean": true,
+    "exit_code": 0,
+    "command": "set -o pipefail; PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 RUST_TEST_THREADS=1 DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn cargo test --locked --offline --jobs 1 --features native-ui,native-test-support -p brn-desktop skills_tests 2>&1 | tee /tmp/brn-inactive-skill-controls-final-focused-repair-rerun.raw.log",
+    "result": "4 passed, 0 failed, 0 ignored, 338 filtered out",
+    "duration_seconds": 0.667,
+    "raw_log": "/tmp/brn-inactive-skill-controls-final-focused-repair-rerun.log",
+    "raw_log_sha256": "5563178c77e23cc7be691ae0c86ee46f170b65bef4a0f8226822a19c89d53639",
+    "repeat_reason": "The earlier final focused output was transcript-visible but not captured raw; rerun supplies a pinned-commit stdout and exit-code receipt. It is a repeat, not the first execution.",
+    "no_source_changes": true
+  },
+  "final_transcript_receipts": {
+    "focused": {
+      "receipt_type": "reconstructed_transcript_receipt_not_raw_terminal_capture",
+      "attempt": "focused-skills-after-final-source-adjustment",
+      "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "command": "PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin rustfmt --edition 2024 crates/brn-desktop/src/threads_skills.rs crates/brn-desktop/src/threads_skills_tests.rs && git diff --check && PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 RUST_TEST_THREADS=1 DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn cargo test --locked --offline --jobs 1 --features native-ui,native-test-support -p brn-desktop skills_tests",
+      "result_excerpt": "Finished test profile in 47.57s; running 4 tests; native_inactive_project_skill_rows_are_unavailable_without_rejected_enable_choices ... ok; native_inventory_can_enable_one_package_in_each_scope_without_copying_policy ... ok; native_skill_install_enable_select_disable_and_reopen ... ok; native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest ... ok; test result: 4 passed, 0 failed, 338 filtered out.",
+      "source_hash_binding": "Candidate commit and file hashes are in source-binding.json; transcript output itself was not saved raw.",
+      "exit_code": null,
+      "capture_limit": "Command/output reconstructed from active turn transcript; outer tool wrapper did not retain exit_code in the model-visible result. Test summary is explicit."
+    },
+    "full-desktop": {
+      "receipt_type": "reconstructed_transcript_receipt_not_raw_terminal_capture",
+      "attempt": "full-affected-desktop-after-final-pin",
+      "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "command": "PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 RUST_TEST_THREADS=1 DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn cargo test --locked --offline --jobs 1 --features native-ui,native-test-support -p brn-desktop",
+      "result_excerpt": "test result: 341 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 17.45s.",
+      "output_completeness": "The active-turn tool output was truncated in the middle of the test listing, but its final summary line was present. This receipt preserves that summary, not the omitted test names or raw output.",
+      "exit_code": null,
+      "capture_limit": "Reconstructed from active turn transcript; no raw stdout/stderr file was saved at execution time."
+    },
+    "clippy": {
+      "receipt_type": "reconstructed_transcript_receipt_not_raw_terminal_capture",
+      "attempt": "strict-all-target-desktop-clippy-after-final-pin",
+      "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "command": "PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn cargo clippy --all-targets --locked --offline --jobs 1 --features native-ui,native-test-support -p brn-desktop -- -D warnings",
+      "result_excerpt": "Finished `dev` profile in 4.61s; warning reported only that block v0.1.6 contains code rejected by a future Rust version. Clippy returned without -D warnings diagnostics.",
+      "exit_code": null,
+      "capture_limit": "Active-turn output was visible and complete for the result summary; no raw stdout/stderr redirection or exit_code capture was retained."
+    },
+    "format-diff": {
+      "receipt_type": "reconstructed_transcript_receipt_not_raw_terminal_capture",
+      "attempt": "final-workspace-format-and-diff-check-after-final-pin",
+      "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "commands": [
+        "PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin cargo fmt --all -- --check",
+        "git diff --check",
+        "git status --porcelain=v1"
+      ],
+      "results": {
+        "fmt": "passed",
+        "diff_check": "passed",
+        "tree": "clean at 28474ab705dceb718dedbdb96a027f2c5c36c371"
+      },
+      "capture_limit": "Commands ran in the active turn; outputs were not redirected to raw log files. Later status output explicitly showed the commit/branch with no porcelain changes."
+    },
+    "native-build": {
+      "receipt_type": "reconstructed_transcript_receipt_not_raw_terminal_capture",
+      "attempt": "ordinary-native-ui-build-after-final-pin",
+      "source_commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "command": "PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin:/Users/evokessler/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin CARGO_TARGET_DIR=/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 DYLD_LIBRARY_PATH=/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib BRN_XBERG_HELPER=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper BRN_XBERG_HELPER_BRN=/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn cargo build --locked --offline --jobs 1 --features native-ui -p brn-desktop",
+      "result_excerpt": "Compiling brn-desktop; Finished `dev` profile in 5.62s; Cargo noted block v0.1.6 future incompatibility.",
+      "binary": {
+        "original_path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+        "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d",
+        "launched": false,
+        "immutable_copy": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7/brn-desktop"
+      },
+      "exit_code": null,
+      "capture_limit": "Output summary reconstructed from active turn transcript; build success was explicit, but raw log and wrapper exit_code were not retained. Artifact bytes were copied and hashed later."
+    }
+  },
+  "artifact_manifest": {
+    "kind": "brn-native-ui-artifact-manifest",
+    "source": {
+      "branch": "codex/inactive-project-skill-controls",
+      "commit": "28474ab705dceb718dedbdb96a027f2c5c36c371",
+      "base_commit": "19d592c69223aa1f106e4c0f379dab868f13542b",
+      "base_tree": "cfefa28782eafa8cd1db3fd06b333a9451813fa5",
+      "final_tree": "a50370a20a83144f94da8ae43de4a459f9934007",
+      "final_patch_sha256": "bb136a0f4f191f5d008db70fdf8742a428df650f756f66351a62422983ebb987",
+      "final_patch_copy": "source.patch",
+      "changed_files": [
+        "crates/brn-desktop/src/threads_skills.rs",
+        "crates/brn-desktop/src/threads_skills_tests.rs"
+      ]
+    },
+    "build": {
+      "toolchain": "Rust 1.98.1",
+      "command": "cargo build --locked --offline --jobs 1 --features native-ui -p brn-desktop",
+      "target_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "app_original_path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+      "launched": false
+    },
+    "artifacts": [
+      {
+        "name": "brn-desktop",
+        "path": "brn-desktop",
+        "sha256": "7cb86bff4f9fc69558d7ed2c2672bbe6bbde4bac71a71d2405c01f9335ba354d",
+        "mode": "0555"
+      },
+      {
+        "name": "brn-xberg-helper",
+        "path": "brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "provenance": "Copied from the qualified helper path supplied by /tmp/brn-draft-dismiss-scope-05-final-desktop-suite.json; helper source commit was not selected or rebuilt in this task.",
+        "mode": "0555"
+      },
+      {
+        "name": "brn-xberg-helper-brn",
+        "path": "brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "provenance": "Copied from the qualified helper path supplied by /tmp/brn-draft-dismiss-scope-05-final-desktop-suite.json; helper source commit was not selected or rebuilt in this task.",
+        "mode": "0555"
+      }
+    ],
+    "verification_receipts": {
+      "source_binding": "/tmp/brn-inactive-skill-controls-source-binding.json",
+      "original_red": "/tmp/brn-inactive-skill-controls-original-red.json",
+      "original_failed_attempts": "/tmp/brn-inactive-skill-controls-original-attempts.json",
+      "prepin_remove_feedback": "/tmp/brn-inactive-skill-controls-prepin-remove-feedback.json",
+      "focused_skills": "/tmp/brn-inactive-skill-controls-final-focused.json",
+      "full_desktop": "/tmp/brn-inactive-skill-controls-final-full-desktop.json",
+      "strict_clippy": "/tmp/brn-inactive-skill-controls-final-clippy.json",
+      "format_and_diff": "/tmp/brn-inactive-skill-controls-final-format-diff.json",
+      "native_ui_build": "/tmp/brn-inactive-skill-controls-final-native-build.json"
+    },
+    "old_manifest_preserved": "/tmp/brn-inactive-skill-controls-28474ab7-artifact-manifest.json",
+    "capture_limit": "Attempt logs are reconstructed from the active turn transcript, not raw command redirects. Source and final candidate hashes are recorded; the temporary counterfactual red tree and intermediate pre-feedback tree were not hashed at execution time.",
+    "permission_repair": {
+      "observed_at": "2026-10-20T12:58:45.811738+00:00",
+      "original_set": "/Users/evokessler/.codex/artifacts/brn-inactive-skill-controls/28474ab7",
+      "original_manifest_sha256": "b3cda778f0f40e4239de78bbba0faddb35dcb590b4616378fe0f07a760be1b2e",
+      "reason": "Original read-only copies used0444 and lost executable access. Separate0555 copies preserve original bytes/set while making qualified app/helpers runnable; no app launched.",
+      "no_rebuild_or_source_change": true
+    },
+    "helper_source_binding_reuse": {
+      "manifest": "/Users/evokessler/.codex/artifacts/brn-draft-recovery/20261020T122939Z-2b836148/manifest.json",
+      "basis": "Same helper hashes and helper source/locks unchanged2b836 through28474; no new helper/source qualification claimed."
+    }
+  },
+  "artifact_manifest_sha256": "2491fec99f095dcc6820e493b3cd1222f9f9eb9923f16f1576a6a397040ba8ee",
+  "artifact_permission_repair": "inactive-skill-artifact-permission-repair.json",
+  "reviews": [
+    "inactive-skill-controls-review-28474.md",
+    "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-receipt-review.md"
+  ],
+  "import_correction": {
+    "file": "docs/work/active/vacation-campaign/evidence/inactive-skill-controls-qualification.md",
+    "original_in_archive": true,
+    "old": "No fresh test/build runs were performed during evidence repair.",
+    "new": "Only the later focused receipt repair was rerun; the other original checks remain transcript-backed.",
+    "reason": "Independent receipt review P3 stale summary contradicted explicit later focused rerun; lead verified correction.",
+    "corrected_sha256": "295f585fac2dcd3300c7c18eb00b63b71e55b20cf5db761332e0df96d1b782ae"
+  },
+  "proof_classes": {
+    "source_review": "PASS independent complete2file/caller/test review",
+    "raw_final_focused": "PASS4/0 exit0 exactclean284",
+    "broader_checks": "Author341/0/1 and strictlint/fmt/nativebuild explicitsuccess excerpts reconstructed from active transcript, not raw/exit-code receipts",
+    "historical_red": "Counterfactual old-control renderedclick failed; temporarysource/test unhashed, unusedlocal retained, not pristine exactbase or test-first claim",
+    "failed_attempts": "Five implementation/harness failures and prepinRemovefeedback retained with original sourcehash/exitcode gaps",
+    "native_owner": "Not observed/accepted",
+    "integration": "Pending separate publication and all actual required hosted gates"
+  }
+}
