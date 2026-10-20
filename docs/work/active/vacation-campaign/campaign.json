@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T15:24:13.203245+00:00",
+    "observed_at": "2026-10-20T15:28:00.621255+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1346,6 +1346,31 @@
         },
         "attempts": [],
         "resource_plan": "Owner authorizes bounded Luna implementation; requested Luna medium fresh context for three small CI/ignore files. Lead verifies exact pinned pruner in disposable fixture; independent Sol high complete-candidate review afterward. Max2helpers within4total slots; no nested workers/build/CUA/account/cache operations."
+      },
+      {
+        "id": "writing-setup-navigation-audit",
+        "title": "Inspect writing settings when the selected note changes",
+        "state": "complete",
+        "owner": "bounded Luna read-only audit; lead disposition",
+        "activity": "Bounded Luna audit plus lead selected-target/recheck/save handler inspection found no concrete setup/navigation defect. Exact affected source is unchanged against integrated main. Reuse SetupTarget/SetupDraft and checked service/version guards; no new code/test selected.",
+        "observed_at": "2026-10-20T15:28:00.621255+00:00",
+        "origin": "observed",
+        "next_action": "Revisit only with a concrete failing setup journey; static inspection does not establish native acceptance.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-navigation-audit.md"
+        ],
+        "gates": {
+          "implementation": "audit only; no source changes",
+          "checks": "PASS bounded static source/caller/witness mapping only; existing tests not rerun",
+          "integration": "inapplicable until a concrete candidate is selected",
+          "native": "not observed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium fresh context for one separable source audit, lead validates consequential findings. One helper within4slots; no builds/cache/native/account or nested workers."
       }
     ],
     "owner_attention": "Mac locked at14:29UTC; automatic unlock unavailable. Manual unlock requested; native grouped-review check waits, headless correction continues."
@@ -1361,14 +1386,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-navigation-integration-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T15:24:13.203245+00:00",
-    "runtime_capacity": "4 total slots; lead only after implementation/review completed",
+    "observed_at": "2026-10-20T15:28:00.621255+00:00",
+    "runtime_capacity": "4 total slots; lead only; bounded audit and reviews complete",
     "build_slot": "free; no Rust compile; shared production artifacts preserved",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR186 merged ea223ef1; resulting-main39446661224 running; PR187767f7a73 head39446784967 running",
-    "wait_reason": "Mac access blocked; independent hosted checks running. Lead selects useful headless follow-up.",
+    "wait_reason": "Native requires changed Mac access. PR187 head and PR186 resulting-main required checks running; reviewed cache candidate held locally to avoid redundant base/rerun churn.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

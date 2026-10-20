@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-20T15:25:11.064Z",
+  "method": "APFS clonefile copies of already qualified synthetic stock/adapted build targets; isolated pinned cleaner on copies only, no builds/cache API. Originals hashed before/after separately.",
+  "before_du_KiB": "758228\t/tmp/brn-helper-cache-proof/fixture/size",
+  "after_du_KiB": "240636\t/tmp/brn-helper-cache-proof/fixture/size",
+  "compressed_bytes": 71262653,
+  "archive_entries": 5780,
+  "forbidden_entries": [],
+  "limits": "Local helper-only gzip snapshot, not hosted GitHub archive, total cache size/headroom, CI build profile, cache retention or speedup. Registry/git/root cache excluded from this measurement."
+}

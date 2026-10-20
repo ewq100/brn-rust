@@ -42,5 +42,18 @@
     "Stock graph substitution is proven only for current equal408 external package tuples; future adapted dependencies require review.",
     "Full CI/preceding-main/exact-head integration gates remain pending; no native or owner acceptance claim."
   ],
-  "integration": "unpublished local candidate; avoid unnecessary hosted rerun/rebase while current menu candidate integrates"
+  "integration": "unpublished local candidate; avoid unnecessary hosted rerun/rebase while current menu candidate integrates",
+  "local_size_followup": {
+    "observed_at": "2026-10-20T15:26:37.541673+00:00",
+    "before_clean_KiB": 758228,
+    "after_clean_KiB": 240636,
+    "helper_only_gzip_bytes": 71262653,
+    "entries": 5780,
+    "forbidden_entries": 0,
+    "original_helper_hashes": "PASS before/after identical",
+    "receipt": "ci-helper-cache-local-size.json",
+    "raw": "ci-helper-cache-size-raw.tar.gz",
+    "raw_sha256": "9f39f404a58e9d101be6056a9ebbe6145bc84abc7d86c309d04abad3b23a532c",
+    "limits": "Disposable APFS clones + pinned cleaner + local gzip only; not hosted archive, global storage headroom, retention or speedup. No original outputs modified."
+  }
 }

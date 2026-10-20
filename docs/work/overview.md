@@ -873,6 +873,27 @@ Attempts:
 
 </details>
 
+### Inspect writing settings when the selected note changes
+
+Owner: bounded Luna read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T15:28:00.621255+00:00
+Activity: Bounded Luna audit plus lead selected-target/recheck/save handler inspection found no concrete setup/navigation defect. Exact affected source is unchanged against integrated main. Reuse SetupTarget/SetupDraft and checked service/version guards; no new code/test selected.
+Next: Revisit only with a concrete failing setup journey; static inspection does not establish native acceptance.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** audit only; no source changes
+- **checks:** PASS bounded static source/caller/witness mapping only; existing tests not rerun
+- **integration:** inapplicable until a concrete candidate is selected
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md), [docs/work/active/vacation-campaign/evidence/writing-setup-navigation-audit.md](active/vacation-campaign/evidence/writing-setup-navigation-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -897,4 +918,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:24:13.203245+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:28:00.621255+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

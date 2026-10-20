@@ -49,3 +49,29 @@ not a controlled speed comparison or proof of future cache retention.
 source, compressed raw logs and hashes. The initial log reader refused ANSI bytes;
 the corrected read captured them to a file and stripped control sequences before
 selected display. This was a log-access limitation, not a failed CI check.
+
+## Warm converter-cache experiment —20October
+
+The [completed exact-hit PR186 Mac UI job](evidence/ci-pr186-warm-mac-ui.json)
+still spent404 of785seconds preparing document helpers. This meets the earlier
+research trigger. The [bounded source audit](evidence/warm-helper-cache-audit.md)
+initially proposed nested workspace targets; lead review rejected that layout
+because root cleanup would remove helper-only dependencies before their own
+cleanup pass. The corrected configuration uses disjoint targets outside root
+`target`, retaining the pinned action's dependency pruning and main-only saves.
+
+[Source qualification](evidence/ci-helper-cache-qualification.json) and
+[independent review](evidence/ci-helper-cache-review.md) bind local candidate
+`cd99ad1e`. The import-isolated pinned cleaner reproduced the rejected nesting
+and preserved dependencies in the corrected layout. Actual stock/adapted metadata
+have the same408 external package name/version/library-target tuples. All183
+development-tooling tests passed; no check or source guard was removed.
+
+A [disposable local measurement](evidence/ci-helper-cache-local-size.json)
+cloned the already qualified helper outputs without modifying them. Dependency
+pruning reduced758228KiB to240636KiB; the helper-only local gzip was71262653bytes
+(about68MiB), with5780 entries and no helper executable, artifact, receipt or
+source-root guard entries. This is a local estimate, not a hosted cache archive,
+configured storage limit or speedup. Real exact-head/main checks, first main
+publication size and later warm-job behavior remain separate gates in the task
+record. Preview packaging retains its prior helper paths; no release was run.
