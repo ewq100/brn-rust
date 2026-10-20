@@ -278,6 +278,31 @@ Attempts:
 
 </details>
 
+### Read development progress remotely in BRN Space
+
+Owner: existing development lead; single Page writer · State: **complete** · Last observed: 2026-10-20T07:19:49.288497+00:00
+Activity: Created BRN Development Progress under the existing BRN Space and linked it from the home page. Saved content and navigation link verified by readback.
+Next: Refresh this same remote summary from current repository facts at meaningful campaign transitions; preserve human additions.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete: account-accessible Space summary and home-page navigation; no product source change
+- **checks:** passed: connector readback of saved content, corrected refresh timestamp, actual parent/Space and preserved navigation rows
+- **integration:** remote Page saved; repository routing saved locally while PR179 remote head remains frozen
+- **native:** inapplicable to BRN product; remote browser/mobile rendering not observed
+- **owner acceptance:** not requested; remote Page write explicitly authorized
+
+Evidence: [https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68), [docs/work/active/vacation-campaign/evidence/remote-progress-page.json](active/vacation-campaign/evidence/remote-progress-page.json)
+
+Attempts:
+
+- Overview refresh rejected the new task record because its required attempts field was absent; the previous valid page was preserved.: Added this bounded correction history, then reran the existing renderer and documentation checks. ([docs/work/active/vacation-campaign/evidence/remote-progress-page.json](active/vacation-campaign/evidence/remote-progress-page.json))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -294,4 +319,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T07:15:13.743308+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:19:49.288497+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

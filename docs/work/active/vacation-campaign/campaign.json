@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T07:15:13.743308+00:00",
+    "observed_at": "2026-10-20T07:19:49.288497+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -443,8 +443,48 @@
             ]
           }
         ]
+      },
+      {
+        "id": "remote-progress-view",
+        "title": "Read development progress remotely in BRN Space",
+        "state": "complete",
+        "owner": "existing development lead; single Page writer",
+        "activity": "Created BRN Development Progress under the existing BRN Space and linked it from the home page. Saved content and navigation link verified by readback.",
+        "observed_at": "2026-10-20T07:19:49.288497+00:00",
+        "origin": "observed",
+        "next_action": "Refresh this same remote summary from current repository facts at meaningful campaign transitions; preserve human additions.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+          "docs/work/active/vacation-campaign/evidence/remote-progress-page.json"
+        ],
+        "gates": {
+          "implementation": "complete: account-accessible Space summary and home-page navigation; no product source change",
+          "checks": "passed: connector readback of saved content, corrected refresh timestamp, actual parent/Space and preserved navigation rows",
+          "integration": "remote Page saved; repository routing saved locally while PR179 remote head remains frozen",
+          "native": "inapplicable to BRN product; remote browser/mobile rendering not observed",
+          "owner_acceptance": "not requested; remote Page write explicitly authorized"
+        },
+        "attempts": [
+          {
+            "outcome": "Overview refresh rejected the new task record because its required attempts field was absent; the previous valid page was preserved.",
+            "change": "Added this bounded correction history, then reran the existing renderer and documentation checks.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/remote-progress-page.json"
+            ]
+          }
+        ]
       }
     ],
     "owner_attention": "No owner decision requested. Required hosted checks are running; prepared real Mac checks use the daily batch."
+  },
+  "remote_progress": {
+    "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+    "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+    "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+    "source": "work_view in this campaign record",
+    "receipt": "evidence/remote-progress-page.json",
+    "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   }
 }
