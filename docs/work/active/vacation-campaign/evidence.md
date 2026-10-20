@@ -610,3 +610,7 @@ All four required checks on exact integrated63345a8e passed in [run39421007719](
 ## 20 October: PR188 resulting-main and first cache publication
 
 [All four required resulting-main gates passed](evidence/pr188-resulting-main.json). Optional Windows failures remain visible. The [first Mac UI run](evidence/ci-main188-cold-mac-ui.json) uploaded a 1,902,323,274-byte combined cache with successful completion; this is distinct from the helper-only local estimate. One [reserved same-source Mac UI validation](evidence/ci-main188-warm-validation-reservation.json) was dispatched after those gates. Warm reuse and performance remain pending.
+
+## 20 October: stored attachment recovery witness
+
+One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-image.json) emitted no retained Asset and explicitly reported image-byte gaps; the planned asset-bearing public CLI restore check stopped before backup/restore. [Source diagnosis](evidence/asset-backup-cli-preflight-followup.md) confirms current fixed helper policy; no conversion capability change was selected. Separately, [PR189](https://github.com/ewq100/brn-rust/pull/189) strengthens the existing shared-service attachment/reopen/restore test to compare exact receipt records including stored bytes and provenance. [Local qualification](evidence/retained-asset-restore-qualification.json) and [independent review](evidence/retained-asset-restore-review.md) passed at57531c3d; hosted/merge gates remain separate. The synthetic3byte fixture is not real image/converter/native acceptance.

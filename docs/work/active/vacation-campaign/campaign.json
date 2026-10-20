@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T17:18:30.466516+00:00",
+    "observed_at": "2026-10-20T17:23:00.159823+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1504,24 +1504,45 @@
         "title": "Check exact stored attachment data after reopen and restore",
         "state": "active",
         "owner": "bounded Luna one-test implementation; lead qualification/integration",
-        "activity": "Build-ready: extend existing byte-bearing shared-service attachment/restart/restore test, which currently checks only privacy after restore. Current public conversion does not yield image bytes; this separately checks canonical retained-data fidelity.",
-        "observed_at": "2026-10-20T17:18:30.466516+00:00",
+        "activity": "Reviewed/local-qualified57531c3d published stable asPR189 and attached. Exactly one existing test file; no production changes. Hosted required gates pending.",
+        "observed_at": "2026-10-20T17:23:00.159823+00:00",
         "origin": "observed",
-        "next_action": "Extend only existing attachment test to assert nonempty Asset fixture and exact original attachment receipt records after reopen and restore. No new test/harness, production code or converter policy change. Run focused existing case, independent review and required integration gates.",
+        "next_action": "Inspect all4 exact-head required checks, live protection and preceding-main latestattempt before normalmerge; then inspect resulting-main independently.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-threads-app/tests/chat.rs",
-          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md"
+          "docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md",
+          "docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/retained-asset-restore-review.md",
+          "docs/work/active/vacation-campaign/evidence/retained-asset-restore-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz",
+          "https://github.com/ewq100/brn-rust/pull/189",
+          "docs/work/active/vacation-campaign/evidence/pr189-publication.json"
         ],
         "gates": {
-          "implementation": "pending one existing test assertion extension",
-          "checks": "pending focused test and complete small-candidate review",
-          "integration": "pending existing normal integration requirements",
+          "implementation": "PASS local57531c3d, one existing test; nonemptyAsset/Source/Link preconditions and full receipt record equality after reopen/restore.",
+          "checks": "PASS independent complete-candidate Sol review; focused1/0/0/8filtered,strict chat-targetlint,finalfmt,diff. Hostedpending.",
+          "integration": "PR189 published57531c3d; pending four required exact-head/current-main gates and authorized normal merge.",
           "native": "inapplicable test-only shared-service guarantee; no image-conversion/native claim",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Initial formatter invocation could not locate pinned cargo-fmt without pin directory in PATH; corrected environment then exposed actual formatting delta.",
+            "change": "Preserved both logs, applied only rustfmt delta to same test, committed57531 before qualification/review. No toolchain install or product change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json"
+            ]
+          },
+          {
+            "outcome": "Overview guard rejected temporary absolute evidence pointers; previous valid overview preserved.",
+            "change": "Saved original formatter outcomes in repository-relative qualification receipt and routed task to that authority.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json"
+            ]
+          }
+        ],
         "resource_plan": "Requested bounded Luna medium implementation of one existing test with explicit expected exact-data outcome; lead single build slot, one consequential Sol high review. Max2helpers within4slots, no nested workers/account/native/build by author. Stop/reassess on source need beyond test or missing artifact identity."
       }
     ],
@@ -1538,9 +1559,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr188-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T17:14:10.555818+00:00",
-    "runtime_capacity": "4slots; lead plus one bounded Luna test author, later one independent reviewer. Shared build free.",
-    "build_slot": "free; CLI pinned build completed11.35s and immutable555 artifact archived; no local cargo job",
+    "observed_at": "2026-10-20T17:20:23.971143+00:00",
+    "runtime_capacity": "4total; lead only, Luna author and independent Sol reviewer completed",
+    "build_slot": "free; focused test/strictlint/fmt completed57531, no local build",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [
       {
@@ -1552,8 +1573,8 @@
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "All4PR188 resulting-main attempt1 PASS; single MacUI warm attempt2 queued118771060685.",
-    "wait_reason": "Actual warm CI validation queued; Mac locked. Lead saves first-main proof while helper inspects a distinct asset-rich recovery gap.",
+    "integration": "PR188 initial-main all4PASS; one warmUI rerun in progress. PR189 publishedstable57531 test-only; required hosted pending.",
+    "wait_reason": "Two actual hosted gates active; native controls blocked by unchanged Maclock. No account/new localbuild/writer.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

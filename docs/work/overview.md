@@ -36,22 +36,27 @@ Attempts:
 
 ### Check exact stored attachment data after reopen and restore
 
-Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:18:30.466516+00:00
-Activity: Build-ready: extend existing byte-bearing shared-service attachment/restart/restore test, which currently checks only privacy after restore. Current public conversion does not yield image bytes; this separately checks canonical retained-data fidelity.
-Next: Extend only existing attachment test to assert nonempty Asset fixture and exact original attachment receipt records after reopen and restore. No new test/harness, production code or converter policy change. Run focused existing case, independent review and required integration gates.
+Owner: bounded Luna one-test implementation; lead qualification/integration · State: **active** · Last observed: 2026-10-20T17:23:00.159823+00:00
+Activity: Reviewed/local-qualified57531c3d published stable asPR189 and attached. Exactly one existing test file; no production changes. Hosted required gates pending.
+Next: Inspect all4 exact-head required checks, live protection and preceding-main latestattempt before normalmerge; then inspect resulting-main independently.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** pending one existing test assertion extension
-- **checks:** pending focused test and complete small-candidate review
-- **integration:** pending existing normal integration requirements
+- **implementation:** PASS local57531c3d, one existing test; nonemptyAsset/Source/Link preconditions and full receipt record equality after reopen/restore.
+- **checks:** PASS independent complete-candidate Sol review; focused1/0/0/8filtered,strict chat-targetlint,finalfmt,diff. Hostedpending.
+- **integration:** PR189 published57531c3d; pending four required exact-head/current-main gates and authorized normal merge.
 - **native:** inapplicable test-only shared-service guarantee; no image-conversion/native claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-app/tests/chat.rs](../../crates/brn-threads-app/tests/chat.rs), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md)
+Evidence: [crates/brn-threads-app/tests/chat.rs](../../crates/brn-threads-app/tests/chat.rs), [docs/work/active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md](active/vacation-campaign/evidence/asset-backup-cli-preflight-followup.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-review.md](active/vacation-campaign/evidence/retained-asset-restore-review.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-implementation.md](active/vacation-campaign/evidence/retained-asset-restore-implementation.md), [docs/work/active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz](active/vacation-campaign/evidence/retained-asset-restore-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/189](https://github.com/ewq100/brn-rust/pull/189), [docs/work/active/vacation-campaign/evidence/pr189-publication.json](active/vacation-campaign/evidence/pr189-publication.json)
+
+Attempts:
+
+- Initial formatter invocation could not locate pinned cargo-fmt without pin directory in PATH; corrected environment then exposed actual formatting delta.: Preserved both logs, applied only rustfmt delta to same test, committed57531 before qualification/review. No toolchain install or product change. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
+- Overview guard rejected temporary absolute evidence pointers; previous valid overview preserved.: Saved original formatter outcomes in repository-relative qualification receipt and routed task to that authority. ([docs/work/active/vacation-campaign/evidence/retained-asset-restore-qualification.json](active/vacation-campaign/evidence/retained-asset-restore-qualification.json))
 
 </details>
 
@@ -1021,4 +1026,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T17:18:30.466516+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T17:23:00.159823+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

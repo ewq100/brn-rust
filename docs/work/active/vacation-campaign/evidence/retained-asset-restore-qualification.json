@@ -1,0 +1,30 @@
+{
+  "observed_at": "2026-10-20T17:22:07.521514+00:00",
+  "source": "57531c3db0112b5b514eba353641d2fb2c836c5d",
+  "base": "6622443ee47d3cc6564b160b6f686f3dfcbbfa36",
+  "state": "PASS local qualification and independent full-candidate review",
+  "original_formatter_attempts": [
+    {
+      "log_name": "fmt-first.log",
+      "output": "error: no such command: `fmt`\n\nhelp: a command with a similar name exists: `fix`\n\nhelp: view all installed commands with `cargo --list`\nhelp: find a package to install `fmt` with `cargo search cargo-fmt`\n"
+    },
+    {
+      "log_name": "fmt-second.log",
+      "output": "Diff in /Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-app/tests/chat.rs:290:\n         })\n         .expect(\"attachment receipt retains its figure asset\");\n     assert!(!asset.bytes.is_empty());\n-    assert!(r\n-        .writes\n-        .iter()\n-        .any(|write| matches!(write.after.data, RecordData::Source(_))));\n+    assert!(\n+        r.writes\n+            .iter()\n+            .any(|write| matches!(write.after.data, RecordData::Source(_)))\n+    );\n     assert!(r.writes.iter().any(|write| matches!(\n         &write.after.data,\n         RecordData::Link(link) if link.relation == \"attachment\"\n"
+    }
+  ],
+  "changed_files": [
+    "crates/brn-threads-app/tests/chat.rs"
+  ],
+  "checks": {
+    "final_fmt": "PASS pinned cargo fmt -p brn-threads-app --check",
+    "focused": "PASS exactly1/0/0/8filtered; compile54.35s,body0.07s",
+    "strict_lint": "PASS cargo clippy -p brn-threads-app --test chat --locked --offline --jobs1 -- -D warnings;3.96s",
+    "script": "check.sh in raw archive",
+    "exit_code": 0
+  },
+  "independent_review": "retained-asset-restore-review.md",
+  "raw": "retained-asset-restore-raw.tar.gz",
+  "raw_sha256": "0383a8b9184ac142abfa156d8369a9598a9d5e58256c0cf588f48b1738c01734",
+  "limits": "Only synthetic app/core3byteAsset persistence. No decodablePNG/converter/CLI/native/owner acceptance claim. No production code/dependency/config change or AI run. Hosted exact-head/main checks pending."
+}
