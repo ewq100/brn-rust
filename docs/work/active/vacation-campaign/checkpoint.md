@@ -5,6 +5,7 @@ Start with [AGENTS.md](../../../../AGENTS.md) → [overview](../../overview.md) 
 ## Local resources
 
 - Lead checkout: `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch `codex/agent-first-followthrough`. Preserve the original checkout and unrelated changes. Frozen worker branches retain their qualified identities; do not push lead documentation onto them.
+- Notes-row candidate checkout: `/Users/evokessler/.codex/worktrees/export-durability/brn-rust`, branch `codex/note-list-accessibility`; current gates and ownership live in campaign.json.
 - One shared local build slot and one desktop/account actor. Inspect actual helper capacity; owner allows useful parallel work, including nested Luna, within runtime capacity. No active process is inferred from this document.
 - Qualified helper/binary paths and hashes are in [native qualification](evidence/feedback-inclusion-qualification.json); preserve originals and synthetic fixtures. A shared target's timestamp is not executable identity.
 - For a required Rust build: pin1.98.1, locked/offline/jobs1; reuse qualified helpers, no dependency/model acquisition. Require3GiB before a new dependency graph or2GiB for the cached graph; stop owned build below1GiB. Original disk-guard failure and exact reclamation receipts remain in evidence. Documentation adoption does not need another Rust build.

@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T14:31:29.738152+00:00",
+    "observed_at": "2026-10-20T14:43:43.000778+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -378,8 +378,8 @@
         "title": "Check grouped review controls on the Mac",
         "state": "blocked",
         "owner": "single native actor in consolidated batch",
-        "activity": "All source/fixture prerequisites retained; grouped review not attempted before Mac lock interrupted early session.",
-        "observed_at": "2026-10-20T14:31:29.738152+00:00",
+        "activity": "Fresh offline MAC08 fixture generated at canonical task root with hash-pinned qualified generator; two unapplied groups/public reopen and read-only integrity pass. Actual Mac remains locked, no group control attempt.",
+        "observed_at": "2026-10-20T14:35:30.093059+00:00",
         "origin": "observed",
         "next_action": "After actual access returns, close verified undone writing-review clone through OS controls, then run fresh MAC08 without repeating passing cases.",
         "depends_on": [
@@ -399,7 +399,8 @@
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
-          "docs/work/active/vacation-campaign/evidence/review-group-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/review-group-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/native-group-review-preparation-20261020.json"
         ],
         "gates": {
           "implementation": "scenario prepared; no new product feature",
@@ -1177,24 +1178,41 @@
         "title": "Make visible note rows discoverable to Mac accessibility",
         "state": "active",
         "owner": "bounded Luna medium implementation; lead disposition/integration; independent Sol review",
-        "activity": "Source audit confirms local ListRow already names rows but leaves a generic nonfocusable Div. Select Notes-only role/focus correction; preserve Home and shared component semantics. Actual native node pruning remains to be rechecked.",
-        "observed_at": "2026-10-20T14:29:58.905747+00:00",
+        "activity": "Candidate9b0b13e1 prepared and independently reviewed with no remaining findings. Focused real Tab/Space regression1/0; desktop341/0/1, strict lint/format/ordinary native build PASS. Original missing-role, harness and actual Tab-stop failures retained.",
+        "observed_at": "2026-10-20T14:43:43.000778+00:00",
         "origin": "observed",
-        "next_action": "Implement Notes-only actionable/focusable rows and one meaningful existing widget witness; no shared component redesign. Stop/reassess after two failed approaches.",
+        "next_action": "Publish source-only PR with stable reviewed head9b0b13e1; inspect actual required checks/protection before normal merge. Native AX recheck waits for unlocked Mac.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
-          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md"
+          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md",
+          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md"
         ],
         "gates": {
-          "implementation": "selected bounded bug fix at Notes note_row seam",
-          "checks": "native omission reproduced; static source/framework trace supports role/focus gap; candidate checks pending",
-          "integration": "pending if a candidate is selected",
-          "native": "visible rows absent from actual Mac AX snapshot; full VoiceOver usability not tested",
+          "implementation": "PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1",
+          "checks": "PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained",
+          "integration": "pending publication and all four required exact-head checks plus normal merge/resulting-main separately",
+          "native": "Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md"
+            ],
+            "change": "Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt.",
+            "outcome": "Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection."
+          },
+          {
+            "outcome": "Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.",
+            "change": "Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md"
+            ]
+          }
+        ],
         "resource_plan": "Owner permits small Luna implementation. Requested Luna medium, fresh context; independent Sol high review afterward; max2 helpers within4 total slots. Lead alone writes campaign docs and owns integration; helper only Notes renderer/tests in export-durability checkout. No build until lead grants shared target; no desktop/account actor."
       }
     ],
@@ -1207,17 +1225,17 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-20T13:53:44.630569Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-main-qualified-update.json"
+    "last_refresh_at": "2026-10-20T14:33:04.742809+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-native-session-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T14:29:58.905747+00:00",
-    "runtime_capacity": "4 slots; lead plus bounded Luna writer, no nested delegation",
-    "build_slot": "free; writer source/test edits only until lead grants",
+    "observed_at": "2026-10-20T14:43:43.000778+00:00",
+    "runtime_capacity": "4 total slots; bounded Luna worker and independent Sol reviewer completed; lead integration owner",
+    "build_slot": "free; final candidate ordinary build archived555 with exact source/hash",
     "desktop_account_actor": "writing-review app remains open after verified Undo; desktop locked, no further CUA actions or account tests",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR185 required resulting-main39431384966 gates PASS; no open current product candidate",
+    "integration": "PR185 all four required resulting-main PASS; reviewed Notes candidate9b0b13e1 publication next",
     "wait_reason": "Mac manual unlock required for further native work; headless work admitted",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }

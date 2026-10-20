@@ -1,0 +1,183 @@
+{
+  "observed_at": "2026-10-20T14:34:30.371368+00:00",
+  "purpose": "Fresh MAC08 fixture prepared headlessly while desktop locked; no native control observation claimed",
+  "source": "75a66a74986792e882d1eb28c549ccacf8e7a807",
+  "generator_source": "465a6fadd3058fe7690bbad52444bee7f9a577f6",
+  "current_generator_source_matches_qualified": true,
+  "generator_sha256": "a7aec2243ba4e52bbb0730eb03e615987a3c32c79da12f92fc3421fba9ea1fb2",
+  "generator_source_sha256": "e64c1facb1282f27a92124d844bff73dc8b04b9aef9e530322407514cda908e4",
+  "command": [
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/review-group-evidence/fixture-465a6fad-a7aec2243ba4e52b",
+    "--output",
+    "/private/tmp/brn-native-20261020T134854Z/group-review"
+  ],
+  "exit": 0,
+  "stdout": "Fixture workspace: /private/tmp/brn-native-20261020T134854Z/group-review/workspace\nFixture manifest: /private/tmp/brn-native-20261020T134854Z/group-review/manifest.json\n",
+  "stderr": "",
+  "fixture_root": "/private/tmp/brn-native-20261020T134854Z/group-review",
+  "manifest": {
+    "format": "BRN native Review groups fixture v1",
+    "fixture_id": "native-review-groups-v1",
+    "qualification_scope": "offline generic Review Include/Omit with two independent Open Action roots; candidate reopened and discoverable through Workspace::candidates",
+    "desktop_route": "Home > Review changes, or the Threads sidebar candidate row; open the candidate to enter Review",
+    "provider": "offline-fixture",
+    "workspace": "workspace",
+    "sources": [
+      {
+        "source_key": "review-groups-source-venue",
+        "source_operation_id": "7de3295c-03fc-489c-ad54-a619a3543aec",
+        "source_id": "7de3295c-03fc-489c-ad54-a619a3543aec:0",
+        "initial_record": {
+          "id": "7de3295c-03fc-489c-ad54-a619a3543aec:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Action": {
+              "description": "Call the venue",
+              "state": "Open",
+              "internal": false,
+              "evidence": null,
+              "due": null
+            }
+          }
+        },
+        "initial": {
+          "description": "Call the venue",
+          "state": "Open",
+          "version": 1,
+          "sha256": "a74fd008aec87121ef7dfd923b7b430a842f2cc87e2862c3e4e2147b0112da6c"
+        },
+        "candidate": {
+          "description": "Call the venue and confirm the available dates",
+          "state": "Open",
+          "sha256": "946b5440d98aa2a91afbfa11e3f6faa319c10f38c1f4ecfff5bb481b54b80947"
+        },
+        "candidate_write": {
+          "id": "7de3295c-03fc-489c-ad54-a619a3543aec:0",
+          "expected_version": 1,
+          "archived": false,
+          "data": {
+            "Action": {
+              "description": "Call the venue and confirm the available dates",
+              "state": "Open",
+              "internal": false,
+              "evidence": null,
+              "due": null
+            }
+          }
+        }
+      },
+      {
+        "source_key": "review-groups-source-room",
+        "source_operation_id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c",
+        "source_id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0",
+        "initial_record": {
+          "id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Action": {
+              "description": "Book the room",
+              "state": "Open",
+              "internal": false,
+              "evidence": null,
+              "due": null
+            }
+          }
+        },
+        "initial": {
+          "description": "Book the room",
+          "state": "Open",
+          "version": 1,
+          "sha256": "9a43b71e715c7894871fc426dd4fbab0a74c0dc322ae5e52f0969ad19b7f2b2d"
+        },
+        "candidate": {
+          "description": "Book the room after confirming capacity",
+          "state": "Open",
+          "sha256": "1d57de1c2a44a506ebb6be7fa3b38a57af07f6a8829e07a48c748c9174adb4fc"
+        },
+        "candidate_write": {
+          "id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0",
+          "expected_version": 1,
+          "archived": false,
+          "data": {
+            "Action": {
+              "description": "Book the room after confirming capacity",
+              "state": "Open",
+              "internal": false,
+              "evidence": null,
+              "due": null
+            }
+          }
+        }
+      }
+    ],
+    "candidate": {
+      "host_request_key": "native-review-groups-candidate",
+      "operation_id": "ce1c374b-4173-45bc-bb36-c4dfb74c1478",
+      "request": {
+        "reason": "Synthetic two-root native Review groups fixture candidate",
+        "writes": [
+          {
+            "id": "7de3295c-03fc-489c-ad54-a619a3543aec:0",
+            "expected_version": 1,
+            "archived": false,
+            "data": {
+              "Action": {
+                "description": "Call the venue and confirm the available dates",
+                "state": "Open",
+                "internal": false,
+                "evidence": null,
+                "due": null
+              }
+            }
+          },
+          {
+            "id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0",
+            "expected_version": 1,
+            "archived": false,
+            "data": {
+              "Action": {
+                "description": "Book the room after confirming capacity",
+                "state": "Open",
+                "internal": false,
+                "evidence": null,
+                "due": null
+              }
+            }
+          }
+        ],
+        "inputs": []
+      },
+      "request_sha256": "706e66830138429620f16089ec7b33c64f4d5f9d4b6261a4795315f03dcc38b2",
+      "groups": [
+        {
+          "id": "7de3295c-03fc-489c-ad54-a619a3543aec:0",
+          "title": "Call the venue and confirm the available dates",
+          "kind": "Action",
+          "writes": [
+            "7de3295c-03fc-489c-ad54-a619a3543aec:0"
+          ],
+          "required_groups": []
+        },
+        {
+          "id": "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0",
+          "title": "Book the room after confirming capacity",
+          "kind": "Action",
+          "writes": [
+            "b80a7c7b-4bab-4663-af5b-06ae81dc379c:0"
+          ],
+          "required_groups": []
+        }
+      ],
+      "is_prepared_and_reopened": true,
+      "is_applied": false,
+      "canonical_source_records_unchanged": true,
+      "apply_receipt_present": false
+    }
+  },
+  "sqlite_user_version": 10,
+  "read_only_integrity": "ok",
+  "account_runs": 0,
+  "native": "pending; use then-current qualified desktop and record actual boolean pressed sequence plus unchanged canonical data; old generator is not current desktop proof"
+}

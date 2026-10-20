@@ -156,10 +156,11 @@
     "limits": "AX/screenshot observed in CUA transcript, no exported PNG, no full VoiceOver claim."
   },
   "desktop_stop": {
-    "observed_at": "2026-10-20T14:29:00+00:00",
     "tool_result": "The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.",
     "state": "writing-review app still open after verified Undo; primary app closed earlier; one actor retained, no further CUA attempts; manual unlock requested",
-    "native_batch": "Interrupted by physical-host access after five distinct passing scenarios, no competing actor."
+    "native_batch": "Interrupted by physical-host access after five distinct passing scenarios, no competing actor.",
+    "observed_at_approx": "2026-10-20T14:29:00+00:00",
+    "time_precision": "Approximate minute from adjacent clock/observer calls; CUA returned no event timestamp."
   },
   "raw_evidence": {
     "path": "docs/work/active/vacation-campaign/evidence/native-mac-20261020-raw.tar.gz",

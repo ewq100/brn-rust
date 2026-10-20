@@ -1,0 +1,317 @@
+{
+  "observed_at": "2026-10-20T14:43:00.758147+00:00",
+  "source": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+  "baseline": "75a66a74986792e882d1eb28c549ccacf8e7a807",
+  "scope": "Notes row actionable role/Tab stop plus existing narrow protected-row event witness; no shared ListRow/Home/runtime/data change",
+  "source_sha256": {
+    "crates/brn-desktop/src/threads_tiles.rs": "d3d992a73785f08ee4218864abecbd25fda91fe090e9d57cccae430fde6e0113",
+    "crates/brn-desktop/src/threads_pages_tests.rs": "0f428f5ebebdcb118203bb6772168925f1e108ad5e6f51e03281f5bea6a7cb63"
+  },
+  "execution": {
+    "receipt_kind": "retrospective_execution_receipt",
+    "captured_after_execution": true,
+    "created_at_local_date": "2026-10-20",
+    "cwd": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "branch": "codex/note-list-accessibility",
+    "baseline_head": "75a66a74986792e882d1eb28c549ccacf8e7a807",
+    "startup_worktree_status": "clean; directly observed before edits",
+    "model": {
+      "requested": "Luna",
+      "requested_effort": "medium",
+      "effective_model": "not verified by available execution evidence"
+    },
+    "resource_guard": {
+      "free_disk_at_slot_grant": "24 GiB reported by lead",
+      "lowest_observed_free_disk": null,
+      "stop_below": "1 GiB",
+      "whether_threshold_was_neared": "not measured"
+    },
+    "execution_environment": {
+      "toolchain": "Rust 1.98.1",
+      "PATH_prefix": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin",
+      "CARGO_TARGET_DIR": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "RUST_TEST_THREADS": "1",
+      "DYLD_LIBRARY_PATH": "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib",
+      "BRN_XBERG_HELPER": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper",
+      "BRN_XBERG_HELPER_BRN": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn",
+      "cargo_flags_common": [
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "test_features": [
+        "native-ui",
+        "native-test-support"
+      ]
+    },
+    "source_hash_capture": {
+      "pre_execution_hash": "not recorded; no pre-edit source hash was manufactured",
+      "first_recorded_candidate_after_initial_edits": {
+        "threads_tiles.rs": "4a2355917fa2f8c9173277652f0d02c78b66e26142aa69cac9c823a191bcc214",
+        "threads_pages_tests.rs": "0e0059878949befc2e093f3f806a976419409064cceb13f02a5717e1cdfeff10"
+      },
+      "final_source": {
+        "crates/brn-desktop/src/threads_tiles.rs": "d3d992a73785f08ee4218864abecbd25fda91fe090e9d57cccae430fde6e0113",
+        "crates/brn-desktop/src/threads_pages_tests.rs": "0f428f5ebebdcb118203bb6772168925f1e108ad5e6f51e03281f5bea6a7cb63"
+      },
+      "final_test_semantics_hash_before_rustfmt_line_wrap": "140a64ef2c3e1215fa4134f742fdd72b72fe8616fe13a8242c8e8a065204f61d",
+      "formatting_delta": "After focused test, broad tests and clippy passed, rustfmt requested only line wrapping in one assertion. That whitespace-only change produced the final test-source hash above; final fmt check and ordinary native-ui build ran after it. No behavior changed."
+    },
+    "attempts": [
+      {
+        "name": "initial_wrong_target",
+        "command": "cargo test -p brn-desktop --lib a_narrow_notes_list_marks_protected_notes_with_the_lock --locked --offline --jobs 1 --features native-ui,native-test-support",
+        "status": "failed_target_selection_before_compile; wrapper exited 0 because its PIPESTATUS capture was empty; cargo-specific exit code was not captured",
+        "result": "error: no library targets found in package brn-desktop",
+        "logs": [
+          {
+            "path": "/tmp/brn-note-row-ax-checks/before-fix.log",
+            "sha256": "343b58961143de7559db9d4e9add290745aed46110684b74efbe8fffb7ddc5eb"
+          },
+          {
+            "path": "/tmp/brn-note-row-ax-checks/before-fix.exit",
+            "sha256": "c5c4f1e7c655c99c74c5c8c93a9e24747f8a6f11ed898a025f9b8c59cf1666bc"
+          }
+        ]
+      },
+      {
+        "name": "before_fix_role_witness",
+        "command": "cargo test -p brn-desktop --bin brn-desktop a_narrow_notes_list_marks_protected_notes_with_the_lock --locked --offline --jobs 1 --features native-ui,native-test-support",
+        "candidate_change_for_witness": "Temporarily removed only the two Notes-row role/focus production calls; restored them after run.",
+        "exit_status": 101,
+        "counts": {
+          "passed": 0,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 341
+        },
+        "failure": "role assertion observed None, expected Some(Button)",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/before-fix-correct-target.log",
+          "sha256": "321230dff318d19887220ec2287fd60b1322333a81c9d5bbb86c495216724beb"
+        }
+      },
+      {
+        "name": "first_candidate_focus_observation",
+        "command": "cargo test -p brn-desktop --bin brn-desktop a_narrow_notes_list_marks_protected_notes_with_the_lock --locked --offline --jobs 1 --features native-ui,native-test-support",
+        "exit_status": 101,
+        "counts": {
+          "passed": 0,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 341
+        },
+        "failure": "test observer panicked because an Action::Focus node had no explicitly tracked focus binding",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/final-focused.log",
+          "sha256": "1e89933e6b296b015d0f742aa0066bc3f6ef2d0688ef3cef46ac3857bf5576e3"
+        }
+      },
+      {
+        "name": "filtered_keyboard_event_witness_before_tab_index_fix",
+        "command": "cargo test -p brn-desktop --bin brn-desktop a_narrow_notes_list_marks_protected_notes_with_the_lock --locked --offline --jobs 1 --features native-ui,native-test-support",
+        "exit_status": 101,
+        "counts": {
+          "passed": 0,
+          "failed": 1,
+          "ignored": 0,
+          "filtered": 341
+        },
+        "failure": "after Tab and Space, open_note_id remained None; analysis found focusable defaulted tab_stop=false",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/final-focused-event-witness.log",
+          "sha256": "36613ea8db774cc29822b9c8f7b0c7a9c53509be5a521b24dd03297a3d9bb5d5"
+        }
+      },
+      {
+        "name": "focused_witness_final_tab_index_candidate",
+        "command": "cargo test -p brn-desktop --bin brn-desktop a_narrow_notes_list_marks_protected_notes_with_the_lock --locked --offline --jobs 1 --features native-ui,native-test-support",
+        "exit_status": 0,
+        "counts": {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "filtered": 341
+        },
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/final-focused-tabindex.log",
+          "sha256": "25e3149084f8d7c04d1db50fc800c2fc586f3fa3bd8dfa3955a0eb59db9f690a"
+        }
+      },
+      {
+        "name": "desktop_tests",
+        "command": "cargo test -p brn-desktop --features native-ui,native-test-support --locked --offline --jobs 1",
+        "exit_status": 0,
+        "counts": {
+          "passed": 341,
+          "failed": 0,
+          "ignored": 1,
+          "filtered": 0
+        },
+        "ignored_test": "threads_ui::intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left; requires BRN_DWR_SHARED_DATA, BRN_DWR_SHARED_SOURCE, BRN_DWR_SHARED_CHAT",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/desktop-tests.log",
+          "sha256": "31fba4eff3251e27846b87e095cf808c88fb8a6894578bb6786a3d5ffd0dfd66"
+        }
+      },
+      {
+        "name": "strict_clippy",
+        "command": "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings",
+        "exit_status": 0,
+        "result": "passed",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/desktop-clippy.log",
+          "sha256": "1191b04efef40684c8cdb166b4088823dadd701115c27dbdbd74e05c5fad2b22"
+        }
+      },
+      {
+        "name": "first_fmt_check",
+        "command": "cargo fmt --all -- --check",
+        "exit_status": 1,
+        "result": "reported one required assertion line wrap",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/fmt-check.log",
+          "sha256": "fb0b327f64b64059c921fa2b0d0ff6888df6d4c8b82d905de908bb876d6ee6cd"
+        }
+      },
+      {
+        "name": "final_fmt_check",
+        "command": "cargo fmt --all -- --check",
+        "exit_status": 0,
+        "result": "passed; output empty",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/fmt-check-final.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "ordinary_native_ui_build",
+        "command": "cargo build -p brn-desktop --features native-ui --locked --offline --jobs 1",
+        "exit_status": 0,
+        "result": "passed",
+        "log": {
+          "path": "/tmp/brn-note-row-ax-checks/native-ui-build.log",
+          "sha256": "7855a651b0b81bfdbeb59e788db6aaf5f4627b931183ddec7d0da570049bddd5"
+        },
+        "artifact": {
+          "path": "/tmp/brn-note-row-ax-checks/brn-desktop-native-ui-20261020",
+          "kind": "Mach-O 64-bit arm64 executable",
+          "sha256": "baa72d5715749e23678511f3da6929bf6c22008431988172ebfebcbf7bb1f7b9"
+        }
+      }
+    ],
+    "final_scope": {
+      "modified_files": [
+        "crates/brn-desktop/src/threads_tiles.rs",
+        "crates/brn-desktop/src/threads_pages_tests.rs"
+      ],
+      "git_diff_check": "passed",
+      "native_ax_observation": "not performed",
+      "owner_acceptance": "pending",
+      "commits_or_pushes": "none"
+    },
+    "all_raw_logs_retained": true
+  },
+  "lead_verification": "Actual final hashes/2-file diff, raw hashes/counts, unchanged production across formatter delta and immutable artifact verified. Retrospective receipt capture remains explicit; no manufactured pre-execution hash or lowest-disk measurement.",
+  "review": {
+    "path": "docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md",
+    "sha256": "0f35c42b7db8bd5afb5cad1e0e04de8844ab92ee37046fffcaa161bc8c26e617",
+    "verdict": "No remaining findings; implicit-focus witness and actual missing Tab-stop P2 both corrected; final whitespace-only reconciliation independently verified"
+  },
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-note-row-accessibility/9b0b13e1/brn-desktop",
+    "sha256": "baa72d5715749e23678511f3da6929bf6c22008431988172ebfebcbf7bb1f7b9",
+    "bytes": 165875888,
+    "mode": "0o555",
+    "source": "9b0b13e1338c1bdc4a38785915e0fa1c3e888584",
+    "qualification": "ordinary native-ui build; actual Mac AX recheck pending"
+  },
+  "raw": {
+    "path": "docs/work/active/vacation-campaign/evidence/note-row-accessibility-raw.tar.gz",
+    "sha256": "8702e750e6e97d0570c3e30a2da61d41ab985df34c0d06944e7b3ead60282f44",
+    "bytes": 15312,
+    "files": [
+      {
+        "path": "before-fix-correct-target.log",
+        "sha256": "321230dff318d19887220ec2287fd60b1322333a81c9d5bbb86c495216724beb",
+        "bytes": 1382
+      },
+      {
+        "path": "before-fix.exit",
+        "sha256": "c5c4f1e7c655c99c74c5c8c93a9e24747f8a6f11ed898a025f9b8c59cf1666bc",
+        "bytes": 11
+      },
+      {
+        "path": "before-fix.log",
+        "sha256": "343b58961143de7559db9d4e9add290745aed46110684b74efbe8fffb7ddc5eb",
+        "bytes": 57
+      },
+      {
+        "path": "candidate.patch",
+        "sha256": "f25d24de196a7f4b662e94eb5d5102d48892f69f96f439fff90660e30ea7af2d",
+        "bytes": 2522
+      },
+      {
+        "path": "desktop-clippy.log",
+        "sha256": "1191b04efef40684c8cdb166b4088823dadd701115c27dbdbd74e05c5fad2b22",
+        "bytes": 432
+      },
+      {
+        "path": "desktop-tests.log",
+        "sha256": "31fba4eff3251e27846b87e095cf808c88fb8a6894578bb6786a3d5ffd0dfd66",
+        "bytes": 35377
+      },
+      {
+        "path": "execution-receipt.json",
+        "sha256": "1f9bafd97e2fc22f086ba8d0553e6508c61ac83fd4bc81cdb2cf7acaee8fc9bf",
+        "bytes": 8472
+      },
+      {
+        "path": "execution-receipt.validated.json",
+        "sha256": "69c3b310f9b16d497512ccfd4cc89c3280441e0c89c427cf140b9c07aece8e1b",
+        "bytes": 10156
+      },
+      {
+        "path": "final-focused-event-witness.log",
+        "sha256": "36613ea8db774cc29822b9c8f7b0c7a9c53509be5a521b24dd03297a3d9bb5d5",
+        "bytes": 1417
+      },
+      {
+        "path": "final-focused-tabindex.log",
+        "sha256": "25e3149084f8d7c04d1db50fc800c2fc586f3fa3bd8dfa3955a0eb59db9f690a",
+        "bytes": 784
+      },
+      {
+        "path": "final-focused.log",
+        "sha256": "1e89933e6b296b015d0f742aa0066bc3f6ef2d0688ef3cef46ac3857bf5576e3",
+        "bytes": 1860
+      },
+      {
+        "path": "fmt-check-final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "fmt-check.log",
+        "sha256": "fb0b327f64b64059c921fa2b0d0ff6888df6d4c8b82d905de908bb876d6ee6cd",
+        "bytes": 478
+      },
+      {
+        "path": "native-ui-build.log",
+        "sha256": "7855a651b0b81bfdbeb59e788db6aaf5f4627b931183ddec7d0da570049bddd5",
+        "bytes": 431
+      }
+    ]
+  },
+  "limits": [
+    "No new AI/account calls or owner data.",
+    "Actual native AX, keyboard appearance, VoiceOver/IME and owner acceptance remain unqualified; Mac locked.",
+    "One existing shared-intake widget ignored without explicit fixture; separate prior route evidence unchanged.",
+    "Pinned block0.1.6 future-incompat warning retained.",
+    "Hosted exact-head/resulting-main checks and normal merge pending."
+  ]
+}

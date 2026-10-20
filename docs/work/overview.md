@@ -11,22 +11,27 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Make visible note rows discoverable to Mac accessibility
 
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:29:58.905747+00:00
-Activity: Source audit confirms local ListRow already names rows but leaves a generic nonfocusable Div. Select Notes-only role/focus correction; preserve Home and shared component semantics. Actual native node pruning remains to be rechecked.
-Next: Implement Notes-only actionable/focusable rows and one meaningful existing widget witness; no shared component redesign. Stop/reassess after two failed approaches.
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T14:43:43.000778+00:00
+Activity: Candidate9b0b13e1 prepared and independently reviewed with no remaining findings. Focused real Tab/Space regression1/0; desktop341/0/1, strict lint/format/ordinary native build PASS. Original missing-role, harness and actual Tab-stop failures retained.
+Next: Publish source-only PR with stable reviewed head9b0b13e1; inspect actual required checks/protection before normal merge. Native AX recheck waits for unlocked Mac.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** selected bounded bug fix at Notes note_row seam
-- **checks:** native omission reproduced; static source/framework trace supports role/focus gap; candidate checks pending
-- **integration:** pending if a candidate is selected
-- **native:** visible rows absent from actual Mac AX snapshot; full VoiceOver usability not tested
+- **implementation:** PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1
+- **checks:** PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained
+- **integration:** pending publication and all four required exact-head checks plus normal merge/resulting-main separately
+- **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md)
+
+Attempts:
+
+- Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection.: Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
+- Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.: Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
 
 </details>
 
@@ -38,8 +43,8 @@ None recorded.
 
 ### Check grouped review controls on the Mac
 
-Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T14:31:29.738152+00:00
-Activity: All source/fixture prerequisites retained; grouped review not attempted before Mac lock interrupted early session.
+Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T14:35:30.093059+00:00
+Activity: Fresh offline MAC08 fixture generated at canonical task root with hash-pinned qualified generator; two unapplied groups/public reopen and read-only integrity pass. Actual Mac remains locked, no group control attempt.
 Next: After actual access returns, close verified undone writing-review clone through OS controls, then run fresh MAC08 without repeating passing cases.
 Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
 Resource waits: Mac locked; automatic unlock unavailable, owner manual unlock requested. Lead retains sole desktop actor; reconcile open writing-review app first.
@@ -55,7 +60,7 @@ Gates:
 - **native:** pending actual true/false/true pressed-state and unchanged data
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/native-group-review-preparation-20261020.json](active/vacation-campaign/evidence/native-group-review-preparation-20261020.json)
 
 </details>
 
@@ -800,4 +805,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T14:31:29.738152+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T14:43:43.000778+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

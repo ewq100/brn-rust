@@ -1,0 +1,371 @@
+{
+  "source_commit": "96ece361",
+  "changes": {
+    "759f74e2-e735-43cb-b86c-10adf022daf9": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The session found a missing accessibility control for note rows; a small correction is being prepared.",
+    "a37e5801-b0c8-4330-800f-13d98b10338a": "Last refreshed: **20 October 2026 at 17:38 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+    "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8": "- **Unsent drafts preserved:** [PR 184](https://github.com/ewq100/brn-rust/pull/184) is merged with all four required checks passing. Actual Mac testing now confirms that the first passage comment preserves the exact draft, including after closing and reopening the app.",
+    "b641f9c4-8ed7-4084-af14-431a5e37ea35": "- **Writing proposal checked on the Mac:** the saved proposal changed only `cobalt boats` to `teal boats`. Apply saved the exact result; Undo restored the original wording as a new version. The unrelated note and unselected comment stayed unchanged. The original test workspace was preserved and no new AI generation was used.",
+    "200708f1-65b3-4f66-8ae0-07720e77b011": "- **Clearer grouped review controls:** [PR 179](https://github.com/ewq100/brn-rust/pull/179) is merged with all four required checks passing. Its actual Mac check remains pending because the Mac locked before that scenario began.",
+    "05adb36d-8363-4195-bd53-82b4e5f6734a": "1. Correct the missing note-row accessibility controls, then independently review and check the candidate before integration. This correction is in progress; it is not yet verified or merged.",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea": "2. When Mac access returns, finish the grouped-review check and later verify the corrected note rows on the matching app. Saving, recovery, backup and proposal Apply/Undo need no unchanged repeat.",
+    "2e6d8ee0-067d-42fd-89dc-177f822a8f9c": "**Please unlock the Mac when convenient.** Computer control reported that the Mac was locked and automatic unlock was unavailable. Headless development continues. The saved-proposal test app remains open after verified Undo; it will be closed through normal controls when access returns. Full VoiceOver/IME usability, backup restore and owner acceptance remain separate from the five passing checks."
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"new_sequence\": 18,\n  \"operation_results\": [\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\",\n          \"hash\": \"987a539f635248586bf0c8273d60cfb0a945c28c80485359f71961a090059191\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\",\n        \"relative_position_base64\": \"AJuY17sCigJB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 0,\n      \"preceding_block_id\": null\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n          \"hash\": \"ac355843681c01bd8868e02202a13781a0cd3415b6ba5507f275ceaf56a18cc4\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n        \"relative_position_base64\": \"AJuY17sC/QJB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 1,\n      \"preceding_block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8\",\n          \"hash\": \"205640c573121963f3f84034f13268b2e3f1cd9c47d9ba2ebc346592aae1c641\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8\",\n        \"relative_position_base64\": \"APWAopUFrAdB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 2,\n      \"preceding_block_id\": \"b641f9c4-8ed7-4084-af14-431a5e37ea35\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"b641f9c4-8ed7-4084-af14-431a5e37ea35\",\n          \"hash\": \"104b681cfd23daac6efc5f3ed6bbcc6dc2b3a686efec7baf39d91636e1dca3de\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"b641f9c4-8ed7-4084-af14-431a5e37ea35\",\n        \"relative_position_base64\": \"AJuY17sC2gdB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 3,\n      \"preceding_block_id\": \"200708f1-65b3-4f66-8ae0-07720e77b011\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"200708f1-65b3-4f66-8ae0-07720e77b011\",\n          \"hash\": \"3b7157f8b67118132aca7e7c1d457f418e979f447dd87287676e883bf74cf4c6\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"200708f1-65b3-4f66-8ae0-07720e77b011\",\n        \"relative_position_base64\": \"AJuY17sCtAVB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 4,\n      \"preceding_block_id\": \"aee8eb3a-9d3f-492c-898b-d52eb25891ad\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\",\n          \"hash\": \"dd8d87157bdc39640aa8f8a0fd061da45eeade3e260cbb529ba92eab5570f9cc\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\",\n        \"relative_position_base64\": \"AJuY17sCvw9B\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 5,\n      \"preceding_block_id\": \"ef0796cf-5c02-4944-b3b6-20eba4f85fb4\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"30420f5a-d95d-4521-87e6-d8fc7ee085ea\",\n          \"hash\": \"5b6d101b683f4c1177152a2f6953370361b425dd3b4cd8f98380ebc8a751c5fd\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"30420f5a-d95d-4521-87e6-d8fc7ee085ea\",\n        \"relative_position_base64\": \"AJuY17sC+BBB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 6,\n      \"preceding_block_id\": \"05adb36d-8363-4195-bd53-82b4e5f6734a\"\n    },\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"2e6d8ee0-067d-42fd-89dc-177f822a8f9c\",\n          \"hash\": \"ae8404fec7a84bb6f05e2fe2d80abdbc5b5835c0f93bd771da94d2263ef6e377\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"2e6d8ee0-067d-42fd-89dc-177f822a8f9c\",\n        \"relative_position_base64\": \"AJuY17sC/BNB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 7,\n      \"preceding_block_id\": \"c9f112c2-d466-4ffd-afc6-fc5a171211dd\"\n    }\n  ],\n  \"through_sequence\": 18\n}"
+      },
+      {
+        "type": "text",
+        "text": "Show this Page in your response with this standalone preview:\n::page-preview{page_id=\"page_2300ce21dbb88191a290f861b9eb6f68\"}\nUse ordinary links for source citations."
+      }
+    ],
+    "structuredContent": {
+      "new_sequence": 18,
+      "through_sequence": 18,
+      "operation_results": [
+        {
+          "operation_index": 0,
+          "preceding_block_id": null,
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "relative_position_base64": "AJuY17sCigJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+              "hash": "987a539f635248586bf0c8273d60cfb0a945c28c80485359f71961a090059191"
+            }
+          ]
+        },
+        {
+          "operation_index": 1,
+          "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "relative_position_base64": "AJuY17sC/QJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "hash": "ac355843681c01bd8868e02202a13781a0cd3415b6ba5507f275ceaf56a18cc4"
+            }
+          ]
+        },
+        {
+          "operation_index": 2,
+          "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+            "relative_position_base64": "APWAopUFrAdB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+              "hash": "205640c573121963f3f84034f13268b2e3f1cd9c47d9ba2ebc346592aae1c641"
+            }
+          ]
+        },
+        {
+          "operation_index": 3,
+          "preceding_block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "relative_position_base64": "AJuY17sC2gdB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+              "hash": "104b681cfd23daac6efc5f3ed6bbcc6dc2b3a686efec7baf39d91636e1dca3de"
+            }
+          ]
+        },
+        {
+          "operation_index": 4,
+          "preceding_block_id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "relative_position_base64": "AJuY17sCtAVB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+              "hash": "3b7157f8b67118132aca7e7c1d457f418e979f447dd87287676e883bf74cf4c6"
+            }
+          ]
+        },
+        {
+          "operation_index": 5,
+          "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "relative_position_base64": "AJuY17sCvw9B"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+              "hash": "dd8d87157bdc39640aa8f8a0fd061da45eeade3e260cbb529ba92eab5570f9cc"
+            }
+          ]
+        },
+        {
+          "operation_index": 6,
+          "preceding_block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "relative_position_base64": "AJuY17sC+BBB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+              "hash": "5b6d101b683f4c1177152a2f6953370361b425dd3b4cd8f98380ebc8a751c5fd"
+            }
+          ]
+        },
+        {
+          "operation_index": 7,
+          "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "relative_position_base64": "AJuY17sC/BNB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+              "hash": "ae8404fec7a84bb6f05e2fe2d80abdbc5b5835c0f93bd771da94d2263ef6e377"
+            }
+          ]
+        }
+      ]
+    },
+    "isError": false
+  },
+  "verified": true,
+  "readback": {
+    "content": [],
+    "structuredContent": {
+      "metadata": {
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "layout": "document",
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "preview": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The session found a missing accessibility control for note rows; a smal",
+        "creator_account_user_id": "user-Wrb1ywzMBifpFLZ3iRXPa5vE",
+        "owner_workspace_id": null,
+        "parent": {
+          "page_id": "page_6ad3d835a5608191868331aa8ad8850f",
+          "title": "BRN"
+        },
+        "drive_scope": "space",
+        "drive_space_id": "page_space_add0e7a3b1808191ac30511c10663e0f",
+        "library_container_id": "fde3_cGFnZV8yMzAwY2UyMWRiYjg4MTkxYTI5MGY4NjFiOWViNmY2OA_8143811816d88191b2053385a392903f",
+        "file_upload_page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+        "position": 1835500201638912,
+        "created_at": "2026-10-20T07:17:46.030410Z",
+        "updated_at": "2026-10-20T14:32:33.089980Z",
+        "deleted_at": null,
+        "current_sequence": 18,
+        "projection_through_sequence": 18,
+        "access": {
+          "can_read": true,
+          "can_comment": true,
+          "can_write": true,
+          "can_share": true,
+          "can_delete": true,
+          "sources": [
+            "library"
+          ]
+        },
+        "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "content": {
+        "schema_version": 2,
+        "symbol": null,
+        "title": "BRN Development Progress",
+        "title_hash": "f528e687086fa69522762d9fe2dfb92bcacd98c3927d469ab1cc2b842165e66c",
+        "blocks": [
+          {
+            "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "kind": "markdown",
+            "markdown": "Five real Mac checks passed: saving and reopening, preserving an unsent draft, full backup, recovering an unsaved edit, and applying/undoing the saved writing proposal. The session found a missing accessibility control for note rows; a small correction is being prepared.",
+            "hash": "987a539f635248586bf0c8273d60cfb0a945c28c80485359f71961a090059191",
+            "metadata": {}
+          },
+          {
+            "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "kind": "markdown",
+            "markdown": "Last refreshed: **20 October 2026 at 17:38 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+            "hash": "ac355843681c01bd8868e02202a13781a0cd3415b6ba5507f275ceaf56a18cc4",
+            "metadata": {}
+          },
+          {
+            "id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "kind": "markdown",
+            "markdown": "- **Clearer grouped review controls:** [PR 179](https://github.com/ewq100/brn-rust/pull/179) is merged with all four required checks passing. Its actual Mac check remains pending because the Mac locked before that scenario began.",
+            "hash": "3b7157f8b67118132aca7e7c1d457f418e979f447dd87287676e883bf74cf4c6",
+            "metadata": {}
+          },
+          {
+            "id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "kind": "markdown",
+            "markdown": "- **Writing proposal checked on the Mac:** the saved proposal changed only `cobalt boats` to `teal boats`. Apply saved the exact result; Undo restored the original wording as a new version. The unrelated note and unselected comment stayed unchanged. The original test workspace was preserved and no new AI generation was used.",
+            "hash": "104b681cfd23daac6efc5f3ed6bbcc6dc2b3a686efec7baf39d91636e1dca3de",
+            "metadata": {}
+          },
+          {
+            "id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+            "kind": "markdown",
+            "markdown": "- **Unsent drafts preserved:** [PR 184](https://github.com/ewq100/brn-rust/pull/184) is merged with all four required checks passing. Actual Mac testing now confirms that the first passage comment preserves the exact draft, including after closing and reopening the app.",
+            "hash": "205640c573121963f3f84034f13268b2e3f1cd9c47d9ba2ebc346592aae1c641",
+            "metadata": {}
+          },
+          {
+            "id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "kind": "markdown",
+            "markdown": "1. Correct the missing note-row accessibility controls, then independently review and check the candidate before integration. This correction is in progress; it is not yet verified or merged.",
+            "hash": "dd8d87157bdc39640aa8f8a0fd061da45eeade3e260cbb529ba92eab5570f9cc",
+            "metadata": {}
+          },
+          {
+            "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "kind": "markdown",
+            "markdown": "2. When Mac access returns, finish the grouped-review check and later verify the corrected note rows on the matching app. Saving, recovery, backup and proposal Apply/Undo need no unchanged repeat.",
+            "hash": "5b6d101b683f4c1177152a2f6953370361b425dd3b4cd8f98380ebc8a751c5fd",
+            "metadata": {}
+          },
+          {
+            "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "kind": "markdown",
+            "markdown": "**Please unlock the Mac when convenient.** Computer control reported that the Mac was locked and automatic unlock was unavailable. Headless development continues. The saved-proposal test app remains open after verified Undo; it will be closed through normal controls when access returns. Full VoiceOver/IME usability, backup restore and owner acceptance remain separate from the five passing checks.",
+            "hash": "ae8404fec7a84bb6f05e2fe2d80abdbc5b5835c0f93bd771da94d2263ef6e377",
+            "metadata": {}
+          }
+        ],
+        "page_id": "page_2300ce21dbb88191a290f861b9eb6f68"
+      },
+      "view": "editing",
+      "selection": {
+        "mode": "block_ids",
+        "selection_complete": true,
+        "whole_page_complete": false,
+        "page_block_count": 28,
+        "returned_block_count": 8,
+        "matched_block_count": 8,
+        "context_blocks": 0,
+        "query_matches": [],
+        "missing_block_ids": [],
+        "blocks": [
+          {
+            "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "block_index": 0,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "block_index": 1,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "block_index": 4,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+            "block_index": 5,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+            "block_index": 6,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+            "block_index": 17,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "block_index": 18,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          },
+          {
+            "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+            "block_index": 21,
+            "roles": [
+              "match"
+            ],
+            "query_indices": []
+          }
+        ]
+      }
+    },
+    "isError": false
+  },
+  "timestamp_correction": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"new_sequence\": 19,\n  \"operation_results\": [\n    {\n      \"affected_blocks\": [\n        {\n          \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n          \"hash\": \"d946f78250b48a7833bc63d73a2706febeede3a38d0e35b53efe4b9dcc727f6d\"\n        }\n      ],\n      \"continuation_position\": {\n        \"block_id\": \"a37e5801-b0c8-4330-800f-13d98b10338a\",\n        \"relative_position_base64\": \"AJuY17sC/QJB\"\n      },\n      \"created_block_ids\": [],\n      \"operation_index\": 0,\n      \"preceding_block_id\": \"759f74e2-e735-43cb-b86c-10adf022daf9\"\n    }\n  ],\n  \"through_sequence\": 19\n}"
+      },
+      {
+        "type": "text",
+        "text": "Show this Page in your response with this standalone preview:\n::page-preview{page_id=\"page_2300ce21dbb88191a290f861b9eb6f68\"}\nUse ordinary links for source citations."
+      }
+    ],
+    "structuredContent": {
+      "new_sequence": 19,
+      "through_sequence": 19,
+      "operation_results": [
+        {
+          "operation_index": 0,
+          "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "relative_position_base64": "AJuY17sC/QJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "hash": "d946f78250b48a7833bc63d73a2706febeede3a38d0e35b53efe4b9dcc727f6d"
+            }
+          ]
+        }
+      ]
+    },
+    "isError": false
+  },
+  "corrected_timestamp": "Last refreshed: **20 October 2026 at 17:32 Europe/Tallinn**. This is a saved progress summary, not live activity."
+}
