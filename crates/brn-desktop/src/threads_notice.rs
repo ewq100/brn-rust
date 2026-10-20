@@ -87,8 +87,14 @@ impl NoticeState {
     }
 
     pub(super) fn dismiss(&mut self) {
-        if let Some(entry) = self.composer_recovery.first_entry() {
+        let dismissed_recovery = if let Some(entry) = self.composer_recovery.first_entry() {
             entry.remove();
+            true
+        } else {
+            false
+        };
+        if dismissed_recovery && matches!(self.current, Presentation::Ordinary(_)) {
+            return;
         }
         self.clear();
     }
@@ -180,5 +186,28 @@ mod tests {
         notice.complete_work(Tone::Success, "Next work finished");
         assert_eq!(notice.text(), "Next work finished");
         assert!(notice.is_work_status());
+    }
+
+    #[test]
+    fn dismissing_recovery_preserves_a_distinct_ordinary_error_for_acknowledgement() {
+        let mut notice = NoticeState::default();
+        notice.composer_recovery_failed("a", "Copy draft A before closing".into());
+        notice.set(Tone::Error, "Could not preserve this edit; copy your text.");
+
+        assert_eq!(notice.text(), "Copy draft A before closing");
+        assert_eq!(notice.tone(), Tone::Error);
+        assert!(!notice.is_work_status());
+
+        notice.dismiss();
+        assert_eq!(
+            notice.text(),
+            "Could not preserve this edit; copy your text."
+        );
+        assert_eq!(notice.tone(), Tone::Error);
+        assert!(!notice.is_work_status());
+
+        notice.dismiss();
+        assert_eq!(notice.text(), "");
+        assert!(!notice.is_work_status());
     }
 }
