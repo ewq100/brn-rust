@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T07:36:27.202196+00:00",
+    "observed_at": "2026-10-20T07:38:20.326804+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -502,22 +502,25 @@
       },
       {
         "id": "writing-account-route",
-        "title": "Find a bounded real-account writing check",
+        "title": "Qualify a bounded real-account writing proposal",
         "state": "active",
-        "owner": "lead; read-only route research by Luna medium",
-        "activity": "Checking the existing v2 synthetic writing/comment route and normal runtime budget/deadline controls; no account attempt reserved or launched.",
-        "observed_at": "2026-10-20T07:36:27.202196+00:00",
+        "owner": "lead account actor; Luna medium external harness writer; independent Sol review pending",
+        "activity": "Public shared Rewrite runtime is available but not exposed by CLI; Luna medium is preparing an external ordinary-feature synthetic harness. No live attempt reserved or launched.",
+        "observed_at": "2026-10-20T07:38:20.326804+00:00",
         "origin": "observed",
-        "next_action": "Validate a supported normal route and safeguards before reserving one distinct writing attempt; otherwise retain a concrete pending test.",
+        "next_action": "Compile and independently review the bounded harness, then reserve at most one distinct real writing attempt if guards qualify.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Single local build slot owned by external harness compile; lead alone owns any later account actor."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/codex-ai-testing.md",
-          "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json"
+          "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json",
+          "docs/work/active/vacation-campaign/evidence/2026-10-20-writing-route.md"
         ],
         "gates": {
-          "implementation": "research only; no new production feature selected",
-          "checks": "pending route validation; ledger still has no20October launches",
+          "implementation": "small developer-only consumer selected; existing checked Workspace/runtime policy reused, no production command/framework",
+          "checks": "pending compile and independent source/guard review; no new live launch",
           "integration": "inapplicable to route research",
           "native": "Apply/Undo and actual controls reserved for consolidated Mac batch",
           "owner_acceptance": "not claimed"
@@ -536,11 +539,11 @@
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry."
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T07:36:27.202196+00:00",
+    "observed_at": "2026-10-20T07:38:20.326804+00:00",
     "lead": "existing selected lead retained",
-    "helpers": "Two Luna medium read-only source audits completed; one Luna medium bounded writing-route research active; no nested helpers. Four runtime slots total including lead.",
-    "build_actor": "none at observation; one serialized slot retained",
+    "helpers": "State source audits completed. One Luna medium helper implements only external writing harness; no live/provider/native actions delegated.",
+    "build_actor": "External harness compilation only; locked/offline/jobs1 and cached-graph2GiB/stop1GiB guards.",
     "desktop_account_actor": "none active; only lead may launch a reserved live attempt",
-    "stop": "No speculative refactor from source audit; writing research stops at one supported route or a named capability gap. Original quota/expiry and account policy govern dispatch."
+    "stop": "Stop at compiled harness or diagnosed blocker; independent review and ledger reservation required before one live attempt; no automatic retry."
   }
 }

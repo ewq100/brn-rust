@@ -179,5 +179,132 @@
     "first_result": "invalid work overview: tasks[10] missing required fields: attempts",
     "correction": "Added required attempts history; original valid overview was preserved by renderer.",
     "final_checks": "PASS: overview regeneration/consistency,591Markdown files/2779local links/0failures, git diff --check"
-  }
+  },
+  "later_updates": [
+    {
+      "observed_at": "2026-10-20T07:39:20.018472+00:00",
+      "source_head": "ac2c2cf63fa6678a31be5783adec8be37f32cdb5",
+      "meaningful_transition": "PR179 normal merge and bounded state audits complete; writing harness preparation selected, no live launch",
+      "edit": {
+        "new_sequence": 2,
+        "through_sequence": 2,
+        "operation_results": [
+          {
+            "operation_index": 0,
+            "preceding_block_id": null,
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+              "relative_position_base64": "AJuY17sCigJB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+                "hash": "dde4bc394c430680cca0700b623992892ae2d407c79f2b66e7b89fe7863a4984"
+              }
+            ]
+          },
+          {
+            "operation_index": 1,
+            "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "relative_position_base64": "AJuY17sC/QJB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+                "hash": "7691c685f753ce7381e8aabfce6cc16d49607e3a6ee0c86c988cbbf7ebcc4262"
+              }
+            ]
+          },
+          {
+            "operation_index": 2,
+            "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+              "relative_position_base64": "AJuY17sCtAVB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+                "hash": "1366c6cf1af1a8d1f5bc3408f9d0343113a081999643bbbb9c21af9b2561661f"
+              }
+            ]
+          },
+          {
+            "operation_index": 3,
+            "preceding_block_id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+              "relative_position_base64": "AJuY17sC2gdB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+                "hash": "097e248bd6104c0fb361ca85bca9724bda83aea25becb47bc34101d7adba0ed0"
+              }
+            ]
+          },
+          {
+            "operation_index": 4,
+            "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+              "relative_position_base64": "AJuY17sCvw9B"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "05adb36d-8363-4195-bd53-82b4e5f6734a",
+                "hash": "bc8fec96501478b60b2318538e8dd3ce74b0b386524620a48364e797c3d1cf6c"
+              }
+            ]
+          },
+          {
+            "operation_index": 5,
+            "preceding_block_id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+            "created_block_ids": [],
+            "continuation_position": {
+              "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+              "relative_position_base64": "AJuY17sC/BNB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+                "hash": "e3525a43017362a55cb6ef42ec11a4b5d9b7c22440c0b312dd4733aed386f611"
+              }
+            ]
+          },
+          {
+            "operation_index": 6,
+            "preceding_block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+            "created_block_ids": [
+              "be092af6-810b-41e5-bbc1-9f87a6455b00",
+              "880224ef-8cd0-4093-8e73-a31055808d93"
+            ],
+            "continuation_position": {
+              "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+              "relative_position_base64": "AMDFnPYCuApB"
+            },
+            "affected_blocks": [
+              {
+                "block_id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+                "hash": "701105e456182e10c61531e484f040dfaa05245a75ca44e2b6ef5a6653931005"
+              },
+              {
+                "block_id": "880224ef-8cd0-4093-8e73-a31055808d93",
+                "hash": "0e50040f6d8f91c7b6bbb1ac74fb4071354ac727d6848bb122a288b4ec1dc377"
+              }
+            ]
+          }
+        ]
+      },
+      "readback": "PASS:24blocks, merged179 status and pending post-merge/native gates retained",
+      "rendering": "Not observed; connector saved content only"
+    }
+  ]
 }

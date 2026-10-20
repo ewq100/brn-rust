@@ -57,24 +57,25 @@ Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md
 
 </details>
 
-### Find a bounded real-account writing check
+### Qualify a bounded real-account writing proposal
 
-Owner: lead; read-only route research by Luna medium · State: **active** · Last observed: 2026-10-20T07:36:27.202196+00:00
-Activity: Checking the existing v2 synthetic writing/comment route and normal runtime budget/deadline controls; no account attempt reserved or launched.
-Next: Validate a supported normal route and safeguards before reserving one distinct writing attempt; otherwise retain a concrete pending test.
+Owner: lead account actor; Luna medium external harness writer; independent Sol review pending · State: **active** · Last observed: 2026-10-20T07:38:20.326804+00:00
+Activity: Public shared Rewrite runtime is available but not exposed by CLI; Luna medium is preparing an external ordinary-feature synthetic harness. No live attempt reserved or launched.
+Next: Compile and independently review the bounded harness, then reserve at most one distinct real writing attempt if guards qualify.
+Resource waits: Single local build slot owned by external harness compile; lead alone owns any later account actor.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** research only; no new production feature selected
-- **checks:** pending route validation; ledger still has no20October launches
+- **implementation:** small developer-only consumer selected; existing checked Workspace/runtime policy reused, no production command/framework
+- **checks:** pending compile and independent source/guard review; no new live launch
 - **integration:** inapplicable to route research
 - **native:** Apply/Undo and actual controls reserved for consolidated Mac batch
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/vacation-campaign/evidence/2026-10-20-writing-route.md](active/vacation-campaign/evidence/2026-10-20-writing-route.md)
 
 </details>
 
@@ -152,6 +153,14 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Daily18:00Tallinn native batch; confirm actual desktop access and no competing actor.
+
+### Qualify a bounded real-account writing proposal
+
+Owner: lead account actor; Luna medium external harness writer; independent Sol review pending
+
+Waiting:
+
+- resource: Single local build slot owned by external harness compile; lead alone owns any later account actor.
 
 ## Completed
 
@@ -361,4 +370,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T07:36:27.202196+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T07:38:20.326804+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
