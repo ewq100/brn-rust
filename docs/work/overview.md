@@ -37,9 +37,9 @@ Attempts:
 
 ### Allow the complete Mac Core check to finish within a bounded job
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:42:54.052197+00:00
-Activity: Resource sourcefe65b8ec included in composed1938a849 CI candidate with main-only cache saves. PR182 already mergedbc8; original-main retry passed. Source review found only stale task pointers, corrected here.
-Next: Recheck corrected current record/overview, publish composed CI candidate and inspect required exact-head/main gates.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
+Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
+Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -47,12 +47,12 @@ Next: Recheck corrected current record/overview, publish composed CI candidate a
 Gates:
 
 - **implementation:** complete isolatedfe65b8ec; only CI timeout/comment
-- **checks:** PASS installed Ruby YAML parse/structural review; source reviewno CIissue, current-record finding fixed pending targeted recheck
-- **integration:** Composed1938a849 source; publication/requiredhead/main checks pending
+- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
+- **integration:** Publication/required exact-head/resulting-main gates pending
 - **native:** inapplicable CI resource policy only
 - **owner acceptance:** not requested; existing in-scope maintenance authority
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-main20f-timeout.json](active/vacation-campaign/evidence/ci-main20f-timeout.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-budget-review.md](active/vacation-campaign/evidence/mac-core-budget-review.md), [docs/work/active/vacation-campaign/evidence/mac-core-budget-qualification.json](active/vacation-campaign/evidence/mac-core-budget-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
 
 Attempts:
 
@@ -62,9 +62,9 @@ Attempts:
 
 ### Keep shared Rust caches without duplicate PR uploads
 
-Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:42:54.052197+00:00
-Activity: Complete1938a849 source/evidence review found no CI code issue; one stale MacCore task wait corrected. Main-only cache writes/source4b50fc96 prepared; head publication follows targeted recheck.
-Next: Recheck corrected task reconciliation/cleanup receipt, publish stable CI candidate, inspect exact-head and resulting-main gates.
+Owner: lead implementation; independent Sol source review completed · State: **active** · Last observed: 2026-10-20T11:48:01.528904+00:00
+Activity: Complete source/evidence review1938a849 plus targeted clean9de54608 recheck PASS; sole stale-record P2 valid/fixed and independently verified. Exact obsolete-cache cleanup recorded separately.
+Next: Publish reviewed composed CI candidate, inspect all required exact-head and resulting-main gates; no future timing claim.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -72,12 +72,12 @@ Next: Recheck corrected task reconciliation/cleanup receipt, publish stable CI c
 Gates:
 
 - **implementation:** complete isolated4b50fc96: one save-if input/comment; no helper targets/production/tests changed
-- **checks:** PASS YAML parse and independent complete source review; stale current-record finding valid/fixed, targeted recheck pending
-- **integration:** pending normal reviewed publication/gates
+- **checks:** PASS complete independent source/evidence review and targeted9de54608 reconciliation; YAML structural comparison, overview, Markdown links, whitespace
+- **integration:** Publication/required exact-head/resulting-main gates pending
 - **native:** inapplicable CI policy only
 - **owner acceptance:** not requested; authorized campaign follow-up
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-investigation.json](active/vacation-campaign/evidence/ci-cache-investigation.json), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-candidate-review.md](active/vacation-campaign/evidence/ci-cache-candidate-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-reconciliation-review.md](active/vacation-campaign/evidence/ci-cache-reconciliation-review.md)
 
 </details>
 
@@ -646,4 +646,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T11:46:11.997400+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T11:48:01.528904+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
