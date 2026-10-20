@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner decision requested. Remaining external waits are checks or capacity.
+**Owner attention:** No owner decision requested. Ordinary work resumed after verified renewed allowance.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,20 +9,12 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-None recorded.
-
-## Next
-
-None recorded.
-
-## Needs attention
-
 ### Clearer instructions and one progress view
 
-Owner: development lead · State: **blocked** · Last observed: 2026-10-20T05:34:13.914672+00:00
-Activity: Implemented, independently reviewed and published; only required hosted checks/normal merge/resulting-main verification remain.
-Next: Finish required PR178 exact-head checks; preceding main is verified. Then inspect live protection and normal match-head merge c6666cb9, followed by resulting-main checks.
-Resource waits: External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run.
+Owner: development lead · State: **active** · Last observed: 2026-10-20T06:45:18.405208+00:00
+Activity: PR178 normally merged1009495d after all four required exact-head checks passed; observing resulting-main checks.
+Next: Verify all required resulting-main jobs for1009495d, retain optional Windows failures, then close adoption.
+Resource waits: Hosted resulting-main checks; independent hardening can continue.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -30,8 +22,8 @@ Resource waits: External required hosted checks on frozen PR178 head c6666cb9. L
 Gates:
 
 - **implementation:** complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged
-- **checks:** local and hosted documentation/tooling passed; required Mac retrieval passed; remaining exact-head app checks are pending, inspect actual PR results before integration
-- **integration:** PR178 published; normal merge and resulting-main verification pending
+- **checks:** passed: final local/independent review and all four required exact-head39374194546 checks; optional Windows Core failed
+- **integration:** normally merged1009495db414f63141d17a8f67a8bad3df087892; required resulting-main verification pending
 - **native:** inapplicable: development documentation/view only
 - **owner acceptance:** not requested; owner authorized implementation
 
@@ -44,16 +36,68 @@ Attempts:
 
 </details>
 
+### Prepare grouped-review test workspace
+
+Owner: Luna medium fixture worker · State: **active** · Last reported: 2026-10-20T06:45:18.405208+00:00
+Activity: Implementing developer-only offline two-Action fixture in isolated notice worktree.
+Next: Review source; run fixture/refusal/unchanged-state checks under the single build slot.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** in progress; bounded selected outcome
+- **checks:** pending actual final candidate
+- **integration:** not published; reviewed normal integration authorized after actual gates
+- **native:** pending; source/toolkit does not prove Mac usability
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md)
+
+</details>
+
+### Expose grouped Include/Omit selection to accessibility tools
+
+Owner: Luna medium UI worker · State: **active** · Last reported: 2026-10-20T06:45:18.405208+00:00
+Activity: Implementing narrow boolean accessibility metadata using the existing group-selection owner.
+Next: Independently review full candidate, verify existing subset/selection behavior, qualify actual Mac controls in the batch.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** in progress; bounded selected outcome
+- **checks:** pending actual final candidate
+- **integration:** not published; reviewed normal integration authorized after actual gates
+- **native:** pending; source/toolkit does not prove Mac usability
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/review-group-native-preparation.md](active/vacation-campaign/review-group-native-preparation.md), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs)
+
+</details>
+
+## Next
+
+None recorded.
+
+## Needs attention
+
+### Clearer instructions and one progress view
+
+Owner: development lead
+
 Waiting:
 
-- resource: External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run.
+- resource: Hosted resulting-main checks; independent hardening can continue.
 
 ### Check saving, reopening and backup in the real Mac app
 
-Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T05:10:37.356608+00:00
-Activity: Prepared scenarios remain; previously passing feedback journeys need no replay.
-Next: After ordinary capacity returns, qualify ready synthetic scenarios in one consolidated Mac session.
-Resource waits: Ordinary campaign admission: reserve exception covers visibility adoption only.; Single desktop/build slot must be free; confirm actual access and artifact identity.
+Owner: development lead; single desktop actor · State: **blocked** · Last reported: 2026-10-20T06:45:18.405208+00:00
+Activity: Prepared Save/reopen/backup/recovery scenarios can use source-bound qualified production; ordinary allowance available.
+Next: Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.
+Resource waits: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -72,8 +116,7 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 
 Waiting:
 
-- resource: Ordinary campaign admission: reserve exception covers visibility adoption only.
-- resource: Single desktop/build slot must be free; confirm actual access and artifact identity.
+- resource: Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed.
 
 ## Completed
 
@@ -181,4 +224,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T05:34:13.914672+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T06:45:18.405208+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

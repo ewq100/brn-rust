@@ -13,6 +13,6 @@ Start with [AGENTS.md](../../../../AGENTS.md) → [overview](../../overview.md) 
 
 [Previous checkpoint](https://github.com/ewq100/brn-rust/blob/3bf64a43f21f92cfdfc142be7e675e8e0e24210b/docs/work/active/vacation-campaign/checkpoint.md) retains detailed dated observations. Current assignment, allowance, next steps and gates have a single editable home in campaign.json; no new work is authorized by this pointer file.
 
-## Frozen candidate publication
+## Candidate publication discipline
 
-PR178 has a reviewed frozen remote head; current task record/integration receipt own its exact identity and pending gates. A local progress-only checkpoint may be ahead of that remote branch. Preserve it and do not push it onto the open PR during required checks. Merge the exact verified remote candidate normally when eligible; reconcile main afterward, then publish the saved progress checkpoint. This avoids restarting required builds for a waiting-status update. No application source differs from the qualified candidate.
+Keep an open reviewed PR head stable while its required checks run; save progress-only records locally when pushing them would restart those checks. After the exact verified normal merge, reconcile main before publishing saved progress. The selected task/integration receipt owns actual current PR identities and gates; this pointer does not duplicate them.

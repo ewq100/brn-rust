@@ -61,7 +61,8 @@
     "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
-    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification."
+    "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Current notice source was implemented by requested Sol medium before this clarification.",
+    "current_batch": "Two fresh-context Luna medium workers: developer fixture and UI metadata, isolated file/worktree ownership; Sol lead and independent Sol review when candidate ready. Actual4 total slots, single build slot controlled by lead. Stop/reassess on two failed approaches or scope/invariant ambiguity."
   },
   "previous_cloud_capability_receipt": "evidence/continuation-capabilities-20261019.json",
   "policy_persistence_receipt": "evidence/policy-persistence-20261019.json",
@@ -95,33 +96,33 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T05:18:26.961320+00:00",
-    "remaining_percent": 4,
-    "reset_unix": 1792874447,
-    "ordinary_work": "wait for verified capacity above floor",
+    "observed_at": "2026-10-20T06:45:18.405208+00:00",
+    "remaining_percent": 100,
+    "reset_unix": 1793083361,
+    "ordinary_work": "admitted: verified allowance0%used/100%remaining; original floor and expiry retained",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
-      "state": "approved; unfinished adoption waits only for PR178 integration gates"
+      "state": "historical reserve exception; ordinary admission restored by verified renewed capacity"
     },
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T05:34:13.914672+00:00",
+    "observed_at": "2026-10-20T06:45:18.405208+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
         "id": "visibility-adoption",
         "title": "Clearer instructions and one progress view",
-        "state": "blocked",
+        "state": "active",
         "owner": "development lead",
-        "activity": "Implemented, independently reviewed and published; only required hosted checks/normal merge/resulting-main verification remain.",
-        "observed_at": "2026-10-20T05:34:13.914672+00:00",
+        "activity": "PR178 normally merged1009495d after all four required exact-head checks passed; observing resulting-main checks.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
         "origin": "observed",
-        "next_action": "Finish required PR178 exact-head checks; preceding main is verified. Then inspect live protection and normal match-head merge c6666cb9, followed by resulting-main checks.",
+        "next_action": "Verify all required resulting-main jobs for1009495d, retain optional Windows failures, then close adoption.",
         "depends_on": [],
         "resource_waits": [
-          "External required hosted checks on frozen PR178 head c6666cb9. Local progress checkpoint is intentionally ahead and must not be pushed onto that PR while checks run."
+          "Hosted resulting-main checks; independent hardening can continue."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/visibility-adoption.md",
@@ -137,8 +138,8 @@
         ],
         "gates": {
           "implementation": "complete; docs, read-only renderer and personal planning skill; runtime prompts unchanged",
-          "checks": "local and hosted documentation/tooling passed; required Mac retrieval passed; remaining exact-head app checks are pending, inspect actual PR results before integration",
-          "integration": "PR178 published; normal merge and resulting-main verification pending",
+          "checks": "passed: final local/independent review and all four required exact-head39374194546 checks; optional Windows Core failed",
+          "integration": "normally merged1009495db414f63141d17a8f67a8bad3df087892; required resulting-main verification pending",
           "native": "inapplicable: development documentation/view only",
           "owner_acceptance": "not requested; owner authorized implementation"
         },
@@ -228,14 +229,13 @@
         "title": "Check saving, reopening and backup in the real Mac app",
         "state": "blocked",
         "owner": "development lead; single desktop actor",
-        "activity": "Prepared scenarios remain; previously passing feedback journeys need no replay.",
-        "observed_at": "2026-10-20T05:10:37.356608+00:00",
+        "activity": "Prepared Save/reopen/backup/recovery scenarios can use source-bound qualified production; ordinary allowance available.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
         "origin": "reported",
-        "next_action": "After ordinary capacity returns, qualify ready synthetic scenarios in one consolidated Mac session.",
+        "next_action": "Run ready synthetic journeys in the daily consolidated Mac batch after confirming actual controls/artifact identity.",
         "depends_on": [],
         "resource_waits": [
-          "Ordinary campaign admission: reserve exception covers visibility adoption only.",
-          "Single desktop/build slot must be free; confirm actual access and artifact identity."
+          "Daily18:00Tallinn consolidated native session; single desktop/build actor and source identity must be confirmed."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md"
@@ -304,8 +304,55 @@
           "owner_acceptance": "not claimed"
         },
         "attempts": []
+      },
+      {
+        "id": "review-group-fixture",
+        "title": "Prepare grouped-review test workspace",
+        "state": "active",
+        "owner": "Luna medium fixture worker",
+        "activity": "Implementing developer-only offline two-Action fixture in isolated notice worktree.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
+        "origin": "reported",
+        "next_action": "Review source; run fixture/refusal/unchanged-state checks under the single build slot.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/review-group-native-preparation.md"
+        ],
+        "gates": {
+          "implementation": "in progress; bounded selected outcome",
+          "checks": "pending actual final candidate",
+          "integration": "not published; reviewed normal integration authorized after actual gates",
+          "native": "pending; source/toolkit does not prove Mac usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "review-group-toggle",
+        "title": "Expose grouped Include/Omit selection to accessibility tools",
+        "state": "active",
+        "owner": "Luna medium UI worker",
+        "activity": "Implementing narrow boolean accessibility metadata using the existing group-selection owner.",
+        "observed_at": "2026-10-20T06:45:18.405208+00:00",
+        "origin": "reported",
+        "next_action": "Independently review full candidate, verify existing subset/selection behavior, qualify actual Mac controls in the batch.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/review-group-native-preparation.md",
+          "crates/brn-writing-ui/src/writing.rs"
+        ],
+        "gates": {
+          "implementation": "in progress; bounded selected outcome",
+          "checks": "pending actual final candidate",
+          "integration": "not published; reviewed normal integration authorized after actual gates",
+          "native": "pending; source/toolkit does not prove Mac usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner decision requested. Remaining external waits are checks or capacity."
+    "owner_attention": "No owner decision requested. Ordinary work resumed after verified renewed allowance."
   }
 }
