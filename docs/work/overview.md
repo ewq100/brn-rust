@@ -760,6 +760,27 @@ Attempts:
 
 </details>
 
+### Inspect formatting and passage reveal across note changes
+
+Owner: bounded Luna medium read-only helper; lead validates · State: **complete** · Last observed: 2026-10-20T13:22:45.843366+00:00
+Activity: Bounded Luna medium read-only audit and independent lead handler/guard check found no concrete formatting/read/reveal coordination defect. No source change or extra mirror test selected; actual product identity comparison against28474 passed.
+Next: Revisit only on a concrete failing journey; native observations remain in their existing queued tasks.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** inspection only; no source change selected
+- **checks:** PASS bounded static inspection only; no tests or builds executed
+- **integration:** inapplicable until a concrete candidate exists
+- **native:** not observed
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_document_tests.rs](../../crates/brn-desktop/src/threads_document_tests.rs), [docs/work/active/vacation-campaign/evidence/note-format-reveal-audit.md](active/vacation-campaign/evidence/note-format-reveal-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -781,4 +802,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T13:12:38.674333+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T13:22:45.843366+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

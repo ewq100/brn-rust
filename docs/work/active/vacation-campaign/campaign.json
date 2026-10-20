@@ -95,10 +95,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T13:01:13.224708+00:00",
-    "remaining_percent": 89,
+    "observed_at": "2026-10-20T13:20:43.597062+00:00",
+    "remaining_percent": 88,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual11% used /89% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual12% used /88% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -107,7 +107,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T13:12:38.674333+00:00",
+    "observed_at": "2026-10-20T13:22:45.843366+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1143,6 +1143,31 @@
             ]
           }
         ]
+      },
+      {
+        "id": "note-format-reveal-audit",
+        "title": "Inspect formatting and passage reveal across note changes",
+        "state": "complete",
+        "owner": "bounded Luna medium read-only helper; lead validates",
+        "activity": "Bounded Luna medium read-only audit and independent lead handler/guard check found no concrete formatting/read/reveal coordination defect. No source change or extra mirror test selected; actual product identity comparison against28474 passed.",
+        "observed_at": "2026-10-20T13:22:45.843366+00:00",
+        "origin": "observed",
+        "next_action": "Revisit only on a concrete failing journey; native observations remain in their existing queued tasks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_document_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/note-format-reveal-audit.md"
+        ],
+        "gates": {
+          "implementation": "inspection only; no source change selected",
+          "checks": "PASS bounded static inspection only; no tests or builds executed",
+          "integration": "inapplicable until a concrete candidate exists",
+          "native": "not observed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ],
     "owner_attention": "No owner decision requested. Draft repairPR184 merged, required resulting-main checks running. Separate skill-controlPR185 published and checked locally/reviewed within recorded limits; required hostedchecks running. Actual Mac batch18:00Tallinn remains separate."
