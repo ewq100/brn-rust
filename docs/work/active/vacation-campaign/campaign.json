@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T22:24:46.843846+00:00",
+    "observed_at": "2026-10-20T22:26:10.247825+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -595,7 +595,7 @@
         "activity": "Source audit identified missing Unix directory flushes in export publication, contrasted with existing backup/restore. Lead validated source and selected bounded correction.",
         "observed_at": "2026-10-20T08:05:07.042761+00:00",
         "origin": "observed",
-        "next_action": "Implement selected export-publication-durability task in isolated worktree; keep inspection distinct from qualification.",
+        "next_action": "Selected export-publication-durability completed and merged as PR181. Reuse its source-bound verification; actual native/power-loss qualification stays separate. No new implementation dispatch from this completed audit.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -694,7 +694,7 @@
         "activity": "No apparent identity/version defect; found missing actual Confirm done UI completion-evidence and receipt Undo witness. Lead validated existing test only exercises Waiting and selected a bounded extension.",
         "observed_at": "2026-10-20T09:34:14.850064+00:00",
         "origin": "observed",
-        "next_action": "Extend the existing Action/Undo journey, preserving Waiting coverage and test count.",
+        "next_action": "Selected action-completion-witness completed and merged as PR182, with required head/main checks passed. Reuse that existing journey; no new duplicate extension.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -851,7 +851,7 @@
         "activity": "Two bounded audits plus lead verified same-source cold45m08/warm14m46, earlier same-key hit then unavailable cache, PR-only duplicate storage and root-only graph pruning. Exact disappearance reason unknown; selected narrow main-only saves.",
         "observed_at": "2026-10-20T11:37:02.369505+00:00",
         "origin": "observed",
-        "next_action": "Review/publish bounded cache-save policy; broader converter caching needs archive-size/source-guard and warm-run evidence.",
+        "next_action": "Selected cache-save and helper-cache improvements completed and merged as PR183/188 with measured warm-run evidence. Reuse receipts and retain uncontrolled-comparison limits; no pending publication from this completed investigation.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1930,27 +1930,60 @@
       {
         "id": "project-trash-recovery-audit",
         "title": "Check project removal and restoration boundaries",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium read-only audit; lead disposition",
-        "activity": "Read-only bounded source audit of stale project deletion/restoration confirmations and checked record preservation.",
-        "observed_at": "2026-10-20T22:22:58.573532+00:00",
+        "activity": "No source correction selected. Reconfirmed exact preview/version/dirty/Trash guards on unchanged source; this overlaps already-complete project-trash-audit and adds no executed qualification.",
+        "observed_at": "2026-10-20T22:26:10.247825+00:00",
         "origin": "observed",
-        "next_action": "Return bounded evidence and actionable findings or no-change decision; any source correction requires separate selected task/review.",
+        "next_action": "Reuse original project-trash-audit and this supporting explanation; do not redispatch unchanged Project/Trash inspection without a concrete new failure or boundary risk.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "crates/brn-desktop/src/threads_projects.rs",
-          "docs/work/active/vacation-campaign/workflows.md"
+          "docs/work/active/vacation-campaign/evidence/project-trash-audit.md",
+          "docs/work/active/vacation-campaign/evidence/project-trash-recovery-audit.md"
         ],
         "gates": {
-          "implementation": "source inspection only; no changes selected",
-          "checks": "pending bounded audit",
-          "integration": "inapplicable unless separate candidate selected",
-          "native": "not attempted; Mac access remains separate",
+          "implementation": "no change; duplicate unchanged-source audit, not a new product outcome",
+          "checks": "source inspection only; lead verified relevant source identical, no tests run",
+          "integration": "inapplicable, no candidate",
+          "native": "not attempted; full Project path remains unqualified",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Selected new audit without noticing completed project-trash-audit; helper identified overlap. No product edits or test/build repetitions.",
+            "change": "Retain report as supporting history, close duplicate, select future work only after checking all current task IDs/outcomes and relevant receipts. Existing workflow already requires reuse.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/project-trash-recovery-audit.md"
+            ]
+          }
+        ],
+        "resource_plan": "Requested Luna medium, one bounded parallel source audit; lead plus2helpers within actual4slots. Inspect threads_projects.rs and existing checked project/trash services/tests; confirm version/target identity or concrete reachable failure, no speculative rewrite or tests. No edits/builds. No nested helpers/account/native/web/dependencies. Stop at concrete report."
+      },
+      {
+        "id": "mac-core-test-body-triage",
+        "title": "Locate the remaining time inside Mac checks",
+        "state": "active",
+        "owner": "bounded Luna medium completed-log inspection; lead disposition",
+        "activity": "Selected narrow follow-up to prior ci-cost-triage: inspect completed Mac Core log for actual per-crate/test-body durations after full cache restoration, no new workflow run.",
+        "observed_at": "2026-10-20T22:26:10.247825+00:00",
+        "origin": "observed",
+        "next_action": "Report actual test-body vs build/preparation evidence and justified narrow opportunity or no-change conclusion. Preserve missing timing evidence; no speculative configuration change.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md",
+          "docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json"
+        ],
+        "gates": {
+          "implementation": "inspection only, no candidate",
+          "checks": "pending completed-log triage",
+          "integration": "inapplicable unless later selected change",
+          "native": "inapplicable hosted timing evidence",
           "owner_acceptance": "not claimed"
         },
         "attempts": [],
-        "resource_plan": "Requested Luna medium, one bounded parallel source audit; lead plus2helpers within actual4slots. Inspect threads_projects.rs and existing checked project/trash services/tests; confirm version/target identity or concrete reachable failure, no speculative rewrite or tests. No edits/builds. No nested helpers/account/native/web/dependencies. Stop at concrete report."
+        "resource_plan": "One requested Luna medium helper, at most2read-only GitHub calls for completed main192 MacCore metadata/log. No rerun/cache/billing/infra/model/account/native/build/source/nested changes. Lead handles gate monitoring separately. Stop at bounded timing report."
       }
     ],
     "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
@@ -1966,14 +1999,20 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr193-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T22:22:58.573532+00:00",
-    "runtime_capacity": "4total slots, lead plus2bounded Luna audits planned",
+    "observed_at": "2026-10-20T22:26:47.921976+00:00",
+    "runtime_capacity": "4total slots; lead integration, one bounded Luna completed-log triage active; prior source audits complete",
     "build_slot": "free; no local cargo/rustc process observed",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39507624699,
+        "session": 41755,
+        "purpose": "required resulting-main193 watch"
+      }
+    ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR193 normally merged9e2a81c0, exacttree21941d15 equals qualified891; resulting-main39507624699 pending",
-    "wait_reason": "Required resulting-main193 pending; independent useful read-only audits selected; three actual Mac controls remain blocked.",
+    "wait_reason": "Resulting-main193 checks active. Distinct completed-log timing triage active; actual native controls remain blocked pending changed access. No source writer/build/account actor.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",

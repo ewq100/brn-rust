@@ -34,24 +34,24 @@ Attempts:
 
 </details>
 
-### Check project removal and restoration boundaries
+### Locate the remaining time inside Mac checks
 
-Owner: bounded Luna medium read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T22:22:58.573532+00:00
-Activity: Read-only bounded source audit of stale project deletion/restoration confirmations and checked record preservation.
-Next: Return bounded evidence and actionable findings or no-change decision; any source correction requires separate selected task/review.
+Owner: bounded Luna medium completed-log inspection; lead disposition · State: **active** · Last observed: 2026-10-20T22:26:10.247825+00:00
+Activity: Selected narrow follow-up to prior ci-cost-triage: inspect completed Mac Core log for actual per-crate/test-body durations after full cache restoration, no new workflow run.
+Next: Report actual test-body vs build/preparation evidence and justified narrow opportunity or no-change conclusion. Preserve missing timing evidence; no speculative configuration change.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** source inspection only; no changes selected
-- **checks:** pending bounded audit
-- **integration:** inapplicable unless separate candidate selected
-- **native:** not attempted; Mac access remains separate
+- **implementation:** inspection only, no candidate
+- **checks:** pending completed-log triage
+- **integration:** inapplicable unless later selected change
+- **native:** inapplicable hosted timing evidence
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md](active/vacation-campaign/evidence/residual-mac-ci-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json)
 
 </details>
 
@@ -458,7 +458,7 @@ Evidence: [docs/work/active/vacation-campaign/evidence/remote-cycle-review.md](a
 
 Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T08:05:07.042761+00:00
 Activity: Source audit identified missing Unix directory flushes in export publication, contrasted with existing backup/restore. Lead validated source and selected bounded correction.
-Next: Implement selected export-publication-durability task in isolated worktree; keep inspection distinct from qualification.
+Next: Selected export-publication-durability completed and merged as PR181. Reuse its source-bound verification; actual native/power-loss qualification stays separate. No new implementation dispatch from this completed audit.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -542,7 +542,7 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ci-cost-triage.md](active
 
 Owner: bounded read-only Luna medium helper; lead validates · State: **complete** · Last observed: 2026-10-20T09:34:14.850064+00:00
 Activity: No apparent identity/version defect; found missing actual Confirm done UI completion-evidence and receipt Undo witness. Lead validated existing test only exercises Waiting and selected a bounded extension.
-Next: Extend the existing Action/Undo journey, preserving Waiting coverage and test count.
+Next: Selected action-completion-witness completed and merged as PR182, with required head/main checks passed. Reuse that existing journey; no new duplicate extension.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -659,7 +659,7 @@ Attempts:
 
 Owner: development lead plus two bounded read-only Luna medium helpers · State: **complete** · Last observed: 2026-10-20T11:37:02.369505+00:00
 Activity: Two bounded audits plus lead verified same-source cold45m08/warm14m46, earlier same-key hit then unavailable cache, PR-only duplicate storage and root-only graph pruning. Exact disappearance reason unknown; selected narrow main-only saves.
-Next: Review/publish bounded cache-save policy; broader converter caching needs archive-size/source-guard and warm-run evidence.
+Next: Selected cache-save and helper-cache improvements completed and merged as PR183/188 with measured warm-run evidence. Reuse receipts and retain uncontrolled-comparison limits; no pending publication from this completed investigation.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -1256,6 +1256,31 @@ Evidence: [docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement
 
 </details>
 
+### Check project removal and restoration boundaries
+
+Owner: bounded Luna medium read-only audit; lead disposition · State: **complete** · Last observed: 2026-10-20T22:26:10.247825+00:00
+Activity: No source correction selected. Reconfirmed exact preview/version/dirty/Trash guards on unchanged source; this overlaps already-complete project-trash-audit and adds no executed qualification.
+Next: Reuse original project-trash-audit and this supporting explanation; do not redispatch unchanged Project/Trash inspection without a concrete new failure or boundary risk.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** no change; duplicate unchanged-source audit, not a new product outcome
+- **checks:** source inspection only; lead verified relevant source identical, no tests run
+- **integration:** inapplicable, no candidate
+- **native:** not attempted; full Project path remains unqualified
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/project-trash-audit.md](active/vacation-campaign/evidence/project-trash-audit.md), [docs/work/active/vacation-campaign/evidence/project-trash-recovery-audit.md](active/vacation-campaign/evidence/project-trash-recovery-audit.md)
+
+Attempts:
+
+- Selected new audit without noticing completed project-trash-audit; helper identified overlap. No product edits or test/build repetitions.: Retain report as supporting history, close duplicate, select future work only after checking all current task IDs/outcomes and relevant receipts. Existing workflow already requires reuse. ([docs/work/active/vacation-campaign/evidence/project-trash-recovery-audit.md](active/vacation-campaign/evidence/project-trash-recovery-audit.md))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1280,4 +1305,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:24:46.843846+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:26:10.247825+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

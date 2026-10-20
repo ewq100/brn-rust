@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-20T22:26:47.921976+00:00",
+  "result": "Current completed-task next actions reconciled to already-complete downstream outcomes; original audit evidence unchanged",
+  "changes": [
+    {
+      "task": "backup-failure-audit",
+      "previous": "Implement selected export-publication-durability task in isolated worktree; keep inspection distinct from qualification.",
+      "current": "Selected export-publication-durability completed and merged as PR181. Reuse its source-bound verification; actual native/power-loss qualification stays separate. No new implementation dispatch from this completed audit.",
+      "downstream": "export-publication-durability"
+    },
+    {
+      "task": "action-history-audit",
+      "previous": "Extend the existing Action/Undo journey, preserving Waiting coverage and test count.",
+      "current": "Selected action-completion-witness completed and merged as PR182, with required head/main checks passed. Reuse that existing journey; no new duplicate extension.",
+      "downstream": "action-completion-witness"
+    },
+    {
+      "task": "mac-ci-cache-investigation",
+      "previous": "Review/publish bounded cache-save policy; broader converter caching needs archive-size/source-guard and warm-run evidence.",
+      "current": "Selected cache-save and helper-cache improvements completed and merged as PR183/188 with measured warm-run evidence. Reuse receipts and retain uncontrolled-comparison limits; no pending publication from this completed investigation.",
+      "downstream": "ci-document-helper-cache"
+    }
+  ]
+}
