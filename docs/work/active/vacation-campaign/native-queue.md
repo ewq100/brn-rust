@@ -7,17 +7,24 @@ MAC-07 model-suggestion review was exercised early in one consolidated Mac batch
 exactly matched main33 production; visible suggestion, unchecked initial choice,
 explicit selection, exact Apply/Undo and reopen passed on a fresh synthetic clone.
 The original fixture was preserved and the app quit. No account call was made.
-P2 MAC-SUGGESTION-AX-1 remains open: visual selection is absent from AX state; a
-narrow toolkit-metadata fix is selected. Next ready native work should verify its
-matching reviewed binary and false→true state/model context, then use distinct
-queued journeys. Do not spend another session repeating this unchanged path.
+Original P2 MAC-SUGGESTION-AX-1 is retained. [Corrected source8cee](evidence/feedback-accessibility-qualification.json)
+now passes actual Mac off→on→off/model context on a fresh clone; Notes/comments/Runs
+unchanged, no Apply/account call. App quit confirmed by inventory. Existing selector/
+Apply/Undo1/0, lint/final format/ordinary build pass; hosted/integration remain.
+Final source87 also passes ordinary comment inclusion on/off/on and captured
+off/on/off on the same new binary; [receipt](evidence/feedback-inclusion-qualification.json).
+Next native work should use distinct queued journeys. MAC-01 may qualify the
+reviewed production candidate before merge using its exact source/artifact and
+fresh synthetic data; record candidate observation separately from main/hosted
+completion. This explicitly updates the older main-only preparation below. Do not spend another session repeating this unchanged path.
 Native AI, other journeys, IME, VoiceOver usability and owner acceptance remain
 pending. Screenshots/AX were actually observed in CUA; no PNG file exported.
 
 The preparation sections below retain earlier candidate identities and pending
 observations as history. This latest observation supersedes their no-Mac-yet
 statements for this one flow only. PR173 all four required main checks passed;
-PR174 now merged7fb5, resulting-main39254538056 pending. Three authorized CLI
+PR174 all four required main39254538056 checks passed. PR175 normally merged9ce,
+required resulting-main39259077134 pending. Three authorized CLI
 account attempts used today; session closed3/3, day3/6, shared5% floor remains.
 
 Owner-authorized 19 October 2026. Native computer use is enabled on this Mac; use it
@@ -151,3 +158,9 @@ natural request failed when the model dropped the ID suffix; explicit exact-ID
 read_note diagnostic passed. Both Notes stayed unchanged; no candidate. They do
 not qualify native AI/writing behavior. Use [Codex test limits](codex-ai-testing.md)
 and reserve the shared attempt ledger before any actual native account run.
+
+
+Follow-up: Review-group Include/Omit is another genuine owner choice with selected
+styling but missing boolean metadata in current source. It is a separate candidate-
+selection concern; prepare a source-bound multi-group native scenario before
+qualification. Do not change navigation/one-shot actions as if they were toggles.

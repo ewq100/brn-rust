@@ -1424,11 +1424,18 @@ impl<T: 'static> WritingView<'_, T> {
                         if selected { "Selected" } else { "With Apply" },
                     )
                     .selected(selected)
+                    .toggled(selected)
                     .when(selected, |button| button.icon(IconName::Check))
                     .disabled(self.review.is_editing())
                     .accessibility_label(format!(
-                        "Mark captured comment addressed with Apply: {}. Passage: {}",
-                        captured.body, captured.quote
+                        "{}Mark captured comment addressed with Apply: {}. Passage: {}",
+                        if model_suggested {
+                            "Model suggests addressed. "
+                        } else {
+                            ""
+                        },
+                        captured.body,
+                        captured.quote
                     ))
                     .tooltip(format!(
                         "Mark addressed after Apply. Captured passage: “{}”. Instruction: {}",
@@ -1445,6 +1452,7 @@ impl<T: 'static> WritingView<'_, T> {
                     )
                     .when(checked, |toggle| toggle.icon(IconName::Check))
                     .selected(checked)
+                    .toggled(checked)
                     .tooltip(if location.is_none() && !checked {
                         components::unavailable("Include", Some(&unlocated.reason)).1
                     } else if location.is_none() {

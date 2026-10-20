@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-10-19T12:59:32.810701+00:00",
+  "reason": "native compilation guard stopped below1GiB; reclaim only completed helper-build intermediate caches in separate target directories. Future app checks use preserved exact qualified helper executables; do not rebuild helpers without need.",
+  "base": "/Users/evokessler/.codex/worktrees/notice-state/document-helpers",
+  "logical_bytes": 2114283380,
+  "free_before": 1143197696,
+  "free_after": 3273674752,
+  "preserved_qualified_helpers": {
+    "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+    "/Users/evokessler/.codex/worktrees/notice-state/document-helpers/artifacts/brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+  },
+  "limits": "No executable, dylib, source, lockfile, receipt, fixture data or auth material removed; separate helper metadata caches may regenerate if later rebuilt. No concurrent build was active.",
+  "deleted_inventory": {
+    "archive": "helper-build-cache-inventory.json.gz",
+    "count": 1300,
+    "raw_bytes": 233489,
+    "raw_sha256": "d469bc4048ef18e152a0be614b539334d9cdc295800dde9d9cf18fa123679184",
+    "archive_bytes": 72898,
+    "archive_sha256": "740512f02bd6487910f1f910a84debb978798e8674722ec4e2c9a9b48af1b385"
+  }
+}

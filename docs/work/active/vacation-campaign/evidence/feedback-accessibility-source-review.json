@@ -1,0 +1,31 @@
+{
+  "candidate": "78a97f93513a32fcf0d8f3d722489ebeaa6d99f8",
+  "base": "7fb5dff19fda418d2473e5a3fe007fdc8480704b",
+  "integrated_lead": "b6026aac270b7da3a54102b337673b38cd9f2b40",
+  "reviewer": "writing_review_review; independent Sol high",
+  "result": "approved; no actionable findings",
+  "source_sha256": "3106b3797c8c7a72af36858083deec8dde0c3779ddc3e09300ddfc2eef31f02e",
+  "patch_sha256": "6716f0d4247d187d20abf4ccdc558bbbe2a62e2ee7570250523943ae5eeac7a5",
+  "behavior": "only captured feedback selector gains toggled(selected) and conditional model context accessible name; owner selected_comments remains authoritative; Apply unchanged",
+  "regression": "actual old-source Mac AX state failed, recorded native-mac-review-qualification.json; corrected matching native binary still pending",
+  "headless_limit": "Actual Cargo.lock gpui-pre0.3.9: test platform inherits no-op accessibility activation/tree callbacks, no activation API; existing meaningful selector/Apply/Undo test retained unchanged; no framework added.",
+  "checks": "author git diff --check passed; lead native check in progress; no account calls",
+  "headless_source_verification": {
+    "lock": "Cargo.lock3045-3048, gpui-pre0.3.9 checksum34f61c1cfd36fc9c436af09308c963822ae27a45a84feb21a77ba5c9e051f1c0",
+    "sources": [
+      "window.rs1666-1668 inactive flag;1686-1705 platform activation callback",
+      "platform.rs1386-1390 no-op defaults; platform/test/window.rs308 impl no overrides",
+      "window.rs3673-3676,3772-3795 collection/capture only active",
+      "window.rs7010-7012 debug getter; window/a11y/debug.rs70-82 last sent update capture",
+      "app/test_context.rs190-193 only disable_accessibility"
+    ],
+    "correction": "First researcher reference was to another registry version0.3.6; lead caught lock mismatch; researcher reverified actual0.3.9. No behavior claim relies on old-version evidence."
+  },
+  "final_format_transfer": {
+    "candidate": "8cee96c91a700804af61b8cbc18266c6957682ea",
+    "source_sha256": "ea12e1ea21a47905effd11dbabd8e6baaa5ab6fea77fc6894aabe6cd345e99f6",
+    "reviewer": "writing_review_review; independent Sol high",
+    "result": "complete writing.rs verified equal to reviewed78 source except rustfmt splitting two arguments; approval carries forward",
+    "checks": "selector1/0 and strict affected lint passed before whitespace-only formatting; final format passed. Ordinary native build pending. Initial wrong --lib invocation, disk-guard interruption and formatting failure retained."
+  }
+}

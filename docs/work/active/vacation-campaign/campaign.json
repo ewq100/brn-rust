@@ -12,20 +12,20 @@
   },
   "authority": "Owner authorizes independent Mac-first hardening/in-scope improvements and normal reviewed merges after all required checks. Later19October permission authorizes existing Codex-account AI/native testing only under codex-ai-testing.md and reserved attempt ledger: max3/session,6/Tallinn day,180s each, synthetic inputs,5% quota floor. No other live provider/new paid API/private data/credential edits/purchases/external sends/releases. Fixed expiry unchanged.",
   "unattended_status": "LOCAL_HEARTBEAT_REGISTERED_NOT_YET_OBSERVED",
-  "admission_state": "CAPACITY_AVAILABLE_7_PERCENT_REMAINING",
+  "admission_state": "CAPACITY_AVAILABLE_6_PERCENT_REMAINING",
   "continuation_blockers": [
     "First unattended wake not yet observed; future Mac/app uptime cannot be guaranteed."
   ],
   "remote_jobs_launched": [],
   "next_wake": "Active engineering session continues now. Heartbeat is a recovery fallback; use reset-specific backoff when needed.",
-  "last_checkpoint_at_utc": "2026-10-19T12:51:33.780363+00:00",
+  "last_checkpoint_at_utc": "2026-10-19T13:22:49.657567+00:00",
   "current_session_jobs": [],
-  "integration_status": "PR163-173 all four required head/main checks passed. PR174 normally merged7fb5dff after all four exact-head checks passed; main39254538056 pending. Optional Windows failures retained.",
-  "next_eligible_work": "Publish combined PR175 after final integration review: exact Note ID guidance and truthful trace truncation. Follow PR174 main and PR175 exact-head/main gates. Narrow AX selector fix in isolated worker; lead owns one build slot. First actual Mac review functional PASS/AX state FAIL. Account session closed3/3, Tallinn day3/6.",
-  "last_qualified_source": "fb7d2b988194b7b10dd2ceacbd73ddee8e0cc6ef",
-  "source_delta_after_qualification": "Lead production matches independently reviewed922 schema and a8 trace correction plus main7fb5 test support; no UI fix integrated yet.",
-  "active_work": "Final combined reading PR175 source review. Luna owns narrowly scoped native feedback-selector AX fix; no worker builds/account runs. Actual Mac Apply/Undo/reopen qualified on production4e; AX selected state defect remains open.",
-  "continuation_baseline": "7fb5dff19fda418d2473e5a3fe007fdc8480704b",
+  "integration_status": "PR163-174 all four required head/main checks passed. PR175 normally merged9cecd00b after all four exact-head required checks; resulting-main39259077134 pending. Optional Windows failures retained.",
+  "next_eligible_work": "Freeze/publish reviewed native feedback candidate for four required checks, follow175 resulting-main separately. Next useful native case is candidate-bound Save/reopen, with fresh explicit synthetic root; no main/usability completion inferred. Account session closed3/3, day3/6. Stop/checkpoint near5% floor.",
+  "last_qualified_source": "87f1347b7ac70130343f99f9f2226354c77ca2b0",
+  "source_delta_after_qualification": "No production change since final source87. Entire production delta vs actual main9ce is12lines in writing.rs: owner-feedback toggle metadata and conditional model context. Both independently reviewed, targeted tests/lint/format/native build and actual Mac toggle states pass.",
+  "active_work": "Publish narrow feedback accessibility candidate after actual-main reconciliation9ce. Native captured off/on/off and ordinary inclusion on/off/on pass; Notes/comments/Runs unchanged, apps closed. No active build/helper/account calls.",
+  "continuation_baseline": "9cecd00b21c1fc1084c402ab9ffe7aa6aea4bff6",
   "previous_cloud_capability_observations": {
     "cli": "codex-cli0.159.2",
     "cloud_list": "Fresh19Oct authorized network retry returnsHTTP401 token parse failure; local login status says ChatGPT but does not establish Cloud authorization",
@@ -37,7 +37,7 @@
   },
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
-    "quota": "Fresh native snapshot93% used/7% remaining; reset1792874447. About5% floor; no purchase/reset.",
+    "quota": "Fresh native snapshot94% used/6% remaining; reset1792874447. About5% floor; no purchases/reset.",
     "wake": "Active two-hour recovery heartbeat; continuous active work, not two-hour batch pacing. Daily18:00Tallinn native batch separate. First unattended wakes not yet observed.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
@@ -103,22 +103,23 @@
       "number": 174,
       "head": "e56b4dbdb14394afd1abeb58712153344b3d3106",
       "branch": "codex/native-suggestion-qualification",
-      "status": "normally merged7fb5dff after all four exact-head checks passed; resulting-main39254538056 pending"
+      "status": "normally merged7fb5; all four required exact-head and resulting-main39254538056 checks passed"
     },
     {
       "number": 175,
-      "head": "68f14668",
+      "head": "0ff3360af88d9f94e58e2a9593cce0243c3a0adc",
       "branch": "codex/exact-note-read-guidance",
-      "status": "combined schema/trace source at notice197cdc37 after actual-main reconciliation; final independent integration review before final push/checks"
+      "status": "normally merged9cecd00b after all four exact-head checks passed; resulting-main39259077134 pending"
     }
   ],
   "native_observation": {
     "receipt": "evidence/native-mac-review-qualification.json",
     "source": "4e81fcba4e2493dd12a6fd5973c91eb9f0cdd53c",
     "functional": "PASS: suggestion visible, initially unchecked, explicit selection, exact Apply/Undo and reopen",
-    "accessibility": "FAIL/open MAC-SUGGESTION-AX-1: selection visual only; source fix assigned",
+    "accessibility": "Final source87 actual captured off/on/off and ordinary inclusion on/off/on/model context PASS; pre-merge candidate",
     "native_ai": false,
-    "account_calls": 0
+    "account_calls": 0,
+    "correction_receipt": "evidence/feedback-inclusion-qualification.json"
   },
-  "resource_batch": "Lead retains selected configuration; one bounded Luna medium source worker and one independent Sol high reviewer, max3 active incl lead, single shared build slot. Reassess at candidate/review completion or about5% allowance; no new calls in closed account session."
+  "resource_batch": "Lead retains selected configuration; completed bounded Luna medium source worker and independent Sol high reviews. No active helpers/build writers; lead owns one guarded build slot. Stop/reassess near5% allowance."
 }
