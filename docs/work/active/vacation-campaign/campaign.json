@@ -1186,12 +1186,14 @@
     "latest_update_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr185-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T13:34:38.974641+00:00",
+    "observed_at": "2026-10-20T13:35:29.488371+00:00",
     "runtime_capacity": "4 total slots; lead only, all bounded helper turns completed",
-    "build_slot": "free; no source writer/build/native/account actor",
+    "build_slot": "free; no local source writer/build/native/account actor",
     "desktop_account_actor": "none; consolidated18Tallinn batch pending",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR185 normally merged75a66a74; required resulting-main39431384966 pending, no additional product task selected"
+    "integration": "PR185 normally merged75a66a74; required resulting-main39431384966 pending, no additional product task selected",
+    "wait_reason": "Genuine external required-CI wait on resulting-main39431384966. All selected source work integrated or bounded audits complete; no new speculative dispatch selected. Old head/main watchers exited and were reaped.",
+    "resumption": "Existing ACTIVE recovery heartbeat resumes this same lead/chat; reconcile actual75a66a74 run39431384966 first. Daily18:00Tallinn native batch remains the next distinct ready interaction gate. Do not infer a live process from this saved record."
   }
 }
