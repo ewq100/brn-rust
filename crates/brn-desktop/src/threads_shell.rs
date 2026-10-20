@@ -1343,7 +1343,7 @@ impl ThreadsUi {
                 "Dismiss"
             })
             .on_click(cx.listener(|this, _, _, cx| {
-                this.notice.clear();
+                this.notice.dismiss();
                 cx.notify();
             }));
         Some(

@@ -226,6 +226,153 @@ fn writing_draft_adoption_restores_an_empty_displayed_target_and_preserves_live_
 }
 
 #[gpui_kit::test]
+fn refused_writing_draft_attention_survives_background_completion_until_dismissed(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    let mut warning = String::new();
+    let completed = "Synthetic background backup finished.";
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let note = view
+                .workspace
+                .new_note("Recovery attention", "tere õun")
+                .unwrap();
+            view.set_chat(ChatTarget::NewForNote(note.id.clone()), window, cx);
+            view.open_note(&note.id, None, window, cx);
+            let source = view.destination();
+            let original = "Original Note draft · õun\nKeep this recovery.";
+            view.composer
+                .update(cx, |editor, cx| editor.set_value(original, window, cx));
+            view.new_writing_thread(window, cx);
+            let target = view.destination();
+            view.composer.update(cx, |editor, cx| {
+                editor.set_value("New target typing", window, cx)
+            });
+            let before = view.workspace.store.chat_drafts().unwrap();
+            let generations = view.draft_generations.clone();
+            let target_cache = view.composer_drafts.text(&target).to_owned();
+            let (sender, receiver) = mpsc::sync_channel(2);
+            view.worker = Some(Worker::output(receiver, true));
+            view.writing.comment_anchor =
+                Some((note.id.clone(), note.version, 0..4, "tere".into()));
+            view.writing.comment_input.update(cx, |editor, cx| {
+                editor.set_value("Clarify this", window, cx)
+            });
+            view.post_comment(window, cx);
+            assert!(view.worker.is_some());
+            warning = view.notice.text().to_owned();
+            assert!(warning.contains("Composer recovery could not move"));
+            sender
+                .send(WorkerEvent::Finished(Ok(completed.into())))
+                .unwrap();
+            view.poll_worker(window, cx);
+            assert!(view.worker.is_none());
+            assert_eq!(view.destination(), target);
+            assert_eq!(view.composer.read(cx).value(), "New target typing");
+            assert_eq!(view.composer_drafts.text(&source), original);
+            assert_eq!(view.composer_drafts.text(&target), target_cache);
+            assert_eq!(view.workspace.store.chat_drafts().unwrap(), before);
+            assert_eq!(view.draft_generations, generations);
+            assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note);
+            assert_eq!(
+                view.notice.text(),
+                warning,
+                "unresolved recovery needs attention after work finishes"
+            );
+            assert_eq!(view.notice_tone(), Tone::Error);
+            assert!(!view.notice.is_work_status());
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("workspace-notice").label(),
+            Some(warning.as_str())
+        );
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| window.click("dismiss-notice", cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            assert!(view.notice.text().is_empty());
+            view.show_last_work_notice(cx);
+            assert_eq!(view.notice.text(), completed);
+            assert_eq!(view.notice_tone(), Tone::Success);
+            assert!(view.notice.is_work_status());
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn a_successful_writing_draft_retry_clears_only_its_own_note_attention(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let mut refused = Vec::new();
+            for name in ["First recovery note", "Second recovery note"] {
+                let note = view.workspace.new_note(name, "tere õun").unwrap();
+                view.set_chat(ChatTarget::NewForNote(note.id.clone()), window, cx);
+                view.open_note(&note.id, None, window, cx);
+                let source = view.destination();
+                view.composer.update(cx, |editor, cx| {
+                    editor.set_value(format!("Draft for {name}"), window, cx)
+                });
+                view.new_writing_thread(window, cx);
+                let target = view.destination();
+                view.composer.update(cx, |editor, cx| {
+                    editor.set_value("Occupied target", window, cx)
+                });
+                view.writing.comment_anchor =
+                    Some((note.id.clone(), note.version, 0..4, "tere".into()));
+                view.writing.comment_input.update(cx, |editor, cx| {
+                    editor.set_value("Clarify this", window, cx)
+                });
+                view.post_comment(window, cx);
+                refused.push((note, source, target, name));
+            }
+            // Resolving the second Note cannot acknowledge the first Note's
+            // separate failed handoff, even though that Note is no longer open.
+            for (remaining, (note, source, target, name)) in refused.iter().rev().enumerate() {
+                view.open_note(&note.id, None, window, cx);
+                let ComposerDestination::Thread(thread) = target else {
+                    panic!()
+                };
+                view.open_thread(thread, window, cx);
+                view.composer
+                    .update(cx, |editor, cx| editor.set_value("", window, cx));
+                view.save_composer(target.clone(), String::new());
+                view.writing.comment_anchor =
+                    Some((note.id.clone(), note.version, 0..4, "tere".into()));
+                view.writing.comment_input.update(cx, |editor, cx| {
+                    editor.set_value("Retry this comment", window, cx)
+                });
+                view.post_comment(window, cx);
+                assert_eq!(view.composer.read(cx).value(), format!("Draft for {name}"));
+                assert!(view.composer_drafts.text(source).is_empty());
+                assert_eq!(
+                    view.composer_drafts.text(target),
+                    format!("Draft for {name}")
+                );
+                if remaining == 0 {
+                    assert!(view.notice.text().contains("First recovery note"));
+                    assert_eq!(view.notice_tone(), Tone::Error);
+                } else {
+                    assert!(view.notice.text().starts_with("Comment added"));
+                    assert_eq!(view.notice_tone(), Tone::Info);
+                }
+                assert!(view.worker.is_none());
+            }
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn refused_writing_draft_adoption_keeps_visible_and_saved_recovery(cx: &mut TestAppContext) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {

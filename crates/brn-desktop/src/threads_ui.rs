@@ -1087,20 +1087,33 @@ impl ThreadsUi {
         })();
         match result {
             Ok((source, destination)) => {
-                self.draft_generations.insert(source.destination, source.generation);
-                self.draft_generations.insert(destination.destination, destination.generation);
+                self.draft_generations
+                    .insert(source.destination, source.generation);
+                self.draft_generations
+                    .insert(destination.destination, destination.generation);
                 self.composer_drafts.posted(&pending);
                 if self.destination() == target {
-                    self.composer.update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
+                    self.composer
+                        .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
                 }
                 self.composer_drafts.preserve(target, text);
                 if visible {
                     self.chat = ChatTarget::Thread(thread);
                 }
+                self.notice.composer_recovery_saved(note);
             }
-            Err(error) => self.fail(format!(
-                "Composer recovery could not move to the writing chat: {error}. Your original draft is preserved; keep this window open or copy your text."
-            )),
+            Err(error) => {
+                let context = self
+                    .writing
+                    .note
+                    .as_ref()
+                    .filter(|open| open.record().id == note)
+                    .map(|open| title(open.record()))
+                    .unwrap_or_else(|| note.into());
+                self.notice.composer_recovery_failed(note, format!(
+                    "Composer recovery could not move to the writing chat for “{}”: {error}. Your original draft is preserved; keep this window open or copy your text.", short(&context)
+                ));
+            }
         }
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
