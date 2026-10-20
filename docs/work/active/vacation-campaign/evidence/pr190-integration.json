@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-20T20:52:14.435306+00:00",
+  "pr": 190,
+  "state": "normally merged",
+  "head": "166d823232b1d4b7785630f90e99cb899999f60f",
+  "merge": "9c18bc5f5aab0944335c2d5614b3f3009d8401b1",
+  "merged_at": "2026-10-20T20:50:53Z",
+  "tree": "498c11aeec3ca03acf319936ff2ec59fc26b3876",
+  "tree_equals_reviewed_candidate": true,
+  "premerge": "pr190-premerge.json all4exact-head+all4preceding-main strict/admin gatePASS; mutation in separate successfultoolcall",
+  "method": "gh pr merge --merge --match-head-commit; no admin/bypass, no branch deletion",
+  "required_head_run": 39492291218,
+  "resulting_main": {
+    "run": 39495469734,
+    "source": "9c18bc5f5aab0944335c2d5614b3f3009d8401b1",
+    "state": "pending"
+  },
+  "limits": "All required premerge checks PASS; optional Windows failure retained. Resulting-main checks independent/pending; no release/native/owner-acceptance claim."
+}

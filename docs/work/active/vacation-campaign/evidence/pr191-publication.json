@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-20T20:55:59.461303+00:00",
+  "pr": 191,
+  "url": "https://github.com/ewq100/brn-rust/pull/191",
+  "head": "e1b0958f01718cba9bdb21944f8e4c6bc5759cc3",
+  "base": "9c18bc5f5aab0944335c2d5614b3f3009d8401b1",
+  "source_scope": "one test file only",
+  "review_and_local_checks": "mac-test-roots-current-main-qualification.json",
+  "run": 39495969395,
+  "integration": "not merged; all4 required exact-head and all4 preceding-main190 jobs must pass before normal integration; source head stable"
+}

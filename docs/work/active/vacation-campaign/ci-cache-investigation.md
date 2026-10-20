@@ -90,3 +90,7 @@ The warm job additionally waited5m07s for a hosted runner. This is one pair on d
 ## Remaining Mac lanes measured20October
 
 [Two completed-run measurements](evidence/residual-mac-ci-audit.md) separate job queue6–21seconds from Mac Core16m13/17m36 and Combined5m11/7m58 runtimes. Core is led by default workspace tests, helper API tests and dual-helper preparation; combined is led by canonical search app tests. These are different sources/runners with no nested exact-cache-hit observations; repeated preparation is not proven dispensable. No lane sharing, gate removal or extra rerun is selected from this sample. Existing logs of the in-progress PR190 can support a later exact-hit/preparation assessment without a new benchmark run.
+
+### Subsequent PR190 Mac cache observation
+
+[Completed actual Mac jobs](evidence/ci-pr190-mac-cache-observation.json) restored full matching keys: Core archive1,327,152,455bytes and Combined2,332,333,091bytes. Core passed in16m11; Combined in10m05. Core default tests5m43, helper API/restrictions3m52 and helper preparation2m06 remain major costs despite the cache hit. This is another uncontrolled source/runner observation, not an optimization result. The completed Mac job logs are available while the required Ubuntu gate is still running; no rerun or configuration change is selected.

@@ -1,0 +1,107 @@
+{
+  "observed_at": "2026-10-20T20:48:35.576668+00:00",
+  "run": 39492291218,
+  "source": "166d823232b1d4b7785630f90e99cb899999f60f",
+  "scope": "Completed Mac jobs only; required UbuntuCore stillpending at observation, no merge/main claim",
+  "jobs": [
+    {
+      "name": "Core and CLI (macos-15)",
+      "id": 118868307957,
+      "started_at": "2026-10-20T20:28:41Z",
+      "completed_at": "2026-10-20T20:44:52Z",
+      "seconds": 971,
+      "conclusion": "success",
+      "cache_lines": [
+        "2026-10-20T20:28:53.9712540Z   save-if: false",
+        "2026-10-20T20:28:55.2788680Z Cache hit for: v0-rust-macOS-ARM64-default-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-headless-Darwin-arm64-4b070e83-bf6157b2",
+        "2026-10-20T20:29:09.1260750Z Cache Size: ~1266 MB (1327152455 B)",
+        "2026-10-20T20:29:22.6137950Z Cache restored successfully"
+      ],
+      "cache_bytes": 1327152455,
+      "largest_steps": [
+        {
+          "name": "Test the default workspace",
+          "seconds": 343,
+          "conclusion": "success"
+        },
+        {
+          "name": "Both document helpers normal API and restrictions",
+          "seconds": 232,
+          "conclusion": "success"
+        },
+        {
+          "name": "Test provider capability fixtures offline",
+          "seconds": 129,
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare both locked document helper graphs",
+          "seconds": 126,
+          "conclusion": "success"
+        },
+        {
+          "name": "Scripted document CLI route (no live provider)",
+          "seconds": 45,
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ./.github/actions/setup-rust",
+          "seconds": 44,
+          "conclusion": "success"
+        }
+      ],
+      "raw": "ci-pr190-mac-core.raw.log.gz",
+      "raw_sha256": "a3fd667da500112b7a47d4ca4f78e098ffa71626a42a50388b72bb446e40abc7"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "id": 118868307441,
+      "started_at": "2026-10-20T20:28:42Z",
+      "completed_at": "2026-10-20T20:38:47Z",
+      "seconds": 605,
+      "conclusion": "success",
+      "cache_lines": [
+        "2026-10-20T20:29:05.5248060Z   save-if: false",
+        "2026-10-20T20:29:07.0823090Z Cache hit for: v0-rust-macOS-ARM64-native-ui-native-retrieval-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-native-retrieval-Darwin-arm64-4b070e83-bf6157b2",
+        "2026-10-20T20:29:52.5201410Z Cache Size: ~2224 MB (2332333091 B)",
+        "2026-10-20T20:30:19.1523300Z Cache restored successfully"
+      ],
+      "cache_bytes": 2332333091,
+      "largest_steps": [
+        {
+          "name": "Test current canonical search with the native retrieval feature",
+          "seconds": 180,
+          "conclusion": "success"
+        },
+        {
+          "name": "Prepare both locked document helper graphs",
+          "seconds": 110,
+          "conclusion": "success"
+        },
+        {
+          "name": "Test the combined native desktop state",
+          "seconds": 107,
+          "conclusion": "success"
+        },
+        {
+          "name": "Run ./.github/actions/setup-rust",
+          "seconds": 101,
+          "conclusion": "success"
+        },
+        {
+          "name": "Build the combined native desktop",
+          "seconds": 36,
+          "conclusion": "success"
+        },
+        {
+          "name": "Build the native retrieval CLI",
+          "seconds": 24,
+          "conclusion": "success"
+        }
+      ],
+      "raw": "ci-pr190-mac-combined.raw.log.gz",
+      "raw_sha256": "ed771ce3d53292b30ff6eb4742a27e640957f45359c8d9c2034011bacf115ba6"
+    }
+  ],
+  "limits": "Actual full-key cache hits and restored archive sizes, not direct archive-content inspection or controlled comparison. No rerun/cache/config mutation. Composite action duration is not cache time."
+}

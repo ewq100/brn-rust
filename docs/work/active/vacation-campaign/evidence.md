@@ -638,3 +638,11 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 20 October: residual Mac CI measurement
 
 [Bounded existing-job assessment](evidence/residual-mac-ci-audit.md) retains actual queue/job/step timings and uncertainty for Mac Core and Combined after the separate UI cache improvement. Lead validated recorded timestamps and dominant steps; no causal speed claim or additional configuration/rerun selected. Required gates stay unchanged.
+
+## 20 October: exact PR190 Mac cache hits
+
+[Lead inspection of completed Mac jobs](evidence/ci-pr190-mac-cache-observation.json) confirms successful full-key restores for Core and Combined, with compressed original logs and archive byte sizes retained. Core16m11 and Combined10m05 passed; UbuntuCore was still pending. These cache observations are later than the bounded helper audit, which did not query PR190. No cache mutation, extra run or merge claim.
+
+## 20 October: normal PR190 integration and separate PR191
+
+[Fresh PR190 gate](evidence/pr190-premerge.json) passed all four exact-head/preceding-main contexts with strict/admin protection; aggregate UNSTABLE was optional Windows, not a required failure. The separate normal merge call succeeded as9c18; [whole tree equality](evidence/pr190-integration.json) matches reviewed166d. Required resulting-main39495469734 is pending. [PR191](evidence/pr191-publication.json) publishes only the independent Mac fixture correction after [current-main composition qualification](evidence/mac-test-roots-current-main-qualification.json): full one-file patch exactly matches independent review, and final source again passes default-Mac core219/0/1ignored, strict lint/fmt. Head191 and main190 required checks run in parallel; neither pending main result nor PR191 merge is claimed.

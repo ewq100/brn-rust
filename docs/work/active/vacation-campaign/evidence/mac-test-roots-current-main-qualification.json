@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-20T20:55:59.461303+00:00",
+  "source": "e1b0958f01718cba9bdb21944f8e4c6bc5759cc3",
+  "base": "9c18bc5f5aab0944335c2d5614b3f3009d8401b1",
+  "previous_reviewed_candidate": "4f665daa9fbc430fcf98b68dc029c892bb941fd2",
+  "integration": "Normal local merge of current9c18 main; no source resolution/edit",
+  "changed_files": [
+    "crates/brn-threads-core/tests/mcp_policy.rs"
+  ],
+  "review_transfer": {
+    "method": "Complete actual candidate patch is byte-identical to independently reviewed4f665 vs a23; before/after file blob equality checked, no new task-owned source; current-main production changes were independently reviewed/qualified166d and normally merged as9c18",
+    "actual_current_blob": "f2810c4bc75445de0faae87eeff9619e4267fc85",
+    "review": "mac-test-roots-review.md",
+    "limits": "Reviewer inspected4f665; lead validated exact full-diff transfer to current candidate, without claiming a separate new reviewer run"
+  },
+  "checks": {
+    "core": "219passed0failed1existingignored under inherited Mac TMPDIR, including newmain restore and fixed MCP fixtures",
+    "fmt": "PASS pinned core fmt --check",
+    "lint": "PASS focused mcp_policy strict Clippy",
+    "exit": 0,
+    "source_header_embedded_in_log": true
+  },
+  "raw": "mac-test-roots-current-main-raw.tar.gz",
+  "raw_sha256": "34b684c489994d2f4f4577698b2cad35647d35819feeb4e98b283b9edb0f15cc",
+  "hosted": "PR191 required CI39495969395 pending; preceding-main190 required CI39495469734 pending",
+  "limits": "No account/native/owner acceptance/release claim; actual normal merge remains gated by both live required check sets."
+}

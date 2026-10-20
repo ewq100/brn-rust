@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Explain when a restore source is not a BRN backup
 
-Owner: bounded Luna read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T20:30:13.940822+00:00
-Activity: PR190 marked ready at stable166d8232. Final local core219/0/1ignored, CLI agent_contract23/0, strict core+CLI all-target lint and format PASS; independent complete-candidate review no findings. Required hosted CI39492291218 pending.
-Next: Inspect actual required exact-head CI and live protection plus preceding-main; normal merge only after all required gates, then inspect resulting-main separately. Keep source head stable.
+Owner: bounded Luna read-only audit; lead disposition · State: **active** · Last observed: 2026-10-20T20:52:14.435306+00:00
+Activity: PR190 normally merged9c18bc5f after all4required exact-head and all4preceding-main checks plus live strict/admin protection PASS. Whole merged tree equals reviewed166d. Required resulting-main39495469734 pending.
+Next: Inspect actual resulting-main39495469734 required jobs; record all optional failures and qualify completion separately from merge. Continue independent qualified fixture integration in parallel.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -21,17 +21,38 @@ Next: Inspect actual required exact-head CI and live protection plus preceding-m
 Gates:
 
 - **implementation:** complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change
-- **checks:** PASS local core219/0/1ignored, CLI23/0, strict all-target lint/fmt and independent review; four required hosted exact-head gates pending
-- **integration:** readyPR190 at stable166d8232; not merged
+- **checks:** PASS local/review and all4required exact-head166d + preceding-maina23; optional headWindowsCore failure retained
+- **integration:** normal merge9c18bc5f; exact fulltree equality PASS; four required resulting-main gates pending
 - **native:** inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz](active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md](active/vacation-campaign/evidence/restore-source-refusal-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md](active/vacation-campaign/evidence/restore-source-refusal-review.md), [docs/work/active/vacation-campaign/evidence/pr190-publication.json](active/vacation-campaign/evidence/pr190-publication.json), [https://github.com/ewq100/brn-rust/pull/190](https://github.com/ewq100/brn-rust/pull/190), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz)
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz](active/vacation-campaign/evidence/invalid-backup-error-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-implementation.md](active/vacation-campaign/evidence/restore-source-refusal-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-review.md](active/vacation-campaign/evidence/restore-source-refusal-review.md), [docs/work/active/vacation-campaign/evidence/pr190-publication.json](active/vacation-campaign/evidence/pr190-publication.json), [https://github.com/ewq100/brn-rust/pull/190](https://github.com/ewq100/brn-rust/pull/190), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr190-premerge.json](active/vacation-campaign/evidence/pr190-premerge.json), [docs/work/active/vacation-campaign/evidence/pr190-integration.json](active/vacation-campaign/evidence/pr190-integration.json)
 
 Attempts:
 
 - Expected regression FAIL1/0/43filtered,exit101: old literal non-SQLite source produces Sqlite rather than UnsafeDirectory. No target or source repair.: Classify only NOTADB during restore source validation before staging, using existing refusal taxonomy. Other SQLite/I/O errors unchanged. ([docs/work/active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json](active/vacation-campaign/evidence/mac-backup-cli-invalid-input.json), [docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
 - First broad core gate passed preceding binaries but failed4 MCP policy cases at fixture open: inherited /var/folders TMPDIR traverses a symlink refused by DataFolder. CLI/lint commands did not run because script stopped.: Preserve raw first gate; rerun unchanged166d candidate with fresh explicit canonical /private/tmp root for test tempfiles. Do not weaken path guard or alter product/tests. ([docs/work/active/vacation-campaign/evidence/invalid-backup-error-audit.md](active/vacation-campaign/evidence/invalid-backup-error-audit.md))
+
+</details>
+
+### Make core checks work with normal Mac temporary folders
+
+Owner: bounded Luna fixture author; lead checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T20:55:59.461303+00:00
+Activity: Qualified current-main compositione1b0958f published as PR191. Sole patch exactly equals reviewed4f665; final default-Mac core219/0/1ignored, strict focused lint/fmt PASS again after composition. Required head39495969395 and preceding-main19039495469734 checks running in parallel.
+Next: Keep head stable; inspect actual required exact-head191 and preceding-main190 results plus fresh protection before normal merge, then verify resulting-main191 separately.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** completee1b0958f on main9c18; one file patch exactly equals reviewed4f665
+- **checks:** PASS finalcomposed core219/0/1ignored on default Mac TMPDIR, focused strict lint/fmt, independent review exactpatchtransfer; required hosted head191/main190 pending
+- **integration:** PR191 published stablee1b0958f; not merged
+- **native:** inapplicable fixture path setup; no UI/account action
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md](active/vacation-campaign/evidence/mac-temp-fixture-audit.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-implementation.md](active/vacation-campaign/evidence/mac-test-roots-implementation.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md](active/vacation-campaign/evidence/mac-test-roots-review.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz](active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json](active/vacation-campaign/evidence/mac-test-roots-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json](active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/pr191-publication.json](active/vacation-campaign/evidence/pr191-publication.json), [https://github.com/ewq100/brn-rust/pull/191](https://github.com/ewq100/brn-rust/pull/191)
 
 </details>
 
@@ -125,32 +146,6 @@ Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibil
 Waiting:
 
 - resource: Mac remains locked; existing manual unlock request pending.
-
-### Make core checks work with normal Mac temporary folders
-
-Owner: bounded Luna fixture author; lead checks/integration; independent Sol review · State: **ready** · Last observed: 2026-10-20T20:38:42.698685+00:00
-Activity: One-file candidate4f665daa passes core219/0/1ignored under original inherited Mac TMPDIR, focused strict lint/fmt and complete independent review. All4previously failingMCP fixtures now exercise unchanged assertions.
-Next: Keep separate candidate qualified; after PR190 normal integration, incorporate then-current main without source edits, reconcile composed review/check applicability and publish one stable PR.
-Resource waits: Integration owner serializes main updates. Hold publication until in-flight PR190 integration advances main, avoiding a duplicate required-CI run from a base that is about to change.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** complete4f665daa; seven lines added/four replaced in existing testfile
-- **checks:** PASS core219/0/1ignored under default Mac TMPDIR, strict focused lint/fmt and independent review; original failure/reviewer evidence correction retained
-- **integration:** not published/merged; preserve in-flight PR190 stable head, then publish on current main
-- **native:** inapplicable fixture path setup; no UI/account action
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md](active/vacation-campaign/evidence/mac-temp-fixture-audit.md), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json](active/vacation-campaign/evidence/restore-source-refusal-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz](active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-implementation.md](active/vacation-campaign/evidence/mac-test-roots-implementation.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md](active/vacation-campaign/evidence/mac-test-roots-review.md), [docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz](active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz), [docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json](active/vacation-campaign/evidence/mac-test-roots-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz](active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz)
-
-</details>
-
-Waiting:
-
-- resource: Integration owner serializes main updates. Hold publication until in-flight PR190 integration advances main, avoiding a duplicate required-CI run from a base that is about to change.
 
 ## Completed
 
@@ -1078,9 +1073,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json
 
 ### Measure the remaining Mac check time
 
-Owner: bounded Luna read-only timing assessment; lead disposition · State: **complete** · Last observed: 2026-10-20T20:41:57.711673+00:00
-Activity: Bounded measurement of2completed runs complete; lead validated job/step timestamps. Mac Core16m13/17m36 led by default tests5m37/6m07, helper API3m28/3m36 and helper prep2m23/2m35. Mac Combined5m11/7m58; no controlled comparison or justified change.
-Next: Use existing current-run logs after completion if revisiting exact cache hit/prep costs. Do not remove gates, share caches or launch reruns from this uncontrolled sample.
+Owner: bounded Luna read-only timing assessment; lead disposition · State: **complete** · Last observed: 2026-10-20T20:48:35.576668+00:00
+Activity: Bounded measurement of2completed runs complete; lead validated job/step timestamps. Mac Core16m13/17m36 led by default tests5m37/6m07, helper API3m28/3m36 and helper prep2m23/2m35. Mac Combined5m11/7m58; no controlled comparison or justified change. Later lead inspection confirms actual PR190 Core/Combined full-key hits,16m11/10m05, with major test/helper costs remaining.
+Next: Retain measured costs/hits. No further cache experiment or gate removal selected; revisit only for a concrete diagnosed regression or bounded demonstrated improvement.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -1093,7 +1088,7 @@ Gates:
 - **native:** inapplicable CI timing evidence
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json](active/vacation-campaign/evidence/pr189-resulting-main.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md](active/vacation-campaign/evidence/residual-mac-ci-audit.md), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.json](active/vacation-campaign/evidence/residual-mac-ci-audit.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz](active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz)
+Evidence: [docs/work/active/vacation-campaign/ci-cache-investigation.md](active/vacation-campaign/ci-cache-investigation.md), [docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json](active/vacation-campaign/evidence/pr189-resulting-main.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md](active/vacation-campaign/evidence/residual-mac-ci-audit.md), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.json](active/vacation-campaign/evidence/residual-mac-ci-audit.json), [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz](active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json)
 
 </details>
 
@@ -1121,4 +1116,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T20:41:57.711673+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T20:55:59.461303+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

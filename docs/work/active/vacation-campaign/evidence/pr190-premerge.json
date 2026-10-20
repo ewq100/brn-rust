@@ -1,0 +1,2558 @@
+{
+  "observed_at": "2026-10-20T20:50:48.734494+00:00",
+  "result": "PASS live premerge gate",
+  "pr": 190,
+  "expected_head": "166d823232b1d4b7785630f90e99cb899999f60f",
+  "preceding_main": "a23f486b109c67e8d07c77800030e527b9a18002",
+  "required_contexts": [
+    "Core and CLI (ubuntu-24.04)",
+    "Core and CLI (macos-15)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "protection": {
+    "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection",
+    "required_status_checks": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks",
+      "strict": true,
+      "contexts": [
+        "Core and CLI (ubuntu-24.04)",
+        "Core and CLI (macos-15)",
+        "Native UI build and state (macos-15)",
+        "Native retrieval and combined build (macos-15)"
+      ],
+      "contexts_url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks/contexts",
+      "checks": [
+        {
+          "context": "Core and CLI (ubuntu-24.04)",
+          "app_id": 15368
+        },
+        {
+          "context": "Core and CLI (macos-15)",
+          "app_id": 15368
+        },
+        {
+          "context": "Native UI build and state (macos-15)",
+          "app_id": 15368
+        },
+        {
+          "context": "Native retrieval and combined build (macos-15)",
+          "app_id": 15368
+        }
+      ]
+    },
+    "required_signatures": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_signatures",
+      "enabled": false
+    },
+    "enforce_admins": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/enforce_admins",
+      "enabled": true
+    },
+    "required_linear_history": {
+      "enabled": false
+    },
+    "allow_force_pushes": {
+      "enabled": false
+    },
+    "allow_deletions": {
+      "enabled": false
+    },
+    "block_creations": {
+      "enabled": false
+    },
+    "required_conversation_resolution": {
+      "enabled": false
+    },
+    "lock_branch": {
+      "enabled": false
+    },
+    "allow_fork_syncing": {
+      "enabled": false
+    }
+  },
+  "pull_request": {
+    "baseRefOid": "a23f486b109c67e8d07c77800030e527b9a18002",
+    "headRefOid": "166d823232b1d4b7785630f90e99cb899999f60f",
+    "isDraft": false,
+    "mergeStateStatus": "UNSTABLE",
+    "mergeable": "MERGEABLE",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:29:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307948",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:49:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307959",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:31:07Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307937",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:44:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307957",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:39:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868308252",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:35:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307770",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T20:28:42Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T20:38:47Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307441",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T20:28:42Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      }
+    ]
+  },
+  "head_run": {
+    "conclusion": "failure",
+    "headSha": "166d823232b1d4b7785630f90e99cb899999f60f",
+    "jobs": [
+      {
+        "completedAt": "2026-10-20T20:38:47Z",
+        "conclusion": "success",
+        "databaseId": 118868307441,
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T20:28:42Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:44Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:49Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:30Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:32:20Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T20:30:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:32:32Z",
+            "conclusion": "success",
+            "name": "Test native retrieval without model assets",
+            "number": 5,
+            "startedAt": "2026-10-20T20:32:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:32Z",
+            "conclusion": "success",
+            "name": "Test current canonical search with the native retrieval feature",
+            "number": 6,
+            "startedAt": "2026-10-20T20:32:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:56Z",
+            "conclusion": "success",
+            "name": "Build the native retrieval CLI",
+            "number": 7,
+            "startedAt": "2026-10-20T20:35:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:36:32Z",
+            "conclusion": "success",
+            "name": "Build the combined native desktop",
+            "number": 8,
+            "startedAt": "2026-10-20T20:35:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:36:53Z",
+            "conclusion": "success",
+            "name": "Lint the combined native desktop",
+            "number": 9,
+            "startedAt": "2026-10-20T20:36:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:40Z",
+            "conclusion": "success",
+            "name": "Test the combined native desktop state",
+            "number": 10,
+            "startedAt": "2026-10-20T20:36:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:41Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 19,
+            "startedAt": "2026-10-20T20:38:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:42Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 20,
+            "startedAt": "2026-10-20T20:38:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:46Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 21,
+            "startedAt": "2026-10-20T20:38:42Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307441"
+      },
+      {
+        "completedAt": "2026-10-20T20:35:06Z",
+        "conclusion": "success",
+        "databaseId": 118868307770,
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T20:28:42Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:44Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:47Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:11Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:34Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T20:30:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:50Z",
+            "conclusion": "success",
+            "name": "Build reusable writing UI on Unix",
+            "number": 5,
+            "startedAt": "2026-10-20T20:31:34Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:32:01Z",
+            "conclusion": "success",
+            "name": "Lint reusable writing UI on Unix",
+            "number": 6,
+            "startedAt": "2026-10-20T20:31:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:33:01Z",
+            "conclusion": "success",
+            "name": "Test reusable writing UI on Unix",
+            "number": 7,
+            "startedAt": "2026-10-20T20:32:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:33:14Z",
+            "conclusion": "success",
+            "name": "Build the desktop with native UI",
+            "number": 8,
+            "startedAt": "2026-10-20T20:33:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:33:19Z",
+            "conclusion": "success",
+            "name": "Lint native UI",
+            "number": 9,
+            "startedAt": "2026-10-20T20:33:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:33:44Z",
+            "conclusion": "success",
+            "name": "Test native UI state",
+            "number": 10,
+            "startedAt": "2026-10-20T20:33:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:33:53Z",
+            "conclusion": "success",
+            "name": "Lint native Unix widgets",
+            "number": 11,
+            "startedAt": "2026-10-20T20:33:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:00Z",
+            "conclusion": "success",
+            "name": "Test native Unix widgets",
+            "number": 12,
+            "startedAt": "2026-10-20T20:33:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:00Z",
+            "conclusion": "success",
+            "name": "Exercise the desktop headless driver on Unix",
+            "number": 13,
+            "startedAt": "2026-10-20T20:35:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:00Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Windows",
+            "number": 14,
+            "startedAt": "2026-10-20T20:35:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:01Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 27,
+            "startedAt": "2026-10-20T20:35:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:01Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 28,
+            "startedAt": "2026-10-20T20:35:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:35:04Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 29,
+            "startedAt": "2026-10-20T20:35:01Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307770"
+      },
+      {
+        "completedAt": "2026-10-20T20:31:07Z",
+        "conclusion": "failure",
+        "databaseId": 118868307937,
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:43Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:54Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:55Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:55Z",
+            "conclusion": "skipped",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T20:30:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:55Z",
+            "conclusion": "skipped",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T20:30:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:55Z",
+            "conclusion": "skipped",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T20:30:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:55Z",
+            "conclusion": "skipped",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T20:30:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "failure",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T20:30:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "skipped",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:03Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:05Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T20:31:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:05Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T20:31:05Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307937"
+      },
+      {
+        "completedAt": "2026-10-20T20:29:10Z",
+        "conclusion": "success",
+        "databaseId": 118868307948,
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:42Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:44Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:56Z",
+            "conclusion": "success",
+            "name": "Fetch the committed stock lock for generator fixtures",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:57Z",
+            "conclusion": "success",
+            "name": "Check current Markdown file and fragment links",
+            "number": 4,
+            "startedAt": "2026-10-20T20:28:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:57Z",
+            "conclusion": "success",
+            "name": "Check the generated owner overview",
+            "number": 5,
+            "startedAt": "2026-10-20T20:28:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:09Z",
+            "conclusion": "success",
+            "name": "Test deterministic development tooling",
+            "number": 6,
+            "startedAt": "2026-10-20T20:28:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:09Z",
+            "conclusion": "success",
+            "name": "Check shell syntax",
+            "number": 7,
+            "startedAt": "2026-10-20T20:29:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:09Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 14,
+            "startedAt": "2026-10-20T20:29:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:09Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-20T20:29:09Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307948"
+      },
+      {
+        "completedAt": "2026-10-20T20:44:52Z",
+        "conclusion": "success",
+        "databaseId": 118868307957,
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:42Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:46Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:30Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:30Z",
+            "conclusion": "skipped",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T20:29:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:30Z",
+            "conclusion": "success",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T20:29:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:30Z",
+            "conclusion": "success",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T20:29:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:36Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T20:29:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:54Z",
+            "conclusion": "success",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T20:31:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:31:54Z",
+            "conclusion": "skipped",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T20:31:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:37Z",
+            "conclusion": "success",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T20:31:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:41:29Z",
+            "conclusion": "success",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T20:37:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:42:14Z",
+            "conclusion": "success",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T20:41:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:23Z",
+            "conclusion": "success",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T20:42:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:37Z",
+            "conclusion": "success",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T20:44:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:38Z",
+            "conclusion": "success",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T20:44:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:38Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T20:44:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:41Z",
+            "conclusion": "success",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T20:44:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:42Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T20:44:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:43Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T20:44:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:44:50Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T20:44:43Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307957"
+      },
+      {
+        "completedAt": "2026-10-20T20:49:03Z",
+        "conclusion": "success",
+        "databaseId": 118868307959,
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:43Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:46Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:13Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:16Z",
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T20:29:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:16Z",
+            "conclusion": "success",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T20:29:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:29:17Z",
+            "conclusion": "success",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T20:29:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:26Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T20:29:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:38Z",
+            "conclusion": "success",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T20:37:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:54Z",
+            "conclusion": "success",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T20:37:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:42:10Z",
+            "conclusion": "success",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T20:37:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:47:20Z",
+            "conclusion": "success",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T20:42:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:47:20Z",
+            "conclusion": "skipped",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T20:47:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:48:51Z",
+            "conclusion": "success",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T20:47:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "success",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T20:48:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "success",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "skipped",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:49:00Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T20:49:00Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868307959"
+      },
+      {
+        "completedAt": "2026-10-20T20:39:39Z",
+        "conclusion": "success",
+        "databaseId": 118868308252,
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T20:28:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T20:28:43Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T20:28:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:28:45Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T20:28:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:30:11Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T20:28:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:12Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T20:30:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:22Z",
+            "conclusion": "success",
+            "name": "Build reusable writing UI on Unix",
+            "number": 5,
+            "startedAt": "2026-10-20T20:37:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:37:29Z",
+            "conclusion": "success",
+            "name": "Lint reusable writing UI on Unix",
+            "number": 6,
+            "startedAt": "2026-10-20T20:37:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:07Z",
+            "conclusion": "success",
+            "name": "Test reusable writing UI on Unix",
+            "number": 7,
+            "startedAt": "2026-10-20T20:37:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:14Z",
+            "conclusion": "success",
+            "name": "Build the desktop with native UI",
+            "number": 8,
+            "startedAt": "2026-10-20T20:38:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:17Z",
+            "conclusion": "success",
+            "name": "Lint native UI",
+            "number": 9,
+            "startedAt": "2026-10-20T20:38:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:35Z",
+            "conclusion": "success",
+            "name": "Test native UI state",
+            "number": 10,
+            "startedAt": "2026-10-20T20:38:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:38:41Z",
+            "conclusion": "success",
+            "name": "Lint native Unix widgets",
+            "number": 11,
+            "startedAt": "2026-10-20T20:38:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "success",
+            "name": "Test native Unix widgets",
+            "number": 12,
+            "startedAt": "2026-10-20T20:38:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "success",
+            "name": "Exercise the desktop headless driver on Unix",
+            "number": 13,
+            "startedAt": "2026-10-20T20:39:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Windows",
+            "number": 14,
+            "startedAt": "2026-10-20T20:39:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 27,
+            "startedAt": "2026-10-20T20:39:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 28,
+            "startedAt": "2026-10-20T20:39:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T20:39:36Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 29,
+            "startedAt": "2026-10-20T20:39:36Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39492291218/job/118868308252"
+      }
+    ],
+    "status": "completed"
+  },
+  "preceding_main_run": {
+    "conclusion": "failure",
+    "headSha": "a23f486b109c67e8d07c77800030e527b9a18002",
+    "jobs": [
+      {
+        "completedAt": "2026-10-20T17:48:33Z",
+        "conclusion": "success",
+        "databaseId": 118788512925,
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:04Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:06Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:17Z",
+            "conclusion": "success",
+            "name": "Fetch the committed stock lock for generator fixtures",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:18Z",
+            "conclusion": "success",
+            "name": "Check current Markdown file and fragment links",
+            "number": 4,
+            "startedAt": "2026-10-20T17:48:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:18Z",
+            "conclusion": "success",
+            "name": "Check the generated owner overview",
+            "number": 5,
+            "startedAt": "2026-10-20T17:48:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:30Z",
+            "conclusion": "success",
+            "name": "Test deterministic development tooling",
+            "number": 6,
+            "startedAt": "2026-10-20T17:48:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:30Z",
+            "conclusion": "success",
+            "name": "Check shell syntax",
+            "number": 7,
+            "startedAt": "2026-10-20T17:48:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:31Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 14,
+            "startedAt": "2026-10-20T17:48:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:31Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-20T17:48:31Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788512925"
+      },
+      {
+        "completedAt": "2026-10-20T17:49:52Z",
+        "conclusion": "failure",
+        "databaseId": 118788513209,
+        "name": "Native UI build and state (windows-2025)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:04Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:13Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:41Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:41Z",
+            "conclusion": "skipped",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:41Z",
+            "conclusion": "skipped",
+            "name": "Build reusable writing UI on Unix",
+            "number": 5,
+            "startedAt": "2026-10-20T17:49:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:41Z",
+            "conclusion": "skipped",
+            "name": "Lint reusable writing UI on Unix",
+            "number": 6,
+            "startedAt": "2026-10-20T17:49:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:41Z",
+            "conclusion": "skipped",
+            "name": "Test reusable writing UI on Unix",
+            "number": 7,
+            "startedAt": "2026-10-20T17:49:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "failure",
+            "name": "Build the desktop with native UI",
+            "number": 8,
+            "startedAt": "2026-10-20T17:49:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Lint native UI",
+            "number": 9,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Test native UI state",
+            "number": 10,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Lint native Unix widgets",
+            "number": 11,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Test native Unix widgets",
+            "number": 12,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Unix",
+            "number": 13,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Windows",
+            "number": 14,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 27,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:51Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 28,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:51Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 29,
+            "startedAt": "2026-10-20T17:49:51Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513209"
+      },
+      {
+        "completedAt": "2026-10-20T18:13:51Z",
+        "conclusion": "success",
+        "databaseId": 118788513431,
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:03Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:05Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:22Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:26Z",
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T17:48:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:26Z",
+            "conclusion": "success",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T17:48:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:26Z",
+            "conclusion": "success",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T17:48:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:57:50Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T17:48:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:59:10Z",
+            "conclusion": "success",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T17:57:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:59:52Z",
+            "conclusion": "success",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T17:59:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:06:17Z",
+            "conclusion": "success",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T17:59:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:11:52Z",
+            "conclusion": "success",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T18:06:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:11:52Z",
+            "conclusion": "skipped",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T18:11:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:26Z",
+            "conclusion": "success",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T18:11:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:36Z",
+            "conclusion": "success",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T18:13:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:36Z",
+            "conclusion": "success",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T18:13:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:36Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T18:13:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:36Z",
+            "conclusion": "skipped",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T18:13:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:49Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T18:13:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:49Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T18:13:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:50Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T18:13:49Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513431"
+      },
+      {
+        "completedAt": "2026-10-20T17:56:12Z",
+        "conclusion": "success",
+        "databaseId": 118788513467,
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T17:48:14Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:15Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:20Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:10Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:19Z",
+            "conclusion": "success",
+            "name": "Test native retrieval without model assets",
+            "number": 5,
+            "startedAt": "2026-10-20T17:51:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:53:42Z",
+            "conclusion": "success",
+            "name": "Test current canonical search with the native retrieval feature",
+            "number": 6,
+            "startedAt": "2026-10-20T17:51:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:54:06Z",
+            "conclusion": "success",
+            "name": "Build the native retrieval CLI",
+            "number": 7,
+            "startedAt": "2026-10-20T17:53:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:54:38Z",
+            "conclusion": "success",
+            "name": "Build the combined native desktop",
+            "number": 8,
+            "startedAt": "2026-10-20T17:54:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:54:53Z",
+            "conclusion": "success",
+            "name": "Lint the combined native desktop",
+            "number": 9,
+            "startedAt": "2026-10-20T17:54:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:56:06Z",
+            "conclusion": "success",
+            "name": "Test the combined native desktop state",
+            "number": 10,
+            "startedAt": "2026-10-20T17:54:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:56:07Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 19,
+            "startedAt": "2026-10-20T17:56:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:56:08Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 20,
+            "startedAt": "2026-10-20T17:56:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:56:11Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 21,
+            "startedAt": "2026-10-20T17:56:08Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513467"
+      },
+      {
+        "completedAt": "2026-10-20T18:09:43Z",
+        "conclusion": "success",
+        "databaseId": 118788513512,
+        "name": "Native retrieval and combined build (ubuntu-24.04)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:04Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:06Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:37Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:54:43Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:48:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:46Z",
+            "conclusion": "success",
+            "name": "Test native retrieval without model assets",
+            "number": 5,
+            "startedAt": "2026-10-20T17:54:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:58:55Z",
+            "conclusion": "success",
+            "name": "Test current canonical search with the native retrieval feature",
+            "number": 6,
+            "startedAt": "2026-10-20T17:55:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:59:52Z",
+            "conclusion": "success",
+            "name": "Build the native retrieval CLI",
+            "number": 7,
+            "startedAt": "2026-10-20T17:58:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:02:02Z",
+            "conclusion": "success",
+            "name": "Build the combined native desktop",
+            "number": 8,
+            "startedAt": "2026-10-20T17:59:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:03:16Z",
+            "conclusion": "success",
+            "name": "Lint the combined native desktop",
+            "number": 9,
+            "startedAt": "2026-10-20T18:02:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:09:16Z",
+            "conclusion": "success",
+            "name": "Test the combined native desktop state",
+            "number": 10,
+            "startedAt": "2026-10-20T18:03:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:09:41Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 19,
+            "startedAt": "2026-10-20T18:09:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:09:41Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 20,
+            "startedAt": "2026-10-20T18:09:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:09:41Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 21,
+            "startedAt": "2026-10-20T18:09:41Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513512"
+      },
+      {
+        "completedAt": "2026-10-20T18:05:57Z",
+        "conclusion": "success",
+        "databaseId": 118788513515,
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T17:48:21Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:27Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:25Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:25Z",
+            "conclusion": "skipped",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:26Z",
+            "conclusion": "success",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T17:49:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:26Z",
+            "conclusion": "success",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T17:49:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:01Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T17:49:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:23Z",
+            "conclusion": "success",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T17:52:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:43Z",
+            "conclusion": "success",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T17:52:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:58:50Z",
+            "conclusion": "success",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T17:52:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:02:26Z",
+            "conclusion": "success",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T17:58:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:03:09Z",
+            "conclusion": "success",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T18:02:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:27Z",
+            "conclusion": "success",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T18:03:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:45Z",
+            "conclusion": "success",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T18:05:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:45Z",
+            "conclusion": "success",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T18:05:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:45Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T18:05:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:48Z",
+            "conclusion": "success",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T18:05:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:49Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T18:05:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:50Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T18:05:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:05:54Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T18:05:50Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513515"
+      },
+      {
+        "completedAt": "2026-10-20T17:49:53Z",
+        "conclusion": "failure",
+        "databaseId": 118788513606,
+        "name": "Native retrieval and combined build (windows-2025)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:05Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:18Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:46Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:46Z",
+            "conclusion": "skipped",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "failure",
+            "name": "Test native retrieval without model assets",
+            "number": 5,
+            "startedAt": "2026-10-20T17:49:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Test current canonical search with the native retrieval feature",
+            "number": 6,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Build the native retrieval CLI",
+            "number": 7,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Build the combined native desktop",
+            "number": 8,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Lint the combined native desktop",
+            "number": 9,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "skipped",
+            "name": "Test the combined native desktop state",
+            "number": 10,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:49Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 19,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:51Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 20,
+            "startedAt": "2026-10-20T17:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:51Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 21,
+            "startedAt": "2026-10-20T17:49:51Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513606"
+      },
+      {
+        "completedAt": "2026-10-20T18:15:18Z",
+        "conclusion": "success",
+        "databaseId": 118788513712,
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:04Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:07Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:40Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:57:23Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:48:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:00:44Z",
+            "conclusion": "success",
+            "name": "Build reusable writing UI on Unix",
+            "number": 5,
+            "startedAt": "2026-10-20T17:57:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:02:18Z",
+            "conclusion": "success",
+            "name": "Lint reusable writing UI on Unix",
+            "number": 6,
+            "startedAt": "2026-10-20T18:00:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:10:45Z",
+            "conclusion": "success",
+            "name": "Test reusable writing UI on Unix",
+            "number": 7,
+            "startedAt": "2026-10-20T18:02:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:10:53Z",
+            "conclusion": "success",
+            "name": "Build the desktop with native UI",
+            "number": 8,
+            "startedAt": "2026-10-20T18:10:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:11:17Z",
+            "conclusion": "success",
+            "name": "Lint native UI",
+            "number": 9,
+            "startedAt": "2026-10-20T18:10:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:33Z",
+            "conclusion": "success",
+            "name": "Test native UI state",
+            "number": 10,
+            "startedAt": "2026-10-20T18:11:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:13:41Z",
+            "conclusion": "success",
+            "name": "Lint native Unix widgets",
+            "number": 11,
+            "startedAt": "2026-10-20T18:13:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:14:51Z",
+            "conclusion": "success",
+            "name": "Test native Unix widgets",
+            "number": 12,
+            "startedAt": "2026-10-20T18:13:41Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:14:51Z",
+            "conclusion": "success",
+            "name": "Exercise the desktop headless driver on Unix",
+            "number": 13,
+            "startedAt": "2026-10-20T18:14:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:14:51Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Windows",
+            "number": 14,
+            "startedAt": "2026-10-20T18:14:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:15:16Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 27,
+            "startedAt": "2026-10-20T18:14:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:15:16Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 28,
+            "startedAt": "2026-10-20T18:15:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:15:16Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 29,
+            "startedAt": "2026-10-20T18:15:16Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513712"
+      },
+      {
+        "completedAt": "2026-10-20T17:52:39Z",
+        "conclusion": "failure",
+        "databaseId": 118788513718,
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T17:48:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:04Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:14Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:21Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:21Z",
+            "conclusion": "skipped",
+            "name": "Check formatting",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:21Z",
+            "conclusion": "skipped",
+            "name": "Check production provider retirement",
+            "number": 5,
+            "startedAt": "2026-10-20T17:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:21Z",
+            "conclusion": "skipped",
+            "name": "Check production intake retirement",
+            "number": 6,
+            "startedAt": "2026-10-20T17:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:21Z",
+            "conclusion": "skipped",
+            "name": "Prepare both locked document helper graphs",
+            "number": 7,
+            "startedAt": "2026-10-20T17:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "failure",
+            "name": "Build the default workspace",
+            "number": 8,
+            "startedAt": "2026-10-20T17:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Lint the default workspace",
+            "number": 9,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Test the default workspace",
+            "number": 10,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Both document helpers normal API and restrictions",
+            "number": 11,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Scripted document CLI route (no live provider)",
+            "number": 12,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Test provider capability fixtures offline",
+            "number": 13,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Lint provider capability fixtures",
+            "number": 14,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Unix",
+            "number": 15,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Check CLI help on Windows",
+            "number": 16,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:48Z",
+            "conclusion": "skipped",
+            "name": "Run offline end-to-end fixtures",
+            "number": 17,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:35Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 33,
+            "startedAt": "2026-10-20T17:51:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:37Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 34,
+            "startedAt": "2026-10-20T17:52:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:52:37Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 35,
+            "startedAt": "2026-10-20T17:52:37Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513718"
+      },
+      {
+        "completedAt": "2026-10-20T17:55:32Z",
+        "conclusion": "success",
+        "databaseId": 118788513760,
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T17:48:09Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T17:48:10Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T17:48:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:48:15Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-20T17:48:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:49:51Z",
+            "conclusion": "success",
+            "name": "Run ./.github/actions/setup-rust",
+            "number": 3,
+            "startedAt": "2026-10-20T17:48:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:22Z",
+            "conclusion": "success",
+            "name": "Prepare both locked document helper graphs",
+            "number": 4,
+            "startedAt": "2026-10-20T17:49:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:40Z",
+            "conclusion": "success",
+            "name": "Build reusable writing UI on Unix",
+            "number": 5,
+            "startedAt": "2026-10-20T17:51:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:51:51Z",
+            "conclusion": "success",
+            "name": "Lint reusable writing UI on Unix",
+            "number": 6,
+            "startedAt": "2026-10-20T17:51:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:53:02Z",
+            "conclusion": "success",
+            "name": "Test reusable writing UI on Unix",
+            "number": 7,
+            "startedAt": "2026-10-20T17:51:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:53:19Z",
+            "conclusion": "success",
+            "name": "Build the desktop with native UI",
+            "number": 8,
+            "startedAt": "2026-10-20T17:53:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:53:26Z",
+            "conclusion": "success",
+            "name": "Lint native UI",
+            "number": 9,
+            "startedAt": "2026-10-20T17:53:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:53:56Z",
+            "conclusion": "success",
+            "name": "Test native UI state",
+            "number": 10,
+            "startedAt": "2026-10-20T17:53:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:54:07Z",
+            "conclusion": "success",
+            "name": "Lint native Unix widgets",
+            "number": 11,
+            "startedAt": "2026-10-20T17:53:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:26Z",
+            "conclusion": "success",
+            "name": "Test native Unix widgets",
+            "number": 12,
+            "startedAt": "2026-10-20T17:54:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:26Z",
+            "conclusion": "success",
+            "name": "Exercise the desktop headless driver on Unix",
+            "number": 13,
+            "startedAt": "2026-10-20T17:55:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:26Z",
+            "conclusion": "skipped",
+            "name": "Exercise the desktop headless driver on Windows",
+            "number": 14,
+            "startedAt": "2026-10-20T17:55:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:27Z",
+            "conclusion": "success",
+            "name": "Post Run ./.github/actions/setup-rust",
+            "number": 27,
+            "startedAt": "2026-10-20T17:55:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:28Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 28,
+            "startedAt": "2026-10-20T17:55:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T17:55:30Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 29,
+            "startedAt": "2026-10-20T17:55:28Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/ewq100/brn-rust/actions/runs/39469206851/job/118788513760"
+      }
+    ],
+    "status": "completed"
+  },
+  "local_qualification": "restore-source-refusal-qualification.json",
+  "independent_review": "restore-source-refusal-review.md",
+  "qualification": "Aggregate workflow failure/UNSTABLE may reflect optional Windows; every actual required context was independently checked. No bypass. Merge mutation is a separate tool call after this successful gate."
+}

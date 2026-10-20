@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T20:34:06.573363+00:00",
-    "remaining_percent": 80,
+    "observed_at": "2026-10-20T20:52:14.435306+00:00",
+    "remaining_percent": 79,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual20%used/80%remaining; ordinaryUsageAllowedtrue; fixed expiry and owner authorization unchanged",
+    "ordinary_work": "admitted: actual21%used/79%remaining; ordinaryUsageAllowedtrue; no ownerpause, fixed expiry unchanged",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T20:41:57.711673+00:00",
+    "observed_at": "2026-10-20T20:55:59.461303+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1592,10 +1592,10 @@
         "title": "Explain when a restore source is not a BRN backup",
         "state": "active",
         "owner": "bounded Luna read-only audit; lead disposition",
-        "activity": "PR190 marked ready at stable166d8232. Final local core219/0/1ignored, CLI agent_contract23/0, strict core+CLI all-target lint and format PASS; independent complete-candidate review no findings. Required hosted CI39492291218 pending.",
-        "observed_at": "2026-10-20T20:30:13.940822+00:00",
+        "activity": "PR190 normally merged9c18bc5f after all4required exact-head and all4preceding-main checks plus live strict/admin protection PASS. Whole merged tree equals reviewed166d. Required resulting-main39495469734 pending.",
+        "observed_at": "2026-10-20T20:52:14.435306+00:00",
         "origin": "observed",
-        "next_action": "Inspect actual required exact-head CI and live protection plus preceding-main; normal merge only after all required gates, then inspect resulting-main separately. Keep source head stable.",
+        "next_action": "Inspect actual resulting-main39495469734 required jobs; record all optional failures and qualify completion separately from merge. Continue independent qualified fixture integration in parallel.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1607,12 +1607,14 @@
           "docs/work/active/vacation-campaign/evidence/pr190-publication.json",
           "https://github.com/ewq100/brn-rust/pull/190",
           "docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/restore-source-refusal-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/pr190-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr190-integration.json"
         ],
         "gates": {
           "implementation": "complete166d8232: source-validation NOTADB refusal only; four-file source/tests/help change",
-          "checks": "PASS local core219/0/1ignored, CLI23/0, strict all-target lint/fmt and independent review; four required hosted exact-head gates pending",
-          "integration": "readyPR190 at stable166d8232; not merged",
+          "checks": "PASS local/review and all4required exact-head166d + preceding-maina23; optional headWindowsCore failure retained",
+          "integration": "normal merge9c18bc5f; exact fulltree equality PASS; four required resulting-main gates pending",
           "native": "inapplicable to CLI error classification; no database-restore UI exists today; existing Mac control tasks separate",
           "owner_acceptance": "not claimed"
         },
@@ -1638,16 +1640,14 @@
       {
         "id": "mac-mcp-test-roots",
         "title": "Make core checks work with normal Mac temporary folders",
-        "state": "ready",
+        "state": "active",
         "owner": "bounded Luna fixture author; lead checks/integration; independent Sol review",
-        "activity": "One-file candidate4f665daa passes core219/0/1ignored under original inherited Mac TMPDIR, focused strict lint/fmt and complete independent review. All4previously failingMCP fixtures now exercise unchanged assertions.",
-        "observed_at": "2026-10-20T20:38:42.698685+00:00",
+        "activity": "Qualified current-main compositione1b0958f published as PR191. Sole patch exactly equals reviewed4f665; final default-Mac core219/0/1ignored, strict focused lint/fmt PASS again after composition. Required head39495969395 and preceding-main19039495469734 checks running in parallel.",
+        "observed_at": "2026-10-20T20:55:59.461303+00:00",
         "origin": "observed",
-        "next_action": "Keep separate candidate qualified; after PR190 normal integration, incorporate then-current main without source edits, reconcile composed review/check applicability and publish one stable PR.",
+        "next_action": "Keep head stable; inspect actual required exact-head191 and preceding-main190 results plus fresh protection before normal merge, then verify resulting-main191 separately.",
         "depends_on": [],
-        "resource_waits": [
-          "Integration owner serializes main updates. Hold publication until in-flight PR190 integration advances main, avoiding a duplicate required-CI run from a base that is about to change."
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/mac-temp-fixture-audit.md",
           "docs/work/active/vacation-campaign/evidence/restore-source-refusal-qualification.json",
@@ -1656,12 +1656,16 @@
           "docs/work/active/vacation-campaign/evidence/mac-test-roots-review.md",
           "docs/work/active/vacation-campaign/evidence/mac-test-roots-review-original.md.gz",
           "docs/work/active/vacation-campaign/evidence/mac-test-roots-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/mac-test-roots-current-main-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/pr191-publication.json",
+          "https://github.com/ewq100/brn-rust/pull/191"
         ],
         "gates": {
-          "implementation": "complete4f665daa; seven lines added/four replaced in existing testfile",
-          "checks": "PASS core219/0/1ignored under default Mac TMPDIR, strict focused lint/fmt and independent review; original failure/reviewer evidence correction retained",
-          "integration": "not published/merged; preserve in-flight PR190 stable head, then publish on current main",
+          "implementation": "completee1b0958f on main9c18; one file patch exactly equals reviewed4f665",
+          "checks": "PASS finalcomposed core219/0/1ignored on default Mac TMPDIR, focused strict lint/fmt, independent review exactpatchtransfer; required hosted head191/main190 pending",
+          "integration": "PR191 published stablee1b0958f; not merged",
           "native": "inapplicable fixture path setup; no UI/account action",
           "owner_acceptance": "not claimed"
         },
@@ -1673,10 +1677,10 @@
         "title": "Measure the remaining Mac check time",
         "state": "complete",
         "owner": "bounded Luna read-only timing assessment; lead disposition",
-        "activity": "Bounded measurement of2completed runs complete; lead validated job/step timestamps. Mac Core16m13/17m36 led by default tests5m37/6m07, helper API3m28/3m36 and helper prep2m23/2m35. Mac Combined5m11/7m58; no controlled comparison or justified change.",
-        "observed_at": "2026-10-20T20:41:57.711673+00:00",
+        "activity": "Bounded measurement of2completed runs complete; lead validated job/step timestamps. Mac Core16m13/17m36 led by default tests5m37/6m07, helper API3m28/3m36 and helper prep2m23/2m35. Mac Combined5m11/7m58; no controlled comparison or justified change. Later lead inspection confirms actual PR190 Core/Combined full-key hits,16m11/10m05, with major test/helper costs remaining.",
+        "observed_at": "2026-10-20T20:48:35.576668+00:00",
         "origin": "observed",
-        "next_action": "Use existing current-run logs after completion if revisiting exact cache hit/prep costs. Do not remove gates, share caches or launch reruns from this uncontrolled sample.",
+        "next_action": "Retain measured costs/hits. No further cache experiment or gate removal selected; revisit only for a concrete diagnosed regression or bounded demonstrated improvement.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1684,7 +1688,8 @@
           "docs/work/active/vacation-campaign/evidence/pr189-resulting-main.json",
           "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md",
           "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.json",
-          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz"
+          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit-original.md.gz",
+          "docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json"
         ],
         "gates": {
           "implementation": "complete bounded measurement; no code/config/CI change selected",
@@ -1710,23 +1715,28 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-mac-fixture-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T20:38:42.698685+00:00",
+    "observed_at": "2026-10-20T20:55:59.461303+00:00",
     "runtime_capacity": "4total slots; onlylead active, all bounded helpers/reviews complete",
-    "build_slot": "free; default-temp core qualification session25957 completedexit0",
+    "build_slot": "free; final composed fixture qualification session36846 completedexit0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
-        "run": 39492291218,
-        "session": 56974,
-        "purpose": "PR190 read-only60second watch; completion is not required-gate proof"
+        "run": 39495469734,
+        "session": 7784,
+        "purpose": "PR190 resulting-main60secondread-onlywatch"
+      },
+      {
+        "run": 39495969395,
+        "session": 3615,
+        "purpose": "PR191 exact-head60secondread-onlywatch"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "ReadyPR190 exact166d required CI39492291218 pending; qualified maina23 unchanged",
-    "wait_reason": "PR190 remaining2required Core/CLI hosted gates pending. Qualified Mac fixture candidate awaits integration turn. No new code change from bounded residual-CI assessment; three native controls remain blocked.",
+    "integration": "PR190 merged9c18, resulting-main gates pending; PR191 stablee1b exact-head gates pending; one integration owner waits actual both sets",
+    "wait_reason": "Required external checks are running; both selected implementation/review/local gates finished. Three native checks remain blocked by last observed access limitation.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust at clean166d8232 codex/restore-source-refusal; no source writer active",
-    "fixture_worker_checkout": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust; clean basea23, codex/mac-mcp-test-roots"
+    "fixture_worker_checkout": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust clean e1b0958f codex/mac-mcp-test-roots, PR191 source frozen"
   }
 }
