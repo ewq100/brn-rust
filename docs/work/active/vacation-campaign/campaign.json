@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T15:17:20.165336+00:00",
-    "remaining_percent": 84,
+    "observed_at": "2026-10-20T15:43:21.587928+00:00",
+    "remaining_percent": 83,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual16% used /84% remaining; fixed expiry, no owner pause",
+    "ordinary_work": "admitted: actual17% used /83% remaining; fixed expiry, no owner pause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T15:40:09.362422+00:00",
+    "observed_at": "2026-10-20T15:43:21.587928+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1178,14 +1178,16 @@
       {
         "id": "note-list-accessibility",
         "title": "Make visible note rows discoverable to Mac accessibility",
-        "state": "active",
+        "state": "blocked",
         "owner": "bounded Luna medium implementation; lead disposition/integration; independent Sol review",
-        "activity": "PR186 normally merged ea223ef1 after all four required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified9b0b13e1. Resulting-main39446661224 running; actual corrected Mac controls pending access.",
-        "observed_at": "2026-10-20T15:17:20.165336+00:00",
+        "activity": "PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.",
+        "observed_at": "2026-10-20T15:43:21.587928+00:00",
         "origin": "observed",
-        "next_action": "Inspect required resulting-main39446661224 independently; native MAC11 after access returns using byte-identical qualified artifact.",
+        "next_action": "After changed Mac access, close prior verified-undone review app and execute source-identical integrated-main Notes/menu/group batch. No unchanged test/build replay.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Actual corrected Notes controls require Mac unlock; existing manual unlock request pending."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
           "docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md",
@@ -1196,12 +1198,13 @@
           "docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json",
           "docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json",
           "docs/work/active/vacation-campaign/evidence/pr186-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr186-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr186-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr186-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1",
           "checks": "PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained",
-          "integration": "PASS authorized normal mergeea223ef1; exact-head all4PASS; resulting-main39446661224 pending",
+          "integration": "PASS normal mergeea223ef1; all4required head and resulting-main checks PASS",
           "native": "Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access",
           "owner_acceptance": "not claimed"
         },
@@ -1254,10 +1257,10 @@
         "title": "Expose readable Needs you menu choices to Mac accessibility",
         "state": "active",
         "owner": "development lead integration; bounded Luna implementation and independent Sol review complete",
-        "activity": "PR187767f7a73 all4required exact-head checks PASS. Preceding mergedmain ea223ef1 all3Mac checks PASS, UbuntuCore pending. Optional Windows failure retained. No merge yet.",
-        "observed_at": "2026-10-20T15:40:09.362422+00:00",
+        "activity": "PR187 normally merged4c50b614 after all4required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified97e0d313. Resulting-main39450843453 running; native outer-name observation still pending access.",
+        "observed_at": "2026-10-20T15:43:21.587928+00:00",
         "origin": "observed",
-        "next_action": "Inspect final required preceding-main UbuntuCore gate; only then fresh protection/head/main reconciliation and normal merge. Actual Mac outer menu name remains pending access.",
+        "next_action": "Inspect all4required resulting-main39450843453 checks separately. Actual corrected Notes/menu/group batch uses source-identical prepared97 ordinary artifact after unlock.",
         "depends_on": [
           {
             "task": "note-list-accessibility",
@@ -1274,12 +1277,14 @@
           "docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json",
           "https://github.com/ewq100/brn-rust/pull/187",
           "docs/work/active/vacation-campaign/evidence/pr187-publication.json",
-          "docs/work/active/vacation-campaign/evidence/pr187-head-checks.json"
+          "docs/work/active/vacation-campaign/evidence/pr187-head-checks.json",
+          "docs/work/active/vacation-campaign/evidence/pr187-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr187-integration.json"
         ],
         "gates": {
           "implementation": "PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change",
           "checks": "PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS",
-          "integration": "PR187 all4required exact-head PASS; normal merge blocked by pending preceding-main UbuntuCore",
+          "integration": "PASS authorized normal merge4c50b614; all4head/preceding-main PASS; resulting-main39450843453 pending",
           "native": "pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof",
           "owner_acceptance": "not claimed"
         },
@@ -1325,10 +1330,10 @@
         "title": "Reuse converter dependencies without mixing build identities",
         "state": "active",
         "owner": "bounded Luna implementation; lead qualification/integration; independent Sol review",
-        "activity": "Frozen localcd99ad1e passed independent review, actual pinned-cleaner fixture, equal408 external stock/adapted tuple comparison,183tooling tests, YAML/docs/format checks. No builds/account/cache mutation. No hosted speedup/archive-size proof yet.",
-        "observed_at": "2026-10-20T15:24:13.203245+00:00",
+        "activity": "PR188 published3342d791 after source-identical unpublished CI-only rebase onto merged4c50b614. Reviewed three-file configuration/local qualification unchanged; all4required exact-head39450894628 and preceding-main39450843453 gates running. No speedup/upload claim.",
+        "observed_at": "2026-10-20T15:43:21.587928+00:00",
         "origin": "observed",
-        "next_action": "Preserve reviewed local candidate; publish against then-current main after current menu integration to avoid redundant hosted runs. Inspect exact head/main gates, first main cache upload size and a later warm observation before claiming acceleration.",
+        "next_action": "Hold3342d791 stable; inspect actual hosted setup/cache path/key execution and required head/preceding-main gates before any normal merge. First main upload/later warm behavior remain separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -1336,12 +1341,14 @@
           "docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json",
           "docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json",
           "docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md",
-          "docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz",
+          "https://github.com/ewq100/brn-rust/pull/188",
+          "docs/work/active/vacation-campaign/evidence/pr188-publication.json"
         ],
         "gates": {
           "implementation": "PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key",
           "checks": "PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending",
-          "integration": "not published; current main/menu integration in progress; no merge",
+          "integration": "PR188 OPEN3342d791; exact-head and preceding-main required gates pending; no merge",
           "native": "inapplicable: development CI only",
           "owner_acceptance": "not claimed"
         },
@@ -1387,14 +1394,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-navigation-integration-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T15:28:00.621255+00:00",
-    "runtime_capacity": "4 total slots; lead only; bounded audit and reviews complete",
-    "build_slot": "free; no Rust compile; shared production artifacts preserved",
+    "observed_at": "2026-10-20T15:43:21.587928+00:00",
+    "runtime_capacity": "4 total slots; lead only; bounded helpers completed",
+    "build_slot": "free; no local Rust compile; all qualified binaries preserved",
     "desktop_account_actor": "lead retains sole actor; actual task writing-review process63750 observed open after verified Undo; Mac lock blocks CUA, no account test",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR186 merged ea223ef1; resulting-main39446661224 running; PR187767f7a73 head39446784967 running",
-    "wait_reason": "Native requires changed Mac access. PR187 head and PR186 resulting-main required checks running; reviewed cache candidate held locally to avoid redundant base/rerun churn.",
+    "integration": "PR187 merged4c50b614, main39450843453 running; PR1883342d791 head39450894628 running",
+    "wait_reason": "Mac locked, existing unlock request pending. Required remote head/main checks running; no competing local writers.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors."
   }
 }

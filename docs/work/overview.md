@@ -9,37 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Make visible note rows discoverable to Mac accessibility
-
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:17:20.165336+00:00
-Activity: PR186 normally merged ea223ef1 after all four required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified9b0b13e1. Resulting-main39446661224 running; actual corrected Mac controls pending access.
-Next: Inspect required resulting-main39446661224 independently; native MAC11 after access returns using byte-identical qualified artifact.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1
-- **checks:** PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained
-- **integration:** PASS authorized normal mergeea223ef1; exact-head all4PASS; resulting-main39446661224 pending
-- **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/pr186-premerge.json](active/vacation-campaign/evidence/pr186-premerge.json), [docs/work/active/vacation-campaign/evidence/pr186-integration.json](active/vacation-campaign/evidence/pr186-integration.json)
-
-Attempts:
-
-- Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection.: Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
-- Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.: Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
-
-</details>
-
 ### Expose readable Needs you menu choices to Mac accessibility
 
-Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:40:09.362422+00:00
-Activity: PR187767f7a73 all4required exact-head checks PASS. Preceding mergedmain ea223ef1 all3Mac checks PASS, UbuntuCore pending. Optional Windows failure retained. No merge yet.
-Next: Inspect final required preceding-main UbuntuCore gate; only then fresh protection/head/main reconciliation and normal merge. Actual Mac outer menu name remains pending access.
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **active** · Last observed: 2026-10-20T15:43:21.587928+00:00
+Activity: PR187 normally merged4c50b614 after all4required exact-head and preceding-main checks PASS. Complete integrated tree matches qualified97e0d313. Resulting-main39450843453 running; native outer-name observation still pending access.
+Next: Inspect all4required resulting-main39450843453 checks separately. Actual corrected Notes/menu/group batch uses source-identical prepared97 ordinary artifact after unlock.
 Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
 
 <details>
@@ -49,19 +23,19 @@ Gates:
 
 - **implementation:** PASS local97e0d313, two-line existing Label/value adapter, no dependency/runtime/data change
 - **checks:** PASS pre-fix regression retained; focused1/0, keyboard1/0, desktop341/0/1, strict lint, format and ordinary build; independent review PASS
-- **integration:** PR187 all4required exact-head PASS; normal merge blocked by pending preceding-main UbuntuCore
+- **integration:** PASS authorized normal merge4c50b614; all4head/preceding-main PASS; resulting-main39450843453 pending
 - **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json), [docs/work/active/vacation-campaign/evidence/pr187-premerge.json](active/vacation-campaign/evidence/pr187-premerge.json), [docs/work/active/vacation-campaign/evidence/pr187-integration.json](active/vacation-campaign/evidence/pr187-integration.json)
 
 </details>
 
 ### Reuse converter dependencies without mixing build identities
 
-Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:24:13.203245+00:00
-Activity: Frozen localcd99ad1e passed independent review, actual pinned-cleaner fixture, equal408 external stock/adapted tuple comparison,183tooling tests, YAML/docs/format checks. No builds/account/cache mutation. No hosted speedup/archive-size proof yet.
-Next: Preserve reviewed local candidate; publish against then-current main after current menu integration to avoid redundant hosted runs. Inspect exact head/main gates, first main cache upload size and a later warm observation before claiming acceleration.
+Owner: bounded Luna implementation; lead qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-20T15:43:21.587928+00:00
+Activity: PR188 published3342d791 after source-identical unpublished CI-only rebase onto merged4c50b614. Reviewed three-file configuration/local qualification unchanged; all4required exact-head39450894628 and preceding-main39450843453 gates running. No speedup/upload claim.
+Next: Hold3342d791 stable; inspect actual hosted setup/cache path/key execution and required head/preceding-main gates before any normal merge. First main upload/later warm behavior remain separate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -70,11 +44,11 @@ Gates:
 
 - **implementation:** PASS localcd99ad1e, three CI/ignore files; distinct helper targets and explicit helper identity key
 - **checks:** PASS independent review, actual pinned cleaner isolation,408matching external dependency tuples,183tooling tests,YAML/docs/shell/diff checks; hosted pending
-- **integration:** not published; current main/menu integration in progress; no merge
+- **integration:** PR188 OPEN3342d791; exact-head and preceding-main required gates pending; no merge
 - **native:** inapplicable: development CI only
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz)
+Evidence: [docs/work/active/vacation-campaign/evidence/warm-helper-cache-audit.md](active/vacation-campaign/evidence/warm-helper-cache-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json](active/vacation-campaign/evidence/ci-pr186-warm-mac-ui.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-qualification.json](active/vacation-campaign/evidence/ci-helper-cache-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-review.md](active/vacation-campaign/evidence/ci-helper-cache-review.md), [docs/work/active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz](active/vacation-campaign/evidence/ci-helper-cache-proof-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/188](https://github.com/ewq100/brn-rust/pull/188), [docs/work/active/vacation-campaign/evidence/pr188-publication.json](active/vacation-campaign/evidence/pr188-publication.json)
 
 </details>
 
@@ -110,6 +84,37 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 Waiting:
 
 - resource: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
+
+### Make visible note rows discoverable to Mac accessibility
+
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **blocked** · Last observed: 2026-10-20T15:43:21.587928+00:00
+Activity: PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.
+Next: After changed Mac access, close prior verified-undone review app and execute source-identical integrated-main Notes/menu/group batch. No unchanged test/build replay.
+Resource waits: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS Notes-only RoleButton and tab_index(0), existing witness extended; committed9b0b13e1
+- **checks:** PASS focused1/0, desktop341/0/1, strict all-target lint, final format, ordinary native-ui build; final formatter-only test delta independently reconciled; raw failures retained
+- **integration:** PASS normal mergeea223ef1; all4required head and resulting-main checks PASS
+- **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/pr186-premerge.json](active/vacation-campaign/evidence/pr186-premerge.json), [docs/work/active/vacation-campaign/evidence/pr186-integration.json](active/vacation-campaign/evidence/pr186-integration.json), [docs/work/active/vacation-campaign/evidence/pr186-resulting-main.json](active/vacation-campaign/evidence/pr186-resulting-main.json)
+
+Attempts:
+
+- Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection.: Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
+- Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.: Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
+
+</details>
+
+Waiting:
+
+- resource: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
 
 ## Completed
 
@@ -918,4 +923,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T15:40:09.362422+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T15:43:21.587928+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

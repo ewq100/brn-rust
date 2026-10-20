@@ -1,0 +1,105 @@
+{
+  "observed_at": "2026-10-20T15:43:21.587928+00:00",
+  "pr": {
+    "files": [
+      {
+        "path": ".github/actions/setup-rust/action.yml",
+        "additions": 15,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "additions": 13,
+        "deletions": 13,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": ".gitignore",
+        "additions": 1,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "3342d7913f93aaa42a15505eb3e44bb59620429a",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-20T15:43:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725078995",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-20T15:42:28Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725079040",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-20T15:42:28Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725079010",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-20T15:42:29Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725079450",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-20T15:42:26Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725078777",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-20T15:42:28Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725078854",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-20T15:42:35Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39450894628/job/118725078717",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-20T15:42:35Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "url": "https://github.com/ewq100/brn-rust/pull/188"
+  },
+  "qualified_source": "cd99ad1e0cf82aa4ca4ca770e6f1a682f8c49218",
+  "base_main": "4c50b6147634140a5072da7fdaaf950919a0ed85",
+  "composition": "PASS unpublished rebase onto normally merged menu source; three reviewed CI/ignore files identical, all product/scripts/tools/patches/locks identical to main. Prior independent review/local CI configuration gates remain applicable.",
+  "integration": "required exact-head39450894628 and preceding-main39450843453 pending; no merge",
+  "performance": "hosted speedup/cache upload not established; PR saves disabled by existing policy"
+}

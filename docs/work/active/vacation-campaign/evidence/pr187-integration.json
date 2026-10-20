@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-20T15:42:06.078327+00:00",
+  "pr": {
+    "headRefOid": "767f7a73ce201b1313181997300f7dd61297e0d7",
+    "mergeCommit": {
+      "oid": "4c50b6147634140a5072da7fdaaf950919a0ed85"
+    },
+    "mergedAt": "2026-10-20T15:42:03Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/187"
+  },
+  "resulting_main": "4c50b6147634140a5072da7fdaaf950919a0ed85",
+  "complete_tree_equivalence": "PASS identical to independently reviewed and qualified767f7a73 /97e0d313",
+  "runs": [],
+  "resulting_main_gates": "pending; inspect separately",
+  "native": "actual Notes/menu/group followup pending Mac unlock"
+}
