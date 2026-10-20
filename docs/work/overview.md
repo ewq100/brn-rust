@@ -34,27 +34,6 @@ Attempts:
 
 </details>
 
-### Locate the remaining time inside Mac checks
-
-Owner: bounded Luna medium completed-log inspection; lead disposition · State: **active** · Last observed: 2026-10-20T22:26:10.247825+00:00
-Activity: Selected narrow follow-up to prior ci-cost-triage: inspect completed Mac Core log for actual per-crate/test-body durations after full cache restoration, no new workflow run.
-Next: Report actual test-body vs build/preparation evidence and justified narrow opportunity or no-change conclusion. Preserve missing timing evidence; no speculative configuration change.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** inspection only, no candidate
-- **checks:** pending completed-log triage
-- **integration:** inapplicable unless later selected change
-- **native:** inapplicable hosted timing evidence
-- **owner acceptance:** not claimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md](active/vacation-campaign/evidence/residual-mac-ci-audit.md), [docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json](active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json)
-
-</details>
-
 ## Next
 
 None recorded.
@@ -1281,6 +1260,31 @@ Attempts:
 
 </details>
 
+### Locate the remaining time inside Mac checks
+
+Owner: bounded Luna medium completed-log inspection; lead disposition · State: **complete** · Last observed: 2026-10-20T22:30:01.375510+00:00
+Activity: Complete log retained after helper response truncation. Workspace test step253s consists primarily171s test compilation plus79.56s sequential harness elapsed; helpers141s primarily test builds/lint vs0.97s harness elapsed. No long named-test defect or safe deletion/config candidate selected.
+Next: Reuse exact build/body attribution. Keep required checks; a future cache/profile proposal needs controlled source/cache/time/storage/guard evidence, no speculative experiment now.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** no configuration/source change selected
+- **checks:** PASS complete archived log and actual Cargo build/harness attribution; earlier partial-response limit preserved
+- **integration:** inapplicable, observation only
+- **native:** inapplicable hosted timing evidence
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md](active/vacation-campaign/evidence/mac-core-test-body-triage.md), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.json](active/vacation-campaign/evidence/mac-core-test-body-triage.json), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage-raw.tar.gz](active/vacation-campaign/evidence/mac-core-test-body-triage-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage-original.md.gz](active/vacation-campaign/evidence/mac-core-test-body-triage-original.md.gz)
+
+Attempts:
+
+- Two helper log reads returned bounded output; full decoded log not retained by helper.: Lead made one separate completed-job CLI read redirected to file; complete512163bytes retained with original partial evidence, no run retry or configuration change. ([docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md](active/vacation-campaign/evidence/mac-core-test-body-triage.md))
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1305,4 +1309,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:26:10.247825+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-20T22:30:01.375510+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

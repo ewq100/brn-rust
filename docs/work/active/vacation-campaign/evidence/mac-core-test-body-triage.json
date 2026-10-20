@@ -1,0 +1,73 @@
+{
+  "observed_at": "2026-10-20T22:30:01.375510+00:00",
+  "source": "2658f8883b47f224b02ed428055efaaba1bb47a4",
+  "run": 39502704935,
+  "job": 118904878450,
+  "result": "PASS bounded completed-log diagnosis; no CI candidate selected",
+  "helper_log_calls": 2,
+  "lead_full_log_followup_calls": 1,
+  "full_log_bytes": 512163,
+  "full_log_sha256": "2ab5006d472d23c6f0d2a250dd6c68216fa579224eba19f850c053db45dea42b",
+  "harness_elapsed_seconds_by_step": {
+    "Test the default workspace": 79.56000000000004,
+    "Both document helpers normal API and restrictions": 0.97,
+    "Scripted document CLI route (no live provider)": 0.47,
+    "Test provider capability fixtures offline": 13.88
+  },
+  "cargo_finished": [
+    {
+      "step": "Prepare both locked document helper graphs",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 51.73s"
+    },
+    {
+      "step": "Prepare both locked document helper graphs",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 45.85s"
+    },
+    {
+      "step": "Build the default workspace",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 10.87s"
+    },
+    {
+      "step": "Lint the default workspace",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 13.01s"
+    },
+    {
+      "step": "Test the default workspace",
+      "line": "Finished `test` profile [optimized] target(s) in 2m 51s"
+    },
+    {
+      "step": "Both document helpers normal API and restrictions",
+      "line": "Finished `test` profile [unoptimized] target(s) in 51.90s"
+    },
+    {
+      "step": "Both document helpers normal API and restrictions",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 16.12s"
+    },
+    {
+      "step": "Both document helpers normal API and restrictions",
+      "line": "Finished `test` profile [unoptimized] target(s) in 53.43s"
+    },
+    {
+      "step": "Both document helpers normal API and restrictions",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 17.70s"
+    },
+    {
+      "step": "Scripted document CLI route (no live provider)",
+      "line": "Finished `test` profile [optimized] target(s) in 17.39s"
+    },
+    {
+      "step": "Scripted document CLI route (no live provider)",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 5.91s"
+    },
+    {
+      "step": "Test provider capability fixtures offline",
+      "line": "Finished `test` profile [optimized] target(s) in 1m 16s"
+    },
+    {
+      "step": "Lint provider capability fixtures",
+      "line": "Finished `dev` profile [unoptimized] target(s) in 9.66s"
+    }
+  ],
+  "raw": "mac-core-test-body-triage-raw.tar.gz",
+  "limits": "Original partial-response limit preserved. Full log now retained. Individual concurrent test durations/CPU not measured, no rerun or speed claim."
+}

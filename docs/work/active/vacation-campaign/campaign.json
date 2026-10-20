@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T22:26:10.247825+00:00",
+    "observed_at": "2026-10-20T22:30:01.375510+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -1963,26 +1963,36 @@
       {
         "id": "mac-core-test-body-triage",
         "title": "Locate the remaining time inside Mac checks",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium completed-log inspection; lead disposition",
-        "activity": "Selected narrow follow-up to prior ci-cost-triage: inspect completed Mac Core log for actual per-crate/test-body durations after full cache restoration, no new workflow run.",
-        "observed_at": "2026-10-20T22:26:10.247825+00:00",
+        "activity": "Complete log retained after helper response truncation. Workspace test step253s consists primarily171s test compilation plus79.56s sequential harness elapsed; helpers141s primarily test builds/lint vs0.97s harness elapsed. No long named-test defect or safe deletion/config candidate selected.",
+        "observed_at": "2026-10-20T22:30:01.375510+00:00",
         "origin": "observed",
-        "next_action": "Report actual test-body vs build/preparation evidence and justified narrow opportunity or no-change conclusion. Preserve missing timing evidence; no speculative configuration change.",
+        "next_action": "Reuse exact build/body attribution. Keep required checks; a future cache/profile proposal needs controlled source/cache/time/storage/guard evidence, no speculative experiment now.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/residual-mac-ci-audit.md",
-          "docs/work/active/vacation-campaign/evidence/ci-pr190-mac-cache-observation.json"
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md",
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.json",
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage-original.md.gz"
         ],
         "gates": {
-          "implementation": "inspection only, no candidate",
-          "checks": "pending completed-log triage",
-          "integration": "inapplicable unless later selected change",
+          "implementation": "no configuration/source change selected",
+          "checks": "PASS complete archived log and actual Cargo build/harness attribution; earlier partial-response limit preserved",
+          "integration": "inapplicable, observation only",
           "native": "inapplicable hosted timing evidence",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Two helper log reads returned bounded output; full decoded log not retained by helper.",
+            "change": "Lead made one separate completed-job CLI read redirected to file; complete512163bytes retained with original partial evidence, no run retry or configuration change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md"
+            ]
+          }
+        ],
         "resource_plan": "One requested Luna medium helper, at most2read-only GitHub calls for completed main192 MacCore metadata/log. No rerun/cache/billing/infra/model/account/native/build/source/nested changes. Lead handles gate monitoring separately. Stop at bounded timing report."
       }
     ],
@@ -1999,8 +2009,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr193-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T22:26:47.921976+00:00",
-    "runtime_capacity": "4total slots; lead integration, one bounded Luna completed-log triage active; prior source audits complete",
+    "observed_at": "2026-10-20T22:30:01.375510+00:00",
+    "runtime_capacity": "4total slots; only lead active, bounded audits complete",
     "build_slot": "free; no local cargo/rustc process observed",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
@@ -2012,7 +2022,7 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR193 normally merged9e2a81c0, exacttree21941d15 equals qualified891; resulting-main39507624699 pending",
-    "wait_reason": "Resulting-main193 checks active. Distinct completed-log timing triage active; actual native controls remain blocked pending changed access. No source writer/build/account actor.",
+    "wait_reason": "Required resulting-main193 still running; no further source correction justified by completed audits; actual native controls await changed Mac access.",
     "resumption": "Daily native heartbeat must reconcile actual completed session before further work; do not repeat unchanged passing cases or create competing actors.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",
