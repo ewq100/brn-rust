@@ -9,11 +9,23 @@ fn adding_passage_feedback_keeps_the_document_and_does_not_start_ai(cx: &mut Tes
     let mut workspace = Workspace::open(&data).unwrap();
     focus_tests::configure_offline_fixture(&mut workspace);
     let note = workspace.new_note("Draft", "tere tere õun").unwrap();
+    let unrelated = workspace
+        .new_note("Unrelated", "Keep this note unchanged.")
+        .unwrap();
+    let unrelated_thread = workspace.new_thread("Unrelated draft chat").unwrap();
+    let unrelated_draft = "Other conversation draft · säilita";
+    let unrelated_destination =
+        serde_json::to_string(&ComposerDestination::Thread(unrelated_thread.id.clone())).unwrap();
+    workspace
+        .store
+        .save_chat_draft(&unrelated_destination, 1, unrelated_draft)
+        .unwrap();
+    let draft = "Keep this draft · õun\nSecond line — preserved.";
     cx.update(gpui_kit::init);
     let (window, view) = cx.update(|cx| {
         gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
             cx.new(|cx| {
-                let mut view = ThreadsUi::new(workspace, data, window, cx);
+                let mut view = ThreadsUi::new(workspace, data.clone(), window, cx);
                 view.poll = None;
                 view
             })
@@ -23,6 +35,9 @@ fn adding_passage_feedback_keeps_the_document_and_does_not_start_ai(cx: &mut Tes
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |view, cx| {
             view.open_note(&note.id, None, window, cx);
+            assert!(matches!(&view.chat, ChatTarget::NewForNote(id) if id == &note.id));
+            view.composer
+                .update(cx, |editor, cx| editor.set_value(draft, window, cx));
             view.writing.comment_anchor =
                 Some((note.id.clone(), note.version, 5..9, "tere".into()));
             view.writing.comment_input.update(cx, |editor, cx| {
@@ -31,14 +46,266 @@ fn adding_passage_feedback_keeps_the_document_and_does_not_start_ai(cx: &mut Tes
             view.post_comment(window, cx);
             assert_eq!(view.open_note_id(), Some(note.id.as_str()));
             assert!(view.worker.is_none());
+            assert!(matches!(&view.chat, ChatTarget::Thread(_)));
+            assert_eq!(view.composer.read(cx).value().as_ref(), draft);
             let current = view.workspace.store.note(&note.id).unwrap().unwrap();
             assert_eq!(current, note);
+            assert_eq!(
+                view.workspace.store.note(&unrelated.id).unwrap().unwrap(),
+                unrelated
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .chat_drafts()
+                    .unwrap()
+                    .iter()
+                    .any(|saved| {
+                        saved.destination == unrelated_destination && saved.text == unrelated_draft
+                    })
+            );
+        });
+    })
+    .unwrap();
+
+    // Reopen the same disposable SQLite workspace to exercise composer recovery
+    // after the first comment adopted its new writing conversation.
+    let workspace = Workspace::open(&data).unwrap();
+    let (restart_window, restart_view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data.clone(), window, cx);
+                view.poll = None;
+                view
+            })
+        })
+        .unwrap()
+    });
+    cx.update_window(restart_window, |_, window, cx| {
+        restart_view.update(cx, |view, cx| {
+            view.open_note(&note.id, None, window, cx);
+            assert_eq!(view.open_note_id(), Some(note.id.as_str()));
+            assert!(matches!(&view.chat, ChatTarget::Thread(_)));
+            assert_eq!(view.composer.read(cx).value().as_ref(), draft);
+            assert!(view.worker.is_none(), "commenting must not start AI");
+            assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note);
+            assert_eq!(
+                view.workspace.store.note(&unrelated.id).unwrap().unwrap(),
+                unrelated
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .chat_drafts()
+                    .unwrap()
+                    .iter()
+                    .any(|saved| {
+                        saved.destination == unrelated_destination && saved.text == unrelated_draft
+                    })
+            );
         });
     })
     .unwrap();
 }
 
 use gpui_kit::{Focusable, test::TestWindowExt};
+
+#[gpui_kit::test]
+fn passage_feedback_moves_stored_note_draft_without_changing_the_displayed_chat(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let note = view
+                .workspace
+                .new_note("New writing note", "tere õun")
+                .unwrap();
+            view.new_thread(window, cx);
+            view.open_note(&note.id, None, window, cx);
+            let pending = view.destination();
+            let draft = "Stored Note draft · õun\nKeep both lines.";
+            view.composer
+                .update(cx, |editor, cx| editor.set_value(draft, window, cx));
+            // set_chat saves the Note draft before showing another, unrelated chat.
+            let other = view.workspace.new_thread("Other chat").unwrap().id;
+            view.open_thread(&other, window, cx);
+            view.composer.update(cx, |editor, cx| {
+                editor.set_value("Visible other draft", window, cx)
+            });
+            view.writing.comment_anchor =
+                Some((note.id.clone(), note.version, 0..4, "tere".into()));
+            view.writing.comment_input.update(cx, |editor, cx| {
+                editor.set_value("Clarify this", window, cx)
+            });
+            view.post_comment(window, cx);
+            assert!(matches!(&view.chat, ChatTarget::Thread(id) if id == &other));
+            assert_eq!(view.composer.read(cx).value(), "Visible other draft");
+            assert!(view.worker.is_none());
+            let target = ComposerDestination::Thread(view.writing_threads[&note.id].clone());
+            assert_eq!(view.composer_drafts.text(&target), draft);
+            assert!(view.composer_drafts.text(&pending).is_empty());
+            let reopened = Workspace::open(&f.data).unwrap();
+            let drafts = reopened.store.chat_drafts().unwrap();
+            let source_key = serde_json::to_string(&pending).unwrap();
+            let target_key = serde_json::to_string(&target).unwrap();
+            assert!(
+                drafts
+                    .iter()
+                    .any(|d| d.destination == target_key && d.text == draft)
+            );
+            assert!(
+                drafts
+                    .iter()
+                    .any(|d| d.destination == source_key && d.text.is_empty())
+            );
+            assert_eq!(reopened.store.note(&note.id).unwrap().unwrap(), note);
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn writing_draft_adoption_restores_an_empty_displayed_target_and_preserves_live_typing(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            for target_text in ["", "New target typing · õun"] {
+                let note = view
+                    .workspace
+                    .new_note("Explicit conversation", "tere õun")
+                    .unwrap();
+                view.set_chat(ChatTarget::NewForNote(note.id.clone()), window, cx);
+                view.open_note(&note.id, None, window, cx);
+                let pending = view.destination();
+                view.composer.update(cx, |editor, cx| {
+                    editor.set_value("Original Note draft", window, cx)
+                });
+                // Real UI route: this saves the Note draft and displays the
+                // newly linked Thread before the first passage comment.
+                view.new_writing_thread(window, cx);
+                let target = view.destination();
+                assert!(matches!(target, ComposerDestination::Thread(_)));
+                view.composer
+                    .update(cx, |editor, cx| editor.set_value(target_text, window, cx));
+                let before = view.workspace.store.chat_drafts().unwrap();
+                view.writing.comment_anchor =
+                    Some((note.id.clone(), note.version, 0..4, "tere".into()));
+                view.writing.comment_input.update(cx, |editor, cx| {
+                    editor.set_value("Clarify this", window, cx)
+                });
+                assert_eq!(view.destination(), target);
+                if target_text.is_empty() {
+                    view.post_comment(window, cx);
+                    assert_eq!(view.composer.read(cx).value(), "Original Note draft");
+                    assert!(view.composer_drafts.text(&pending).is_empty());
+                    assert_eq!(view.composer_drafts.text(&target), "Original Note draft");
+                    let reopened = Workspace::open(&f.data).unwrap();
+                    let drafts = reopened.store.chat_drafts().unwrap();
+                    let source_key = serde_json::to_string(&pending).unwrap();
+                    let target_key = serde_json::to_string(&target).unwrap();
+                    assert!(drafts.iter().any(|d| d.destination == source_key && d.text.is_empty()));
+                    assert!(drafts.iter().any(|d| d.destination == target_key && d.text == "Original Note draft"));
+                } else {
+                    // Rewrite uses the same adoption boundary and must retain
+                    // typing even before its change event has saved recovery.
+                    view.rewrite_note(window, cx);
+                    assert_eq!(view.composer.read(cx).value(), target_text);
+                    assert_eq!(view.composer_drafts.text(&pending), "Original Note draft");
+                    assert_eq!(view.workspace.store.chat_drafts().unwrap(), before);
+                    assert!(view.notice.text().contains("already has an unsent draft"));
+                }
+                assert_eq!(view.destination(), target);
+                assert!(view.worker.is_none());
+            }
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn refused_writing_draft_adoption_keeps_visible_and_saved_recovery(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            for refusal in ["occupied", "stale source", "stale target", "too large"] {
+                let note = view.workspace.new_note(refusal, "tere õun").unwrap();
+                view.set_chat(ChatTarget::NewForNote(note.id.clone()), window, cx);
+                view.open_note(&note.id, None, window, cx);
+                let pending = view.destination();
+                view.save_composer(pending.clone(), "Saved source recovery".into());
+                let text = if refusal == "too large" {
+                    "x".repeat(128 * 1024 + 1)
+                } else {
+                    "Exact visible õun\nUnsent draft".into()
+                };
+                view.composer
+                    .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
+                let thread = view.ensure_writing_thread(&note.id).unwrap();
+                let source_key = serde_json::to_string(&pending).unwrap();
+                let target = ComposerDestination::Thread(thread.clone());
+                let target_key = serde_json::to_string(&target).unwrap();
+                // A second writer can change recovery after this window loaded it.
+                let mut other_window = Workspace::open(&f.data).unwrap();
+                match refusal {
+                    "occupied" => {
+                        other_window
+                            .store
+                            .save_chat_draft(&target_key, 7, "Destination draft")
+                            .unwrap();
+                        view.draft_generations.insert(target_key.clone(), 7);
+                    }
+                    "stale target" => {
+                        other_window
+                            .store
+                            .save_chat_draft(&target_key, 7, "")
+                            .unwrap();
+                    }
+                    "stale source" => {
+                        other_window
+                            .store
+                            .save_chat_draft(&source_key, 7, "Newer source recovery")
+                            .unwrap();
+                    }
+                    _ => {}
+                }
+                let before = view.workspace.store.chat_drafts().unwrap();
+                let generations = view.draft_generations.clone();
+                view.writing.comment_anchor =
+                    Some((note.id.clone(), note.version, 0..4, "tere".into()));
+                view.writing.comment_input.update(cx, |editor, cx| {
+                    editor.set_value("Clarify this", window, cx)
+                });
+                view.post_comment(window, cx);
+                assert!(
+                    matches!(&view.chat, ChatTarget::NewForNote(id) if id == &note.id),
+                    "{refusal}"
+                );
+                assert_eq!(view.composer.read(cx).value(), text, "{refusal}");
+                assert_eq!(view.composer_drafts.text(&pending), text, "{refusal}");
+                assert_eq!(view.draft_generations, generations, "{refusal}");
+                assert_eq!(
+                    view.workspace.store.chat_drafts().unwrap(),
+                    before,
+                    "{refusal}"
+                );
+                assert!(
+                    view.notice
+                        .text()
+                        .contains("Composer recovery could not move"),
+                    "{refusal}: {}",
+                    view.notice.text()
+                );
+                assert!(view.worker.is_none());
+                assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), note);
+            }
+        });
+    })
+    .unwrap();
+}
+
 struct Fixture {
     _root: tempfile::TempDir,
     data: PathBuf,
@@ -260,7 +527,7 @@ fn batch_rewrite_captures_selected_chat_and_retry_keeps_saved_inputs(cx: &mut Te
         assert_eq!(view.workspace.writing_threads(&f.a.id).unwrap().len(),2);
         view.writing.excluded_comments.insert(comments[1].record.id.clone());
         view.composer.update(cx,|editor,cx|editor.set_value("Unsent must stay unsent",window,cx));
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         assert!(view.worker.is_none());
         assert!(view.notice.text().contains("AI has not started"));
         assert_eq!(view.open_note_id(),Some(f.a.id.as_str()));
@@ -310,7 +577,7 @@ fn stale_comment_and_saved_rewrite_preserve_feedback_with_actionable_recovery(
     cx.update_window(f.window,|_,window,cx| f.view.update(cx,|view,cx| {
         view.open_note(&f.a.id,None,window,cx);
         view.select_writing_thread(f.a.id.clone(),f.chat_a.clone(),window,cx);
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         let request=view.workspace.messages(&f.chat_a).unwrap().into_iter().find(|record|matches!(&record.data,RecordData::Message(body) if body.role=="writing-request")).unwrap().id;
         let edit=view.workspace.store.begin_edit(&f.a.id,f.a.version).unwrap();
         view.workspace.store.update_buffer(&edit.id,1,"Changed saved note").unwrap();
@@ -1226,7 +1493,7 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
                 .unwrap();
             feedback(view, &f.a, "tere", 0..4, "First greeting", window, cx);
             feedback(view, &f.a, "tere", 5..9, "Second greeting", window, cx);
-            view.rewrite_note(cx);
+            view.rewrite_note(window, cx);
         })
     })
     .unwrap();
@@ -2860,7 +3127,7 @@ fn b3_exhaustive_check_refuses_unavailable_requirements_before_new_saved_request
                 view.workspace.records().unwrap(),
                 view.workspace.store.receipts().unwrap(),
             );
-            view.rewrite_with_setup(true, cx);
+            view.rewrite_with_setup(true, window, cx);
             assert!(
                 view.notice
                     .text()

@@ -114,6 +114,124 @@ fn latest_composer_draft_survives_restart_and_delayed_clear_is_rejected() {
     assert_eq!(store.chat_drafts().unwrap()[0].text, "Newer õun text");
 }
 
+#[test]
+fn composer_transfer_survives_restart_and_fences_the_old_destination() {
+    let root = tempfile::tempdir().unwrap();
+    let data = root.path().canonicalize().unwrap().join("data");
+    let mut store = Store::open(&data).unwrap();
+    store.save_chat_draft("note", 4, "Earlier draft").unwrap();
+    store
+        .save_chat_draft("other", 8, "Unrelated draft")
+        .unwrap();
+    let text = "Latest unsent õun\nSecond line — säilita";
+    let (source, target) = store
+        .transfer_chat_draft("note", Some(4), "thread", None, text)
+        .unwrap();
+    assert_eq!((source.generation, source.text.as_str()), (5, ""));
+    assert_eq!((target.generation, target.text.as_str()), (1, text));
+    let mut other_window = Store::open(&data).unwrap();
+    assert!(
+        other_window
+            .save_chat_draft("note", 4, "Delayed typing")
+            .is_err()
+    );
+    assert!(
+        other_window
+            .transfer_chat_draft("note", Some(4), "thread", None, text)
+            .is_err()
+    );
+    drop(store);
+    let reopened = Store::open(&data).unwrap();
+    let drafts = reopened.chat_drafts().unwrap();
+    assert!(drafts.contains(&source));
+    assert!(drafts.contains(&target));
+    assert!(
+        drafts
+            .iter()
+            .any(|d| d.destination == "other" && d.generation == 8 && d.text == "Unrelated draft")
+    );
+    assert!(reopened.receipts().unwrap().is_empty());
+}
+
+#[test]
+fn composer_transfer_refuses_stale_generations_and_occupied_targets_without_changes() {
+    let root = tempfile::tempdir().unwrap();
+    let data = root.path().canonicalize().unwrap().join("data");
+    let mut store = Store::open(&data).unwrap();
+    store.save_chat_draft("note", 3, "Source recovery").unwrap();
+    let mut other_window = Store::open(&data).unwrap();
+    other_window.save_chat_draft("thread", 5, "").unwrap();
+    for (source_generation, target_generation) in [(2, 5), (3, 4)] {
+        let before = store.chat_drafts().unwrap();
+        assert!(
+            store
+                .transfer_chat_draft(
+                    "note",
+                    Some(source_generation),
+                    "thread",
+                    Some(target_generation),
+                    "Visible draft"
+                )
+                .is_err()
+        );
+        assert_eq!(store.chat_drafts().unwrap(), before);
+    }
+    other_window
+        .save_chat_draft("thread", 6, "Destination recovery")
+        .unwrap();
+    let before = store.chat_drafts().unwrap();
+    assert!(
+        store
+            .transfer_chat_draft("note", Some(3), "thread", Some(6), "Visible draft")
+            .is_err()
+    );
+    assert_eq!(store.chat_drafts().unwrap(), before);
+}
+
+#[test]
+fn composer_transfer_distinguishes_absent_and_generation_zero_recovery() {
+    let root = tempfile::tempdir().unwrap();
+    let data = root.path().canonicalize().unwrap().join("data");
+    let mut store = Store::open(&data).unwrap();
+    store
+        .save_chat_draft("note", 0, "Original recovery")
+        .unwrap();
+    store.save_chat_draft("thread", 0, "").unwrap();
+    let before = store.chat_drafts().unwrap();
+    assert!(
+        store
+            .transfer_chat_draft("note", None, "thread", Some(0), "Visible draft")
+            .is_err()
+    );
+    assert!(
+        store
+            .transfer_chat_draft("note", Some(0), "thread", None, "Visible draft")
+            .is_err()
+    );
+    assert_eq!(store.chat_drafts().unwrap(), before);
+    store
+        .transfer_chat_draft("note", Some(0), "thread", Some(0), "Visible draft")
+        .unwrap();
+}
+
+#[test]
+fn composer_transfer_rolls_back_target_when_source_clear_fails() {
+    let root = tempfile::tempdir().unwrap();
+    let data = root.path().canonicalize().unwrap().join("data");
+    let mut store = Store::open(&data).unwrap();
+    store.save_chat_draft("note", 1, "Source recovery").unwrap();
+    let conn = Connection::open(data.join(DATABASE_FILENAME)).unwrap();
+    conn.execute_batch("CREATE TRIGGER refuse_draft_clear BEFORE UPDATE ON chat_drafts WHEN NEW.destination='note' AND NEW.text='' BEGIN SELECT RAISE(ABORT, 'synthetic persistence failure'); END;").unwrap();
+    let before = store.chat_drafts().unwrap();
+    assert!(
+        store
+            .transfer_chat_draft("note", Some(1), "thread", None, "Exact visible õun\nDraft")
+            .is_err()
+    );
+    assert_eq!(store.chat_drafts().unwrap(), before);
+    assert_eq!(Store::open(&data).unwrap().chat_drafts().unwrap(), before);
+}
+
 fn legacy_fixture(root: &std::path::Path) -> std::path::PathBuf {
     let data = root.join("legacy");
     let mut store = Store::open(&data).unwrap();

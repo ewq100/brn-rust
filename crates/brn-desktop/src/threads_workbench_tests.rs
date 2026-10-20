@@ -656,7 +656,7 @@ fn ordinary_question_attention_survives_rewrite_and_proposal_stays_with_note(
             view.open_note(&f.first.id, None, window, cx);
             assert!(view.layout.contains(TileKind::Chat));
             assert_eq!(view.chat_thread(), Some(thread_id.as_str()));
-            view.rewrite_note(cx);
+            view.rewrite_note(window, cx);
             assert!(view.worker.is_none());
         });
     })

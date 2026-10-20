@@ -1048,23 +1048,59 @@ impl ThreadsUi {
         cx.notify();
     }
     /// The resolved writing conversation inherits this note's unsent draft, never another's.
-    fn adopt_writing_thread(&mut self, note: &str) {
+    fn adopt_writing_thread(&mut self, note: &str, window: &mut Window, cx: &mut Context<Self>) {
         let Some(thread) = self.writing_threads.get(note).cloned() else {
             return;
         };
         let pending = ComposerDestination::Note(note.into(), None);
-        if matches!(&self.chat, ChatTarget::NewForNote(open) if open == note) {
-            // The visible composer text now belongs to the created thread.
-            self.chat = ChatTarget::Thread(thread);
-            self.composer_drafts.posted(&pending);
+        let visible = matches!(&self.chat, ChatTarget::NewForNote(open) if open == note);
+        let text = if visible {
+            self.composer.read(cx).value().to_string()
+        } else {
+            self.composer_drafts.text(&pending).to_owned()
+        };
+        if !visible && text.is_empty() {
             return;
         }
-        // A draft saved while another thread was shown moves with it.
-        let text = self.composer_drafts.text(&pending).to_owned();
-        let target = ComposerDestination::Thread(thread);
-        if !text.is_empty() && self.composer_drafts.text(&target).is_empty() {
-            self.composer_drafts.posted(&pending);
-            self.composer_drafts.preserve(target, text);
+        let target = ComposerDestination::Thread(thread.clone());
+        // Keep unsaved session text even when storage refuses the handoff.
+        self.composer_drafts.preserve(pending.clone(), text.clone());
+        let result = (|| -> AppResult<_> {
+            // An explicitly opened target can contain typing that has not
+            // reached autosave yet. Never replace that live editor text.
+            if (self.destination() == target && !self.composer.read(cx).value().is_empty())
+                || !self.composer_drafts.text(&target).is_empty()
+            {
+                return Err(AppError::Invalid(
+                    "The writing chat already has an unsent draft.".into(),
+                ));
+            }
+            let source = serde_json::to_string(&pending)?;
+            let destination = serde_json::to_string(&target)?;
+            Ok(self.workspace.store.transfer_chat_draft(
+                &source,
+                self.draft_generations.get(&source).copied(),
+                &destination,
+                self.draft_generations.get(&destination).copied(),
+                &text,
+            )?)
+        })();
+        match result {
+            Ok((source, destination)) => {
+                self.draft_generations.insert(source.destination, source.generation);
+                self.draft_generations.insert(destination.destination, destination.generation);
+                self.composer_drafts.posted(&pending);
+                if self.destination() == target {
+                    self.composer.update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
+                }
+                self.composer_drafts.preserve(target, text);
+                if visible {
+                    self.chat = ChatTarget::Thread(thread);
+                }
+            }
+            Err(error) => self.fail(format!(
+                "Composer recovery could not move to the writing chat: {error}. Your original draft is preserved; keep this window open or copy your text."
+            )),
         }
     }
     fn preserve_comment_draft(&mut self, cx: &Context<Self>) {
@@ -1639,18 +1675,19 @@ impl ThreadsUi {
                 "{error}. Your comment draft and saved passage are preserved."
             )),
         }
-        self.adopt_writing_thread(&note);
+        self.adopt_writing_thread(&note, window, cx);
         self.preserve_comment_draft(cx);
         self.refresh();
         self.sync_note_marks(cx);
         cx.notify();
     }
-    fn rewrite_note(&mut self, cx: &mut Context<Self>) {
-        self.rewrite_note_with_requirements(WritingReadRequirements::default(), cx);
+    fn rewrite_note(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.rewrite_note_with_requirements(WritingReadRequirements::default(), window, cx);
     }
     fn rewrite_note_with_requirements(
         &mut self,
         requirements: WritingReadRequirements,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
@@ -1698,7 +1735,6 @@ impl ThreadsUi {
                 &requirements,
             )
         });
-        self.adopt_writing_thread(&note);
         match result {
             Ok(snapshot) => self.retry_rewrite(snapshot.request_message, cx),
             Err(error) => {
@@ -1708,6 +1744,7 @@ impl ThreadsUi {
                 cx.notify();
             }
         }
+        self.adopt_writing_thread(&note, window, cx);
         self.refresh();
         cx.notify();
     }
@@ -2536,7 +2573,7 @@ impl ThreadsUi {
         match command {
             lists::Command::NewThread => self.new_thread(window, cx),
             lists::Command::NewNote => self.new_note(window, cx),
-            lists::Command::Rewrite => self.rewrite_note(cx),
+            lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
             lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
             lists::Command::Theme(theme) => self.choose_theme(theme, window, cx),
@@ -4017,7 +4054,12 @@ impl ThreadsUi {
         }
         Ok(draft.target.clone())
     }
-    fn rewrite_with_setup(&mut self, exhaustive: bool, cx: &mut Context<Self>) {
+    fn rewrite_with_setup(
+        &mut self,
+        exhaustive: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Err(error) = self.saved_setup_for_action(cx) {
             self.warn(error.to_string());
             cx.notify();
@@ -4063,7 +4105,7 @@ impl ThreadsUi {
             exhaustive,
             must_be_current: draft.must_be_current.iter().cloned().collect(),
         };
-        self.rewrite_note_with_requirements(requirements, cx);
+        self.rewrite_note_with_requirements(requirements, window, cx);
     }
     fn import_writing_reference(
         &mut self,
@@ -4341,7 +4383,7 @@ impl ThreadsUi {
                 self.import_writing_reference(purpose, window, cx)
             }
             WritingRequest::RewriteConfigured(exhaustive) => {
-                self.rewrite_with_setup(exhaustive, cx)
+                self.rewrite_with_setup(exhaustive, window, cx)
             }
             WritingRequest::Noop => {}
             WritingRequest::Save => self.save(window, cx),
@@ -4364,7 +4406,7 @@ impl ThreadsUi {
                     self.comment_on_selection(window, cx)
                 }
             }
-            WritingRequest::Rewrite => self.rewrite_note(cx),
+            WritingRequest::Rewrite => self.rewrite_note(window, cx),
             WritingRequest::EditNote => self.edit_note_dialog(window, cx),
             WritingRequest::Connections => self.show_tile(TileKind::Connections, window, cx),
             WritingRequest::Compare => self.show_tile(TileKind::Compare, window, cx),

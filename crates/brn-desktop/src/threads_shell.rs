@@ -1726,7 +1726,7 @@ impl Render for ThreadsUi {
                 this.track_selection(cx);
                 this.ask_about_selection(window, cx)
             }))
-            .on_action(cx.listener(|this, _: &Rewrite, _, cx| this.rewrite_note(cx)))
+            .on_action(cx.listener(|this, _: &Rewrite, window, cx| this.rewrite_note(window, cx)))
             .on_action(cx.listener(|this, _: &ToggleThreads, window, cx| {
                 this.relayout(window, cx, |layout| layout.toggle(TileKind::Threads))
             }))

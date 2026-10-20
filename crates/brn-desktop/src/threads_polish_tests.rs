@@ -721,7 +721,7 @@ fn changes_name_a_rewrite_request_that_may_need_refresh_in_owner_terms(cx: &mut 
         view.refresh();
         view.select_writing_thread(f.note.id.clone(), thread, window, cx);
         // Offline: the request is saved and no AI starts.
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
     });
     change_saved(cx, &f, |note| note.markdown = "Changed elsewhere.".into());
     let (operation, request, note_title) = cx.read(|cx| {
@@ -816,7 +816,7 @@ fn a_failed_rewrite_reads_as_the_chats_recorded_notice(cx: &mut TestAppContext) 
             .unwrap();
         view.refresh();
         view.select_writing_thread(f.note.id.clone(), thread.clone(), window, cx);
-        view.rewrite_note(cx);
+        view.rewrite_note(window, cx);
         thread
     });
     let notice =
@@ -896,7 +896,7 @@ fn each_writing_state_has_one_primary_and_run_outcomes_show_their_full_reason(
         assert!(window.try_find("writing-run-status").is_none());
     });
     // Offline: the request is saved and no AI starts.
-    update(cx, &f, |view, _, cx| view.rewrite_note(cx));
+    update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     assert_eq!(row(cx, &f), Some(WritingRow::Retry));
     on_window(cx, &f, |window, _| {
         assert_eq!(
