@@ -3580,11 +3580,20 @@ impl ThreadsUi {
         } else {
             None
         };
-        match self.workspace.configure(settings) {
-            Ok(outcome) => self.report_outcome(&outcome),
-            Err(e) => self.fail(e.to_string()),
+        let rejected_form = match self.workspace.configure(settings) {
+            Ok(outcome) => {
+                self.report_outcome(&outcome);
+                None
+            }
+            Err(error) => {
+                self.fail(error.to_string());
+                Some(self.provider_form.clone())
+            }
         };
         self.refresh();
+        if let Some(form) = rejected_form {
+            self.provider_form = form;
+        }
         cx.notify();
     }
     fn choose_delegation(&mut self, choice: DelegationChoice, cx: &mut Context<Self>) {
