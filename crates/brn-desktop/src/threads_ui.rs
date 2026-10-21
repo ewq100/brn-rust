@@ -358,7 +358,6 @@ struct ThreadsUi {
     composer_drafts: ComposerDrafts,
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
-    attaching_chat: Option<String>,
     reference_search_generation: u64,
     reference_search_cancel: Option<brn_threads_app::search::CancelOnDrop>,
     selected_project: Option<String>,
@@ -640,7 +639,6 @@ impl ThreadsUi {
             composer_drafts: drafts,
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
-            attaching_chat: None,
             reference_search_generation: 0,
             reference_search_cancel: None,
             selected_project: None,
@@ -3067,12 +3065,19 @@ impl ThreadsUi {
             Err(e) => self.fail(e.to_string()),
         }
     }
-    fn choose_import(&mut self, intent: ImportIntent, window: &mut Window, cx: &mut Context<Self>) {
-        self.choose_import_for_reference(intent, None, window, cx);
+    fn choose_import(
+        &mut self,
+        intent: ImportIntent,
+        attachment_chat: Option<String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.choose_import_for_reference(intent, attachment_chat, None, window, cx);
     }
     fn choose_import_for_reference(
         &mut self,
         intent: ImportIntent,
+        attachment_chat: Option<String>,
         reference: Option<ReferenceImportIntent>,
         window: &mut Window,
         cx: &mut Context<Self>,
@@ -3082,11 +3087,6 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        let attachment_chat = if reference.is_some() {
-            None
-        } else {
-            self.attaching_chat.take()
-        };
         let receiver = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
@@ -4184,6 +4184,7 @@ impl ThreadsUi {
         match self.saved_setup_for_action(cx) {
             Ok(target) => self.choose_import_for_reference(
                 ImportIntent::FullNote,
+                None,
                 Some(ReferenceImportIntent {
                     target,
                     purpose,
