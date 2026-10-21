@@ -2209,8 +2209,8 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T04:14:22.045Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-reliability-update.json"
+    "last_refresh_at": "2026-10-21T04:33:18.873Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-21T04:32:09.346236+00:00",
@@ -2228,7 +2228,7 @@
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Currentmain9e2a81c0 reconciled, PR194 local/reviewpass and hostedpending; CLIa054 local/reviewpass publication waiting strictbase",
     "wait_reason": "Native only deferred for extended owner unavailability; two headless candidates under final qualification/integration",
-    "resumption": "Continue headless qualification/correction/integration from current tasks. Native actor stays deferred until changed owner availability; no repeated unlock requests or access attempts.",
+    "resumption": "Continue exact-head PR194 required gate integration using /tmp/brn-export-interruption-qualification/premerge.py only after actual all4PASS, normal merge in separate call then resulting-main gates. CLIa054 and Settingsfde both frozen/reviewed/localqualified and await ordered main reconciliation/publication; no batch pause. Native deferred until owner-reported changed availability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability oncodex/preview-file-cancellation base9e2a81c0",
     "fixture_worker_checkout": "mac-test-roots cleanold e1b preserved; newcodex/settings-draft-isolation frommain9e2a81c0 for regressiononly; no archive/unpin/removal",
