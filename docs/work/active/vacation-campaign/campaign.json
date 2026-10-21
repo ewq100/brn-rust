@@ -2338,8 +2338,8 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T04:49:58.280062+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-integration-update.json"
+    "last_refresh_at": "2026-10-21T05:05:03.162543+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-publication-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-21T05:03:32.284024+00:00",
@@ -2357,13 +2357,14 @@
       {
         "pr": 196,
         "run": 39547333788,
+        "exec_session": 81401,
         "interval_seconds": 60,
-        "purpose": "exacthead1967665; watchtobeconfirmed"
+        "purpose": "exacthead1967665"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR194complete all4mainPASS; PR195normalmergedd296 exacttreeequal, resultingmainpending; PR196published7665 allrequiredpending",
-    "wait_reason": "Native only deferred for extended owner unavailability; two headless candidates under final qualification/integration",
+    "wait_reason": "Current headless implementation/review/localqualification complete; hostedmain195/head196required gates pending. Boundednext-gap preflight found no justified additional sourcewriter; remain in active integration wait rather than dispatch speculative work. Native only awaits changed owner availability.",
     "resumption": "Finish exactmain195d296 andhead1967665 all4required, thenfreshliveguardnormalmerge196in separatecall andinspectresultingmain. No newjustifiedheadlesstaskfromboundedpreflight; continueactualintegration asgateschange. Nativeavailability remainsdeferred.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanon codex/preview-file-cancellation atcacab2e5",
