@@ -1,0 +1,43 @@
+{
+  "observed_at": "2026-10-21T07:16:17.144203+00:00",
+  "source": "6fb5323fa37c1def0f46b2979a480c173a70b0f1",
+  "source_hashes": {
+    "crates/brn-desktop/src/threads_pages_tests.rs": "437e7053310935a0b7c032342f148b6b1ea9c590b09e8edd3409f774b7e8cfa2",
+    "crates/brn-desktop/src/threads_state.rs": "3d6e3b94b3db401f42b39f20084930a6c6c1316dcfc774f7ecd8a9babf16cd72",
+    "crates/brn-desktop/src/threads_tiled_tests.rs": "9c3922bdc7ec7975a78f2c98050fc5ad0ba05a41f12715c541a5cb04597f1c76",
+    "crates/brn-desktop/src/threads_tiles.rs": "7722d90fe3b2c342505d5d65edc4bc3578794966d5fa2a2fdaaa0a2dfa14e937",
+    "crates/brn-desktop/src/threads_ui.rs": "a36ef22e5f8256afd00b582c59dee37aabc2a80d7441adfe5f6d60bb57433455"
+  },
+  "baseline_negative_source": "7665a5766f109bf2db947887d6008c2f2c506d7c",
+  "local_negative_exit": 101,
+  "local_negative_result": "same2ProviderForm dead_code errors asrequiredUbuntuCI",
+  "final_script": "/tmp/brn-pr196-ci-failure/final.sh",
+  "final_script_exit": 0,
+  "checks": {
+    "default_workspace_alltarget_strictClippy": "PASS exactfailedCIcommand withpinnedMacenvironment",
+    "default_desktop_tests": "30passed,0failed,0ignored",
+    "native_alltarget_strictClippy": "PASS",
+    "native_retention_witness": "1passed/0failed/342filtered",
+    "native_Connect_witness": "1passed/0failed/342filtered",
+    "ordinary_native_build": "PASS",
+    "format_whitespace": "PASS"
+  },
+  "prior_fullsuite": {
+    "source": "c01ce1993217063ac63a53ee90750c8e208c737d",
+    "actual": "342passed,0failed,1existingignored",
+    "reuse": "Onlytwo cfg(native-ui) additions; bothtrueinthatgraph andnative bodies/other4filesidentical, independentlyreviewed. No newfull342executionclaimed; hostednewheadfullgatepending."
+  },
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-settings-feature-gate/6fb5323f/brn-desktop",
+    "sha256": "a090d84f8da868546e2e83f735346facd07f280930c708cd397f29b5fef962e3",
+    "launched": false
+  },
+  "review": "pr196-feature-gate-review.md completecandidate nofindings",
+  "warning": "existingblock0.1.6 futureincompatibilityretained",
+  "limits": [
+    "Macdefaultnegative reproducesfailure; finalLinuxrequiredCIpending",
+    "nativewidget/build notactualOS/IME/VoiceOver/owneracceptance",
+    "no liveaccount/provider/signin/privatecredentialcontents",
+    "notmerged/released; all4newhead/freshprotection/resultingmain separately"
+  ]
+}

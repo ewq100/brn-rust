@@ -1,0 +1,75 @@
+{
+  "observed_at": "2026-10-21T07:15:05.756335+00:00",
+  "run": 39549827324,
+  "source": "d2967cdd787459dd01ed291219b9045155b18511",
+  "job": "Package and publish approved Apple Silicon preview",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify exact main, approval and the four required CI jobs",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run ./.github/actions/setup-rust",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Fetch the committed stock lock for generator fixtures",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Check portable packaging and release guards",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Prepare locked stock and adapted document helpers",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Build locked desktop and retain target graphs",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Package and verify the relocated signed archive",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Qualify packaged startup and helper using disposable fixtures",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Upload, verify and publish the current-main prerelease",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "observed": "Existing workflow overallsuccess includes gatecheck, but packaging/build/publishstepsSKIPPED; no new release action requested or run bylead. Overalljoblabel isnotpublicationproof.",
+  "limits": "Read-only oneactualrun observation, not a claimaboutallpast/futureworkflowruns"
+}

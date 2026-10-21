@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-21T07:11:52.797916+00:00",
+  "source": "7665a5766f109bf2db947887d6008c2f2c506d7c",
+  "run": 39547333788,
+  "job": 119048364749,
+  "required_job": "Core and CLI (ubuntu-24.04)",
+  "step": "Lint the default workspace",
+  "command": "cargo clippy --workspace --all-targets --locked --offline -- -D warnings",
+  "exit": 101,
+  "diagnosis": "ProviderForm and from_settings compiled in default test shell with no native-ui consumer; dead_code denied. Existing native-ui lint passes do not qualify default feature graph. Mac pull-request core lane condition skips default lint; resultingmain requires it. No claim rerun repairs source.",
+  "raw_sha256": "7d07a04b7037c1e5e93ae15b009a087e245d005221ba7cee8ace0f7c3109cb91",
+  "proposed_correction": "Compile only native Models form struct+impl under native-ui, leave other state rules/default tests available. No allow/expect or CI weakening. Reproduce local default desktop lint before correction, independently inspect minimalcfg delta, then default+native checks."
+}
