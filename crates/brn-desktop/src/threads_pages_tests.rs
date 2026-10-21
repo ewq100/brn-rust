@@ -1120,6 +1120,47 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
     });
 }
 
+#[gpui_kit::test]
+fn copilot_connection_does_not_save_an_unsaved_effort_choice(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 1500., |_| {});
+    let credentials = f
+        ._root
+        .path()
+        .join("synthetic-copilot")
+        .display()
+        .to_string();
+    update(cx, &f, |view, _, cx| {
+        focus_tests::settings(view, SettingsSection::Models, cx);
+    });
+    click(cx, &f, "effort-high");
+
+    assert_eq!(
+        Workspace::open_without_default_credentials(&f.data)
+            .unwrap()
+            .settings()
+            .unwrap()
+            .effort,
+        "medium"
+    );
+
+    update(cx, &f, |view, window, cx| {
+        let (sender, receiver) = mpsc::sync_channel(1);
+        view.worker = Some(Worker::connect(receiver, CancellationToken::new()));
+        sender
+            .send(WorkerEvent::CopilotConnected(credentials.clone()))
+            .unwrap();
+        view.poll_worker(window, cx);
+    });
+
+    let saved = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    assert_eq!(saved.provider, "copilot");
+    assert_eq!(saved.credentials_dir.as_deref(), Some(credentials.as_str()));
+    assert_eq!(saved.effort, "medium");
+}
+
 /// Recent chats' empty state names why it lists nothing.
 fn recent_empty(cx: &mut TestAppContext, f: &Fixture) -> String {
     on_window(cx, f, |window, _| {
