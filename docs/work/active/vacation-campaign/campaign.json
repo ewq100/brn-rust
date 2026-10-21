@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T23:47:11.339640+00:00",
+    "observed_at": "2026-10-21T23:51:20.464945+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2508,29 +2508,38 @@
       {
         "id": "ordinary-import-target-ownership",
         "title": "Assess explicit destination ownership for file imports",
-        "state": "ready",
+        "state": "active",
         "owner": "lead bounded design; economical implementation and independent review only if selected",
-        "activity": "Source assessment identifies a transient destination field written in two UI callers and consumed by the picker helper. The async worker already carries an explicit captured destination. Assess whether the field can be retired with a simpler request interface.",
-        "observed_at": "2026-10-21T23:28:47.807863+00:00",
+        "activity": "Exact2ecf634d candidate committed/formatted. Six caller destinations explicit; ambientfield removed. Lead retained reference-target normalization. Complete independent Sol review and serialized focused/full/lint/build qualification active.",
+        "observed_at": "2026-10-21T23:51:20.464945+00:00",
         "origin": "observed",
-        "next_action": "Compare the smallest explicit destination interface with existing callers/busy guards/reference imports. Select only a behavior-preserving simplification with a clear responsibility/retirement benefit; otherwise retain current code. No new features or tests just for coverage.",
-        "depends_on": [],
+        "next_action": "Inspect actual review/gates, preserve failures and publish only after prior dependent state slices integrate/currentmain is reconciled.",
+        "depends_on": [
+          {
+            "task": "run-continuation-ownership",
+            "condition": "Prior state candidates integrate before publication of this dependent candidate.",
+            "satisfied": false
+          }
+        ],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md",
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_chat.rs",
-          "crates/brn-desktop/src/threads_projects.rs"
+          "crates/brn-desktop/src/threads_projects.rs",
+          "docs/work/active/vacation-campaign/evidence/import-target-design.md",
+          "docs/work/active/vacation-campaign/evidence/import-target-implementation.md"
         ],
         "gates": {
-          "implementation": "Design assessment ready; no implementation selected.",
+          "implementation": "Candidate2ecf634d complete, independent review active.",
           "checks": "Pending design/caller comparison; prior evidence reused.",
           "integration": "Pending only if a candidate is selected; existing review/required gates apply.",
           "native": "Existing actual Mac gate deferred; no native claim.",
           "owner_acceptance": "Not claimed."
         },
         "attempts": [],
-        "resource_plan": "Lead small design assessment first, no source writer yet. A bounded Luna implementation and consequential independent Sol review may follow only if responsibility improves without interface burden. Four total slots, serialize any shared builds; no account/native/network/provider or runtime-prompt changes."
+        "resource_plan": "One requested Luna medium source-only author in clean isolated architecture-status-route branch codex/import-target-owner atbd60131d, dependent on prior reviewed/qualified Run candidates before publication. Lead owns serialized builds/sharedrecords/integration; consequential independent Sol review of complete candidate. Lead+continuationreviewer+importauthor within four slots; no nested/network/native/account/schema/dependency/runtimeprompts. Stop after one bounded implementation or concrete interface ambiguity.",
+        "design": "Retire ThreadsUi.attaching_chat/init/writers/take by passing named attachment_chat:Option<String> from two attachment actions, None from four general calls and reference request. Keep reference capture separate and no ordinary destination for reference; existing checked reference and worker payloads unchanged. Option matches current conversion API without an enum-to-Option adapter/newtype spread; the small local enum proposal adds no additional invariant here and is not selected. Capture owned request at same moment before picker, retain all three busy guards, native cancellation drops captured request, no retry state/retarget/fallback changes. No new UX/features/tests just for forwarding."
       },
       {
         "id": "run-coordination-state-ownership",
@@ -2591,10 +2600,10 @@
         "title": "Keep Stop and send continuation attached to its Run",
         "state": "active",
         "owner": "lead design/integration; bounded Luna author; consequential independent Sol review",
-        "activity": "Build-ready next slice selected from actual caller map. Isolated export-durability branch codex/run-continuation-owner starts at reviewedf6dd4d66 activity candidate; source only while first candidate owns build slot.",
-        "observed_at": "2026-10-21T23:45:36.842821+00:00",
+        "activity": "Reviewed exactbd60131d passes focusedWorker8, steering23, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary recorded. Publication waits prior activity normal integration/currentmain.",
+        "observed_at": "2026-10-21T23:51:20.464945+00:00",
         "origin": "observed",
-        "next_action": "Implement one Run-only saved-prompt payload on WorkerOperation::Run and migrate existing host cleanup/terminal paths. Preserve durable commit then arm then cancel, and launch only after complete old terminal batch. Review full actual candidate separately.",
+        "next_action": "Reconcile main after PR199 integration, publish bounded continuation PR on current main with reviewed-tree equality; inspect exacthead/protection/main gates normally.",
         "depends_on": [
           {
             "task": "run-coordination-state-ownership",
@@ -2603,24 +2612,37 @@
           }
         ],
         "resource_waits": [
-          "Shared build slot belongs to activity qualification; continuation author must not build."
+          "Prior activity PR199 exacthead/main integration."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/run-continuation-design.md",
           "crates/brn-desktop/src/threads_worker.rs",
           "crates/brn-desktop/src/threads_ui.rs",
-          "crates/brn-desktop/src/threads_steering_tests.rs"
+          "crates/brn-desktop/src/threads_steering_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-review.md",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-final.log",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-final.sh"
         ],
         "gates": {
-          "implementation": "Selected bounded behavior-preserving source change; pending.",
-          "checks": "Retain existing consequential steering and worker batch witnesses; serialized qualification pending.",
+          "implementation": "PASS complete independent Sol review of exactbd60131d, no actionable findings.",
+          "checks": "PASS focusedWorker8, steering23, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace. Binary frozen unlaunched.",
           "integration": "Separate reviewed candidate, prior activity merge and current main/required checks pending.",
           "native": "Actual interaction deferred under owner unavailable instruction.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Lead source inspection found initially weakened exact armed-prompt assertion and incorrect matching-only archive discard assumption. No runtime result claimed.",
+            "change": "Immutable continuation query restores exact payload assertion; any-successful-archive discard restored. Initial standalone cargo fmt could not find plugin; pinned PATH environment then formatted successfully.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md"
+            ]
+          }
+        ],
         "resource_plan": "Requested Luna medium source-only author in isolated clean export-durability worktree; lead reviews actual decisions and owns all builds/sharedrecord/integration. Consequential independent Sol review after complete candidate. Four total slots, normal lead+oneauthor+onereviewer; no nested agents, account/network/native/schema/provider/runtimeprompt or dependency changes. Stop after one implementation or concrete ambiguity/two failed corrections.",
-        "design": "Store only Option<String> saved prompt in WorkerOperation::Run, alongside its single existing RunIdentity; do not copy thread or run ID. Worker remains dumb invocation data/channel admission, no queue/persistence/cancel/launch policies. Narrow arm/has/discard/take operations; caller validates preconditions and checked service commits before arm. Reject invalid non-Run or duplicate arm explicitly, never silently overwrite or panic after durable commit; use existing saved-instruction/manual Continue recovery if impossible precondition is reported. Extract prompt plus thread derived from original Run identity before clearing old Worker into a poll-local only, and launch after full admitted terminal batch. Retire PendingSend/UI field and manual cleanup made redundant by ownership. Existing explicit Cancel discards even if subsequent checked stop fails; Archive/project fence discard only after matching success; disconnect preserves partial first and never launches; close/Quit discard. Keep all warning text, queue precedence, failure recovery, trailing terminal cutoff, composer/navigation behavior. No new generic state framework."
+        "design": "Store only Option<String> saved prompt in WorkerOperation::Run, alongside its single existing RunIdentity; do not copy thread or run ID. Worker remains dumb invocation data/channel admission, no queue/persistence/cancel/launch policies. Narrow arm/has/discard/take operations; caller validates preconditions and checked service commits before arm. Reject invalid non-Run or duplicate arm explicitly, never silently overwrite or panic after durable commit; use existing saved-instruction/manual Continue recovery if impossible precondition is reported. Extract prompt plus thread derived from original Run identity before clearing old Worker into a poll-local only, and launch after full admitted terminal batch. Retire PendingSend/UI field and manual cleanup made redundant by ownership. Existing explicit Cancel discards even if subsequent checked stop fails; Archive discards after any successful archive (actual base behavior), with cancellation only for matching Run; project fence discards only after matching success; disconnect preserves partial first and never launches; close/Quit discard. Keep all warning text, queue precedence, failure recovery, trailing terminal cutoff, composer/navigation behavior. No new generic state framework."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

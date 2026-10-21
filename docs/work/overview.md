@@ -9,6 +9,28 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
+### Assess explicit destination ownership for file imports
+
+Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-21T23:51:20.464945+00:00
+Activity: Exact2ecf634d candidate committed/formatted. Six caller destinations explicit; ambientfield removed. Lead retained reference-target normalization. Complete independent Sol review and serialized focused/full/lint/build qualification active.
+Next: Inspect actual review/gates, preserve failures and publish only after prior dependent state slices integrate/currentmain is reconciled.
+Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Candidate2ecf634d complete, independent review active.
+- **checks:** Pending design/caller comparison; prior evidence reused.
+- **integration:** Pending only if a candidate is selected; existing review/required gates apply.
+- **native:** Existing actual Mac gate deferred; no native claim.
+- **owner acceptance:** Not claimed.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md)
+
+</details>
+
 ### Give Run coordination a coherent state and transition owner
 
 Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:47:11.339640+00:00
@@ -36,49 +58,34 @@ Attempts:
 
 ### Keep Stop and send continuation attached to its Run
 
-Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:45:36.842821+00:00
-Activity: Build-ready next slice selected from actual caller map. Isolated export-durability branch codex/run-continuation-owner starts at reviewedf6dd4d66 activity candidate; source only while first candidate owns build slot.
-Next: Implement one Run-only saved-prompt payload on WorkerOperation::Run and migrate existing host cleanup/terminal paths. Preserve durable commit then arm then cancel, and launch only after complete old terminal batch. Review full actual candidate separately.
+Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:51:20.464945+00:00
+Activity: Reviewed exactbd60131d passes focusedWorker8, steering23, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary recorded. Publication waits prior activity normal integration/currentmain.
+Next: Reconcile main after PR199 integration, publish bounded continuation PR on current main with reviewed-tree equality; inspect exacthead/protection/main gates normally.
 Depends on: run-coordination-state-ownership when Prior activity owner integrates before publishing this dependent candidate. (reported satisfied: false)
-Resource waits: Shared build slot belongs to activity qualification; continuation author must not build.
+Resource waits: Prior activity PR199 exacthead/main integration.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Selected bounded behavior-preserving source change; pending.
-- **checks:** Retain existing consequential steering and worker batch witnesses; serialized qualification pending.
+- **implementation:** PASS complete independent Sol review of exactbd60131d, no actionable findings.
+- **checks:** PASS focusedWorker8, steering23, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace. Binary frozen unlaunched.
 - **integration:** Separate reviewed candidate, prior activity merge and current main/required checks pending.
 - **native:** Actual interaction deferred under owner unavailable instruction.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs), [docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-review.md](active/vacation-campaign/evidence/run-continuation-review.md), [docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json](active/vacation-campaign/evidence/run-continuation-qualification.json), [docs/work/active/vacation-campaign/evidence/run-continuation-final.log](active/vacation-campaign/evidence/run-continuation-final.log), [docs/work/active/vacation-campaign/evidence/run-continuation-final.sh](active/vacation-campaign/evidence/run-continuation-final.sh)
+
+Attempts:
+
+- Lead source inspection found initially weakened exact armed-prompt assertion and incorrect matching-only archive discard assumption. No runtime result claimed.: Immutable continuation query restores exact payload assertion; any-successful-archive discard restored. Initial standalone cargo fmt could not find plugin; pinned PATH environment then formatted successfully. ([docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md))
 
 </details>
 
 ## Next
 
-### Assess explicit destination ownership for file imports
-
-Owner: lead bounded design; economical implementation and independent review only if selected · State: **ready** · Last observed: 2026-10-21T23:28:47.807863+00:00
-Activity: Source assessment identifies a transient destination field written in two UI callers and consumed by the picker helper. The async worker already carries an explicit captured destination. Assess whether the field can be retired with a simpler request interface.
-Next: Compare the smallest explicit destination interface with existing callers/busy guards/reference imports. Select only a behavior-preserving simplification with a clear responsibility/retirement benefit; otherwise retain current code. No new features or tests just for coverage.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Design assessment ready; no implementation selected.
-- **checks:** Pending design/caller comparison; prior evidence reused.
-- **integration:** Pending only if a candidate is selected; existing review/required gates apply.
-- **native:** Existing actual Mac gate deferred; no native claim.
-- **owner acceptance:** Not claimed.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs)
-
-</details>
+None recorded.
 
 ## Needs attention
 
@@ -174,7 +181,7 @@ Owner: lead design/integration; bounded Luna author; consequential independent S
 Waiting:
 
 - prerequisite run-coordination-state-ownership: Prior activity owner integrates before publishing this dependent candidate. (reported satisfied: false; task state: active)
-- resource: Shared build slot belongs to activity qualification; continuation author must not build.
+- resource: Prior activity PR199 exacthead/main integration.
 
 ## Completed
 
@@ -260,6 +267,7 @@ graph TD
   t30["Show unavailable skill choices correctly in inactive Projects"]
   t32["Make visible note rows discoverable to Mac accessibility"]
   t34["Expose readable Needs you menu choices to Mac accessibility"]
+  t67["Assess explicit destination ownership for file imports"]
   t68["Give Run coordination a coherent state and transition owner"]
   t69["Keep Stop and send continuation attached to its Run"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
@@ -268,9 +276,10 @@ graph TD
   t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
+  t69 -->|Prior state candidates integrate before publication of this dependent candidate. (not satisfied)| t67
   t68 -->|Prior activity owner integrates before publishing this dependent candidate. (not satisfied)| t69
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T23:47:11.339640+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T23:51:20.464945+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
