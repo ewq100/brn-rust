@@ -11,7 +11,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Give Run coordination a coherent state and transition owner
 
-Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:46:39.786615+00:00
+Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:47:11.339640+00:00
 Activity: Reviewed exactf6dd4d66 candidate passes3focused+1quiet+345full native toolkit tests, strictlint, ordinarybuild and fmt. Frozen unlaunched production binary recorded; bounded PR publication in progress. Next continuation implementation runs separately without shared builds.
 Next: Inspect new PR and exact-head required checks, then live protection and preceding-main checks before normal merge. Continue independent continuation source work.
 
@@ -22,11 +22,11 @@ Gates:
 
 - **implementation:** PASS complete independent review plus finalf6dd4d66 delta addendum; no actionable findings.
 - **checks:** PASS finalf6dd4d66 focused3, quiet1, full345/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; binary frozen unlaunched. Initial failure retained.
-- **integration:** Candidate/review/required exact-head and resulting-main gates pending.
+- **integration:** PR199published exactf6dd4d66; all4requiredhostedchecks inprogress at23:47UTC. No merge or resulting-main claim.
 - **native:** Actual Mac interaction remains deferred; no native/IME/owner acceptance inferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.log](active/vacation-campaign/evidence/run-activity-final.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.sh](active/vacation-campaign/evidence/run-activity-final.sh), [docs/work/active/vacation-campaign/evidence/run-activity-qualification.json](active/vacation-campaign/evidence/run-activity-qualification.json)
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.log](active/vacation-campaign/evidence/run-activity-final.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.sh](active/vacation-campaign/evidence/run-activity-final.sh), [docs/work/active/vacation-campaign/evidence/run-activity-qualification.json](active/vacation-campaign/evidence/run-activity-qualification.json), [https://github.com/ewq100/brn-rust/pull/199](https://github.com/ewq100/brn-rust/pull/199), [docs/work/active/vacation-campaign/evidence/remote-run-activity-update.json](active/vacation-campaign/evidence/remote-run-activity-update.json)
 
 Attempts:
 
@@ -273,4 +273,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T23:46:39.786615+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T23:47:11.339640+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
