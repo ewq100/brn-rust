@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T07:41:18.523541+00:00",
+  "candidate": "892d3049dd1ab99b2ccf6fd499298334f560b7bc",
+  "base": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+  "qualified_source": "f67599f96ac54943a22f42c4038804c9b439be73",
+  "qualified_tree": "cf639413bc8d45876b4ce353d271becedc6b52b7",
+  "integrated_tree": "cf639413bc8d45876b4ce353d271becedc6b52b7",
+  "whole_tree_equal": true,
+  "reuse": "Normal merge only adds history; entire candidate tree equals independently reviewed and locally qualified f675. Reuse actual focused/full342/0/1/lint/build/format evidence. Required finalhead and precedingmain checks separately.",
+  "limits": "No new native/account/release claim."
+}

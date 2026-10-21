@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T07:42:32.146620+00:00",
+  "url": "https://github.com/ewq100/brn-rust/pull/197",
+  "source": "892d3049dd1ab99b2ccf6fd499298334f560b7bc",
+  "base": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+  "qualified_source": "f67599f96ac54943a22f42c4038804c9b439be73",
+  "integrated_base_receipt": "rejected-save-integrated-base.json",
+  "run": 39563763137,
+  "checks": "Required final head and preceding main checks pending.",
+  "limits": "Published and attached, not merged/native-observed/owner-accepted/released."
+}
