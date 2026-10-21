@@ -716,3 +716,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 21 October UTC: Settings verified and concise overview merged
 
 [PR197 resulting-main](evidence/pr197-resulting-main.json) passes all four required checks. [Fresh PR198 gate](evidence/pr198-premerge.json) passes all four exact-head and preceding-main checks with live protection; hosted Documentation and tooling also passed. [Normal PR198 integration](evidence/pr198-integration.json) retains exact whole-tree equality with reviewed/qualified e501. Resulting-main verification remains a separate pending gate; no history deletion, runtime-prompt change, native observation or release claim.
+
+## 21 October UTC: concise overview verified on main
+
+[PR198 resulting-main](evidence/pr198-resulting-main.json) passes all four required checks plus Documentation and tooling on exact7fd7142c. Original failures, immutable receipts and all completed task facts remain preserved. No new headless candidate is justified by the existing bounded assessments; actual Mac scenarios remain deferred by owner availability. Recovery should reconcile genuinely changed evidence/gates rather than replay audits or passing journeys. No native/owner acceptance/release claim.

@@ -9,26 +9,7 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Keep the startup progress view concise as evidence grows
-
-Owner: bounded Luna medium read-only assessment; lead selects any correction · State: **active** · Last observed: 2026-10-21T09:07:33.340138+00:00
-Activity: PR198 normally merged 7fd7142c after all four required exact-head/preceding-main jobs and Documentation and tooling passed. Entire merged tree equals independently reviewed/qualified e501. Resulting-main jobs remain pending separately.
-Next: Inspect all four required resulting-main checks and Documentation and tooling on exact main 7fd7142c893b7aefcbebb53953336f00dcfc3212. Preserve the complete authoritative history and concise routes.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS exact e501 complete independent review; three implementation file hashes identical on lead.
-- **checks:** PASS183Python tests, actual lead CLI/generated-output/link checks, all current sections/graph/input bytes preserved. Render241lines versus1590.
-- **integration:** PASS normal merge 7fd7142c and whole-tree equality; required resulting-main checks pending.
-- **native:** Inapplicable to documentation projection; existing native work remains deferred.
-- **owner acceptance:** Not claimed.
-
-Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md](active/vacation-campaign/evidence/overview-reading-volume-preflight.md), [docs/work/active/vacation-campaign/evidence/concise-overview-implementation.md](active/vacation-campaign/evidence/concise-overview-implementation.md), [docs/work/active/vacation-campaign/evidence/concise-overview-projection.json](active/vacation-campaign/evidence/concise-overview-projection.json), [docs/work/active/vacation-campaign/evidence/concise-overview-raw.tar.gz](active/vacation-campaign/evidence/concise-overview-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/concise-overview-review.md](active/vacation-campaign/evidence/concise-overview-review.md), [docs/work/active/vacation-campaign/evidence/concise-overview-qualification.json](active/vacation-campaign/evidence/concise-overview-qualification.json), [docs/work/active/vacation-campaign/evidence/pr198-publication.json](active/vacation-campaign/evidence/pr198-publication.json), [https://github.com/ewq100/brn-rust/pull/198](https://github.com/ewq100/brn-rust/pull/198), [docs/work/active/vacation-campaign/evidence/pr198-premerge.json](active/vacation-campaign/evidence/pr198-premerge.json), [docs/work/active/vacation-campaign/evidence/pr198-integration.json](active/vacation-campaign/evidence/pr198-integration.json)
-
-</details>
+None recorded.
 
 ## Next
 
@@ -188,6 +169,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `next-headless-gap-preflight` — Select the next evidence-backed reliability gap
 - `settings-rejected-save-preflight` — Check whether a rejected Settings save keeps the form intact
 - `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
+- `overview-reading-volume` — Keep the startup progress view concise as evidence grows
 
 ## Dependencies
 
@@ -213,4 +195,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T09:07:33.340138+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T09:25:51.524919+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
