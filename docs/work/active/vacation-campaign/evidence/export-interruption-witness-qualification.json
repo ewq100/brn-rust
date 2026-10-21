@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-21T04:11:07.603269+00:00",
+  "base": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "initial_candidate": "7b77eeb42577cce50748487b9bd77a0643c3737a",
+  "candidate": "0abb3fa7d73299195faace74853c7591af8329b8",
+  "changed": [
+    "crates/brn-threads-app/src/export.rs"
+  ],
+  "scope": "one Unix test-only killed-process-before-publication/retry witness; production unchanged",
+  "review": {
+    "source": "export-interruption-witness-review.md",
+    "verdict": "oneP2 unused_mut; fixed exactly by removing mut, lead reconciled full final one-token delta",
+    "independence": "Sol independent complete initial candidate; no source authorship",
+    "original_finding_reproduced": true
+  },
+  "environment": "Rust1.98.1 macOS arm64, locked/offline/jobs1, shared target serialized; canonical fresh disposable synthetic root",
+  "attempts": [
+    {
+      "candidate": "7b77eeb4",
+      "app_export_tests": "3 passed",
+      "export_metadata": "5 passed",
+      "strict_clippy": "FAIL unused_mut at export.rs320; exit101; original retained",
+      "disposition": "remove unnecessary mut; no suppressed warnings"
+    },
+    {
+      "candidate": "0abb3fa7",
+      "app_lib": "7 passed,0failed,0ignored",
+      "export_metadata": "5 passed,0failed,0ignored",
+      "strict_all_target_clippy": "PASS",
+      "format": "PASS",
+      "whitespace": "PASS",
+      "script_exit": 0
+    }
+  ],
+  "commands": [
+    "cargo test -p brn-threads-app --lib --locked --offline --jobs 1",
+    "cargo test -p brn-threads-app --test export_metadata --locked --offline --jobs 1",
+    "cargo clippy -p brn-threads-app --all-targets --locked --offline --jobs 1 -- -D warnings",
+    "cargo fmt -p brn-threads-app -- --check",
+    "git diff --check"
+  ],
+  "raw": "export-interruption-witness-raw.tar.gz",
+  "limits": [
+    "No power-loss proof; one owned process killed at existing flush seam",
+    "No production cleanup sweep; hidden stage may remain until owned temp cleanup",
+    "One synthetic note; no asset-rich/source-provenance fidelity claim",
+    "Toolkit/service test only; native interaction deferred independently",
+    "No owner acceptance, hosted gate pass, merge or release claimed"
+  ]
+}

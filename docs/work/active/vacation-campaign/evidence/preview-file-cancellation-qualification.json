@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-21T04:13:25.370190+00:00",
+  "base": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "candidate": "a054232c8fa5ddf019263823f83753b9a67013f9",
+  "scope": "preview-file reads use existing interruptible input wait; raw byte parsing/path/error policy unchanged",
+  "review": "Independent Sol complete candidate, no actionable findings; preview-file-cancellation-review.md",
+  "original_reproduction": "preview-file-cancellation-baseline.json",
+  "candidate_reproduction": "preview-file-cancellation-candidate.json",
+  "witness": {
+    "baseline": "new regression with AGENT_CONTRACT_BASELINE_BIN pinned9e2a81c0 fails hard:true vs expectedfalse,exit101,1failed/0passed",
+    "candidate": "13 agent_bounds pass/0fail/0ignored; new test hard:false,stopdeadline, records/history unchanged",
+    "ordinary_cli": "frozena054 binary actual1.0495s softdeadlineexit7, every recorded SQLite table rowcount/hash unchanged",
+    "binary_sha256": "829aa79d7ff38de61e782c2b5da3fa21a269aac3a186ce11878f65f5e9bc2d9d"
+  },
+  "checks": {
+    "agent_bounds": "13 passed",
+    "agent_contract": "23 passed",
+    "input_unit": "4 passed,25filtered",
+    "strict_all_target_clippy": "PASS",
+    "format": "PASS",
+    "whitespace": "PASS",
+    "script_exit": 0
+  },
+  "commands": [
+    "AGENT_CONTRACT_BASELINE_BIN=/Users/evokessler/.codex/artifacts/brn-preview-file-cancellation/9e2a81c0/brn cargo test -p brn --test agent_bounds timeout_during_preview_fifo_wait_is_a_soft_deadline_without_changes --locked --offline --jobs 1 -- --exact",
+    "cargo test -p brn --test agent_bounds --locked --offline --jobs 1",
+    "cargo test -p brn --test agent_contract --locked --offline --jobs 1",
+    "cargo test -p brn --bin brn input::tests:: --locked --offline --jobs 1",
+    "cargo clippy -p brn --all-targets --locked --offline --jobs 1 -- -D warnings",
+    "cargo fmt -p brn -- --check",
+    "git diff --check"
+  ],
+  "environment": "PinnedRust1.98.1 macOS arm64, offline/locked/jobs1, serialized sharedtarget; no account/provider/native action",
+  "raw": "preview-file-cancellation-raw.tar.gz",
+  "limits": [
+    "Detached blocked OS reader ends when one-command CLI exits; no claim upstream syscall cancelled",
+    "No added numeric size cap, FIFO/symlink/relative-path restriction or successful JSON deletion policy change",
+    "New test is Unix deadline path; unchanged generic signal tests pass, direct option-specific SIGINT/SIGTERM not separately claimed",
+    "No native usability/owner acceptance/hosted gate/merge/release claimed"
+  ]
+}

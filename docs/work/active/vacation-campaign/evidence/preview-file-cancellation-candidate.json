@@ -1,0 +1,118 @@
+{
+  "source": "a054232c8fa5ddf019263823f83753b9a67013f9",
+  "binary_sha256": "829aa79d7ff38de61e782c2b5da3fa21a269aac3a186ce11878f65f5e9bc2d9d",
+  "run": {
+    "args": [
+      "--timeout",
+      "1",
+      "project-delete",
+      "--preview-file",
+      "/private/tmp/brn-preview-cancellation-qualification/observed-candidate/preview.fifo",
+      "--actions",
+      "{}",
+      "--key",
+      "synthetic-cancel"
+    ],
+    "exit": 7,
+    "stdout": "{\"contract\":3,\"command\":\"project-delete\",\"ok\":false,\"status\":\"failed\",\"exit\":7,\"outcome\":null,\"operation\":null,\"key\":\"synthetic-cancel\",\"retry\":\"replay\",\"changed\":[],\"conflict\":null,\"result\":null,\"error\":{\"code\":\"timeout\",\"message\":\"The --timeout deadline passed before the command committed\",\"details\":{\"deadline_seconds\":1,\"hard\":false}},\"page\":null,\"stop\":\"deadline\",\"authority\":{\"workspace_purpose\":\"test\",\"cli_authority\":\"full\",\"enforced\":false,\"actor\":null}}\n",
+    "stderr": "",
+    "seconds": 1.0495157081168145
+  },
+  "all_tables_before": {
+    "candidate_targets": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "chat_drafts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "derivation_inputs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edit_session_bindings": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edit_sessions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operations": {
+      "rows": 3,
+      "sha256": "8919e4169e1b84f921f1ffb220b86499f888fbea04245d66fa8d6278c6da9b66"
+    },
+    "receipt_actors": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts": {
+      "rows": 3,
+      "sha256": "6f9abedeaa60708de38cd86e6631b0ba2b80b09a36a8b1f48c4adb05c379c105"
+    },
+    "records": {
+      "rows": 3,
+      "sha256": "3563d05c060b191c50a00360016b5989bc2b003266def8011b154a4f236e9977"
+    },
+    "revisions": {
+      "rows": 3,
+      "sha256": "d7cb1caa24c2c2534ae101d3d713c3450f86b8ba1b6f358c8d43fd125ec3de05"
+    },
+    "workspace_profile": {
+      "rows": 1,
+      "sha256": "db313e78c81501e98791461457931e7c396a6c9fa4f529beda30e4057efd9bf0"
+    }
+  },
+  "all_tables_after": {
+    "candidate_targets": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "chat_drafts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "derivation_inputs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edit_session_bindings": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "edit_sessions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operations": {
+      "rows": 3,
+      "sha256": "8919e4169e1b84f921f1ffb220b86499f888fbea04245d66fa8d6278c6da9b66"
+    },
+    "receipt_actors": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts": {
+      "rows": 3,
+      "sha256": "6f9abedeaa60708de38cd86e6631b0ba2b80b09a36a8b1f48c4adb05c379c105"
+    },
+    "records": {
+      "rows": 3,
+      "sha256": "3563d05c060b191c50a00360016b5989bc2b003266def8011b154a4f236e9977"
+    },
+    "revisions": {
+      "rows": 3,
+      "sha256": "d7cb1caa24c2c2534ae101d3d713c3450f86b8ba1b6f358c8d43fd125ec3de05"
+    },
+    "workspace_profile": {
+      "rows": 1,
+      "sha256": "db313e78c81501e98791461457931e7c396a6c9fa4f529beda30e4057efd9bf0"
+    }
+  },
+  "same_logical_data": true,
+  "expected": "soft timeout hard=false at pre-effect input wait",
+  "actual": "soft deadline before effects",
+  "observed_hard": false,
+  "limits": "FIFO is not assumed invalid; no numeric size policy selected; one synthetic child, no accounts/providers/native."
+}

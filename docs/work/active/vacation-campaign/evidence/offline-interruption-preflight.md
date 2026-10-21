@@ -1,0 +1,37 @@
+# Offline interruption/restart preflight
+
+## Source identity and scope
+
+Read-only inspection of `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, branch `codex/agent-first-followthrough`, HEAD `64c09089edb78a8b072a3515c68e975012f768bc`; lead identifies integrated main as `9e2a81c0` with all four required checks passed. Pre-existing lead-owned edits in `docs/work/active/vacation-campaign/{plan.md,campaign.json}` and `docs/work/overview.md` were preserved. No command created test data, built, ran tests, or killed a process.
+
+## Reused evidence and boundaries
+
+- PR181 export durability is integrated. The retained qualification and independent review (`evidence/export-durability-qualification.json`, `export-durability-review.md`) record six focused tests, including pre-publication staged-directory flush failure (destination absent and ordinary-error stage cleanup) and post-rename parent-flush failure (error reported while complete destination remains readable). The exact PR181 pre-merge/resulting-main receipts were inspected. The earlier `2026-10-20-backup-failure-audit.md` identified missing directory flushes before PR181; those source gaps were corrected. It is historical evidence, not a current defect report.
+- Backup already has a Unix child-process `SIGKILL` witness in `crates/brn-threads-core/src/backup.rs:466-511`: the child stages then waits; the parent kills only that child; the final backup name stays absent; the next backup removes the lock-free owned abandoned stage and publishes a valid database. Backup publication flushes the SQLite snapshot and parent directory (`:102-125`). Restore similarly sweeps killed stages; `crates/brn-threads-core/src/restore.rs:339-374` covers killed pre-publication state plus an abandoned post-publication wrapper.
+- The public CLI journey `crates/brn/tests/threads.rs:318-379` already exercises ordinary export, backup, restore, collision refusal, equality of the restored notes and absence of normal-return stage directories. It does not terminate the CLI mid-command.
+- PR189's retained asset-recovery witness and subsequent CLI restore receipt cover exact synthetic stored records/attachment identity and bytes across source reopen/backup/restore. Its import fixture had empty image bytes; that converter limitation is separate. The completed PR190/backup receipts plus `mac-backup-cli-restore.json`, `mac-backup-cli-restore-collision.json`, and `mac-backup-cli-invalid-input.json` document normal supported restore, nonempty-destination refusal and malformed-source refusal. They do not claim interruption or power-loss behavior.
+- `native-close-audit.md` and the MAC-04 row in `native-queue.md:113` concern an already durable unsaved edit surviving a normal Mac close/relaunch. They explicitly exclude unprocessed input races and crash/power-loss qualification. The 2026-10-20 queue-recovery audit already finds the queue/Run restart path covered; that area is out of scope here.
+
+## Distinct candidate
+
+The useful remaining headless witness is a **process kill in export's pre-publication stage-flush window, followed by an ordinary retry**. It would extend an existing service test seam without changing production behavior:
+
+- `crates/brn-threads-app/src/export.rs:17-25` routes production `publish` through private `publish_with_directory_flush`, whose closure is already the deterministic boundary-injection seam.
+- The publisher creates a `.brn-export-*` `TempDir` in the destination parent (`:36-41`), writes/verifies snapshot files and manifest, flushes those files (`:107-121`), flushes `assets/` first and the stage root second (`:122-123`), then exclusively renames the stage to the final path and flushes the parent (`:124-126`). Current unit tests at `:237-307` inject ordinary errors at pre- and post-publication flushes; they do not kill a process.
+- Unlike backup/restore, export has no sweep/ownership-marker recovery for a stage left by `SIGKILL`. `TempDir` cleanup runs on normal return/error, not process death. This is existing hidden staging behavior; this preflight does not select automatic reclamation as product behavior. A kill before rename should leave the final path absent and may leave one hidden stage. A second export to the same still-absent destination should create a fresh complete snapshot; it will not resume the first stage.
+
+A future focused Unix-only unit test can reuse the existing helper and the proven child-ready/SIGKILL pattern from `backup.rs`: a child calls `publish_with_directory_flush`; its first staged-directory-flush callback writes a readiness marker and blocks; the parent waits no more than 5 seconds for that marker, then kills and waits only for the owned child. Use a fresh `tempfile::TempDir`, a workspace outside the export parent, one small synthetic general Note, and one fresh destination in the parent. After the kill, assert the final destination does not exist, the source's captured records/history are unchanged, and at most the child's `.brn-export-*` stage is present. Then reopen the same synthetic workspace and call the real `Workspace::export_now` to that same destination; independently read the manifest and exported Markdown and verify the exact expected note text and manifest hash. Allow the old hidden stage to remain until the enclosing TempDir cleans up; do not sweep or delete arbitrary entries. Keep one child process, one fixture, bounded marker wait, no provider/model/network and no large data. The assertion should treat a missing readiness marker, unexpected final publication before the kill, source mutation, or incomplete retry as failure and terminate only the owned child.
+
+The corresponding command after a test is selected and added could be:
+
+```sh
+CARGO_BUILD_JOBS=1 cargo test -p brn-threads-app --locked --offline --lib export::tests::sigkilled_staged_export_is_not_published_and_retry_publishes_complete_snapshot -- --exact
+```
+
+This is a proposed future command, not an existing passing test. Existing public `brn export` has no deterministic pause/checkpoint, so trying to kill that fast command by timing would be racy. The test-only seam is the bounded deterministic facility; it exercises the same publisher body but not CLI JSON or desktop status, both already covered by the existing normal journeys.
+
+## Limits and disposition
+
+This is one distinct, narrowly scoped process-lifetime test candidate, not evidence of a production defect. It proves only that a killed process before rename does not publish a final partial snapshot and that a later independent export succeeds. It does not test kernel crash, sudden power removal, storage-controller behavior, or whether flushed directory entries survive power loss. PR181's injected flush-failure tests remain the source-level error-boundary evidence; a `SIGKILL` test cannot replace them. Backup/restore stage sweeping and exact CLI backup restore are already covered and should not be duplicated.
+
+No new product behavior decision is needed to test fail-closed publication and retry. If automatic cleanup of stale export stages is desired, that is a separate owner-selected cleanup policy: the current implementation has no ownership marker/sweeper, and a test should not silently define which similarly named entries may be removed. Native MAC-04, actual Mac export controls, and owner acceptance remain deferred with Mac access; none can be inferred from the proposed headless test.

@@ -9,45 +9,53 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Select a useful interruption and recovery check
+### Keep preview-file waiting interruptible
 
-Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **active** · Last observed: 2026-10-21T03:56:18.778419+00:00
-Activity: Select a bounded headless reliability qualification from existing service/CLI interruption and restart boundaries; reuse earlier Save/normal-close/backup/Undo witnesses.
-Next: Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:13:25.370190+00:00
+Activity: Candidatea054232c independently reviewed with no actionable findings; baseline regression fails as expected, candidate bounds13/0, contract23/0, input4/0, strict lint/fmt/whitespace PASS. Frozen ordinary candidate returns soft deadline1.050s with all SQLite table counts/hashes unchanged.
+Next: Preserve qualified candidate; after PR194 integrates, reconcile then-current main and independent source delta before publishing this separate correction and requiring exact-head/main gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** evaluation selected, no product candidate
-- **checks:** pending bounded preflight; actual qualification separate
-- **integration:** inapplicable until reviewed candidate exists
-- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **implementation:** PASS frozena054232c; independent complete Sol review no findings
+- **checks:** PASS baseline red forhard:true, candidate13/0+23/0+4/0, ordinary softdeadline1.050s, strict all-targetlint/fmt/whitespace
+- **integration:** pending publication after PR194 base reconciliation; all4required exact-head and resulting-main separately
+- **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/test-families.md](active/vacation-campaign/test-families.md)
+Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz)
+
+Attempts:
+
+- Baseline actual pre-effect input wait reaches watchdog hardtimeout,exit7,4.026s,hard:true; no canonical change.: Select reuse of existing interruptible input wait; preserve valid file/JSON/FIFO semantics and existing error classes. No new numeric preview byte policy. ([docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json))
 
 </details>
 
-### Select a useful malformed-input or size-limit check
+### Check a killed export can be retried safely
 
-Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **active** · Last observed: 2026-10-21T03:56:18.778419+00:00
-Activity: Inspect file-intake/CLI input refusal and resource ceilings for a concrete headless failure or consequential missing witness; reuse prior invalid-backup/image-policy work.
-Next: Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:13:25.370190+00:00
+Activity: PR194 published at exact0abb3fa7; independent review/final local7/0+5/0 and strict gates passed. Required hosted CI39542569122 in progress; no merge claimed.
+Next: Wait for exact-head required jobs via readonly CIwatch, then fresh fail-fast protection/head/main gate before separate normal merge; inspect resulting-main separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** evaluation selected, no product candidate
-- **checks:** pending bounded preflight; actual qualification separate
-- **integration:** inapplicable until reviewed candidate exists
-- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **implementation:** PASS test-only candidate0abb3fa7; independent review finding corrected by lead and final minimal delta reconciled
+- **checks:** PASS final app lib7/0, metadata5/0, strict all-targetlint/fmt/whitespace; original unusedmut failure retained
+- **integration:** PR194 exact0abb3fa7 published; required CI39542569122 pending; not merged
+- **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-core/tests/backup_directory.rs](../../crates/brn-threads-core/tests/backup_directory.rs), [docs/work/active/vacation-campaign/test-families.md](active/vacation-campaign/test-families.md)
+Evidence: [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-implementation.md](active/vacation-campaign/evidence/export-interruption-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md](active/vacation-campaign/evidence/export-interruption-witness-review.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz](active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/194](https://github.com/ewq100/brn-rust/pull/194)
+
+Attempts:
+
+- Initial7b77 export3/0 and metadata5/0 pass; strict Clippy exits101 at unused_mut, matching independent P2.: Remove only unnecessary mut; final0abb app lib7/0, metadata5/0 and strict lint/fmt/whitespace pass. ([docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json))
 
 </details>
 
@@ -1327,6 +1335,48 @@ Attempts:
 
 </details>
 
+### Select a useful interruption and recovery check
+
+Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **complete** · Last observed: 2026-10-21T04:02:28.270723+00:00
+Activity: Read-only preflight identified a distinct killed-process-before-export-publication/retry witness, using existing private flush seam; normal errors and backup stage sweeping already covered.
+Next: Separate export-interruption-witness owns selected test-only candidate; power-loss/native remains separate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** evaluation complete; separate selected task owns candidate
+- **checks:** PASS bounded source preflight, no execution or product verification claimed
+- **integration:** inapplicable until reviewed candidate exists
+- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/offline-interruption-preflight.md](active/vacation-campaign/evidence/offline-interruption-preflight.md)
+
+</details>
+
+### Select a useful malformed-input or size-limit check
+
+Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **complete** · Last observed: 2026-10-21T04:02:28.270723+00:00
+Activity: Read-only preflight identified direct synchronous preview-file read outside shared interruptible input handling. Ordinary FIFO waiting is not by itself an invalid input; lead will reproduce cancellation/deadline handling without selecting a new file-kind or numeric-size policy.
+Next: Separate preview-file-cancellation task owns actual reproduction and minimal semantics-preserving correction if required. Preserve the preflight FIFO-refusal proposal as unselected interpretation.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** evaluation complete; separate selected task owns candidate
+- **checks:** PASS bounded source preflight, no execution or product verification claimed
+- **integration:** inapplicable until reviewed candidate exists
+- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/malformed-input-boundary-preflight.md](active/vacation-campaign/evidence/malformed-input-boundary-preflight.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1351,4 +1401,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T03:56:18.778419+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:13:25.370190+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
