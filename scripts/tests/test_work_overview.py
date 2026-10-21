@@ -155,16 +155,30 @@ class WorkOverviewTests(unittest.TestCase):
         self.assertEqual(self.run_main("--check")[0], 0)
         self.assertEqual(self.output.stat().st_mtime_ns, before)
 
-    def test_completed_tasks_keep_gates_evidence_and_attempts_in_collapsed_details(self):
+    def test_completed_tasks_use_compact_index_and_link_selected_record(self):
         completed = task("done", state="complete", attempts=[{
             "outcome": "corrected", "change": "Updated the source", "evidence": ["docs/work/active/proof.md"]
         }])
-        output = renderer.render(view(completed), self.output)
+        work_view = view(completed)
+        self.save(work_view)
+        original_record = self.record.read_bytes()
+        result, _, error = self.run_main()
+        self.assertEqual(result, 0, error)
+        output = self.output.read_text(encoding="utf-8")
         section = output.split("## Completed", 1)[1]
-        self.assertIn("<details>", section)
-        self.assertIn("implementation claim", section)
-        self.assertIn("[docs/work/active/example.md]", section)
-        self.assertIn("Updated the source", section)
+        self.assertIn("Completion here means the selected task scope is complete", section)
+        self.assertIn("does not establish every gate, native observation, or owner acceptance", section)
+        self.assertIn("[selected work record](../../campaign.json)", section)
+        self.assertIn("- `done` — First task", section)
+        self.assertNotIn("<details>", section)
+        self.assertNotIn("implementation claim", section)
+        self.assertNotIn("docs/work/active/example.md", section)
+        self.assertNotIn("Updated the source", section)
+        self.assertEqual(self.record.read_bytes(), original_record)
+        retained = json.loads(self.record.read_text(encoding="utf-8"))["work_view"]["tasks"][0]
+        self.assertEqual(retained["gates"]["implementation"], "implementation claim")
+        self.assertEqual(retained["evidence"], ["docs/work/active/example.md"])
+        self.assertEqual(retained["attempts"][0]["change"], "Updated the source")
         self.assertIn("Local page reflects the last saved observations", output)
         self.assertIn("A remote page reflects the last published commit", output)
         self.assertIn("Neither indicates that work is live now", output)
