@@ -237,11 +237,6 @@ impl SettingsSection {
     }
 }
 
-struct PendingSend {
-    thread: String,
-    prompt: String,
-}
-
 use brn_writing_ui::markdown::safe_markdown;
 
 // Presentation is shared by every tile. Toolkit controls keep their focus,
@@ -416,7 +411,6 @@ struct ThreadsUi {
     refresh_names: BTreeMap<String, String>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
-    pending_send: Option<PendingSend>,
     stream: String,
     progress: String,
     run_activity: RunActivity,
@@ -688,7 +682,6 @@ impl ThreadsUi {
             refresh_names: BTreeMap::new(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
-            pending_send: None,
             stream: String::new(),
             progress: String::new(),
             run_activity: RunActivity::default(),
@@ -2035,14 +2028,13 @@ impl ThreadsUi {
         cx.notify();
     }
     fn can_stop_and_send(&self) -> bool {
-        self.pending_send.is_none()
-            && self
-                .worker
-                .as_ref()
-                .and_then(Worker::run_identity)
-                .is_some_and(
-                    |run| matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread),
-                )
+        self.worker
+            .as_ref()
+            .is_some_and(|worker| !worker.has_continuation())
+            && self.worker.as_ref().and_then(Worker::run_identity)
+                .is_some_and(|run| {
+                    matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread)
+                })
     }
     fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.can_stop_and_send() {
@@ -2065,9 +2057,8 @@ impl ThreadsUi {
         ) {
             Ok(_) => {
                 // The durable commit and run fence precede input clearing and cancellation.
-                self.pending_send = Some(PendingSend {
-                    thread: thread.clone(),
-                    prompt,
+                let armed = self.worker.as_mut().is_some_and(|worker| {
+                    worker.arm_continuation(prompt.clone()).is_ok()
                 });
                 self.save_composer(self.destination(), String::new());
                 self.composer
@@ -2075,7 +2066,11 @@ impl ThreadsUi {
                 cancellation.cancel();
                 self.progress =
                     "Stopping… New instruction saved; waiting for this run to finish.".into();
-                self.inform("Message saved. Stopping the current reply, then starting yours.");
+                if armed {
+                    self.inform("Message saved. Stopping the current reply, then starting yours.");
+                } else {
+                    self.warn("Message saved in the chat, but automatic continuation could not be armed. Continue when ready.");
+                }
                 self.refresh();
             }
             Err(error) => self.fail(format!("Could not send: {error}. Your text is preserved.")),
@@ -2168,7 +2163,11 @@ impl ThreadsUi {
                 {
                     worker.cancel.cancel();
                 }
-                self.pending_send = None;
+                if let Some(worker) = self.worker.as_mut()
+                    && worker.run_identity().is_some_and(|run| run.thread == thread)
+                {
+                    worker.discard_continuation();
+                }
             }
             Err(e) => self.fail(e.to_string()),
         }
@@ -2609,7 +2608,7 @@ impl ThreadsUi {
         }
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
-        if self.pending_send.take().is_some() {
+        if self.worker.as_mut().is_some_and(Worker::discard_continuation) {
             self.warn("Automatic continuation stopped. Your saved instruction remains in the chat; Continue when ready.");
         }
         let stopped = if let Some(run) = self.worker.as_ref().and_then(Worker::run_identity) {
@@ -2655,6 +2654,7 @@ impl ThreadsUi {
             return;
         }
         let mut allow_dispatch = false;
+        let mut terminal_continuation = None;
         let mut provider_form_before_refresh = None;
         for event in events {
             let event = match event {
@@ -2736,6 +2736,10 @@ impl ThreadsUi {
                     }
                 }
                 WorkerEvent::Finished(result) => {
+                    terminal_continuation = self
+                        .worker
+                        .as_mut()
+                        .and_then(Worker::take_terminal_continuation);
                     let kind = self.worker.as_ref().map(|w| w.kind());
                     let identity = self.worker.as_ref().and_then(Worker::run_identity);
                     let edit_note_target = self
@@ -2952,9 +2956,9 @@ impl ThreadsUi {
         }
         if end == WorkerBatchEnd::Finished {
             self.persist_theme();
-            if let Some(pending) = self.pending_send.take() {
+            if let Some((prompt, thread)) = terminal_continuation {
                 // Launch only after draining the complete old batch, without navigation or grants.
-                self.start_run(pending.prompt, pending.thread, vec![], None, cx);
+                self.start_run(prompt, thread, vec![], None, cx);
             } else if allow_dispatch {
                 self.dispatch_next(cx);
             }
@@ -2980,8 +2984,10 @@ impl ThreadsUi {
             self.run_activity
                 .transition(RunActivityEvent::Disconnected(&identity.thread));
         }
+        if let Some(worker) = self.worker.as_mut() {
+            worker.discard_continuation();
+        }
         self.worker = None;
-        self.pending_send = None;
         self.stream.clear();
         self.progress.clear();
         self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
@@ -4765,7 +4771,9 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     let weak = view.downgrade();
                     window.on_window_should_close(cx, move |_, cx| {
                         let _ = weak.update(cx, |this, _| {
-                            this.pending_send = None;
+                            if let Some(worker) = this.worker.as_mut() {
+                                worker.discard_continuation();
+                            }
                             if let Some(worker) = &this.worker {
                                 worker.cancel.cancel();
                                 worker
@@ -4778,7 +4786,9 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     let quit_view = view.downgrade();
                     cx.on_action::<Quit>(move |_, cx| {
                         let _ = quit_view.update(cx, |this, _| {
-                            this.pending_send = None;
+                            if let Some(worker) = this.worker.as_mut() {
+                                worker.discard_continuation();
+                            }
                             if let Some(worker) = &this.worker {
                                 worker.cancel.cancel();
                                 worker

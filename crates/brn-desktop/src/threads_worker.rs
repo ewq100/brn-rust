@@ -58,6 +58,7 @@ enum WorkerOperation {
     Run {
         identity: RunIdentity,
         edit_note_target: Option<EditNoteTarget>,
+        continuation: Option<String>,
     },
     Import {
         reference: Option<ReferenceImportIntent>,
@@ -101,6 +102,7 @@ impl Worker {
             operation: WorkerOperation::Run {
                 identity: RunIdentity { thread, run_id },
                 edit_note_target,
+                continuation: None,
             },
         }
     }
@@ -153,6 +155,40 @@ impl Worker {
             WorkerOperation::Run {
                 edit_note_target, ..
             } => edit_note_target.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// Attach a committed saved prompt to this Run. The Run identity remains
+    /// the sole source of the destination thread.
+    pub(super) fn arm_continuation(&mut self, prompt: String) -> Result<(), String> {
+        match &mut self.operation {
+            WorkerOperation::Run { continuation, .. } if continuation.is_none() => {
+                *continuation = Some(prompt);
+                Ok(())
+            }
+            WorkerOperation::Run { .. } => Err("Run already has a continuation".into()),
+            _ => Err("Only a Run can own a continuation".into()),
+        }
+    }
+
+    pub(super) fn has_continuation(&self) -> bool {
+        matches!(&self.operation, WorkerOperation::Run { continuation: Some(_), .. })
+    }
+
+    pub(super) fn discard_continuation(&mut self) -> bool {
+        match &mut self.operation {
+            WorkerOperation::Run { continuation, .. } => continuation.take().is_some(),
+            _ => false,
+        }
+    }
+
+    /// Consume the saved prompt while its original Run identity is still live.
+    pub(super) fn take_terminal_continuation(&mut self) -> Option<(String, String)> {
+        match &mut self.operation {
+            WorkerOperation::Run { identity, continuation, .. } => continuation
+                .take()
+                .map(|prompt| (prompt, identity.thread.clone())),
             _ => None,
         }
     }
@@ -228,6 +264,33 @@ mod tests {
                 None,
             ),
         )
+    }
+
+    #[test]
+    fn continuation_is_run_only_rejects_overwrite_and_is_consumed_once() {
+        let (_sender, mut worker) = worker();
+        assert!(!worker.has_continuation());
+        worker
+            .arm_continuation("saved prompt".into())
+            .expect("first continuation arms");
+        assert!(worker.has_continuation());
+        assert!(worker.arm_continuation("replacement".into()).is_err());
+        assert_eq!(
+            worker.take_terminal_continuation(),
+            Some(("saved prompt".into(), "original-chat".into()))
+        );
+        assert_eq!(worker.take_terminal_continuation(), None);
+
+        let (_sender, receiver) = mpsc::sync_channel(1);
+        let mut import = Worker::import(
+            receiver,
+            CancellationToken::new(),
+            Arc::new(AtomicBool::new(false)),
+            None,
+        );
+        assert!(import.arm_continuation("saved prompt".into()).is_err());
+        assert!(!import.has_continuation());
+        assert_eq!(import.take_terminal_continuation(), None);
     }
 
     #[test]
