@@ -2342,7 +2342,7 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-publication-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T05:03:32.284024+00:00",
+    "observed_at": "2026-10-21T05:07:53.725938+00:00",
     "runtime_capacity": "4slots incllead; boundedauthors/preflights/independentreview allcomplete",
     "build_slot": "free after c01finalqualificationexec77119 exits0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
@@ -2364,8 +2364,8 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR194complete all4mainPASS; PR195normalmergedd296 exacttreeequal, resultingmainpending; PR196published7665 allrequiredpending",
-    "wait_reason": "Current headless implementation/review/localqualification complete; hostedmain195/head196required gates pending. Boundednext-gap preflight found no justified additional sourcewriter; remain in active integration wait rather than dispatch speculative work. Native only awaits changed owner availability.",
-    "resumption": "Finish exactmain195d296 andhead1967665 all4required, thenfreshliveguardnormalmerge196in separatecall andinspectresultingmain. No newjustifiedheadlesstaskfromboundedpreflight; continueactualintegration asgateschange. Nativeavailability remainsdeferred.",
+    "wait_reason": "External required-check wait: main195d296 and PR1967665 still running at05:07UTC. Current source work is frozen/reviewed/localqualified; bounded next-gap preflight found no justified independent writer. This is a genuine integration gate wait, not a pause of campaign authority or a fixed delay between useful batches.",
+    "resumption": "At recovery, inspect actual main195/head196 required results and currentHEAD/main/openPRs/actors/allowance. If all4bothPASS, run preparedfailfast guard forPR196, candidate7665a5766f109bf2db947887d6008c2f2c506d7c base d2967cdd787459dd01ed291219b9045155b18511, thennormalmerge in separatecall and resultingmain separately. If checksfail diagnoseactualfailure; noheadmutationforprogress. No desktopattempt untilownerreportschangedavailability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanon codex/preview-file-cancellation atcacab2e5",
     "fixture_worker_checkout": "mac-test-roots cleancodex/settings-draft-isolation7665a576; openPR196headfrozen, exact5reviewedc01UIhashes match",
