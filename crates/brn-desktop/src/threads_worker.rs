@@ -1,8 +1,11 @@
-//! The current worker's channel protocol, not the full Run lifecycle.
+//! The current worker's channel protocol and invocation-owned continuation payload.
 //!
 //! This boundary admits one old-worker batch through its first terminal event.
 //! The host still owns presentation and consumes that terminal before replacing
 //! the worker; the existing checked service owns durable Run and queue effects.
+//! A saved prompt belongs only to its Run invocation. The host commits and arms
+//! it, then consumes it at the terminal boundary; this module never decides
+//! persistence, cancellation, queue policy or replacement dispatch.
 use super::{ConversionResult, DocumentConversionSettings, ReferenceImportIntent, WorkerKind};
 use std::sync::{Arc, atomic::AtomicBool, mpsc::Receiver};
 use tokio_util::sync::CancellationToken;
