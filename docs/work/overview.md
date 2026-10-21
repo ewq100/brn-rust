@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Keep preview-file waiting interruptible
 
-Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:40:24.611102+00:00
-Activity: Reviewed/localqualified CLI source unchanged through normal base merge to maina1e1; finalheadcacab2e5 three reviewedfilehashes identical. Final real-process1/0 and strictlint/fmt/whitespace PASS; PR publication underway.
-Next: Reconcile new PR/exacthead, require all4head and precedingmain194 contexts before normalmerge; resultingmain separately.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:41:38.162443+00:00
+Activity: PR195 published at finalcacab2e5 againstmaina1e1; exact3CLIhashes match independently reviewed/localqualifieda054 and final integrated-base regression/lint/fmt pass. Hosted39545328133 active; precedingmain194 checks separate.
+Next: Require all4exactcacab head and all4precedingmaina1e1 checks, fresh protection then separate normalmerge; resultingmain separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,11 +22,11 @@ Gates:
 
 - **implementation:** PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest
 - **checks:** PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace
-- **integration:** pending publication after PR194 base reconciliation; all4required exact-head and resulting-main separately
+- **integration:** PR195 published/cacab2e5; required39545328133 and precedingmain39545050369 pending; not merged
 - **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz)
+Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/195](https://github.com/ewq100/brn-rust/pull/195), [docs/work/active/vacation-campaign/evidence/pr195-publication.json](active/vacation-campaign/evidence/pr195-publication.json)
 
 Attempts:
 
@@ -82,6 +82,27 @@ Attempts:
 
 - Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.: Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass. ([docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json))
 - Initial source-branch push remote rejected(failed), causeunspecified; source/ref recheck confirmed cleanlocalfde and remoteabsent.: One normal explicit branch retry succeeds and exactremoteSHA verified; noforce/alternateAPI/PR yet. ([docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json](active/vacation-campaign/evidence/settings-draft-isolation-source-push.json))
+
+</details>
+
+### Assess keeping Settings drafts coherent during refresh
+
+Owner: bounded Luna medium source preflight; lead selects contract/candidate; independent Sol review for meaningful changes · State: **active** · Last observed: 2026-10-21T04:42:00.682690+00:00
+Activity: Follow the named residual form-refresh boundary in qualifiedSettingsfde while CI runs. Read-only assessment only: identify which ordinary refresh/navigation events reset segmented choices versus existing text drafts, reuse prior audit, and identify smallest safe coherent next action without inventing account behavior.
+Next: Return exact current event/field ownership map, contract evidence and bounded offline witness/design or justified deferral. Do not author another overlapping source candidate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** read-only preflight, no new correction or navigation-retention policy selected
+- **checks:** pending bounded source/contract assessment; reuse known refresh-loss finding, no duplicate wholeSettings audit
+- **integration:** inapplicable until a selected reviewed candidate exists
+- **native:** deferred for extended owner unavailability; source/toolkit are distinct
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json)
 
 </details>
 
@@ -1448,4 +1469,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:40:24.611102+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:42:00.682690+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

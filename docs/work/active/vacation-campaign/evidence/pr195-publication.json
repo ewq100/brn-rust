@@ -1,0 +1,11 @@
+{
+  "baseRefOid": "a1e1d8991d34df6c7fd0e8918e8843219452c625",
+  "headRefOid": "cacab2e535c27b6d8541e4e6ff77afbcea0d31b0",
+  "isDraft": false,
+  "state": "OPEN",
+  "url": "https://github.com/ewq100/brn-rust/pull/195",
+  "observed_at": "2026-10-21T04:43:12.773587+00:00",
+  "run": 39545328133,
+  "checks": "required pending, no mergeclaimed",
+  "attachment": "Codex pullrequest attachment confirmed"
+}

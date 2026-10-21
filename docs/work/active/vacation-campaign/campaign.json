@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T04:25:08.047103+00:00",
-    "remaining_percent": 75,
+    "observed_at": "2026-10-21T04:42:00.682690+00:00",
+    "remaining_percent": 74,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual25%used/75%remaining ordinaryUsageAllowedtrue; headless reliability work continues, no new account tests.",
+    "ordinary_work": "admitted: actual26%used/74%remaining ordinaryUsageAllowedtrue; continue headless reviewed integration and one bounded read-only preflight, no account tests.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:40:24.611102+00:00",
+    "observed_at": "2026-10-21T04:42:00.682690+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2050,10 +2050,10 @@
         "title": "Keep preview-file waiting interruptible",
         "state": "active",
         "owner": "bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review",
-        "activity": "Reviewed/localqualified CLI source unchanged through normal base merge to maina1e1; finalheadcacab2e5 three reviewedfilehashes identical. Final real-process1/0 and strictlint/fmt/whitespace PASS; PR publication underway.",
-        "observed_at": "2026-10-21T04:40:24.611102+00:00",
+        "activity": "PR195 published at finalcacab2e5 againstmaina1e1; exact3CLIhashes match independently reviewed/localqualifieda054 and final integrated-base regression/lint/fmt pass. Hosted39545328133 active; precedingmain194 checks separate.",
+        "observed_at": "2026-10-21T04:41:38.162443+00:00",
         "origin": "observed",
-        "next_action": "Reconcile new PR/exacthead, require all4head and precedingmain194 contexts before normalmerge; resultingmain separately.",
+        "next_action": "Require all4exactcacab head and all4precedingmaina1e1 checks, fresh protection then separate normalmerge; resultingmain separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2067,12 +2067,14 @@
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json",
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json",
-          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz",
+          "https://github.com/ewq100/brn-rust/pull/195",
+          "docs/work/active/vacation-campaign/evidence/pr195-publication.json"
         ],
         "gates": {
           "implementation": "PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest",
           "checks": "PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace",
-          "integration": "pending publication after PR194 base reconciliation; all4required exact-head and resulting-main separately",
+          "integration": "PR195 published/cacab2e5; required39545328133 and precedingmain39545050369 pending; not merged",
           "native": "deferred owner availability; no OS usability claim",
           "owner_acceptance": "not claimed"
         },
@@ -2211,6 +2213,31 @@
           "impact": "Legacy segmented selections reset on refresh while text inputs may remain; not changed by this isolation correction.",
           "revisit_trigger": "Select a separate coherent form-preservation contract/qualification; owner availability needed only for actual native observation, not headless investigation."
         }
+      },
+      {
+        "id": "settings-refresh-form-preflight",
+        "title": "Assess keeping Settings drafts coherent during refresh",
+        "state": "active",
+        "owner": "bounded Luna medium source preflight; lead selects contract/candidate; independent Sol review for meaningful changes",
+        "activity": "Follow the named residual form-refresh boundary in qualifiedSettingsfde while CI runs. Read-only assessment only: identify which ordinary refresh/navigation events reset segmented choices versus existing text drafts, reuse prior audit, and identify smallest safe coherent next action without inventing account behavior.",
+        "observed_at": "2026-10-21T04:42:00.682690+00:00",
+        "origin": "observed",
+        "next_action": "Return exact current event/field ownership map, contract evidence and bounded offline witness/design or justified deferral. Do not author another overlapping source candidate.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
+        ],
+        "gates": {
+          "implementation": "read-only preflight, no new correction or navigation-retention policy selected",
+          "checks": "pending bounded source/contract assessment; reuse known refresh-loss finding, no duplicate wholeSettings audit",
+          "integration": "inapplicable until a selected reviewed candidate exists",
+          "native": "deferred for extended owner unavailability; source/toolkit are distinct",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium read-only helper during independent hostedwait;4total slots incl lead. Named benefit: bounded pre-research of known residual draft-lifecycle boundary, not duplicate solved accidental-persistence issue. Exactsourcefde inmac-test-roots remainsfrozen/pushed; no source/sharedrecord edits, builds, fixtures/processes, account/provider/network/credential-content/native/model/nested actions. Return at most1small existing-owner design/witness or contract ambiguity with scope choices. No generic form framework or codeauthoring."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2226,28 +2253,28 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T04:40:24.611102+00:00",
-    "runtime_capacity": "4total slots; Luna authors and independentSol reviews complete; lead integrates",
+    "observed_at": "2026-10-21T04:42:00.682690+00:00",
+    "runtime_capacity": "4total slots; lead integration plus one Luna read-only form-refresh preflight; all source authors and Sol reviews complete",
     "build_slot": "free after CLI integrated-base finalcheck exits0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
-      {
-        "pr": 194,
-        "run": 39542569122,
-        "exec_session": 96881,
-        "interval_seconds": 60,
-        "purpose": "oldhead final optionaljobs completion only; gate separately verified"
-      },
       {
         "pr": 194,
         "run": 39545050369,
         "exec_session": 29035,
         "interval_seconds": 60,
         "purpose": "resultingmaina1e1"
+      },
+      {
+        "pr": 195,
+        "run": 39545328133,
+        "exec_session": 67589,
+        "interval_seconds": 60,
+        "purpose": "exactheadcacab"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR194 normally mergeda1e1d899, exacthead/precedingmainPASS/fulltreeequal; resultingmain39545050369 pending; CLIpublication next",
+    "integration": "PR194 normalmergea1e1/fulltreeequal andhead4PASS, resultingmain39545050369 pending; PR195cacab published/required39545328133 pending; UISettingsfde frozen reviewed qualified awaits orderedintegration",
     "wait_reason": "Native only deferred for extended owner unavailability; two headless candidates under final qualification/integration",
     "resumption": "Continue exact-head PR194 required gate integration using /tmp/brn-export-interruption-qualification/premerge.py only after actual all4PASS, normal merge in separate call then resulting-main gates. CLIa054 and Settingsfde both frozen/reviewed/localqualified and await ordered main reconciliation/publication; no batch pause. Native deferred until owner-reported changed availability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
