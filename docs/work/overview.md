@@ -11,22 +11,22 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Keep preview-file waiting interruptible
 
-Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:13:25.370190+00:00
-Activity: Candidatea054232c independently reviewed with no actionable findings; baseline regression fails as expected, candidate bounds13/0, contract23/0, input4/0, strict lint/fmt/whitespace PASS. Frozen ordinary candidate returns soft deadline1.050s with all SQLite table counts/hashes unchanged.
-Next: Preserve qualified candidate; after PR194 integrates, reconcile then-current main and independent source delta before publishing this separate correction and requiring exact-head/main gates.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:40:24.611102+00:00
+Activity: Reviewed/localqualified CLI source unchanged through normal base merge to maina1e1; finalheadcacab2e5 three reviewedfilehashes identical. Final real-process1/0 and strictlint/fmt/whitespace PASS; PR publication underway.
+Next: Reconcile new PR/exacthead, require all4head and precedingmain194 contexts before normalmerge; resultingmain separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** PASS frozena054232c; independent complete Sol review no findings
-- **checks:** PASS baseline red forhard:true, candidate13/0+23/0+4/0, ordinary softdeadline1.050s, strict all-targetlint/fmt/whitespace
+- **implementation:** PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest
+- **checks:** PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace
 - **integration:** pending publication after PR194 base reconciliation; all4required exact-head and resulting-main separately
 - **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz)
+Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz)
 
 Attempts:
 
@@ -36,9 +36,9 @@ Attempts:
 
 ### Check a killed export can be retried safely
 
-Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:13:25.370190+00:00
-Activity: PR194 published at exact0abb3fa7; independent review/final local7/0+5/0 and strict gates passed. Required hosted CI39542569122 in progress; no merge claimed.
-Next: Wait for exact-head required jobs via readonly CIwatch, then fresh fail-fast protection/head/main gate before separate normal merge; inspect resulting-main separately.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:40:24.611102+00:00
+Activity: PR194 normally mergeda1e1d899 after fresh fail-fast exact0abb/all4head+all4precedingmain/protectionPASS. Entire merged tree equals qualifiedcandidate. Actual resulting-mainCI39545050369 running separately; optionalWindowsfailure retained.
+Next: Inspect exacta1e1 resulting-main all4required statuses before completion or subsequent normal merge. Keep native/power-loss limits separate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -47,11 +47,11 @@ Gates:
 
 - **implementation:** PASS test-only candidate0abb3fa7; independent review finding corrected by lead and final minimal delta reconciled
 - **checks:** PASS final app lib7/0, metadata5/0, strict all-targetlint/fmt/whitespace; original unusedmut failure retained
-- **integration:** PR194 exact0abb3fa7 published; required CI39542569122 pending; not merged
+- **integration:** PASS normal mergea1e1d899 and fulltreeequal; resultingmain39545050369 pending
 - **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-implementation.md](active/vacation-campaign/evidence/export-interruption-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md](active/vacation-campaign/evidence/export-interruption-witness-review.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz](active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/194](https://github.com/ewq100/brn-rust/pull/194), [docs/work/active/vacation-campaign/evidence/pr194-windows-observation.json](active/vacation-campaign/evidence/pr194-windows-observation.json), [docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz](active/vacation-campaign/evidence/pr194-windows-job.log.gz)
+Evidence: [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-implementation.md](active/vacation-campaign/evidence/export-interruption-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md](active/vacation-campaign/evidence/export-interruption-witness-review.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz](active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/194](https://github.com/ewq100/brn-rust/pull/194), [docs/work/active/vacation-campaign/evidence/pr194-windows-observation.json](active/vacation-campaign/evidence/pr194-windows-observation.json), [docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz](active/vacation-campaign/evidence/pr194-windows-job.log.gz), [docs/work/active/vacation-campaign/evidence/pr194-premerge.json](active/vacation-campaign/evidence/pr194-premerge.json), [docs/work/active/vacation-campaign/evidence/pr194-integration.json](active/vacation-campaign/evidence/pr194-integration.json), [docs/work/active/vacation-campaign/evidence/pr194-integration-raw.tar.gz](active/vacation-campaign/evidence/pr194-integration-raw.tar.gz)
 
 Attempts:
 
@@ -1448,4 +1448,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:32:09.346236+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:40:24.611102+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

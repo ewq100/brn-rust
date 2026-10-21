@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-21T04:40:24.611102+00:00",
+  "reviewed_and_qualified_source": "a054232c8fa5ddf019263823f83753b9a67013f9",
+  "new_base": "a1e1d8991d34df6c7fd0e8918e8843219452c625",
+  "final_head": "cacab2e535c27b6d8541e4e6ff77afbcea0d31b0",
+  "base_update": "normal mergeorigin/main after PR194, no rebase/force; all3reviewed CLI hashes identical",
+  "only_added_source": "115test-only lines in crates/brn-threads-app/src/export.rs; production unchanged",
+  "reused_evidence": "preview-file-cancellation-qualification.json and independent review, exact3filehashes matched;13bounds/23contract/4input passed on identical CLI source",
+  "final_checks": "PASS real-process regression1/0/12filtered, strictalltargetClippy/fmt/whitespace;script exit0",
+  "commands_script": "preview-file-cancellation-integrated-base-raw.tar.gz",
+  "integration": "PR publication next, all4required exacthead/precedingmain/resultingmain separately; no mergeclaimed"
+}

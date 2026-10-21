@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-21T04:37:46.211142+00:00",
+  "pr": 194,
+  "candidate": "0abb3fa7d73299195faace74853c7591af8329b8",
+  "merged_commit": "a1e1d8991d34df6c7fd0e8918e8843219452c625",
+  "merged_at": "2026-10-21T04:37:22Z",
+  "qualified_tree": "208ae985f70a1a726970d16cbe8164f7eca964d0",
+  "merged_tree": "208ae985f70a1a726970d16cbe8164f7eca964d0",
+  "full_tree_equal": true,
+  "actual_main": "a1e1d8991d34df6c7fd0e8918e8843219452c625",
+  "normal_merge": "gh pr merge194 --merge --match-head-commit exactSHA; exit0; separate previous premerge guardPASS",
+  "premerge": "pr194-premerge.json",
+  "required_head": "all4PASS",
+  "preceding_main": "all4PASS at9e2a81c0",
+  "resulting_main": "PENDING inspect actual push CI independently",
+  "optional_failure": "Windowsbrn-ai Unix API compilation errors retained, nonrequired context; no Windows portability claim",
+  "authority": "current vacationcampaign reviewed normal merge authorization, native explicitdeferral; no release"
+}

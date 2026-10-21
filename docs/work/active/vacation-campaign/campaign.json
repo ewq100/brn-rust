@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:32:09.346236+00:00",
+    "observed_at": "2026-10-21T04:40:24.611102+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2050,10 +2050,10 @@
         "title": "Keep preview-file waiting interruptible",
         "state": "active",
         "owner": "bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review",
-        "activity": "Candidatea054232c independently reviewed with no actionable findings; baseline regression fails as expected, candidate bounds13/0, contract23/0, input4/0, strict lint/fmt/whitespace PASS. Frozen ordinary candidate returns soft deadline1.050s with all SQLite table counts/hashes unchanged.",
-        "observed_at": "2026-10-21T04:13:25.370190+00:00",
+        "activity": "Reviewed/localqualified CLI source unchanged through normal base merge to maina1e1; finalheadcacab2e5 three reviewedfilehashes identical. Final real-process1/0 and strictlint/fmt/whitespace PASS; PR publication underway.",
+        "observed_at": "2026-10-21T04:40:24.611102+00:00",
         "origin": "observed",
-        "next_action": "Preserve qualified candidate; after PR194 integrates, reconcile then-current main and independent source delta before publishing this separate correction and requiring exact-head/main gates.",
+        "next_action": "Reconcile new PR/exacthead, require all4head and precedingmain194 contexts before normalmerge; resultingmain separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2065,11 +2065,13 @@
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md",
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json",
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json",
-          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json",
+          "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz"
         ],
         "gates": {
-          "implementation": "PASS frozena054232c; independent complete Sol review no findings",
-          "checks": "PASS baseline red forhard:true, candidate13/0+23/0+4/0, ordinary softdeadline1.050s, strict all-targetlint/fmt/whitespace",
+          "implementation": "PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest",
+          "checks": "PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace",
           "integration": "pending publication after PR194 base reconciliation; all4required exact-head and resulting-main separately",
           "native": "deferred owner availability; no OS usability claim",
           "owner_acceptance": "not claimed"
@@ -2090,10 +2092,10 @@
         "title": "Check a killed export can be retried safely",
         "state": "active",
         "owner": "bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review",
-        "activity": "PR194 published at exact0abb3fa7; independent review/final local7/0+5/0 and strict gates passed. Required hosted CI39542569122 in progress; no merge claimed.",
-        "observed_at": "2026-10-21T04:13:25.370190+00:00",
+        "activity": "PR194 normally mergeda1e1d899 after fresh fail-fast exact0abb/all4head+all4precedingmain/protectionPASS. Entire merged tree equals qualifiedcandidate. Actual resulting-mainCI39545050369 running separately; optionalWindowsfailure retained.",
+        "observed_at": "2026-10-21T04:40:24.611102+00:00",
         "origin": "observed",
-        "next_action": "Wait for exact-head required jobs via readonly CIwatch, then fresh fail-fast protection/head/main gate before separate normal merge; inspect resulting-main separately.",
+        "next_action": "Inspect exacta1e1 resulting-main all4required statuses before completion or subsequent normal merge. Keep native/power-loss limits separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2104,12 +2106,15 @@
           "docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz",
           "https://github.com/ewq100/brn-rust/pull/194",
           "docs/work/active/vacation-campaign/evidence/pr194-windows-observation.json",
-          "docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz"
+          "docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz",
+          "docs/work/active/vacation-campaign/evidence/pr194-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr194-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr194-integration-raw.tar.gz"
         ],
         "gates": {
           "implementation": "PASS test-only candidate0abb3fa7; independent review finding corrected by lead and final minimal delta reconciled",
           "checks": "PASS final app lib7/0, metadata5/0, strict all-targetlint/fmt/whitespace; original unusedmut failure retained",
-          "integration": "PR194 exact0abb3fa7 published; required CI39542569122 pending; not merged",
+          "integration": "PASS normal mergea1e1d899 and fulltreeequal; resultingmain39545050369 pending",
           "native": "deferred owner availability; no OS usability claim",
           "owner_acceptance": "not claimed"
         },
@@ -2221,20 +2226,28 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T04:32:09.346236+00:00",
+    "observed_at": "2026-10-21T04:40:24.611102+00:00",
     "runtime_capacity": "4total slots; Luna authors and independentSol reviews complete; lead integrates",
-    "build_slot": "free after final Settingsfde qualification exit0; qualified ordinary binary preserved, no desktop action",
+    "build_slot": "free after CLI integrated-base finalcheck exits0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
         "pr": 194,
         "run": 39542569122,
         "exec_session": 96881,
-        "interval_seconds": 60
+        "interval_seconds": 60,
+        "purpose": "oldhead final optionaljobs completion only; gate separately verified"
+      },
+      {
+        "pr": 194,
+        "run": 39545050369,
+        "exec_session": 29035,
+        "interval_seconds": 60,
+        "purpose": "resultingmaina1e1"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "Currentmain9e2a81c0 reconciled, PR194 local/reviewpass and hostedpending; CLIa054 local/reviewpass publication waiting strictbase",
+    "integration": "PR194 normally mergeda1e1d899, exacthead/precedingmainPASS/fulltreeequal; resultingmain39545050369 pending; CLIpublication next",
     "wait_reason": "Native only deferred for extended owner unavailability; two headless candidates under final qualification/integration",
     "resumption": "Continue exact-head PR194 required gate integration using /tmp/brn-export-interruption-qualification/premerge.py only after actual all4PASS, normal merge in separate call then resulting-main gates. CLIa054 and Settingsfde both frozen/reviewed/localqualified and await ordered main reconciliation/publication; no batch pause. Native deferred until owner-reported changed availability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
