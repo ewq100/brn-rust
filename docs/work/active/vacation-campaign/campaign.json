@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T23:26:06.939442+00:00",
+    "observed_at": "2026-10-21T23:35:21.633524+00:00",
     "remaining_percent": 70,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual30%used/70%remaining and ordinaryUsageAllowedtrue; bounded ordinary-import assessment, no account test.",
+    "ordinary_work": "Admitted: actual30%used/70%remaining ordinaryUsageAllowedtrue. Continuous state-ownership implementation selected; no account test.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T23:28:47.807863+00:00",
+    "observed_at": "2026-10-21T23:40:43.876709+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2531,6 +2531,44 @@
         },
         "attempts": [],
         "resource_plan": "Lead small design assessment first, no source writer yet. A bounded Luna implementation and consequential independent Sol review may follow only if responsibility improves without interface burden. Four total slots, serialize any shared builds; no account/native/network/provider or runtime-prompt changes."
+      },
+      {
+        "id": "run-coordination-state-ownership",
+        "title": "Give Run coordination a coherent state and transition owner",
+        "state": "active",
+        "owner": "lead design/integration; two bounded Luna inventories; consequential independent Sol review",
+        "activity": "Activity state/event candidate1af5a124 committed in isolated worker. Three old mutable UI fields replaced by private Idle/Live/Ended owner; existing render/poller/steering paths migrated. Independent Sol review and final serialized qualification active; no passing runtime gate claimed yet.",
+        "observed_at": "2026-10-21T23:40:43.876709+00:00",
+        "origin": "observed",
+        "next_action": "Inspect complete independent review and actual focused/full native tests, strictlint and ordinary build. Preserve any failure before correction; integrate normally only after all required gates.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_worker.rs",
+          "crates/brn-desktop/src/threads_chat.rs",
+          "docs/work/active/vacation-campaign/worker-identity.md",
+          "docs/development/strategic-programming.md",
+          "docs/work/active/vacation-campaign/evidence/run-coordination-map.md",
+          "docs/work/active/vacation-campaign/evidence/run-coordination-tests.md",
+          "docs/work/active/vacation-campaign/evidence/run-activity-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/run-continuation-design.md"
+        ],
+        "gates": {
+          "implementation": "Candidate1af5a124 committed; independent complete-candidate review active.",
+          "checks": "Existing behavior/tests are mapped before selecting proportionate checks.",
+          "integration": "Candidate/review/required exact-head and resulting-main gates pending.",
+          "native": "Actual Mac interaction remains deferred; no native/IME/owner acceptance inferred.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "First source/test inventories: two requested Luna medium read-only helpers, complete. Implementation: one bounded requested Luna medium author in isolated clean mac-test-roots codex/run-activity-state-owner base7fd7142c; consequential independent Sol complete-candidate review next. Lead owns final tests/build slot/sharedrecords/integration. Four total slots, normallylead+author/reviewer. No account/native/network/provider/schema/runtimeprompts, newcrate/framework or nestedagents. Stop after two failed corrections/invariant ambiguity and reassess, while continuing independent plan work. While the activity author works, reuse the completed source-mapper for a bounded read-only proposal for the next identity-bound Stop-and-Send continuation owner; it owns only /tmp/brn-run-continuation-design.md, no implementation. This overlap prepares the next coherent slice without competing source writers; max lead+author+mapper within four slots.",
+        "design": "Private RunActivity in desktop native module: Idle, Live{chat,steps}, Ended{chat,steps,status}. Events Started(chat), Observed(chat,text), Finished(chat,status), Disconnected(chat). Start resets all values together; observations ignore empty/consecutive duplicates, keep existing8192Unicode-scalar/32step limits, retain current progress-admission/cancellation gates. Idle may accept first known-chat observation for existing real-transport fixtures; mismatched chat or postterminal observation is rejected. Finish/disconnect retains bounded steps only for the exact known context. Host supplies actual Worker thread and existing checked-run displaystatus; model neither owns/copies Run ID nor decides lease/queue/cancel/dispatch. Transition return indicates accepted step so GPUI scroll remains host effect. Read interface steps/status/has_steps_for(chat); no caller mutable field writes. Retire run_activity_chat/labels/status and record_activity duplicate policy, retain toolkit scroll and all legacy labels/status text/quiet behavior.",
+        "deferred_boundary": {
+          "boundary": "Full Run/queue/Stop-and-Send session coordination",
+          "impact": "worker,pending_send,partial stream and shared non-Run progress remain in current owners for this first bounded activity slice. This is not a full Run reducer.",
+          "revisit_trigger": "After reviewed/qualified activity owner integration, select the next cohesive pending-continuation/terminal coordination increment using the already collected source/test maps."
+        }
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2545,18 +2583,18 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-next-import-phase-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T23:28:47.807863+00:00",
-    "runtime_capacity": "Four total slots including lead; fresh bounded Luna import assessment complete. No writer/build/account/native actor newly dispatched.",
-    "build_slot": "Free; final source qualification complete. No local Rust build active.",
+    "observed_at": "2026-10-21T23:40:43.876709+00:00",
+    "runtime_capacity": "Four total slots including lead; both inventories, author and continuation design complete. One fresh independent Sol reviewer active.",
+    "build_slot": "Owned by lead final RunActivity qualification on frozen1af5a124; one sharedtarget jobs1, no other build admitted.",
     "desktop_account_actor": "Preserved synthetic native app remains under owner extended-screen-unavailability deferral. No further native access attempt, close/kill/relaunch or account test performed.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Next headless work is explicit import-target ownership design assessment; native checks remain deferred.",
+    "wait_reason": "Continuous Run coordination/state-owner work selected by renewed owner instruction. Native deferral does not block headless implementation.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; PR197 normally merged. Qualified source/artifact preserved.",
-    "fixture_worker_checkout": "mac-test-roots clean codex/concise-completed-overview e501f9d5; PR198 merged, source/artifacts preserved.",
+    "fixture_worker_checkout": "mac-test-roots clean codex/run-activity-state-owner, base main7fd7142c; old e501/6fb refs/artifacts preserved.",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0",
     "required_ci_runs": []
   },

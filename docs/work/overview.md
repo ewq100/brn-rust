@@ -9,7 +9,26 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-None recorded.
+### Give Run coordination a coherent state and transition owner
+
+Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:40:43.876709+00:00
+Activity: Activity state/event candidate1af5a124 committed in isolated worker. Three old mutable UI fields replaced by private Idle/Live/Ended owner; existing render/poller/steering paths migrated. Independent Sol review and final serialized qualification active; no passing runtime gate claimed yet.
+Next: Inspect complete independent review and actual focused/full native tests, strictlint and ordinary build. Preserve any failure before correction; integrate normally only after all required gates.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Candidate1af5a124 committed; independent complete-candidate review active.
+- **checks:** Existing behavior/tests are mapped before selecting proportionate checks.
+- **integration:** Candidate/review/required exact-head and resulting-main gates pending.
+- **native:** Actual Mac interaction remains deferred; no native/IME/owner acceptance inferred.
+- **owner acceptance:** Not claimed.
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md)
+
+</details>
 
 ## Next
 
@@ -215,4 +234,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T23:28:47.807863+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T23:40:43.876709+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
