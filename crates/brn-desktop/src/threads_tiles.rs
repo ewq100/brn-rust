@@ -1636,8 +1636,12 @@ impl ThreadsUi {
                     helper_on,
                     cx,
                     |this, value| {
-                        this.provider_form.helper_provider =
-                            (value != "off").then(|| value.into());
+                        if value == "off" {
+                            this.provider_form.helper_provider = None;
+                            this.provider_form.helper_effort = "high".into();
+                        } else {
+                            this.provider_form.helper_provider = Some(value.into());
+                        }
                     },
                 ),
             ));
