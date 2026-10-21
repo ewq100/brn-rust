@@ -2781,14 +2781,14 @@ impl ThreadsUi {
                         tone = *terminal_tone;
                     }
                     let ok = result.is_ok();
-                    if identity.is_some() {
+                    if let Some(identity) = &identity {
                         let status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
                             Some(state) => format!("{state:?}"),
                             None => "Work ended".into(),
                         };
                         self.run_activity.transition(RunActivityEvent::Finished {
-                            chat: &identity.as_ref().expect("checked above").thread,
+                            chat: &identity.thread,
                             status: &status,
                         });
                     }
