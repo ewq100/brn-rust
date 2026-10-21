@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-21T09:09:07.022Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source": "b1ef23bbbc7ef7a633c3c979bf13140d0917cc9d",
+  "sequence": 52,
+  "operation_results": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "89e804f6a5f5d6c802c05a5602fb7edb3d7d47a049ce2e318c35549a11bd0b42"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "03700ade599555d21fb62cd94d0d1e80eb15c7de0485347c9af80b36e848b04b"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "f65a2c28b3e9821056598a532f359801ab36475b6f5e2402d3215e4e90768f7a"
+        }
+      ]
+    }
+  ],
+  "readback": "PASS all36blocks and metadata; three managed texts updated",
+  "limits": "PR198 resulting-main checks pending; no native/owner acceptance claim."
+}
