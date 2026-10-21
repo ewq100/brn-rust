@@ -1,6 +1,6 @@
 # Development status
 
-Open the [development overview](work/overview.md) for current work, next actions, attention items and completed results. It is generated from the campaign record and labels observation times and verification limits. A remote page shows the last published checkpoint, not live agent activity.
+Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
 Remote owner view: [BRN Development Progress in ChatGPT Space](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68). This concise campaign projection is refreshed at meaningful transitions and shows its observation time. The repository task record remains authoritative.
 

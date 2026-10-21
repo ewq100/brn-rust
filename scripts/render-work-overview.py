@@ -173,7 +173,7 @@ def _task_block(task, output_path):
     return "\n".join(lines)
 
 
-def render(view, output_path):
+def render(view, output_path, record_path=DEFAULT_RECORD):
     validate(view)
     output_path = Path(output_path).resolve()
     tasks = view["tasks"]
@@ -205,6 +205,16 @@ def render(view, output_path):
             selected = [task for task in tasks if task["state"] == "complete"]
         if not selected:
             out.extend(("None recorded.", ""))
+        elif heading == "Completed":
+            record_target = os.path.relpath(Path(record_path).resolve(), output_path.parent)
+            record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
+            out.extend((
+                "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
+                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Find each task by its listed ID.",
+                "",
+            ))
+            out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
+            out.append("")
         else:
             for task in selected:
                 if heading == "Needs attention":
@@ -268,7 +278,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         view = read_record(args.record)
-        content = render(view, args.output)
+        content = render(view, args.output, args.record)
     except InvalidRecord as exc:
         print(f"invalid work overview: {exc}", file=sys.stderr)
         return 2
