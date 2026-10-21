@@ -1086,6 +1086,9 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
         assert!(window.find("helper-effort-high").visible());
         assert!(window.find("settings-helper-tested").visible());
     });
+    click(cx, &f, "helper-effort-low");
+    click(cx, &f, "helper-provider-off");
+    click(cx, &f, "helper-provider-Codex");
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert_eq!(saved.provider, "offline-fixture");
@@ -1118,6 +1121,55 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
             "Connect GitHub Copilot, unavailable: BRN is working"
         );
     });
+}
+
+#[gpui_kit::test]
+fn copilot_connection_does_not_save_an_unsaved_effort_choice(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 1500., |_| {});
+    let credentials = f
+        ._root
+        .path()
+        .join("synthetic-copilot")
+        .display()
+        .to_string();
+    update(cx, &f, |view, _, cx| {
+        focus_tests::settings(view, SettingsSection::Models, cx);
+    });
+    click(cx, &f, "effort-high");
+
+    assert_eq!(
+        Workspace::open_without_default_credentials(&f.data)
+            .unwrap()
+            .settings()
+            .unwrap()
+            .effort,
+        "medium"
+    );
+
+    update(cx, &f, |view, window, cx| {
+        let (sender, receiver) = mpsc::sync_channel(2);
+        view.worker = Some(Worker::connect(receiver, CancellationToken::new()));
+        sender
+            .send(WorkerEvent::CopilotConnected(credentials.clone()))
+            .unwrap();
+        sender
+            .send(WorkerEvent::Finished(Ok(
+                "Synthetic Copilot connection finished".into(),
+            )))
+            .unwrap();
+        view.poll_worker(window, cx);
+        assert_eq!(view.settings.provider, "copilot");
+        assert_eq!(view.provider_form.provider, "copilot");
+        assert_eq!(view.provider_form.effort, "medium");
+    });
+
+    let saved = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    assert_eq!(saved.provider, "copilot");
+    assert_eq!(saved.credentials_dir.as_deref(), Some(credentials.as_str()));
+    assert_eq!(saved.effort, "medium");
 }
 
 /// Recent chats' empty state names why it lists nothing.

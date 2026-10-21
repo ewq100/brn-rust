@@ -487,6 +487,27 @@ fn settings_save_preserves_backup_and_requires_explicit_delegation_choice(cx: &m
         });
     });
     click(cx, &f, "effort-high");
+    let canonical_before = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    update(cx, &f, |view, window, cx| {
+        let (sender, receiver) = mpsc::sync_channel(1);
+        view.worker = Some(Worker::output(receiver, true));
+        sender
+            .send(WorkerEvent::Finished(
+                Ok("Synthetic backup finished".into()),
+            ))
+            .unwrap();
+        view.poll_worker(window, cx);
+    });
+    let canonical_after = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    assert_eq!(canonical_after.provider, canonical_before.provider);
+    assert_eq!(canonical_after.model, canonical_before.model);
+    assert_eq!(canonical_after.effort, canonical_before.effort);
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert_eq!(saved.provider, "offline-fixture");
