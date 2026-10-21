@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-21T08:19:27.442330+00:00",
+  "candidate": "e501f9d561db05fb44d06be4c8d9cae2ab269276",
+  "base": "f54fcc2e4f18f590601c1ddb06c4b98470a0df84",
+  "review": "concise-overview-review.md",
+  "source_hashes": {
+    "scripts/render-work-overview.py": "55cdd0e2ee96cd1694dd1238a180c89bec7bd8c3dfe74fd68ce6bfba3a89ccd8",
+    "scripts/tests/test_work_overview.py": "4ad735ed0108c5130a5e39d5fc47551601a1b4bdaea42ec1e80de1579a1b53f1",
+    "docs/status.md": "9016a5b2ec7af4820cd540cee52ca6b225290020da1b104f391c4c12b9a6f0fb"
+  },
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -v",
+      "result": "PASS183tests,11.876s; complete raw log archived."
+    },
+    {
+      "command": "python3 scripts/render-work-overview.py --check",
+      "result": "PASS worker generated record and actual lead current-record CLI output."
+    },
+    {
+      "command": "python3 scripts/check-markdown-links.py",
+      "result": "PASS worker625files2850links; actuallead686files2973links."
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS worker and lead."
+    }
+  ],
+  "projection": "concise-overview-projection.json",
+  "raw": "concise-overview-raw.tar.gz",
+  "limits": "Only developer documentation projection. No record deletion, runtime prompt, Rust/native/provider/account change. Initial comparison environment mismatch retained in projection receipt."
+}

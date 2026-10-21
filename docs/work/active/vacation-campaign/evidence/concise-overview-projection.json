@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-21T08:17:04.248741+00:00",
+  "candidate": "e501f9d561db05fb44d06be4c8d9cae2ab269276",
+  "record_sha256": "a3817ccb819ae8294c1ce062b6f69e502e5ccbed8d986ca1adb64cf082b13757",
+  "tasks": 66,
+  "completed": 61,
+  "before": {
+    "lines": 1590,
+    "utf8_bytes": 158608
+  },
+  "after": {
+    "lines": 241,
+    "utf8_bytes": 23327
+  },
+  "checks": [
+    "Current/actionable sections byte-identical",
+    "All actual dependency edges identical",
+    "Every completed ID retained once in compact index",
+    "Actual selected record link resolves",
+    "Authoritative record bytes unchanged"
+  ],
+  "first_attempt": "Cross-checkout in-memory comparison initially failed because source modules resolve evidence links against their own script ROOT. Rebased only the in-memory new module ROOT to the intended lead location; production source unchanged.",
+  "limits": "Presentation-only measurements for this record; actual module execution/root is tested separately after integration. Not injected token or model cost savings; no runtime/native claim."
+}

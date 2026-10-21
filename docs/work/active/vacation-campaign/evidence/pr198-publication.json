@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T08:20:00.241141+00:00",
+  "number": 198,
+  "url": "https://github.com/ewq100/brn-rust/pull/198",
+  "candidate": "e501f9d561db05fb44d06be4c8d9cae2ab269276",
+  "base": "f54fcc2e4f18f590601c1ddb06c4b98470a0df84",
+  "state": "open",
+  "draft": false,
+  "qualification": "concise-overview-qualification.json",
+  "gates": "Required exact-head and preceding-main pending. No merge or release claim."
+}

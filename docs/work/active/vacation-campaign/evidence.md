@@ -708,3 +708,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 21 October UTC: Settings corrections merged
 
 [PR196 resulting-main](evidence/pr196-resulting-main.json) passes all four required jobs. [Fresh PR197 guard](evidence/pr197-premerge.json) passes all four exact-head and all four preceding-main jobs with live protection before a separate normal merge. [Main f54fcc2e](evidence/pr197-integration.json) exactly matches the complete reviewed/qualified f675 tree. Its resulting-main gate remains pending separately. Actual native interaction stays deferred; no release or owner-acceptance claim.
+
+## 21 October UTC: concise startup projection
+
+[Bounded assessment](evidence/overview-reading-volume-preflight.md) found completed history dominated the startup overview. [Candidate](evidence/concise-overview-implementation.md) replaces only completed blocks with a stable ID/title index and the actual selected-record route; every detailed fact remains authoritative there. [Independent review](evidence/concise-overview-review.md) found no actionable findings. [Qualification](evidence/concise-overview-qualification.json) records all183Python tests, actual lead CLI/links, and [projection preservation](evidence/concise-overview-projection.json):1590to241lines with current sections, graph and record bytes intact. Initial comparison-root mismatch is retained; no measured token savings or runtime/native claim. Integration is still a separate gate.

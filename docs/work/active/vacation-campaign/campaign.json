@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T08:14:32.187841+00:00",
+    "observed_at": "2026-10-21T08:20:00.241141+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2442,22 +2442,29 @@
         "title": "Keep the startup progress view concise as evidence grows",
         "state": "active",
         "owner": "bounded Luna medium read-only assessment; lead selects any correction",
-        "activity": "Bounded assessment confirms1416of1590lines render61 completed histories. Lead selected presentation-only compact completed ID/title index; authoritative record and current-task detail remain intact.",
-        "observed_at": "2026-10-21T08:14:32.187841+00:00",
+        "activity": "Reviewed/local-qualified e501f9d5 published as PR198. Source head is frozen while required checks run. Actual lead view is241lines and all underlying task/history records remain intact.",
+        "observed_at": "2026-10-21T08:20:00.241141+00:00",
         "origin": "observed",
-        "next_action": "Bounded Luna author changes existing renderer, existing completed-history regression and status wording in isolated clean mac-test-roots branch from main f54fcc2e. Lead checks source/fixtures and independent reviewer assesses complete candidate.",
+        "next_action": "Require all four exact-head e501 and preceding-main f54fcc2e checks, plus hosted Documentation and tooling; then fresh live protection check and separate normal merge. Inspect resulting main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "scripts/render-work-overview.py",
           "docs/development/workflow.md",
           "docs/work/overview.md",
-          "docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md"
+          "docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/concise-overview-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/concise-overview-projection.json",
+          "docs/work/active/vacation-campaign/evidence/concise-overview-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/concise-overview-review.md",
+          "docs/work/active/vacation-campaign/evidence/concise-overview-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr198-publication.json",
+          "https://github.com/ewq100/brn-rust/pull/198"
         ],
         "gates": {
-          "implementation": "Selected narrow renderer correction; author assigned.",
-          "checks": "Pending bounded assessment; no runtime/build claims.",
-          "integration": "Inapplicable until a reviewed candidate exists.",
+          "implementation": "PASS exact e501 complete independent review; three implementation file hashes identical on lead.",
+          "checks": "PASS183Python tests, actual lead CLI/generated-output/link checks, all current sections/graph/input bytes preserved. Render241lines versus1590.",
+          "integration": "PR198 published exact e501; required head and preceding-main checks pending, not merged.",
           "native": "Inapplicable to documentation projection; existing native work remains deferred.",
           "owner_acceptance": "Not claimed."
         },
@@ -2479,7 +2486,7 @@
   },
   "resource_observation": {
     "observed_at": "2026-10-21T08:10:15.071690+00:00",
-    "runtime_capacity": "Four total slots including lead; one bounded Luna read-only documentation assessment assigned; existing source writers/reviews complete.",
+    "runtime_capacity": "Four total slots including lead; bounded author/preflight and independent reviewer complete. No local build/source writer active.",
     "build_slot": "Free; final source qualification complete. No local Rust build active.",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
@@ -2491,11 +2498,11 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR197 resulting-main required jobs are the remaining active integration gate. Source writers and reviews complete; native interaction deferred.",
+    "wait_reason": "PR198 exact-head and preceding-main197 required jobs pending. Both candidates independently reviewed/local-qualified; no new writer selected. Native interaction deferred.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; PR197 normally merged. Qualified source/artifact preserved.",
-    "fixture_worker_checkout": "mac-test-roots clean codex/settings-draft-isolation6fb5323f; PR196 merged. Frozen artifact/source preserved.",
+    "fixture_worker_checkout": "mac-test-roots clean codex/concise-completed-overview e501f9d5; PR198 head frozen. Prior6fb source/artifact preserved.",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0"
   },
   "native_availability": {
