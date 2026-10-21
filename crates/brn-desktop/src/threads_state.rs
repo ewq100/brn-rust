@@ -11,6 +11,7 @@ use std::collections::BTreeMap;
 
 /// Editable selections in Settings → Provider and model. Runtime consumers
 /// keep using the canonical `WorkspaceSettings` snapshot until Save succeeds.
+#[cfg(feature = "native-ui")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct ProviderForm {
     pub(super) provider: String,
@@ -18,6 +19,7 @@ pub(super) struct ProviderForm {
     pub(super) helper_provider: Option<String>,
     pub(super) helper_effort: String,
 }
+#[cfg(feature = "native-ui")]
 impl ProviderForm {
     pub(super) fn from_settings(settings: &WorkspaceSettings) -> Self {
         Self {
