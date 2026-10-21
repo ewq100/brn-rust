@@ -178,7 +178,10 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 editor.set_value("Later A draft", window, cx)
             });
             ui.ask(window, cx); // A second click cannot replace the pending instruction.
-            assert!(ui.worker.as_ref().unwrap().has_continuation());
+            assert_eq!(
+                ui.worker.as_ref().unwrap().continuation(),
+                Some("New exact instruction · õun")
+            );
             assert!(ui.workspace.messages(&f.thread).unwrap().iter().any(|record|
                 matches!(&record.data, RecordData::Message(message)
                     if message.role == "owner" && message.text == "New exact instruction · õun")));
@@ -194,7 +197,10 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 .send(WorkerEvent::Text("Old partial answer".into()))
                 .unwrap();
             ui.poll_worker(window, cx);
-            assert!(ui.worker.as_ref().unwrap().has_continuation());
+            assert_eq!(
+                ui.worker.as_ref().unwrap().continuation(),
+                Some("New exact instruction · õun")
+            );
             assert!(ui.worker.is_some(), "no second invocation before Finished");
             ui.open_thread(&f.other, window, cx);
             assert!(!ui.can_stop_and_send());
@@ -209,7 +215,7 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 .send(WorkerEvent::Text("Late old text".into()))
                 .unwrap();
             ui.poll_worker(window, cx);
-            assert!(!ui.worker.as_ref().is_some_and(|worker| worker.has_continuation()));
+            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
             assert!(
                 ui.worker.is_none(),
                 "persisted offline provider refuses startup without credential access"
@@ -317,7 +323,7 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            assert!(!ui.worker.as_ref().is_some_and(|worker| worker.has_continuation()));
+            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
             assert!(ui.notice.text().contains("Automatic continuation stopped"));
             f.sender
                 .send(WorkerEvent::Finished(Ok("Interrupted".into())))
@@ -345,7 +351,7 @@ fn failed_steering_persistence_retains_text_worker_and_controls(cx: &mut TestApp
                 ui.composer.read(cx).value().as_ref(),
                 "New exact instruction · õun"
             );
-            assert!(!ui.worker.as_ref().is_some_and(|worker| worker.has_continuation()));
+            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
             assert!(!f.cancel.is_cancelled());
             assert!(ui.worker.is_some() && ui.can_stop_and_send());
             assert!(ui.notice.text().contains("Could not send"));
@@ -434,7 +440,7 @@ fn enter_queues_while_working_and_stop_pauses_saved_queue_across_late_finish(
     cx.update_window(f.window,|_,window,cx|{
         f.view.update(cx,|ui,cx|{
             ui.ask(window,cx);
-            assert!(!f.cancel.is_cancelled());assert!(!ui.worker.as_ref().is_some_and(|worker| worker.has_continuation()));
+            assert!(!f.cancel.is_cancelled());assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
             assert_eq!(ui.queue_state().queue[0].text,"New exact instruction · õun");assert_eq!(ui.composer.read(cx).value().as_ref(),"");
             ui.stream="Displayed partial answer".into();ui.cancel(cx);assert!(ui.queue_state().paused);
             f.sender.send(WorkerEvent::Finished(Ok("Late finished event".into()))).unwrap();ui.poll_worker(window,cx);

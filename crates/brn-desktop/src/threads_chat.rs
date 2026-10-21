@@ -384,7 +384,7 @@ impl ThreadsUi {
             if !self
                 .worker
                 .as_ref()
-                .is_some_and(Worker::has_continuation)
+                .is_some_and(|worker| worker.continuation().is_some())
             {
                 self.pause_failed_worker();
             }

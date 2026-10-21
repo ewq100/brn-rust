@@ -172,8 +172,11 @@ impl Worker {
         }
     }
 
-    pub(super) fn has_continuation(&self) -> bool {
-        matches!(&self.operation, WorkerOperation::Run { continuation: Some(_), .. })
+    pub(super) fn continuation(&self) -> Option<&str> {
+        match &self.operation {
+            WorkerOperation::Run { continuation, .. } => continuation.as_deref(),
+            _ => None,
+        }
     }
 
     pub(super) fn discard_continuation(&mut self) -> bool {
@@ -269,12 +272,13 @@ mod tests {
     #[test]
     fn continuation_is_run_only_rejects_overwrite_and_is_consumed_once() {
         let (_sender, mut worker) = worker();
-        assert!(!worker.has_continuation());
+        assert_eq!(worker.continuation(), None);
         worker
             .arm_continuation("saved prompt".into())
             .expect("first continuation arms");
-        assert!(worker.has_continuation());
+        assert_eq!(worker.continuation(), Some("saved prompt"));
         assert!(worker.arm_continuation("replacement".into()).is_err());
+        assert_eq!(worker.continuation(), Some("saved prompt"));
         assert_eq!(
             worker.take_terminal_continuation(),
             Some(("saved prompt".into(), "original-chat".into()))
@@ -289,7 +293,7 @@ mod tests {
             None,
         );
         assert!(import.arm_continuation("saved prompt".into()).is_err());
-        assert!(!import.has_continuation());
+        assert_eq!(import.continuation(), None);
         assert_eq!(import.take_terminal_continuation(), None);
     }
 

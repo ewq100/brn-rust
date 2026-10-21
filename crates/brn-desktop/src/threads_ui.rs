@@ -2030,7 +2030,7 @@ impl ThreadsUi {
     fn can_stop_and_send(&self) -> bool {
         self.worker
             .as_ref()
-            .is_some_and(|worker| !worker.has_continuation())
+            .is_some_and(|worker| worker.continuation().is_none())
             && self.worker.as_ref().and_then(Worker::run_identity)
                 .is_some_and(|run| {
                     matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread)
@@ -2057,9 +2057,10 @@ impl ThreadsUi {
         ) {
             Ok(_) => {
                 // The durable commit and run fence precede input clearing and cancellation.
-                let armed = self.worker.as_mut().is_some_and(|worker| {
-                    worker.arm_continuation(prompt.clone()).is_ok()
-                });
+                let armed = self
+                    .worker
+                    .as_mut()
+                    .is_some_and(|worker| worker.arm_continuation(prompt).is_ok());
                 self.save_composer(self.destination(), String::new());
                 self.composer
                     .update(cx, |editor, cx| editor.set_value("", window, cx));
@@ -2163,9 +2164,7 @@ impl ThreadsUi {
                 {
                     worker.cancel.cancel();
                 }
-                if let Some(worker) = self.worker.as_mut()
-                    && worker.run_identity().is_some_and(|run| run.thread == thread)
-                {
+                if let Some(worker) = self.worker.as_mut() {
                     worker.discard_continuation();
                 }
             }
