@@ -13,7 +13,26 @@ None recorded.
 
 ## Next
 
-None recorded.
+### Assess explicit destination ownership for file imports
+
+Owner: lead bounded design; economical implementation and independent review only if selected · State: **ready** · Last observed: 2026-10-21T23:28:47.807863+00:00
+Activity: Source assessment identifies a transient destination field written in two UI callers and consumed by the picker helper. The async worker already carries an explicit captured destination. Assess whether the field can be retired with a simpler request interface.
+Next: Compare the smallest explicit destination interface with existing callers/busy guards/reference imports. Select only a behavior-preserving simplification with a clear responsibility/retirement benefit; otherwise retain current code. No new features or tests just for coverage.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Design assessment ready; no implementation selected.
+- **checks:** Pending design/caller comparison; prior evidence reused.
+- **integration:** Pending only if a candidate is selected; existing review/required gates apply.
+- **native:** Existing actual Mac gate deferred; no native claim.
+- **owner acceptance:** Not claimed.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs)
+
+</details>
 
 ## Needs attention
 
@@ -170,6 +189,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `settings-rejected-save-preflight` — Check whether a rejected Settings save keeps the form intact
 - `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
 - `overview-reading-volume` — Keep the startup progress view concise as evidence grows
+- `ordinary-import-completion-preflight` — Check ordinary file imports across failure, cancellation and navigation
 
 ## Dependencies
 
@@ -195,4 +215,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T09:25:51.524919+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T23:28:47.807863+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

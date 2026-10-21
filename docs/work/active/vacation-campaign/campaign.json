@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T09:07:33.340138+00:00",
+    "observed_at": "2026-10-21T23:26:06.939442+00:00",
     "remaining_percent": 70,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual30%used/70%remaining, ordinaryUsageAllowedtrue; no account test.",
+    "ordinary_work": "Admitted: actual30%used/70%remaining and ordinaryUsageAllowedtrue; bounded ordinary-import assessment, no account test.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T09:25:51.524919+00:00",
+    "observed_at": "2026-10-21T23:28:47.807863+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2475,6 +2475,62 @@
         "attempts": [],
         "resource_plan": "One requested Luna medium author owns renderer/existing test/status only on mac-test-roots codex/concise-completed-overview base f54fcc2e. Lead owns shared records/checks/integration; independent consequential Sol review. No Rust builds/account/native/network/nested/helpers or runtime prompts. Stop after one focused implementation or interface ambiguity. Max lead+author+reviewer within four slots.",
         "design": "Keep full-record validation, dependencies, eligibility and actionable task details. Completed section uses one-line stable ID/title entries plus a direct link to the selected --record file, stating completion is selected-scope not all-gate acceptance; all gates/evidence/attempts remain authoritative there. No second generated detail file, arbitrary task truncation, history edits or new CLI query feature. Preserve configurable --record/--output relative links."
+      },
+      {
+        "id": "ordinary-import-completion-preflight",
+        "title": "Check ordinary file imports across failure, cancellation and navigation",
+        "state": "complete",
+        "owner": "bounded Luna medium source assessment; lead selects any reproduced correction",
+        "activity": "Bounded assessment complete. Lead rejected proposed cancellation defect: both attachment actions supply their target on every retry; general import is a separate operation. Existing conversion/navigation/cancellation evidence reused; no product change or new tests.",
+        "observed_at": "2026-10-21T23:28:47.807863+00:00",
+        "origin": "observed",
+        "next_action": "Retain source-backed coverage and rejected finding. A separate bounded design task evaluates retiring transient attachment target state without changing behavior.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_documents_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/next-headless-gap-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/ordinary-import-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md"
+        ],
+        "gates": {
+          "implementation": "Read-only assessment complete; no defect accepted or source change.",
+          "checks": "Lead inspected both actual callers; no tests/builds run.",
+          "integration": "Inapplicable: no product candidate.",
+          "native": "Deferred by unchanged owner availability; no desktop attempt.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One fresh requested GPT-6 Luna medium helper for bounded source/test mapping; lead independently inspects callers/contracts and owns shared record. Four total runtime slots, max lead+one assessment helper now; no nested helpers, builds, account/provider/network/native/private data or Git/source writes. Helper owns only /tmp/brn-ordinary-import-preflight.md. Stop after one concrete gap or no-finding disposition; reuse existing import/reference/navigation receipts. No changes to conversion defaults, supportedformats or product meaning."
+      },
+      {
+        "id": "ordinary-import-target-ownership",
+        "title": "Assess explicit destination ownership for file imports",
+        "state": "ready",
+        "owner": "lead bounded design; economical implementation and independent review only if selected",
+        "activity": "Source assessment identifies a transient destination field written in two UI callers and consumed by the picker helper. The async worker already carries an explicit captured destination. Assess whether the field can be retired with a simpler request interface.",
+        "observed_at": "2026-10-21T23:28:47.807863+00:00",
+        "origin": "observed",
+        "next_action": "Compare the smallest explicit destination interface with existing callers/busy guards/reference imports. Select only a behavior-preserving simplification with a clear responsibility/retirement benefit; otherwise retain current code. No new features or tests just for coverage.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_chat.rs",
+          "crates/brn-desktop/src/threads_projects.rs"
+        ],
+        "gates": {
+          "implementation": "Design assessment ready; no implementation selected.",
+          "checks": "Pending design/caller comparison; prior evidence reused.",
+          "integration": "Pending only if a candidate is selected; existing review/required gates apply.",
+          "native": "Existing actual Mac gate deferred; no native claim.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "Lead small design assessment first, no source writer yet. A bounded Luna implementation and consequential independent Sol review may follow only if responsibility improves without interface burden. Four total slots, serialize any shared builds; no account/native/network/provider or runtime-prompt changes."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2489,14 +2545,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-concise-overview-verified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T09:25:51.524919+00:00",
-    "runtime_capacity": "Four total slots including lead; bounded authors/preflights and independent reviewer complete. No local build/source writer or account test active.",
+    "observed_at": "2026-10-21T23:28:47.807863+00:00",
+    "runtime_capacity": "Four total slots including lead; fresh bounded Luna import assessment complete. No writer/build/account/native actor newly dispatched.",
     "build_slot": "Free; final source qualification complete. No local Rust build active.",
     "desktop_account_actor": "Preserved synthetic native app remains under owner extended-screen-unavailability deferral. No further native access attempt, close/kill/relaunch or account test performed.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "No actionable headless candidate remains selected after existing bounded gap assessments and completed required integration gates. Three real-Mac scenarios remain deferred by owner availability. Reconcile changed evidence/actual gates at recovery; do not repeat completed audits, passing native journeys or manufacture work.",
+    "wait_reason": "Next headless work is explicit import-target ownership design assessment; native checks remain deferred.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; PR197 normally merged. Qualified source/artifact preserved.",

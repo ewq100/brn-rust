@@ -1,0 +1,20 @@
+# Ordinary import completion preflight
+
+- **Checkout:** `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`
+- **HEAD:** `9e3b1118e6a23a75996e055bbc7dce6a735f8441` on `codex/agent-first-followthrough`
+- **Ownership:** Preserved lead-owned dirty `docs/work/active/vacation-campaign/campaign.json` and `docs/work/overview.md`. This was a read-only source review. No builds, tests, runtime/native/provider/account/network activity, or changes outside this report.
+
+## Finding
+
+One bounded caller-side gap: a cancelled OS file picker silently consumes the pending chat attachment destination. `choose_import_for_reference` takes `self.attaching_chat` at [threads_ui.rs:3071-3075] before it awaits the picker; its `Ok(Ok(None))` cancellation arm at [threads_ui.rs:3109] does nothing and cannot restore that captured value. This caller is reached both from the chat attachment action, which sets the target chat at [threads_chat.rs:800-805], and from a Project's “Import file…” action, which sets the selected chat at [threads_projects.rs:200-203]. After picker cancellation, a later ordinary import starts with no attachment chat and the full-note completion path passes `None` to `import_full_scoped_with_conversion` ([threads_ui.rs:2876-2892]), changing the resulting effect from “attach this protected full note to the selected chat” to “import as a standalone note.”
+
+This is an inferred user-visible consequence from the caller and completion contract, not an observed run. A smallest distinguishing witness would start the ordinary chat/project attachment picker, cancel it, then invoke the same import flow again with a valid synthetic file and check that its resulting Note still targets the original chat. No such cancellation witness was run or added. Lead can decide whether the picker cancellation should retain the pending target or explicitly clear/restate the attachment intent.
+
+## Covered transitions and limits
+
+- `convert_file` captures conversion settings, useful-import Project scope, source path, title, and attachment chat into the worker result ([threads_ui.rs:3156-3189, 3234-3247]). The conversion worker emits one `Converted` terminal result. The worker protocol drains through that terminal and retires the old worker ([threads_worker.rs:174-214]); this supports event-boundary reasoning, not a UI observation.
+- `poll_worker` checks both cancellation tokens before applying a successful conversion, converts a late success to “stopped before saving,” and routes ordinary errors to a visible error notice; owner Stop is a warning ([threads_ui.rs:2845-2868, 2927-2943]). The full-note branch uses the captured chat and captured settings; useful-information hands the captured Project into `useful_intake` ([threads_ui.rs:2876-2924]). `useful_intake` builds the Source report, resolves the captured Project, posts the instruction, opens the resolved chat and starts the run ([threads_ui.rs:2988-3053]).
+- Existing `threads_documents_tests.rs` evidence includes captured conversion-settings/provenance completion ([lines 92-178]), real file conversion with each helper ([lines 330-399]), and useful import navigation across Project A→B, Project→general, general→Project, plus deleted captured-Project refusal with notice ([lines 402-592]). These establish actual covered source/chat/intent effects; they are not a cancellation/error-fidelity campaign.
+- `threads_intake_tests.rs` contains offline useful-intake/reuse and queue/recovery coverage. `threads_worker.rs` exercises channel terminal/drain behavior. These were considered only as supporting boundaries; their names do not imply UI import cancellation coverage.
+- No actionable conversion-error retention defect was established from this bounded review. Ordinary conversion failures call `fail("Import stopped: …")`; `NoticeState` retains that session notice until another notice/action supersedes it. Native behavior and persistence across app restart are out of scope.
+- No checks were executed. This review does not claim runtime reproduction, native usability, owner acceptance, or a product defect beyond the picker-target state loss inferred above.

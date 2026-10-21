@@ -1,0 +1,7 @@
+# Lead disposition: ordinary import assessment
+
+The helper's inferred picker-cancellation defect is **not accepted**. Both ordinary attachment entry points set `attaching_chat` immediately before every call (`threads_chat.rs::attach_file`, `threads_projects.rs` Import file action). Retrying the same action supplies the target again. A later general Import full note is a different explicit operation and must not inherit an abandoned attachment target. Restoring that target after cancellation would risk misrouting a general import. No runtime failure, product fix or new test is claimed.
+
+The useful follow-up is a bounded ownership/design assessment: this temporary `ThreadsUi.attaching_chat` field is written by two callers and consumed by the picker helper, despite the asynchronous job already capturing its destination explicitly. Assess passing the destination with the request and retiring the ambient field, retaining ordinary/general/reference semantics and existing busy guards. This is a possible maintenance simplification, not an approved user-visible behavior change or a proven bug. Reject it if its interfaces add more complexity than they remove.
+
+Existing conversion settings, ordinary useful-information navigation, cancelled-reference completion, import error notices and worker terminal receipts are reused. No build, test, native, account or provider activity occurred. The original helper report remains preserved without silently adopting its proposed expectation.
