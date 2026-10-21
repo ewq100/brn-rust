@@ -704,3 +704,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 21 October UTC: Settings integration and refused-Save publication
 
 [Fresh PR196 gate](evidence/pr196-premerge.json) passes strict/admin protection plus all4required corrected-head and preceding-main jobs before a separate normal merge. [Main ed009567](evidence/pr196-integration.json) exactly matches the complete qualified6fb tree; resulting-main checks remain separate and pending. [PR197](evidence/pr197-publication.json) is published only after normal current-main reconciliation; [the entire candidate tree](evidence/rejected-save-integrated-base.json) equals reviewed/qualifiedf675, so unchanged source checks are reused. Required head/main gates remain pending; no native or release claim.
+
+## 21 October UTC: Settings corrections merged
+
+[PR196 resulting-main](evidence/pr196-resulting-main.json) passes all four required jobs. [Fresh PR197 guard](evidence/pr197-premerge.json) passes all four exact-head and all four preceding-main jobs with live protection before a separate normal merge. [Main f54fcc2e](evidence/pr197-integration.json) exactly matches the complete reviewed/qualified f675 tree. Its resulting-main gate remains pending separately. Actual native interaction stays deferred; no release or owner-acceptance claim.

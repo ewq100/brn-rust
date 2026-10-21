@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-21T08:10:15.071690+00:00",
+  "pr": {
+    "number": 197,
+    "head": "892d3049dd1ab99b2ccf6fd499298334f560b7bc",
+    "preceding_main": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+    "merged_at": "2026-10-21T08:09:29Z",
+    "merge_commit": "f54fcc2e4f18f590601c1ddb06c4b98470a0df84"
+  },
+  "premerge": "pr197-premerge.json",
+  "qualified_tree": "cf639413bc8d45876b4ce353d271becedc6b52b7",
+  "merged_tree": "cf639413bc8d45876b4ce353d271becedc6b52b7",
+  "whole_tree_equal": true,
+  "resulting_main_runs": [
+    {
+      "id": 39567166784,
+      "status": "pending",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39567166784"
+    }
+  ],
+  "resulting_main": "Pending separately.",
+  "limits": "Normal protected merge. No native, owner acceptance or release claim."
+}

@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T07:11:52.797916+00:00",
-    "remaining_percent": 72,
-    "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual28%used/72%remaining ordinaryUsageAllowedtrue; repairdiagnosedrequiredfeaturegatefailure, noaccounttest.",
+    "observed_at": "2026-10-21T08:10:15.071690+00:00",
+    "remaining_percent": 71,
+    "reset_unix": 1793083361,
+    "ordinary_work": "Admitted: actual29%used/71%remaining, ordinaryUsageAllowedtrue; no account test.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T07:42:32.146620+00:00",
+    "observed_at": "2026-10-21T08:10:15.071690+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2166,12 +2166,12 @@
       {
         "id": "settings-draft-isolation",
         "title": "Keep unsaved provider choices out of other Settings actions",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review",
-        "activity": "PR196 normally merged as ed009567 after a fresh protection check and all four required head and preceding-main checks passed. The entire merged tree matches qualified6fb. Resulting-main run39563679674 is a separate pending gate.",
-        "observed_at": "2026-10-21T07:42:32.146620+00:00",
+        "activity": "PR196 normally merged ed009567 with exact qualified-tree equality. All four required resulting-main checks now PASS; original default-feature failure and corrected qualification remain retained.",
+        "observed_at": "2026-10-21T08:10:15.071690+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four required checks on exact resulting main ed009567 before completing these tasks or normally merging PR197. Preserve the original CI failure and qualification limits.",
+        "next_action": "Completed reviewed source integration and required resulting-main verification. Actual native interaction remains separately deferred for owner availability.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2197,12 +2197,13 @@
           "docs/work/active/vacation-campaign/evidence/pr196-feature-gate-qualification.json",
           "docs/work/active/vacation-campaign/evidence/pr196-feature-gate-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr196-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr196-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr196-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr196-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed",
           "checks": "PASS correction defaultworkspace lint+30defaulttests/native strictlint+1+1/ordinarybuild/fmt; priorfull342/0/1reused; originalrequiredfailure retained",
-          "integration": "PASS normal merge ed009567 and whole-tree equality; all four resulting-main checks pending.",
+          "integration": "PASS normal merge ed009567, exact qualified tree and all four required resulting-main jobs.",
           "native": "explicitly deferred for extended owner unavailability; deterministic toolkit and ordinary build are not native observation",
           "owner_acceptance": "not claimed"
         },
@@ -2266,12 +2267,12 @@
       {
         "id": "settings-worker-draft-retention",
         "title": "Keep unsaved model choices when unrelated work finishes",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review",
-        "activity": "PR196 normally merged as ed009567 after a fresh protection check and all four required head and preceding-main checks passed. The entire merged tree matches qualified6fb. Resulting-main run39563679674 is a separate pending gate.",
-        "observed_at": "2026-10-21T07:42:32.146620+00:00",
+        "activity": "PR196 normally merged ed009567 with exact qualified-tree equality. All four required resulting-main checks now PASS; original default-feature failure and corrected qualification remain retained.",
+        "observed_at": "2026-10-21T08:10:15.071690+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four required checks on exact resulting main ed009567 before completing these tasks or normally merging PR197. Preserve the original CI failure and qualification limits.",
+        "next_action": "Completed reviewed source integration and required resulting-main verification. Actual native interaction remains separately deferred for owner availability.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2291,12 +2292,13 @@
           "docs/work/active/vacation-campaign/evidence/pr196-feature-gate-qualification.json",
           "docs/work/active/vacation-campaign/evidence/pr196-feature-gate-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr196-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr196-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr196-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr196-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS finalc01 completecandidate independentreview; priorP2restorationplacementfixed",
           "checks": "PASS correction defaultworkspace lint+30defaulttests/native strictlint+1+1/ordinarybuild/fmt; priorfull342/0/1reused; originalrequiredfailure retained",
-          "integration": "PASS normal merge ed009567 and whole-tree equality; all four resulting-main checks pending.",
+          "integration": "PASS normal merge ed009567, exact qualified tree and all four required resulting-main jobs.",
           "native": "deferred for owner availability",
           "owner_acceptance": "not claimed"
         },
@@ -2389,10 +2391,10 @@
         "title": "Keep unsaved Settings choices after a refused save",
         "state": "active",
         "owner": "bounded Luna medium regressionauthor; lead reproduction/design/integration; independentSolreview",
-        "activity": "PR197 published at892d3049 after normal current-main reconciliation. Its entire source tree equals independently reviewed/local-qualifiedf675. Required head run39563763137 and preceding-main196 run39563679674 are pending.",
-        "observed_at": "2026-10-21T07:42:32.146620+00:00",
+        "activity": "PR197 normally merged f54fcc2e after a fresh protection guard and all four required exact-head and preceding-main checks passed. The whole merged tree equals reviewed and locally qualified f675. Resulting-main checks are pending separately.",
+        "observed_at": "2026-10-21T08:10:15.071690+00:00",
         "origin": "observed",
-        "next_action": "Keep PR197 head stable. Require all four exact892d head and all four preceding-main ed009 checks, then fresh live protection/guard and a separate normal merge. Inspect resulting main separately.",
+        "next_action": "Inspect all four required resulting-main checks on f54fcc2e. Preserve the original negative/fixture failures and native qualification limits.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2405,12 +2407,14 @@
           "docs/work/active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/rejected-save-integrated-base.json",
           "docs/work/active/vacation-campaign/evidence/pr197-publication.json",
-          "https://github.com/ewq100/brn-rust/pull/197"
+          "https://github.com/ewq100/brn-rust/pull/197",
+          "docs/work/active/vacation-campaign/evidence/pr197-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr197-integration.json"
         ],
         "gates": {
           "implementation": "PASS f67599f9, independent complete-candidate review found no actionable findings.",
           "checks": "PASS focused1/0, full342/0/1existingignored, strictlint/ordinarybuild/fmt/whitespace. Negative failures retained.",
-          "integration": "PR197 published892d3049; exact-head and preceding-main checks pending, not merged.",
+          "integration": "PASS normal merge f54fcc2e and whole qualified-tree equality; resulting-main checks pending separately.",
           "native": "deferred owneravailability",
           "owner_acceptance": "notclaimed"
         },
@@ -2446,32 +2450,23 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-merge-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T07:42:32.146620+00:00",
+    "observed_at": "2026-10-21T08:10:15.071690+00:00",
     "runtime_capacity": "Four slots including lead; all authors/preflights/reviews complete. No new writer dispatched.",
     "build_slot": "Free; final source qualification complete. No local Rust build active.",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
-        "pr": 196,
-        "run": 39563679674,
-        "exec_session": 50920,
-        "interval_seconds": 60,
-        "purpose": "resulting main196 ed009"
-      },
-      {
         "pr": 197,
-        "run": 39563763137,
-        "interval_seconds": 60,
-        "purpose": "exact head197 892d; session to confirm",
-        "exec_session": 6392
+        "run": 39567166784,
+        "purpose": "resulting main f54fcc2e; inspect actual checks directly, no persistent watch launched"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Current required main196 and head197 checks are pending. Both source candidates are reviewed and locally qualified; no new writer selected. Native interaction deferred.",
+    "wait_reason": "PR197 resulting-main required jobs are the remaining active integration gate. Source writers and reviews complete; native interaction deferred.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; open PR197 head frozen, entire tree equals qualifiedf675.",
+    "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; PR197 normally merged. Qualified source/artifact preserved.",
     "fixture_worker_checkout": "mac-test-roots clean codex/settings-draft-isolation6fb5323f; PR196 merged. Frozen artifact/source preserved.",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0"
   },

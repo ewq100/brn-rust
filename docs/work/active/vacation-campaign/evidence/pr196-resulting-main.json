@@ -1,0 +1,112 @@
+{
+  "observed_at": "2026-10-21T08:10:15.071690+00:00",
+  "source": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+  "required": {
+    "Core and CLI (ubuntu-24.04)": {
+      "id": 119100703027,
+      "head_sha": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703027",
+      "completed_at": "2026-10-21T08:05:53Z"
+    },
+    "Core and CLI (macos-15)": {
+      "id": 119100702829,
+      "head_sha": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702829",
+      "completed_at": "2026-10-21T07:57:31Z"
+    },
+    "Native UI build and state (macos-15)": {
+      "id": 119100703186,
+      "head_sha": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703186",
+      "completed_at": "2026-10-21T07:48:13Z"
+    },
+    "Native retrieval and combined build (macos-15)": {
+      "id": 119100702977,
+      "head_sha": "ed0095673a2a12f1678cac038d7dd5e79f582f1e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702977",
+      "completed_at": "2026-10-21T07:49:29Z"
+    }
+  },
+  "all_checks": [
+    {
+      "id": 119100703186,
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703186"
+    },
+    {
+      "id": 119100703138,
+      "name": "Native UI build and state (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703138"
+    },
+    {
+      "id": 119100703067,
+      "name": "Native retrieval and combined build (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703067"
+    },
+    {
+      "id": 119100703027,
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100703027"
+    },
+    {
+      "id": 119100702977,
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702977"
+    },
+    {
+      "id": 119100702957,
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702957"
+    },
+    {
+      "id": 119100702927,
+      "name": "Documentation and tooling",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702927"
+    },
+    {
+      "id": 119100702881,
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702881"
+    },
+    {
+      "id": 119100702829,
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702829"
+    },
+    {
+      "id": 119100702740,
+      "name": "Core and CLI (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39563679674/job/119100702740"
+    }
+  ],
+  "verdict": "PASS all four required resulting-main jobs; optional Windows failures remain visible.",
+  "limits": "No native, owner acceptance or release claim."
+}
