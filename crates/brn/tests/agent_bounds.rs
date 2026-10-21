@@ -190,6 +190,44 @@ fn timeout_during_fifo_wait_is_a_soft_deadline() {
 }
 
 #[test]
+fn timeout_during_preview_fifo_wait_is_a_soft_deadline_without_changes() {
+    let root = Root::new();
+    let data = root.workspace("data");
+    let before_records = ok(&root, &data, &["records"]);
+    let before_history = ok(&root, &data, &["history"]);
+    let fifo = Fifo::new(&root, "preview.fifo");
+    let argv = [
+        "--json",
+        "--data-dir",
+        data.to_str().unwrap(),
+        "--timeout",
+        "1",
+        "project-delete",
+        "--preview-file",
+        fifo.arg(),
+        "--actions",
+        "{}",
+        "--key",
+        "synthetic-preview-cancel",
+    ];
+    let started = Instant::now();
+    let run = run_argv(&root, &argv, None);
+    let elapsed = started.elapsed();
+    assert!(
+        elapsed >= Duration::from_secs(1) && elapsed < Duration::from_secs(20),
+        "{elapsed:?}"
+    );
+    assert_eq!(run.code, 7, "{} {}", run.stdout, run.stderr);
+    let envelope = run.envelope();
+    assert_error(&envelope, "failed", "timeout");
+    assert_eq!(envelope["error"]["details"]["deadline_seconds"], 1);
+    assert_eq!(envelope["error"]["details"]["hard"], false);
+    assert_eq!(envelope["stop"], "deadline");
+    assert_eq!(ok(&root, &data, &["records"]), before_records);
+    assert_eq!(ok(&root, &data, &["history"]), before_history);
+}
+
+#[test]
 fn held_write_lock_reports_busy_and_creates_nothing() {
     let root = Root::new();
     let data = root.workspace("data");

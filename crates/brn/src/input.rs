@@ -94,12 +94,29 @@ fn read_limited(
     max: usize,
     cancel: &AtomicBool,
 ) -> Result<Result<String, Reason>, CliError> {
+    read_cancellable(cancel, move || read_bounded_to(&source, max))
+}
+
+/// Reads a preview file without changing the raw bytes or the JSON error
+/// classification, while still observing SIGINT and the command deadline if
+/// opening or reading a FIFO blocks.
+pub(crate) fn read_preview_file(source: String, cancel: &AtomicBool) -> Result<Vec<u8>, CliError> {
+    read_cancellable(cancel, move || std::fs::read(source))?
+        .map_err(|error| CliError::invalid_input("preview-file", "unreadable", error.to_string()))
+}
+
+/// Runs a potentially blocking file read off-thread so cancellation remains
+/// observable while a FIFO open or read waits for its peer.
+fn read_cancellable<T: Send + 'static>(
+    cancel: &AtomicBool,
+    read: impl FnOnce() -> T + Send + 'static,
+) -> Result<T, CliError> {
     if cancel.load(Ordering::SeqCst) {
         return Err(CliError::interrupted());
     }
     let (sender, receiver) = mpsc::channel();
     std::thread::spawn(move || {
-        let _ = sender.send(read_bounded_to(&source, max));
+        let _ = sender.send(read());
     });
     loop {
         match receiver.recv_timeout(Duration::from_millis(25)) {

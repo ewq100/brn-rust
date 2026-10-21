@@ -1076,11 +1076,10 @@ async fn execute_document_transport(
                     note: inv.arg("note")?.into(),
                 },
                 "project-delete" => ProjectCommand::Delete {
-                    preview: serde_json::from_slice(
-                        &std::fs::read(inv.arg("preview-file")?).map_err(|e| {
-                            CliError::invalid_input("preview-file", "unreadable", e.to_string())
-                        })?,
-                    )
+                    preview: serde_json::from_slice(&input::read_preview_file(
+                        inv.arg("preview-file")?.into(),
+                        &CANCEL,
+                    )?)
                     .map_err(|e| {
                         CliError::invalid_input("preview-file", "invalid_json", e.to_string())
                     })?,
