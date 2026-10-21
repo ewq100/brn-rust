@@ -64,24 +64,29 @@ Attempts:
 
 </details>
 
-### Check whether a rejected Settings save keeps the form intact
+### Keep unsaved Settings choices after a refused save
 
-Owner: bounded Luna medium read-only source/test assessment; lead selects next action · State: **active** · Last observed: 2026-10-21T07:17:43.824684+00:00
-Activity: Follow the localform/canonical boundary through checkedSave rejection, distinct from activeworkercompletionfix. Reuseexistingactivation/refresh audits; nochange to frozenPR196head.
-Next: Inspectexact6fb Save/configure rejection callers andexistingwitnesses; return atmostone concrete user-visible loss withsmalloffline witness, ornojustifiedtask. No implementation yet.
+Owner: bounded Luna medium regressionauthor; lead reproduction/design/integration; independentSolreview · State: **active** · Last observed: 2026-10-21T07:33:08.909167+00:00
+Activity: Final f67599f9 passed independent complete-candidate review and actual focused test, full desktop suite (342 passed, one existing ignored), strict lint, ordinary native build and formatting. The source branch is pushed; it has no PR yet. Original input-loss and fixture-observation failures are retained.
+Next: After PR196 normal integration, reconcile current main and publish this separate correction. Require fresh exact-head and preceding-main checks before normal merge, then inspect resulting main separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** read-only preflight, no correctionselected
-- **checks:** pending source/testevidence; no native/accountaction
-- **integration:** inapplicable untilselectedcandidate
-- **native:** deferred forowneravailability
+- **implementation:** PASS f67599f9, independent complete-candidate review found no actionable findings.
+- **checks:** PASS focused1/0, full342/0/1existingignored, strictlint/ordinarybuild/fmt/whitespace. Negative failures retained.
+- **integration:** Source branch pushed; no PR or merge. Await ordered PR196 integration/main reconciliation.
+- **native:** deferred owneravailability
 - **owner acceptance:** notclaimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-rejected-save-preflight.md](active/vacation-campaign/evidence/settings-rejected-save-preflight.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-regression.md](active/vacation-campaign/evidence/settings-rejected-save-regression.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json](active/vacation-campaign/evidence/settings-rejected-save-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md](active/vacation-campaign/evidence/settings-rejected-save-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-review.md](active/vacation-campaign/evidence/settings-rejected-save-review.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-qualification.json](active/vacation-campaign/evidence/settings-rejected-save-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz](active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz)
+
+Attempts:
+
+- Test-only 2ea1c375 fails because the helper effort control disappears after a refused Save. Canonical state/history and attempted text were preserved.: Capture the segmented form on Workspace::configure Err, retain ordinary authoritative refresh, then restore only the editable form. Ok outcomes and runtime configuration authority remain unchanged. ([docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json](active/vacation-campaign/evidence/settings-rejected-save-baseline.json))
+- On 07e, helper control visibility passed, then generic Button selected() returned None. This is an unsupported test observation; actual saved-choice assertions were not reached.: Inspected choice()/Button wiring. f675 removes only two unsupported metadata assertions, retaining visibility, canonical/history/error/text checks and final saved High/helper/model/auth values after retry. No production change. ([docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md](active/vacation-campaign/evidence/settings-rejected-save-implementation.md))
 
 </details>
 
@@ -1516,6 +1521,27 @@ Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-camp
 
 </details>
 
+### Check whether a rejected Settings save keeps the form intact
+
+Owner: bounded Luna medium read-only source/test assessment; lead selects next action · State: **complete** · Last observed: 2026-10-21T07:21:08.932570+00:00
+Activity: Source6fb confirms pre-effectrelativecredential validationrefusal followedbyunconditionalUIrefresh: segmentedchoicesresetwhiletextdraftsremain. ExistingwitnessescoverpositiveSave, not rejection.
+Next: Leadselectedseparateordinaryrepair: failedSavekeepsthecompletevisibleeditableform whilecanonicalrefresh/errorreporting remain; navigation/non-erroroutcomesunchanged.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** read-only preflight, no correctionselected
+- **checks:** PASS boundedsource/rejection-caller/testassessment; noexecutionclaimed
+- **integration:** inapplicable untilselectedcandidate
+- **native:** deferred forowneravailability
+- **owner acceptance:** notclaimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-preflight.md](active/vacation-campaign/evidence/settings-rejected-save-preflight.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1540,4 +1566,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T07:17:43.824684+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T07:33:08.909167+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

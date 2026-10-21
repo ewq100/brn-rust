@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T07:17:43.824684+00:00",
+    "observed_at": "2026-10-21T07:33:08.909167+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2357,27 +2357,74 @@
       {
         "id": "settings-rejected-save-preflight",
         "title": "Check whether a rejected Settings save keeps the form intact",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium read-only source/test assessment; lead selects next action",
-        "activity": "Follow the localform/canonical boundary through checkedSave rejection, distinct from activeworkercompletionfix. Reuseexistingactivation/refresh audits; nochange to frozenPR196head.",
-        "observed_at": "2026-10-21T07:17:43.824684+00:00",
+        "activity": "Source6fb confirms pre-effectrelativecredential validationrefusal followedbyunconditionalUIrefresh: segmentedchoicesresetwhiletextdraftsremain. ExistingwitnessescoverpositiveSave, not rejection.",
+        "observed_at": "2026-10-21T07:21:08.932570+00:00",
         "origin": "observed",
-        "next_action": "Inspectexact6fb Save/configure rejection callers andexistingwitnesses; return atmostone concrete user-visible loss withsmalloffline witness, ornojustifiedtask. No implementation yet.",
+        "next_action": "Leadselectedseparateordinaryrepair: failedSavekeepsthecompletevisibleeditableform whilecanonicalrefresh/errorreporting remain; navigation/non-erroroutcomesunchanged.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md",
-          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md"
+          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-preflight.md"
         ],
         "gates": {
           "implementation": "read-only preflight, no correctionselected",
-          "checks": "pending source/testevidence; no native/accountaction",
+          "checks": "PASS boundedsource/rejection-caller/testassessment; noexecutionclaimed",
           "integration": "inapplicable untilselectedcandidate",
           "native": "deferred forowneravailability",
           "owner_acceptance": "notclaimed"
         },
         "attempts": [],
         "resource_plan": "One economical requestedLuna medium duringindependenthostedCIwait, max2active incllead within4slots. Ownonly/tmp assessment, no source/sharedrecords/build/test/push/network/account/provider/credentialcontents/native/nestedactions. Stopatonegroundedrejectionboundary ornone; do not reopen navigationretentionpolicy orduplicateworkercompletioncandidate."
+      },
+      {
+        "id": "settings-rejected-save-retention",
+        "title": "Keep unsaved Settings choices after a refused save",
+        "state": "active",
+        "owner": "bounded Luna medium regressionauthor; lead reproduction/design/integration; independentSolreview",
+        "activity": "Final f67599f9 passed independent complete-candidate review and actual focused test, full desktop suite (342 passed, one existing ignored), strict lint, ordinary native build and formatting. The source branch is pushed; it has no PR yet. Original input-loss and fixture-observation failures are retained.",
+        "observed_at": "2026-10-21T07:33:08.909167+00:00",
+        "origin": "observed",
+        "next_action": "After PR196 normal integration, reconcile current main and publish this separate correction. Require fresh exact-head and preceding-main checks before normal merge, then inspect resulting main separately.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-regression.md",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-review.md",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz"
+        ],
+        "gates": {
+          "implementation": "PASS f67599f9, independent complete-candidate review found no actionable findings.",
+          "checks": "PASS focused1/0, full342/0/1existingignored, strictlint/ordinarybuild/fmt/whitespace. Negative failures retained.",
+          "integration": "Source branch pushed; no PR or merge. Await ordered PR196 integration/main reconciliation.",
+          "native": "deferred owneravailability",
+          "owner_acceptance": "notclaimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Test-only 2ea1c375 fails because the helper effort control disappears after a refused Save. Canonical state/history and attempted text were preserved.",
+            "change": "Capture the segmented form on Workspace::configure Err, retain ordinary authoritative refresh, then restore only the editable form. Ok outcomes and runtime configuration authority remain unchanged.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json"
+            ]
+          },
+          {
+            "outcome": "On 07e, helper control visibility passed, then generic Button selected() returned None. This is an unsupported test observation; actual saved-choice assertions were not reached.",
+            "change": "Inspected choice()/Button wiring. f675 removes only two unsupported metadata assertions, retaining visibility, canonical/history/error/text checks and final saved High/helper/model/auth values after retry. No production change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md"
+            ]
+          }
+        ],
+        "resource_plan": "RequestedboundedLuna medium testauthor ownsoneexistingtest only inexport-durabilitycodex/settings-save-rejection base6fb; leadserialbuilds/design/sharedrecords; consequentialSol independentreview aftercandidate. Actual4slots, normallylead+author/reviewer; no nested/provider/account/credentialscontents/native/network/push. Stopafter2failedcorrections orambiguouspostcommit effects; reusepriorfrozenbranches/artifacts, do nottouchPR196source. Independent reviewer reported selected-model capacity once; account still ordinaryAllowed with72%remaining. One same-reviewer retry only, no automatic model/global change; unavailable review remains a pending gate. The bounded same-reviewer retry succeeded; final independent review is recorded. No model or global routing change.",
+        "design": "Preserve visible owner input only when the service returns Err. Always refresh authoritative state, including uncertain error outcomes; the draft remains separate from active settings. Existing non-error outcomes, navigation and worker completion behavior are unchanged. No duplicated validation or general form framework."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2388,13 +2435,13 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T05:05:03.162543+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-publication-update.json"
+    "last_refresh_at": "2026-10-21T07:21:08.932570+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-feature-gate-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T07:17:43.824684+00:00",
-    "runtime_capacity": "4slots incllead; source/review complete, one boundedread-onlyLuna rejectionpreflight selected",
-    "build_slot": "free after6fbfinaldualfeaturechecksexit0",
+    "observed_at": "2026-10-21T07:33:08.909167+00:00",
+    "runtime_capacity": "Four slots including lead; all authors/preflights/reviews complete. No new writer dispatched.",
+    "build_slot": "Free after final f675 qualification, exec87312 exit0.",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
@@ -2406,11 +2453,11 @@
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "Main195required4PASS complete; PR196corrected6fb new39560824594 pending",
-    "wait_reason": "Newrequiredheadchecks inprogress; independentboundedSave-rejection sourceassessment, nativeonlydeferred",
+    "integration": "PR196 corrected6fb required checks still running; preceding main195 all4PASS. Separate rejected-Save f675 candidate locally qualified and awaits ordered publication.",
+    "wait_reason": "Required hosted checks remain pending. Current source candidates are frozen and no overlapping writer is selected. Native interaction remains deferred.",
     "resumption": "At recovery, inspect actual main195/head196 required results and currentHEAD/main/openPRs/actors/allowance. If all4bothPASS, run preparedfailfast guard forPR196, candidate7665a5766f109bf2db947887d6008c2f2c506d7c base d2967cdd787459dd01ed291219b9045155b18511, thennormalmerge in separatecall and resultingmain separately. If checksfail diagnoseactualfailure; noheadmutationforprogress. No desktopattempt untilownerreportschangedavailability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability cleanon codex/preview-file-cancellation atcacab2e5",
+    "worker_checkout": "export-durability clean codex/settings-save-rejection f67599f9, reviewed/qualified/pushed; no PR yet.",
     "fixture_worker_checkout": "mac-test-roots clean6fb5323f openPR196headfrozen",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0"
   },

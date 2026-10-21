@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-10-21T07:32:32.205605+00:00",
+  "source": "f67599f96ac54943a22f42c4038804c9b439be73",
+  "baseline": "6fb5323fa37c1def0f46b2979a480c173a70b0f1",
+  "source_dir": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "source_hashes": {
+    "crates/brn-desktop/src/threads_pages_tests.rs": "ac8858436fd3fcadfc5d80e6b47457752045aa19851f42aab360ef835966ba92",
+    "crates/brn-desktop/src/threads_ui.rs": "456ef65314e44e0ac871c2387ee5fd886c4dcebccf51687d2f4e0f40efbcca7b"
+  },
+  "actual_script": "/tmp/brn-settings-rejected-save-qualification/final.sh",
+  "script_exit": 0,
+  "focused": "1 passed,0failed,342filtered",
+  "full_desktop": "342passed,0failed,1existingignored",
+  "ignored": "shared CLI/desktop useful-intake requires BRN_DWR_SHARED_* fixture; no new pass claimed",
+  "native_alltarget_strictClippy": "PASS",
+  "ordinary_native_build": "PASS",
+  "format_whitespace": "PASS",
+  "prior_default_graph": {
+    "source": "6fb5323fa37c1def0f46b2979a480c173a70b0f1",
+    "result": "defaultworkspace strictlint/defaultdesktop30PASS",
+    "reuse": "Onlynative threads_ui and its nativewidgettest changed; defaultmodule/manifest/statebytes unchanged, no repeat of unmodified defaultgraph."
+  },
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-settings-rejected-save/f67599f9/brn-desktop",
+    "sha256": "842e5ad6a0c3fdfce7b41ec45ea4afdde82c1c69e39eab31276da766ee67d028",
+    "launched": false
+  },
+  "negative": {
+    "source": "2ea1c3752c307049e51a9e44c7b0e6e046b2d271",
+    "exit": 101,
+    "result": "0/1 missinghelpercontrol afterrefusal; canonical/history/error/text checks passed",
+    "raw": "baseline.log"
+  },
+  "first_final_failure": {
+    "source": "07e3b533a33955063563c1b38c6a91435bf6ff62",
+    "exit": 101,
+    "result": "helpervisible then unsupportedButton selectedmetadata NonevsSome(true)",
+    "correction": "f675 removes two invalidmetadataassertions, retainsvisibilityandactualsavedHigh/helperCodex/model/authretryvalues. No productionchange from07e.",
+    "raw": "first-final-fixture-failure.log"
+  },
+  "review": "settings-rejected-save-review.md no actionablefindings after completecandidate review",
+  "review_resource": "One selected-model capacity error; one bounded same-reviewer retry completed. AccountactualordinaryAllowed true/72%remaining, no model/globalrouting change.",
+  "warning": "existingblock0.1.6 futurecompatibilitywarningretained",
+  "limits": [
+    "deterministic widget/build, no native/IME/VoiceOver/owner acceptance",
+    "synthetic relative-path validation beforeeffects leaves canonicalsettings/history unchanged; not proof arbitraryErr has no effects",
+    "canonicalrefresh remains authoritative; retainingform does not activateit; refresh-error reporting policy unchanged",
+    "visibility does not prove selected visual/AX styling; actual checkedretry verifies retained savedchoices",
+    "no credentialcontents/provider/account/native/actualsign-in action",
+    "notpublished/merged; currentPR196integration and requiredhead/main gates separate"
+  ]
+}

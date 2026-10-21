@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T07:27:23.412005+00:00",
+  "source": "2ea1c3752c307049e51a9e44c7b0e6e046b2d271",
+  "unchanged_production": "6fb5323fa37c1def0f46b2979a480c173a70b0f1",
+  "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::pages_tests::the_helper_section_shows_its_tested_note_and_saves_with_settings --locked --offline --jobs 1 -- --exact --nocapture",
+  "exit": 101,
+  "result": "0 passed;1failed;342filtered. After refusal helper-effort-high control is missing; preceding canonical-settings/history/error/text assertions passed.",
+  "fixture": "Fresh synthetic task TMPDIR, offline provider fixture; auth paths are strings only, no credential file read or live provider/account/native action.",
+  "raw": "baseline.log in final raw archive; original retained",
+  "limits": "Toolkit witness, no native/owner acceptance"
+}
