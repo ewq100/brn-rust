@@ -35,6 +35,27 @@ Attempts:
 
 </details>
 
+### Keep the startup progress view concise as evidence grows
+
+Owner: bounded Luna medium read-only assessment; lead selects any correction · State: **active** · Last observed: 2026-10-21T08:14:32.187841+00:00
+Activity: Bounded assessment confirms1416of1590lines render61 completed histories. Lead selected presentation-only compact completed ID/title index; authoritative record and current-task detail remain intact.
+Next: Bounded Luna author changes existing renderer, existing completed-history regression and status wording in isolated clean mac-test-roots branch from main f54fcc2e. Lead checks source/fixtures and independent reviewer assesses complete candidate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Selected narrow renderer correction; author assigned.
+- **checks:** Pending bounded assessment; no runtime/build claims.
+- **integration:** Inapplicable until a reviewed candidate exists.
+- **native:** Inapplicable to documentation projection; existing native work remains deferred.
+- **owner acceptance:** Not claimed.
+
+Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md](active/vacation-campaign/evidence/overview-reading-volume-preflight.md)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -1566,4 +1587,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T08:10:15.071690+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T08:14:32.187841+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

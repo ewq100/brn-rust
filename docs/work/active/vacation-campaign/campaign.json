@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T08:10:15.071690+00:00",
+    "observed_at": "2026-10-21T08:14:32.187841+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2436,6 +2436,34 @@
         ],
         "resource_plan": "RequestedboundedLuna medium testauthor ownsoneexistingtest only inexport-durabilitycodex/settings-save-rejection base6fb; leadserialbuilds/design/sharedrecords; consequentialSol independentreview aftercandidate. Actual4slots, normallylead+author/reviewer; no nested/provider/account/credentialscontents/native/network/push. Stopafter2failedcorrections orambiguouspostcommit effects; reusepriorfrozenbranches/artifacts, do nottouchPR196source. Independent reviewer reported selected-model capacity once; account still ordinaryAllowed with72%remaining. One same-reviewer retry only, no automatic model/global change; unavailable review remains a pending gate. The bounded same-reviewer retry succeeded; final independent review is recorded. No model or global routing change.",
         "design": "Preserve visible owner input only when the service returns Err. Always refresh authoritative state, including uncertain error outcomes; the draft remains separate from active settings. Existing non-error outcomes, navigation and worker completion behavior are unchanged. No duplicated validation or general form framework."
+      },
+      {
+        "id": "overview-reading-volume",
+        "title": "Keep the startup progress view concise as evidence grows",
+        "state": "active",
+        "owner": "bounded Luna medium read-only assessment; lead selects any correction",
+        "activity": "Bounded assessment confirms1416of1590lines render61 completed histories. Lead selected presentation-only compact completed ID/title index; authoritative record and current-task detail remain intact.",
+        "observed_at": "2026-10-21T08:14:32.187841+00:00",
+        "origin": "observed",
+        "next_action": "Bounded Luna author changes existing renderer, existing completed-history regression and status wording in isolated clean mac-test-roots branch from main f54fcc2e. Lead checks source/fixtures and independent reviewer assesses complete candidate.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "scripts/render-work-overview.py",
+          "docs/development/workflow.md",
+          "docs/work/overview.md",
+          "docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md"
+        ],
+        "gates": {
+          "implementation": "Selected narrow renderer correction; author assigned.",
+          "checks": "Pending bounded assessment; no runtime/build claims.",
+          "integration": "Inapplicable until a reviewed candidate exists.",
+          "native": "Inapplicable to documentation projection; existing native work remains deferred.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium author owns renderer/existing test/status only on mac-test-roots codex/concise-completed-overview base f54fcc2e. Lead owns shared records/checks/integration; independent consequential Sol review. No Rust builds/account/native/network/nested/helpers or runtime prompts. Stop after one focused implementation or interface ambiguity. Max lead+author+reviewer within four slots.",
+        "design": "Keep full-record validation, dependencies, eligibility and actionable task details. Completed section uses one-line stable ID/title entries plus a direct link to the selected --record file, stating completion is selected-scope not all-gate acceptance; all gates/evidence/attempts remain authoritative there. No second generated detail file, arbitrary task truncation, history edits or new CLI query feature. Preserve configurable --record/--output relative links."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2446,12 +2474,12 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T07:43:46.781838+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-merge-update.json"
+    "last_refresh_at": "2026-10-21T08:11:22.372Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-rejected-save-merge-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-21T08:10:15.071690+00:00",
-    "runtime_capacity": "Four slots including lead; all authors/preflights/reviews complete. No new writer dispatched.",
+    "runtime_capacity": "Four total slots including lead; one bounded Luna read-only documentation assessment assigned; existing source writers/reviews complete.",
     "build_slot": "Free; final source qualification complete. No local Rust build active.",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
