@@ -3087,6 +3087,12 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
+        // Reference requests keep their checked target separate from ordinary attachments.
+        let attachment_chat = if reference.is_some() {
+            None
+        } else {
+            attachment_chat
+        };
         let receiver = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
