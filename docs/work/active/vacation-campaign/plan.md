@@ -38,6 +38,25 @@ Preserve supported data, schemas, lockfiles and the checked service contracts.
 Consequential changes to product meaning still need an owner decision; isolate those
 and continue independent maintenance rather than blocking the whole programme.
 
+## Extended screen unavailability — owner update21October
+
+The owner reports they cannot unlock this Mac for a long time. Defer actual Mac
+interaction until the owner reports changed availability; do not repeat unlock
+requests or desktop attempts. Preserve the existing synthetic workspaces and open
+verified-undone app for normal OS closure when access returns. This is an
+availability deferral for native observation, not a pause of the campaign.
+
+Continue useful headless Mac-first reliability work: checked service/CLI journeys,
+interruption/restart and malformed-input boundaries, deterministic toolkit checks,
+measured maintenance and documentation. Select concrete gaps after reusing earlier
+receipts; do not repeat passing tests or unchanged audits merely to stay busy.
+Keep native/IME/accessibility and owner acceptance explicitly pending. Where a
+change depends on visual or physical-host judgment that headless evidence cannot
+resolve, retain that gate rather than claiming success. Existing independent
+review, required exact-head/resulting-main checks, merge authority, account limits,
+quota floor and fixed expiry remain unchanged. No lock/security setting changes
+or remote-unlock workaround are selected.
+
 ## Campaign outcome priorities
 
 Use [the workflow inventory](workflows.md), [test families](test-families.md),

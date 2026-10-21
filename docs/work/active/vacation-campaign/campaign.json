@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-20T22:45:43.723930+00:00",
+    "observed_at": "2026-10-21T03:56:18.778419+00:00",
     "remaining_percent": 76,
     "reset_unix": 1793083360,
-    "ordinary_work": "capacity available: actual24%used/76%remaining ordinaryUsageAllowedtrue. No current eligible source correction selected after bounded audits; actual native access remains blocker. No new account tests.",
+    "ordinary_work": "admitted: actual24%used/76%remaining ordinaryUsageAllowedtrue; select independent headless reliability work, no new account tests.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-20T22:45:30.567515+00:00",
+    "observed_at": "2026-10-21T03:56:18.778419+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -379,10 +379,10 @@
         "title": "Check grouped review controls on the Mac",
         "state": "blocked",
         "owner": "single native actor in consolidated batch",
-        "activity": "Fresh two-group offline fixture and combined reviewed/local-qualified97e0d313 app prepared without launch. At18:00-period access recheck CUA again reports locked/automatic unlock unavailable; no group attempt or pass.",
-        "observed_at": "2026-10-20T15:04:21.531870+00:00",
-        "origin": "observed",
-        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
+        "activity": "Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.",
+        "observed_at": "2026-10-21T03:56:18.778419+00:00",
+        "origin": "reported",
+        "next_action": "Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.",
         "depends_on": [
           {
             "task": "review-group-fixture",
@@ -396,7 +396,7 @@
           }
         ],
         "resource_waits": [
-          "Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch."
+          "Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/native-queue.md",
@@ -1180,13 +1180,13 @@
         "title": "Make visible note rows discoverable to Mac accessibility",
         "state": "blocked",
         "owner": "bounded Luna medium implementation; lead disposition/integration; independent Sol review",
-        "activity": "PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.",
-        "observed_at": "2026-10-20T15:43:21.587928+00:00",
-        "origin": "observed",
-        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
+        "activity": "Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.",
+        "observed_at": "2026-10-21T03:56:18.778419+00:00",
+        "origin": "reported",
+        "next_action": "Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.",
         "depends_on": [],
         "resource_waits": [
-          "Actual corrected Notes controls require Mac unlock; existing manual unlock request pending."
+          "Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json",
@@ -1257,10 +1257,10 @@
         "title": "Expose readable Needs you menu choices to Mac accessibility",
         "state": "blocked",
         "owner": "development lead integration; bounded Luna implementation and independent Sol review complete",
-        "activity": "PR187 merged4c50b614 and all4required resulting-main39450843453 checks PASS. Integrated tree matches qualified97e0d313. Actual corrected menu/Notes controls remain blocked by Mac lock.",
-        "observed_at": "2026-10-20T16:21:40.307021+00:00",
-        "origin": "observed",
-        "next_action": "After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.",
+        "activity": "Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.",
+        "observed_at": "2026-10-21T03:56:18.778419+00:00",
+        "origin": "reported",
+        "next_action": "Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.",
         "depends_on": [
           {
             "task": "note-list-accessibility",
@@ -1269,7 +1269,7 @@
           }
         ],
         "resource_waits": [
-          "Mac remains locked; existing manual unlock request pending."
+          "Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md",
@@ -1996,9 +1996,60 @@
           }
         ],
         "resource_plan": "One requested Luna medium helper, at most2read-only GitHub calls for completed main192 MacCore metadata/log. No rerun/cache/billing/infra/model/account/native/build/source/nested changes. Lead handles gate monitoring separately. Stop at bounded timing report."
+      },
+      {
+        "id": "offline-interruption-preflight",
+        "title": "Select a useful interruption and recovery check",
+        "state": "active",
+        "owner": "bounded Luna medium preflight; lead selects qualification/correction and integration",
+        "activity": "Select a bounded headless reliability qualification from existing service/CLI interruption and restart boundaries; reuse earlier Save/normal-close/backup/Undo witnesses.",
+        "observed_at": "2026-10-21T03:56:18.778419+00:00",
+        "origin": "observed",
+        "next_action": "Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-core/src/backup.rs",
+          "crates/brn-threads-app/src/export.rs",
+          "docs/work/active/vacation-campaign/test-families.md"
+        ],
+        "gates": {
+          "implementation": "evaluation selected, no product candidate",
+          "checks": "pending bounded preflight; actual qualification separate",
+          "integration": "inapplicable until reviewed candidate exists",
+          "native": "explicitly deferred for owner availability; cannot be inferred from headless results",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium, two independent read-only flows within4total slots including lead; one lead owns records/shared build and integration. Read-only preflight: identify concrete unexercised boundary and exact disposable synthetic commands, or justified no-change finding. Do not duplicate queue/Project/Trash/source audits or previously passing normal-close tests. No source edits, builds, process kills, fixtures, account/native/web/nested actions."
+      },
+      {
+        "id": "malformed-input-boundary-preflight",
+        "title": "Select a useful malformed-input or size-limit check",
+        "state": "active",
+        "owner": "bounded Luna medium preflight; lead selects qualification/correction and integration",
+        "activity": "Inspect file-intake/CLI input refusal and resource ceilings for a concrete headless failure or consequential missing witness; reuse prior invalid-backup/image-policy work.",
+        "observed_at": "2026-10-21T03:56:18.778419+00:00",
+        "origin": "observed",
+        "next_action": "Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-core/tests/backup_directory.rs",
+          "docs/work/active/vacation-campaign/test-families.md"
+        ],
+        "gates": {
+          "implementation": "evaluation selected, no product candidate",
+          "checks": "pending bounded preflight; actual qualification separate",
+          "integration": "inapplicable until reviewed candidate exists",
+          "native": "explicitly deferred for owner availability; cannot be inferred from headless results",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium, two independent read-only flows within4total slots including lead; one lead owns records/shared build and integration. Read-only preflight: inspect current intake/CLI byte/path/format limits and existing fixtures, identify independently expected boundary and safe bounded qualification or no-change finding. No image-policy redesign, new live providers/models, broad fuzz campaign, source edits, builds, generated archives, actual hostile execution, account/native/web/nested actions."
       }
     ],
-    "owner_attention": "Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo."
+    "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -2011,18 +2062,27 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr193-main-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-20T22:45:30.567515+00:00",
-    "runtime_capacity": "4total slots, only lead active; all requested helper tasks complete",
+    "observed_at": "2026-10-21T03:56:18.778419+00:00",
+    "runtime_capacity": "4total slots; lead plus2bounded Luna read-only preflight flows selected",
     "build_slot": "free; no local build since restored focus qualification",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "PR193 normal merge9e2a81c0, full qualified-tree equality, all4required exact-head/preceding-main/resulting-main PASS; optional Windows failures retained",
-    "wait_reason": "No eligible source correction selected after completed audits. Three native scenarios await changed Mac access; deferred image/artifact expansion remains separately scoped. No active source writer/build/account/CI watch.",
-    "resumption": "Reconcile actual allowance/Git/open PRs/resources and task receipts on recovery. Continue useful authorized work if new evidence creates an eligible bounded outcome; native actor requires changed access and current source/artifact reconciliation.",
+    "wait_reason": "Only native observation awaits owner-reported availability; selected independent headless preflights proceed.",
+    "resumption": "Continue headless qualification/correction/integration from current tasks. Native actor stays deferred until changed owner availability; no repeated unlock requests or access attempts.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean8912801c codex/launcher-focus-witness, PR193 frozen; one integration owner",
     "fixture_worker_checkout": "clean e1b mac-test-roots preserved: managed archive refused pinned protection; no owner unblock needed",
     "documentation_worker_checkout": "architecture-status-route clean0cc1 completed after allrequired main192 PASS; retain under current pinned-task protection without repeated archive attempts"
+  },
+  "native_availability": {
+    "observed_at": "2026-10-21T03:56:18.778419+00:00",
+    "origin": "reported",
+    "owner_instruction": "Owner21October: I cannot unlock Mac for a long time; how should we proceed.",
+    "state": "deferred_until_owner_reports_availability",
+    "scope": "Actual Mac interaction only; headless development and authorized normal integration continue.",
+    "desktop_attempts": "No repeated access/unlock requests or desktop attempts until changed owner availability. Preserve original open app and fixtures.",
+    "last_actual_observation": "evidence/native-access-recheck-20261020T1825.json"
   }
 }

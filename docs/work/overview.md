@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** Three prepared Mac control checks need access. Actual CUA recheck18:25UTC still reports locked/automaticunlockunavailable; existing manual unlock request pending. Original unsaved synthetic workspace preserved; review app stillopen after verifiedUndo.
+**Owner attention:** No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -9,7 +9,47 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-None recorded.
+### Select a useful interruption and recovery check
+
+Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **active** · Last observed: 2026-10-21T03:56:18.778419+00:00
+Activity: Select a bounded headless reliability qualification from existing service/CLI interruption and restart boundaries; reuse earlier Save/normal-close/backup/Undo witnesses.
+Next: Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** evaluation selected, no product candidate
+- **checks:** pending bounded preflight; actual qualification separate
+- **integration:** inapplicable until reviewed candidate exists
+- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/test-families.md](active/vacation-campaign/test-families.md)
+
+</details>
+
+### Select a useful malformed-input or size-limit check
+
+Owner: bounded Luna medium preflight; lead selects qualification/correction and integration · State: **active** · Last observed: 2026-10-21T03:56:18.778419+00:00
+Activity: Inspect file-intake/CLI input refusal and resource ceilings for a concrete headless failure or consequential missing witness; reuse prior invalid-backup/image-policy work.
+Next: Return concrete distinct source-bound gap/fixture/check/stop criteria, then lead selects one reviewable qualification or correction; no automatic implementation from readiness.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** evaluation selected, no product candidate
+- **checks:** pending bounded preflight; actual qualification separate
+- **integration:** inapplicable until reviewed candidate exists
+- **native:** explicitly deferred for owner availability; cannot be inferred from headless results
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-threads-core/tests/backup_directory.rs](../../crates/brn-threads-core/tests/backup_directory.rs), [docs/work/active/vacation-campaign/test-families.md](active/vacation-campaign/test-families.md)
+
+</details>
 
 ## Next
 
@@ -19,11 +59,11 @@ None recorded.
 
 ### Check grouped review controls on the Mac
 
-Owner: single native actor in consolidated batch · State: **blocked** · Last observed: 2026-10-20T15:04:21.531870+00:00
-Activity: Fresh two-group offline fixture and combined reviewed/local-qualified97e0d313 app prepared without launch. At18:00-period access recheck CUA again reports locked/automatic unlock unavailable; no group attempt or pass.
-Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
+Owner: single native actor in consolidated batch · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
+Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
+Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
 Depends on: review-group-fixture when Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (reported satisfied: true); review-group-toggle when Corrected UI source reviewed and ordinary production binary qualified. (reported satisfied: true)
-Resource waits: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
+Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -42,14 +82,14 @@ Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-c
 
 Waiting:
 
-- resource: Mac remains locked on actual second check; owner manual unlock requested, no further desktop attempts until changed availability. Close prior verified-undone app before any new launch.
+- resource: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 ### Make visible note rows discoverable to Mac accessibility
 
-Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **blocked** · Last observed: 2026-10-20T15:43:21.587928+00:00
-Activity: PR186 normally mergedea223ef1 and all4required resulting-main39446661224 checks PASS. Notes control correction is integrated/automated-verified; actual corrected Mac accessibility remains pending locked access.
-Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
-Resource waits: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
+Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
+Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
+Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
+Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -73,15 +113,15 @@ Attempts:
 
 Waiting:
 
-- resource: Actual corrected Notes controls require Mac unlock; existing manual unlock request pending.
+- resource: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 ### Expose readable Needs you menu choices to Mac accessibility
 
-Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **blocked** · Last observed: 2026-10-20T16:21:40.307021+00:00
-Activity: PR187 merged4c50b614 and all4required resulting-main39450843453 checks PASS. Integrated tree matches qualified97e0d313. Actual corrected menu/Notes controls remain blocked by Mac lock.
-Next: After changed actual Mac access, close prior verified-undone app through OS controls. Reconcile then-current reviewed main/source and artifact before one consolidated MAC08/11/12 batch. Prepared97e0d313 app/fixtures remain preserved; later main9e2a81c0 is not claimed as identical whole binary. No unchanged passing-journey replay.
+Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
+Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
+Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
 Depends on: note-list-accessibility when Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (reported satisfied: true)
-Resource waits: Mac remains locked; existing manual unlock request pending.
+Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -100,7 +140,7 @@ Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibil
 
 Waiting:
 
-- resource: Mac remains locked; existing manual unlock request pending.
+- resource: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 ## Completed
 
@@ -1311,4 +1351,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-20T22:45:30.567515+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T03:56:18.778419+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
