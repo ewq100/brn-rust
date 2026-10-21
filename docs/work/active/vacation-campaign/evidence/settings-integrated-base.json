@@ -1,0 +1,14 @@
+{
+  "source": "7665a5766f109bf2db947887d6008c2f2c506d7c",
+  "reviewed_ui_source": "c01ce1993217063ac63a53ee90750c8e208c737d",
+  "integrated_base": "d2967cdd787459dd01ed291219b9045155b18511",
+  "all_five_source_hashes_identical": {
+    "crates/brn-desktop/src/threads_pages_tests.rs": "437e7053310935a0b7c032342f148b6b1ea9c590b09e8edd3409f774b7e8cfa2",
+    "crates/brn-desktop/src/threads_state.rs": "593871ef16669669b4877d098b084a835401156651401afe93beee626d0d7e86",
+    "crates/brn-desktop/src/threads_tiled_tests.rs": "9c3922bdc7ec7975a78f2c98050fc5ad0ba05a41f12715c541a5cb04597f1c76",
+    "crates/brn-desktop/src/threads_tiles.rs": "7722d90fe3b2c342505d5d65edc4bc3578794966d5fa2a2fdaaa0a2dfa14e937",
+    "crates/brn-desktop/src/threads_ui.rs": "a36ef22e5f8256afd00b582c59dee37aabc2a80d7441adfe5f6d60bb57433455"
+  },
+  "base_diff": " crates/brn-threads-app/src/export.rs | 115 +++++++++++++++++++++++++++++++++++\n crates/brn/src/input.rs              |  19 +++++-\n crates/brn/src/main.rs               |   9 ++-\n crates/brn/tests/agent_bounds.rs     |  38 ++++++++++++\n 4 files changed, 175 insertions(+), 6 deletions(-)\n",
+  "qualification_reuse": "Exact5UIfilehashes unchanged; base changes only brn CLI and exporttest, no native app/dependency/runtime contract change. Reuse full342/0/1+focused1+1/ordinarybuild/lint evidence; hostedfinalhead gates separately."
+}

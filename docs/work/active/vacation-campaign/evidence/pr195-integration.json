@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-21T05:03:32.284024+00:00",
+  "pr": {
+    "baseRefOid": "a1e1d8991d34df6c7fd0e8918e8843219452c625",
+    "headRefOid": "cacab2e535c27b6d8541e4e6ff77afbcea0d31b0",
+    "mergeCommit": {
+      "oid": "d2967cdd787459dd01ed291219b9045155b18511"
+    },
+    "mergedAt": "2026-10-21T05:01:58Z",
+    "state": "MERGED"
+  },
+  "premerge": "pr195-premerge.json",
+  "candidate_tree": "da0255d9a65f6a7d37c925d5b60a19dd6dc4114a",
+  "merged_tree": "da0255d9a65f6a7d37c925d5b60a19dd6dc4114a",
+  "whole_tree_equal": true,
+  "resulting_main_run": 39547275583,
+  "resulting_main": "pending separately",
+  "limits": "Normalmerge only; no native/owner/releaseclaim"
+}
