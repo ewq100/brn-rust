@@ -1147,7 +1147,7 @@ fn copilot_connection_does_not_save_an_unsaved_effort_choice(cx: &mut TestAppCon
     );
 
     update(cx, &f, |view, window, cx| {
-        let (sender, receiver) = mpsc::sync_channel(1);
+        let (sender, receiver) = mpsc::sync_channel(2);
         view.worker = Some(Worker::connect(receiver, CancellationToken::new()));
         sender
             .send(WorkerEvent::CopilotConnected(credentials.clone()))
