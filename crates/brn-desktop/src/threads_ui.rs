@@ -2031,10 +2031,13 @@ impl ThreadsUi {
         self.worker
             .as_ref()
             .is_some_and(|worker| worker.continuation().is_none())
-            && self.worker.as_ref().and_then(Worker::run_identity)
-                .is_some_and(|run| {
-                    matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread)
-                })
+            && self
+                .worker
+                .as_ref()
+                .and_then(Worker::run_identity)
+                .is_some_and(
+                    |run| matches!(&self.chat, ChatTarget::Thread(thread) if &run.thread == thread),
+                )
     }
     fn stop_and_send(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.can_stop_and_send() {
@@ -2607,7 +2610,11 @@ impl ThreadsUi {
         }
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
-        if self.worker.as_mut().is_some_and(Worker::discard_continuation) {
+        if self
+            .worker
+            .as_mut()
+            .is_some_and(Worker::discard_continuation)
+        {
             self.warn("Automatic continuation stopped. Your saved instruction remains in the chat; Continue when ready.");
         }
         let stopped = if let Some(run) = self.worker.as_ref().and_then(Worker::run_identity) {

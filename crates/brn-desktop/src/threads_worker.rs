@@ -192,7 +192,11 @@ impl Worker {
     /// Consume the saved prompt while its original Run identity is still live.
     pub(super) fn take_terminal_continuation(&mut self) -> Option<(String, String)> {
         match &mut self.operation {
-            WorkerOperation::Run { identity, continuation, .. } => continuation
+            WorkerOperation::Run {
+                identity,
+                continuation,
+                ..
+            } => continuation
                 .take()
                 .map(|prompt| (prompt, identity.thread.clone())),
             _ => None,

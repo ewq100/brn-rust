@@ -182,9 +182,14 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 ui.worker.as_ref().unwrap().continuation(),
                 Some("New exact instruction · õun")
             );
-            assert!(ui.workspace.messages(&f.thread).unwrap().iter().any(|record|
-                matches!(&record.data, RecordData::Message(message)
-                    if message.role == "owner" && message.text == "New exact instruction · õun")));
+            assert!(
+                ui.workspace
+                    .messages(&f.thread)
+                    .unwrap()
+                    .iter()
+                    .any(|record| matches!(&record.data, RecordData::Message(message)
+                    if message.role == "owner" && message.text == "New exact instruction · õun"))
+            );
             assert_eq!(
                 ui.worker
                     .as_ref()
@@ -215,7 +220,11 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 .send(WorkerEvent::Text("Late old text".into()))
                 .unwrap();
             ui.poll_worker(window, cx);
-            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
+            assert!(
+                ui.worker
+                    .as_ref()
+                    .is_none_or(|worker| worker.continuation().is_none())
+            );
             assert!(
                 ui.worker.is_none(),
                 "persisted offline provider refuses startup without credential access"
@@ -323,7 +332,11 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
-            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
+            assert!(
+                ui.worker
+                    .as_ref()
+                    .is_none_or(|worker| worker.continuation().is_none())
+            );
             assert!(ui.notice.text().contains("Automatic continuation stopped"));
             f.sender
                 .send(WorkerEvent::Finished(Ok("Interrupted".into())))
@@ -351,7 +364,11 @@ fn failed_steering_persistence_retains_text_worker_and_controls(cx: &mut TestApp
                 ui.composer.read(cx).value().as_ref(),
                 "New exact instruction · õun"
             );
-            assert!(ui.worker.as_ref().is_none_or(|worker| worker.continuation().is_none()));
+            assert!(
+                ui.worker
+                    .as_ref()
+                    .is_none_or(|worker| worker.continuation().is_none())
+            );
             assert!(!f.cancel.is_cancelled());
             assert!(ui.worker.is_some() && ui.can_stop_and_send());
             assert!(ui.notice.text().contains("Could not send"));
