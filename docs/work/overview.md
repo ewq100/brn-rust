@@ -85,24 +85,24 @@ Attempts:
 
 </details>
 
-### Assess keeping Settings drafts coherent during refresh
+### Keep unsaved model choices when unrelated work finishes
 
-Owner: bounded Luna medium source preflight; lead selects contract/candidate; independent Sol review for meaningful changes · State: **active** · Last observed: 2026-10-21T04:42:00.682690+00:00
-Activity: Follow the named residual form-refresh boundary in qualifiedSettingsfde while CI runs. Read-only assessment only: identify which ordinary refresh/navigation events reset segmented choices versus existing text drafts, reuse prior audit, and identify smallest safe coherent next action without inventing account behavior.
-Next: Return exact current event/field ownership map, contract evidence and bounded offline witness/design or justified deferral. Do not author another overlapping source candidate.
+Owner: bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:49:58.280062+00:00
+Activity: Selected narrow correction: when Settings Models is open and an unrelated worker finishes without changing canonical provider configuration, retain all unsaved form fields. Explicit Connect/configure/navigation keep their current refresh behavior. Frozenfde evidence remains source-bound; new candidate will need review/checks.
+Next: Extend the existing Settings Save witness with one owned offline worker completion before Save; capture actual failure before the smallest correction.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** read-only preflight, no new correction or navigation-retention policy selected
-- **checks:** pending bounded source/contract assessment; reuse known refresh-loss finding, no duplicate wholeSettings audit
-- **integration:** inapplicable until a selected reviewed candidate exists
-- **native:** deferred for extended owner unavailability; source/toolkit are distinct
+- **implementation:** selected, not implemented
+- **checks:** pending actual negative witness and final qualification
+- **integration:** pending reviewed candidate and ordered current-main reconciliation
+- **native:** deferred for owner availability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md)
 
 </details>
 
@@ -1445,6 +1445,27 @@ Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/th
 
 </details>
 
+### Assess keeping Settings drafts coherent during refresh
+
+Owner: bounded Luna medium source preflight; lead selects contract/candidate; independent Sol review for meaningful changes · State: **complete** · Last observed: 2026-10-21T04:49:58.280062+00:00
+Activity: Read-only exactfde preflight complete: unrelated worker completion resets segmented drafts while text drafts survive. Existing contracts leave broader navigation retention unspecified.
+Next: Select only coherent Models form retention on unrelated worker completion with unchanged canonical provider configuration; leave explicit Connect/configure/navigation refresh policy unchanged.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** complete read-only preflight, not a source correction
+- **checks:** PASS bounded source/caller/contract assessment; no build/native claim
+- **integration:** inapplicable until a selected reviewed candidate exists
+- **native:** deferred for extended owner unavailability; source/toolkit are distinct
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1469,4 +1490,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:42:00.682690+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:49:58.280062+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

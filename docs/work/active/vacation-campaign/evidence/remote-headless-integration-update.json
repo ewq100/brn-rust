@@ -1,0 +1,203 @@
+{
+  "observed_at": "2026-10-21T04:49:37.386Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "bb23ca61a4ab6be5fd4312c2209a7c931774c8a9",
+  "edit": {
+    "new_sequence": 46,
+    "through_sequence": 46,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "96a436699caed12a964e61189ce383ee030de815f122e7315f2de9639dd96c73"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "b6d73cdc4d037089a9eef62b8a0cac6fae4b6bb950052d38211b50e5557f79ad"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "cc9aac652fe8fd16523e485b23ea33db0cc3c87392f1e9ebf95683082bc67217"
+          }
+        ]
+      }
+    ]
+  },
+  "readback_checks": [
+    {
+      "id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "ok": true
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "ok": true
+    },
+    {
+      "id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "ok": true
+    },
+    {
+      "id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+      "ok": true
+    },
+    {
+      "id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "ok": true
+    },
+    {
+      "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+      "ok": true
+    },
+    {
+      "id": "c87592a5-14ed-4ddc-89e4-1e9b0f9c39f9",
+      "ok": true
+    },
+    {
+      "id": "c9f112c2-d466-4ffd-afc6-fc5a171211dd",
+      "ok": true
+    },
+    {
+      "id": "2e6d8ee0-067d-42fd-89dc-177f822a8f9c",
+      "ok": true
+    },
+    {
+      "id": "f8fb7782-b39d-46ab-812c-295c2fac61bf",
+      "ok": true
+    },
+    {
+      "id": "6726b51a-b7a5-4755-b5c1-b8384a8016dd",
+      "ok": true
+    },
+    {
+      "id": "def0cbc6-3f89-4866-94ad-e368ccabe798",
+      "ok": true
+    },
+    {
+      "id": "89ef15f7-63a3-420b-aba0-76b2c00bd62b",
+      "ok": true
+    },
+    {
+      "id": "4b12b94b-375e-420a-8c4f-617917e61859",
+      "ok": true
+    },
+    {
+      "id": "b3c66335-d211-4e51-a140-f7efab3aa4d9",
+      "ok": true
+    },
+    {
+      "id": "aee8eb3a-9d3f-492c-898b-d52eb25891ad",
+      "ok": true
+    },
+    {
+      "id": "200708f1-65b3-4f66-8ae0-07720e77b011",
+      "ok": true
+    },
+    {
+      "id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+      "ok": true
+    },
+    {
+      "id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+      "ok": true
+    },
+    {
+      "id": "bc0ab520-bc6b-4b71-99b1-b8dabdf3e602",
+      "ok": true
+    },
+    {
+      "id": "b1cb6cd0-eed8-48c2-a82c-fd375c23ecd8",
+      "ok": true
+    },
+    {
+      "id": "56db4892-0f38-4d2a-b5c2-1e13a86688ba",
+      "ok": true
+    },
+    {
+      "id": "5d6eed6f-b069-42e1-b21f-925dea91dfa6",
+      "ok": true
+    },
+    {
+      "id": "77380e5e-999c-46fa-a874-e2d39599129d",
+      "ok": true
+    },
+    {
+      "id": "74fa4da1-a93d-4758-b530-a1e31b63945b",
+      "ok": true
+    },
+    {
+      "id": "4bdbfc27-8f1a-45a0-968c-77a5b3177798",
+      "ok": true
+    },
+    {
+      "id": "2270f693-b38a-45e5-99af-d12dc1024ddd",
+      "ok": true
+    },
+    {
+      "id": "be092af6-810b-41e5-bbc1-9f87a6455b00",
+      "ok": true
+    },
+    {
+      "id": "880224ef-8cd0-4093-8e73-a31055808d93",
+      "ok": true
+    },
+    {
+      "id": "8789161e-d007-4e11-b0d1-63a856386c09",
+      "ok": true
+    },
+    {
+      "id": "ab792d24-1c38-4ccf-b828-6b1aa85f376d",
+      "ok": true
+    },
+    {
+      "id": "04a21101-9b82-42cb-8e5c-8ca4dfebdd19",
+      "ok": true
+    },
+    {
+      "id": "eec2995a-1f28-4a4e-ba6b-91edb0b28390",
+      "ok": true
+    },
+    {
+      "id": "7b2cec28-facf-42a2-ab1d-f4d5b6f4604d",
+      "ok": true
+    },
+    {
+      "id": "a314237c-94fd-4b61-ae64-ee492b3a6764",
+      "ok": true
+    },
+    {
+      "id": "2fa06cc6-3b06-4a5b-ab78-7e52b5bc2779",
+      "ok": true
+    }
+  ],
+  "limit": "API content readback, not rendered/native observation"
+}

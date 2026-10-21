@@ -28,7 +28,7 @@
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
     "quota": "See admission observation; no purchases/reset credits.",
-    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
+    "wake": "Repeated same-chat heartbeat delivery observed19\u201320October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -58,7 +58,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
-    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T04:42:00.682690+00:00",
-    "remaining_percent": 74,
+    "observed_at": "2026-10-21T04:49:58.280062+00:00",
+    "remaining_percent": 73,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual26%used/74%remaining ordinaryUsageAllowedtrue; continue headless reviewed integration and one bounded read-only preflight, no account tests.",
+    "ordinary_work": "admitted: actual27%used/73%remaining ordinaryUsageAllowedtrue; useful headless work continues, no account tests.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:42:00.682690+00:00",
+    "observed_at": "2026-10-21T04:49:58.280062+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -176,7 +176,7 @@
           "https://github.com/ewq100/brn-rust/pull/176"
         ],
         "gates": {
-          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
+          "implementation": "complete; final writing.rs SHA b14e8bc9\u2026932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
           "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
@@ -299,7 +299,7 @@
           "docs/work/active/agent-first-simplification/reconciliation.md"
         ],
         "gates": {
-          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
+          "implementation": "merged in earlier campaign PR163\u2013174; per-slice identities retained in receipts",
           "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
           "integration": "verified per dated integration receipt; no whole-program completion claim",
           "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
@@ -431,7 +431,7 @@
         ],
         "gates": {
           "implementation": "inapplicable: exercising existing test and public routes; no source change selected",
-          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes",
+          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6\u21927 with Runs1\u21922, unchanged owner Message and source bytes",
           "integration": "inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen",
           "native": "headless toolkit only; actual OS interaction not exercised",
           "owner_acceptance": "not claimed"
@@ -2193,7 +2193,7 @@
         "attempts": [
           {
             "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
-            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "change": "Extend existing positive Save test with Low\u2192Off\u2192Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
             ]
@@ -2217,27 +2217,52 @@
       {
         "id": "settings-refresh-form-preflight",
         "title": "Assess keeping Settings drafts coherent during refresh",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium source preflight; lead selects contract/candidate; independent Sol review for meaningful changes",
-        "activity": "Follow the named residual form-refresh boundary in qualifiedSettingsfde while CI runs. Read-only assessment only: identify which ordinary refresh/navigation events reset segmented choices versus existing text drafts, reuse prior audit, and identify smallest safe coherent next action without inventing account behavior.",
-        "observed_at": "2026-10-21T04:42:00.682690+00:00",
+        "activity": "Read-only exactfde preflight complete: unrelated worker completion resets segmented drafts while text drafts survive. Existing contracts leave broader navigation retention unspecified.",
+        "observed_at": "2026-10-21T04:49:58.280062+00:00",
         "origin": "observed",
-        "next_action": "Return exact current event/field ownership map, contract evidence and bounded offline witness/design or justified deferral. Do not author another overlapping source candidate.",
+        "next_action": "Select only coherent Models form retention on unrelated worker completion with unchanged canonical provider configuration; leave explicit Connect/configure/navigation refresh policy unchanged.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md",
-          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md"
         ],
         "gates": {
-          "implementation": "read-only preflight, no new correction or navigation-retention policy selected",
-          "checks": "pending bounded source/contract assessment; reuse known refresh-loss finding, no duplicate wholeSettings audit",
+          "implementation": "complete read-only preflight, not a source correction",
+          "checks": "PASS bounded source/caller/contract assessment; no build/native claim",
           "integration": "inapplicable until a selected reviewed candidate exists",
           "native": "deferred for extended owner unavailability; source/toolkit are distinct",
           "owner_acceptance": "not claimed"
         },
         "attempts": [],
         "resource_plan": "One requested Luna medium read-only helper during independent hostedwait;4total slots incl lead. Named benefit: bounded pre-research of known residual draft-lifecycle boundary, not duplicate solved accidental-persistence issue. Exactsourcefde inmac-test-roots remainsfrozen/pushed; no source/sharedrecord edits, builds, fixtures/processes, account/provider/network/credential-content/native/model/nested actions. Return at most1small existing-owner design/witness or contract ambiguity with scope choices. No generic form framework or codeauthoring."
+      },
+      {
+        "id": "settings-worker-draft-retention",
+        "title": "Keep unsaved model choices when unrelated work finishes",
+        "state": "active",
+        "owner": "bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review",
+        "activity": "Selected narrow correction: when Settings Models is open and an unrelated worker finishes without changing canonical provider configuration, retain all unsaved form fields. Explicit Connect/configure/navigation keep their current refresh behavior. Frozenfde evidence remains source-bound; new candidate will need review/checks.",
+        "observed_at": "2026-10-21T04:49:58.280062+00:00",
+        "origin": "observed",
+        "next_action": "Extend the existing Settings Save witness with one owned offline worker completion before Save; capture actual failure before the smallest correction.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md"
+        ],
+        "gates": {
+          "implementation": "selected, not implemented",
+          "checks": "pending actual negative witness and final qualification",
+          "integration": "pending reviewed candidate and ordered current-main reconciliation",
+          "native": "deferred for owner availability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "Requested Luna medium owns only one existing test extension on cleanSettingsfde; lead controls builds and source design, consequential independent Sol review next. Up to2helpers plus lead within4slots; no nested/source-overlap/sharedrecord/account/provider/native actions. Stop after2failed approaches or broader lifecycle ambiguity; preserve all old receipts and qualification identities."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2247,10 +2272,11 @@
     "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
-    "receipt": "evidence/remote-progress-page.json",
+    "receipt": "evidence/remote-headless-integration-update.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
     "last_refresh_at": "2026-10-21T04:33:18.873Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json"
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json",
+    "last_refreshed_at": "2026-10-21T04:49:58.280062+00:00"
   },
   "resource_observation": {
     "observed_at": "2026-10-21T04:42:00.682690+00:00",
