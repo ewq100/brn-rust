@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Keep preview-file waiting interruptible
 
-Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:41:38.162443+00:00
-Activity: PR195 published at finalcacab2e5 againstmaina1e1; exact3CLIhashes match independently reviewed/localqualifieda054 and final integrated-base regression/lint/fmt pass. Hosted39545328133 active; precedingmain194 checks separate.
-Next: Require all4exactcacab head and all4precedingmaina1e1 checks, fresh protection then separate normalmerge; resultingmain separately.
+Owner: bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:58:57.131052+00:00
+Activity: Exactcacab PR195 all4requiredhead jobsPASS. Precedingmain194 Mac3PASS, UbuntuCore stillactive; normalmerge waitsbothcomplete sets/freshprotection.
+Next: AfterprecedingmainUbuntuPASS, runfreshpreparedfailfastpremergeguard then separate normalmerge195; resultingmainseparate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -22,11 +22,11 @@ Gates:
 
 - **implementation:** PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest
 - **checks:** PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace
-- **integration:** PR195 published/cacab2e5; required39545328133 and precedingmain39545050369 pending; not merged
+- **integration:** head4PASS; precedingmaina1e1UbuntuCore pending, notmerged
 - **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/195](https://github.com/ewq100/brn-rust/pull/195), [docs/work/active/vacation-campaign/evidence/pr195-publication.json](active/vacation-campaign/evidence/pr195-publication.json)
+Evidence: [crates/brn/src/main.rs](../../crates/brn/src/main.rs), [crates/brn/src/input.rs](../../crates/brn/src/input.rs), [crates/brn/tests/agent_bounds.rs](../../crates/brn/tests/agent_bounds.rs), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-baseline.json](active/vacation-campaign/evidence/preview-file-cancellation-baseline.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-implementation.md](active/vacation-campaign/evidence/preview-file-cancellation-implementation.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-review.md](active/vacation-campaign/evidence/preview-file-cancellation-review.md), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-qualification.json](active/vacation-campaign/evidence/preview-file-cancellation-qualification.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-candidate.json](active/vacation-campaign/evidence/preview-file-cancellation-candidate.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json), [docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz](active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/195](https://github.com/ewq100/brn-rust/pull/195), [docs/work/active/vacation-campaign/evidence/pr195-publication.json](active/vacation-campaign/evidence/pr195-publication.json), [docs/work/active/vacation-campaign/evidence/pr195-head-checks.json](active/vacation-campaign/evidence/pr195-head-checks.json)
 
 Attempts:
 
@@ -61,9 +61,9 @@ Attempts:
 
 ### Keep unsaved provider choices out of other Settings actions
 
-Owner: bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T04:32:09.346236+00:00
-Activity: Finalfde04773 independently reviewed: P2 helperOff/On reset fixed. Final actual focused1/0, full desktop342/0/1existingignored, strict all-targetlint, ordinary productionbuild, fmt/whitespace PASS. Original draft leak and compatibility negative failures retained.
-Next: Preserve final qualified source/artifact. After preceding normal integrations, reconcile then-current main and publish separate Settings correction with all required exact-head/resulting-main gates; native remains deferred.
+Owner: bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T04:58:57.131052+00:00
+Activity: Originalfde qualification remainsimmutable; finalcombinedc01 includes narrowworker-draftretention, independently reviewed acrossall5sourcefiles andactual1+1/full342/0/1/lint/build/fmtPASS.
+Next: PublishcombinedreviewedSettingsc01 afterprecedingCLI195integration andcurrentmainreconciliation. Native remainsdeferred.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -71,12 +71,12 @@ Next: Preserve final qualified source/artifact. After preceding normal integrati
 Gates:
 
 - **implementation:** PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed
-- **checks:** PASS final focused1/0, desktop342/0/1ignored, strictlint/ordinarybuild/fmt/whitespace; both actual red failures retained
+- **checks:** PASS originalfde and finalcombinedc01 actualfull342/0/1 plusfocused/lint/build/fmt
 - **integration:** pending publication after preceding main reconciliation; all4required exact-head and resulting-main separately
 - **native:** explicitly deferred for extended owner unavailability; deterministic toolkit and ordinary build are not native observation
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md](active/vacation-campaign/evidence/settings-draft-isolation-regression.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json](active/vacation-campaign/evidence/settings-draft-isolation-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md](active/vacation-campaign/evidence/settings-draft-isolation-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-review.md](active/vacation-campaign/evidence/settings-draft-isolation-review.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-final-review.md](active/vacation-campaign/evidence/settings-draft-isolation-final-review.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-regression.md](active/vacation-campaign/evidence/settings-helper-reset-regression.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md](active/vacation-campaign/evidence/settings-helper-reset-correction.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json](active/vacation-campaign/evidence/settings-draft-isolation-source-push.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md](active/vacation-campaign/evidence/settings-draft-isolation-regression.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json](active/vacation-campaign/evidence/settings-draft-isolation-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md](active/vacation-campaign/evidence/settings-draft-isolation-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-review.md](active/vacation-campaign/evidence/settings-draft-isolation-review.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-final-review.md](active/vacation-campaign/evidence/settings-draft-isolation-final-review.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-regression.md](active/vacation-campaign/evidence/settings-helper-reset-regression.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md](active/vacation-campaign/evidence/settings-helper-reset-correction.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json](active/vacation-campaign/evidence/settings-draft-isolation-source-push.json), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-qualification.json](active/vacation-campaign/evidence/settings-worker-retention-qualification.json)
 
 Attempts:
 
@@ -87,22 +87,28 @@ Attempts:
 
 ### Keep unsaved model choices when unrelated work finishes
 
-Owner: bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:49:58.280062+00:00
-Activity: Selected narrow correction: when Settings Models is open and an unrelated worker finishes without changing canonical provider configuration, retain all unsaved form fields. Explicit Connect/configure/navigation keep their current refresh behavior. Frozenfde evidence remains source-bound; new candidate will need review/checks.
-Next: Extend the existing Settings Save witness with one owned offline worker completion before Save; capture actual failure before the smallest correction.
+Owner: bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review · State: **active** · Last observed: 2026-10-21T04:58:57.131052+00:00
+Activity: Finalc01ce199 independently reviewed with no remainingfindings. Actualfocusedretention1/0, Connect1/0, full342/0/1existingignored, strictlint/ordinaryproductionbuild/fmt/whitespacePASS; originalnegative andfirstcorrectionfailure preserved.
+Next: Preserve exact reviewed/qualifiedc01 source and unlaunchedbinary; afterPR195normalintegration reconcilecurrentmain and publishcombinedSettingscandidate throughnormal4requiredhead/main gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** selected, not implemented
-- **checks:** pending actual negative witness and final qualification
-- **integration:** pending reviewed candidate and ordered current-main reconciliation
+- **implementation:** PASS finalc01 completecandidate independentreview; priorP2restorationplacementfixed
+- **checks:** PASS actual1+1focused/full342/0/1ignored/strictlint/build/fmt/whitespace; redattemptsretained
+- **integration:** notpublished/merged; orderedcurrentmainreconciliation required
 - **native:** deferred for owner availability
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md](active/vacation-campaign/evidence/settings-refresh-form-preflight.md), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-regression.md](active/vacation-campaign/evidence/settings-worker-retention-regression.md), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-baseline.json](active/vacation-campaign/evidence/settings-worker-retention-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md](active/vacation-campaign/evidence/settings-worker-retention-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-review.md](active/vacation-campaign/evidence/settings-worker-retention-review.md), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-qualification.json](active/vacation-campaign/evidence/settings-worker-retention-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-worker-retention-raw.tar.gz](active/vacation-campaign/evidence/settings-worker-retention-raw.tar.gz)
+
+Attempts:
+
+- 72951 actual0/1 savedMedium vsHigh; model draft remains: Capture/restoreProviderForm only across known unrelated Finished refresh whileModelsvisible and complete canonical settingsunchanged; excludeConnect. ([docs/work/active/vacation-campaign/evidence/settings-worker-retention-baseline.json](active/vacation-campaign/evidence/settings-worker-retention-baseline.json))
+- 375 source inspected beforetests: two syntheticConnect sends into sync_channel(1) wouldblock; nohangrunclaimed.: Lead140439 changesonlyfixturecapacityto2. Initialcargo-fmt lackedcargoPATH and failed; pinnedPATH retryformat/whitespacePASS. No productionbehaviorchange fromthiscorrection. ([docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md](active/vacation-campaign/evidence/settings-worker-retention-implementation.md))
+- Actual140439 focused0/1/342filtered savedMediumvsHigh; scriptstoppedbeforeconnection/full/lint/build.: Traceactualcaller: dispatch_next unconditionallyrefreshesevenemptyqueue afterFinishedrestore. Defersamecapture restorationuntilwholebatchcompletionwithstillvisibleModels+unchangedcanonical guard; noqueue/statepolicychanges. ([docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md](active/vacation-campaign/evidence/settings-worker-retention-implementation.md))
 
 </details>
 
@@ -1466,6 +1472,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation
 
 </details>
 
+### Select the next evidence-backed reliability gap
+
+Owner: bounded Luna medium read-only preflight; lead selects next action · State: **complete** · Last observed: 2026-10-21T04:56:09.216237+00:00
+Activity: Bounded current-source/receipt review found no distinct justified next gap in data/recovery/queue/Undo; prior witnesses and active owners cover inspected boundaries.
+Next: Finish existing candidates; revisit only a concrete review/gate regression or later distinct source-backed gap. This is bounded assessment, not exhaustive defect freedom.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** read-only preflight, no new source assignment
+- **checks:** PASS read-only evidence reuse; no tests/build/native
+- **integration:** inapplicable until selected candidate
+- **native:** owneravailability deferred
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md), [docs/work/active/vacation-campaign/test-families.md](active/vacation-campaign/test-families.md), [docs/work/active/vacation-campaign/evidence/next-headless-gap-preflight.md](active/vacation-campaign/evidence/next-headless-gap-preflight.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1490,4 +1517,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:49:58.280062+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:58:57.131052+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

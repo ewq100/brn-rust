@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T04:49:58.280062+00:00",
+    "observed_at": "2026-10-21T04:58:57.131052+00:00",
     "remaining_percent": 73,
-    "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual27%used/73%remaining ordinaryUsageAllowedtrue; useful headless work continues, no account tests.",
+    "reset_unix": 1793083361,
+    "ordinary_work": "admitted: actual27%used/73%remaining ordinaryUsageAllowedtrue; reviewed integrationcontinues, no accounttest.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:49:58.280062+00:00",
+    "observed_at": "2026-10-21T04:58:57.131052+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2050,10 +2050,10 @@
         "title": "Keep preview-file waiting interruptible",
         "state": "active",
         "owner": "bounded Luna implementation; lead reproduction/qualification/integration; independent Sol review",
-        "activity": "PR195 published at finalcacab2e5 againstmaina1e1; exact3CLIhashes match independently reviewed/localqualifieda054 and final integrated-base regression/lint/fmt pass. Hosted39545328133 active; precedingmain194 checks separate.",
-        "observed_at": "2026-10-21T04:41:38.162443+00:00",
+        "activity": "Exactcacab PR195 all4requiredhead jobsPASS. Precedingmain194 Mac3PASS, UbuntuCore stillactive; normalmerge waitsbothcomplete sets/freshprotection.",
+        "observed_at": "2026-10-21T04:58:57.131052+00:00",
         "origin": "observed",
-        "next_action": "Require all4exactcacab head and all4precedingmaina1e1 checks, fresh protection then separate normalmerge; resultingmain separately.",
+        "next_action": "AfterprecedingmainUbuntuPASS, runfreshpreparedfailfastpremergeguard then separate normalmerge195; resultingmainseparate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2069,12 +2069,13 @@
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base.json",
           "docs/work/active/vacation-campaign/evidence/preview-file-cancellation-integrated-base-raw.tar.gz",
           "https://github.com/ewq100/brn-rust/pull/195",
-          "docs/work/active/vacation-campaign/evidence/pr195-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr195-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr195-head-checks.json"
         ],
         "gates": {
           "implementation": "PASS finalheadcacab2e5 contains identical independently revieweda054 CLI source; baseonlynewexporttest",
           "checks": "PASS reusedidentical13/23/4 plus finalrealprocess1/0 strictlint/fmt/whitespace",
-          "integration": "PR195 published/cacab2e5; required39545328133 and precedingmain39545050369 pending; not merged",
+          "integration": "head4PASS; precedingmaina1e1UbuntuCore pending, notmerged",
           "native": "deferred owner availability; no OS usability claim",
           "owner_acceptance": "not claimed"
         },
@@ -2163,10 +2164,10 @@
         "title": "Keep unsaved provider choices out of other Settings actions",
         "state": "active",
         "owner": "bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review",
-        "activity": "Finalfde04773 independently reviewed: P2 helperOff/On reset fixed. Final actual focused1/0, full desktop342/0/1existingignored, strict all-targetlint, ordinary productionbuild, fmt/whitespace PASS. Original draft leak and compatibility negative failures retained.",
-        "observed_at": "2026-10-21T04:32:09.346236+00:00",
+        "activity": "Originalfde qualification remainsimmutable; finalcombinedc01 includes narrowworker-draftretention, independently reviewed acrossall5sourcefiles andactual1+1/full342/0/1/lint/build/fmtPASS.",
+        "observed_at": "2026-10-21T04:58:57.131052+00:00",
         "origin": "observed",
-        "next_action": "Preserve final qualified source/artifact. After preceding normal integrations, reconcile then-current main and publish separate Settings correction with all required exact-head/resulting-main gates; native remains deferred.",
+        "next_action": "PublishcombinedreviewedSettingsc01 afterprecedingCLI195integration andcurrentmainreconciliation. Native remainsdeferred.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2181,11 +2182,12 @@
           "docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md",
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json",
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz",
-          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json"
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-qualification.json"
         ],
         "gates": {
           "implementation": "PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed",
-          "checks": "PASS final focused1/0, desktop342/0/1ignored, strictlint/ordinarybuild/fmt/whitespace; both actual red failures retained",
+          "checks": "PASS originalfde and finalcombinedc01 actualfull342/0/1 plusfocused/lint/build/fmt",
           "integration": "pending publication after preceding main reconciliation; all4required exact-head and resulting-main separately",
           "native": "explicitly deferred for extended owner unavailability; deterministic toolkit and ordinary build are not native observation",
           "owner_acceptance": "not claimed"
@@ -2245,24 +2247,78 @@
         "title": "Keep unsaved model choices when unrelated work finishes",
         "state": "active",
         "owner": "bounded Luna medium regression author; lead reproduction/design/integration; independent Sol review",
-        "activity": "Selected narrow correction: when Settings Models is open and an unrelated worker finishes without changing canonical provider configuration, retain all unsaved form fields. Explicit Connect/configure/navigation keep their current refresh behavior. Frozenfde evidence remains source-bound; new candidate will need review/checks.",
-        "observed_at": "2026-10-21T04:49:58.280062+00:00",
+        "activity": "Finalc01ce199 independently reviewed with no remainingfindings. Actualfocusedretention1/0, Connect1/0, full342/0/1existingignored, strictlint/ordinaryproductionbuild/fmt/whitespacePASS; originalnegative andfirstcorrectionfailure preserved.",
+        "observed_at": "2026-10-21T04:58:57.131052+00:00",
         "origin": "observed",
-        "next_action": "Extend the existing Settings Save witness with one owned offline worker completion before Save; capture actual failure before the smallest correction.",
+        "next_action": "Preserve exact reviewed/qualifiedc01 source and unlaunchedbinary; afterPR195normalintegration reconcilecurrentmain and publishcombinedSettingscandidate throughnormal4requiredhead/main gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md"
+          "docs/work/active/vacation-campaign/evidence/settings-refresh-form-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-regression.md",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-review.md",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/settings-worker-retention-raw.tar.gz"
         ],
         "gates": {
-          "implementation": "selected, not implemented",
-          "checks": "pending actual negative witness and final qualification",
-          "integration": "pending reviewed candidate and ordered current-main reconciliation",
+          "implementation": "PASS finalc01 completecandidate independentreview; priorP2restorationplacementfixed",
+          "checks": "PASS actual1+1focused/full342/0/1ignored/strictlint/build/fmt/whitespace; redattemptsretained",
+          "integration": "notpublished/merged; orderedcurrentmainreconciliation required",
           "native": "deferred for owner availability",
           "owner_acceptance": "not claimed"
         },
+        "attempts": [
+          {
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-worker-retention-baseline.json"
+            ],
+            "outcome": "72951 actual0/1 savedMedium vsHigh; model draft remains",
+            "change": "Capture/restoreProviderForm only across known unrelated Finished refresh whileModelsvisible and complete canonical settingsunchanged; excludeConnect."
+          },
+          {
+            "outcome": "375 source inspected beforetests: two syntheticConnect sends into sync_channel(1) wouldblock; nohangrunclaimed.",
+            "change": "Lead140439 changesonlyfixturecapacityto2. Initialcargo-fmt lackedcargoPATH and failed; pinnedPATH retryformat/whitespacePASS. No productionbehaviorchange fromthiscorrection.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md"
+            ]
+          },
+          {
+            "outcome": "Actual140439 focused0/1/342filtered savedMediumvsHigh; scriptstoppedbeforeconnection/full/lint/build.",
+            "change": "Traceactualcaller: dispatch_next unconditionallyrefreshesevenemptyqueue afterFinishedrestore. Defersamecapture restorationuntilwholebatchcompletionwithstillvisibleModels+unchangedcanonical guard; noqueue/statepolicychanges.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-worker-retention-implementation.md"
+            ]
+          }
+        ],
+        "resource_plan": "Requested Luna medium owns only one existing test extension on cleanSettingsfde; lead controls builds and source design, consequential independent Sol review next. Up to2helpers plus lead within4slots; no nested/source-overlap/sharedrecord/account/provider/native actions. Stop after2failed approaches or broader lifecycle ambiguity; preserve all old receipts and qualification identities. Record correction: overview validation rejected result/next keys then scalar evidence; inspected actual schema and corrected to outcome/change/evidence-list. Last valid overview remained intact."
+      },
+      {
+        "id": "next-headless-gap-preflight",
+        "title": "Select the next evidence-backed reliability gap",
+        "state": "complete",
+        "owner": "bounded Luna medium read-only preflight; lead selects next action",
+        "activity": "Bounded current-source/receipt review found no distinct justified next gap in data/recovery/queue/Undo; prior witnesses and active owners cover inspected boundaries.",
+        "observed_at": "2026-10-21T04:56:09.216237+00:00",
+        "origin": "observed",
+        "next_action": "Finish existing candidates; revisit only a concrete review/gate regression or later distinct source-backed gap. This is bounded assessment, not exhaustive defect freedom.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md",
+          "docs/work/active/vacation-campaign/test-families.md",
+          "docs/work/active/vacation-campaign/evidence/next-headless-gap-preflight.md"
+        ],
+        "gates": {
+          "implementation": "read-only preflight, no new source assignment",
+          "checks": "PASS read-only evidence reuse; no tests/build/native",
+          "integration": "inapplicable until selected candidate",
+          "native": "owneravailability deferred",
+          "owner_acceptance": "not claimed"
+        },
         "attempts": [],
-        "resource_plan": "Requested Luna medium owns only one existing test extension on cleanSettingsfde; lead controls builds and source design, consequential independent Sol review next. Up to2helpers plus lead within4slots; no nested/source-overlap/sharedrecord/account/provider/native actions. Stop after2failed approaches or broader lifecycle ambiguity; preserve all old receipts and qualification identities."
+        "resource_plan": "One economical requestedLuna medium read-only helper whileconsequentialSolreview andleadsharedbuild run;3active incllead within4slots. Benefit boundedcandidate selectionusingexistingreceipts, notunlimitedaudit. No nested/source/sharedrecord/build/native/account/provider/private/config/network/pushactions. Stopatonegroundedgap ornone."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2272,16 +2328,14 @@
     "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
-    "receipt": "evidence/remote-headless-integration-update.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T04:33:18.873Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-settings-isolation-update.json",
-    "last_refreshed_at": "2026-10-21T04:49:58.280062+00:00"
+    "last_refresh_at": "2026-10-21T04:49:58.280062+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-integration-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T04:42:00.682690+00:00",
-    "runtime_capacity": "4total slots; lead integration plus one Luna read-only form-refresh preflight; all source authors and Sol reviews complete",
-    "build_slot": "free after CLI integrated-base finalcheck exits0",
+    "observed_at": "2026-10-21T04:58:57.131052+00:00",
+    "runtime_capacity": "4slots incllead; boundedauthors/preflights/independentreview allcomplete",
+    "build_slot": "free after c01finalqualificationexec77119 exits0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
@@ -2300,12 +2354,12 @@
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
-    "integration": "PR194 normalmergea1e1/fulltreeequal andhead4PASS, resultingmain39545050369 pending; PR195cacab published/required39545328133 pending; UISettingsfde frozen reviewed qualified awaits orderedintegration",
+    "integration": "PR195head4PASS, precedingmaina1e1 UbuntuCorepending; Settingsc01combined localreview/checksPASS awaiting orderedpublication",
     "wait_reason": "Native only deferred for extended owner unavailability; two headless candidates under final qualification/integration",
-    "resumption": "Continue exact-head PR194 required gate integration using /tmp/brn-export-interruption-qualification/premerge.py only after actual all4PASS, normal merge in separate call then resulting-main gates. CLIa054 and Settingsfde both frozen/reviewed/localqualified and await ordered main reconciliation/publication; no batch pause. Native deferred until owner-reported changed availability.",
+    "resumption": "Continue exacthead195 plus precedingmaina1e1 all4required and freshprotection using preparedfailfast guard, normalmerge in separatecall; resultingmain separately. Review/qualify newSettingscandidate then publishagainstcurrentmain. No nativeattempt untilchangedowneravailability.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability oncodex/preview-file-cancellation base9e2a81c0",
-    "fixture_worker_checkout": "mac-test-roots cleanold e1b preserved; newcodex/settings-draft-isolation frommain9e2a81c0 for regressiononly; no archive/unpin/removal",
+    "worker_checkout": "export-durability cleanon codex/preview-file-cancellation atcacab2e5",
+    "fixture_worker_checkout": "mac-test-roots cleancodex/settings-draft-isolation c01ce199 frozenreviewed/qualified",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0"
   },
   "native_availability": {

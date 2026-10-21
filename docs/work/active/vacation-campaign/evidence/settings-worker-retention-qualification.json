@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-10-21T04:58:07.951465+00:00",
+  "source": "c01ce1993217063ac63a53ee90750c8e208c737d",
+  "baseline": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "source_dir": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust",
+  "source_hashes": {
+    "crates/brn-desktop/src/threads_pages_tests.rs": "437e7053310935a0b7c032342f148b6b1ea9c590b09e8edd3409f774b7e8cfa2",
+    "crates/brn-desktop/src/threads_state.rs": "593871ef16669669b4877d098b084a835401156651401afe93beee626d0d7e86",
+    "crates/brn-desktop/src/threads_tiled_tests.rs": "9c3922bdc7ec7975a78f2c98050fc5ad0ba05a41f12715c541a5cb04597f1c76",
+    "crates/brn-desktop/src/threads_tiles.rs": "7722d90fe3b2c342505d5d65edc4bc3578794966d5fa2a2fdaaa0a2dfa14e937",
+    "crates/brn-desktop/src/threads_ui.rs": "a36ef22e5f8256afd00b582c59dee37aabc2a80d7441adfe5f6d60bb57433455"
+  },
+  "actual_script": "/tmp/brn-settings-worker-retention-qualification/final.sh",
+  "script_exit": 0,
+  "focused_retention": "1 passed,0failed,342filtered",
+  "focused_connection": "1passed,0failed,342filtered",
+  "full_desktop": "342passed,0failed,1existingignored",
+  "ignored": "a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left needs BRN_DWR_SHARED_DATA/SOURCE/CHAT; no new sharedfixture claim",
+  "strict_all_target_clippy": "PASS native-ui,native-test-support -Dwarnings",
+  "ordinary_production_build": "PASS native-ui",
+  "format_whitespace": "PASS",
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-settings-worker-retention/c01ce199/brn-desktop",
+    "sha256": "d2d5ae558631b950303aa96568aaa27ab258db085832d8ff41c773f907a4a93a",
+    "launched": false
+  },
+  "negative_witnesses": [
+    {
+      "source": "72951e1160278c36da560b64cd9ba05209a406bb",
+      "exit": 101,
+      "result": "0/1/342filtered MediumvsHigh",
+      "log": "baseline.log"
+    },
+    {
+      "source": "140439f907edca2dc1d50c1c4d205a5b2ba2f3af",
+      "exit": 101,
+      "result": "0/1/342filtered sameMediumvsHigh: dispatch_next secondrefresh",
+      "log": "first-correction-failure.log"
+    }
+  ],
+  "findings": "375 twoevents/1slot correctedbeforeexecution140; independentP2 restorationplacement fixedc01, no remainingfindings in completefinalreview",
+  "tool_failure": "initial lead cargo-fmt directbinary lacked cargoPATH, exit1; corrected pinnedPATH format/whitespacePASS, no sourceeffect",
+  "warning": "existing block0.1.6 futureincompatibility retained",
+  "limits": [
+    "deterministic toolkit only, no native/IME/VoiceOver/owner acceptance",
+    "no liveprovider/signin/account/credentialcontents or actualbackup",
+    "canonical guard compares cached wholeWorkspaceSettings; refresh returnsunit, not fresh-read success proof",
+    "explicit navigation/Connect/configure/Converted/disconnected policies unchanged",
+    "onlysuccessfulbackup/Connect fixturesexecuted here, not everyworker/error/externalconfig/queueoutcome",
+    "not yetpublished/merged; required exacthead and resultingmain separately"
+  ]
+}

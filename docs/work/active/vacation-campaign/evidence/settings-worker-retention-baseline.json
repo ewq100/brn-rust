@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-21T04:52:16.864277+00:00",
+  "candidate": "72951e1160278c36da560b64cd9ba05209a406bb",
+  "unchanged_production": "fde0477385639913aa9e8dcf39981f95c0aff8d2",
+  "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::tiled_tests::settings_save_preserves_backup_and_requires_explicit_delegation_choice --locked --offline --jobs 1 -- --exact --nocapture",
+  "exit": 101,
+  "result": "0 passed,1 failed,342filtered; saved Medium vs expected High at threads_tiled_tests.rs:515",
+  "fixture": "fresh explicit taskTMPDIR, existing offline synthetic tiled fixture and owned mpsc Worker output event; no provider/native/account/realbackup",
+  "source_dir": "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust",
+  "raw_log": "baseline.log in settings-worker-retention-raw.tar.gz",
+  "limit": "Toolkit witness only; no native or owner acceptance"
+}
