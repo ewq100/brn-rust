@@ -59,24 +59,24 @@ Attempts:
 
 </details>
 
-### Check unsaved Settings stay separate from active configuration
+### Keep unsaved provider choices out of other Settings actions
 
-Owner: bounded Luna medium read-only audit; lead selects any correction and review · State: **active** · Last observed: 2026-10-21T04:14:01.229992+00:00
-Activity: Selected one independent source-only preflight while PR194 hosted checks run: trace editable provider/model/helper choices versus persisted runtime settings and refresh/navigation. No new feature or refactor selected.
-Next: Return an exact source-backed defect/missing consequential witness or justified no-change finding, with smallest synthetic headless reproduction. Preserve existing accepted Save/configuration behavior.
+Owner: bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T04:25:08.047103+00:00
+Activity: Correction3d25183b committed; local ProviderForm separates provider/effort/helper segmented choices from active snapshot. Independent consequential Sol review and serial focused/fullUI/strictlint/ordinarybuild gates active; no corrected pass claimed yet.
+Next: Finish actual source-bound review/checks; preserve original baseline and any new findings. Resolve helperOff→On reset semantics observation before final qualification/integration.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** source audit only; no product change selected
-- **checks:** pending source/caller/evidence preflight; no live provider or native activity
-- **integration:** inapplicable until a reviewed candidate is selected
-- **native:** deferred owner availability; source/toolkit cannot establish native usability
+- **implementation:** candidate3d25183b complete, independent review pending
+- **checks:** baseline0/1 intendedFAIL retained; candidate focused/fullUI/strictlint/ordinarybuild active
+- **integration:** pending reproduced defect/reviewed correction and required exact-head/main gates
+- **native:** deferred for owner availability; deterministic widget test only
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_tiles.rs](../../crates/brn-desktop/src/threads_tiles.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md](active/vacation-campaign/evidence/settings-draft-isolation-regression.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json](active/vacation-campaign/evidence/settings-draft-isolation-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md](active/vacation-campaign/evidence/settings-draft-isolation-implementation.md)
 
 </details>
 
@@ -1398,6 +1398,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/malformed-input-boundary-
 
 </details>
 
+### Check unsaved Settings stay separate from active configuration
+
+Owner: bounded Luna medium read-only audit; lead selects any correction and review · State: **complete** · Last observed: 2026-10-21T04:17:54.441193+00:00
+Activity: Bounded source audit found shared editable/canonical Settings cache can leak unsaved form effort/provider/helper into unrelated explicit configuration actions. Ordinary Run still reads canonical settings. No runtime result claimed.
+Next: Separate settings-draft-isolation owns offline reproduction; preserve navigation-draft behavior as a separate unresolved choice, no wholesale redesign.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** source preflight complete; no product change
+- **checks:** PASS bounded source audit; concrete source-backed risk, not runtime verified
+- **integration:** inapplicable until a reviewed candidate is selected
+- **native:** deferred owner availability; source/toolkit cannot establish native usability
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_tiles.rs](../../crates/brn-desktop/src/threads_tiles.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md)
+
+</details>
+
 ## Dependencies
 
 ```mermaid
@@ -1422,4 +1443,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:14:01.229992+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:25:08.047103+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

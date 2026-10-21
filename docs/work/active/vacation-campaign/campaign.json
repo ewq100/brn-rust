@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-21T04:11:07.603269+00:00",
+    "observed_at": "2026-10-21T04:25:08.047103+00:00",
     "remaining_percent": 75,
     "reset_unix": 1793083360,
     "ordinary_work": "admitted: actual25%used/75%remaining ordinaryUsageAllowedtrue; headless reliability work continues, no new account tests.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:14:01.229992+00:00",
+    "observed_at": "2026-10-21T04:25:08.047103+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2125,28 +2125,58 @@
       {
         "id": "settings-draft-activation-audit",
         "title": "Check unsaved Settings stay separate from active configuration",
-        "state": "active",
+        "state": "complete",
         "owner": "bounded Luna medium read-only audit; lead selects any correction and review",
-        "activity": "Selected one independent source-only preflight while PR194 hosted checks run: trace editable provider/model/helper choices versus persisted runtime settings and refresh/navigation. No new feature or refactor selected.",
-        "observed_at": "2026-10-21T04:14:01.229992+00:00",
+        "activity": "Bounded source audit found shared editable/canonical Settings cache can leak unsaved form effort/provider/helper into unrelated explicit configuration actions. Ordinary Run still reads canonical settings. No runtime result claimed.",
+        "observed_at": "2026-10-21T04:17:54.441193+00:00",
         "origin": "observed",
-        "next_action": "Return an exact source-backed defect/missing consequential witness or justified no-change finding, with smallest synthetic headless reproduction. Preserve existing accepted Save/configuration behavior.",
+        "next_action": "Separate settings-draft-isolation owns offline reproduction; preserve navigation-draft behavior as a separate unresolved choice, no wholesale redesign.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_tiles.rs",
-          "crates/brn-threads-app/src/settings.rs"
+          "crates/brn-threads-app/src/settings.rs",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md"
         ],
         "gates": {
-          "implementation": "source audit only; no product change selected",
-          "checks": "pending source/caller/evidence preflight; no live provider or native activity",
+          "implementation": "source preflight complete; no product change",
+          "checks": "PASS bounded source audit; concrete source-backed risk, not runtime verified",
           "integration": "inapplicable until a reviewed candidate is selected",
           "native": "deferred owner availability; source/toolkit cannot establish native usability",
           "owner_acceptance": "not claimed"
         },
         "attempts": [],
         "resource_plan": "One requested Luna medium read-only helper, within4total slots; lead owns integration/records/sharedbuild. Named benefit: independent bounded Settings draft-versus-canonical state inspection during hosted wait. No source/shared-record edits, builds/fixtures/processes, network/provider/account/credentials/native/model/nested actions. Read existing tests and prior writing-setup-navigation audit before proposing work. Stop at one concrete issue/witness or justified no-change; no generic state-machine migration."
+      },
+      {
+        "id": "settings-draft-isolation",
+        "title": "Keep unsaved provider choices out of other Settings actions",
+        "state": "active",
+        "owner": "bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review",
+        "activity": "Correction3d25183b committed; local ProviderForm separates provider/effort/helper segmented choices from active snapshot. Independent consequential Sol review and serial focused/fullUI/strictlint/ordinarybuild gates active; no corrected pass claimed yet.",
+        "observed_at": "2026-10-21T04:25:08.047103+00:00",
+        "origin": "observed",
+        "next_action": "Finish actual source-bound review/checks; preserve original baseline and any new findings. Resolve helperOff→On reset semantics observation before final qualification/integration.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md"
+        ],
+        "gates": {
+          "implementation": "candidate3d25183b complete, independent review pending",
+          "checks": "baseline0/1 intendedFAIL retained; candidate focused/fullUI/strictlint/ordinarybuild active",
+          "integration": "pending reproduced defect/reviewed correction and required exact-head/main gates",
+          "native": "deferred for owner availability; deterministic widget test only",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium regression-only writer, isolated clean mac-test-roots branchcodex/settings-draft-isolation base9e2a81c0; preserves prior e1b branch. Lead selects design and serializes builds; independent consequential Sol review required for final correction.4total slots, no source overlap with frozen CLI/export candidates. No live provider/account/credential content/native/network/model or nested actions. Explicit synthetic path string and owned mpsc events only, no actual connect invocation. Stop after test-only commit/handoff; no generic Settings/navigation/reducer redesign.",
+        "design": "Reuse existing checkedWorkspace::configure; UI owns editable form versus active snapshot, not persistence/authority. Introduce only a small local ProviderForm (provider/effort/helper segmented selections) in existing UI state module; text inputs already separate. Models form renders/edits this value, Save overlays it into a local canonical clone before existing service call, refresh resets it alongside saved snapshot as before. Other configuration callbacks and Chat controls retain canonical self.settings and cannot consume unsaved choices. No generic reducer/new crate/runtimeprompt/providerpolicy or navigation-retention behavior selected; existing Save/old-worker-fence tests retained."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2162,9 +2192,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-reliability-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T04:13:25.370190+00:00",
-    "runtime_capacity": "4total slots; one Luna Settings read-only audit assigned; CLI/export authors/reviewer complete; lead integrates",
-    "build_slot": "free: CLI candidate qualification exit0; export final exit0",
+    "observed_at": "2026-10-21T04:25:08.047103+00:00",
+    "runtime_capacity": "4total slots; Luna author complete, one independent Sol Settings reviewer active; lead integrates",
+    "build_slot": "Settings candidate3d25183b frozen, serial focused/fullUI/lint/ordinarybuild exec90714 active; no other build writer",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {
@@ -2180,7 +2210,7 @@
     "resumption": "Continue headless qualification/correction/integration from current tasks. Native actor stays deferred until changed owner availability; no repeated unlock requests or access attempts.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability oncodex/preview-file-cancellation base9e2a81c0",
-    "fixture_worker_checkout": "clean e1b mac-test-roots preserved: managed archive refused pinned protection; no owner unblock needed",
+    "fixture_worker_checkout": "mac-test-roots cleanold e1b preserved; newcodex/settings-draft-isolation frommain9e2a81c0 for regressiononly; no archive/unpin/removal",
     "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0"
   },
   "native_availability": {

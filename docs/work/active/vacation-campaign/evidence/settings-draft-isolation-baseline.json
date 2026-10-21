@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T04:22:03.262915+00:00",
+  "base_production": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "regression_commit": "7462f0a04b5e195a4618cdd27af2a4fe7281c293",
+  "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::pages_tests::copilot_connection_does_not_save_an_unsaved_effort_choice --locked --offline --jobs 1 -- --exact --nocapture",
+  "environment": "Rust1.98.1 macOSarm64, offline/locked/jobs1 serialized target, fresh canonical temporary synthetic fixture; no native/provider/account/credential-content access",
+  "result": "FAIL expected final saved.effort medium, actualhigh;0passed/1failed/342filtered;exit101",
+  "meaning": "Unsaved Settings effort choice became persisted as side effect of a synthetic current connection result, contrary to explicit Save boundary",
+  "scope": "No real sign-in/provider/credentials action; raw owned mpsc result only",
+  "raw": "settings-draft-isolation-baseline-raw.tar.gz"
+}
