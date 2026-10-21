@@ -11,23 +11,24 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Assess explicit destination ownership for file imports
 
-Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-21T23:51:20.464945+00:00
-Activity: Exact2ecf634d candidate committed/formatted. Six caller destinations explicit; ambientfield removed. Lead retained reference-target normalization. Complete independent Sol review and serialized focused/full/lint/build qualification active.
-Next: Inspect actual review/gates, preserve failures and publish only after prior dependent state slices integrate/currentmain is reconciled.
+Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-21T23:53:43.332772+00:00
+Activity: Reviewed exact2ecf634d passes captured-reference/ordinarycompletion witness1, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary retained; publication waits prior dependent state integrations.
+Next: Reconcile current main after preceding integration, publish separate import-destination PR with qualified-tree equality and normal exacthead/main gates.
 Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false)
+Resource waits: Prior activity and continuation candidate integrations.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Candidate2ecf634d complete, independent review active.
-- **checks:** Pending design/caller comparison; prior evidence reused.
+- **implementation:** PASS complete independent Sol review exact2ecf634d; no actionable findings.
+- **checks:** PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.
 - **integration:** Pending only if a candidate is selected; existing review/required gates apply.
 - **native:** Existing actual Mac gate deferred; no native claim.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md), [docs/work/active/vacation-campaign/evidence/import-target-review.md](active/vacation-campaign/evidence/import-target-review.md), [docs/work/active/vacation-campaign/evidence/import-target-qualification.json](active/vacation-campaign/evidence/import-target-qualification.json), [docs/work/active/vacation-campaign/evidence/import-target-final.log](active/vacation-campaign/evidence/import-target-final.log), [docs/work/active/vacation-campaign/evidence/import-target-final.sh](active/vacation-campaign/evidence/import-target-final.sh)
 
 </details>
 
@@ -80,6 +81,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.m
 Attempts:
 
 - Lead source inspection found initially weakened exact armed-prompt assertion and incorrect matching-only archive discard assumption. No runtime result claimed.: Immutable continuation query restores exact payload assertion; any-successful-archive discard restored. Initial standalone cargo fmt could not find plugin; pinned PATH environment then formatted successfully. ([docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md))
+
+</details>
+
+### Check a precise AI edit on fresh synthetic data
+
+Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-21T23:53:58.737878+00:00
+Activity: Distinct remaining M3/M6 live usefulness gap selected while required source integrations run. Existing19/20October account smoke and whole-note proposal evidence reused; no repeat smoke or account launch yet.
+Next: Preflight existing ordinary CLI/harness capability for one exact passage proposal on Unicode/multiline synthetic Note plus unchanged sentinel. Do not launch unless existing supported path exposes all policy bounds and fresh data setup is qualified. Reserve ledger before any attempted launch.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** No product change selected; reuse existing exact edit capability and normal runtime.
+- **checks:** Preflight only, no account attempt; fresh setup/guards/unchanged checks pending.
+- **integration:** No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.
+- **native:** No native interaction; owner deferral remains.
+- **owner acceptance:** Not claimed.
+
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json)
 
 </details>
 
@@ -173,6 +195,15 @@ Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibil
 Waiting:
 
 - resource: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
+
+### Assess explicit destination ownership for file imports
+
+Owner: lead bounded design; economical implementation and independent review only if selected
+
+Waiting:
+
+- prerequisite run-continuation-ownership: Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false; task state: active)
+- resource: Prior activity and continuation candidate integrations.
 
 ### Keep Stop and send continuation attached to its Run
 
@@ -282,4 +313,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T23:51:20.464945+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T23:53:58.737878+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

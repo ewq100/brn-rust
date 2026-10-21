@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T23:51:20.464945+00:00",
+    "observed_at": "2026-10-21T23:53:58.737878+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2510,10 +2510,10 @@
         "title": "Assess explicit destination ownership for file imports",
         "state": "active",
         "owner": "lead bounded design; economical implementation and independent review only if selected",
-        "activity": "Exact2ecf634d candidate committed/formatted. Six caller destinations explicit; ambientfield removed. Lead retained reference-target normalization. Complete independent Sol review and serialized focused/full/lint/build qualification active.",
-        "observed_at": "2026-10-21T23:51:20.464945+00:00",
+        "activity": "Reviewed exact2ecf634d passes captured-reference/ordinarycompletion witness1, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary retained; publication waits prior dependent state integrations.",
+        "observed_at": "2026-10-21T23:53:43.332772+00:00",
         "origin": "observed",
-        "next_action": "Inspect actual review/gates, preserve failures and publish only after prior dependent state slices integrate/currentmain is reconciled.",
+        "next_action": "Reconcile current main after preceding integration, publish separate import-destination PR with qualified-tree equality and normal exacthead/main gates.",
         "depends_on": [
           {
             "task": "run-continuation-ownership",
@@ -2521,18 +2521,24 @@
             "satisfied": false
           }
         ],
-        "resource_waits": [],
+        "resource_waits": [
+          "Prior activity and continuation candidate integrations."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md",
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_chat.rs",
           "crates/brn-desktop/src/threads_projects.rs",
           "docs/work/active/vacation-campaign/evidence/import-target-design.md",
-          "docs/work/active/vacation-campaign/evidence/import-target-implementation.md"
+          "docs/work/active/vacation-campaign/evidence/import-target-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/import-target-review.md",
+          "docs/work/active/vacation-campaign/evidence/import-target-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/import-target-final.log",
+          "docs/work/active/vacation-campaign/evidence/import-target-final.sh"
         ],
         "gates": {
-          "implementation": "Candidate2ecf634d complete, independent review active.",
-          "checks": "Pending design/caller comparison; prior evidence reused.",
+          "implementation": "PASS complete independent Sol review exact2ecf634d; no actionable findings.",
+          "checks": "PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.",
           "integration": "Pending only if a candidate is selected; existing review/required gates apply.",
           "native": "Existing actual Mac gate deferred; no native claim.",
           "owner_acceptance": "Not claimed."
@@ -2643,6 +2649,35 @@
         ],
         "resource_plan": "Requested Luna medium source-only author in isolated clean export-durability worktree; lead reviews actual decisions and owns all builds/sharedrecord/integration. Consequential independent Sol review after complete candidate. Four total slots, normal lead+oneauthor+onereviewer; no nested agents, account/network/native/schema/provider/runtimeprompt or dependency changes. Stop after one implementation or concrete ambiguity/two failed corrections.",
         "design": "Store only Option<String> saved prompt in WorkerOperation::Run, alongside its single existing RunIdentity; do not copy thread or run ID. Worker remains dumb invocation data/channel admission, no queue/persistence/cancel/launch policies. Narrow arm/has/discard/take operations; caller validates preconditions and checked service commits before arm. Reject invalid non-Run or duplicate arm explicitly, never silently overwrite or panic after durable commit; use existing saved-instruction/manual Continue recovery if impossible precondition is reported. Extract prompt plus thread derived from original Run identity before clearing old Worker into a poll-local only, and launch after full admitted terminal batch. Retire PendingSend/UI field and manual cleanup made redundant by ownership. Existing explicit Cancel discards even if subsequent checked stop fails; Archive discards after any successful archive (actual base behavior), with cancellation only for matching Run; project fence discards only after matching success; disconnect preserves partial first and never launches; close/Quit discard. Keep all warning text, queue precedence, failure recovery, trailing terminal cutoff, composer/navigation behavior. No new generic state framework."
+      },
+      {
+        "id": "targeted-edit-account-qualification",
+        "title": "Check a precise AI edit on fresh synthetic data",
+        "state": "active",
+        "owner": "lead single account actor; bounded Luna preflight only",
+        "activity": "Distinct remaining M3/M6 live usefulness gap selected while required source integrations run. Existing19/20October account smoke and whole-note proposal evidence reused; no repeat smoke or account launch yet.",
+        "observed_at": "2026-10-21T23:53:58.737878+00:00",
+        "origin": "observed",
+        "next_action": "Preflight existing ordinary CLI/harness capability for one exact passage proposal on Unicode/multiline synthetic Note plus unchanged sentinel. Do not launch unless existing supported path exposes all policy bounds and fresh data setup is qualified. Reserve ledger before any attempted launch.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/codex-ai-testing.md",
+          "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json",
+          "docs/work/active/agent-first-simplification/targeted-edit.md",
+          "docs/work/active/agent-first-simplification/outcome-comparison.md",
+          "docs/work/active/vacation-campaign/evidence/writing-account-qualification.json"
+        ],
+        "gates": {
+          "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
+          "checks": "Preflight only, no account attempt; fresh setup/guards/unchanged checks pending.",
+          "integration": "No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.",
+          "native": "No native interaction; owner deferral remains.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium read-only preflight helper for existing supported path and fixture recipe; lead validates and owns any bounded live launch. No helper account/process/build/native/data/Git/source/sharedrecord/credentials access. Own /tmp/brn-targeted-edit-account-preflight.md. Lead+onehelper within4slots; max3attemptsession/6day/180s8KiB4rounds under existing signedinCodexonly, actual allowance before/after and reservebeforelaunch. Stop on unavailable safe existingpath or ambiguous write authority; no newharnessframework or repeatedgeneration to get green.",
+        "design": "One distinct usefulness scenario: exact local passage change through existing checked host construction/proposal path, preserving untouched bytes/metadata, original and sentinel until explicit existing review/Apply. Reuse account smoke evidence and current available Luna model. No newtool/provider/model/settings/globalrouting or live owner data. This tests usefulness, not native behavior or broad model quality."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

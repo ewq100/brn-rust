@@ -1,0 +1,47 @@
+{
+  "observed_at": "2026-10-21T23:53:43.332772+00:00",
+  "candidate": "2ecf634d7de93fbf7381317168109b6d199531e4",
+  "base": "bd60131dfd8b4652b17c0b142c411bfe87550570",
+  "tree": "ad176b75b0ef839ec052f4bf21010f139ab9203d",
+  "worktree_clean": true,
+  "toolchain": "1.98.1-aarch64-apple-darwin",
+  "environment": "/tmp/brn-launcher-focus-qualification/environment.sh",
+  "fresh_tmpdir": "/private/tmp/brn-import-target-qualification/tmp",
+  "results": {
+    "full_native_test_support": {
+      "passed": 346,
+      "failed": 0,
+      "ignored": 1
+    },
+    "strict_all_target_clippy": "PASS",
+    "ordinary_native_ui_build": "PASS",
+    "fmt_and_whitespace": "PASS",
+    "focused_reference_to_ordinary_capture": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "raw_log_sha256": "dd955522f260bcab548e55a4960f9c2caaf740ad5f5efb51cc8932d62c929953",
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-import-target-2ecf634d/brn-desktop",
+    "sha256": "eab391e4671711f67d18ae7d24d774b921008bb941c587b5f01c7d2ada0e9c61",
+    "launched": false
+  },
+  "helpers": [
+    {
+      "path": "target/debug/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "path": "target/debug/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "limitations": [
+    "No actual native interaction, IME, VoiceOver or owner acceptance.",
+    "Newmodule is under cfg native-ui; defaultgraph unchanged and prior resulting-main defaultchecks reused, no new local default test claimed.",
+    "Existing ignored test and dependency block v0.1.6 future-compatibility warning retained.",
+    "Interface-only refactor; no new forwarding-only tests. Actual native picker interaction deferred; existing reference-target normalization retained."
+  ]
+}
