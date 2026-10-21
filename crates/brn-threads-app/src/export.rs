@@ -233,6 +233,121 @@ mod tests {
     use super::*;
     use brn_threads_core::Store;
 
+    #[cfg(unix)]
+    struct OwnedChild(std::process::Child);
+
+    #[cfg(unix)]
+    impl Drop for OwnedChild {
+        fn drop(&mut self) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn sigkilled_staged_export_is_not_published_and_retry_publishes_complete_snapshot() {
+        const CHILD_ROOT: &str = "BRN_EXPORT_INTERRUPTION_CHILD_ROOT";
+        const TEST_NAME: &str = "export::tests::sigkilled_staged_export_is_not_published_and_retry_publishes_complete_snapshot";
+
+        if let Some(root) = std::env::var_os(CHILD_ROOT) {
+            let root = std::path::PathBuf::from(root);
+            let workspace = Workspace::open(root.join("workspace")).unwrap();
+            let destination = root.join("published").join("snapshot");
+            let ready = root.join("child-ready");
+            let _ = publish_with_directory_flush(&workspace.store, &destination, |path| {
+                assert_eq!(
+                    path.file_name().and_then(|name| name.to_str()),
+                    Some("assets")
+                );
+                fs::write(&ready, b"ready")?;
+                loop {
+                    std::thread::sleep(std::time::Duration::from_secs(60));
+                }
+            });
+            panic!("child export unexpectedly passed the interruption seam");
+        }
+
+        use std::os::unix::process::ExitStatusExt;
+        use std::{
+            process::{Command, Stdio},
+            thread,
+            time::{Duration, Instant},
+        };
+
+        let root = tempfile::tempdir_in(fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+        let workspace_path = root.path().join("workspace");
+        let destination_parent = root.path().join("published");
+        fs::create_dir(&destination_parent).unwrap();
+        let destination = destination_parent.join("snapshot");
+        let title = "Synthetic export interruption";
+        let body = "Expected exact body: café.\nSecond line.\n";
+        let mut workspace = Workspace::open(&workspace_path).unwrap();
+        let note = workspace.new_note(title, body).unwrap();
+        let note_id = note.id.clone();
+        let note_version = note.version;
+        let before_records = workspace.store.records().unwrap();
+        let before_history = workspace.history().unwrap();
+        drop(workspace);
+
+        let ready = root.path().join("child-ready");
+        let mut child = OwnedChild(
+            Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", TEST_NAME, "--nocapture", "--test-threads=1"])
+                .env(CHILD_ROOT, root.path())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap(),
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !ready.exists() {
+            if let Some(status) = child.0.try_wait().unwrap() {
+                panic!("export child exited before reaching the flush seam: {status}");
+            }
+            assert!(
+                Instant::now() < deadline,
+                "export child did not reach the flush seam within five seconds"
+            );
+            thread::sleep(Duration::from_millis(10));
+        }
+
+        child.0.kill().unwrap();
+        let status = child.0.wait().unwrap();
+        assert_eq!(status.signal(), Some(libc::SIGKILL));
+        assert!(!destination.exists());
+
+        let mut reopened = Workspace::open(&workspace_path).unwrap();
+        assert_eq!(reopened.store.records().unwrap(), before_records);
+        assert_eq!(reopened.history().unwrap(), before_history);
+        let manifest = reopened.export_now(&destination).unwrap();
+
+        assert_eq!(manifest.format, "BRN Threads Markdown snapshot 1");
+        assert_eq!(manifest.files.len(), 1);
+        let file = &manifest.files[0];
+        assert_eq!(file.path, format!("{}.md", safe_name(&note_id)));
+        assert_eq!(file.record, note_id);
+        assert_eq!(file.version, note_version);
+        let markdown_bytes = fs::read(destination.join(&file.path)).unwrap();
+        assert_eq!(
+            file.sha256,
+            format!("{:x}", Sha256::digest(&markdown_bytes))
+        );
+        assert_eq!(
+            String::from_utf8(markdown_bytes).unwrap(),
+            format!("---\ntitle: {title:?}\nsources: []\n---\n{body}")
+        );
+        let on_disk_manifest: serde_json::Value =
+            serde_json::from_slice(&fs::read(destination.join("manifest.json")).unwrap()).unwrap();
+        assert_eq!(on_disk_manifest["format"], manifest.format);
+        assert_eq!(on_disk_manifest["files"][0]["record"], file.record);
+        assert_eq!(on_disk_manifest["files"][0]["version"], file.version);
+        assert_eq!(on_disk_manifest["files"][0]["sha256"], file.sha256);
+        assert_eq!(on_disk_manifest["files"][0]["path"], file.path);
+        assert_eq!(reopened.store.records().unwrap(), before_records);
+        assert_eq!(reopened.history().unwrap(), before_history);
+    }
+
     #[test]
     fn directory_flush_failure_before_publication_cleans_stage_and_keeps_destination_absent() {
         let root =
