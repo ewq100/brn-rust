@@ -11,28 +11,13 @@ pub(super) struct ChatScroller {
     pub signature: String,
 }
 impl ThreadsUi {
-    pub(super) fn record_activity(&mut self, text: &str) {
-        if text.trim().is_empty()
-            || self
-                .run_activity_labels
-                .last()
-                .is_some_and(|last| last == text)
+    pub(super) fn observe_run_activity(&mut self, chat: &str, text: &str) {
+        if self
+            .run_activity
+            .transition(RunActivityEvent::Observed { chat, text })
         {
-            return;
+            self.run_activity_scroll.scroll_to_bottom();
         }
-        if self.run_activity_chat.is_none() {
-            self.run_activity_chat = self
-                .worker
-                .as_ref()
-                .and_then(Worker::run_identity)
-                .map(|run| run.thread.clone());
-        }
-        self.run_activity_labels
-            .push(text.chars().take(8192).collect());
-        if self.run_activity_labels.len() > 32 {
-            self.run_activity_labels.remove(0);
-        }
-        self.run_activity_scroll.scroll_to_bottom();
     }
     pub(super) fn worker_status(&self, worker: &Worker) -> String {
         if worker.kind() == WorkerKind::Run && self.queue_state().quiet {
@@ -52,7 +37,7 @@ impl ThreadsUi {
     ) -> gpui_kit::AnyElement {
         let worker = self.worker.as_ref().filter(|_| active);
         let status = worker.map_or_else(
-            || format!("Activity · {}", self.run_activity_status),
+            || format!("Activity · {}", self.run_activity.status()),
             |worker| self.worker_status(worker),
         );
         let line = div()
@@ -98,7 +83,7 @@ impl ThreadsUi {
             .overflow_x_scroll()
             .overflow_y_scroll()
             .test_support();
-        for (index, text) in self.run_activity_labels.iter().enumerate() {
+        for (index, text) in self.run_activity.steps().iter().enumerate() {
             steps = steps.child(
                 metadata(text.clone())
                     .font_family(UI_FONT)
