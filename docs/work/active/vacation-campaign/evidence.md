@@ -712,3 +712,7 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 21 October UTC: concise startup projection
 
 [Bounded assessment](evidence/overview-reading-volume-preflight.md) found completed history dominated the startup overview. [Candidate](evidence/concise-overview-implementation.md) replaces only completed blocks with a stable ID/title index and the actual selected-record route; every detailed fact remains authoritative there. [Independent review](evidence/concise-overview-review.md) found no actionable findings. [Qualification](evidence/concise-overview-qualification.json) records all183Python tests, actual lead CLI/links, and [projection preservation](evidence/concise-overview-projection.json):1590to241lines with current sections, graph and record bytes intact. Initial comparison-root mismatch is retained; no measured token savings or runtime/native claim. Integration is still a separate gate.
+
+## 21 October UTC: Settings verified and concise overview merged
+
+[PR197 resulting-main](evidence/pr197-resulting-main.json) passes all four required checks. [Fresh PR198 gate](evidence/pr198-premerge.json) passes all four exact-head and preceding-main checks with live protection; hosted Documentation and tooling also passed. [Normal PR198 integration](evidence/pr198-integration.json) retains exact whole-tree equality with reviewed/qualified e501. Resulting-main verification remains a separate pending gate; no history deletion, runtime-prompt change, native observation or release claim.

@@ -9,37 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Keep unsaved Settings choices after a refused save
-
-Owner: bounded Luna medium regressionauthor; lead reproduction/design/integration; independentSolreview · State: **active** · Last observed: 2026-10-21T08:10:15.071690+00:00
-Activity: PR197 normally merged f54fcc2e after a fresh protection guard and all four required exact-head and preceding-main checks passed. The whole merged tree equals reviewed and locally qualified f675. Resulting-main checks are pending separately.
-Next: Inspect all four required resulting-main checks on f54fcc2e. Preserve the original negative/fixture failures and native qualification limits.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS f67599f9, independent complete-candidate review found no actionable findings.
-- **checks:** PASS focused1/0, full342/0/1existingignored, strictlint/ordinarybuild/fmt/whitespace. Negative failures retained.
-- **integration:** PASS normal merge f54fcc2e and whole qualified-tree equality; resulting-main checks pending separately.
-- **native:** deferred owneravailability
-- **owner acceptance:** notclaimed
-
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-rejected-save-preflight.md](active/vacation-campaign/evidence/settings-rejected-save-preflight.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-regression.md](active/vacation-campaign/evidence/settings-rejected-save-regression.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json](active/vacation-campaign/evidence/settings-rejected-save-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md](active/vacation-campaign/evidence/settings-rejected-save-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-review.md](active/vacation-campaign/evidence/settings-rejected-save-review.md), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-qualification.json](active/vacation-campaign/evidence/settings-rejected-save-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz](active/vacation-campaign/evidence/settings-rejected-save-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/rejected-save-integrated-base.json](active/vacation-campaign/evidence/rejected-save-integrated-base.json), [docs/work/active/vacation-campaign/evidence/pr197-publication.json](active/vacation-campaign/evidence/pr197-publication.json), [https://github.com/ewq100/brn-rust/pull/197](https://github.com/ewq100/brn-rust/pull/197), [docs/work/active/vacation-campaign/evidence/pr197-premerge.json](active/vacation-campaign/evidence/pr197-premerge.json), [docs/work/active/vacation-campaign/evidence/pr197-integration.json](active/vacation-campaign/evidence/pr197-integration.json)
-
-Attempts:
-
-- Test-only 2ea1c375 fails because the helper effort control disappears after a refused Save. Canonical state/history and attempted text were preserved.: Capture the segmented form on Workspace::configure Err, retain ordinary authoritative refresh, then restore only the editable form. Ok outcomes and runtime configuration authority remain unchanged. ([docs/work/active/vacation-campaign/evidence/settings-rejected-save-baseline.json](active/vacation-campaign/evidence/settings-rejected-save-baseline.json))
-- On 07e, helper control visibility passed, then generic Button selected() returned None. This is an unsupported test observation; actual saved-choice assertions were not reached.: Inspected choice()/Button wiring. f675 removes only two unsupported metadata assertions, retaining visibility, canonical/history/error/text checks and final saved High/helper/model/auth values after retry. No production change. ([docs/work/active/vacation-campaign/evidence/settings-rejected-save-implementation.md](active/vacation-campaign/evidence/settings-rejected-save-implementation.md))
-
-</details>
-
 ### Keep the startup progress view concise as evidence grows
 
-Owner: bounded Luna medium read-only assessment; lead selects any correction · State: **active** · Last observed: 2026-10-21T08:20:00.241141+00:00
-Activity: Reviewed/local-qualified e501f9d5 published as PR198. Source head is frozen while required checks run. Actual lead view is241lines and all underlying task/history records remain intact.
-Next: Require all four exact-head e501 and preceding-main f54fcc2e checks, plus hosted Documentation and tooling; then fresh live protection check and separate normal merge. Inspect resulting main separately.
+Owner: bounded Luna medium read-only assessment; lead selects any correction · State: **active** · Last observed: 2026-10-21T09:07:33.340138+00:00
+Activity: PR198 normally merged 7fd7142c after all four required exact-head/preceding-main jobs and Documentation and tooling passed. Entire merged tree equals independently reviewed/qualified e501. Resulting-main jobs remain pending separately.
+Next: Inspect all four required resulting-main checks and Documentation and tooling on exact main 7fd7142c893b7aefcbebb53953336f00dcfc3212. Preserve the complete authoritative history and concise routes.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -48,11 +22,11 @@ Gates:
 
 - **implementation:** PASS exact e501 complete independent review; three implementation file hashes identical on lead.
 - **checks:** PASS183Python tests, actual lead CLI/generated-output/link checks, all current sections/graph/input bytes preserved. Render241lines versus1590.
-- **integration:** PR198 published exact e501; required head and preceding-main checks pending, not merged.
+- **integration:** PASS normal merge 7fd7142c and whole-tree equality; required resulting-main checks pending.
 - **native:** Inapplicable to documentation projection; existing native work remains deferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md](active/vacation-campaign/evidence/overview-reading-volume-preflight.md), [docs/work/active/vacation-campaign/evidence/concise-overview-implementation.md](active/vacation-campaign/evidence/concise-overview-implementation.md), [docs/work/active/vacation-campaign/evidence/concise-overview-projection.json](active/vacation-campaign/evidence/concise-overview-projection.json), [docs/work/active/vacation-campaign/evidence/concise-overview-raw.tar.gz](active/vacation-campaign/evidence/concise-overview-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/concise-overview-review.md](active/vacation-campaign/evidence/concise-overview-review.md), [docs/work/active/vacation-campaign/evidence/concise-overview-qualification.json](active/vacation-campaign/evidence/concise-overview-qualification.json), [docs/work/active/vacation-campaign/evidence/pr198-publication.json](active/vacation-campaign/evidence/pr198-publication.json), [https://github.com/ewq100/brn-rust/pull/198](https://github.com/ewq100/brn-rust/pull/198)
+Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/overview-reading-volume-preflight.md](active/vacation-campaign/evidence/overview-reading-volume-preflight.md), [docs/work/active/vacation-campaign/evidence/concise-overview-implementation.md](active/vacation-campaign/evidence/concise-overview-implementation.md), [docs/work/active/vacation-campaign/evidence/concise-overview-projection.json](active/vacation-campaign/evidence/concise-overview-projection.json), [docs/work/active/vacation-campaign/evidence/concise-overview-raw.tar.gz](active/vacation-campaign/evidence/concise-overview-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/concise-overview-review.md](active/vacation-campaign/evidence/concise-overview-review.md), [docs/work/active/vacation-campaign/evidence/concise-overview-qualification.json](active/vacation-campaign/evidence/concise-overview-qualification.json), [docs/work/active/vacation-campaign/evidence/pr198-publication.json](active/vacation-campaign/evidence/pr198-publication.json), [https://github.com/ewq100/brn-rust/pull/198](https://github.com/ewq100/brn-rust/pull/198), [docs/work/active/vacation-campaign/evidence/pr198-premerge.json](active/vacation-campaign/evidence/pr198-premerge.json), [docs/work/active/vacation-campaign/evidence/pr198-integration.json](active/vacation-campaign/evidence/pr198-integration.json)
 
 </details>
 
@@ -213,6 +187,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `settings-worker-draft-retention` — Keep unsaved model choices when unrelated work finishes
 - `next-headless-gap-preflight` — Select the next evidence-backed reliability gap
 - `settings-rejected-save-preflight` — Check whether a rejected Settings save keeps the form intact
+- `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
 
 ## Dependencies
 
@@ -238,4 +213,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T08:20:00.241141+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T09:07:33.340138+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

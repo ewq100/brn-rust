@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-21T09:07:33.340138+00:00",
+  "pr": 198,
+  "head": "e501f9d561db05fb44d06be4c8d9cae2ab269276",
+  "base": "f54fcc2e4f18f590601c1ddb06c4b98470a0df84",
+  "merged_at": "2026-10-21T09:06:59Z",
+  "merge_commit": "7fd7142c893b7aefcbebb53953336f00dcfc3212",
+  "premerge": "pr198-premerge.json",
+  "qualified_tree": "4cc0ba01592ea11543fce2dcb53b756ab0d85f51",
+  "merged_tree": "4cc0ba01592ea11543fce2dcb53b756ab0d85f51",
+  "whole_tree_equal": true,
+  "resulting_main": "Pending separately.",
+  "resulting_main_runs": [
+    {
+      "id": 39574454251,
+      "name": "BRN CI",
+      "status": "in_progress",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39574454251"
+    }
+  ],
+  "limits": "Normal protected merge; no native/owner acceptance/release claim."
+}
