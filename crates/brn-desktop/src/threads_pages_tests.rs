@@ -1071,6 +1071,14 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
         view.auth_path
             .update(cx, |input, cx| input.set_value(auth.clone(), window, cx));
     });
+    let canonical_before = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    let history_before = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .history()
+        .unwrap();
     on_window(cx, &f, |window, _| {
         let note = window.find("settings-helper-tested");
         assert!(note.visible());
@@ -1089,9 +1097,39 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
     click(cx, &f, "helper-effort-low");
     click(cx, &f, "helper-provider-off");
     click(cx, &f, "helper-provider-Codex");
+    click(cx, &f, "effort-high");
+    let model_after_refusal = "offline-model-after-refusal";
+    let relative_auth = "relative/synthetic-auth.json";
+    update(cx, &f, |view, window, cx| {
+        view.model.update(cx, |input, cx| {
+            input.set_value(model_after_refusal, window, cx)
+        });
+        view.auth_path
+            .update(cx, |input, cx| input.set_value(relative_auth, window, cx));
+    });
+    click(cx, &f, "save-settings");
+
+    let after_refusal = Workspace::open_without_default_credentials(&f.data).unwrap();
+    assert_eq!(after_refusal.settings().unwrap(), canonical_before);
+    assert_eq!(after_refusal.history().unwrap(), history_before);
+    update(cx, &f, |view, _, cx| {
+        assert!(view.notice.text().contains("absolute paths"));
+        assert_eq!(view.model.read(cx).value(), model_after_refusal);
+        assert_eq!(view.auth_path.read(cx).value(), relative_auth);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("helper-effort-high").visible());
+        assert!(window.find("effort-high").visible());
+    });
+    update(cx, &f, |view, window, cx| {
+        view.auth_path
+            .update(cx, |input, cx| input.set_value(auth.clone(), window, cx));
+    });
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert_eq!(saved.provider, "offline-fixture");
+    assert_eq!(saved.effort, "high");
+    assert_eq!(saved.model, model_after_refusal);
     assert_eq!(saved.auth_file.as_deref(), Some(auth.as_str()));
     assert_eq!(
         saved.helper,
