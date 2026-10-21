@@ -2173,7 +2173,8 @@
           "docs/work/active/vacation-campaign/evidence/settings-helper-reset-regression.md",
           "docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md",
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json"
         ],
         "gates": {
           "implementation": "PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed",
@@ -2188,6 +2189,13 @@
             "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
+            ]
+          },
+          {
+            "outcome": "Initial source-branch push remote rejected(failed), causeunspecified; source/ref recheck confirmed cleanlocalfde and remoteabsent.",
+            "change": "One normal explicit branch retry succeeds and exactremoteSHA verified; noforce/alternateAPI/PR yet.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-source-push.json"
             ]
           }
         ],
@@ -2241,6 +2249,7 @@
     "state": "deferred_until_owner_reports_availability",
     "scope": "Actual Mac interaction only; headless development and authorized normal integration continue.",
     "desktop_attempts": "No repeated access/unlock requests or desktop attempts until changed owner availability. Preserve original open app and fixtures.",
-    "last_actual_observation": "evidence/native-access-recheck-20261020T1825.json"
+    "last_actual_observation": "evidence/native-access-recheck-20261020T1825.json",
+    "catalogue_route": "native-queue.md checks this current availability gate before any desktop attempt; historical ready scenarios cannot override it."
   }
 }

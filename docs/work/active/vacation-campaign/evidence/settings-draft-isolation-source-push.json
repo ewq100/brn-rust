@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-21T04:35:37.597045+00:00",
+  "candidate": "fde0477385639913aa9e8dcf39981f95c0aff8d2",
+  "branch": "codex/settings-draft-isolation",
+  "initial_result": "remote rejected branch (failed), git exit1; no cause reported",
+  "reconciliation": "git ls-remote found no remote branch; local source clean and exactfde; upstream stillorigin/main from initial branchcreation",
+  "correction": "one ordinary explicit-branch git push --porcelain -u, noforce or alternateAPI",
+  "retry_result": "exit0; remote branch verified by ls-remote at exactfde; upstreamnoworigin/codex/settings-draft-isolation",
+  "retry_log": "remote: \nremote: Create a pull request for 'codex/settings-draft-isolation' on GitHub by visiting:        \nremote:      https://github.com/ewq100/brn-rust/pull/new/codex/settings-draft-isolation        \nremote: \nTo https://github.com/ewq100/brn-rust.git\n*\trefs/heads/codex/settings-draft-isolation:refs/heads/codex/settings-draft-isolation\t[new branch]\nbranch 'codex/settings-draft-isolation' set up to track 'origin/codex/settings-draft-isolation'.\nDone\n",
+  "limits": "Source branch backup only; no PR/CI/merge/release claimed"
+}

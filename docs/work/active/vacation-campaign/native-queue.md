@@ -2,6 +2,11 @@
 
 Scenario definitions and source-bound historical observations live here. Current task readiness, admission and next action live in [campaign state](campaign.json) and [overview](../../overview.md); reconcile actual source/artifact at execution.
 
+Read `native_availability` in campaign state before attempting desktop access. If
+it defers interaction until the owner reports availability, leave the session
+deferred without another access attempt or unlock request. Historical ready
+entries below do not override that gate.
+
 ## Actual Mac observation —20 October
 
 Owner started the consolidated session early. On integrated source `75a66a74`,
