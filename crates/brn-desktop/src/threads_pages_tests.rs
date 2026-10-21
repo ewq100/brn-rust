@@ -1086,6 +1086,9 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
         assert!(window.find("helper-effort-high").visible());
         assert!(window.find("settings-helper-tested").visible());
     });
+    click(cx, &f, "helper-effort-low");
+    click(cx, &f, "helper-provider-off");
+    click(cx, &f, "helper-provider-Codex");
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert_eq!(saved.provider, "offline-fixture");
