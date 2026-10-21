@@ -1,0 +1,62 @@
+{
+  "observed_at": "2026-10-21T04:32:09.346236+00:00",
+  "base": "9e2a81c0e3d5fbc1b617fe54bdb4b103f607b822",
+  "baseline_regression": "7462f0a04b5e195a4618cdd27af2a4fe7281c293",
+  "initial_candidate": "3d25183ba134b75a5d290d33182a651aafc3bd7f",
+  "helper_negative": "29a02b4f52506001bc79be69a2c1c78ae7a210d4",
+  "candidate": "fde0477385639913aa9e8dcf39981f95c0aff8d2",
+  "file_sha256": {
+    "threads_state.rs": "593871ef16669669b4877d098b084a835401156651401afe93beee626d0d7e86",
+    "threads_tiles.rs": "7722d90fe3b2c342505d5d65edc4bc3578794966d5fa2a2fdaaa0a2dfa14e937",
+    "threads_ui.rs": "e51ee31214b0334c68a2614be8763efb0cbcb6128e0f8d4873e3162f00ececb0",
+    "threads_pages_tests.rs": "4bfd5120b10d9769c8bb18902734bb31ebcb388f34ccc11baf39a5bd9cf4ec00"
+  },
+  "selected_behavior": "Models form selections stay separate from saved active settings. Save overlays form through existing checked configure; unrelated toolbar/current connection cannot persist unsaved choices. Preserve original refresh resets and helper Off/On resetHigh.",
+  "review": {
+    "initial": "settings-draft-isolation-review.md; oneP2 compatibility regression",
+    "final": "settings-draft-isolation-final-review.md; P2 fixed, no remaining actionable finding",
+    "independent": "Consequential Sol reviewer, not source author, no builds/tests by reviewer"
+  },
+  "attempts": [
+    {
+      "source": "7462f0a0",
+      "result": "FAIL intended original defect: persistedHigh vs expectedMedium;0pass/1fail/342filtered;exit101"
+    },
+    {
+      "source": "3d25183b",
+      "result": "focused1/0, desktop342/0/1existingignored, strictlint/ordinarybuild/fmt PASS, but independent review P2 means not qualified"
+    },
+    {
+      "source": "29a02b4f",
+      "result": "FAIL actual strengthened existing helper Save journey: persistedLow vs expectedHigh;0pass/1fail/342filtered;exit101",
+      "disposition": "Retain all old exact saved-helper expectations; reset form helper effortHigh only onOff; direct provider switch preserveseffort"
+    },
+    {
+      "source": "fde04773",
+      "result": "PASS focused1/0, full desktop342/0/1existingignored, strict all-targetnative-test lint, ordinary productionnative-ui build, fmt andwhitespace;script exit0"
+    }
+  ],
+  "commands": [
+    "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop threads_ui::pages_tests::copilot_connection_does_not_save_an_unsaved_effort_choice --locked --offline --jobs 1 -- --exact --nocapture",
+    "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop --locked --offline --jobs 1",
+    "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline --jobs 1 -- -D warnings",
+    "cargo build -p brn-desktop --features native-ui --bin brn-desktop --locked --offline --jobs 1",
+    "cargo fmt -p brn-desktop -- --check",
+    "git diff --check"
+  ],
+  "artifact": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-settings-draft-isolation/fde04773/brn-desktop",
+    "sha256": "e05bb87e2c5f36f49e566c58ade4aedd9c61ef0ffdd957d0814dcf146a9bf819",
+    "kind": "ordinary native-ui binary; not launched or bundled for native session"
+  },
+  "environment": "Rust1.98.1 macOSarm64, locked/offline/jobs1, serialized sharedtarget; native-test-support is deterministic toolkit tests, no physical input/account/provider calls",
+  "raw": "settings-draft-isolation-raw.tar.gz",
+  "retained_ignored": "a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left requires explicit BRN_DWR_SHARED_* fixture; previous separate source-bound shared-intake evidence retained, no new pass claimed here",
+  "retained_warning": "block0.1.6 future-incompatibility warning; no dependency/toolchain change",
+  "limits": [
+    "Synthetic current CopilotConnected event only, no real sign-in/credential/provider action",
+    "No actual corrected Mac control observation, owner acceptance, hosted gates/merge or release",
+    "Existing refresh/navigation resets segmented form choices while text entities can remain; broader draft-preservation semantics not selected, revisit separately when that form behavior is selected",
+    "One newly added regression plus extension of existing helper Save case; no generic state machine or runtime prompt/authority change"
+  ]
+}

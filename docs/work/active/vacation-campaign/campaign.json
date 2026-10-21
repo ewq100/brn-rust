@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:25:08.047103+00:00",
+    "observed_at": "2026-10-21T04:32:09.346236+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2102,7 +2102,9 @@
           "docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md",
           "docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json",
           "docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz",
-          "https://github.com/ewq100/brn-rust/pull/194"
+          "https://github.com/ewq100/brn-rust/pull/194",
+          "docs/work/active/vacation-campaign/evidence/pr194-windows-observation.json",
+          "docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz"
         ],
         "gates": {
           "implementation": "PASS test-only candidate0abb3fa7; independent review finding corrected by lead and final minimal delta reconciled",
@@ -2154,10 +2156,10 @@
         "title": "Keep unsaved provider choices out of other Settings actions",
         "state": "active",
         "owner": "bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review",
-        "activity": "Correction3d25183b committed; local ProviderForm separates provider/effort/helper segmented choices from active snapshot. Independent consequential Sol review and serial focused/fullUI/strictlint/ordinarybuild gates active; no corrected pass claimed yet.",
-        "observed_at": "2026-10-21T04:25:08.047103+00:00",
+        "activity": "Finalfde04773 independently reviewed: P2 helperOff/On reset fixed. Final actual focused1/0, full desktop342/0/1existingignored, strict all-targetlint, ordinary productionbuild, fmt/whitespace PASS. Original draft leak and compatibility negative failures retained.",
+        "observed_at": "2026-10-21T04:32:09.346236+00:00",
         "origin": "observed",
-        "next_action": "Finish actual source-bound review/checks; preserve original baseline and any new findings. Resolve helperOff→On reset semantics observation before final qualification/integration.",
+        "next_action": "Preserve final qualified source/artifact. After preceding normal integrations, reconcile then-current main and publish separate Settings correction with all required exact-head/resulting-main gates; native remains deferred.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2165,18 +2167,37 @@
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md",
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json",
           "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz",
-          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md"
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-review.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/settings-helper-reset-regression.md",
+          "docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz"
         ],
         "gates": {
-          "implementation": "candidate3d25183b complete, independent review pending",
-          "checks": "baseline0/1 intendedFAIL retained; candidate focused/fullUI/strictlint/ordinarybuild active",
-          "integration": "pending reproduced defect/reviewed correction and required exact-head/main gates",
-          "native": "deferred for owner availability; deterministic widget test only",
+          "implementation": "PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed",
+          "checks": "PASS final focused1/0, desktop342/0/1ignored, strictlint/ordinarybuild/fmt/whitespace; both actual red failures retained",
+          "integration": "pending publication after preceding main reconciliation; all4required exact-head and resulting-main separately",
+          "native": "explicitly deferred for extended owner unavailability; deterministic toolkit and ordinary build are not native observation",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
+            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
+            ]
+          }
+        ],
         "resource_plan": "One requested Luna medium regression-only writer, isolated clean mac-test-roots branchcodex/settings-draft-isolation base9e2a81c0; preserves prior e1b branch. Lead selects design and serializes builds; independent consequential Sol review required for final correction.4total slots, no source overlap with frozen CLI/export candidates. No live provider/account/credential content/native/network/model or nested actions. Explicit synthetic path string and owned mpsc events only, no actual connect invocation. Stop after test-only commit/handoff; no generic Settings/navigation/reducer redesign.",
-        "design": "Reuse existing checkedWorkspace::configure; UI owns editable form versus active snapshot, not persistence/authority. Introduce only a small local ProviderForm (provider/effort/helper segmented selections) in existing UI state module; text inputs already separate. Models form renders/edits this value, Save overlays it into a local canonical clone before existing service call, refresh resets it alongside saved snapshot as before. Other configuration callbacks and Chat controls retain canonical self.settings and cannot consume unsaved choices. No generic reducer/new crate/runtimeprompt/providerpolicy or navigation-retention behavior selected; existing Save/old-worker-fence tests retained."
+        "design": "Reuse existing checkedWorkspace::configure; UI owns editable form versus active snapshot, not persistence/authority. Introduce only a small local ProviderForm (provider/effort/helper segmented selections) in existing UI state module; text inputs already separate. Models form renders/edits this value, Save overlays it into a local canonical clone before existing service call, refresh resets it alongside saved snapshot as before. Other configuration callbacks and Chat controls retain canonical self.settings and cannot consume unsaved choices. No generic reducer/new crate/runtimeprompt/providerpolicy or navigation-retention behavior selected; existing Save/old-worker-fence tests retained.",
+        "deferred_boundary": {
+          "boundary": "Settings draft preservation on refresh/navigation",
+          "impact": "Legacy segmented selections reset on refresh while text inputs may remain; not changed by this isolation correction.",
+          "revisit_trigger": "Select a separate coherent form-preservation contract/qualification; owner availability needed only for actual native observation, not headless investigation."
+        }
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2192,9 +2213,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-reliability-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T04:25:08.047103+00:00",
-    "runtime_capacity": "4total slots; Luna author complete, one independent Sol Settings reviewer active; lead integrates",
-    "build_slot": "Settings candidate3d25183b frozen, serial focused/fullUI/lint/ordinarybuild exec90714 active; no other build writer",
+    "observed_at": "2026-10-21T04:32:09.346236+00:00",
+    "runtime_capacity": "4total slots; Luna authors and independentSol reviews complete; lead integrates",
+    "build_slot": "free after final Settingsfde qualification exit0; qualified ordinary binary preserved, no desktop action",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [
       {

@@ -1,0 +1,14 @@
+{
+  "observed_at": "2026-10-21T04:32:09.346236+00:00",
+  "run": 39542569122,
+  "job": 119033405127,
+  "status": "completed/failure",
+  "required": false,
+  "source": "0abb3fa7d73299195faace74853c7591af8329b8",
+  "raw_log_bytes": 114679,
+  "raw_sha256": "6e7dfd794a69544ad98ee631001f58fac2dd196a00fe54ce9035332671310e71",
+  "actual_failure": "brn-ai fails Windows compilation with26errors, including Unix OpenOptions::mode and Metadata nlink/uid/mode methods unavailable",
+  "attribution": "PR194 changes only Unix-cfg export test; brn-ai production bytes unchanged from9e2a81c0. No Windows compatibility established or Windows change selected. Actual required contexts stay enforced.",
+  "first_read": "gh api refused terminal escape sequences; original refusal preserved here. One corrected --allow-escape-sequences read redirected to file, no terminal rendering.",
+  "raw": "pr194-windows-job.log.gz"
+}

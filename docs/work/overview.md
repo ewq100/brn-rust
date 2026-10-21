@@ -51,7 +51,7 @@ Gates:
 - **native:** deferred owner availability; no OS usability claim
 - **owner acceptance:** not claimed
 
-Evidence: [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-implementation.md](active/vacation-campaign/evidence/export-interruption-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md](active/vacation-campaign/evidence/export-interruption-witness-review.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz](active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/194](https://github.com/ewq100/brn-rust/pull/194)
+Evidence: [crates/brn-threads-app/src/export.rs](../../crates/brn-threads-app/src/export.rs), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-implementation.md](active/vacation-campaign/evidence/export-interruption-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-review.md](active/vacation-campaign/evidence/export-interruption-witness-review.md), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-qualification.json](active/vacation-campaign/evidence/export-interruption-witness-qualification.json), [docs/work/active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz](active/vacation-campaign/evidence/export-interruption-witness-raw.tar.gz), [https://github.com/ewq100/brn-rust/pull/194](https://github.com/ewq100/brn-rust/pull/194), [docs/work/active/vacation-campaign/evidence/pr194-windows-observation.json](active/vacation-campaign/evidence/pr194-windows-observation.json), [docs/work/active/vacation-campaign/evidence/pr194-windows-job.log.gz](active/vacation-campaign/evidence/pr194-windows-job.log.gz)
 
 Attempts:
 
@@ -61,22 +61,26 @@ Attempts:
 
 ### Keep unsaved provider choices out of other Settings actions
 
-Owner: bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T04:25:08.047103+00:00
-Activity: Correction3d25183b committed; local ProviderForm separates provider/effort/helper segmented choices from active snapshot. Independent consequential Sol review and serial focused/fullUI/strictlint/ordinarybuild gates active; no corrected pass claimed yet.
-Next: Finish actual source-bound review/checks; preserve original baseline and any new findings. Resolve helperOff→On reset semantics observation before final qualification/integration.
+Owner: bounded Luna medium regression author; lead reproduction/design/integration; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T04:32:09.346236+00:00
+Activity: Finalfde04773 independently reviewed: P2 helperOff/On reset fixed. Final actual focused1/0, full desktop342/0/1existingignored, strict all-targetlint, ordinary productionbuild, fmt/whitespace PASS. Original draft leak and compatibility negative failures retained.
+Next: Preserve final qualified source/artifact. After preceding normal integrations, reconcile then-current main and publish separate Settings correction with all required exact-head/resulting-main gates; native remains deferred.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** candidate3d25183b complete, independent review pending
-- **checks:** baseline0/1 intendedFAIL retained; candidate focused/fullUI/strictlint/ordinarybuild active
-- **integration:** pending reproduced defect/reviewed correction and required exact-head/main gates
-- **native:** deferred for owner availability; deterministic widget test only
+- **implementation:** PASS finalfde04773; independent Sol final review no remaining findings, originalP2fixed
+- **checks:** PASS final focused1/0, desktop342/0/1ignored, strictlint/ordinarybuild/fmt/whitespace; both actual red failures retained
+- **integration:** pending publication after preceding main reconciliation; all4required exact-head and resulting-main separately
+- **native:** explicitly deferred for extended owner unavailability; deterministic toolkit and ordinary build are not native observation
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md](active/vacation-campaign/evidence/settings-draft-isolation-regression.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json](active/vacation-campaign/evidence/settings-draft-isolation-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md](active/vacation-campaign/evidence/settings-draft-isolation-implementation.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/settings-draft-activation-audit.md](active/vacation-campaign/evidence/settings-draft-activation-audit.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-regression.md](active/vacation-campaign/evidence/settings-draft-isolation-regression.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline.json](active/vacation-campaign/evidence/settings-draft-isolation-baseline.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-baseline-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-implementation.md](active/vacation-campaign/evidence/settings-draft-isolation-implementation.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-review.md](active/vacation-campaign/evidence/settings-draft-isolation-review.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-final-review.md](active/vacation-campaign/evidence/settings-draft-isolation-final-review.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-regression.md](active/vacation-campaign/evidence/settings-helper-reset-regression.md), [docs/work/active/vacation-campaign/evidence/settings-helper-reset-correction.md](active/vacation-campaign/evidence/settings-helper-reset-correction.md), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json), [docs/work/active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz](active/vacation-campaign/evidence/settings-draft-isolation-raw.tar.gz)
+
+Attempts:
+
+- Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.: Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass. ([docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json](active/vacation-campaign/evidence/settings-draft-isolation-qualification.json))
 
 </details>
 
@@ -1443,4 +1447,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:25:08.047103+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:32:09.346236+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
