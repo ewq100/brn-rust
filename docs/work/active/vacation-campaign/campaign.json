@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-21T04:13:25.370190+00:00",
+    "observed_at": "2026-10-21T04:14:01.229992+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2121,6 +2121,32 @@
           }
         ],
         "resource_plan": "Two isolated requested Luna medium source writers, consequential Sol review when candidate ready; actual4total slots, one lead integration owner, one serial shared build. Checkout architecture-status-route. No source scope overlap, no account/native/network/model or nested work. One Unix process-kill/retry witness at existing pre-publication flush seam; final name remains absent and ordinary retry yields exact complete snapshot/source unchanged. Hidden killed stage may remain; no sweep or production behavior change. Bound/reap only owned child, preserve normal flush-error tests; no power-loss claim. Independent Sol review required."
+      },
+      {
+        "id": "settings-draft-activation-audit",
+        "title": "Check unsaved Settings stay separate from active configuration",
+        "state": "active",
+        "owner": "bounded Luna medium read-only audit; lead selects any correction and review",
+        "activity": "Selected one independent source-only preflight while PR194 hosted checks run: trace editable provider/model/helper choices versus persisted runtime settings and refresh/navigation. No new feature or refactor selected.",
+        "observed_at": "2026-10-21T04:14:01.229992+00:00",
+        "origin": "observed",
+        "next_action": "Return an exact source-backed defect/missing consequential witness or justified no-change finding, with smallest synthetic headless reproduction. Preserve existing accepted Save/configuration behavior.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_tiles.rs",
+          "crates/brn-threads-app/src/settings.rs"
+        ],
+        "gates": {
+          "implementation": "source audit only; no product change selected",
+          "checks": "pending source/caller/evidence preflight; no live provider or native activity",
+          "integration": "inapplicable until a reviewed candidate is selected",
+          "native": "deferred owner availability; source/toolkit cannot establish native usability",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium read-only helper, within4total slots; lead owns integration/records/sharedbuild. Named benefit: independent bounded Settings draft-versus-canonical state inspection during hosted wait. No source/shared-record edits, builds/fixtures/processes, network/provider/account/credentials/native/model/nested actions. Read existing tests and prior writing-setup-navigation audit before proposing work. Stop at one concrete issue/witness or justified no-change; no generic state-machine migration."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2132,12 +2158,12 @@
     "source": "work_view in this campaign record",
     "receipt": "evidence/remote-progress-page.json",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T03:58:23.384Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-extended-lock-headless-update.json"
+    "last_refresh_at": "2026-10-21T04:14:22.045Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-headless-reliability-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-21T04:13:25.370190+00:00",
-    "runtime_capacity": "4total slots; both Luna authors and Sol reviews complete; lead owns integration/shared records",
+    "runtime_capacity": "4total slots; one Luna Settings read-only audit assigned; CLI/export authors/reviewer complete; lead integrates",
     "build_slot": "free: CLI candidate qualification exit0; export final exit0",
     "desktop_account_actor": "PID63750 confirmed18:24UTC still open after verifiedUndo. Actual CUA check18:25UTC reports locked/automaticunlockunavailable; no further desktop action. Normal OSclose required after access returns.",
     "read_only_ci_watches": [

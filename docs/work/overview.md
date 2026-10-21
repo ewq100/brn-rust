@@ -59,6 +59,27 @@ Attempts:
 
 </details>
 
+### Check unsaved Settings stay separate from active configuration
+
+Owner: bounded Luna medium read-only audit; lead selects any correction and review · State: **active** · Last observed: 2026-10-21T04:14:01.229992+00:00
+Activity: Selected one independent source-only preflight while PR194 hosted checks run: trace editable provider/model/helper choices versus persisted runtime settings and refresh/navigation. No new feature or refactor selected.
+Next: Return an exact source-backed defect/missing consequential witness or justified no-change finding, with smallest synthetic headless reproduction. Preserve existing accepted Save/configuration behavior.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** source audit only; no product change selected
+- **checks:** pending source/caller/evidence preflight; no live provider or native activity
+- **integration:** inapplicable until a reviewed candidate is selected
+- **native:** deferred owner availability; source/toolkit cannot establish native usability
+- **owner acceptance:** not claimed
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_tiles.rs](../../crates/brn-desktop/src/threads_tiles.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -1401,4 +1422,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T04:13:25.370190+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-21T04:14:01.229992+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
