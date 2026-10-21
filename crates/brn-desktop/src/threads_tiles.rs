@@ -1535,7 +1535,7 @@ impl ThreadsUi {
         )
     }
     fn models_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let provider = &self.settings.provider;
+        let provider = &self.provider_form.provider;
         let efforts = [
             ("low", "effort-low", "Low"),
             ("medium", "effort-medium", "Medium"),
@@ -1558,7 +1558,7 @@ impl ThreadsUi {
                             || value == "chatgpt" && provider.eq_ignore_ascii_case("codex")
                     },
                     cx,
-                    |this, value| this.settings.provider = value.into(),
+                    |this, value| this.provider_form.provider = value.into(),
                 ),
             ))
             .child(field(
@@ -1570,9 +1570,9 @@ impl ThreadsUi {
                 Self::choice(
                     "settings-effort-choice",
                     &efforts,
-                    |value| self.settings.effort == value,
+                    |value| self.provider_form.effort == value,
                     cx,
-                    |this, value| this.settings.effort = value.into(),
+                    |this, value| this.provider_form.effort = value.into(),
                 ),
             ))
             .child(field(
@@ -1608,9 +1608,9 @@ impl ThreadsUi {
                     )
                 }
             }));
-        let helper_on = |value: &str| match &self.settings.helper {
+        let helper_on = |value: &str| match &self.provider_form.helper_provider {
             None => value == "off",
-            Some(helper) => helper.provider.eq_ignore_ascii_case(value),
+            Some(provider) => provider.eq_ignore_ascii_case(value),
         };
         let mut helper = group("settings-helper")
             .gap_3()
@@ -1636,23 +1636,16 @@ impl ThreadsUi {
                     helper_on,
                     cx,
                     |this, value| {
-                        this.settings.helper = (value != "off").then(|| {
-                            let mut helper = this.settings.helper.clone().unwrap_or(
-                                brn_threads_app::HelperSettings {
-                                    provider: String::new(),
-                                    model: String::new(),
-                                    effort: "high".into(),
-                                    auth_file: None,
-                                    credentials_dir: None,
-                                },
-                            );
-                            helper.provider = value.into();
-                            helper
-                        });
+                        if value == "off" {
+                            this.provider_form.helper_provider = None;
+                            this.provider_form.helper_effort = "high".into();
+                        } else {
+                            this.provider_form.helper_provider = Some(value.into());
+                        }
                     },
                 ),
             ));
-        if let Some(chosen) = &self.settings.helper {
+        if self.provider_form.helper_provider.is_some() {
             helper = helper
                 .child(field(
                     "Helper model",
@@ -1669,13 +1662,9 @@ impl ThreadsUi {
                             ("medium", "helper-effort-medium", "Medium"),
                             ("high", "helper-effort-high", "High"),
                         ],
-                        |value| chosen.effort == value,
+                        |value| self.provider_form.helper_effort == value,
                         cx,
-                        |this, value| {
-                            if let Some(helper) = &mut this.settings.helper {
-                                helper.effort = value.into();
-                            }
-                        },
+                        |this, value| this.provider_form.helper_effort = value.into(),
                     ),
                 ))
                 .child(metadata(
