@@ -1152,7 +1152,15 @@ fn copilot_connection_does_not_save_an_unsaved_effort_choice(cx: &mut TestAppCon
         sender
             .send(WorkerEvent::CopilotConnected(credentials.clone()))
             .unwrap();
+        sender
+            .send(WorkerEvent::Finished(Ok(
+                "Synthetic Copilot connection finished".into(),
+            )))
+            .unwrap();
         view.poll_worker(window, cx);
+        assert_eq!(view.settings.provider, "copilot");
+        assert_eq!(view.provider_form.provider, "copilot");
+        assert_eq!(view.provider_form.effort, "medium");
     });
 
     let saved = Workspace::open_without_default_credentials(&f.data)

@@ -2829,7 +2829,20 @@ impl ThreadsUi {
                         Some(WorkerKind::Backup) => self.backup_status = status,
                         _ => {}
                     }
+                    // An unrelated worker refresh should not split an open
+                    // Models draft from its text fields. Connect is excluded
+                    // because its event may have changed the canonical config.
+                    let provider_form_before_refresh = (self.layout.settings_open()
+                        && self.settings_section == SettingsSection::Models
+                        && kind.is_some_and(|kind| kind != WorkerKind::Connect))
+                    .then(|| (self.settings.clone(), self.provider_form.clone()));
                     self.refresh();
+                    if let Some((settings_before_refresh, provider_form)) =
+                        provider_form_before_refresh
+                        && self.settings == settings_before_refresh
+                    {
+                        self.provider_form = provider_form;
+                    }
                     if let Some(target) = edit_note_target {
                         self.refresh_context_edit(&target.note_id, target.version, window, cx);
                     }
