@@ -2657,6 +2657,7 @@ impl ThreadsUi {
             return;
         }
         let mut allow_dispatch = false;
+        let mut provider_form_before_refresh = None;
         for event in events {
             let event = match event {
                 WorkerEvent::RunFinished { result, terminal } => {
@@ -2832,17 +2833,11 @@ impl ThreadsUi {
                     // An unrelated worker refresh should not split an open
                     // Models draft from its text fields. Connect is excluded
                     // because its event may have changed the canonical config.
-                    let provider_form_before_refresh = (self.layout.settings_open()
+                    provider_form_before_refresh = (self.layout.settings_open()
                         && self.settings_section == SettingsSection::Models
                         && kind.is_some_and(|kind| kind != WorkerKind::Connect))
                     .then(|| (self.settings.clone(), self.provider_form.clone()));
                     self.refresh();
-                    if let Some((settings_before_refresh, provider_form)) =
-                        provider_form_before_refresh
-                        && self.settings == settings_before_refresh
-                    {
-                        self.provider_form = provider_form;
-                    }
                     if let Some(target) = edit_note_target {
                         self.refresh_context_edit(&target.note_id, target.version, window, cx);
                     }
@@ -2959,6 +2954,15 @@ impl ThreadsUi {
             }
         } else if end == WorkerBatchEnd::Disconnected {
             self.worker_disconnected();
+        }
+        // Restore only after the whole batch and any queue dispatch, which may
+        // refresh again. A changed canonical configuration wins over the draft.
+        if self.layout.settings_open()
+            && self.settings_section == SettingsSection::Models
+            && let Some((settings_before_refresh, provider_form)) = provider_form_before_refresh
+            && self.settings == settings_before_refresh
+        {
+            self.provider_form = provider_form;
         }
         cx.notify();
     }
