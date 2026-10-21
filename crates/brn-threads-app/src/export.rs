@@ -317,7 +317,7 @@ mod tests {
         assert_eq!(status.signal(), Some(libc::SIGKILL));
         assert!(!destination.exists());
 
-        let mut reopened = Workspace::open(&workspace_path).unwrap();
+        let reopened = Workspace::open(&workspace_path).unwrap();
         assert_eq!(reopened.store.records().unwrap(), before_records);
         assert_eq!(reopened.history().unwrap(), before_history);
         let manifest = reopened.export_now(&destination).unwrap();
