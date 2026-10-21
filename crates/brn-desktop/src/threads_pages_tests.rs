@@ -1129,6 +1129,7 @@ fn the_helper_section_shows_its_tested_note_and_saves_with_settings(cx: &mut Tes
     click(cx, &f, "save-settings");
     let saved = Workspace::open(&f.data).unwrap().settings().unwrap();
     assert_eq!(saved.provider, "offline-fixture");
+    assert_eq!(saved.effort, "high");
     assert_eq!(saved.model, model_after_refusal);
     assert_eq!(saved.auth_file.as_deref(), Some(auth.as_str()));
     assert_eq!(
