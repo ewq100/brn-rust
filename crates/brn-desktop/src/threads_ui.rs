@@ -81,10 +81,10 @@ use components::{IconName, Tone};
 use layout::{Layout, Preset, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
-    ComposerDestination, ComposerDrafts, ContinuePath, Severity, WorkerKind, can_continue_thread,
-    comment_location, continue_path, delegation_status, latest_run, linked, outcome_message,
-    owner_message_after_latest_run, recovery, refresh_hint, review_label, review_summary,
-    save_message,
+    ComposerDestination, ComposerDrafts, ContinuePath, ProviderForm, Severity, WorkerKind,
+    can_continue_thread, comment_location, continue_path, delegation_status, latest_run, linked,
+    outcome_message, owner_message_after_latest_run, recovery, refresh_hint, review_label,
+    review_summary, save_message,
 };
 use theme::{ThemeId, pal};
 use worker::{EditNoteTarget, Worker, WorkerBatchEnd, WorkerEvent};
@@ -397,6 +397,8 @@ struct ThreadsUi {
     auth_path: Entity<InputState>,
     credentials_path: Entity<InputState>,
     helper_model: Entity<InputState>,
+    /// Uncommitted Models-section segments, kept apart from runtime settings.
+    provider_form: ProviderForm,
     settings: WorkspaceSettings,
     /// The Chat panel is below 420 pt: the model control also names the
     /// effort, and the effort control folds into its menu.
@@ -445,6 +447,7 @@ impl ThreadsUi {
         let settings = workspace
             .settings()
             .expect("workspace settings were checked before opening the window");
+        let provider_form = ProviderForm::from_settings(&settings);
         let theme = ThemeId::from_key(settings.theme.as_deref());
         theme::apply(theme, cx);
         let composer = cx.new(|cx| {
@@ -675,6 +678,7 @@ impl ThreadsUi {
             auth_path,
             credentials_path,
             helper_model,
+            provider_form,
             settings,
             chat_narrow: false,
             short_window: false,
@@ -781,7 +785,9 @@ impl ThreadsUi {
             self.history = self.workspace.history()?;
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
-            self.settings = self.workspace.settings()?;
+            let settings = self.workspace.settings()?;
+            self.provider_form = ProviderForm::from_settings(&settings);
+            self.settings = settings;
             self.topics = self.workspace.topics()?;
             // Changes names a flagged rewrite request by its note (R3); the
             // snapshot is read here, once per refresh, not on every render.
@@ -3533,22 +3539,31 @@ impl ThreadsUi {
         cx.notify();
     }
     fn configure(&mut self, cx: &mut Context<Self>) {
-        self.settings.model = self.model.read(cx).value().to_string();
+        let mut settings = self.settings.clone();
+        settings.provider = self.provider_form.provider.clone();
+        settings.effort = self.provider_form.effort.clone();
+        settings.model = self.model.read(cx).value().to_string();
         let auth = self.auth_path.read(cx).value().to_string();
         let credentials = self.credentials_path.read(cx).value().to_string();
-        self.settings.auth_file = (!auth.trim().is_empty()).then_some(auth);
-        self.settings.credentials_dir =
-            (!credentials.trim().is_empty()).then_some(credentials.clone());
-        if let Some(helper) = &mut self.settings.helper {
-            helper.model = self.helper_model.read(cx).value().trim().to_string();
-            // The helper uses the credential location shown for its provider.
-            let codex = !helper.provider.eq_ignore_ascii_case("copilot");
-            helper.auth_file = self.settings.auth_file.clone().filter(|_| codex);
-            helper.credentials_dir = (!credentials.trim().is_empty()
-                && (!codex || helper.auth_file.is_none()))
+        settings.auth_file = (!auth.trim().is_empty()).then_some(auth);
+        settings.credentials_dir = (!credentials.trim().is_empty()).then_some(credentials.clone());
+        settings.helper = if let Some(provider) = &self.provider_form.helper_provider {
+            let codex = !provider.eq_ignore_ascii_case("copilot");
+            let auth_file = settings.auth_file.clone().filter(|_| codex);
+            let credentials_dir = (!credentials.trim().is_empty()
+                && (!codex || auth_file.is_none()))
             .then_some(credentials);
-        }
-        match self.workspace.configure(self.settings.clone()) {
+            Some(brn_threads_app::HelperSettings {
+                provider: provider.clone(),
+                model: self.helper_model.read(cx).value().trim().to_string(),
+                effort: self.provider_form.helper_effort.clone(),
+                auth_file,
+                credentials_dir,
+            })
+        } else {
+            None
+        };
+        match self.workspace.configure(settings) {
             Ok(outcome) => self.report_outcome(&outcome),
             Err(e) => self.fail(e.to_string()),
         };

@@ -9,6 +9,32 @@ use brn_threads_app::{
 use brn_writing_ui::layout::Unlocated;
 use std::collections::BTreeMap;
 
+/// Editable selections in Settings → Provider and model. Runtime consumers
+/// keep using the canonical `WorkspaceSettings` snapshot until Save succeeds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct ProviderForm {
+    pub(super) provider: String,
+    pub(super) effort: String,
+    pub(super) helper_provider: Option<String>,
+    pub(super) helper_effort: String,
+}
+impl ProviderForm {
+    pub(super) fn from_settings(settings: &WorkspaceSettings) -> Self {
+        Self {
+            provider: settings.provider.clone(),
+            effort: settings.effort.clone(),
+            helper_provider: settings
+                .helper
+                .as_ref()
+                .map(|helper| helper.provider.clone()),
+            helper_effort: settings
+                .helper
+                .as_ref()
+                .map_or_else(|| "high".into(), |helper| helper.effort.clone()),
+        }
+    }
+}
+
 pub(super) fn delegation_status(settings: &WorkspaceSettings) -> &'static str {
     if !settings.delegation_chosen {
         "Choose how BRN maintains your working knowledge. Reading and editing remain available."
