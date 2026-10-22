@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:21:23.437892+00:00",
+    "observed_at": "2026-10-22T02:24:40.290885+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3185,27 +3185,54 @@
       {
         "id": "passage-comment-draft-ownership-audit",
         "title": "Check passage-comment drafts across navigation and refused posting",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only assessment; lead disposition",
-        "observed_at": "2026-10-22T02:21:23.437892+00:00",
+        "observed_at": "2026-10-22T02:24:40.290885+00:00",
         "origin": "observed",
-        "activity": "Selected source-backed audit of unsent passage-comment anchor/body/operation across Note switching, saved-version changes and failed posting. Existing chat-composer recovery audit is supporting history, not coverage of this boundary.",
-        "next_action": "Read current checked comment/draft ownership and existing tests; recommend no change unless a concrete failure or consequential gap is established. No source edit or duplicate test from static concern alone.",
+        "activity": "Bounded source assessment found no defect. Per-note window-local anchor/body/retry identity remain together; checked stale-version refusal, explicit re-anchor and success clearing preserve provenance. Existing independent witnesses are sufficient; low-risk composed journey gap does not justify another test.",
+        "next_action": "Reuse current ownership and witnesses; revisit only on demonstrated loss/wrong-note attachment or a changed supported contract.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-desktop/src/threads_ui.rs",
-          "crates/brn-desktop/src/threads_writing.rs"
+          "crates/brn-desktop/src/threads_writing.rs",
+          "docs/work/active/vacation-campaign/evidence/passage-comment-draft-audit.md"
         ],
         "gates": {
-          "implementation": "Read-only assessment pending; no product candidate.",
-          "checks": "No new command execution selected.",
+          "implementation": "No change selected; coherent existing owner.",
+          "checks": "Source/test inspection only; no checks executed by audit.",
           "integration": "Inapplicable without selected source change.",
           "native": "Deferred under existing owner availability.",
           "owner_acceptance": "No owner decision selected."
         },
         "attempts": [],
         "resource_plan": "One bounded Luna read-only helper while lead owns integration/current record. No builds/native/account/network/private data or source edits; no nested dispatch needed."
+      },
+      {
+        "id": "restore-process-stage-ownership",
+        "title": "Check that interrupted restore work is reclaimed safely",
+        "state": "active",
+        "owner": "Lead test design/integration; bounded Luna test-only author; independent Sol review",
+        "observed_at": "2026-10-22T02:24:40.290885+00:00",
+        "origin": "observed",
+        "activity": "Selected strengthening of existing Unix restore leftover-stage witness: current test explicitly abandons an in-process stage, while real OS-process lock survival/release is not exercised. Verify live child stage survives another restore, then actual SIGKILL frees it for safe cleanup and retry.",
+        "next_action": "Extend existing killed-restore test using same-test owned child and finite readiness wait; retain existing source/earlier-workspace/unrelated-stage preservation assertions. No production or cleanup-policy changes.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-core/src/restore.rs",
+          "crates/brn-threads-core/src/stage.rs",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md"
+        ],
+        "gates": {
+          "implementation": "Test-only candidate pending.",
+          "checks": "Existing source inspected; no new process witness run yet.",
+          "integration": "After independent review, final checks and actual protected gates.",
+          "native": "Headless process/OS lock evidence only, no native app or power-loss proof.",
+          "owner_acceptance": "No owner decision selected."
+        },
+        "attempts": [],
+        "resource_plan": "One isolated Luna writer in export-durability checkout on codex/restore-process-interruption, frozen prior branch preserved. No builds by helper; lead serializes shared target. No native/account/network/private data."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

@@ -86,24 +86,24 @@ Attempts:
 
 </details>
 
-### Check passage-comment drafts across navigation and refused posting
+### Check that interrupted restore work is reclaimed safely
 
-Owner: Bounded Luna read-only assessment; lead disposition · State: **active** · Last observed: 2026-10-22T02:21:23.437892+00:00
-Activity: Selected source-backed audit of unsent passage-comment anchor/body/operation across Note switching, saved-version changes and failed posting. Existing chat-composer recovery audit is supporting history, not coverage of this boundary.
-Next: Read current checked comment/draft ownership and existing tests; recommend no change unless a concrete failure or consequential gap is established. No source edit or duplicate test from static concern alone.
+Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:24:40.290885+00:00
+Activity: Selected strengthening of existing Unix restore leftover-stage witness: current test explicitly abandons an in-process stage, while real OS-process lock survival/release is not exercised. Verify live child stage survives another restore, then actual SIGKILL frees it for safe cleanup and retry.
+Next: Extend existing killed-restore test using same-test owned child and finite readiness wait; retain existing source/earlier-workspace/unrelated-stage preservation assertions. No production or cleanup-policy changes.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Read-only assessment pending; no product candidate.
-- **checks:** No new command execution selected.
-- **integration:** Inapplicable without selected source change.
-- **native:** Deferred under existing owner availability.
+- **implementation:** Test-only candidate pending.
+- **checks:** Existing source inspected; no new process witness run yet.
+- **integration:** After independent review, final checks and actual protected gates.
+- **native:** Headless process/OS lock evidence only, no native app or power-loss proof.
 - **owner acceptance:** No owner decision selected.
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs)
+Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md)
 
 </details>
 
@@ -307,6 +307,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
 - `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
 - `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
+- `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
 
 ## Dependencies
 
@@ -344,4 +345,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:21:23.437892+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:24:40.290885+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
