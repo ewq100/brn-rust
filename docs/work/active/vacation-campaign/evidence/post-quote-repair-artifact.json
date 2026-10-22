@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-22T15:35:20.988254+00:00",
+  "source": "4515b18c7ff58ccdc5d9642df0c91f0f14b90b38",
+  "reviewed_main": "6e9fbad772dd40d2f038b85d0615c2a1fa667ea0",
+  "product_paths_identical_to_main": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
+    "crates",
+    "agent"
+  ],
+  "binary": "/Users/evokessler/.codex/artifacts/brn-post-quote-repair-4515b18c/brn",
+  "binary_sha256": "fdebb3ecc0331da24460542de51f32feb8dcbd6abeb5d05b4c08284412810593",
+  "cargo_lock_sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+  "build": "pinned1.98.1, ordinary default CLI, locked/offline/jobs1, shared cached target",
+  "build_log_sha256": "1f5d1f30ac99bafc6ae4f3a6e3926d41bd64248d449ee315ab1b0c220f655234",
+  "initial_shell_failures": [
+    "cargo not on PATH; no build started",
+    "assumed ~/.cargo/bin/cargo missing; no build started"
+  ],
+  "account_launched": false,
+  "native_observed": false
+}

@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T15:21:34.061345+00:00",
-    "remaining_percent": 33,
-    "reset_unix": 1793083360,
-    "ordinary_work": "Actual67%used/33%remaining; ordinaryUsageAllowed=true, secondary unavailable. Capacity remains; no capacity pause. Latest selected headless outcomes are complete; dispatch only actual eligible useful work. Native/account constraints unchanged.",
+    "observed_at": "2026-10-22T15:38:17.844Z",
+    "remaining_percent": 32,
+    "reset_unix": 1793083361,
+    "ordinary_work": "Actual68%used/32%remaining, ordinaryUsageAllowed=true. Continue selected headless guidance audit; newone-run accountsession closed afterfailure, no further launch. Native availability unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T15:21:34.061345+00:00",
+    "observed_at": "2026-10-22T15:40:32.523856+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2666,13 +2666,13 @@
         "title": "Check a precise AI edit on fresh synthetic data",
         "state": "blocked",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "Original3boundedaccountattempts remaintaskFAIL/closed00:31; nofourthlaunchorrenamedsession. Subsequentdiagnosed exact-quote selector PR203 was deterministicallyqualified andintegratede4bb65e3withall4requiredpre/postPASS; actualmainancestryreconciled. Repairsourceisverified, live usefulnessafterrepairunmeasured.",
-        "observed_at": "2026-10-22T14:58:43.201635+00:00",
+        "activity": "One genuinely new post-PR203 current-source live attempt FAIL: Completed transport, two incorrect integer ranges, no exact-quote-mode call or candidate. Target/sentinel unchanged. Newone-run sessionclosed; all4attempts today retained. PR203 deterministic/integration evidence unchanged; no quote-usefulness claim.",
+        "observed_at": "2026-10-22T15:40:32.523856+00:00",
         "origin": "observed",
-        "next_action": "Reuse integratedPR203 anditsdeterministicqualification; do not repeatalreadycompleteddesign/review. Keepclosed-accountsessionstop. Anyfuturelivequalificationneedsaseparatelyadmittedgenuineconsolidatedsession anddistinctuseful/diagnosedscenario, ledgerreservation/bounds/quota, neverasessionrename toretry.",
+        "next_action": "Keep both closed account sessions and failures. Inspect loaded shipped guidance headlessly; no new account attempt selected. Native Apply/Undo remains owner-deferred.",
         "depends_on": [],
         "resource_waits": [
-          "Consolidated accounttest session exhausted3attempts; no automatic retry."
+          "New one-run post-repair session closed; no automatic retry."
         ],
         "evidence": [
           "docs/work/active/vacation-campaign/codex-ai-testing.md",
@@ -2697,12 +2697,17 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr203-resulting-main.json",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-driver.py",
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-review.md",
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-artifact.json",
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-raw.tar.gz"
         ],
         "gates": {
           "implementation": "PASS diagnosed unique-exact-quote selector PR203 integratedanddeterministicallyqualified; no claim that itfixedlive-modelusefulness.",
-          "checks": "Original3liveaccounttaskFAIL/dataunchanged, sessionclosed; post-repairlive usefulnessunmeasured. PR203 selecteddeterministic andrequiredpre/postmaingatesPASS.",
-          "integration": "PR203 repairintegratede4bb65e3withall4requiredresultingmainPASS; no successfulaccountqualificationoradditionalaccountlaunch.",
+          "checks": "Live postrepair taskFAIL: Completed transport, incorrect integers44..56/39..51 refused, no candidate; original/sentinelunchanged, null/null mode unobserved. Existing PR203 deterministic/source gates remain PASS.",
+          "integration": "PR203 repair integratede4bb65e3 and requiredpre/postPASS; latest tested CLI source4515b18 productpaths identicalmain6e9. No new product change from this account test.",
           "native": "No native interaction; owner deferral remains.",
           "owner_acceptance": "Not claimed."
         },
@@ -5602,9 +5607,32 @@
         },
         "attempts": [],
         "resource_plan": "One existing Luna medium helper, read-only main765/lead code and public synthetic fixture routes only; lead owns records/integration. No source/data writes beyond sole /tmp report, build/test/CLI execution, desktop/native/account/provider/network/private data or nested agent. Stop after one bounded supported plan or missing capability; do not broaden to all draft types or weaken guards."
+      },
+      {
+        "id": "precise-edit-selector-guidance",
+        "title": "Guide local AI edits away from guessed text positions",
+        "state": "active",
+        "owner": "bounded Luna read-only audit; lead disposition and implementation; independent Sol review",
+        "observed_at": "2026-10-22T15:40:32.523856+00:00",
+        "origin": "observed",
+        "activity": "Selected headless audit from fresh live failure: model loaded maintain-notes and guessed two invalid byte ranges instead of using available unique-quote selection. Inspect actual parent/skill/tool guidance before choosing a repair; causal inference is not established. No additional account attempt.",
+        "next_action": "Reconcile bounded guidance audit with actual source; select a minimal justified consistency/selection correction or record no actionable gap. Keep runtime prompts separate from development configuration.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json"
+        ],
+        "gates": {
+          "implementation": "Pending source audit; no runtime prompt edit yet.",
+          "checks": "Fresh live failure retained; no test of guidance repair yet.",
+          "integration": "No candidate or merge selected yet.",
+          "native": "Owner-deferred; no native action.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": []
       }
     ],
-    "owner_attention": "No owner action needed now. Current headless changes are verified and merged; remaining listed gates are deferred. Mac interaction waits for changed availability; original app and workspaces remain preserved."
+    "owner_attention": "No owner action needed. One post-repair AI edit test failed safely; both notes unchanged. A bounded headless guidance audit is active; Mac checks remain deferred."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -5616,15 +5644,15 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr217-pr218-verified.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T15:21:34.061345+00:00",
-    "runtime_capacity": "Lead finalfact/remoteviewupdate only; Luna andSolcompleted, old pending-init helper has no observed job. No sourcewriter or owned build/test/watch.",
-    "build_slot": "Free; no cargo/rustc/owned test/build child observed.",
-    "desktop_account_actor": "No controlled desktop/account actor. Original syntheticapp63750/wrapper63737 stillrunninguntouched; ownerextendedunavailabilityunchanged. Accountsession3failed/closed, no fourth/renamedretry.",
+    "observed_at": "2026-10-22T15:40:32.523856+00:00",
+    "runtime_capacity": "Lead facts/diagnosis; bounded Luna read-only guidance audit active; Sol available after complete driver review. No source writer or build.",
+    "build_slot": "Free; cached ordinary current-source CLI build passed; no active cargo/rustc.",
+    "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "No active/ready headless task after PR217/218 normalmerges andrequiredpre/postchecks. Eight remaining tasks are nativeowner-deferred, closedaccountqualification, orSQLitefaultdebt withspecificrevisittriggers. Existingrecovery schedulingreconcilesnewstate; no arbitrarybetween-batchwait.",
-    "resumption": "AGENTS → overview → selectedtask. Recheckactualquota/Git/allPRs/actors andeligibility. Resume onconcretenewusefulheadlessissue, changednativeavailability, orrecordedrevisittrigger; do notcreatecompetingwriters/repeatpassingjourneys orrenameclosedaccountsession.",
+    "wait_reason": "Account failure produced concrete headless guidance-audit task; continue that bounded flow without retrying model or waiting for native access.",
+    "resumption": "Continue current selected headless preflight; preserve old session closure and daily counts; one account actor and one shared build slot.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanfrozen23f PR218normalmerged6e9; retainbranch/artifacts. mac-test-roots clean174 PR217normalmerged765, no actor.",
     "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",

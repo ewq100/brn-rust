@@ -387,6 +387,59 @@
       },
       "qualification": "targeted-edit-guidance-account-qualification.json",
       "diagnosis": "Reviewed guidance18 did not make this bounded scenario useful: model supplied49..61 then47..59, neither requested43..55; host refused exact mismatch both times. Exact raw supplied text not traced, so no narrower arithmetic mechanism claimed. Completed terminal is not task success."
+    },
+    {
+      "id": "0375a424-c8b0-444a-b914-b6327c9b1645",
+      "session": "2026-10-22-post-quote-repair-01",
+      "tallinn_date": "2026-10-22",
+      "reserved_at_utc": "2026-10-22T15:37:55.556818+00:00",
+      "status": "failed",
+      "scenario": "One post-PR203 current-source natural precise-edit comparison; unique quote, Unicode/multiline, proposal only; stop after one attempt regardless of outcome",
+      "provider": "Codex existing signed-in account only",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "max_session_attempts": 1,
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-22T15:37:11.680Z",
+        "used_percent": 68,
+        "remaining_percent": 32,
+        "reset_unix": 1793083360,
+        "ordinary_usage_allowed": true
+      },
+      "binary_sha256": "fdebb3ecc0331da24460542de51f32feb8dcbd6abeb5d05b4c08284412810593",
+      "binary_qualified_product_source": "4515b18c7ff58ccdc5d9642df0c91f0f14b90b38",
+      "harness_source_sha256": "3ad494381e24c9071b4e8f16bf8789973821328c2a96d5fdd51e60b5d93d4da3",
+      "launch_seal_sha256": "072476560e9f20c09cbe3c241b7309030cf8108634298b10693d8269c987b641",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-post-quote-repair-01/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-post-quote-repair-01",
+      "initial_input_utf8_bytes": 533,
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false,
+      "admission_review": "post-quote-repair-review.md",
+      "started_at_utc": "2026-10-22T15:37:55.849692+00:00",
+      "finished_at_utc": "2026-10-22T15:38:04.398167+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-post-quote-repair-01/result.json",
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-22T15:38:17.844Z",
+        "used_percent": 68,
+        "remaining_percent": 32,
+        "reset_unix": 1793083361,
+        "ordinary_usage_allowed": true
+      },
+      "account_transport_succeeded": true,
+      "task_passed": false,
+      "original_unchanged": true,
+      "sentinel_unchanged": true,
+      "no_candidates": true,
+      "quote_mode_observed": false,
+      "diagnosis": "Completed account transport, but model used invalid integer ranges44..56 and39..51 instead of new null/null exact-quote selector. No proposal; target/sentinel preserved. This does not qualify quote-mode usefulness or imply quote selector malfunction.",
+      "usage": {
+        "input": 32098,
+        "output": 313,
+        "cached_input": 22784
+      }
     }
   ],
   "session_closures": [
@@ -396,6 +449,22 @@
       "attempts": 3,
       "result": "All3 taskFAIL; dataunchanged, traceevidenceimproved; no further session launch",
       "next": "Headless exact-selector design only; no session rename to evade bound"
+    },
+    {
+      "session": "2026-10-22-post-quote-repair-01",
+      "closed_at": "2026-10-22T15:38:41.867484+00:00",
+      "attempts": 1,
+      "result": "FAIL useful task; Completed transport; two integer-range refusals, no quote-mode call/candidate; target/sentinel unchanged. One-run cap reached; no retry.",
+      "next": "Headless inspection of actually loaded maintain-notes guidance; no further live test selected."
+    }
+  ],
+  "session_admissions": [
+    {
+      "session": "2026-10-22-post-quote-repair-01",
+      "admitted_at_utc": "2026-10-22T15:37:55.556818+00:00",
+      "max_attempts": 1,
+      "basis": "Materially changed integrated PR203 exact-quote selector after old session closure; current-main product source includes subsequent TLS214 fixes. Owner22October subscription reaffirmation; no reset of prior day/session counts.",
+      "review": "post-quote-repair-review.md"
     }
   ]
 }

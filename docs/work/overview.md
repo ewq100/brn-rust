@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner action needed now. Current headless changes are verified and merged; remaining listed gates are deferred. Mac interaction waits for changed availability; original app and workspaces remain preserved.
+**Owner attention:** No owner action needed. One post-repair AI edit test failed safely; both notes unchanged. A bounded headless guidance audit is active; Mac checks remain deferred.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,7 +11,25 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 
 ## Working on
 
-None recorded.
+### Guide local AI edits away from guessed text positions
+
+Task ID: `precise-edit-selector-guidance`
+Owner: bounded Luna read-only audit; lead disposition and implementation; independent Sol review · State: **active** · Last observed: 2026-10-22T15:40:32.523856+00:00
+Activity: Selected headless audit from fresh live failure: model loaded maintain-notes and guessed two invalid byte ranges instead of using available unique-quote selection. Inspect actual parent/skill/tool guidance before choosing a repair; causal inference is not established. No additional account attempt.
+Next: Reconcile bounded guidance audit with actual source; select a minimal justified consistency/selection correction or record no actionable gap. Keep runtime prompts separate from development configuration.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Pending source audit; no runtime prompt edit yet.
+- **checks:** Fresh live failure retained; no test of guidance repair yet.
+- **integration:** No candidate or merge selected yet.
+- **native:** Owner-deferred; no native action.
+- **owner acceptance:** Not claimed.
+
+</details>
 
 ## Next
 
@@ -99,10 +117,10 @@ Waiting:
 ### Check a precise AI edit on fresh synthetic data
 
 Task ID: `targeted-edit-account-qualification`
-Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T14:58:43.201635+00:00
-Activity: Original3boundedaccountattempts remaintaskFAIL/closed00:31; nofourthlaunchorrenamedsession. Subsequentdiagnosed exact-quote selector PR203 was deterministicallyqualified andintegratede4bb65e3withall4requiredpre/postPASS; actualmainancestryreconciled. Repairsourceisverified, live usefulnessafterrepairunmeasured.
-Next: Reuse integratedPR203 anditsdeterministicqualification; do not repeatalreadycompleteddesign/review. Keepclosed-accountsessionstop. Anyfuturelivequalificationneedsaseparatelyadmittedgenuineconsolidatedsession anddistinctuseful/diagnosedscenario, ledgerreservation/bounds/quota, neverasessionrename toretry.
-Resource waits: Consolidated accounttest session exhausted3attempts; no automatic retry.
+Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T15:40:32.523856+00:00
+Activity: One genuinely new post-PR203 current-source live attempt FAIL: Completed transport, two incorrect integer ranges, no exact-quote-mode call or candidate. Target/sentinel unchanged. Newone-run sessionclosed; all4attempts today retained. PR203 deterministic/integration evidence unchanged; no quote-usefulness claim.
+Next: Keep both closed account sessions and failures. Inspect loaded shipped guidance headlessly; no new account attempt selected. Native Apply/Undo remains owner-deferred.
+Resource waits: New one-run post-repair session closed; no automatic retry.
 
 <details>
 <summary>Gate status</summary>
@@ -110,8 +128,8 @@ Resource waits: Consolidated accounttest session exhausted3attempts; no automati
 Gates:
 
 - **implementation:** PASS diagnosed unique-exact-quote selector PR203 integratedanddeterministicallyqualified; no claim that itfixedlive-modelusefulness.
-- **checks:** Original3liveaccounttaskFAIL/dataunchanged, sessionclosed; post-repairlive usefulnessunmeasured. PR203 selecteddeterministic andrequiredpre/postmaingatesPASS.
-- **integration:** PR203 repairintegratede4bb65e3withall4requiredresultingmainPASS; no successfulaccountqualificationoradditionalaccountlaunch.
+- **checks:** Live postrepair taskFAIL: Completed transport, incorrect integers44..56/39..51 refused, no candidate; original/sentinelunchanged, null/null mode unobserved. Existing PR203 deterministic/source gates remain PASS.
+- **integration:** PR203 repair integratede4bb65e3 and requiredpre/postPASS; latest tested CLI source4515b18 productpaths identicalmain6e9. No new product change from this account test.
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
@@ -119,7 +137,7 @@ Gates:
 
 Waiting:
 
-- resource: Consolidated accounttest session exhausted3attempts; no automatic retry.
+- resource: New one-run post-repair session closed; no automatic retry.
 
 ### Diagnose the database crash during simultaneous startup
 
@@ -266,4 +284,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T15:21:34.061345+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T15:40:32.523856+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
