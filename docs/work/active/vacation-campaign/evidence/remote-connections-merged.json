@@ -1,0 +1,58 @@
+{
+  "observed_at_utc": "2026-10-22 12:35:13 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "039bc02f",
+  "new_sequence": 95,
+  "operations": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "0511796603c95e51423a5dfada8c371328508389cf2f7f1d2f903e8a4b419735"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "1605b6395ae7a02467a456e628b6731c567acf16a8e23fa1cd3e66dc4e36173f"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "322342a61a59f392f483f6e4729891dc4e38f54001844f438ed57c1b5a69c99a"
+        }
+      ]
+    }
+  ],
+  "verified_blocks": 41,
+  "unmanaged_unchanged": 38,
+  "title_and_order_preserved": true,
+  "scope": "Merged PR216, resulting-main pending; exit-source investigation only. No native or account action."
+}
