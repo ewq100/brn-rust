@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:04:05.006654+00:00",
+    "observed_at": "2026-10-22T02:08:27.738980+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3098,10 +3098,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
-        "observed_at": "2026-10-22T02:04:05.006654+00:00",
+        "observed_at": "2026-10-22T02:08:27.738980+00:00",
         "origin": "observed",
-        "activity": "Third baselineb8141b57 actual1FAIL at disabled snapshot None instead of Some(true); again selected stale-summary assertion not reached. Current test execution loop is stopped at its limit. No product fix or reproduced-defect claim. Independent read-only seam/cause reassessment selected before any further build.",
-        "next_action": "Retain all failures. Independent reviewer must validate actual observed control semantics and disposition: defer current seam or provide concrete source-bound alternative before lead selects further work. No fourth baseline or production mutation admitted now.",
+        "activity": "Original run loop stopped and independent reassessment completed. Exact pending accessibility label is supported by pinned Component/Base0.7.3 and already observed in second run; disabled snapshot absence is explained. Lead separately selects one bounded alternate-seam continuation under existing hardening authority.",
+        "next_action": "Freeze exact observed-AX-label test-only correction and run one old-source baseline. Stop/defer if another harness assumption fails; if actual stale-summary/Review assertion fails, select minimal explicit-refresh result retirement and independent review.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3120,7 +3120,9 @@
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log",
-          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh"
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-seam-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-continuation-selection.md"
         ],
         "gates": {
           "implementation": "Hypothesis only; no production change selected before red observation.",
@@ -3156,7 +3158,7 @@
             ]
           }
         ],
-        "resource_plan": "Author completed. Lead stopped build/test loop after third harness failure; one independent Sol read-only reassessment of actual pinned observation semantics/source policy. No writer, sourcefix, build, native or account action."
+        "resource_plan": "Lead sole local test-only writer/build actor for independently validated alternate seam; one admitted baseline attempt. Original loop stopped, no automatic further retry. No account/native/network, hooks, new generation framework or broader snapshot-currentness promise."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

@@ -86,9 +86,9 @@ Attempts:
 
 ### Keep previous knowledge findings out of a replacement check
 
-Owner: Lead diagnosis/selection; bounded Luna test-only author first · State: **active** · Last observed: 2026-10-22T02:04:05.006654+00:00
-Activity: Third baselineb8141b57 actual1FAIL at disabled snapshot None instead of Some(true); again selected stale-summary assertion not reached. Current test execution loop is stopped at its limit. No product fix or reproduced-defect claim. Independent read-only seam/cause reassessment selected before any further build.
-Next: Retain all failures. Independent reviewer must validate actual observed control semantics and disposition: defer current seam or provide concrete source-bound alternative before lead selects further work. No fourth baseline or production mutation admitted now.
+Owner: Lead diagnosis/selection; bounded Luna test-only author first · State: **active** · Last observed: 2026-10-22T02:08:27.738980+00:00
+Activity: Original run loop stopped and independent reassessment completed. Exact pending accessibility label is supported by pinned Component/Base0.7.3 and already observed in second run; disabled snapshot absence is explained. Lead separately selects one bounded alternate-seam continuation under existing hardening authority.
+Next: Freeze exact observed-AX-label test-only correction and run one old-source baseline. Stop/defer if another harness assumption fails; if actual stale-summary/Review assertion fails, select minimal explicit-refresh result retirement and independent review.
 Depends on: queued-edit-destination-ownership when Publication only: desktop batchPR204 normally integrated and actual main reconciled; test-only reproduction may use fully qualifiedf79 now. (reported satisfied: false)
 
 <details>
@@ -102,7 +102,7 @@ Gates:
 - **native:** Actual Mac unavailable; toolkit only.
 - **owner acceptance:** No owner decision selected for bounded misleading replacement presentation.
 
-Evidence: [crates/brn-desktop/src/threads_connections.rs](../../crates/brn-desktop/src/threads_connections.rs), [crates/brn-desktop/src/threads_tiled_tests.rs](../../crates/brn-desktop/src/threads_tiled_tests.rs), [docs/work/active/vacation-campaign/connections-pending.md](active/vacation-campaign/connections-pending.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log](active/vacation-campaign/evidence/knowledge-refresh-initial-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh](active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md](active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log](active/vacation-campaign/evidence/knowledge-refresh-second-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh](active/vacation-campaign/evidence/knowledge-refresh-second-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log](active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh](active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh)
+Evidence: [crates/brn-desktop/src/threads_connections.rs](../../crates/brn-desktop/src/threads_connections.rs), [crates/brn-desktop/src/threads_tiled_tests.rs](../../crates/brn-desktop/src/threads_tiled_tests.rs), [docs/work/active/vacation-campaign/connections-pending.md](active/vacation-campaign/connections-pending.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log](active/vacation-campaign/evidence/knowledge-refresh-initial-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh](active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md](active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log](active/vacation-campaign/evidence/knowledge-refresh-second-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh](active/vacation-campaign/evidence/knowledge-refresh-second-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log](active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh](active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-seam-reassessment.md](active/vacation-campaign/evidence/knowledge-refresh-seam-reassessment.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-continuation-selection.md](active/vacation-campaign/evidence/knowledge-refresh-continuation-selection.md)
 
 Attempts:
 
@@ -348,4 +348,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:04:05.006654+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:08:27.738980+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
