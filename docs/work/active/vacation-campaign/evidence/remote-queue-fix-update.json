@@ -1,0 +1,64 @@
+{
+  "observed_at": "2026-10-22T01:31:54.268Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "333edabd",
+  "updated_at": "2026-10-22T01:31:39.611Z",
+  "edit": {
+    "new_sequence": 62,
+    "through_sequence": 62,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "f18bc7350a805c90e67b8621659415150ef91779229c62d293c592bcdb2f026c"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "8dca10d3ad7b0fecbc50a9c553d6c9886e8fcb8d1a5a0e45300db0e3cbfc61dd"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "66b4da602ff67ca7693be5300bd81326c54c4a1a767f28d58b35a8cd873faa36"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "blocks_preserved": 37,
+    "expected_replacements": 3,
+    "unchanged_text_metadata_order": "PASS",
+    "rendering": "Saved content only; no native rendering claim"
+  }
+}

@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:31:20.769041+00:00",
+    "observed_at": "2026-10-22T01:32:45.816432+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2992,6 +2992,54 @@
           }
         ],
         "resource_plan": "Sole Luna author complete; independent Sol high read-only review of complete dee..f79. Lead owns only shared Rust build slot and all integration/records. No desktop/account/nested helpers."
+      },
+      {
+        "id": "worker-progress-ownership-assessment",
+        "title": "Assess operation-scoped progress ownership",
+        "state": "active",
+        "owner": "Lead selection; bounded read-only Luna assessor",
+        "observed_at": "2026-10-22T01:32:45.816432+00:00",
+        "origin": "observed",
+        "activity": "Read-only Luna source assessment of ambient progress/stream state and Worker operations; select a bounded owner only if it simplifies real protocol or fixes a concrete reachable defect.",
+        "next_action": "Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md"
+        ],
+        "gates": {
+          "implementation": "Assessment only; no implementation selected.",
+          "checks": "No tests/builds selected for read-only assessment.",
+          "integration": "Not applicable until outcome selected.",
+          "native": "Unavailable; no access attempt.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One bounded Luna read-only helper; no writers/builds/native/account/network/nested agents. Three total actors with lead within four slots. Preserve frozen integration chain."
+      },
+      {
+        "id": "file-picker-lifecycle-assessment",
+        "title": "Check delayed file-picker completion ownership",
+        "state": "active",
+        "owner": "Lead selection; bounded read-only Luna assessor",
+        "observed_at": "2026-10-22T01:32:45.816432+00:00",
+        "origin": "observed",
+        "activity": "Read-only Luna trace of OS file-picker callbacks through conversion worker admission, cancellation and originating destination; distinguish existing captured-target guarantees and actual gaps. No native action.",
+        "next_action": "Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/workflows.md"
+        ],
+        "gates": {
+          "implementation": "Assessment only; no implementation selected.",
+          "checks": "No tests/builds selected for read-only assessment.",
+          "integration": "Not applicable until outcome selected.",
+          "native": "Unavailable; no access attempt.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One bounded Luna read-only helper; no writers/builds/native/account/network/nested agents. Three total actors with lead within four slots. Preserve frozen integration chain."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3002,13 +3050,13 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T01:10:56.376Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-quote-qualification-update.json"
+    "last_refresh_at": "2026-10-22T01:31:39.611Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-queue-fix-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:31:20.769041+00:00",
-    "runtime_capacity": "Lead only; queued-edit author/reviewer complete; no source writer. All actual four slots counted before dispatch.",
-    "build_slot": "No active Rust build; final67292 exit0. Reviewed/qualifiedf79 candidate frozen.",
+    "observed_at": "2026-10-22T01:32:45.816432+00:00",
+    "runtime_capacity": "Lead plus two bounded Luna read-only assessors, within four total slots. Prior authors/reviewer completed.",
+    "build_slot": "No active Rust build; frozenf79 qualified.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
