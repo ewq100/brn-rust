@@ -1,0 +1,60 @@
+{
+  "observed_at": "2026-10-22T01:54:39.384052+00:00",
+  "pr": {
+    "baseRefOid": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478",
+    "files": [
+      {
+        "path": "crates/brn-desktop/src/threads_chat.rs",
+        "additions": 10,
+        "deletions": 4,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-desktop/src/threads_chat_tests.rs",
+        "additions": 93,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-desktop/src/threads_ui.rs",
+        "additions": 52,
+        "deletions": 18,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-desktop/src/threads_writing.rs",
+        "additions": 3,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-desktop/src/threads_writing_tests.rs",
+        "additions": 8,
+        "deletions": 6,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "docs/architecture/threads-behavior.md",
+        "additions": 1,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "f260ca3aeed0d7d9aee020027eb6f89abb7073f6",
+    "number": 204,
+    "state": "OPEN",
+    "url": "https://github.com/ewq100/brn-rust/pull/204"
+  },
+  "qualified_candidate": "f79f6540276c00155ab3bc0d7f019f4ea5d00c9e",
+  "qualified_tree": "fa02d81c3f87285be7049b1723dccabdaefcdf33",
+  "published_tree": "fa02d81c3f87285be7049b1723dccabdaefcdf33",
+  "whole_tree_equal": true,
+  "full_batch_review": "desktop-context-batch-review.md",
+  "qualification": [
+    "queued-edit-destination-qualification.json",
+    "reference-search-owner-qualification.json"
+  ],
+  "required_head_run": 39708301538,
+  "preceding_main_run": 39708067715,
+  "limits": "Exact published-head/preceding-main and live protection gates pending before normal merge; resulting-main separate. No native/account action."
+}

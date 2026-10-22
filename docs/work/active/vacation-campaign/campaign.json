@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T01:30:13.246559+00:00",
-    "remaining_percent": 63,
-    "reset_unix": 1793083361,
-    "ordinary_work": "Admitted: actual37% used /63% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. Account test session closed separately.",
+    "observed_at": "2026-10-22T01:54:39.384052+00:00",
+    "remaining_percent": 62,
+    "reset_unix": 1793083360,
+    "ordinary_work": "Admitted: actual38% used /62% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. Account test session closed separately.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:51:51.169785+00:00",
+    "observed_at": "2026-10-22T01:54:39.384052+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2907,10 +2907,10 @@
         "title": "Assess one owner for reference-search cancellation and freshness",
         "state": "active",
         "owner": "Lead design/integration; bounded Luna author; independent Sol complete-candidate review",
-        "observed_at": "2026-10-22T01:50:14.040043+00:00",
+        "observed_at": "2026-10-22T01:54:39.384052+00:00",
         "origin": "observed",
-        "activity": "Final dee96c9e passed independent review. Broad b4 checks passed focused1, paging1, full desktop346/0/1, strict lint and ordinary native build. Final four-line assertion proves stale replies preserve replacement guard; affected test passes on dee. Production unchanged from b4; binary frozen unlaunched.",
-        "next_action": "Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.",
+        "activity": "Complete six-file28..f79 batch independently approved with no findings. Published PR204f260ca3a on actual main203e4bb65e3; whole tree equals fully qualifiedf79. Required head and preceding-main checks running.",
+        "next_action": "Keep PR204 head stable. Inspect actual required published-head/preceding-main checks and live protection before normal merge; then resulting-main separately.",
         "depends_on": [
           {
             "task": "precise-edit-unique-quote-selector",
@@ -2931,12 +2931,15 @@
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh",
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log",
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh",
-          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md"
+          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md",
+          "https://github.com/ewq100/brn-rust/pull/204",
+          "docs/work/active/vacation-campaign/evidence/pr204-publication.json"
         ],
         "gates": {
           "implementation": "PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.",
           "checks": "PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.",
-          "integration": "Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.",
+          "integration": "PR204f260ca3a published; complete-batch review and qualified whole-tree equality PASS. Required head/preceding-main pending.",
           "native": "Existing Mac availability deferral preserved",
           "owner_acceptance": "Not claimed"
         },
@@ -2948,10 +2951,10 @@
         "title": "Keep a queued-message edit attached to its original chat",
         "state": "active",
         "owner": "Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction",
-        "observed_at": "2026-10-22T01:50:14.040043+00:00",
+        "observed_at": "2026-10-22T01:54:39.384052+00:00",
         "origin": "observed",
-        "activity": "Finalf79f6540 independently approved with no actionable findings. Original cross-chat failure becomes focused1PASS; full desktop347PASS/0FAIL/1existing ignored, strict native lint, ordinary build and formatting PASS. Frozen binary retained unlaunched.",
-        "next_action": "Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.",
+        "activity": "Complete six-file28..f79 batch independently approved with no findings. Published PR204f260ca3a on actual main203e4bb65e3; whole tree equals fully qualifiedf79. Required head and preceding-main checks running.",
+        "next_action": "Keep PR204 head stable. Inspect actual required published-head/preceding-main checks and live protection before normal merge; then resulting-main separately.",
         "depends_on": [
           {
             "task": "reference-search-request-ownership",
@@ -2977,12 +2980,15 @@
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log",
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh",
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md"
+          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md",
+          "https://github.com/ewq100/brn-rust/pull/204",
+          "docs/work/active/vacation-campaign/evidence/pr204-publication.json"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review of finalf79; no unresolved findings.",
           "checks": "PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.",
-          "integration": "Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.",
+          "integration": "PR204f260ca3a published; complete-batch review and qualified whole-tree equality PASS. Required head/preceding-main pending.",
           "native": "Actual Mac access deferred",
           "owner_acceptance": "No new owner decision expected for preventing cross-chat unintended edits"
         },
@@ -3086,6 +3092,38 @@
           }
         ],
         "resource_plan": "Lead sole sharedtarget build. New release graph requires3GiB; owned runner stops below1GiB or30minute deadline. jobs1/offline/locked pin1.98.1. No helpers/build competition, network/model/dependency acquisition/provider/account/native interaction. Release test binary is qualification only, no publication/deployment."
+      },
+      {
+        "id": "knowledge-check-refresh-ownership",
+        "title": "Keep previous knowledge findings out of a replacement check",
+        "state": "active",
+        "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
+        "observed_at": "2026-10-22T01:54:39.384052+00:00",
+        "origin": "observed",
+        "activity": "Source hypothesis atf79: run_knowledge_check starts a new task and clears error but retains old result; old summary/findings/review action may remain during Checking. Existing test only exercises first check. Select a test-only extension of that existing actual-control journey before deciding any repair.",
+        "next_action": "Freeze a test-only existing-journey extension and execute once on unchanged production. Require a meaningful visible pending/refreshed-result failure; diagnose before minimal correction.",
+        "depends_on": [
+          {
+            "task": "queued-edit-destination-ownership",
+            "condition": "Publication only: desktop batchPR204 normally integrated and actual main reconciled; test-only reproduction may use fully qualifiedf79 now.",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_connections.rs",
+          "crates/brn-desktop/src/threads_tiled_tests.rs",
+          "docs/work/active/vacation-campaign/connections-pending.md"
+        ],
+        "gates": {
+          "implementation": "Hypothesis only; no production change selected before red observation.",
+          "checks": "Pending actual old-source test-only run; no native/account action.",
+          "integration": "No candidate; future source only after diagnosis, independent review and required gates.",
+          "native": "Actual Mac unavailable; toolkit only.",
+          "owner_acceptance": "No owner decision selected for bounded misleading replacement presentation."
+        },
+        "attempts": [],
+        "resource_plan": "One Luna medium sole test writer in reusable architecture-status-route atf79 new codex/knowledge-check-refresh. Preserve all original test assertions. No build/test/sourcefix/framework/newcase/network/native/account/nestedhelpers by author. Lead sole build slot. Stop on deterministic harness ambiguity."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3100,29 +3138,36 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-scale-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:51:51.169785+00:00",
-    "runtime_capacity": "Lead plus one independent consequential Sol complete-batch review; no writers/builds.",
+    "observed_at": "2026-10-22T01:54:39.384052+00:00",
+    "runtime_capacity": "Lead plus bounded Luna knowledge-refresh regression author; batch reviewer complete. Four slots respected.",
     "build_slot": "No active Rust build; strict scale5539 complete PASS. Frozenf79 combined desktop source already fully checked.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
         "kind": "Main203 workflow",
-        "run": 39708067715,
-        "sha": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478",
+        "session_id": 50991,
         "output": "/tmp/brn-main203-watch.log",
-        "state": "About to start standard readonly gh watcher; no success inferred"
+        "run": 39708067715,
+        "sha": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478"
+      },
+      {
+        "kind": "PR204 required checks",
+        "head": "f260ca3aeed0d7d9aee020027eb6f89abb7073f6",
+        "output": "/tmp/brn-pr204-required.log",
+        "session_id": 51537
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Combined desktop independent review before publication; main203 required checks before next protected merge. No local build/native/account action.",
+    "wait_reason": "PR204 head/main203 required checks before merge; independent knowledge refresh reproduction continues.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability cleanf79f6540 queued edit correction; no active writer.",
+    "worker_checkout": "export-durability clean publishedPR204f260ca3a; stable head, no writer.",
     "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
-    "documentation_worker_checkout": "architecture-status-route clean frozen dee96c9e reference request owner; fully reviewed/qualified, no writer.",
+    "documentation_worker_checkout": "architecture-status-route codex/knowledge-check-refresh from qualifiedf79, assigned only existing tiled regression extension.",
     "required_ci_runs": [
-      39708067715
+      39708067715,
+      39708301538
     ]
   },
   "native_availability": {

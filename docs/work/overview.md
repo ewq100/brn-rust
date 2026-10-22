@@ -38,9 +38,9 @@ Attempts:
 
 ### Assess one owner for reference-search cancellation and freshness
 
-Owner: Lead design/integration; bounded Luna author; independent Sol complete-candidate review · State: **active** · Last observed: 2026-10-22T01:50:14.040043+00:00
-Activity: Final dee96c9e passed independent review. Broad b4 checks passed focused1, paging1, full desktop346/0/1, strict lint and ordinary native build. Final four-line assertion proves stale replies preserve replacement guard; affected test passes on dee. Production unchanged from b4; binary frozen unlaunched.
-Next: Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.
+Owner: Lead design/integration; bounded Luna author; independent Sol complete-candidate review · State: **active** · Last observed: 2026-10-22T01:54:39.384052+00:00
+Activity: Complete six-file28..f79 batch independently approved with no findings. Published PR204f260ca3a on actual main203e4bb65e3; whole tree equals fully qualifiedf79. Required head and preceding-main checks running.
+Next: Keep PR204 head stable. Inspect actual required published-head/preceding-main checks and live protection before normal merge; then resulting-main separately.
 Depends on: precise-edit-unique-quote-selector when Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks. (reported satisfied: true)
 
 <details>
@@ -50,19 +50,19 @@ Gates:
 
 - **implementation:** PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.
 - **checks:** PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.
-- **integration:** Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.
+- **integration:** PR204f260ca3a published; complete-batch review and qualified whole-tree equality PASS. Required head/preceding-main pending.
 - **native:** Existing Mac availability deferral preserved
 - **owner acceptance:** Not claimed
 
-Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacation-campaign/reference-search.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md](active/vacation-campaign/evidence/reference-search-owner-assessment.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md](active/vacation-campaign/evidence/reference-search-owner-implementation.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-review.md](active/vacation-campaign/evidence/reference-search-owner-review.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-qualification.json](active/vacation-campaign/evidence/reference-search-owner-qualification.json), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log](active/vacation-campaign/evidence/reference-search-owner-b4-final.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh](active/vacation-campaign/evidence/reference-search-owner-b4-final.sh), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log](active/vacation-campaign/evidence/reference-search-owner-final-focused.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh](active/vacation-campaign/evidence/reference-search-owner-final-focused.sh), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md)
+Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacation-campaign/reference-search.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md](active/vacation-campaign/evidence/reference-search-owner-assessment.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md](active/vacation-campaign/evidence/reference-search-owner-implementation.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-review.md](active/vacation-campaign/evidence/reference-search-owner-review.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-qualification.json](active/vacation-campaign/evidence/reference-search-owner-qualification.json), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log](active/vacation-campaign/evidence/reference-search-owner-b4-final.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh](active/vacation-campaign/evidence/reference-search-owner-b4-final.sh), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log](active/vacation-campaign/evidence/reference-search-owner-final-focused.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh](active/vacation-campaign/evidence/reference-search-owner-final-focused.sh), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md), [docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md](active/vacation-campaign/evidence/desktop-context-batch-review.md), [https://github.com/ewq100/brn-rust/pull/204](https://github.com/ewq100/brn-rust/pull/204), [docs/work/active/vacation-campaign/evidence/pr204-publication.json](active/vacation-campaign/evidence/pr204-publication.json)
 
 </details>
 
 ### Keep a queued-message edit attached to its original chat
 
-Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T01:50:14.040043+00:00
-Activity: Finalf79f6540 independently approved with no actionable findings. Original cross-chat failure becomes focused1PASS; full desktop347PASS/0FAIL/1existing ignored, strict native lint, ordinary build and formatting PASS. Frozen binary retained unlaunched.
-Next: Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.
+Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T01:54:39.384052+00:00
+Activity: Complete six-file28..f79 batch independently approved with no findings. Published PR204f260ca3a on actual main203e4bb65e3; whole tree equals fully qualifiedf79. Required head and preceding-main checks running.
+Next: Keep PR204 head stable. Inspect actual required published-head/preceding-main checks and live protection before normal merge; then resulting-main separately.
 Depends on: reference-search-request-ownership when Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required. (reported satisfied: true)
 
 <details>
@@ -72,15 +72,37 @@ Gates:
 
 - **implementation:** PASS complete independent Sol review of finalf79; no unresolved findings.
 - **checks:** PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.
-- **integration:** Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.
+- **integration:** PR204f260ca3a published; complete-batch review and qualified whole-tree equality PASS. Required head/preceding-main pending.
 - **native:** Actual Mac access deferred
 - **owner acceptance:** No new owner decision expected for preventing cross-chat unintended edits
 
-Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-regression.md](active/vacation-campaign/evidence/queued-edit-destination-regression.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-design.md](active/vacation-campaign/evidence/queued-edit-destination-design.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-implementation.md](active/vacation-campaign/evidence/queued-edit-destination-implementation.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-review.md](active/vacation-campaign/evidence/queued-edit-destination-review.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.log](active/vacation-campaign/evidence/queued-edit-destination-green.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh](active/vacation-campaign/evidence/queued-edit-destination-green.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log](active/vacation-campaign/evidence/queued-edit-destination-final.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh](active/vacation-campaign/evidence/queued-edit-destination-final.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json](active/vacation-campaign/evidence/queued-edit-destination-qualification.json), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md)
+Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-regression.md](active/vacation-campaign/evidence/queued-edit-destination-regression.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-design.md](active/vacation-campaign/evidence/queued-edit-destination-design.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-implementation.md](active/vacation-campaign/evidence/queued-edit-destination-implementation.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-review.md](active/vacation-campaign/evidence/queued-edit-destination-review.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.log](active/vacation-campaign/evidence/queued-edit-destination-green.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh](active/vacation-campaign/evidence/queued-edit-destination-green.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log](active/vacation-campaign/evidence/queued-edit-destination-final.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh](active/vacation-campaign/evidence/queued-edit-destination-final.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json](active/vacation-campaign/evidence/queued-edit-destination-qualification.json), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md), [docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md](active/vacation-campaign/evidence/desktop-context-batch-review.md), [https://github.com/ewq100/brn-rust/pull/204](https://github.com/ewq100/brn-rust/pull/204), [docs/work/active/vacation-campaign/evidence/pr204-publication.json](active/vacation-campaign/evidence/pr204-publication.json)
 
 Attempts:
 
 - Old-source97fa29c2 actual1test failed: queued A Original A message became B independent message;347other cases filtered, no account/provider calls.: Select immutable captured item+thread UI intent and one current-chat resolver; independent sends retain original edit. No canonical/queue policy change. ([docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh))
+
+</details>
+
+### Keep previous knowledge findings out of a replacement check
+
+Owner: Lead diagnosis/selection; bounded Luna test-only author first · State: **active** · Last observed: 2026-10-22T01:54:39.384052+00:00
+Activity: Source hypothesis atf79: run_knowledge_check starts a new task and clears error but retains old result; old summary/findings/review action may remain during Checking. Existing test only exercises first check. Select a test-only extension of that existing actual-control journey before deciding any repair.
+Next: Freeze a test-only existing-journey extension and execute once on unchanged production. Require a meaningful visible pending/refreshed-result failure; diagnose before minimal correction.
+Depends on: queued-edit-destination-ownership when Publication only: desktop batchPR204 normally integrated and actual main reconciled; test-only reproduction may use fully qualifiedf79 now. (reported satisfied: false)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Hypothesis only; no production change selected before red observation.
+- **checks:** Pending actual old-source test-only run; no native/account action.
+- **integration:** No candidate; future source only after diagnosis, independent review and required gates.
+- **native:** Actual Mac unavailable; toolkit only.
+- **owner acceptance:** No owner decision selected for bounded misleading replacement presentation.
+
+Evidence: [crates/brn-desktop/src/threads_connections.rs](../../crates/brn-desktop/src/threads_connections.rs), [crates/brn-desktop/src/threads_tiled_tests.rs](../../crates/brn-desktop/src/threads_tiled_tests.rs), [docs/work/active/vacation-campaign/connections-pending.md](active/vacation-campaign/connections-pending.md)
 
 </details>
 
@@ -304,6 +326,7 @@ graph TD
   t74["Prepare exact edits from one unique quoted passage"]
   t75["Assess one owner for reference-search cancellation and freshness"]
   t76["Keep a queued-message edit attached to its original chat"]
+  t80["Keep previous knowledge findings out of a replacement check"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -314,8 +337,9 @@ graph TD
   t68 -->|Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (satisfied)| t69
   t74 -->|Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks. (satisfied)| t75
   t75 -->|Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required. (satisfied)| t76
+  t76 -->|Publication only: desktop batchPR204 normally integrated and actual main reconciled; test-only reproduction may use fully qualifiedf79 now. (not satisfied)| t80
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T01:51:51.169785+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T01:54:39.384052+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
