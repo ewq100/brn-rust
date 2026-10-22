@@ -890,6 +890,7 @@ impl ThreadsUi {
                                     |view, window, cx| {
                                         view.choose_import(
                                             ImportIntent::UsefulInformation,
+                                            None,
                                             window,
                                             cx,
                                         )
@@ -902,7 +903,7 @@ impl ThreadsUi {
                                     busy,
                                     false,
                                     |view, window, cx| {
-                                        view.choose_import(ImportIntent::FullNote, window, cx)
+                                        view.choose_import(ImportIntent::FullNote, None, window, cx)
                                     },
                                 ))
                             }),

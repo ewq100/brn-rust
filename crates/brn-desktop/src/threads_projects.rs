@@ -198,8 +198,12 @@ impl ThreadsUi {
                     busy,
                     false,
                     move |view, window, cx| {
-                        view.attaching_chat = Some(import.clone());
-                        view.choose_import(ImportIntent::FullNote, window, cx);
+                        view.choose_import(
+                            ImportIntent::FullNote,
+                            Some(import.clone()),
+                            window,
+                            cx,
+                        );
                     },
                 ))
                 .item(item(
