@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-22T01:04:06.932608+00:00",
+  "candidate": "28fd581ea8451ecd95d899248132b62c8f890d03",
+  "base": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "tree": "23db40d9d03161b26af94f4c57c7202440d1a560",
+  "worktree_clean": true,
+  "toolchain": "1.98.1-aarch64-apple-darwin",
+  "fresh_tmpdir": "/private/tmp/brn-quote-selector-qualification/final-tmp",
+  "results": {
+    "focused_note_edit": {
+      "passed": 17,
+      "failed": 0,
+      "includes": "All3 scripted HTTP provider formats through actual registered tool"
+    },
+    "actual_research_overlap": {
+      "passed": 1,
+      "failed": 0
+    },
+    "scripted_runtime_library": {
+      "passed": 531,
+      "failed": 0,
+      "ignored": 2
+    },
+    "strict_all_target_ai_cli_clippy_scripted": "PASS",
+    "strict_all_target_ai_cli_clippy_default": "PASS",
+    "cli_guide_identity_and_scope_reuse": {
+      "passed": 1,
+      "failed": 0
+    },
+    "ordinary_cli_build": "PASS",
+    "formatter_whitespace": "PASS",
+    "source_checkout_markdown_links": {
+      "files": 625,
+      "local_links": 2850,
+      "failures": 0
+    }
+  },
+  "ignored": [
+    "provider_formats_tests::provider_stderr_tests::provider_stderr_child: parent launches isolated synthetic stderr fixture",
+    "threads::int_d_tests::capture_runner::manual_one_start_prepare_diagnostic: future principal activation/preflight required; no permission from --ignored"
+  ],
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-precise-edit-quote-28fd581e/brn",
+    "sha256": "242b141ce518f0ff87d58f7e36b3250269c344211d1552a3d96206cfc62e5f7d",
+    "account_launched": false
+  },
+  "raw_log_sha256": "06ba95a36f6d75cab5f1de6e87577e24e4fa1c10b8a5dd4d61e26692e11f92c8",
+  "script_sha256": "e3b4acfbe42f45a127562f8b758b8a7afd123ef681b5ba9a0ec01fb0eb3b38d1",
+  "limits": [
+    "Scripted HTTP/SDK formats and deterministic behavior only, no new live service/model usefulness claim.",
+    "All3 existing account attempts failed; closed consolidated session not reopened.",
+    "No native/IME/accessibility/owner acceptance; native availability deferred.",
+    "Hosted exact-head/resulting-main required checks and normal integration pending.",
+    "Initiale4/82compile and corrected test failure retained separately; no guard relaxed."
+  ]
+}

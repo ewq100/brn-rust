@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-10-22T01:06:47.193189+00:00",
+  "pr": {
+    "baseRefOid": "951c54274d5c6dc7edf0629fbe7ace9480a14125",
+    "files": [
+      {
+        "path": "crates/brn-ai/src/threads_trace.rs",
+        "additions": 140,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "0c1b2f093379cdae65a6b6363b344d3e1c3d1648",
+    "number": 202,
+    "state": "OPEN",
+    "url": "https://github.com/ewq100/brn-rust/pull/202"
+  },
+  "qualified_candidate": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "qualified_tree": "0a72e02e10211c44f1d9fae1d029c0d25a5b8728",
+  "published_tree": "0a72e02e10211c44f1d9fae1d029c0d25a5b8728",
+  "whole_tree_equal": true,
+  "qualification": "precise-edit-trace-qualification.json",
+  "required_head_run": 39703476677,
+  "preceding_main_run": 39703409071,
+  "limits": "Exact-head/live protection and preceding-main required checks pending before separate normal merge; resulting-main separate."
+}

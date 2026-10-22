@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T01:03:40.489520+00:00",
+  "pr": {
+    "headRefOid": "787ffbec3ca6362b9728810a628e2958f8a35e3f",
+    "mergeCommit": {
+      "oid": "951c54274d5c6dc7edf0629fbe7ace9480a14125"
+    },
+    "mergedAt": "2026-10-22T01:03:10Z",
+    "state": "MERGED"
+  },
+  "merge_strategy": "Normal protected merge with exact head; no bypass/admin/force",
+  "qualified_candidate": "2ecf634d7de93fbf7381317168109b6d199531e4",
+  "merged_main": "951c54274d5c6dc7edf0629fbe7ace9480a14125",
+  "qualified_tree": "ad176b75b0ef839ec052f4bf21010f139ab9203d",
+  "merged_tree": "ad176b75b0ef839ec052f4bf21010f139ab9203d",
+  "whole_tree_equal": true,
+  "premerge_receipt": "pr201-premerge.json",
+  "resulting_main": "pending actual required checks separately",
+  "limits": "Actual native interaction and owner acceptance deferred"
+}

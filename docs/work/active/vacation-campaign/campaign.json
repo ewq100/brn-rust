@@ -2511,10 +2511,10 @@
         "title": "Assess explicit destination ownership for file imports",
         "state": "active",
         "owner": "lead bounded design; economical implementation and independent review only if selected",
-        "activity": "Published PR201 head787ffbec has passed all four required checks. Three required checks passed on preceding main200; its final Ubuntu check is still running.",
-        "observed_at": "2026-10-22T01:02:05.121016+00:00",
+        "activity": "PR201 merged normally as951c5427 after independent review and all four required head/preceding-main checks. Merged tree equals qualified2ecf634d; resulting-main39703409071 checks are running.",
+        "observed_at": "2026-10-22T01:06:47.213256+00:00",
         "origin": "observed",
-        "next_action": "Wait for the actual preceding-main200 final required result; then inspect live protection/exact heads and perform a separate normal merge. Verify resulting-main201 separately.",
+        "next_action": "Inspect all four required checks on resulting main951c5427. Native picker interaction remains deferred; no new UX claim.",
         "depends_on": [
           {
             "task": "run-continuation-ownership",
@@ -2535,12 +2535,14 @@
           "docs/work/active/vacation-campaign/evidence/import-target-final.log",
           "docs/work/active/vacation-campaign/evidence/import-target-final.sh",
           "https://github.com/ewq100/brn-rust/pull/201",
-          "docs/work/active/vacation-campaign/evidence/pr201-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr201-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr201-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr201-integration.json"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review exact2ecf634d; no actionable findings.",
           "checks": "PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.",
-          "integration": "PR201 published787ffbec on mainfc49, qualified whole-tree equal; all four required head checks PASS, preceding-main Ubuntu pending.",
+          "integration": "Normal protected merge951c5427; qualified whole-tree equality and head/preceding-main PASS. Resulting-main required checks pending.",
           "native": "Existing actual Mac gate deferred; no native claim.",
           "owner_acceptance": "Not claimed."
         },
@@ -2608,12 +2610,12 @@
       {
         "id": "run-continuation-ownership",
         "title": "Keep Stop and send continuation attached to its Run",
-        "state": "active",
+        "state": "complete",
         "owner": "lead design/integration; bounded Luna author; consequential independent Sol review",
-        "activity": "PR200 normallymergedfc49e3b0 after all4required head and actualprecedingmain checks plusliveprotectionPASS. Wholemergedtree equals qualifiedbd60131d. Resultingmain39700729291pending.",
-        "observed_at": "2026-10-22T00:38:02.629178+00:00",
+        "activity": "PR200 merged normally as fc49e3b0. All four required checks passed on the exact published head, preceding main and actual resulting main. Merged tree equals independently reviewed/locally qualified bd60131d.",
+        "observed_at": "2026-10-22T01:06:47.213256+00:00",
         "origin": "observed",
-        "next_action": "Inspect all4required actualresultingmainfc49e3b0 checks before downstreamnormalmerge. Continue publishedimportPR201 and exactquotedeterministicdesign independently.",
+        "next_action": "Use the invocation-owned continuation and existing regression witnesses; broader Run presentation/queue ownership and native observation remain separate.",
         "depends_on": [
           {
             "task": "run-coordination-state-ownership",
@@ -2635,12 +2637,13 @@
           "https://github.com/ewq100/brn-rust/pull/200",
           "docs/work/active/vacation-campaign/evidence/pr200-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr200-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr200-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr200-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr200-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review of exactbd60131d, no actionable findings.",
           "checks": "PASS focusedWorker8, steering23, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace. Binary frozen unlaunched.",
-          "integration": "Normalprotectedmergefc49e3b0; qualifiedtreeequal and head/precedingmainPASS; resultingmain39700729291pending",
+          "integration": "PASS normal protected mergefc49e3b0, qualified whole-tree equality and all four required resulting-main checks.",
           "native": "Actual interaction deferred under owner unavailable instruction.",
           "owner_acceptance": "Not claimed."
         },
@@ -2716,10 +2719,10 @@
         "title": "Make precise-edit rejections diagnosable without exposing note text",
         "state": "active",
         "owner": "lead design/integration; bounded Luna author; independent Sol review",
-        "activity": "Finalreviewedc4f0e2e6 passes focusedtrace3, fullruntime494/0/1existingignored, strictalltargetlint, ordinaryCLIbuild, fmt. DiagnosticCLI frozen25008339; no editing or prompt semantics changed.",
-        "observed_at": "2026-10-22T00:15:48.709578+00:00",
+        "activity": "Published separate PR202 at0c1b2f09 on actual main201951c5427. Whole tree equals reviewed/qualified c4f0e2e6; diff is only the trace file. Required head and preceding-main checks are running.",
+        "observed_at": "2026-10-22T01:06:47.213256+00:00",
         "origin": "observed",
-        "next_action": "Publish separate qualified tracecandidate only after prior statechain integrated/currentmainreconciled. Its completed diagnostic confirmed exactwrongrange refusal; guidancecorrection and any third bounded live test are separate selected tasks.",
+        "next_action": "Wait for required exact-head202 and actual preceding-main201 results, inspect live protection, then normal merge. Verify resulting main separately. No more account calls in the closed session.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2731,12 +2734,14 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log",
           "docs/work/active/vacation-campaign/evidence/precise-edit-trace-qualification.json",
           "docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.log",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh",
+          "https://github.com/ewq100/brn-rust/pull/202",
+          "docs/work/active/vacation-campaign/evidence/pr202-publication.json"
         ],
         "gates": {
           "implementation": "PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.",
           "checks": "PASS finalc4 focusedtrace3, runtime494/0/1, strictalltargetlint, ordinaryCLIbuild, fmt/whitespace; frozenCLI25008339.",
-          "integration": "Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.",
+          "integration": "PR202 published0c1b2f09; qualified whole-tree equality PASS. Head/preceding-main required checks pending.",
           "native": "Inapplicable to trace metadata; actual Mac deferred.",
           "owner_acceptance": "Not claimed."
         },
@@ -2828,10 +2833,10 @@
         "title": "Prepare exact edits from one unique quoted passage",
         "state": "active",
         "owner": "Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review",
-        "activity": "Frozen28fd581e complete independent Sol reviewPASS, both prior P2s fixed. Actual focused17/0 plus researchcaller1/0PASS; includes null/null production dispatch through3simulatedHTTPproviderformats. Fullscripted runtime, strictlint, CLIguidecache/build gates running in sole slot.",
-        "observed_at": "2026-10-22T01:00:43.783991+00:00",
+        "activity": "Candidate28fd581e passed complete independent Sol review and final deterministic checks: focused17, research overlap1, full scripted runtime531, strict AI/CLI lint in both configurations, CLI guide identity1, ordinary CLI build, formatting and links. Two existing ignored tests retained; frozen CLI242b141c has not been launched against an account.",
+        "observed_at": "2026-10-22T01:06:47.213256+00:00",
         "origin": "observed",
-        "next_action": "Finish final28 qualification, preserve original failures and limits, then publish one separate reviewed candidate after predecessor trace/currentmain reconciled. Actual account usefulness unmeasured; closed account session not reopened.",
+        "next_action": "Keep frozen reviewed candidate while prior trace PR202 integrates. Then reconcile actual main, publish a separate exact-quote PR with applicable required checks. Real-model usefulness remains unmeasured.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2849,11 +2854,15 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final-review.md",
           "docs/work/active/vacation-campaign/evidence/quote-http-implementation.md",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.log",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.sh",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md"
         ],
         "gates": {
           "implementation": "PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.",
-          "checks": "PASS focused17/0 including3HTTPformats and actualresearch1/0; finalscriptedfullruntime/lint/CLI/build/fmt/links running, no broad pass claimed.",
+          "checks": "PASS focused17/0, actual research1/0, scripted runtime531/0/2existing ignored, strict default+scripted all-target AI/CLI lint, CLI identity1/0, ordinary CLI build, formatting and625files2850links.",
           "integration": "pending separate reviewed candidate if selected; no new account authority",
           "native": "actual Mac deferred",
           "owner_acceptance": "not claimed"
@@ -2885,6 +2894,40 @@
         ],
         "resource_plan": "Lead owns test corrections/source and sole shared build slot after two compile failures; independent Sol final review remains required. One bounded Luna read-only HTTP seam assessment complete, no live calls or additional harness. Actual runtime4slots; no concurrent source writers. Final full gates after source settles; reassess new failure before retry.",
         "design": "Accepted explicit null/null unique-current-exact-quote extension, unchanged legacy integer path/no fallback, private runtime locator, required-null DTO enforcement, old binding/replay proof and bundle19/current19-prior17 coherence. Full authoritative design and review conditions are linked evidence; no account calls selected."
+      },
+      {
+        "id": "reference-search-request-ownership",
+        "title": "Assess one owner for reference-search cancellation and freshness",
+        "state": "active",
+        "owner": "Lead design/integration; bounded Luna author; independent Sol complete-candidate review",
+        "observed_at": "2026-10-22T01:09:40.218369+00:00",
+        "origin": "observed",
+        "activity": "Sole Luna author froze b4b441a3 against qualified28fd581e. Only UI private request owner/callers and existing writing test access changed. Independent consequential Sol complete-candidate review and lead serialized focused/paging/full desktop gates now running.",
+        "next_action": "Disposition actual review/check results before publication. Preserve stale replacement guard, hidden pending retirement and displayed-only publication; no native/account claims.",
+        "depends_on": [
+          {
+            "task": "precise-edit-unique-quote-selector",
+            "condition": "Publication only: prior quote/trace chain integrated and actual main reconciled; independent implementation/checks may use qualified28 now.",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/reference-search.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_search.rs",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md"
+        ],
+        "gates": {
+          "implementation": "Candidate b4b441a3 implemented; independent review running.",
+          "checks": "Final source-bound pipeline running; no pass yet.",
+          "integration": "Inapplicable until implementation selected",
+          "native": "Existing Mac availability deferral preserved",
+          "owner_acceptance": "Not claimed"
+        },
+        "resource_plan": "One requested Luna medium sole author in reusable architecture-status-route checkout, new codex/reference-search-request-owner branch at qualified28fd581e. Scope ui private owner/callers and existing writing tests only. Lead owns sole shared builds and records; independent consequential Sol review after final candidate. No account/native/network/newdependencies/newpublicAPI/genericframework/nested helpers. Stop/reassess after two failures or behavior ambiguity. Other candidates/checkouts frozen.",
+        "attempts": []
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2899,38 +2942,38 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-run-state-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:00:43.783991+00:00",
-    "runtime_capacity": "Lead active; source author and consequential final28 independent review complete; no active helper writers.",
-    "build_slot": "Lead sole build: final28 fullscriptedruntime/lint/CLI pipeline session9765, /tmp/brn-quote-selector-qualification/final.log.",
+    "observed_at": "2026-10-22T01:09:40.218369+00:00",
+    "runtime_capacity": "Lead plus one fresh Sol high independent reference-search reviewer; Luna author complete.",
+    "build_slot": "Sole lead build: reference-search b4b441a3 focused/paging/full native-state/lint/ordinarybuild pipeline active.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
-        "kind": "PR201 requiredchecks",
-        "pid": 29853,
-        "session_id": 55448,
-        "output": "/tmp/brn-pr201-required.log",
-        "head": "787ffbec3ca6362b9728810a628e2958f8a35e3f"
+        "kind": "PR202 required checks",
+        "pid": 34551,
+        "session_id": 45468,
+        "output": "/tmp/brn-pr202-required.log",
+        "head": "0c1b2f093379cdae65a6b6363b344d3e1c3d1648"
       },
       {
-        "kind": "Main200 workflow",
-        "pid": 29852,
-        "session_id": 1122,
-        "output": "/tmp/brn-main200-watch.log",
-        "run": 39700729291,
-        "sha": "fc49e3b004845c941423332b42cfe31ee7a64fc5"
+        "kind": "Main201 workflow",
+        "pid": 34572,
+        "session_id": 67682,
+        "output": "/tmp/brn-main201-watch.log",
+        "run": 39703409071,
+        "sha": "951c54274d5c6dc7edf0629fbe7ace9480a14125"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR201 required head checks pass; final required main200 Ubuntu lane pending. Final exact-quote deterministic qualification runs independently.",
+    "wait_reason": "PR202 head and preceding-main201 required checks; independent reference-search ownership assessment active.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean frozen28fd581e, no source writer; final gates running.",
-    "fixture_worker_checkout": "mac-test-roots clean frozen eac295b1; temporary golden fixture restored and raw capture retained.",
-    "documentation_worker_checkout": "architecture-status-route clean frozen PR201head787ffbec, qualified2ec whole-treeequal.",
+    "worker_checkout": "export-durability clean frozen28fd581e, fully locally qualified quote candidate.",
+    "fixture_worker_checkout": "mac-test-roots clean published trace PR202 head0c1b2f09; failed guidance-only branch eac retained.",
+    "documentation_worker_checkout": "architecture-status-route clean frozen b4b441a3 on codex/reference-search-request-owner; prior import source branch retained.",
     "required_ci_runs": [
-      39700729291,
-      39700813308
+      39703409071,
+      39703476677
     ]
   },
   "native_availability": {
