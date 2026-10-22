@@ -1,0 +1,23 @@
+{
+  "candidate": "234956cb171beb025acb1dc17b41be98992bddf0",
+  "lock_sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+  "all_selected_passed": true,
+  "workspace": {
+    "passed": 1331,
+    "failed": 0,
+    "ignored": 6
+  },
+  "capability": {
+    "passed": 503,
+    "failed": 0,
+    "ignored": 1
+  },
+  "native_retrieval": {
+    "passed": 37,
+    "failed": 0,
+    "ignored": 0
+  },
+  "limits": "Synthetic offline suites, normal/combined consumer compilation; no live provider/account/model/GUI or exploit test. Original003optional-link failure remains preserved. Yanked checks and final audit pending; native warning block0.1.6 remains separately recorded.",
+  "seconds": 717.0938139997888,
+  "observed_at": "2026-10-22T10:39:45.088408+00:00"
+}

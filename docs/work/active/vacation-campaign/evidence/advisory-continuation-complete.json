@@ -1,0 +1,185 @@
+{
+  "observed_at": "2026-10-22T10:42:17.133082+00:00",
+  "status": "complete",
+  "seconds": 3.671,
+  "adapter_sha256": "c5028e34da4aa31249a31f8a79a3b603c703245093259d814e0f16cbc9216d4c",
+  "config_sha256": "da95fa53e685ee0df8b06e4e754714538599044b3619177d3dd4d185cabb2d91",
+  "receipt_sha256": "4d3160e1f26526cc7c9cb6d5457fa1bec08cbaabeb06b262f11cf3d9290a586d",
+  "command_count": 44,
+  "all_groups_absent_and_leaders_reaped": true,
+  "source_inputs": [
+    {
+      "bytes": 249738,
+      "checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+      "git_blob_sha1": "8b2f9ff50152767f2fc162973af932593ff992da",
+      "git_mode": "100644",
+      "head_observed": "234956cb171beb025acb1dc17b41be98992bddf0",
+      "label": "final-expanded-root",
+      "lock_path": "Cargo.lock",
+      "package_count": 943,
+      "sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+      "snapshot_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/locks/final-expanded-root.Cargo.lock",
+      "snapshot_source": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust/Cargo.lock",
+      "status_clean_for_path": true
+    },
+    {
+      "bytes": 97318,
+      "checkout": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "git_blob_sha1": "f482b224ac8263f804eadae03376c5f862b3796c",
+      "git_mode": "100644",
+      "head_observed": "3d12de74c6453aa4ceec6a428c0b1958668907f9",
+      "label": "stock-helper-lock",
+      "lock_path": "tools/xberg-intake-helper/Cargo.lock",
+      "package_count": 409,
+      "sha256": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+      "snapshot_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/locks/stock-helper-lock.Cargo.lock",
+      "snapshot_source": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/tools/xberg-intake-helper/Cargo.lock",
+      "status_clean_for_path": true
+    },
+    {
+      "bytes": 97175,
+      "checkout": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "git_blob_sha1": "d7e784ae4c726b3ec1d58e0d43c7bd66a96f4fa2",
+      "git_mode": "100644",
+      "head_observed": "3d12de74c6453aa4ceec6a428c0b1958668907f9",
+      "label": "adapted-helper-lock",
+      "lock_path": "tools/xberg-intake-helper/adapted.Cargo.lock",
+      "package_count": 409,
+      "sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+      "snapshot_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/locks/adapted-helper-lock.Cargo.lock",
+      "snapshot_source": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/tools/xberg-intake-helper/adapted.Cargo.lock",
+      "status_clean_for_path": true
+    }
+  ],
+  "scans": [
+    {
+      "advisory_count": 1348,
+      "database_head_external": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+      "dependency_count": 943,
+      "input_label": "final-expanded-root",
+      "input_sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+      "name": "audit-final-expanded-root",
+      "parsed_json_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/commands/audit-final-expanded-root.parsed.json",
+      "report_last_commit": null,
+      "report_last_updated": null,
+      "return_code": 0,
+      "settings": {
+        "ignore": [],
+        "informational_warnings": [
+          "unmaintained",
+          "unsound",
+          "notice"
+        ],
+        "severity": null,
+        "target_arch": [],
+        "target_os": []
+      },
+      "stderr_bytes": 0,
+      "vulnerabilities": [],
+      "vulnerabilities_found": false,
+      "vulnerability_count": 0,
+      "warning_counts": {
+        "unmaintained": 8
+      }
+    },
+    {
+      "advisory_count": 1348,
+      "database_head_external": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+      "dependency_count": 409,
+      "input_label": "stock-helper-lock",
+      "input_sha256": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+      "name": "audit-stock-helper-lock",
+      "parsed_json_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/commands/audit-stock-helper-lock.parsed.json",
+      "report_last_commit": null,
+      "report_last_updated": null,
+      "return_code": 1,
+      "settings": {
+        "ignore": [],
+        "informational_warnings": [
+          "unmaintained",
+          "unsound",
+          "notice"
+        ],
+        "severity": null,
+        "target_arch": [],
+        "target_os": []
+      },
+      "stderr_bytes": 0,
+      "vulnerabilities": [
+        {
+          "id": "RUSTSEC-2026-0367",
+          "package": "zip",
+          "version": "8.6.0"
+        },
+        {
+          "id": "RUSTSEC-2026-0368",
+          "package": "zip",
+          "version": "8.6.0"
+        },
+        {
+          "id": "RUSTSEC-2026-0369",
+          "package": "zip",
+          "version": "8.6.0"
+        }
+      ],
+      "vulnerabilities_found": true,
+      "vulnerability_count": 3,
+      "warning_counts": {
+        "unmaintained": 1
+      }
+    },
+    {
+      "advisory_count": 1348,
+      "database_head_external": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+      "dependency_count": 409,
+      "input_label": "adapted-helper-lock",
+      "input_sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+      "name": "audit-adapted-helper-lock",
+      "parsed_json_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation-source-proof-corrected/commands/audit-adapted-helper-lock.parsed.json",
+      "report_last_commit": null,
+      "report_last_updated": null,
+      "return_code": 1,
+      "settings": {
+        "ignore": [],
+        "informational_warnings": [
+          "unmaintained",
+          "unsound",
+          "notice"
+        ],
+        "severity": null,
+        "target_arch": [],
+        "target_os": []
+      },
+      "stderr_bytes": 0,
+      "vulnerabilities": [
+        {
+          "id": "RUSTSEC-2026-0367",
+          "package": "zip",
+          "version": "8.6.0"
+        },
+        {
+          "id": "RUSTSEC-2026-0368",
+          "package": "zip",
+          "version": "8.6.0"
+        },
+        {
+          "id": "RUSTSEC-2026-0369",
+          "package": "zip",
+          "version": "8.6.0"
+        }
+      ],
+      "vulnerabilities_found": true,
+      "vulnerability_count": 3,
+      "warning_counts": {
+        "unmaintained": 1
+      }
+    }
+  ],
+  "postchecks": {
+    "old_003_snapshot_preserved_unscanned": true,
+    "shared_default_db_head_after": "7eebec69c352c7191b1f13eb95dd510eeca5d1de",
+    "shared_default_db_head_unchanged": true,
+    "source_lock_hashes_unchanged": true
+  },
+  "limits": "FrozenRustSecDB59ef7abf8ce56ea80fe7eba97ba3835449009fa4,1349files/1348parsedadvisories; no-fetch/no-yanked, noignore/target/severityfilter. Tool0.22.2; nullCLIcommitmetadata expected and bound externally. Lockmatches not runtimeexposure/exploitproof; originalbaseline reused,003unscanned. Alloriginalfailedpackets unchanged."
+}

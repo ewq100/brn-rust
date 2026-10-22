@@ -28,7 +28,7 @@
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
     "quota": "See admission observation; no purchases/reset credits.",
-    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
+    "wake": "Repeated same-chat heartbeat delivery observed19\u201320October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -58,7 +58,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
-    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T10:24:57.471484+00:00",
-    "remaining_percent": 43,
+    "observed_at": "2026-10-22T10:35:49+00:00",
+    "remaining_percent": 42,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual57%used/43%remaining, ordinaryUsageAllowed=true; secondary unavailable. Ordinaryheadless maintenance admitted; native deferral/accountclosure/expiry unchanged.",
+    "ordinary_work": "Actual58%used/42%remaining, ordinaryUsageAllowed=true; secondary unavailable. Ordinary headless maintenance admitted; native deferral/account closure/expiry unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T10:28:11.977147+00:00",
+    "observed_at": "2026-10-22T10:43:24.586018+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -176,7 +176,7 @@
           "https://github.com/ewq100/brn-rust/pull/176"
         ],
         "gates": {
-          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
+          "implementation": "complete; final writing.rs SHA b14e8bc9\u2026932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
           "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
@@ -299,7 +299,7 @@
           "docs/work/active/agent-first-simplification/reconciliation.md"
         ],
         "gates": {
-          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
+          "implementation": "merged in earlier campaign PR163\u2013174; per-slice identities retained in receipts",
           "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
           "integration": "verified per dated integration receipt; no whole-program completion claim",
           "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
@@ -431,7 +431,7 @@
         ],
         "gates": {
           "implementation": "inapplicable: exercising existing test and public routes; no source change selected",
-          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes",
+          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6\u21927 with Runs1\u21922, unchanged owner Message and source bytes",
           "integration": "inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen",
           "native": "headless toolkit only; actual OS interaction not exercised",
           "owner_acceptance": "not claimed"
@@ -2212,7 +2212,7 @@
         "attempts": [
           {
             "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
-            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "change": "Extend existing positive Save test with Low\u2192Off\u2192Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
             ]
@@ -4314,7 +4314,7 @@
           },
           {
             "outcome": "APPROVED source and adapters, runtime pending. Both P2s valid/fixed atccd05b28, no remaining source findings.",
-            "change": "Corrected guardedfixture order; asserted actualpreparedHistorical/Currentrequest, checkedsecondconnectionprivacychange→Stale/noeffect, actualreopenimmutable replaywhileprivate and sameversionpositive; concisebehaviorcontract. No newseam/schema/framework.",
+            "change": "Corrected guardedfixture order; asserted actualpreparedHistorical/Currentrequest, checkedsecondconnectionprivacychange\u2192Stale/noeffect, actualreopenimmutable replaywhileprivate and sameversionpositive; concisebehaviorcontract. No newseam/schema/framework.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md",
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final.patch"
@@ -4394,7 +4394,7 @@
         ],
         "gates": {
           "implementation": "No productionfix selected. Test-onlywitness4c preserved asdiagnostic source, not a productcandidate to merge without need.",
-          "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold×22PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
+          "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold\u00d722PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
           "integration": "No startupfixpublished/merged. Independent scope disposition acceptedprivacycandidateadmission only; unresolvedfault/debt retained.",
           "native": "No nativeinteraction selected; ownerdeferred.",
           "owner_acceptance": "No new productbehavior or ownerdecision selected; reliability engineering in authorizedscope."
@@ -4410,7 +4410,7 @@
             ]
           },
           {
-            "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses×22paralleltests allPASS;440testexecutions; qualifiedfalse.",
+            "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses\u00d722paralleltests allPASS;440testexecutions; qualifiedfalse.",
             "change": "One separatelyreviewedno-rebuild exactoriginalbinary/UUID campaign restoredappfixture/link/layout beyondcore-onlywitness. Stopcoldrepetition aftertwodistinctnonreproapproaches; originalnativefault retained andcausalreassessment required.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
@@ -4504,7 +4504,7 @@
         ],
         "gates": {
           "implementation": "PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.",
-          "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.",
+          "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796\u219226,284UTF8bytes; no token/cost/nativeclaim.",
           "integration": "PASS normal protectedmerge3827d6a1, whole qualifiedtree equality, all4required head/precedingmain/resultingmain PASS; optionalWindows failures retained.",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
@@ -4592,7 +4592,7 @@
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
         "observed_at": "2026-10-22T09:45:08.700280+00:00",
         "origin": "observed",
-        "activity": "Independent actual-result review PASS:109bounded commands, exact initial privatev2/generalv1, unchanged primary roots, distinct checked private2→3/general1→2 rehearsals, metadata/source/sentinel/history preserved, tokens absent andallgroupsresolved. Original first failure/importrevision1 retained; noimportfidelity/nativeclaim.",
+        "activity": "Independent actual-result review PASS:109bounded commands, exact initial privatev2/generalv1, unchanged primary roots, distinct checked private2\u21923/general1\u21922 rehearsals, metadata/source/sentinel/history preserved, tokens absent andallgroupsresolved. Original first failure/importrevision1 retained; noimportfidelity/nativeclaim.",
         "next_action": "Use separate MAC13 manifest during later actual authorized Mac session; recheck current app/helpers/versions and read-only state. No further preparation runs. Nativecontrol task remains separately blocked on availability.",
         "depends_on": [],
         "resource_waits": [],
@@ -4763,10 +4763,10 @@
         "title": "Resolve recent certificate-trust dependency advisories",
         "state": "active",
         "owner": "Lead dependency/integration owner; independent Sol exposure/repair assessment",
-        "observed_at": "2026-10-22T10:28:11.977147+00:00",
+        "observed_at": "2026-10-22T10:43:24.586018+00:00",
         "origin": "observed",
-        "activity": "Independent review approved the final four-package dependency update. All other packages and settings remain unchanged. Final offline tests and app builds are running with the existing cached native library linked explicitly; earlier results and the linking failure remain preserved.",
-        "next_action": "Finish final checks, then confirm the final dependency file against current advisories. Publish the reviewed change only after local checks pass; required PR and merged-main checks remain separate.",
+        "activity": "Final four-package repair passed all eight local stages and the exact-file audit now reports zero vulnerability matches, down from seven. PR214 required hosted checks are running. Eight maintenance notices and separate unchanged-helper ZIP findings remain visible.",
+        "next_action": "Inspect PR214 exact-head checks and current protection/preceding-main, then normal merge if all required gates pass. Verify resulting-main separately; do not fold the helper ZIP assessment into this lock-only candidate.",
         "depends_on": [
           {
             "task": "dependency-advisory-preflight",
@@ -4796,12 +4796,19 @@
           "docs/work/active/vacation-campaign/evidence/tls-final-candidate-scope.json",
           "docs/work/active/vacation-campaign/evidence/tls-update-rustls.json",
           "docs/work/active/vacation-campaign/evidence/tls-rustls-package-fetch.json",
-          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py"
+          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py",
+          "docs/work/active/vacation-campaign/evidence/tls-final-local-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/tls-final-local-summary.json",
+          "docs/work/active/vacation-campaign/evidence/tls-final-local-logs.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/tls-prepublication-reconciliation.json",
+          "docs/work/active/vacation-campaign/evidence/pr214-publication.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-final-expanded-root.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-complete.json"
         ],
         "gates": {
           "implementation": "PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged",
-          "checks": "RUNNING final frozen-candidate offline gate with explicit cachedORTlinking; prior003 tests remain historical source-bound evidence",
-          "integration": "No publication/merge yet; required exact-head/protection/preceding-main/resulting-main checks remain pending",
+          "checks": "PASS all8localstages on234; actualfinalroot audit0vulns/8maintenance notices, versus7baseline. no-yanked/native/exploit qualification.",
+          "integration": "PUBLISHED PR214 exact234956cb, Cargo.lock-only12+/12-. Requiredhead/precedingmain/protection/finalaudit disposition PENDING; no merge.",
           "native": "No native action selected; owner deferral unchanged",
           "owner_acceptance": "No changed product meaning; security maintenance in existing scope"
         },
@@ -4820,12 +4827,12 @@
       {
         "id": "current-lock-advisory-scan",
         "title": "Check maintained dependency locks against current advisories",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna task-local official tool/scan actor; lead findings disposition",
-        "observed_at": "2026-10-22T10:28:11.977147+00:00",
+        "observed_at": "2026-10-22T10:43:24.586018+00:00",
         "origin": "observed",
-        "activity": "The original dependency file reports seven vulnerability matches and eight maintenance warnings. Independent review confirmed that missing commit metadata is normal for this offline audit mode. A reviewed continuation is being prepared for only the remaining files; the completed baseline will not be rerun.",
-        "next_action": "Review the continuation with external database and input hashes, then check the final dependency file and both helper files. Keep warnings and all original failures visible.",
+        "activity": "Actual scans completed for the final main dependency file and both document helpers using the same pinned advisory database. The final main file has zero vulnerability matches and eight maintenance notices; both helper files have three ZIP advisory matches and one notice. Original failures remain preserved.",
+        "next_action": "TLS repair continues through PR214. The helper ZIP findings have a separate selected exposure assessment. Keep eight root maintenance notices visible; revisit with a selected parent capability/API migration rather than suppressing or forcing lock changes.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4836,11 +4843,28 @@
           "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2-stop.md",
           "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2.json",
           "docs/work/active/vacation-campaign/evidence/advisory-main213-root.json",
-          "docs/work/active/vacation-campaign/evidence/tls-expanded-assessment.md"
+          "docs/work/active/vacation-campaign/evidence/tls-expanded-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-config.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-snapshot-binding-correction.diff",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-original.py.gz",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-final.py.gz",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-stop.md",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-stop.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-stop-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/advisory-source-proof-correction.diff",
+          "docs/work/active/vacation-campaign/evidence/advisory-source-proof-corrected.py.gz",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-complete-packet.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/advisory-continuation-complete.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-final-expanded-root.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-stock-helper-lock.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-adapted-helper-lock.json",
+          "docs/work/active/vacation-campaign/evidence/dependency-maintenance-warning-triage.md"
         ],
         "gates": {
           "implementation": "No product change; isolated official read-only audit tool selected",
-          "checks": "Pending actual current DB scans; preflight is not full audit clearance",
+          "checks": "COMPLETE actual baseline+3remaining scans bound to input/tool/DB hashes; root7\u21920vulnerabilitymatches/8notices; helper3zipmatches each/1notice each. no-yanked/notexploitproof.",
           "integration": "No candidate/CI policy selected by this task",
           "native": "Not required; no access",
           "owner_acceptance": "No changed product meaning"
@@ -4862,9 +4886,61 @@
               "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2.json",
               "docs/work/active/vacation-campaign/evidence/advisory-main213-root.json"
             ]
+          },
+          {
+            "outcome": "Initial independent continuation review found P2: copied scan input was not rechecked after source proof. No execution occurred.",
+            "change": "Corrected source/saved-snapshot exact size/hash/type guards before and after command; complete final review approved exact07d06760 adapter. One continuation selected, not whole-packet retry.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/advisory-continuation-final-review.md"
+            ]
+          },
+          {
+            "outcome": "Selected reviewed07d continuation FAIL before any new audit: source_proof called .decode on already-decoded Git blob ID. Baseline validation passed; three local Git children exited0/reaped/group-absent; scan_results empty.",
+            "change": "Stopped without patch/retry; independent complete parser/type-path reassessment selected. Actual remaining scans are pending.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/advisory-continuation-stop.md",
+              "docs/work/active/vacation-campaign/evidence/advisory-continuation-stop.json"
+            ]
+          },
+          {
+            "outcome": "COMPLETE one explicit corrected c5028e34 invocation3.671s, three remaining scans/44commands, allgroupsabsent/reaped; sources/sharedDBunchanged.",
+            "change": "Independent actual-input parser preflight diagnosed two redundant string decodes; only those two expressions and exclusive output path changed. Exact original failures/baseline/003 retained.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/advisory-continuation-complete.json"
+            ]
           }
         ],
         "resource_plan": "One Luna medium tool/download/scan helper, independent of active build: ~5.68MB official artifact + shallow public DB, task-local CARGO_HOME only; no sharedtarget/caches/config writes, no package updates/account/provider/model/native actions. Runtime <=300s, disk>=2GiBstart/1GiBstop, bounded output/ownedchildcleanup. Stop on digest/schema/uncertain process failure, no blind rerun."
+      },
+      {
+        "id": "helper-zip-advisory-assessment",
+        "title": "Assess document-helper ZIP advisories",
+        "state": "active",
+        "owner": "Independent Sol source/exposure assessment; lead disposition",
+        "observed_at": "2026-10-22T10:43:24.586018+00:00",
+        "origin": "observed",
+        "activity": "Both maintained helper locks report three advisory matches for ZIP8.6.0. A read-only source assessment is checking the actual archive APIs, platform containment and whether a proportionate repair exists. No helper change is selected yet.",
+        "next_action": "Disposition exact helper extraction reachability and minimum compatible repair. Select a separate bounded change only when evidence justifies it; preserve original audit findings and avoid unreviewed major dependency churn.",
+        "depends_on": [
+          {
+            "task": "current-lock-advisory-scan",
+            "condition": "Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/advisory-stock-helper-lock.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-adapted-helper-lock.json"
+        ],
+        "gates": {
+          "implementation": "Read-only assessment; no product candidate selected",
+          "checks": "Actual helperlockmatches3each; reachability and repair unqualified",
+          "integration": "No publication/merge selected by this assessment",
+          "native": "Not required for source assessment; no interaction",
+          "owner_acceptance": "No changed product meaning selected"
+        },
+        "resource_plan": "One Sol high read-only consequential assessment overlapping hostedPR214checks. Existing source/cache/official records; primary research if needed. No builds/edits/account/native/model actions; stop at concrete disposition."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4879,9 +4955,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-tls-under-verification.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:28:11.977147+00:00",
-    "runtime_capacity": "Lead build/integration; independent Sol finalcandidate reviewAPPROVED; Luna bounded remaining-audit adapter preparation, no actualcontinuationlaunchyet.",
-    "build_slot": "Activefinalqualifier /tmp/brn-tls-final-qualification/qualify.py PTY68312 onfrozencandidate234956cb. ExistingcachedORTstaticlib selected, no model/runtime acquisition; singlebuildowner.",
+    "observed_at": "2026-10-22T10:43:24.586018+00:00",
+    "runtime_capacity": "Lead integration; Sol bounded ZIP source/exposure assessment; Luna warningtriage complete. Actual remaining audit completed, no localbuild/scanner/native/account actor.",
+    "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
@@ -4892,9 +4968,7 @@
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
     "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
-    "required_ci_runs": [
-      39750356369
-    ]
+    "required_ci_runs": []
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",

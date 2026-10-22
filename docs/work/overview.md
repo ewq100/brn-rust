@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Resolve recent certificate-trust dependency advisories
 
 Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:28:11.977147+00:00
-Activity: Independent review approved the final four-package dependency update. All other packages and settings remain unchanged. Final offline tests and app builds are running with the existing cached native library linked explicitly; earlier results and the linking failure remain preserved.
-Next: Finish final checks, then confirm the final dependency file against current advisories. Publish the reviewed change only after local checks pass; required PR and merged-main checks remain separate.
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:40:38.250510+00:00
+Activity: The final four-package repair passed all eight selected local stages, including both Mac builds and optional retrieval tests. PR214 publishes the unchanged reviewed lock-only candidate; hosted checks have started. Final advisory scans remain pending after a separate checking-script failure.
+Next: Finish the reviewed audit correction and remaining exact-file scans while required PR214 checks run. Reconcile findings, live protection and exact-head/preceding-main results before normal merge; inspect resulting-main separately.
 Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
@@ -25,8 +25,8 @@ Depends on: dependency-advisory-preflight when Official version matches and main
 Gates:
 
 - **implementation:** PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged
-- **checks:** RUNNING final frozen-candidate offline gate with explicit cachedORTlinking; prior003 tests remain historical source-bound evidence
-- **integration:** No publication/merge yet; required exact-head/protection/preceding-main/resulting-main checks remain pending
+- **checks:** PASS final234 frozen source/lock and cachedORT unchanged: workspace1331/0/6ignored,capability503/0/1ignored,strictlint,CLI,ordinarynative,optionalretrieval37/0,combinednative; finaladvisoryscansPENDING
+- **integration:** PUBLISHED PR214 exact234956cb, Cargo.lock-only12+/12-. Requiredhead/precedingmain/protection/finalaudit disposition PENDING; no merge.
 - **native:** No native action selected; owner deferral unchanged
 - **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
@@ -35,9 +35,9 @@ Gates:
 ### Check maintained dependency locks against current advisories
 
 Task ID: `current-lock-advisory-scan`
-Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:28:11.977147+00:00
-Activity: The original dependency file reports seven vulnerability matches and eight maintenance warnings. Independent review confirmed that missing commit metadata is normal for this offline audit mode. A reviewed continuation is being prepared for only the remaining files; the completed baseline will not be rerun.
-Next: Review the continuation with external database and input hashes, then check the final dependency file and both helper files. Keep warnings and all original failures visible.
+Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:39:15.502731+00:00
+Activity: The selected continuation stopped on a Git-output parser type error before any new scan. The completed baseline and all failed packets remain preserved. Independent reassessment is in progress; the remaining files are still unscanned.
+Next: Reassess the concrete parser failure and validate the actual read-only provenance paths before selecting any corrected invocation. Separately disposition the eight existing maintenance warnings; do not suppress or broadly upgrade dependencies.
 
 <details>
 <summary>Gate status</summary>
@@ -375,4 +375,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:28:11.977147+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:40:38.250510+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

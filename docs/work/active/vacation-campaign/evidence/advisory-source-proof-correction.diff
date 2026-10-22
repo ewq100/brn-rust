@@ -1,0 +1,29 @@
+--- continuation-adapter.py
++++ continuation-source-proof-corrected.py
+@@ -21,7 +21,7 @@
+ 
+ ROOT = Path('/private/tmp/brn-advisory-audit-20261022')
+ CONFIG_PATH = ROOT / 'continuation-config.json'
+-OUTPUT = ROOT / 'packet-continuation'
++OUTPUT = ROOT / 'packet-continuation-source-proof-corrected'
+ HELPER = Path('/tmp/brn-mac13-preparation/prepare.py')
+ EXPECTED_HELPER_SHA = 'cd272ff3734a2a46c2a83ff944a9d2f15d768e6bef45de03df49378009854813'
+ MAX_OUTPUT = 1024 * 1024
+@@ -281,7 +281,7 @@
+         data = source.read_bytes()
+         if len(data) != item['lock_bytes'] or sha256(data) != item['lock_sha256']:
+             raise StopRun(item['label'] + ': lock bytes differ from frozen configuration')
+-        if git_blob_sha1(data) != blob.decode('ascii'):
++        if git_blob_sha1(data) != blob:
+             raise StopRun(item['label'] + ': file bytes do not match tracked Git blob')
+         with __import__('io').BytesIO(data) as stream:
+             parsed = tomllib.load(stream)
+@@ -289,7 +289,7 @@
+             raise StopRun(item['label'] + ': TOML package count differs from pinned config')
+         return {'label': item['label'], 'checkout': str(checkout), 'head_observed': head,
+                 'lock_path': rel, 'bytes': len(data), 'sha256': sha256(data),
+-                'git_blob_sha1': blob.decode('ascii'), 'package_count': len(parsed['package']),
++                'git_blob_sha1': blob, 'package_count': len(parsed['package']),
+                 'status_clean_for_path': True, 'git_mode': mode, 'snapshot_source': str(source)}
+ 
+     def snapshot_db(self, label: str) -> dict:

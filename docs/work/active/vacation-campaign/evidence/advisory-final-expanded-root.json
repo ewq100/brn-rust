@@ -1,0 +1,487 @@
+{
+  "database": {
+    "advisory-count": 1348,
+    "last-commit": null,
+    "last-updated": null
+  },
+  "lockfile": {
+    "dependency-count": 943
+  },
+  "settings": {
+    "ignore": [],
+    "informational_warnings": [
+      "unmaintained",
+      "unsound",
+      "notice"
+    ],
+    "severity": null,
+    "target_arch": [],
+    "target_os": []
+  },
+  "vulnerabilities": {
+    "count": 0,
+    "found": false,
+    "list": []
+  },
+  "warnings": {
+    "unmaintained": [
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2024-09-01",
+          "description": "This crate is no longer maintained, and the author recommends using the maintained [`web-time`] crate instead.\n\n[`web-time`]: https://crates.io/crates/web-time",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2024-0384",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "instant",
+          "references": [
+            "https://crates.io/crates/instant/0.1.13",
+            "https://github.com/sebcrozet/instant/issues/52"
+          ],
+          "related": [],
+          "source": null,
+          "title": "`instant` is unmaintained",
+          "url": null,
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222",
+          "dependencies": [
+            {
+              "name": "cfg-if",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.5"
+            },
+            {
+              "name": "js-sys",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.3.106"
+            },
+            {
+              "name": "wasm-bindgen",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.2.129"
+            },
+            {
+              "name": "web-sys",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.3.106"
+            }
+          ],
+          "name": "instant",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "0.1.13"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2024-10-07",
+          "description": "The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2024-0436",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "paste",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "paste - no longer maintained",
+          "url": "https://github.com/dtolnay/paste",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+          "name": "paste",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "1.0.15"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2025-11-28",
+          "description": "The rustls-pemfile crate is no longer maintained. The repository has been archived since August\n2025, and users are encouraged to depend directly on the underlying PEM parsing code included\nin rustls-pki-types since 1.9.0. The latest version of rustls-pemfile is in fact a thin wrapper\naround the same code used in rustls-pki-types, so migrating should be straightforward.\n\nThe new API is represented by the [`PemObject`][PemObject] trait, which provides methods for\nreading a single or multiple PEM objects from a file or byte slice.\n\n[PemObject]: https://docs.rs/rustls-pki-types/latest/rustls_pki_types/pem/trait.PemObject.html",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2025-0134",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "rustls-pemfile",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "rustls-pemfile is unmaintained",
+          "url": "https://github.com/rustls/pemfile/issues/61",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "dce314e5fee3f39953d46bb63bb8a46d40c2f8fb7cc5a3b6cab2bde9721d6e50",
+          "dependencies": [
+            {
+              "name": "rustls-pki-types",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.15.1"
+            }
+          ],
+          "name": "rustls-pemfile",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "2.2.0"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-07-11",
+          "description": "The current maintainer of `rustybuzz` has stated that the crate is unmaintained and will not receive further fixes or updates (see the referenced issue).\n\n## Alternative(s)\n\n- [`harfrust`](https://github.com/harfbuzz/harfrust), an actively maintained and updated alternative which is part of the Harfbuzz project.",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0206",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "rustybuzz",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "`rustybuzz` is unmaintained",
+          "url": "https://github.com/harfbuzz/rustybuzz/issues/166",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "fd3c7c96f8a08ee34eff8857b11b49b07d71d1c3f4e88f8a88d4c9e9f90b1702",
+          "dependencies": [
+            {
+              "name": "bitflags",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.13.2"
+            },
+            {
+              "name": "bytemuck",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.25.2"
+            },
+            {
+              "name": "core_maths",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.1.1"
+            },
+            {
+              "name": "log",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.4.34"
+            },
+            {
+              "name": "smallvec",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.16.2"
+            },
+            {
+              "name": "ttf-parser",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.25.1"
+            },
+            {
+              "name": "unicode-bidi-mirroring",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.4.0"
+            },
+            {
+              "name": "unicode-ccc",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.4.0"
+            },
+            {
+              "name": "unicode-properties",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.1.3"
+            },
+            {
+              "name": "unicode-script",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.5.8"
+            }
+          ],
+          "name": "rustybuzz",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "0.20.1"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-06-28",
+          "description": "The author of `ttf-parser` has stated that the crate is unmaintained and will not receive further fixes (see the referenced issue).\n\n## Alternative(s)\n\n- [`skrifa`](https://crates.io/crates/skrifa), an actively maintained TrueType and OpenType font parsing crate, part of the Google Fonts \"oxidize\" (`fontations`) project.",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0192",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "ttf-parser",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "`ttf-parser` is unmaintained",
+          "url": "https://github.com/harfbuzz/ttf-parser/issues/217",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "d2df906b07856748fa3f6e0ad0cbaa047052d4a7dd609e231c4f72cee8c36f31",
+          "dependencies": [
+            {
+              "name": "core_maths",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.1.1"
+            }
+          ],
+          "name": "ttf-parser",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "0.25.1"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-10-16",
+          "description": "The `zbus_names` crate is no longer maintained as a standalone crate.\n\nIt has been merged into [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`, as its `names` module.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus name types.",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0371",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "zbus_names",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "`zbus_names` is unmaintained",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "d8bf88b4a3ff53e883001e0e0115b297a9d53c31b9c1edd2bfdd853e3428624e",
+          "dependencies": [
+            {
+              "name": "serde",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.229"
+            },
+            {
+              "name": "winnow",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.4"
+            },
+            {
+              "name": "zvariant",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "5.15.0"
+            }
+          ],
+          "name": "zbus_names",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "4.3.4"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-10-16",
+          "description": "The `zvariant` crate is no longer maintained as a standalone crate.\n\nIt has been merged into [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`, as its `wire` module.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus wire format. Users of the GVariant format should migrate to [`zgvariant`](https://crates.io/crates/zgvariant).",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0370",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "zvariant",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "`zvariant` is unmaintained",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "c1d34c27cc6cdd1f458427519dd6b8612f7b7e3f7b9a0b2355d041dda9869147",
+          "dependencies": [
+            {
+              "name": "endi",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.1.1"
+            },
+            {
+              "name": "enumflags2",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.7.12"
+            },
+            {
+              "name": "serde",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.229"
+            },
+            {
+              "name": "serde_bytes",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.11.19"
+            },
+            {
+              "name": "winnow",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.4"
+            },
+            {
+              "name": "zcheapstr",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.1.0"
+            },
+            {
+              "name": "zvariant_derive",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "5.15.0"
+            },
+            {
+              "name": "zvariant_utils",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "4.2.0"
+            }
+          ],
+          "name": "zvariant",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "5.15.0"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-10-16",
+          "description": "The `zvariant_derive` crate is no longer maintained as a standalone crate.\n\nIts derive macros are provided by [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus wire format.",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0372",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "zvariant_derive",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "`zvariant_derive` is unmaintained",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "864155e69b4352db0c7f374917bf45d1e0c8d17659c8b3dbf9795f3673f8c497",
+          "dependencies": [
+            {
+              "name": "proc-macro-crate",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "3.5.0"
+            },
+            {
+              "name": "proc-macro2",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.107"
+            },
+            {
+              "name": "quote",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.0.47"
+            },
+            {
+              "name": "syn",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "3.0.6"
+            },
+            {
+              "name": "zvariant_utils",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "4.2.0"
+            }
+          ],
+          "name": "zvariant_derive",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "5.15.0"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      }
+    ]
+  }
+}

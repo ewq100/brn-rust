@@ -1,0 +1,293 @@
+{
+  "database": {
+    "advisory-count": 1348,
+    "last-commit": null,
+    "last-updated": null
+  },
+  "lockfile": {
+    "dependency-count": 409
+  },
+  "settings": {
+    "ignore": [],
+    "informational_warnings": [
+      "unmaintained",
+      "unsound",
+      "notice"
+    ],
+    "severity": null,
+    "target_arch": [],
+    "target_os": []
+  },
+  "vulnerabilities": {
+    "count": 3,
+    "found": true,
+    "list": [
+      {
+        "advisory": {
+          "aliases": [
+            "GHSA-vv5m-jxxh-4627"
+          ],
+          "categories": [
+            "privilege-escalation"
+          ],
+          "collection": "crates",
+          "cvss": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H",
+          "date": "2026-10-09",
+          "description": "The `zip` crate preserves privileged Unix permission bits (SUID, SGID, and sticky bits) from ZIP `external_attributes` during extraction, instead of masking them to safe permission bits. If a privileged process (for example, `root` in an installer, CI/CD pipeline, or container build) extracts an attacker-controlled ZIP archive using `ZipArchive::extract()` or the stream extraction API, files can be created as setuid-root or setgid. This behavior allows the creation of SUID/SGID files during extraction, which can lead to local privilege escalation depending on the execution environment.\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-vv5m-jxxh-4627",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0367",
+          "informational": null,
+          "keywords": [
+            "privilege-escalation",
+            "suid",
+            "sgid"
+          ],
+          "license": "CC0-1.0",
+          "package": "zip",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation",
+          "url": null,
+          "withdrawn": null
+        },
+        "affected": null,
+        "package": {
+          "checksum": "2d04a6b5381502aa6087c94c669499eb1602eb9c5e8198e534de571f7154809b",
+          "dependencies": [
+            {
+              "name": "crc32fast",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.5.2"
+            },
+            {
+              "name": "flate2",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.1.10"
+            },
+            {
+              "name": "indexmap",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.14.2"
+            },
+            {
+              "name": "memchr",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.8.3"
+            },
+            {
+              "name": "typed-path",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.12.3"
+            },
+            {
+              "name": "zopfli",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.8.4"
+            }
+          ],
+          "name": "zip",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "8.6.0"
+        },
+        "versions": {
+          "patched": [
+            ">=9.0.0"
+          ],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [
+            "GHSA-4v9h-p7m9-rh26"
+          ],
+          "categories": [
+            "privilege-escalation"
+          ],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2026-10-09",
+          "description": "In `zip` 9.0.0-pre2, `ZipArchive::extract` creates a symbolic link from an archive entry after validating only the output entry path. The link target bytes are passed directly to the platform symlink API, so a malicious archive can create an entry inside the destination that resolves to an attacker-chosen path outside it. This behavior was verified on macOS and Linux. On either platform, a subsequent application read or write through that extracted entry accesses the external target with the extracting process's permissions.\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4v9h-p7m9-rh26",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0368",
+          "informational": null,
+          "keywords": [
+            "privilege-escalation",
+            "symlink"
+          ],
+          "license": "CC0-1.0",
+          "package": "zip",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory",
+          "url": null,
+          "withdrawn": null
+        },
+        "affected": null,
+        "package": {
+          "checksum": "2d04a6b5381502aa6087c94c669499eb1602eb9c5e8198e534de571f7154809b",
+          "dependencies": [
+            {
+              "name": "crc32fast",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.5.2"
+            },
+            {
+              "name": "flate2",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.1.10"
+            },
+            {
+              "name": "indexmap",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.14.2"
+            },
+            {
+              "name": "memchr",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.8.3"
+            },
+            {
+              "name": "typed-path",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.12.3"
+            },
+            {
+              "name": "zopfli",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.8.4"
+            }
+          ],
+          "name": "zip",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "8.6.0"
+        },
+        "versions": {
+          "patched": [
+            ">=9.0.0"
+          ],
+          "unaffected": []
+        }
+      },
+      {
+        "advisory": {
+          "aliases": [
+            "GHSA-4684-h2q9-2vcp"
+          ],
+          "categories": [
+            "privilege-escalation"
+          ],
+          "collection": "crates",
+          "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
+          "date": "2026-10-10",
+          "description": "`ZipStreamReader::extract()` applies Unix permissions through extracted symlinks without validating the symlink target stays within the destination\n\nFor further details see: https://github.com/zip-rs/zip2/security/advisories/GHSA-4684-h2q9-2vcp",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2026-0369",
+          "informational": null,
+          "keywords": [
+            "privilege-escalation",
+            "symlink",
+            "permissions"
+          ],
+          "license": "CC0-1.0",
+          "package": "zip",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target",
+          "url": null,
+          "withdrawn": null
+        },
+        "affected": null,
+        "package": {
+          "checksum": "2d04a6b5381502aa6087c94c669499eb1602eb9c5e8198e534de571f7154809b",
+          "dependencies": [
+            {
+              "name": "crc32fast",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.5.2"
+            },
+            {
+              "name": "flate2",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "1.1.10"
+            },
+            {
+              "name": "indexmap",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.14.2"
+            },
+            {
+              "name": "memchr",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "2.8.3"
+            },
+            {
+              "name": "typed-path",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.12.3"
+            },
+            {
+              "name": "zopfli",
+              "source": "registry+https://github.com/rust-lang/crates.io-index",
+              "version": "0.8.4"
+            }
+          ],
+          "name": "zip",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "8.6.0"
+        },
+        "versions": {
+          "patched": [
+            ">=9.0.0"
+          ],
+          "unaffected": []
+        }
+      }
+    ]
+  },
+  "warnings": {
+    "unmaintained": [
+      {
+        "advisory": {
+          "aliases": [],
+          "categories": [],
+          "collection": "crates",
+          "cvss": null,
+          "date": "2024-10-07",
+          "description": "The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros",
+          "expect-deleted": false,
+          "id": "RUSTSEC-2024-0436",
+          "informational": "unmaintained",
+          "keywords": [],
+          "license": "CC0-1.0",
+          "package": "paste",
+          "references": [],
+          "related": [],
+          "source": null,
+          "title": "paste - no longer maintained",
+          "url": "https://github.com/dtolnay/paste",
+          "withdrawn": null
+        },
+        "affected": null,
+        "kind": "unmaintained",
+        "package": {
+          "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+          "name": "paste",
+          "replace": null,
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "version": "1.0.15"
+        },
+        "versions": {
+          "patched": [],
+          "unaffected": []
+        }
+      }
+    ]
+  }
+}

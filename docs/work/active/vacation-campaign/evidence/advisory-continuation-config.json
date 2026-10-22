@@ -1,0 +1,62 @@
+{
+  "schema": "brn.current-lock-advisory-continuation.v1",
+  "source_candidate": {
+    "label": "final-expanded-root",
+    "checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+    "commit": "234956cb171beb025acb1dc17b41be98992bddf0",
+    "lock_path": "Cargo.lock",
+    "lock_sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+    "lock_bytes": 249738,
+    "package_count": 943
+  },
+  "helper_inputs": [
+    {
+      "label": "stock-helper-lock",
+      "checkout": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "lock_path": "tools/xberg-intake-helper/Cargo.lock",
+      "lock_sha256": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+      "lock_bytes": 97318,
+      "package_count": 409
+    },
+    {
+      "label": "adapted-helper-lock",
+      "checkout": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust",
+      "lock_path": "tools/xberg-intake-helper/adapted.Cargo.lock",
+      "lock_sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+      "lock_bytes": 97175,
+      "package_count": 409
+    }
+  ],
+  "tool": {
+    "path": "/private/tmp/brn-advisory-audit-20261022/bin-attempt2/cargo-audit",
+    "sha256": "33fbe81adca1b794f4ffe98574d59b0ebe6fcfdb310976fafed98a094c795111",
+    "version": "0.22.2"
+  },
+  "database": {
+    "path": "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2",
+    "url": "https://github.com/RustSec/advisory-db.git",
+    "head": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+    "expected_advisory_count": 1348,
+    "expected_record_files": 1349
+  },
+  "previous_packet": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2",
+  "previous_baseline": {
+    "label": "main213-root-lock",
+    "lock_sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "stdout_sha256": "e1853a8d957aa7906fa7005ce09f5d3ade54279565eb44f6a1ee0ff458dd349e",
+    "return_code": 1,
+    "dependency_count": 943,
+    "vulnerability_count": 7,
+    "warning_count": 8,
+    "database_last_commit": null,
+    "database_last_updated": null,
+    "receipt_sha256": "b0f58c7f769448d2e531b47ebfa4d9518c7004c6571a171a55fc9820e122b69d"
+  },
+  "preserved_unscanned": {
+    "label": "superseded-003-root-lock",
+    "snapshot": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/worker-export-lock.Cargo.lock",
+    "sha256": "2dcc9ad99f05129f077ebc063b0f65fe69bda993ef2bd4824da4d9a6be2b189f",
+    "scanned": false
+  },
+  "shared_default_db_head": "7eebec69c352c7191b1f13eb95dd510eeca5d1de"
+}

@@ -1,0 +1,11 @@
+# Current-lock continuation attempt
+
+Status: **stopped before the three new audits**. The selected adapter failed during source-provenance parsing after completing the baseline-in-place validation and three local Git reads for the final-root candidate. It launched no `cargo-audit` scan for the final expanded root, stock helper, or adapted helper. No retry was made.
+
+The exact reviewed adapter was `/private/tmp/brn-advisory-audit-20261022/continuation-adapter.py`, SHA-256 `07d067609a5d753c539e6f6b19c669c5554f5e144a8e73252660da4b94849d74`; its config hash was the approved `da95fa53e685ee0df8b06e4e754714538599044b3619177d3dd4d185cabb2d91`. Before launch, the verified audit binary hash was `33fbe81adca1b794f4ffe98574d59b0ebe6fcfdb310976fafed98a094c795111`, and the task-local advisory DB was at clean HEAD `59ef7abf8ce56ea80fe7eba97ba3835449009fa4`.
+
+The packet receipt is `/private/tmp/brn-advisory-audit-20261022/packet-continuation/continuation-receipt.json` (SHA-256 `c0d0630f345ab13632badec03245c5b60c9984714232fddf5ddc1def847b0baa`). It records failure `AttributeError: 'str' object has no attribute 'decode'`. The three local Git commands (candidate HEAD, status, tree listing) each exited 0, reaped the leader, confirmed process-group absence, sent no signals, and captured empty stderr. The adapter failed while parsing the tree entry: it decodes and splits the Git metadata into strings, then calls `.decode()` on the already-decoded blob-id string. No source lock snapshot was written, no DB inventory snapshot was taken, and `scan_results` is empty.
+
+The original main-213 baseline was validated in place; it was not rerun or modified. Its output is preserved in the earlier packet and the continuation packet's parsed copy. The earlier attempt-1 and attempt-2 packets and the old 003 snapshot remain unchanged and unscanned. No network fetch, build, source edit, lockfile edit, or shared-cache write occurred in this continuation. The task DB clone, binary, and outputs remain in the task-owned `/private/tmp/brn-advisory-audit-20261022` tree.
+
+This is a harness failure, not a scan result. No claims about the remaining lockfiles can be made. Any correction or further run requires a new selected invocation; the current selected execution is complete and stopped.

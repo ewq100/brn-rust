@@ -1,0 +1,55 @@
+--- /private/tmp/brn-advisory-audit-20261022/continuation-adapter-reviewed35d.py	2026-10-22 13:32:07
++++ /private/tmp/brn-advisory-audit-20261022/continuation-adapter.py	2026-10-22 13:32:30
+@@ -354,6 +354,19 @@
+         snapshot['snapshot_path'] = str(path)
+         return snapshot
+ 
++    def verify_lock_snapshot(self, item: dict, proof: dict, stage: str) -> None:
++        path = Path(proof['snapshot_path'])
++        st = path.lstat()
++        if not stat.S_ISREG(st.st_mode) or path.is_symlink():
++            raise StopRun(item['label'] + ': lock snapshot is not a regular non-symlink file')
++        digest, size = file_hash(path)
++        if size != item['lock_bytes'] or digest != item['lock_sha256']:
++            raise StopRun(item['label'] + ': lock snapshot bytes changed at ' + stage)
++        self.manifest.setdefault('snapshot_verifications', []).append({
++            'label': item['label'], 'stage': stage, 'path': str(path),
++            'bytes': size, 'sha256': digest, 'regular_nonsymlink': True})
++        self.persist()
++
+     def validate_report(self, name: str, raw: bytes, stderr: bytes, code: int,
+                         lock_snapshot: dict, db_snapshot: dict, expected_db_count: int) -> dict:
+         try:
+@@ -511,13 +524,17 @@
+         inputs = [config['source_candidate'], *config['helper_inputs']]
+         for item in inputs:
+             proof = runner.source_proof(item)
+-            data = (Path(item['checkout']) / item['lock_path']).read_bytes()
++            source = Path(item['checkout']) / item['lock_path']
++            data = source.read_bytes()
++            if (len(data) != item['lock_bytes'] or sha256(data) != proof['sha256']
++                    or git_blob_sha1(data) != proof['git_blob_sha1']):
++                raise StopRun(item['label'] + ': source changed between proof and snapshot copy')
+             dest = runner.locks_dir / f"{item['label']}.Cargo.lock"
+             with dest.open('xb') as stream:
+                 stream.write(data); stream.flush(); os.fsync(stream.fileno())
+             proof['snapshot_path'] = str(dest)
+             runner.manifest['source_inputs'].append(proof)
+-            runner.persist()
++            runner.verify_lock_snapshot(item, proof, 'immediately-after-copy')
+ 
+         shared_db = Path('/Users/evokessler/.cargo/advisory-db')
+         shared_head_before = runner.git('shared-db-head-before', shared_db, ['rev-parse', 'HEAD']).decode().strip()
+@@ -541,7 +558,11 @@
+             runner.persist()
+             argv = [str(tool), 'audit', '--file', lock_snapshot['snapshot_path'],
+                     '--db', str(db), '--no-fetch', '--no-yanked', '--format', 'json']
+-            code, stdout, stderr = runner.run('audit-' + item['label'], argv, ROOT, 60.0, env, (0, 1, 2))
++            runner.verify_lock_snapshot(item, lock_snapshot, 'immediately-before-audit')
++            try:
++                code, stdout, stderr = runner.run('audit-' + item['label'], argv, ROOT, 60.0, env, (0, 1, 2))
++            finally:
++                runner.verify_lock_snapshot(item, lock_snapshot, 'immediately-after-audit')
+             after = runner.snapshot_db(lock_snapshot['label'] + '-after')
+             if after['inventory_sha256'] != before['inventory_sha256'] or after['head'] != before['head']:
+                 raise StopRun('DB identity/record inventory changed during scan')

@@ -1,0 +1,124 @@
+{
+  "observed_at": "2026-10-22T10:36:56.538006+00:00",
+  "open_prs": [
+    {
+      "headRefName": "docs/visible-development-context-2026-10-19",
+      "headRefOid": "255d2c8c490756e7c988ea513748707e7ba719df",
+      "isDraft": true,
+      "number": 177,
+      "title": "docs: consolidate development visibility and instruction guidance",
+      "url": "https://github.com/ewq100/brn-rust/pull/177"
+    },
+    {
+      "headRefName": "work/passage-comment-geometry",
+      "headRefOid": "5f7612c970e1c650e66cb524e6062782ac46e896",
+      "isDraft": true,
+      "number": 149,
+      "title": "experiment: reviewed passage-comment positioning prototype",
+      "url": "https://github.com/ewq100/brn-rust/pull/149"
+    },
+    {
+      "headRefName": "ux/design-handbook",
+      "headRefOid": "c557e3bb7d62dc44fc2c7fa0d249f247aefab506",
+      "isDraft": true,
+      "number": 112,
+      "title": "[Archive, do not merge] UX design handbook, prototypes and desktop restyle (D1\u2013D26)",
+      "url": "https://github.com/ewq100/brn-rust/pull/112"
+    },
+    {
+      "headRefName": "codex/h4-docx-reader-evaluation",
+      "headRefOid": "0f3e277984772322b28798d4539dd618a414c748",
+      "isDraft": false,
+      "number": 84,
+      "title": "docs: evaluate published DOCX readers (H4) and record non-adoption",
+      "url": "https://github.com/ewq100/brn-rust/pull/84"
+    },
+    {
+      "headRefName": "codex/h1-integration-record",
+      "headRefOid": "80187552f6f84eaec4ffc82190ee08ec33358ef0",
+      "isDraft": false,
+      "number": 82,
+      "title": "docs: record H1 integration",
+      "url": "https://github.com/ewq100/brn-rust/pull/82"
+    },
+    {
+      "headRefName": "codex/h5-cli-parsing-evaluation",
+      "headRefOid": "be59a7a9f9698cedd7f62e7416e347b4f385e84c",
+      "isDraft": false,
+      "number": 80,
+      "title": "H5: evaluate clap for CLI scanning (not adopted)",
+      "url": "https://github.com/ewq100/brn-rust/pull/80"
+    }
+  ],
+  "protection": {
+    "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection",
+    "required_status_checks": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks",
+      "strict": true,
+      "contexts": [
+        "Core and CLI (ubuntu-24.04)",
+        "Core and CLI (macos-15)",
+        "Native UI build and state (macos-15)",
+        "Native retrieval and combined build (macos-15)"
+      ],
+      "contexts_url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_status_checks/contexts",
+      "checks": [
+        {
+          "context": "Core and CLI (ubuntu-24.04)",
+          "app_id": 15368
+        },
+        {
+          "context": "Core and CLI (macos-15)",
+          "app_id": 15368
+        },
+        {
+          "context": "Native UI build and state (macos-15)",
+          "app_id": 15368
+        },
+        {
+          "context": "Native retrieval and combined build (macos-15)",
+          "app_id": 15368
+        }
+      ]
+    },
+    "required_signatures": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/required_signatures",
+      "enabled": false
+    },
+    "enforce_admins": {
+      "url": "https://api.github.com/repos/ewq100/brn-rust/branches/main/protection/enforce_admins",
+      "enabled": true
+    },
+    "required_linear_history": {
+      "enabled": false
+    },
+    "allow_force_pushes": {
+      "enabled": false
+    },
+    "allow_deletions": {
+      "enabled": false
+    },
+    "block_creations": {
+      "enabled": false
+    },
+    "required_conversation_resolution": {
+      "enabled": false
+    },
+    "lock_branch": {
+      "enabled": false
+    },
+    "allow_fork_syncing": {
+      "enabled": false
+    }
+  },
+  "main_ref": {
+    "ref": "refs/heads/main",
+    "node_id": "REF_kwDOUumqvK9yZWZzL2hlYWRzL21haW4",
+    "url": "https://api.github.com/repos/ewq100/brn-rust/git/refs/heads/main",
+    "object": {
+      "sha": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+      "type": "commit",
+      "url": "https://api.github.com/repos/ewq100/brn-rust/git/commits/3827d6a13953533c7322fd7157d975a32dee5cb2"
+    }
+  }
+}

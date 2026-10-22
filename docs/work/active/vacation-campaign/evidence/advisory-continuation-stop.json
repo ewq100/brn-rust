@@ -1,0 +1,673 @@
+{
+  "baseline_in_place": {
+    "advisory_count": 1348,
+    "database_head_external": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+    "dependency_count": 943,
+    "input_label": "main213-root-lock",
+    "input_sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+    "name": "baseline-main213-root-lock",
+    "original_receipt_status": "failed (preserved provenance-check stop)",
+    "parsed_json_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/baseline-main213-root-lock.parsed.json",
+    "raw_stdout_sha256": "e1853a8d957aa7906fa7005ce09f5d3ade54279565eb44f6a1ee0ff458dd349e",
+    "report_last_commit": null,
+    "report_last_updated": null,
+    "return_code": 1,
+    "settings": {
+      "ignore": [],
+      "informational_warnings": [
+        "unmaintained",
+        "unsound",
+        "notice"
+      ],
+      "severity": null,
+      "target_arch": [],
+      "target_os": []
+    },
+    "stderr_bytes": 0,
+    "vulnerabilities": [
+      {
+        "id": "RUSTSEC-2026-0346",
+        "package": "rustls",
+        "version": "0.23.45"
+      },
+      {
+        "id": "RUSTSEC-2026-0347",
+        "package": "rustls",
+        "version": "0.23.45"
+      },
+      {
+        "id": "RUSTSEC-2026-0348",
+        "package": "rustls",
+        "version": "0.23.45"
+      },
+      {
+        "id": "RUSTSEC-2026-0349",
+        "package": "rustls",
+        "version": "0.23.45"
+      },
+      {
+        "id": "RUSTSEC-2026-0382",
+        "package": "rustls-webpki",
+        "version": "0.103.15"
+      },
+      {
+        "id": "RUSTSEC-2026-0383",
+        "package": "webpki-root-certs",
+        "version": "1.0.9"
+      },
+      {
+        "id": "RUSTSEC-2026-0381",
+        "package": "webpki-roots",
+        "version": "1.0.9"
+      }
+    ],
+    "vulnerabilities_found": true,
+    "vulnerability_count": 7,
+    "warnings": {
+      "unmaintained": [
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2024-09-01",
+            "description": "This crate is no longer maintained, and the author recommends using the maintained [`web-time`] crate instead.\n\n[`web-time`]: https://crates.io/crates/web-time",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2024-0384",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "instant",
+            "references": [
+              "https://crates.io/crates/instant/0.1.13",
+              "https://github.com/sebcrozet/instant/issues/52"
+            ],
+            "related": [],
+            "source": null,
+            "title": "`instant` is unmaintained",
+            "url": null,
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222",
+            "dependencies": [
+              {
+                "name": "cfg-if",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.5"
+              },
+              {
+                "name": "js-sys",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.3.106"
+              },
+              {
+                "name": "wasm-bindgen",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.2.129"
+              },
+              {
+                "name": "web-sys",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.3.106"
+              }
+            ],
+            "name": "instant",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "0.1.13"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2024-10-07",
+            "description": "The creator of the crate `paste` has stated in the [`README.md`](https://github.com/dtolnay/paste/blob/master/README.md) \nthat this project is not longer maintained as well as archived the repository\n\n## Possible Alternative(s)\n\n- [`pastey`]: a fork of paste and is aimed to be a drop-in replacement with additional features for paste crate\n- [`with_builtin_macros`]: crate providing a [superset of `paste`'s functionality including general `macro_rules!` eager expansions](https://docs.rs/with_builtin_macros/0.1.0/with_builtin_macros/macro.with_eager_expansions.html)  and `concat!`/`concat_idents!` macros\n\n[`pastey`]: https://crates.io/crates/pastey\n[`with_builtin_macros`]: https://crates.io/crates/with_builtin_macros",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2024-0436",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "paste",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "paste - no longer maintained",
+            "url": "https://github.com/dtolnay/paste",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+            "name": "paste",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "1.0.15"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2025-11-28",
+            "description": "The rustls-pemfile crate is no longer maintained. The repository has been archived since August\n2025, and users are encouraged to depend directly on the underlying PEM parsing code included\nin rustls-pki-types since 1.9.0. The latest version of rustls-pemfile is in fact a thin wrapper\naround the same code used in rustls-pki-types, so migrating should be straightforward.\n\nThe new API is represented by the [`PemObject`][PemObject] trait, which provides methods for\nreading a single or multiple PEM objects from a file or byte slice.\n\n[PemObject]: https://docs.rs/rustls-pki-types/latest/rustls_pki_types/pem/trait.PemObject.html",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2025-0134",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "rustls-pemfile",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "rustls-pemfile is unmaintained",
+            "url": "https://github.com/rustls/pemfile/issues/61",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "dce314e5fee3f39953d46bb63bb8a46d40c2f8fb7cc5a3b6cab2bde9721d6e50",
+            "dependencies": [
+              {
+                "name": "rustls-pki-types",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.15.1"
+              }
+            ],
+            "name": "rustls-pemfile",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "2.2.0"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2026-07-11",
+            "description": "The current maintainer of `rustybuzz` has stated that the crate is unmaintained and will not receive further fixes or updates (see the referenced issue).\n\n## Alternative(s)\n\n- [`harfrust`](https://github.com/harfbuzz/harfrust), an actively maintained and updated alternative which is part of the Harfbuzz project.",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2026-0206",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "rustybuzz",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "`rustybuzz` is unmaintained",
+            "url": "https://github.com/harfbuzz/rustybuzz/issues/166",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "fd3c7c96f8a08ee34eff8857b11b49b07d71d1c3f4e88f8a88d4c9e9f90b1702",
+            "dependencies": [
+              {
+                "name": "bitflags",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "2.13.2"
+              },
+              {
+                "name": "bytemuck",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.25.2"
+              },
+              {
+                "name": "core_maths",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.1.1"
+              },
+              {
+                "name": "log",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.4.34"
+              },
+              {
+                "name": "smallvec",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.16.2"
+              },
+              {
+                "name": "ttf-parser",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.25.1"
+              },
+              {
+                "name": "unicode-bidi-mirroring",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.4.0"
+              },
+              {
+                "name": "unicode-ccc",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.4.0"
+              },
+              {
+                "name": "unicode-properties",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.1.3"
+              },
+              {
+                "name": "unicode-script",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.5.8"
+              }
+            ],
+            "name": "rustybuzz",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "0.20.1"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2026-06-28",
+            "description": "The author of `ttf-parser` has stated that the crate is unmaintained and will not receive further fixes (see the referenced issue).\n\n## Alternative(s)\n\n- [`skrifa`](https://crates.io/crates/skrifa), an actively maintained TrueType and OpenType font parsing crate, part of the Google Fonts \"oxidize\" (`fontations`) project.",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2026-0192",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "ttf-parser",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "`ttf-parser` is unmaintained",
+            "url": "https://github.com/harfbuzz/ttf-parser/issues/217",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "d2df906b07856748fa3f6e0ad0cbaa047052d4a7dd609e231c4f72cee8c36f31",
+            "dependencies": [
+              {
+                "name": "core_maths",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.1.1"
+              }
+            ],
+            "name": "ttf-parser",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "0.25.1"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2026-10-16",
+            "description": "The `zbus_names` crate is no longer maintained as a standalone crate.\n\nIt has been merged into [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`, as its `names` module.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus name types.",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2026-0371",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "zbus_names",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "`zbus_names` is unmaintained",
+            "url": "https://github.com/z-galaxy/zbus/issues/2043",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "d8bf88b4a3ff53e883001e0e0115b297a9d53c31b9c1edd2bfdd853e3428624e",
+            "dependencies": [
+              {
+                "name": "serde",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.229"
+              },
+              {
+                "name": "winnow",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.4"
+              },
+              {
+                "name": "zvariant",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "5.15.0"
+              }
+            ],
+            "name": "zbus_names",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "4.3.4"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2026-10-16",
+            "description": "The `zvariant` crate is no longer maintained as a standalone crate.\n\nIt has been merged into [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`, as its `wire` module.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus wire format. Users of the GVariant format should migrate to [`zgvariant`](https://crates.io/crates/zgvariant).",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2026-0370",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "zvariant",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "`zvariant` is unmaintained",
+            "url": "https://github.com/z-galaxy/zbus/issues/2043",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "c1d34c27cc6cdd1f458427519dd6b8612f7b7e3f7b9a0b2355d041dda9869147",
+            "dependencies": [
+              {
+                "name": "endi",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.1.1"
+              },
+              {
+                "name": "enumflags2",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.7.12"
+              },
+              {
+                "name": "serde",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.229"
+              },
+              {
+                "name": "serde_bytes",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "0.11.19"
+              },
+              {
+                "name": "winnow",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.4"
+              },
+              {
+                "name": "zcheapstr",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.1.0"
+              },
+              {
+                "name": "zvariant_derive",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "5.15.0"
+              },
+              {
+                "name": "zvariant_utils",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "4.2.0"
+              }
+            ],
+            "name": "zvariant",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "5.15.0"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        },
+        {
+          "advisory": {
+            "aliases": [],
+            "categories": [],
+            "collection": "crates",
+            "cvss": null,
+            "date": "2026-10-16",
+            "description": "The `zvariant_derive` crate is no longer maintained as a standalone crate.\n\nIts derive macros are provided by [`zbus`](https://crates.io/crates/zbus) starting with version `6.0.0`.\n\nUsers should migrate to [`zbus`](https://crates.io/crates/zbus), with its default features disabled if they only need the D-Bus wire format.",
+            "expect-deleted": false,
+            "id": "RUSTSEC-2026-0372",
+            "informational": "unmaintained",
+            "keywords": [],
+            "license": "CC0-1.0",
+            "package": "zvariant_derive",
+            "references": [],
+            "related": [],
+            "source": null,
+            "title": "`zvariant_derive` is unmaintained",
+            "url": "https://github.com/z-galaxy/zbus/issues/2043",
+            "withdrawn": null
+          },
+          "affected": null,
+          "kind": "unmaintained",
+          "package": {
+            "checksum": "864155e69b4352db0c7f374917bf45d1e0c8d17659c8b3dbf9795f3673f8c497",
+            "dependencies": [
+              {
+                "name": "proc-macro-crate",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "3.5.0"
+              },
+              {
+                "name": "proc-macro2",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.107"
+              },
+              {
+                "name": "quote",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "1.0.47"
+              },
+              {
+                "name": "syn",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "3.0.6"
+              },
+              {
+                "name": "zvariant_utils",
+                "source": "registry+https://github.com/rust-lang/crates.io-index",
+                "version": "4.2.0"
+              }
+            ],
+            "name": "zvariant_derive",
+            "replace": null,
+            "source": "registry+https://github.com/rust-lang/crates.io-index",
+            "version": "5.15.0"
+          },
+          "versions": {
+            "patched": [],
+            "unaffected": []
+          }
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:37:34.349743+00:00",
+      "group_absent": true,
+      "index": 1,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "source-final-expanded-root-head",
+      "output_bytes": 41,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:37:34.287328+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/01-source-final-expanded-root-head.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 41,
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/01-source-final-expanded-root-head.stdout",
+      "stdout_sha256": "b1dc8e870c5cec554f4d86d5ec4944166cde5a4c7efd018b77b19afb7c0f9963",
+      "stop_reason": null,
+      "timeout_seconds": 15.0
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+        "status",
+        "--porcelain",
+        "--untracked-files=all"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:37:34.532478+00:00",
+      "group_absent": true,
+      "index": 2,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "source-final-expanded-root-status",
+      "output_bytes": 0,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:37:34.350455+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/02-source-final-expanded-root-status.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/02-source-final-expanded-root-status.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stop_reason": null,
+      "timeout_seconds": 15.0
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+        "ls-tree",
+        "-r",
+        "-z",
+        "--full-tree",
+        "HEAD",
+        "--",
+        "Cargo.lock"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:37:34.595149+00:00",
+      "group_absent": true,
+      "index": 3,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "source-final-expanded-root-tree",
+      "output_bytes": 64,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:37:34.533174+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/03-source-final-expanded-root-tree.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 64,
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-continuation/commands/03-source-final-expanded-root-tree.stdout",
+      "stdout_sha256": "92ae71e8c5e791665703d4dbd9fc5e15af61b50a5c0e41fcc3970256895faefe",
+      "stop_reason": null,
+      "timeout_seconds": 15.0
+    }
+  ],
+  "config_sha256": "da95fa53e685ee0df8b06e4e754714538599044b3619177d3dd4d185cabb2d91",
+  "database_snapshots": [],
+  "elapsed_seconds": 0.336,
+  "failure": "AttributeError: 'str' object has no attribute 'decode'",
+  "finished_at": "2026-10-22T10:37:34.596127+00:00",
+  "free_bytes": 13092278272,
+  "limits": {
+    "cleanup_reserve_seconds": 30.0,
+    "ignored_advisories": [],
+    "max_combined_output_bytes_per_command": 1048576,
+    "minimum_live_free_bytes": 1073741824,
+    "minimum_start_free_bytes": 2147483648,
+    "overall_seconds": 300.0,
+    "scan_flags": [
+      "--no-fetch",
+      "--no-yanked",
+      "--format",
+      "json"
+    ],
+    "severity_threshold": null,
+    "target_arch": [],
+    "target_os": []
+  },
+  "native_observed": false,
+  "notes": [
+    "Existing main-213 baseline report is validated in place; it is not rerun.",
+    "The earlier 003 root snapshot and original attempt packets are preserved unscanned.",
+    "Exit 1 means vulnerability findings; it is retained as a result, not retried.",
+    "A lockfile match is not reachability or exposure evidence.",
+    "--no-yanked omits yanked checking."
+  ],
+  "owner_accepted": false,
+  "scan_results": [],
+  "schema": "brn.current-lock-advisory-continuation.v1",
+  "source_inputs": [],
+  "started_at": "2026-10-22T10:37:34.260264+00:00",
+  "status": "failed",
+  "task_root": "/private/tmp/brn-advisory-audit-20261022"
+}
