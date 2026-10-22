@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:06:49.036440+00:00
-Activity: Complete six-file candidate frozen6da1735b; clean actual parent e05f6ed6 retains production and contracts. Final existing-journey extension inspects Close/Cmd-Q refusal, Enter/Cancel, durable recovery, externally saved closed session, stale confirmation and explicit local discard. Independent Sol full review active; no build active.
-Next: Resolve independent complete-candidate review, then run selected final writing component, host, desktop, strict combined lint and ordinary app checks sequentially. Record actual failures; native remains owner-deferred.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:11:37.407694+00:00
+Activity: Frozen6da component and independent host checks PASS. Full desktop FAIL349/1/1ignored at Cmd-Q refusal dialog1889; earlier Close refusal, Enter and Cancel PASS. No lint/build launched after failure. Two unused test bindings also need mechanical correction. Lead and independent reviewer diagnosing same-window global action reentry before repair.
+Next: Confirm actual gpui-pre action/window lifetime diagnosis; correct bounded production Quit deferral and unused test bindings if established. Refresh review; rerun affected desktop/lint/build only, reusing unchanged component/host PASS.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Resolve independent complete-candidate review, then run selected final wri
 Gates:
 
 - **implementation:** Implemented frozen6da1735b including contracts; full independent candidate review pending. No PR.
-- **checks:** BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.
+- **checks:** FAIL desktop349/1/1ignored at new Cmd-Q1889; component/host PASS, lint/build not launched. Native owner-deferred.
 - **integration:** No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.

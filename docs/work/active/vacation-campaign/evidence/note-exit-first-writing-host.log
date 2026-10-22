@@ -1,0 +1,21 @@
+    Finished `test` profile [optimized] target(s) in 0.81s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests examples/writing_host.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/writing_host-96b0ba4863f0abc3)
+
+running 12 tests
+test journey::disposable_fixture_reopens_real_workspace_and_removes_only_its_own_root ... ok
+test journey::note_explicit_recovery_replaces_a_blocked_attempt_only_after_validating_the_hint ... ok
+test journey::note_refresh_does_not_adopt_another_edit_and_confirmed_discard_keeps_owner_typing ... ok
+test journey::refused_review_apply_keeps_candidate_until_dirty_guard_is_resolved ... ok
+test journey::note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery ... ok
+test journey::note_stale_save_refresh_recovery_and_discard_preserve_the_typed_base ... ok
+test journey::edited_review_survives_reopen_then_prepares_a_new_exact_candidate ... ok
+test journey::refused_preparation_retains_real_review_input_and_original_candidate ... ok
+test journey::editor_menu_actions_bubble_to_comment_and_explicit_unavailable_ask ... ok
+test journey::host_wires_first_dirty_guard_save_and_fresh_access_loss_before_render ... ok
+test journey::editor_shortcuts_open_saved_passage_comment_save_and_rewrite ... ok
+test journey::same_panel_comments_shared_scripted_start_exact_review_apply_and_undo ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+

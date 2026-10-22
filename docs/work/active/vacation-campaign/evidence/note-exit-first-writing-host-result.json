@@ -1,0 +1,33 @@
+{
+  "head": "6da1735bc9461ba07efc4a5c5b59d748bfbb81cf",
+  "tree": "caffdfdca949a951906e26b24b9b77a33927d26c",
+  "stage": "writing-host",
+  "argv": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-writing-ui",
+    "--example",
+    "writing_host",
+    "--features",
+    "native-ui,native-test-support",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "started_at": "2026-10-22T13:08:47.688676+00:00",
+  "temporary_root": "/tmp/brn-note-exit-qualification/final-writing-host/data",
+  "target": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+  "scope": "Offline synthetic toolkit/compilation only; no native observation/account/model/library acquisition.",
+  "completed_at": "2026-10-22T13:08:49.700625+00:00",
+  "seconds": 2.0203074580058455,
+  "exit_code": 0,
+  "stop_reason": null,
+  "signals": [],
+  "cleanup_errors": [],
+  "group_absent": true,
+  "leader_reaped": true,
+  "source_unchanged": true,
+  "log_sha256": "33d9f5260d23d4c9a8ee837d5db3c74bce7a9aa1f6ec57f298fd000fa2b91484"
+}

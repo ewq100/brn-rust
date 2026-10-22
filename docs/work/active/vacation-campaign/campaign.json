@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:06:49.036440+00:00",
+        "observed_at": "2026-10-22T13:11:37.407694+00:00",
         "origin": "observed",
-        "activity": "Complete six-file candidate frozen6da1735b; clean actual parent e05f6ed6 retains production and contracts. Final existing-journey extension inspects Close/Cmd-Q refusal, Enter/Cancel, durable recovery, externally saved closed session, stale confirmation and explicit local discard. Independent Sol full review active; no build active.",
-        "next_action": "Resolve independent complete-candidate review, then run selected final writing component, host, desktop, strict combined lint and ordinary app checks sequentially. Record actual failures; native remains owner-deferred.",
+        "activity": "Frozen6da component and independent host checks PASS. Full desktop FAIL349/1/1ignored at Cmd-Q refusal dialog1889; earlier Close refusal, Enter and Cancel PASS. No lint/build launched after failure. Two unused test bindings also need mechanical correction. Lead and independent reviewer diagnosing same-window global action reentry before repair.",
+        "next_action": "Confirm actual gpui-pre action/window lifetime diagnosis; correct bounded production Quit deferral and unused test bindings if established. Refresh review; rerun affected desktop/lint/build only, reusing unchanged component/host PASS.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5301,11 +5301,17 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log",
           "docs/work/active/vacation-campaign/evidence/note-exit-final-test-author.md",
-          "docs/work/active/vacation-campaign/evidence/note-exit-final-test-author-reconciliation.md"
+          "docs/work/active/vacation-campaign/evidence/note-exit-final-test-author-reconciliation.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-writing-ui-result.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-writing-ui.log",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-writing-host-result.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-writing-host.log",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-desktop-result.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-first-desktop.log"
         ],
         "gates": {
           "implementation": "Implemented frozen6da1735b including contracts; full independent candidate review pending. No PR.",
-          "checks": "BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.",
+          "checks": "FAIL desktop349/1/1ignored at new Cmd-Q1889; component/host PASS, lint/build not launched. Native owner-deferred.",
           "integration": "No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
@@ -5340,6 +5346,16 @@
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log",
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reassessment.md"
+            ]
+          },
+          {
+            "observed_at": "2026-10-22T13:11:37.407694+00:00",
+            "candidate": "6da1735bc9461ba07efc4a5c5b59d748bfbb81cf",
+            "outcome": "Component and independent host PASS; full desktop349PASS/1FAIL/1ignored,56.25s. New Quit path missing dialog1889; no later scenario proof.",
+            "change": "Diagnose global action callback nested same-window update vs deferred safe admission. No test relaxation or speculative source fix.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-exit-first-desktop-result.json",
+              "docs/work/active/vacation-campaign/evidence/note-exit-first-desktop.log"
             ]
           }
         ],
