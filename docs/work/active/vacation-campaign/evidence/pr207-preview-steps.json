@@ -1,0 +1,112 @@
+{
+  "observed_at": "2026-10-22T04:15:08.711064+00:00",
+  "run": 39721265319,
+  "sha": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "actual_steps": [
+    {
+      "completedAt": "2026-10-22T04:14:30Z",
+      "conclusion": "success",
+      "name": "Set up job",
+      "number": 1,
+      "startedAt": "2026-10-22T04:14:30Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "success",
+      "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "number": 2,
+      "startedAt": "2026-10-22T04:14:30Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "success",
+      "name": "Verify exact main, approval and the four required CI jobs",
+      "number": 3,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Run ./.github/actions/setup-rust",
+      "number": 4,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Fetch the committed stock lock for generator fixtures",
+      "number": 5,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Check portable packaging and release guards",
+      "number": 6,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Prepare locked stock and adapted document helpers",
+      "number": 7,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Build locked desktop and retain target graphs",
+      "number": 8,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Package and verify the relocated signed archive",
+      "number": 9,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Qualify packaged startup and helper using disposable fixtures",
+      "number": 10,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "skipped",
+      "name": "Upload, verify and publish the current-main prerelease",
+      "number": 11,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "success",
+      "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "number": 22,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    },
+    {
+      "completedAt": "2026-10-22T04:14:35Z",
+      "conclusion": "success",
+      "name": "Complete job",
+      "number": 23,
+      "startedAt": "2026-10-22T04:14:35Z",
+      "status": "completed"
+    }
+  ],
+  "verdict": "Actual packaging, startup qualification and publication steps skipped. Workflow label success does not establish release."
+}

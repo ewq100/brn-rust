@@ -1,0 +1,39 @@
+{
+  "observed_at": "2026-10-22T04:17:47.722655+00:00",
+  "candidate": "d521722ab984eb2fd125a990b9d4e13956138717",
+  "base": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "qualification_process_exit_code": 0,
+  "writing_ui_library": {
+    "passed": 44,
+    "failed": 0,
+    "ignored": 0
+  },
+  "independent_host": {
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0
+  },
+  "desktop_threads_ui": {
+    "passed": 344,
+    "failed": 0,
+    "ignored": 1,
+    "filtered_outside_selected_module": 3
+  },
+  "strict_writing_ui_desktop_all_target_clippy": "PASS",
+  "production_native_ui_build": "PASS, not launched",
+  "binary": {
+    "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+    "sha256": "6f93307b234360e9cea990cd0142db96d27be1be46557e228713d54be931026e",
+    "bytes": 165969376,
+    "identity_limit": "Mutable shared target; hash names the observed output. Do not infer later executable identity from path/timestamp."
+  },
+  "format": "PASS after mechanical d521 formatting correction",
+  "markdown_links": "625 files,2850 links,0 failures",
+  "whitespace_clean_head": "PASS",
+  "source_review": "note-reload-generation-review.md",
+  "commands": "note-reload-generation-final.sh",
+  "raw": "note-reload-generation-final.log",
+  "original_baseline": "note-reload-generation-baseline.log: expected0/1 failure at ordinary shared reopen refusal on test-only28bb",
+  "warnings": "Existing block0.1.6 future-incompatible warning retained; prior native-future warning triage still applies.",
+  "limits": "No native menu/control/IME/owner acceptance. Dirty Reload menu disabled; shared open-note API and actual navigation consumer boundary. No cross-process atomic presentation snapshot claim. Required head/integration/main gates pending separately."
+}

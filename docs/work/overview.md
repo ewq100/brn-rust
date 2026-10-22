@@ -9,31 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Refuse a new Project link when its selected document has been superseded
-
-Owner: Lead diagnosis/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T04:00:40.584033+00:00
-Activity: PR207 merged normally as main8c188 after all four exact-head and preceding-main required checks and live protection passed. The integrated whole tree equals the qualified candidate. Resulting-main checks are running separately.
-Next: Inspect all four required resulting-main checks at8c188; retain optional failures and actual preview-step outcomes. No source change or repeat local checks selected.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS LinkDocument-only currenteligibilityguard; Unlink/replay/identityunchanged; independentcomplete3file review approved.
-- **checks:** PASS Projects9/0, core219/0/1existingignored, strictcore+app alltargetlint/fmt/links/diff/cleanHEAD; actualredbaseline retained.
-- **integration:** Normal merge207 PASS exact-head/protection/preceding-main; resulting-main8c188 checks pending.
-- **native:** No native dialog observation; shared service authority repair.
-- **owner acceptance:** No owner decision selected for retaining existing current-document eligibility.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/project-dialog-target-audit.md](active/vacation-campaign/evidence/project-dialog-target-audit.md), [crates/brn-threads-core/src/projects.rs](../../crates/brn-threads-core/src/projects.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [crates/brn-threads-app/tests/projects.rs](../../crates/brn-threads-app/tests/projects.rs), [docs/work/active/vacation-campaign/evidence/project-current-link-test.md](active/vacation-campaign/evidence/project-current-link-test.md), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log), [docs/work/active/vacation-campaign/evidence/project-current-link-review.md](active/vacation-campaign/evidence/project-current-link-review.md), [docs/work/active/vacation-campaign/evidence/project-current-link-implementation.md](active/vacation-campaign/evidence/project-current-link-implementation.md), [docs/work/active/vacation-campaign/evidence/project-current-link-final.sh](active/vacation-campaign/evidence/project-current-link-final.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-final.log](active/vacation-campaign/evidence/project-current-link-final.log), [docs/work/active/vacation-campaign/evidence/project-current-link-qualification.json](active/vacation-campaign/evidence/project-current-link-qualification.json), [docs/work/active/vacation-campaign/evidence/pr207-publication.json](active/vacation-campaign/evidence/pr207-publication.json), [docs/work/active/vacation-campaign/evidence/pr207-premerge.json](active/vacation-campaign/evidence/pr207-premerge.json), [docs/work/active/vacation-campaign/evidence/pr207-integration.json](active/vacation-campaign/evidence/pr207-integration.json)
-
-Attempts:
-
-- Lead initial Cargo invocation exit1 before test due missing -- separator; no fixture/product conclusion. Corrected invocation reaches intended baseline1FAIL, exit101.: Preserved original invocation/log; corrected only command syntax. Select LinkDocument-only current-eligibility guard; retain UnlinkDocument and existing identity. ([docs/work/active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.sh](active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.log](active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.log), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log))
-
-</details>
-
 ### Bound backup-process readiness and clean up its owned test child
 
 Owner: Lead design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T04:01:07.568923+00:00
@@ -86,22 +61,22 @@ Attempts:
 
 ### Keep the visible edit when Reload encounters a newer recovery generation
 
-Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:10:57.175186+00:00
-Activity: Actual real-host shared reopen baseline failed at the intended refusal assertion on test-only28bb965 over unchanged main207:0 passed/1 failed, exit101. The editor was replaced rather than refused. Lead selects a small checked session-generation guard at open-note replacement; no per-keystroke poll or persistence change.
-Next: Implement the shared non-explicit open-note guard after preserving input: read exact local session from checked Store and refuse closed/changed generation before replacing editor. Preserve validated explicit same-note Recover. Qualify affected independent host and production desktop wiring after independent review.
+Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:17:47.722655+00:00
+Activity: The exact shared replacement guard is independently approved at formatted d521. Final shared UI44/0, independent host12/0 and production desktop344/0/1ignored (3 outside-module filtered) passed; strict lint, production native build, format and links passed. Original intended baseline failure and formatting correction remain visible.
+Next: Preserve qualified d521. After PR208 integration, reconcile actual main and select one complete reviewed batch with the separately qualified provider-test bound to avoid redundant stale CI. No native launch.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Pending bounded candidate; no production change accepted before actual reproduction/review.
-- **checks:** Expected baseline FAIL reproduced at shared open_note same-note reload; subsequent navigation assertions await corrected source. No native claim.
-- **integration:** No PR or merge; current maintenance PR208 remains frozen.
+- **implementation:** PASS independent complete3file d521 review; current session checked only before non-explicit replacement; explicit same-note Recover retained.
+- **checks:** PASS writing UI44, host12, desktop344/0/1ignored +3filtered; strict affected alltargetlint, productionbuild/notlaunched, fmt/links/cleanHEAD.
+- **integration:** Qualified isolated branch only; no PR/merge. Await current PR208 integration before selecting fresh current-main batch.
 - **native:** No native observation; owner availability remains deferred.
 - **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs), [docs/work/active/vacation-campaign/evidence/note-reload-generation-test.md](active/vacation-campaign/evidence/note-reload-generation-test.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log)
+Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs), [docs/work/active/vacation-campaign/evidence/note-reload-generation-test.md](active/vacation-campaign/evidence/note-reload-generation-test.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log), [docs/work/active/vacation-campaign/evidence/note-reload-generation-implementation.md](active/vacation-campaign/evidence/note-reload-generation-implementation.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-review.md](active/vacation-campaign/evidence/note-reload-generation-review.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-final.sh](active/vacation-campaign/evidence/note-reload-generation-final.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-final.log](active/vacation-campaign/evidence/note-reload-generation-final.log), [docs/work/active/vacation-campaign/evidence/note-reload-generation-qualification.json](active/vacation-campaign/evidence/note-reload-generation-qualification.json), [docs/work/active/vacation-campaign/evidence/note-reload-generation-format-attempts.md](active/vacation-campaign/evidence/note-reload-generation-format-attempts.md)
 
 Attempts:
 
@@ -111,22 +86,22 @@ Attempts:
 
 ### Bound the synthetic provider stderr fixture and retain owned-child cleanup
 
-Owner: Bounded Luna test-only author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T04:06:56.528812+00:00
-Activity: Select finite parent completion wait and kill/reap cleanup for the isolated synthetic stderr witness, preserving its exact capture/redaction/success assertions and ignored child route. No live provider call.
-Next: Implement only this test harness outcome, source-only initial checks. Lead validates one normal witness and a bounded negative control after independent review; do not expand to Linux or a cross-crate process framework.
+Owner: Bounded Luna test-only author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T04:17:47.722655+00:00
+Activity: Final test-only a6b6 is independently approved. Initial valid P2 for lossy UTF8 acceptance is fixed with strict decoding and constant diagnostics. One selected controlled child-hang negative is now running before final full library/lint checks.
+Next: Complete one controlled-hang negative, verify timeout plus actual owned-child signal9/reap and exact source restoration. Then final full library/lint/format gates on a6b6; no additional live calls or test framework.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Pending bounded candidate; no production change accepted before actual reproduction/review.
+- **implementation:** PASS independent complete final a6b6 review; initial UTF8 P2 valid/fixed. Output cap is accepted/read output after exit, not hard live disk growth.
 - **checks:** Pending meaningful affected checks after source freeze.
 - **integration:** No PR or merge; current maintenance PR208 remains frozen.
 - **native:** No native observation; owner availability remains deferred.
 - **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md](active/vacation-campaign/evidence/test-child-readiness-audit.md), [crates/brn-ai/src/provider_stderr_tests.rs](../../crates/brn-ai/src/provider_stderr_tests.rs), [crates/brn-ai/src/skill_packages_tests.rs](../../crates/brn-ai/src/skill_packages_tests.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md](active/vacation-campaign/evidence/test-child-readiness-audit.md), [crates/brn-ai/src/provider_stderr_tests.rs](../../crates/brn-ai/src/provider_stderr_tests.rs), [crates/brn-ai/src/skill_packages_tests.rs](../../crates/brn-ai/src/skill_packages_tests.rs), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-implementation.md](active/vacation-campaign/evidence/provider-test-child-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-initial-review.md](active/vacation-campaign/evidence/provider-test-child-bounds-initial-review.md), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final-review.md](active/vacation-campaign/evidence/provider-test-child-bounds-final-review.md)
 
 </details>
 
@@ -339,6 +314,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `native-future-compatibility-warning-triage` — Identify the native dependency warning before it becomes an upgrade blocker
 - `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
 - `project-dialog-target-ownership` — Check Project dialogs keep the identity and version shown when opened
+- `project-current-document-link` — Refuse a new Project link when its selected document has been superseded
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
 - `test-child-readiness-audit` — Find remaining unbounded owned-child waits in deterministic tests
 - `note-lifecycle-transition-audit` — Check note switching and recovery for unsaved-work loss
@@ -379,4 +355,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:10:57.175186+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:17:47.722655+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

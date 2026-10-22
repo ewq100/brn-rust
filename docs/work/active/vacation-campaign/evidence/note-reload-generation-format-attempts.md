@@ -1,0 +1,3 @@
+# Note guard formatting observations
+
+After author source freeze at bd3c, the lead attempted the pinned absolute Cargo binary without its subcommand PATH; it returned101, `error: no such command: fmt`. Loading the established pinned environment corrected that invocation. The actual `cargo fmt --all -- --check` then returned1 with formatting-only differences in the newly extended journey assertions. The lead applied the pinned formatter and committed d521; no production or assertion semantics changed. The independent reviewer inspected that delta and pinned d521. Final format, full affected checks and clean source passed as recorded in the final command/log/qualification. These are retained command/format corrections, not product or native failures.
