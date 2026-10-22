@@ -1,0 +1,17 @@
+# Note storage-refusal exit-witness route inventory
+
+## Checkout and scope
+
+Inspected product source at `origin/main` `10f2ff80a39408ce411e10c77200e6d4a89b12d3`; the working checkout was `abe690258cddd5123bed037a10583648d328329f`, with only pre-existing documentation artifacts visible. No source was changed and no test/build/SQL/native action was run.
+
+## Existing headless APIs
+
+The desktop pins `gpui-kit = 0.7.3` and enables `gpui-kit/test-support` through `native-test-support` (`crates/brn-desktop/Cargo.toml`). The cached dependency delegates to `gpui-fast 0.1.7`. Its `VisualTestContext::simulate_close(&mut self) -> bool` in `gpui-fast-0.1.7/src/app/test_context.rs:1073-1099` takes and invokes the installed test-platform `should_close_handler`, reinstalls it, and returns the handler's boolean. It does not itself close/remove the window. The same test context exposes `TestAppContext::dispatch_action(window, action)` (`:601-610`) and `VisualTestContext::dispatch_action(action)` (`:890-896`); existing desktop test helpers exercise registered key bindings through `window.press` (for example `threads_omakase_tests.rs:74-80`). These are headless test-platform routes, not OS/native close events.
+
+The actual registrations currently live inline only in `launch` (`crates/brn-desktop/src/threads_ui.rs:4805-4866`). `on_window_should_close` at `:4837-4850` cancels/discards worker continuation and unconditionally returns `true`; it does not save or inspect Note storage. The registered `Quit` action at `:4852-4865` performs the same worker cancellation and calls `cx.quit()`. The test fixtures instead initialize GPUI and bind keys, then construct `ThreadsUi` via `gpui_kit::open_window` (`threads_omakase_tests.rs:14-38`); they do not install either launch callback. Thus `simulate_close` on the ordinary fixture has no production callback to invoke, and dispatching Quit there has no launch-installed handler. `TestAppContext::quit` drains test cleanup and shuts down the test app (`app/test_context.rs:233-241`), so invoking the actual Quit handler is also not a continuation-friendly way to assert the same app remains available for retry.
+
+## Storage-refusal stimulus and assessment
+
+The existing fixture provides a fresh temporary data directory and checked `Workspace::open`; Store uses `threads.sqlite3` and `busy_timeout(Duration::from_secs(5))` (`crates/brn-threads-core/src/store.rs:13,152-155`). However, `brn-desktop` does not declare `rusqlite` directly in its manifest, and the fixture exposes no connection/transaction handle. I found no existing desktop test seam for holding a competing `BEGIN IMMEDIATE` on that same database. So the proposed storage stimulus would need an additional explicit fixture route (or a newly shared core test seam); it cannot be assembled solely from the current desktop fixture API.
+
+Conclusion: toolkit support can invoke a registered should-close predicate headlessly, but the current test fixture does not register the actual launch predicate, and the current predicate always permits close regardless of Note write state. The current Quit path directly quits and is not an admission/refusal check. A faithful future headless witness would first need a shared registration route used by both `launch` and a test fixture, plus a supported way to hold the competing SQLite write lock; otherwise it would only test a copied callback or a simulated platform predicate. Even after factoring registration, `simulate_close` establishes the predicate result only; native OS close behavior remains unobserved.

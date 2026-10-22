@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T12:17:19.900377+00:00",
-    "remaining_percent": 39,
-    "reset_unix": 1793083361,
-    "ordinary_work": "Actual61%used/39%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless integration and bounded independent source assessment admitted; native/account constraints unchanged.",
+    "observed_at": "2026-10-22T12:32:19.376188+00:00",
+    "remaining_percent": 38,
+    "reset_unix": 1793083360,
+    "ordinary_work": "Actual62%used/38%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless exit-preservation design/API preflight admitted; native/account constraints unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:30:52.859774+00:00",
+    "observed_at": "2026-10-22T12:34:26.902532+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5028,10 +5028,10 @@
         "title": "Clear outdated Connections after project membership changes",
         "state": "active",
         "owner": "Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T12:17:19.900377+00:00",
+        "observed_at": "2026-10-22T12:34:26.902532+00:00",
         "origin": "observed",
-        "activity": "Independent full source review approved; equivalent final317360bd passed desktop350/0/1, strict lint, ordinary build and pinned formatting. Published ready PR216; required hosted checks running. Baseline and Undo-only negative control failures retained.",
-        "next_action": "Inspect exact-head required checks and live protection/currentmain/all PRs before normal merge; compare integrated whole tree, then verify resulting-main separately. Continue independent bounded source assessment while hosted gates run.",
+        "activity": "PR216 normally merged5c606c10 after independent review and all4required exact-head/preceding-main PASS. Integrated whole tree exactly equals qualified317360bd. Resulting-main run39779292111 now running; optional Windows compile failures retained.",
+        "next_action": "Inspect all4 required resulting-main checks at exact5c606c10 before completing engineering integration and satisfying MAC14 prerequisite. Continue independently admitted exit-preservation assessment; no native/account attempt.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5061,12 +5061,14 @@
           "docs/work/active/vacation-campaign/evidence/connections-prepublication.json",
           "docs/work/active/vacation-campaign/evidence/pr216-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr216-windows-core.json",
-          "docs/work/active/vacation-campaign/evidence/pr216-windows-core.log.gz"
+          "docs/work/active/vacation-campaign/evidence/pr216-windows-core.log.gz",
+          "docs/work/active/vacation-campaign/evidence/pr216-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr216-integration.json"
         ],
         "gates": {
           "implementation": "PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.",
           "checks": "PASS local desktop350/0/1 existingignored, strict all-target lint, ordinary native-ui build, direct pinned rustfmt. Meaningful pre-fix and Undo-only negative failures preserved; no native observation.",
-          "integration": "Published PR216 exact317360bd; required hosted checks pending. Precedingmain10f all4required PASS; protection must be rechecked at merge.",
+          "integration": "PASS normal merge5c606c10 and qualified whole-tree equality. Required resulting-main checks PENDING run39779292111; not yet complete.",
           "native": "Owner-deferred; no actual interaction.",
           "owner_acceptance": "Preserve accepted visibility, selected scope and note bytes; no new product meaning."
         },
@@ -5170,7 +5172,7 @@
         "gates": {
           "implementation": "Scenario defined; existing two mutation-family refresh calls in PR216.",
           "checks": "Local toolkit checks PASS on317360bd; native source/binary/fixture entry checks pending.",
-          "integration": "PR216 required hosted head checks pending; normal merge and resulting-main checks still needed.",
+          "integration": "PR216 normally merged5c606c10; all4 required resulting-main checks still pending. Native remains owner-deferred.",
           "native": "Owner-deferred; no actual interaction.",
           "owner_acceptance": "Not claimed."
         },
@@ -5236,16 +5238,17 @@
         "title": "Check Close and Quit preserve typing after a refused storage write",
         "state": "active",
         "owner": "Consequential Sol design/source assessment; lead admission and qualification",
-        "observed_at": "2026-10-22T12:30:52.859774+00:00",
+        "observed_at": "2026-10-22T12:32:19.376188+00:00",
         "origin": "observed",
-        "activity": "Lead inspected actual launch hooks: OS Close always true and cmd-Q calls quit after only worker cancellation. They do not check latest note recovery persistence. Distinct source-backed exit question selected after the live Save refusal assessment.",
+        "activity": "Sol assesses Note-owner exit contract and a supported refusal ordering. In parallel, Luna inventories existing pinned toolkit Close/Quit APIs and a meaningful headless witness route; neither may write product source or run faults/builds/tests.",
         "next_action": "Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-storage-refusal-preflight.md",
           "crates/brn-desktop/src/threads_ui.rs",
-          "crates/brn-writing-ui/src/note.rs"
+          "crates/brn-writing-ui/src/note.rs",
+          "docs/work/active/vacation-campaign/evidence/note-exit-witness-route.md"
         ],
         "gates": {
           "implementation": "Independent source/design assessment pending; no product change.",
@@ -5255,7 +5258,7 @@
           "owner_acceptance": "Preserve existing exact recovery and honest failure guarantees; no new exit policy accepted by source report alone."
         },
         "attempts": [],
-        "resource_plan": "Existing Sol high helper performs one consequential source/design assessment without source writes, builds/tests/faults/native/account/network or nested agents. Lead owns task decisions and integration; first request remains a design assessment, not independent candidate approval."
+        "resource_plan": "Two useful read-only flows plus lead within four slots: consequential Sol design and economical Luna toolkit API inventory, separate reports and no source overlap. Lead owns selection/integration. No SQL/fault/build/native/account/network/permissions/disk changes or nested helpers. Stop at one design and one supported witness route; actual OS/native remains deferred."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5271,21 +5274,21 @@
     "last_refresh_evidence": "docs/work/active/vacation-campaign/evidence/remote-connections-pr216.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:30:52.859774+00:00",
-    "runtime_capacity": "Lead PR216 integration; Sol exit-preservation design assessment active; Luna source preflight complete. No local build/native/account actor.",
+    "observed_at": "2026-10-22T12:34:26.902532+00:00",
+    "runtime_capacity": "Lead integration; Sol exit design active; Luna API inventory complete. No local source writer/build/native/account actor.",
     "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR216 required hosted gates running; no local capacity wait. Native owner-deferred.",
+    "wait_reason": "PR216 resulting-main checks running; no local capacity wait. Native owner-deferred.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
     "fixture_worker_checkout": "mac-test-roots clean codex/connections-project-refresh-20261022 frozen317360bd, PR216 head stable. Prior source/construction and diagnostic branches retained.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
-      39776297929
+      39779292111
     ]
   },
   "native_availability": {

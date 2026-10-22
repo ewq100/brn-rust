@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Clear outdated Connections after project membership changes
 
 Task ID: `connections-project-freshness`
-Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:17:19.900377+00:00
-Activity: Independent full source review approved; equivalent final317360bd passed desktop350/0/1, strict lint, ordinary build and pinned formatting. Published ready PR216; required hosted checks running. Baseline and Undo-only negative control failures retained.
-Next: Inspect exact-head required checks and live protection/currentmain/all PRs before normal merge; compare integrated whole tree, then verify resulting-main separately. Continue independent bounded source assessment while hosted gates run.
+Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:34:26.902532+00:00
+Activity: PR216 normally merged5c606c10 after independent review and all4required exact-head/preceding-main PASS. Integrated whole tree exactly equals qualified317360bd. Resulting-main run39779292111 now running; optional Windows compile failures retained.
+Next: Inspect all4 required resulting-main checks at exact5c606c10 before completing engineering integration and satisfying MAC14 prerequisite. Continue independently admitted exit-preservation assessment; no native/account attempt.
 
 <details>
 <summary>Gate status</summary>
@@ -25,7 +25,7 @@ Gates:
 
 - **implementation:** PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.
 - **checks:** PASS local desktop350/0/1 existingignored, strict all-target lint, ordinary native-ui build, direct pinned rustfmt. Meaningful pre-fix and Undo-only negative failures preserved; no native observation.
-- **integration:** Published PR216 exact317360bd; required hosted checks pending. Precedingmain10f all4required PASS; protection must be rechecked at merge.
+- **integration:** PASS normal merge5c606c10 and qualified whole-tree equality. Required resulting-main checks PENDING run39779292111; not yet complete.
 - **native:** Owner-deferred; no actual interaction.
 - **owner acceptance:** Preserve accepted visibility, selected scope and note bytes; no new product meaning.
 
@@ -34,8 +34,8 @@ Gates:
 ### Check Close and Quit preserve typing after a refused storage write
 
 Task ID: `note-exit-preservation-assessment`
-Owner: Consequential Sol design/source assessment; lead admission and qualification · State: **active** · Last observed: 2026-10-22T12:30:52.859774+00:00
-Activity: Lead inspected actual launch hooks: OS Close always true and cmd-Q calls quit after only worker cancellation. They do not check latest note recovery persistence. Distinct source-backed exit question selected after the live Save refusal assessment.
+Owner: Consequential Sol design/source assessment; lead admission and qualification · State: **active** · Last observed: 2026-10-22T12:32:19.376188+00:00
+Activity: Sol assesses Note-owner exit contract and a supported refusal ordering. In parallel, Luna inventories existing pinned toolkit Close/Quit APIs and a meaningful headless witness route; neither may write product source or run faults/builds/tests.
 Next: Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.
 
 <details>
@@ -226,7 +226,7 @@ Gates:
 
 - **implementation:** Scenario defined; existing two mutation-family refresh calls in PR216.
 - **checks:** Local toolkit checks PASS on317360bd; native source/binary/fixture entry checks pending.
-- **integration:** PR216 required hosted head checks pending; normal merge and resulting-main checks still needed.
+- **integration:** PR216 normally merged5c606c10; all4 required resulting-main checks still pending. Native remains owner-deferred.
 - **native:** Owner-deferred; no actual interaction.
 - **owner acceptance:** Not claimed.
 
@@ -416,4 +416,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:30:52.859774+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:34:26.902532+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
