@@ -1842,6 +1842,7 @@ fn normal_close_accepts_a_clean_historical_checkpoint_without_writing(cx: &mut T
             );
             assert_eq!(view.writing.note.as_ref().unwrap().record(), &f.a);
             assert!(view.writing.note.as_ref().unwrap().session().is_none());
+            assert!(view.writing.note.open_edit_elsewhere().is_none());
             assert_eq!(
                 view.workspace.store.note(&f.a.id).unwrap().unwrap(),
                 advanced
@@ -1873,8 +1874,19 @@ fn normal_close_accepts_a_clean_historical_checkpoint_without_writing(cx: &mut T
     );
     // TestPlatform reports the installed admission predicate; it does not
     // perform native window teardown.
-    cx.update_window(f.window, |_, _, cx| {
-        f.view.update(cx, |view, _| {
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(!window.has_active_dialog(cx));
+        f.view.update(cx, |view, cx| {
+            assert_eq!(view.writing.note.as_ref().unwrap().record(), &f.a);
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
+            assert!(view.writing.note.open_edit_elsewhere().is_none());
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                match &f.a.data {
+                    RecordData::Note(note) => note.markdown.as_str(),
+                    _ => panic!("fixture is a Note"),
+                }
+            );
             assert_eq!(
                 view.workspace.store.note(&f.a.id).unwrap().unwrap(),
                 advanced

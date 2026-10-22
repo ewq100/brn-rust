@@ -90,11 +90,24 @@ impl WritingPanel {
         workspace: &mut Workspace,
         cx: &Context<T>,
     ) -> AppResult<()> {
-        let Some(note) = self.open_note_id().map(str::to_owned) else {
+        let Some(open) = self.note.as_ref() else {
             return Ok(());
         };
+        let note = open.record.id.clone();
         let text = self.note_editor.read(cx).value().to_string();
         if Self::note_text_is_durable(workspace, &note, &text)? {
+            return Ok(());
+        }
+        // A clean view can retain its accepted checkpoint after another Save.
+        // Prove that exact Record in SQLite; cached bytes alone are not enough.
+        if matches!(open.editing, EditState::Clean)
+            && matches!(&open.record.data, RecordData::Note(saved) if saved.markdown == text)
+            && workspace
+                .store
+                .revision(&note, open.record.version)?
+                .as_ref()
+                == Some(&open.record)
+        {
             return Ok(());
         }
         let preserved = self.note_changed(workspace, text.clone());
