@@ -64,24 +64,24 @@ Attempts:
 
 </details>
 
-### Identify the native dependency warning before it becomes an upgrade blocker
+### Verify the public restore command recovers from an interrupted copy
 
-Owner: Bounded Luna read-only diagnostic/research; lead disposition · State: **active** · Last observed: 2026-10-22T02:48:44.579940+00:00
-Activity: Selected actual recurring block0.1.6 future-compatibility warning attribution from final native qualification. Identify exact compiler diagnostic and dependency owner; no upgrade or patch selected.
-Next: Read saved future-incompat report and pinned dependency graph/source. Compare a relevant maintained primary source only if needed; report concrete risk, minimal next step and revisit trigger without changing pins.
+Owner: Lead bounded qualification/driver review; Luna driver author · State: **active** · Last observed: 2026-10-22T02:57:28.927671+00:00
+Activity: Selected one fresh synthetic public-CLI interruption qualification, distinct from private full-stage test: observe a partial staged copy, kill only its owned CLI child, then retry through public CLI. No production change or account call.
+Next: Prepare/review finite driver before any execution. Use frozen qualified CLI28 only after exact runtime-graph and binary-hash reuse proof; at most one interruption attempt, no success claim if required partial-state/kill observations are not reached.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Read-only triage, no candidate.
-- **checks:** No new source check selected; actual saved warning is starting evidence.
-- **integration:** No dependency or toolchain mutation authorized by this task.
-- **native:** No native interaction.
-- **owner acceptance:** No owner decision expected for diagnosis.
+- **implementation:** Driver/preflight only, no source candidate.
+- **checks:** No task workload executed yet; CLI help inspected.
+- **integration:** Evidence only unless an actual defect is diagnosed.
+- **native:** CLI process/storage observation only; no OS UI or power-loss proof.
+- **owner acceptance:** No owner decision selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/knowledge-refresh-final.log](active/vacation-campaign/evidence/knowledge-refresh-final.log)
+Evidence: [docs/work/active/vacation-campaign/evidence/public-cli-restore-interruption-design.md](active/vacation-campaign/evidence/public-cli-restore-interruption-design.md)
 
 </details>
 
@@ -289,6 +289,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
 - `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
 - `state-ownership-milestone-review` — Reconcile the implemented reducers and state owners
+- `native-future-compatibility-warning-triage` — Identify the native dependency warning before it becomes an upgrade blocker
 
 ## Dependencies
 
@@ -326,4 +327,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:48:44.579940+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:57:28.927671+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
