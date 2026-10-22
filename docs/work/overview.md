@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Keep raw check history out of the startup summary
 
 Task ID: `active-overview-reading-route`
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:46:56.620994+00:00
-Activity: PR213 exact7ccb552e all four required head and preceding-main212 checks PASS. Immediate live protection strict/enforcedapp15368 and unchanged mainbase e918b2b3 verified by premerge guard; normal merge next.
-Next: Wait for actual required Ubuntu result; then inspect live protection/exacthead/precedingmain and normalmerge if all satisfied. Resultingmain remains separate. Keephead stable.
+Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:52:57.381750+00:00
+Activity: PR213 normally merged3827d6a1 after all four exact-head/precedingmain/live protection PASS; integrated entiretree equals reviewed7ccb552e. Lead regenerated only its derivedoverview during reconciliation and preserved authoritative recordhash exactly. Resultingmain checks pending.
+Next: Observe all four required resulting-main contexts for exact3827d6a1, retaining optional failures. Keep branch snapshot and lead authority distinct; no local tests/source changes without new concern.
 
 <details>
 <summary>Gate status</summary>
@@ -25,9 +25,29 @@ Gates:
 
 - **implementation:** PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.
 - **checks:** PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.
-- **integration:** PASS all required head/precedingmain/liveprotection premerge guard; normal merge and resultingmain still pending.
+- **integration:** PASS normalprotectedmerge3827d6a1 and wholequalifiedtree equality; required head/precedingmain/protectionPASS. Resultingmain pending.
 - **native:** Inapplicable to text projection; existing native gates remain deferred
 - **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
+
+</details>
+
+### Check every recovery-copy entry point uses the privacy guard
+
+Task ID: `recovery-copy-route-audit`
+Owner: Bounded Luna caller audit; lead decision · State: **active** · Last observed: 2026-10-22T08:52:57.381750+00:00
+Activity: Select bounded consumer audit of the newly integrated recovery-copy boundary while main213 checks run. Inspect shipped SaveCopy entry points and text-copy Note producers, including independent writing host responsibility; avoid redoing existing tests or importing a new policy.
+Next: Report a bypass with exact real caller evidence or a concise no-change responsibility map; no source/test/build dispatch from this audit.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Read-only assessment selected; no source change
+- **checks:** Reuse current source/callers/tests; no new execution selected
+- **integration:** Inapplicable until a supported candidate is selected
+- **native:** Owner-deferred; no desktop attempt
+- **owner acceptance:** No new private publication or copy policy selected
 
 </details>
 
@@ -316,4 +336,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:46:56.620994+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:52:57.381750+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

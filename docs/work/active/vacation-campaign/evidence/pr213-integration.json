@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T08:47:50.890382+00:00",
+  "pr": 213,
+  "candidate": "7ccb552efc152443f1ae57a044673500e7fe91c3",
+  "merge": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "candidate_tree": "42fc4eca397005bc11924dfc6d022a600c80f862",
+  "merged_tree": "42fc4eca397005bc11924dfc6d022a600c80f862",
+  "whole_qualified_tree_equal": true,
+  "lead_head": "23cab3af5e98632715246abd392484d8789e1dbc",
+  "lead_resolution": {
+    "conflicted_paths": [
+      "docs/work/overview.md"
+    ],
+    "lead_record_sha256_before": "02f63f437546be62ff6e55d423095258377870b8bc8191df0b2d905c23530484",
+    "method": "Regenerate only derived overview from unchanged authoritative lead record; preserve separately reviewed main snapshot.",
+    "lead_record_sha256_after": "02f63f437546be62ff6e55d423095258377870b8bc8191df0b2d905c23530484",
+    "preserved": true
+  },
+  "limits": "Protected normal merge after required exacthead/precedingmain/liveprotection PASS; resulting-main checks separate. No native/account/owner acceptance or release proof."
+}
