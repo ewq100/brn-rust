@@ -1806,6 +1806,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         .store
         .update_buffer(&elsewhere.id, 1, elsewhere_text)
         .unwrap();
+    let original_history = serde_json::to_value(other.history().unwrap()).unwrap();
     drop(other);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -1816,7 +1817,8 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         window.press("cmd-a", cx);
     })
     .unwrap();
-    let attempted = "Private typing · õun 私密\nSecond line stays live.";
+    // The first refused character makes the editor read-only on redraw.
+    let attempted = "õ";
     cx.simulate_input(f.window, attempted);
     cx.run_until_parked();
     cx.update_window(f.window, |_, _, cx| {
@@ -1835,6 +1837,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             assert!(!view.notice.text().contains("Could not preserve"));
             assert!(view.writing.note.as_ref().unwrap().session().is_none());
             assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            assert_eq!(serde_json::to_value(view.workspace.history().unwrap()).unwrap(), original_history);
             let recovery = view.workspace.store.edit_session(&elsewhere.id).unwrap();
             assert_eq!(recovery.markdown, elsewhere_text);
             assert!(!recovery.closed);
@@ -1854,6 +1857,10 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             );
             assert_eq!(view.writing.note.as_ref().unwrap().session(), None);
             assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                original_history
+            );
             let recovery = view.workspace.store.edit_session(&elsewhere.id).unwrap();
             assert_eq!(recovery.markdown, elsewhere_text);
             assert!(!recovery.closed);
