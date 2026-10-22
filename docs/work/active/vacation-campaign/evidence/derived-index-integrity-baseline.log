@@ -1,0 +1,23 @@
+{"source": "a499ae47c81de2e9101676743d164d6e5ca2cb9b", "purpose": "focused test-only baseline, not production qualification"}
+   Compiling rusqlite v0.40.2
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-retrieval)
+    Finished `test` profile [optimized] target(s) in 4.71s
+     Running tests/search_index.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/search_index-c340703ac453c82a)
+
+running 1 test
+
+thread 'outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place' (18597692) panicked at crates/brn-retrieval/tests/search_index.rs:521:9:
+assertion `left == right` failed: FTS-only corruption in fts_exact at the current watermark must rebuild
+  left: Existing
+ right: Rebuilt
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place ... FAILED
+
+failures:
+
+failures:
+    outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-retrieval --test search_index`

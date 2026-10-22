@@ -9,56 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Bound backup-process readiness and clean up its owned test child
-
-Owner: Lead design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T04:29:11.402421+00:00
-Activity: The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately.
-Next: Inspect all four required resulting-main11c48f9b checks and retain optional failures/actual preview steps. Do not repeat local checks or modify the merged candidate.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS exactdc169 complete4fileindependentreview; sharedUnix test-only childowner, boundedreadiness, helperretirement.
-- **checks:** PASS core219/0/0, strictalltargetlint/fmt/diff. Actualnegative readinessFAIL+ownedreap9 with exactsourcerestoration; parsererrorrecordretained.
-- **integration:** Normal merge208 PASS exact-head/preceding-main/protection and wholequalifiedtree equality; resulting-main11c48f9b run39722288570 pending.
-- **native:** No native or power-loss claim.
-- **owner acceptance:** No owner decision selected.
-
-Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-implementation.md](active/vacation-campaign/evidence/backup-process-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-review.md](active/vacation-campaign/evidence/backup-process-bounds-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.sh](active/vacation-campaign/evidence/backup-process-bounds-final.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.log](active/vacation-campaign/evidence/backup-process-bounds-final.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.sh](active/vacation-campaign/evidence/backup-process-bounds-negative.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json](active/vacation-campaign/evidence/backup-process-bounds-qualification.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json](active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-review.md](active/vacation-campaign/evidence/development-maintenance-batch-review.md), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.sh](active/vacation-campaign/evidence/development-maintenance-batch-final.sh), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.log](active/vacation-campaign/evidence/development-maintenance-batch-final.log), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json](active/vacation-campaign/evidence/development-maintenance-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/pr208-publication.json](active/vacation-campaign/evidence/pr208-publication.json), [docs/work/active/vacation-campaign/evidence/pr208-premerge.json](active/vacation-campaign/evidence/pr208-premerge.json), [docs/work/active/vacation-campaign/evidence/pr208-integration.json](active/vacation-campaign/evidence/pr208-integration.json)
-
-Attempts:
-
-- Expectednegative1FAIL at missingready after10.02s; actualownedChildwaitOk signal9. Lead initialreceiptparser mismatchedRustdebugspelling, nottestbehavior.: Correctedreceiptparseragainstpreservedlogwithout rerun; originalreceiptretained. Exactdc169filebytes/hash/cleanHEAD restored; nofullrerunneeded foridenticalsource. ([docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log))
-
-</details>
-
-### Read one current task without loading the entire campaign history
-
-Owner: Bounded Luna tooling author; lead review/integration · State: **active** · Last observed: 2026-10-22T04:29:11.402421+00:00
-Activity: The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately.
-Next: Inspect all four required resulting-main11c48f9b checks and retain optional failures/actual preview steps. Do not repeat local checks or modify the merged candidate.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS final cadcec independent complete review; custom-record P2 valid/fixed.
-- **checks:** PASS Python188, actual lookup/unknown exit0/2 and byte preservation, default/custom overview and links. Earlier functional proof reused explicitly: lookup main function is byte-identical.
-- **integration:** Normal merge208 PASS exact-head/preceding-main/protection and wholequalifiedtree equality; resulting-main11c48f9b run39722288570 pending.
-- **native:** Inapplicable developerreadroute; noBRNruntime/nativechanges.
-- **owner acceptance:** No ownerdecision selected.
-
-Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-implementation.md](active/vacation-campaign/evidence/selected-task-route-implementation.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md](active/vacation-campaign/evidence/selected-task-route-initial-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md](active/vacation-campaign/evidence/selected-task-route-final-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json](active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json), [docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json](active/vacation-campaign/evidence/selected-task-route-qualification.json), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-review.md](active/vacation-campaign/evidence/development-maintenance-batch-review.md), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.sh](active/vacation-campaign/evidence/development-maintenance-batch-final.sh), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.log](active/vacation-campaign/evidence/development-maintenance-batch-final.log), [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json](active/vacation-campaign/evidence/development-maintenance-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/pr208-publication.json](active/vacation-campaign/evidence/pr208-publication.json), [docs/work/active/vacation-campaign/evidence/pr208-premerge.json](active/vacation-campaign/evidence/pr208-premerge.json), [docs/work/active/vacation-campaign/evidence/pr208-integration.json](active/vacation-campaign/evidence/pr208-integration.json)
-
-Attempts:
-
-- Initial2cd passed188 tests but independent review found generated custom-record guidance would query the default record.: Added explicit selected-record argument to the generated instruction and extended the existing custom-record assertion. Final cadcec passed188 and independent review; lookup behavior itself is unchanged. ([docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md](active/vacation-campaign/evidence/selected-task-route-initial-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md](active/vacation-campaign/evidence/selected-task-route-final-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json](active/vacation-campaign/evidence/selected-task-route-qualification.json))
-
-</details>
-
 ### Keep the visible edit when Reload encounters a newer recovery generation
 
 Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:37:21.884812+00:00
@@ -107,9 +57,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 ### Recover an owned search index whose term tables disagree with its content
 
-Owner: Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration · State: **active** · Last observed: 2026-10-22T04:42:39.073184+00:00
-Activity: Lead selects a test-only characterization of the audit inference at currentmain208. Reused clean mac-test-roots checkout now codex/derived-index-integrity-recovery at11c48. No productfix selected until baseline proves gap.
-Next: Extend existing recovery witness with a synthetic FTS-only mismatch, prove readablequickcheck+externalcontentmismatch and expectedrebuild. Lead runs focusedbaseline once; then reassess design/performance/errorclassification.
+Owner: Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration · State: **active** · Last observed: 2026-10-22T04:49:27.391119+00:00
+Activity: Focused actualbundledSQLitebaseline atfinaltesta499:0PASS/1FAIL exit101 intended firstlane: currentopen reportsExisting, expectedRebuilt; priorquickcheckok, DatabaseCorruptexternalcontentmismatch, othershealthy, ordinaryschema/meta/rowsunchanged. Fourlanesindividuallyisolated in finalwitness. Independentdesignassessment says admission+inplacerebuild onlyif costqualified. Leadselects ONE temporaryhealthy-index admission-costexperiment before productfix.
+Next: Prepare/review a temporary four-lane scan in existingUsableopen path, then run unchanged existingstrictrelease10kMac witness once. Diagnostic only, no repair/adoptionclaim; restore exactsource afterward. If50msreopenbound fails, stopautomatic-scan approach/reassess; no weakeningtargets.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -117,12 +67,16 @@ Next: Extend existing recovery witness with a synthetic FTS-only mismatch, prove
 Gates:
 
 - **implementation:** Test-only characterization selected; productionfixpending evidence.
-- **checks:** Focusedbaselinepending on pinnedSQLite; no claimedobservedfailure.
+- **checks:** Actualredbaseline0/1 exit101 at intendedopenExisting!=Rebuilt onfts_exact; otherlanesremainunexecutedafterfirstfailure. Costexperimentpending; no productionfixselected.
 - **integration:** No PR selected; preserve frozenPR209.
 - **native:** Inapplicable to index-onlysyntheticwitness; nativeacceptance notclaimed.
 - **owner acceptance:** No new productdecision selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/derived-index-recovery-audit.md](active/vacation-campaign/evidence/derived-index-recovery-audit.md), [crates/brn-retrieval/tests/search_index.rs](../../crates/brn-retrieval/tests/search_index.rs), [crates/brn-retrieval/src/search_index.rs](../../crates/brn-retrieval/src/search_index.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/derived-index-recovery-audit.md](active/vacation-campaign/evidence/derived-index-recovery-audit.md), [crates/brn-retrieval/tests/search_index.rs](../../crates/brn-retrieval/tests/search_index.rs), [crates/brn-retrieval/src/search_index.rs](../../crates/brn-retrieval/src/search_index.rs), [docs/work/active/vacation-campaign/evidence/derived-index-integrity-design.md](active/vacation-campaign/evidence/derived-index-integrity-design.md), [docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md](active/vacation-campaign/evidence/derived-index-integrity-witness.md), [docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.sh](active/vacation-campaign/evidence/derived-index-integrity-baseline.sh), [docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log](active/vacation-campaign/evidence/derived-index-integrity-baseline.log)
+
+Attempts:
+
+- Initialtestsource2acf brokeall4lanestogether; leadcaughtthat checkingonlyfirstlanecouldpass. No workloadexecutedonthatrevision.: Finala499isolateseachlane, checksDatabaseCorrupt/other3healthy andexactpersistedordinarydata. Firstactualbaseline0/1 intendedreopenfailure. ([docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md](active/vacation-campaign/evidence/derived-index-integrity-witness.md), [docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log](active/vacation-campaign/evidence/derived-index-integrity-baseline.log))
 
 </details>
 
@@ -336,6 +290,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
 - `project-dialog-target-ownership` — Check Project dialogs keep the identity and version shown when opened
 - `project-current-document-link` — Refuse a new Project link when its selected document has been superseded
+- `backup-process-witness-bounds` — Bound backup-process readiness and clean up its owned test child
+- `selected-task-reading-route` — Read one current task without loading the entire campaign history
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
 - `test-child-readiness-audit` — Find remaining unbounded owned-child waits in deterministic tests
 - `note-lifecycle-transition-audit` — Check note switching and recovery for unsaved-work loss
@@ -379,4 +335,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:42:39.073184+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:49:27.391119+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

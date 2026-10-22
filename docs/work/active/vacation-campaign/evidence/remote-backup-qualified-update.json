@@ -1,0 +1,93 @@
+{
+  "observed_at": "2026-10-22T04:45:25.531Z",
+  "source_commit": "4a286f4c",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "sequence": 73,
+  "verified_blocks": 40,
+  "managed_updated": 4,
+  "other_blocks_preserved": 36,
+  "actual_changes": [
+    {
+      "id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+      "markdown": "**The controlled backup-interruption check passed**, including independent inspection of the saved data. One normal retry removed the partial backup and produced an exact complete copy; the source and earlier backup stayed unchanged. [PR 208](https://github.com/ewq100/brn-rust/pull/208) is merged, with one required check afterward still running. The reviewed note-preservation and test-process fixes in [PR 209](https://github.com/ewq100/brn-rust/pull/209) are locally verified and awaiting required integration checks. A possible search-index recovery gap is being tested before any production change. Actual Mac interaction remains deferred. [Current work and evidence](https://github.com/ewq100/brn-rust/blob/4a286f4c/docs/work/overview.md)."
+    },
+    {
+      "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+      "markdown": "1. Finish PR 208’s checks after merging, then PR 209’s required checks and normal integration. In parallel, test whether a damaged search index can silently miss results and select a repair only if the focused check confirms it. No account test is running; live-model usefulness of the quote selector remains unmeasured."
+    },
+    {
+      "id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+      "markdown": "- **Backup recovery checked:** the backup created through the Mac app restored successfully into a fresh test folder through the supported command line. Every saved database row matched; the originals stayed unchanged. A second restore correctly refused to overwrite the existing copy. Database restoration currently uses the command line. A separate controlled check interrupted copying of a fresh synthetic backup. One retry removed the abandoned partial copy and restored exact saved data without changing earlier complete outputs. [Interruption evidence and limits](https://github.com/ewq100/brn-rust/blob/f690f04c/docs/work/active/vacation-campaign/evidence/public-cli-restore-interruption-qualification.json). A distinct current-source check also interrupted backup creation itself during copying. One public retry removed its partial stage and produced a standalone backup containing the exact note, schema and every saved row, while preserving the source, prior backup and unrelated files. Independently checked; one synthetic run, with no hardware or power-loss claim. [Backup interruption evidence](https://github.com/ewq100/brn-rust/blob/4a286f4c/docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-qualification.json)."
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "markdown": "Last refreshed: **22 October 2026 at 07:45 Europe/Tallinn**. This is a saved progress summary, not live activity."
+    }
+  ],
+  "edit": {
+    "new_sequence": 73,
+    "through_sequence": 73,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "5269316ea96a27f15388a5f3ddcb7ad09e18a08e8566b901305624e42359547d"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "977d75a9eb5ea63b9bb8cc55b0e67c04341671fe279247ba10d837effb9a085c"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "b641f9c4-8ed7-4084-af14-431a5e37ea35",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+          "relative_position_base64": "ALKu3X2rCkE="
+        },
+        "affected_blocks": [
+          {
+            "block_id": "33c93b3c-932c-4cf4-b5cc-1e1cfecb7d0e",
+            "hash": "f58c1d314012f7bff49d4bfcbbec0d77f68b8a87517d45d6fbc6bab8205b43c7"
+          }
+        ]
+      },
+      {
+        "operation_index": 3,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "ba0c8430f1761fb88fe8a1e797c0e790186756dc3d22079795d065a314af336f"
+          }
+        ]
+      }
+    ]
+  }
+}

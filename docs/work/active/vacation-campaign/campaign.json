@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:42:39.073184+00:00",
+    "observed_at": "2026-10-22T04:49:27.391119+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3452,12 +3452,12 @@
       {
         "id": "backup-process-witness-bounds",
         "title": "Bound backup-process readiness and clean up its owned test child",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead design/integration; bounded Luna test-only author; independent Sol review",
-        "observed_at": "2026-10-22T04:29:11.402421+00:00",
+        "observed_at": "2026-10-22T04:49:27.391119+00:00",
         "origin": "observed",
-        "activity": "The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately.",
-        "next_action": "Inspect all four required resulting-main11c48f9b checks and retain optional failures/actual preview steps. Do not repeat local checks or modify the merged candidate.",
+        "activity": "The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately. Allfour required resulting-mainchecks nowPASS. Actualpreviewpackaging/qualification/publicationsteps SKIPPED; optionalWindows3failuresretained.",
+        "next_action": "Complete: normalmerge208 and allfour resulting-main11c48 requiredchecks PASS. Reuse unchanged evidence; no repeatchecks. Continue next selectedtask.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3481,12 +3481,14 @@
           "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
           "docs/work/active/vacation-campaign/evidence/pr208-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr208-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr208-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr208-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-preview-steps.json"
         ],
         "gates": {
           "implementation": "PASS exactdc169 complete4fileindependentreview; sharedUnix test-only childowner, boundedreadiness, helperretirement.",
           "checks": "PASS core219/0/0, strictalltargetlint/fmt/diff. Actualnegative readinessFAIL+ownedreap9 with exactsourcerestoration; parsererrorrecordretained.",
-          "integration": "Normal merge208 PASS exact-head/preceding-main/protection and wholequalifiedtree equality; resulting-main11c48f9b run39722288570 pending.",
+          "integration": "PASS normalmerge208 exacthead/precedingmain/liveprotection, wholequalifiedtreeequality and allfourrequired resulting-main11c48 checks. OptionalWindowsfailuresvisible; no release.",
           "native": "No native or power-loss claim.",
           "owner_acceptance": "No owner decision selected."
         },
@@ -3507,12 +3509,12 @@
       {
         "id": "selected-task-reading-route",
         "title": "Read one current task without loading the entire campaign history",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna tooling author; lead review/integration",
-        "observed_at": "2026-10-22T04:29:11.402421+00:00",
+        "observed_at": "2026-10-22T04:49:27.391119+00:00",
         "origin": "observed",
-        "activity": "The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately.",
-        "next_action": "Inspect all four required resulting-main11c48f9b checks and retain optional failures/actual preview steps. Do not repeat local checks or modify the merged candidate.",
+        "activity": "The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head. PR208 has now normally merged as main11c48f9b after all four required exact-head and preceding-main checks plus live protection; whole tree equals qualified7dde. Resulting-main required checks run separately. Allfour required resulting-mainchecks nowPASS. Actualpreviewpackaging/qualification/publicationsteps SKIPPED; optionalWindows3failuresretained.",
+        "next_action": "Complete: normalmerge208 and allfour resulting-main11c48 requiredchecks PASS. Reuse unchanged evidence; no repeatchecks. Continue next selectedtask.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3531,12 +3533,14 @@
           "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
           "docs/work/active/vacation-campaign/evidence/pr208-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr208-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr208-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr208-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-preview-steps.json"
         ],
         "gates": {
           "implementation": "PASS final cadcec independent complete review; custom-record P2 valid/fixed.",
           "checks": "PASS Python188, actual lookup/unknown exit0/2 and byte preservation, default/custom overview and links. Earlier functional proof reused explicitly: lookup main function is byte-identical.",
-          "integration": "Normal merge208 PASS exact-head/preceding-main/protection and wholequalifiedtree equality; resulting-main11c48f9b run39722288570 pending.",
+          "integration": "PASS normalmerge208 exacthead/precedingmain/liveprotection, wholequalifiedtreeequality and allfourrequired resulting-main11c48 checks. OptionalWindowsfailuresvisible; no release.",
           "native": "Inapplicable developerreadroute; noBRNruntime/nativechanges.",
           "owner_acceptance": "No ownerdecision selected."
         },
@@ -3856,25 +3860,38 @@
         "title": "Recover an owned search index whose term tables disagree with its content",
         "state": "active",
         "owner": "Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration",
-        "observed_at": "2026-10-22T04:42:39.073184+00:00",
+        "observed_at": "2026-10-22T04:49:27.391119+00:00",
         "origin": "observed",
-        "activity": "Lead selects a test-only characterization of the audit inference at currentmain208. Reused clean mac-test-roots checkout now codex/derived-index-integrity-recovery at11c48. No productfix selected until baseline proves gap.",
-        "next_action": "Extend existing recovery witness with a synthetic FTS-only mismatch, prove readablequickcheck+externalcontentmismatch and expectedrebuild. Lead runs focusedbaseline once; then reassess design/performance/errorclassification.",
+        "activity": "Focused actualbundledSQLitebaseline atfinaltesta499:0PASS/1FAIL exit101 intended firstlane: currentopen reportsExisting, expectedRebuilt; priorquickcheckok, DatabaseCorruptexternalcontentmismatch, othershealthy, ordinaryschema/meta/rowsunchanged. Fourlanesindividuallyisolated in finalwitness. Independentdesignassessment says admission+inplacerebuild onlyif costqualified. Leadselects ONE temporaryhealthy-index admission-costexperiment before productfix.",
+        "next_action": "Prepare/review a temporary four-lane scan in existingUsableopen path, then run unchanged existingstrictrelease10kMac witness once. Diagnostic only, no repair/adoptionclaim; restore exactsource afterward. If50msreopenbound fails, stopautomatic-scan approach/reassess; no weakeningtargets.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/derived-index-recovery-audit.md",
           "crates/brn-retrieval/tests/search_index.rs",
-          "crates/brn-retrieval/src/search_index.rs"
+          "crates/brn-retrieval/src/search_index.rs",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-design.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.sh",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log"
         ],
         "gates": {
           "implementation": "Test-only characterization selected; productionfixpending evidence.",
-          "checks": "Focusedbaselinepending on pinnedSQLite; no claimedobservedfailure.",
+          "checks": "Actualredbaseline0/1 exit101 at intendedopenExisting!=Rebuilt onfts_exact; otherlanesremainunexecutedafterfirstfailure. Costexperimentpending; no productionfixselected.",
           "integration": "No PR selected; preserve frozenPR209.",
           "native": "Inapplicable to index-onlysyntheticwitness; nativeacceptance notclaimed.",
           "owner_acceptance": "No new productdecision selected."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Initialtestsource2acf brokeall4lanestogether; leadcaughtthat checkingonlyfirstlanecouldpass. No workloadexecutedonthatrevision.",
+            "change": "Finala499isolateseachlane, checksDatabaseCorrupt/other3healthy andexactpersistedordinarydata. Firstactualbaseline0/1 intendedreopenfailure.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md",
+              "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log"
+            ]
+          }
+        ],
         "resource_plan": "One bounded Luna medium test-onlywriter in clean isolatedreusedcheckout, lead serializes sharedtarget build, Sol consequence/designreview. No nestedhelper/schema/native/account/private-data/network/dependency/toolchain change. Stop/reassess after two failed hypotheses; meaningfulbaselinebeforeproductfix. Costs/performance of extraopenchecks require explicitassessment, not blind integrityscan perquery."
       }
     ],
@@ -3886,13 +3903,13 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T04:38:29.662524+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-reliability-publication-update.json"
+    "last_refresh_at": "2026-10-22T04:49:27.391119+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:42:39.073184+00:00",
-    "runtime_capacity": "Lead plus bounded Luna test-only writer; independentSol actualresultreview finished. No nestedhelper.",
-    "build_slot": "Free; no active localbuild.",
+    "observed_at": "2026-10-22T04:49:27.391119+00:00",
+    "runtime_capacity": "Lead singlebuildactor; authors/designreview finished. Independent temporarydiagnosticreview next.",
+    "build_slot": "Free: focusedbaseline18450 finished expected101. One strictrelease admission-costexperiment selected; not yetlaunched.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
@@ -3904,14 +3921,13 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 requiredhead and main208Ubuntu pending. Backupqualificationcomplete; syntheticFTScharacterizationselected.",
+    "wait_reason": "PR209 requiredhead pending; main208completeall4PASS. BaselineconfirmedFTSrecoverygap; costexperimentbefore choosingrepair.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
     "fixture_worker_checkout": "mac-test-roots clean switched from retainedprovidera6b6 to codex/derived-index-integrity-recovery atmain20811c48; test-onlywriter selected.",
     "documentation_worker_checkout": "architecture-status-route frozen combined dfe4 on actualmain208; no writer.",
     "required_ci_runs": [
-      39722288570,
       39723336384
     ]
   },

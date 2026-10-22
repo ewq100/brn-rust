@@ -1,0 +1,15 @@
+# Derived FTS integrity recovery witness
+
+Candidate commit: `2acf2beb9b1730b21ca1bf2ebc9cfa733c20c5f9` (`Witness FTS integrity recovery`), on `codex/derived-index-integrity-recovery`, based on main208 `11c48f9b91cb0d4e9deba9e0f45b43ef284b63e1`.
+
+Changed only `crates/brn-retrieval/tests/search_index.rs`. The existing `outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place` test now also establishes canonical note/message index content at watermark 41, then uses supported FTS5 `delete-all` commands on `fts_exact`, `fts_stem`, `fts_message_exact`, and `fts_message_stem`. Before and after the mutation it compares the BRNS schema/application/user versions and all ordinary persisted index tables (including full metadata/watermark). It requires SQLite `quick_check` to remain `ok` and rank-1 external-content integrity checks to fail for every lane. It then asserts open reports `Opened::Rebuilt` with empty sync state, reapplies the same note/message fixture, and verifies both searches and all four integrity checks pass.
+
+Expected lead baseline distinction: current source only inspects SQLite quick-check/schema/meta, so this new `Opened::Rebuilt` assertion is expected to expose the gap if FTS-only damage remains accepted. That expected red is not execution evidence; lead owns the focused baseline and any production decision. No fixture was run here.
+
+Validation performed: pinned `rustup run 1.98.1 rustfmt --edition 2024 crates/brn-retrieval/tests/search_index.rs` and `git diff --check` passed. No builds, tests, workloads, production changes, dependencies, network, account, native actions, or nested helpers were used. Worktree is clean at the candidate commit. Lead owns execution and next disposition.
+
+## Per-lane review correction
+
+Preserved the initial `2acf2beb9b1730b21ca1bf2ebc9cfa733c20c5f9` candidate/report history. The final test now loops each FTS lane independently: it starts from the same good note/message fixture and watermark, corrupts only the selected lane with `delete-all`, requires `quick_check == "ok"`, requires the selected rank-1 integrity check's `sqlite_error_code()` to be `Some(rusqlite::ErrorCode::DatabaseCorrupt)`, and requires the other three lane integrity checks to pass. It confirms the persisted non-FTS schema/meta/content snapshot remains unchanged, expects recovery to `Opened::Rebuilt` with empty sync state, reapplies the same fixture and confirms both searches plus all four FTS integrity checks before moving to the next lane. This prevents a repair limited to one lane from satisfying the witness. The typed SQLite code is an expected assertion in source, not an observed runtime result; lead owns confirming it in the focused baseline.
+
+Final candidate commit: `a499ae47c81de2e9101676743d164d6e5ca2cb9b` (`Isolate FTS lane recovery witnesses`). Pinned formatting and `git diff --check` passed. No test/build/workload was run; the source worktree is clean at this final commit. Lead owns the one focused baseline and any production correction.
