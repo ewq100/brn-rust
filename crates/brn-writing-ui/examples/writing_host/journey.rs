@@ -995,16 +995,11 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
             // visible generation just because it still equals the stale local
             // session. Only explicit same-note Recover may adopt the newer
             // durable generation.
-            assert!(host
-                .panel
-                .open_note(
-                    &mut host.workspace,
-                    &session.note,
-                    None,
-                    window,
-                    cx,
-                )
-                .is_err());
+            assert!(
+                host.panel
+                    .open_note(&mut host.workspace, &session.note, None, window, cx,)
+                    .is_err()
+            );
             assert_eq!(
                 host.panel.note_editor.read(cx).value().as_ref(),
                 "Local first generation"
@@ -1013,10 +1008,7 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
                 host.panel.note.as_ref().unwrap().session().unwrap(),
                 &session
             );
-            assert_eq!(
-                host.panel.note.as_ref().unwrap().record(),
-                &local_record
-            );
+            assert_eq!(host.panel.note.as_ref().unwrap().record(), &local_record);
             assert_eq!(
                 host.workspace.store.recovery_buffers().unwrap(),
                 newer_buffer
@@ -1027,16 +1019,11 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
             );
             assert_eq!(host.workspace.history().unwrap(), history_before);
 
-            assert!(host
-                .panel
-                .open_note(
-                    &mut host.workspace,
-                    &other_note.id,
-                    None,
-                    window,
-                    cx,
-                )
-                .is_err());
+            assert!(
+                host.panel
+                    .open_note(&mut host.workspace, &other_note.id, None, window, cx,)
+                    .is_err()
+            );
             assert_eq!(
                 host.panel.note_editor.read(cx).value().as_ref(),
                 "Local first generation"
@@ -1045,10 +1032,7 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
                 host.panel.note.as_ref().unwrap().session().unwrap(),
                 &session
             );
-            assert_eq!(
-                host.panel.note.as_ref().unwrap().record(),
-                &local_record
-            );
+            assert_eq!(host.panel.note.as_ref().unwrap().record(), &local_record);
             assert_eq!(
                 host.workspace.store.recovery_buffers().unwrap(),
                 newer_buffer
