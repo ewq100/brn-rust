@@ -86,9 +86,9 @@ Attempts:
 
 ### Check a precise AI edit on fresh synthetic data
 
-Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-21T23:53:58.737878+00:00
-Activity: Distinct remaining M3/M6 live usefulness gap selected while required source integrations run. Existing19/20October account smoke and whole-note proposal evidence reused; no repeat smoke or account launch yet.
-Next: Preflight existing ordinary CLI/harness capability for one exact passage proposal on Unicode/multiline synthetic Note plus unchanged sentinel. Do not launch unless existing supported path exposes all policy bounds and fresh data setup is qualified. Reserve ledger before any attempted launch.
+Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:03:14.292206+00:00
+Activity: NormalCLI freshsetup and read-only seal passed:533initialUTF8bytes, Codex/Luna/low, ReviewFirst/nohelperMCP, source-boundfrozenCLI. Independent driver review found3issues, repaired with final no-blocking addendum; only outerwatchdog receipt label changed afterward. First of maximum3session/6day attempt reserved durably before launch.
+Next: Lead launch one reserved bounded ask, inspect actual terminal/exactcandidate/unchangeddata and record actual usage/limits. No repeat generation just for green.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -96,12 +96,12 @@ Next: Preflight existing ordinary CLI/harness capability for one exact passage p
 Gates:
 
 - **implementation:** No product change selected; reuse existing exact edit capability and normal runtime.
-- **checks:** Preflight only, no account attempt; fresh setup/guards/unchanged checks pending.
+- **checks:** Fresh local setup/seal and driverreview PASS; actual account attempt pending.
 - **integration:** No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py)
 
 </details>
 
@@ -313,4 +313,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-21T23:53:58.737878+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T00:03:14.292206+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

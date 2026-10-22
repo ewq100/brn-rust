@@ -212,6 +212,37 @@
         "reset_unix": 1793083360
       },
       "qualification": "writing-account-qualification.json"
+    },
+    {
+      "id": "9979761a-9a29-43b4-8208-f2126d0b3396",
+      "session": "2026-10-22-local-edit-01",
+      "tallinn_date": "2026-10-22",
+      "reserved_at_utc": "2026-10-22T00:03:14.292206+00:00",
+      "status": "reserved",
+      "scenario": "One exact local passage proposal on Unicode/multiline synthetic Note; canonical target/sentinel unchanged, sole exact unapplied candidate via precise edit",
+      "provider": "Codex existing signedinaccount only",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "max_initial_input_utf8_bytes": 8192,
+      "initial_input_utf8_bytes": 533,
+      "binary_qualified_source": "2ecf634d7de93fbf7381317168109b6d199531e4",
+      "binary_sha256": "61366a4eff077c9ab6fba0d37182e6d4f76f1335c986aee9685485dd603fe0c5",
+      "harness_source_sha256": "dfb1128d6a1de90463e43f537d3a1cd6d36cf05c085e5b541ac632defc92a040",
+      "launch_seal_sha256": "cfd4bfd3ce3bb6e1a362ad1e54067ae49fa3eb574b98ffba149d3ccf8134abd4",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-01/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-01",
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-22T00:02:53+00:00",
+        "ordinary_usage_allowed": true,
+        "used_percent": 32,
+        "remaining_percent": 68,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false
     }
   ]
 }

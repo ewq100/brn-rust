@@ -1,0 +1,38 @@
+# Bounded targeted-edit driver review
+
+Reviewed `/tmp/brn-targeted-edit-account/check.py`, SHA-256 `5ada779240df7f850a2e67f23bcfb1b2a2117c4400f6abd8cc9da2e816a1f33a`, against the supplied preflight, campaign account policy and current ledger. Read-only inspection only; no driver invocation, qualification process, account action, build, test, source checkout inspection, credential read or network action. This report is the only authored file.
+
+## Actionable findings
+
+1. **Preserve evidence and inspect state after failed/uncertain asks (lines 28–37, 73–101).** `subprocess.run` raises `TimeoutExpired` before the output files and command receipt are written. Every exception from `ask` also bypasses the canonical Note, sentinel, candidates and Run reads. The resulting `failed` record therefore cannot distinguish an ordinary model failure from a deadline with a persisted proposal or unintended change. Preserve a sanitized command/deadline/elapsed receipt and available partial output in the timeout path. Attempt independent read-only post-run inspection after every ask outcome, retaining individual inspection failures and recording terminal/commit/proposal state as unknown when unavailable. Keep `upstream_cancellation_confirmed=false` unless separately established. The outer 190-second fallback is defensible only as an emergency guard behind the CLI's supported 180-second deadline; an outer kill is not cancellation evidence.
+
+2. **Bind the surviving candidate to the precise edit route (lines 91–92).** A successful `prepare_note_edit` anywhere in the trace, together with candidate membership anywhere in the Run's operations, does not establish that the surviving candidate came from that tool. A run with another preparation route can satisfy those two predicates. Prefer matching the tool's returned operation to `prepared.operation` if retained. If the summary lacks that binding, require exactly the expected successful precise-edit preparation and a single matching Run operation, and reject any additional preparation/mutation route. Retain the trace so a passing result demonstrates the stated route qualification.
+
+3. **Return failure to the caller (lines 95–105).** `run()` records `passed=false` but exits successfully after caught errors. A caller checking process success can misclassify a failed qualification. Exit nonzero after saving the failure result and ledger; preserve the explicit JSON result.
+
+## Launch guard observations
+
+- The `reserved` status is consumed before dispatch; subsequent use of the same reservation is rejected. Exactly one entry for this session is stricter than the three-attempt session limit for this single-attempt scenario, and the day count includes the reservation. Failures remain counted.
+- `remaining_percent > 5` correctly excludes the floor and absent allowance fields fail closed. This driver does not obtain fresh allowance or an after-batch allowance; the lead must supply the actual current observation and record the after-batch reading as already planned.
+- The date is hardcoded to 22 October and the driver does not check campaign expiry. For this disposable run, the lead must launch only on the stated Tallinn date before expiry; otherwise add actual-date/expiry checks. The manifest stores the observed binary hash and `run()` checks continuity, but the supplied frozen hash/source must still be checked by the lead or explicitly pinned in the driver. Neither point authorizes a broader reusable launcher.
+- `run()` trusts the setup's saved prompt/configuration. Keep the prepared directory exclusive to the sole lead between setup and launch, and retain exact prompt/configuration evidence. No retry loop, Apply command, credential-file read/copy or global HOME/CODEX_HOME mutation appears in the driver. Its environment changes are confined to the subprocess.
+- Full target/sentinel record equality, exact proposed Note data, archived state, expected version, one target write and one remaining candidate are meaningful checks. JSON shape assumptions are source-dependent and have not been independently exercised in this review; the authorized local `prepare()` exercise can validate setup shapes. A post-dispatch shape mismatch must count as a failed attempt, not trigger another account call.
+- Output redaction removes the explicit auth pathname only. It is not general secret sanitization. The bounded wrapper does not itself read credentials, but this review does not establish that the frozen runtime can never emit authentication material in raw stdout/stderr. Keep existing runtime output guarantees; do not publish raw account responses.
+
+No separate owner approval gate is introduced by this review. Resolve the actionable driver findings and retain the existing lead-owned live-launch prerequisites.
+
+## Final source addendum
+
+Re-read the complete repaired driver at SHA-256 `92d430ddf5933f33bae55c7b747d495538a7cb9877c9cddae063c4d061b7132c`. This addendum is read-only review of that source; no driver, account, qualification process, test or network action was invoked.
+
+**Disposition: no blocking findings for the specified single disposable launch.** All three original actionable findings are resolved:
+
+- Timeout handling preserves partial output and a command/elapsed/timeout receipt. Failed asks independently attempt target, sentinel, candidates and runs inspection, retaining per-read errors and unknown terminal state. No cancellation claim is inferred.
+- Passing requires the one exact surviving candidate to be the Run's sole operation, exactly one successful precise-edit call, zero dropped calls, and no listed competing prepare/refresh/withdraw route. This is the proposed fallback binding under the supplied source finding that precise-edit arguments/results are not retained by the existing collector. Full canonical record equality and exact candidate content/metadata/version checks remain in place.
+- Failed qualification returns nonzero after persisting result and ledger updates. Final ledger updates merge the current ledger rather than overwrite unrelated new fields/entries from the earlier snapshot.
+
+The revised source explicitly pins the frozen CLI hash/source; checks the Tallinn date and campaign expiry; binds the reserved attempt to the driver and launch seal hashes; checks the current ordinary-usage allowance observation and floor; and rechecks the sealed local canonical state, empty candidates, provider/model/effort, review-first choice, disabled helper/MCP and existing account pointer before dispatch. The single reservation is consumed before ask, and the day bound counts the reservation. No retry, Apply command, credential read/copy, global HOME/CODEX_HOME change or account action appears in the reviewer's work.
+
+One nonblocking receipt-label detail remains: line 35 calls the outer `timeout` value `client_deadline_seconds`, so an emergency ask-timeout receipt would label 190 seconds as the client deadline even though its retained command correctly specifies `--timeout 180`. Treat that field as the outer watchdog duration; rename it or record client=180 and outer=190 when preparing final evidence. This does not extend the runtime's configured 180-second deadline.
+
+This disposition assumes the sole lead uses ordinary unoptimized Python execution and the frozen, exclusively owned prepared fixture. Actual fresh allowance, reservation, execution and after-batch allowance remain lead prerequisites/actions; they were not performed or independently observed by this reviewer. Native usability, owner acceptance, merge and release remain unqualified here.
