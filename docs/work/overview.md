@@ -31,23 +31,23 @@ Gates:
 
 </details>
 
-### Check unsaved note preservation when storage refuses a write
+### Check Close and Quit preserve typing after a refused storage write
 
-Task ID: `note-storage-refusal-preflight`
-Owner: Bounded Luna read-only preflight; lead source and scope decision · State: **active** · Last observed: 2026-10-22T12:28:10.162108+00:00
-Activity: Selected the distinct I/O refusal boundary during an already-open Note edit and Save, after reusing completed stale-generation Reload work. No fault, test or product change dispatched.
-Next: Inspect Note owner/adapters, core transaction/error paths and existing witnesses. Select at most one consequential missing boundary with safe disposable bounded method, or close with justified no change.
+Task ID: `note-exit-preservation-assessment`
+Owner: Consequential Sol design/source assessment; lead admission and qualification · State: **active** · Last observed: 2026-10-22T12:30:52.859774+00:00
+Activity: Lead inspected actual launch hooks: OS Close always true and cmd-Q calls quit after only worker cancellation. They do not check latest note recovery persistence. Distinct source-backed exit question selected after the live Save refusal assessment.
+Next: Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Read-only preflight only; no repair selected.
-- **checks:** No new execution; source/caller/coverage assessment pending.
-- **integration:** Inapplicable until concrete reviewed candidate.
-- **native:** Owner-deferred; no access/launch selected.
-- **owner acceptance:** Preserve existing unsaved-work and honest Save behavior; no new product meaning.
+- **implementation:** Independent source/design assessment pending; no product change.
+- **checks:** No execution/fault injection yet; existing native success journeys do not establish storage-failure exit safety.
+- **integration:** No candidate selected; PR216 remains separate and frozen.
+- **native:** Owner-deferred; no actual Mac Close/Quit selected.
+- **owner acceptance:** Preserve existing exact recovery and honest failure guarantees; no new exit policy accepted by source report alone.
 
 </details>
 
@@ -358,6 +358,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
+- `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
 
 ## Dependencies
 
@@ -415,4 +416,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:28:10.162108+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:30:52.859774+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

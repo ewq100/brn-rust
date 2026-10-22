@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:28:10.162108+00:00",
+    "observed_at": "2026-10-22T12:30:52.859774+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5206,29 +5206,56 @@
       {
         "id": "note-storage-refusal-preflight",
         "title": "Check unsaved note preservation when storage refuses a write",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only preflight; lead source and scope decision",
-        "observed_at": "2026-10-22T12:28:10.162108+00:00",
+        "observed_at": "2026-10-22T12:30:52.859774+00:00",
         "origin": "observed",
-        "activity": "Selected the distinct I/O refusal boundary during an already-open Note edit and Save, after reusing completed stale-generation Reload work. No fault, test or product change dispatched.",
-        "next_action": "Inspect Note owner/adapters, core transaction/error paths and existing witnesses. Select at most one consequential missing boundary with safe disposable bounded method, or close with justified no change.",
+        "activity": "Source assessment found live edit/Save error paths retain text and prior guard and cannot report Saved after SQLite error. A failed first/update write leaves latest bytes only in the editor, with an explicit keep-open/copy warning. Lead found separate real Close/Quit hooks do not consult that condition.",
+        "next_action": "No redundant core-only busy rollback test selected: it would not qualify UI exit. Separate note-exit-preservation-assessment owns close/quit design and supported reproduction decision; retained report does not claim exit safety.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-writing-ui/src/note.rs",
           "crates/brn-writing-ui/src/document.rs",
           "docs/architecture/invariants.md",
-          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md"
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
+          "docs/work/active/vacation-campaign/evidence/note-storage-refusal-preflight.md"
         ],
         "gates": {
-          "implementation": "Read-only preflight only; no repair selected.",
-          "checks": "No new execution; source/caller/coverage assessment pending.",
-          "integration": "Inapplicable until concrete reviewed candidate.",
+          "implementation": "No correction selected for live edit/Save handlers; separate exit boundary found by lead.",
+          "checks": "PASS bounded source assessment only; no SQL/fault/test/build/native run. Missing I/O-specific execution remains disclosed.",
+          "integration": "No candidate for live edit/Save; exit is a separate selected question.",
           "native": "Owner-deferred; no access/launch selected.",
           "owner_acceptance": "Preserve existing unsaved-work and honest Save behavior; no new product meaning."
         },
         "attempts": [],
         "resource_plan": "Existing Luna medium helper on one bounded source question while lead owns PR216 integration. No source/build/SQL/fault/account/native/network/disk-fill/permission changes or nested helpers. Stop after one boundary; do not repeat stale/conflict witnesses or invent a general stress campaign."
+      },
+      {
+        "id": "note-exit-preservation-assessment",
+        "title": "Check Close and Quit preserve typing after a refused storage write",
+        "state": "active",
+        "owner": "Consequential Sol design/source assessment; lead admission and qualification",
+        "observed_at": "2026-10-22T12:30:52.859774+00:00",
+        "origin": "observed",
+        "activity": "Lead inspected actual launch hooks: OS Close always true and cmd-Q calls quit after only worker cancellation. They do not check latest note recovery persistence. Distinct source-backed exit question selected after the live Save refusal assessment.",
+        "next_action": "Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/note-storage-refusal-preflight.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-writing-ui/src/note.rs"
+        ],
+        "gates": {
+          "implementation": "Independent source/design assessment pending; no product change.",
+          "checks": "No execution/fault injection yet; existing native success journeys do not establish storage-failure exit safety.",
+          "integration": "No candidate selected; PR216 remains separate and frozen.",
+          "native": "Owner-deferred; no actual Mac Close/Quit selected.",
+          "owner_acceptance": "Preserve existing exact recovery and honest failure guarantees; no new exit policy accepted by source report alone."
+        },
+        "attempts": [],
+        "resource_plan": "Existing Sol high helper performs one consequential source/design assessment without source writes, builds/tests/faults/native/account/network or nested agents. Lead owns task decisions and integration; first request remains a design assessment, not independent candidate approval."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5244,8 +5271,8 @@
     "last_refresh_evidence": "docs/work/active/vacation-campaign/evidence/remote-connections-pr216.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:28:10.162108+00:00",
-    "runtime_capacity": "Lead integration, bounded Luna storage-refusal preflight active; independent reviewer complete; stale pending_init author remains cancelled/unassigned.",
+    "observed_at": "2026-10-22T12:30:52.859774+00:00",
+    "runtime_capacity": "Lead PR216 integration; Sol exit-preservation design assessment active; Luna source preflight complete. No local build/native/account actor.",
     "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
