@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-22T10:00:53.127719+00:00",
+  "versions": [
+    {
+      "package": "rustls-webpki",
+      "version": "0.103.16",
+      "url": "https://crates.io/api/v1/crates/rustls-webpki/0.103.16",
+      "checksum": "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281",
+      "yanked": false,
+      "rust_version": "1.71",
+      "created_at": "2026-10-20T08:58:28.008618Z"
+    },
+    {
+      "package": "webpki-roots",
+      "version": "1.0.10",
+      "url": "https://crates.io/api/v1/crates/webpki-roots/1.0.10",
+      "checksum": "1c1c8e20c8a38fc7d65abfe74eb7280e4aa667e8eec8bc84996d2874810748d9",
+      "yanked": false,
+      "rust_version": "1.71",
+      "created_at": "2026-10-19T20:11:32.333071Z"
+    },
+    {
+      "package": "webpki-root-certs",
+      "version": "1.0.10",
+      "url": "https://crates.io/api/v1/crates/webpki-root-certs/1.0.10",
+      "checksum": "58ec80e73fd8baf57bf0d9615554c75348bda990d6d5bbeab964dd068319fecb",
+      "yanked": false,
+      "rust_version": "1.71",
+      "created_at": "2026-10-19T20:11:38.525787Z"
+    }
+  ]
+}

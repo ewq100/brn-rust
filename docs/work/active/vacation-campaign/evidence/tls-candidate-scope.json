@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-22T10:04:46.113552+00:00",
+  "base": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "original_update_commands": "resolution.json",
+  "original_checker_failure": "After all three update commands exited0 and groups reaped, inline Python reference normalizer raised UnboundLocalError; not qualification success. No Cargo command rerun.",
+  "resolver_scope_correction": "Cargo also rewired tempfile3.27 getrandom0.4.3 toexisting0.3.4 without packageversionchange. Preserve original resolver lock; restore exactly the original permitted tempfile edge. Cached manifest permits >=0.3,<0.5. Locked offline checks must confirm validity.",
+  "only_three_expected_package_updates": true,
+  "expected_registry_checksums": {
+    "rustls-webpki": "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281",
+    "webpki-roots": "1c1c8e20c8a38fc7d65abfe74eb7280e4aa667e8eec8bc84996d2874810748d9",
+    "webpki-root-certs": "58ec80e73fd8baf57bf0d9615554c75348bda990d6d5bbeab964dd068319fecb"
+  },
+  "package_count_before": 943,
+  "package_count_after": 943,
+  "lock_sha256_before": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+  "lock_sha256_after": "2dcc9ad99f05129f077ebc063b0f65fe69bda993ef2bd4824da4d9a6be2b189f",
+  "other_files_unchanged": true,
+  "qualification": "Candidate scope only; builds/review remain pending"
+}

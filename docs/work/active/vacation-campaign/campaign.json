@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:59:06.821095+00:00",
+    "observed_at": "2026-10-22T10:08:10.310907+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4763,10 +4763,10 @@
         "title": "Resolve recent certificate-trust dependency advisories",
         "state": "active",
         "owner": "Lead dependency/integration owner; independent Sol exposure/repair assessment",
-        "observed_at": "2026-10-22T09:59:06.821095+00:00",
+        "observed_at": "2026-10-22T10:08:10.310907+00:00",
         "origin": "observed",
-        "activity": "Lead independently verified official RustSec0381/0382/0383 match locked roots1.0.9/certs1.0.9/webpki0.103.15; all concern one underlying distrusted certificate family. Independent scope/feature/patch assessment selected before a candidate.",
-        "next_action": "Confirm active dependency paths, minimal compatible patch versions and proportionate validation; choose isolated lock-only repair if supported. No existing app/fixture launch or account test.",
+        "activity": "Frozen003edd71 changes only root Cargo.lock: three patched version/checksum records and necessary qualifiedroot references,943packages retained. Independent complete candidate review APPROVED. Exact three publicarchives total455278bytes checksumverified. Selected existing offline workspace/provider/native tests and CLI/ordinary/combined app builds running serially; not yet passed.",
+        "next_action": "Finish one bounded serial local qualification; retain first failure/ignored cases and source identities. Publish exact reviewed candidate only after applicable checks; actual required head/protection/preceding-main/resulting-main gates remain.",
         "depends_on": [
           {
             "task": "dependency-advisory-preflight",
@@ -4776,17 +4776,26 @@
         ],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/dependency-advisory-preflight.md"
+          "docs/work/active/vacation-campaign/evidence/dependency-advisory-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/tls-source-receipt.json",
+          "docs/work/active/vacation-campaign/evidence/tls-release-metadata.json",
+          "docs/work/active/vacation-campaign/evidence/tls-validation-route.md",
+          "docs/work/active/vacation-campaign/evidence/tls-advisory-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/tls-candidate-review.md",
+          "docs/work/active/vacation-campaign/evidence/tls-candidate-scope.json",
+          "docs/work/active/vacation-campaign/evidence/tls-update-commands.json",
+          "docs/work/active/vacation-campaign/evidence/tls-package-fetch.json",
+          "docs/work/active/vacation-campaign/evidence/tls-qualify.py"
         ],
         "gates": {
-          "implementation": "Assessment selected; no dependency update yet",
-          "checks": "Official advisory/version matches confirmed; runtime exposure/full clearance not claimed",
-          "integration": "No candidate/PR yet; independent review and actual required checks required",
+          "implementation": "PASS minimal lock-only003edd71518300f545fbde2d71bf850470f7ff0e; full independent candidate review approved",
+          "checks": "RUNNING serial offline gate; original reference-checker error and resolver unrelatedtempfile edge correction retained; no Cargo update retries",
+          "integration": "No PR/push/merge yet; local and actual hosted gates pending",
           "native": "No native action selected; owner deferral unchanged",
           "owner_acceptance": "No changed product meaning; security maintenance in existing scope"
         },
         "attempts": [],
-        "resource_plan": "One independent Sol high assessment for consequential TLS decision; lead integration/resource owner. No installed audit tool required by default, no broad upgrades. Minimum compatible patch only if actual evidence supports it; stop on constraints/incompatible scope, reassess after two failures."
+        "resource_plan": "Lead selected minimal dependency maintenance within hardening authority; one worker writer and one shared build slot. Allow bounded registry metadata/exact patch package fetch required for this repair (ordinary gates then locked/offline/jobs1). No broad updates/toolchain/global config/model/provider/account acquisition. Independent Sol review; Luna route inspection complete."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4801,9 +4810,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-mac13-artifacts.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T09:56:14.143962+00:00",
-    "runtime_capacity": "Lead evidence/progress owner plus one bounded Luna dependency advisory feasibility preflight; independent Sol completed MAC13 result review; four runtime slots including lead.",
-    "build_slot": "Free; native artifact build exited0 and owned group absent/reaped. All main213 required checks PASS.",
+    "observed_at": "2026-10-22T10:02:52.989836+00:00",
+    "runtime_capacity": "Lead sole lockfile writer on isolated export-durability worker; independent Sol assessment/review, Luna bounded test-route inspection complete.",
+    "build_slot": "Reserved by lead TLS lock-only repair and following single serialized qualification. Native artifact build complete; old app preserved.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
@@ -4811,7 +4820,7 @@
     "wait_reason": "No headless capacity wait. Native actual interaction awaits changed owner availability; account session closed.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
+    "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frommain3827d6a1 reservedforleadlock-onlycandidate. Prior4c786a96startupdiagnosticbranchandfrozenbinarypreserved.",
     "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [

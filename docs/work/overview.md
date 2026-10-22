@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Resolve recent certificate-trust dependency advisories
 
 Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T09:59:06.821095+00:00
-Activity: Lead independently verified official RustSec0381/0382/0383 match locked roots1.0.9/certs1.0.9/webpki0.103.15; all concern one underlying distrusted certificate family. Independent scope/feature/patch assessment selected before a candidate.
-Next: Confirm active dependency paths, minimal compatible patch versions and proportionate validation; choose isolated lock-only repair if supported. No existing app/fixture launch or account test.
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:08:10.310907+00:00
+Activity: Frozen003edd71 changes only root Cargo.lock: three patched version/checksum records and necessary qualifiedroot references,943packages retained. Independent complete candidate review APPROVED. Exact three publicarchives total455278bytes checksumverified. Selected existing offline workspace/provider/native tests and CLI/ordinary/combined app builds running serially; not yet passed.
+Next: Finish one bounded serial local qualification; retain first failure/ignored cases and source identities. Publish exact reviewed candidate only after applicable checks; actual required head/protection/preceding-main/resulting-main gates remain.
 Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
@@ -24,9 +24,9 @@ Depends on: dependency-advisory-preflight when Official version matches and main
 
 Gates:
 
-- **implementation:** Assessment selected; no dependency update yet
-- **checks:** Official advisory/version matches confirmed; runtime exposure/full clearance not claimed
-- **integration:** No candidate/PR yet; independent review and actual required checks required
+- **implementation:** PASS minimal lock-only003edd71518300f545fbde2d71bf850470f7ff0e; full independent candidate review approved
+- **checks:** RUNNING serial offline gate; original reference-checker error and resolver unrelatedtempfile edge correction retained; no Cargo update retries
+- **integration:** No PR/push/merge yet; local and actual hosted gates pending
 - **native:** No native action selected; owner deferral unchanged
 - **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
@@ -355,4 +355,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:59:06.821095+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:08:10.310907+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

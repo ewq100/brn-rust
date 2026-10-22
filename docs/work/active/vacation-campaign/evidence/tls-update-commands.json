@@ -1,0 +1,61 @@
+{
+  "base": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "started_at": "2026-10-22T10:03:38.894613+00:00",
+  "commands": [
+    {
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "update",
+        "-p",
+        "rustls-webpki@0.103.15",
+        "--precise",
+        "0.103.16"
+      ],
+      "exit_code": 0,
+      "seconds": 7.2086776660289615,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "log": "/tmp/brn-tls-resolution/update-1.log"
+    },
+    {
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "update",
+        "-p",
+        "webpki-roots@1.0.9",
+        "--precise",
+        "1.0.10"
+      ],
+      "exit_code": 0,
+      "seconds": 2.8476344160735607,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "log": "/tmp/brn-tls-resolution/update-2.log"
+    },
+    {
+      "argv": [
+        "/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/bin/cargo",
+        "update",
+        "-p",
+        "webpki-root-certs@1.0.9",
+        "--precise",
+        "1.0.10"
+      ],
+      "exit_code": 0,
+      "seconds": 3.5974124998319894,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "log": "/tmp/brn-tls-resolution/update-3.log"
+    }
+  ],
+  "scope": "Three exact TLS transitive patches only; no full audit, tool install, runtime/account/native action"
+}

@@ -1,0 +1,29 @@
+{
+  "repository": "https://github.com/RustSec/advisory-db",
+  "commit": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+  "observed_at": "2026-10-22T10:00:18.324687+00:00",
+  "records": [
+    {
+      "package": "webpki-roots",
+      "id": "RUSTSEC-2026-0381",
+      "url": "https://raw.githubusercontent.com/RustSec/advisory-db/59ef7abf8ce56ea80fe7eba97ba3835449009fa4/crates/webpki-roots/RUSTSEC-2026-0381.md",
+      "sha256": "9be83b1a3b668d3b3ccb720faf514e1ac5f42754bd03cb2b7900f5f9157a9300",
+      "bytes": 1125
+    },
+    {
+      "package": "rustls-webpki",
+      "id": "RUSTSEC-2026-0382",
+      "url": "https://raw.githubusercontent.com/RustSec/advisory-db/59ef7abf8ce56ea80fe7eba97ba3835449009fa4/crates/rustls-webpki/RUSTSEC-2026-0382.md",
+      "sha256": "525ad607d24f67fd22a20e70b28b3962a9039962340e3ad1f351c9611772e671",
+      "bytes": 829
+    },
+    {
+      "package": "webpki-root-certs",
+      "id": "RUSTSEC-2026-0383",
+      "url": "https://raw.githubusercontent.com/RustSec/advisory-db/59ef7abf8ce56ea80fe7eba97ba3835449009fa4/crates/webpki-root-certs/RUSTSEC-2026-0383.md",
+      "sha256": "4a9c2377d34c5c3e04c6f3e203f2002b7455caaca7468a4a2921afc49318fd67",
+      "bytes": 1115
+    }
+  ],
+  "scope": "Exactly three selected records; no full cargo-audit or vulnerability clearance"
+}
