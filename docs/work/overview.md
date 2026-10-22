@@ -64,6 +64,27 @@ Attempts:
 
 </details>
 
+### Identify the native dependency warning before it becomes an upgrade blocker
+
+Owner: Bounded Luna read-only diagnostic/research; lead disposition · State: **active** · Last observed: 2026-10-22T02:48:44.579940+00:00
+Activity: Selected actual recurring block0.1.6 future-compatibility warning attribution from final native qualification. Identify exact compiler diagnostic and dependency owner; no upgrade or patch selected.
+Next: Read saved future-incompat report and pinned dependency graph/source. Compare a relevant maintained primary source only if needed; report concrete risk, minimal next step and revisit trigger without changing pins.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only triage, no candidate.
+- **checks:** No new source check selected; actual saved warning is starting evidence.
+- **integration:** No dependency or toolchain mutation authorized by this task.
+- **native:** No native interaction.
+- **owner acceptance:** No owner decision expected for diagnosis.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/knowledge-refresh-final.log](active/vacation-campaign/evidence/knowledge-refresh-final.log)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -305,4 +326,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:46:53.780187+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:48:44.579940+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
