@@ -925,6 +925,15 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
     cx: &mut TestAppContext,
 ) {
     let (window, view) = host(cx);
+    let other_note = cx
+        .update_window(window, |_, _, cx| {
+            view.update(cx, |host, _| {
+                host.workspace
+                    .new_note("Another synthetic document", "Other saved text")
+                    .unwrap()
+            })
+        })
+        .unwrap();
     cx.update_window(window, |_, window, cx| {
         view.update(cx, |host, cx| {
             let length = host.panel.note_editor.read(cx).value().len();
@@ -979,6 +988,61 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
                 host.workspace.store.recovery_buffers().unwrap()[0].markdown,
                 "A newer durable generation"
             );
+            let local_record = host.panel.note.as_ref().unwrap().record().clone();
+            let newer_buffer = host.workspace.store.recovery_buffers().unwrap();
+
+            // A reload or navigation must not silently replace the locally
+            // visible generation just because it still equals the stale local
+            // session. Only explicit same-note Recover may adopt the newer
+            // durable generation.
+            assert!(
+                host.panel
+                    .open_note(&mut host.workspace, &session.note, None, window, cx,)
+                    .is_err()
+            );
+            assert_eq!(
+                host.panel.note_editor.read(cx).value().as_ref(),
+                "Local first generation"
+            );
+            assert_eq!(
+                host.panel.note.as_ref().unwrap().session().unwrap(),
+                &session
+            );
+            assert_eq!(host.panel.note.as_ref().unwrap().record(), &local_record);
+            assert_eq!(
+                host.workspace.store.recovery_buffers().unwrap(),
+                newer_buffer
+            );
+            assert_eq!(
+                host.workspace.store.note(&session.note).unwrap().unwrap(),
+                saved_before
+            );
+            assert_eq!(host.workspace.history().unwrap(), history_before);
+
+            assert!(
+                host.panel
+                    .open_note(&mut host.workspace, &other_note.id, None, window, cx,)
+                    .is_err()
+            );
+            assert_eq!(
+                host.panel.note_editor.read(cx).value().as_ref(),
+                "Local first generation"
+            );
+            assert_eq!(
+                host.panel.note.as_ref().unwrap().session().unwrap(),
+                &session
+            );
+            assert_eq!(host.panel.note.as_ref().unwrap().record(), &local_record);
+            assert_eq!(
+                host.workspace.store.recovery_buffers().unwrap(),
+                newer_buffer
+            );
+            assert_eq!(
+                host.workspace.store.note(&session.note).unwrap().unwrap(),
+                saved_before
+            );
+            assert_eq!(host.workspace.history().unwrap(), history_before);
+
             host.panel
                 .open_note(
                     &mut host.workspace,
@@ -1001,6 +1065,20 @@ fn note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
                     .unwrap()
                     .generation,
                 session.generation + 2
+            );
+            // Once the owner explicitly adopts the fresh recovery, ordinary
+            // navigation can proceed and leaves that durable session intact.
+            host.panel
+                .open_note(&mut host.workspace, &other_note.id, None, window, cx)
+                .unwrap();
+            assert_eq!(host.panel.open_note_id(), Some(other_note.id.as_str()));
+            assert_eq!(
+                host.panel.note_editor.read(cx).value().as_ref(),
+                "Other saved text"
+            );
+            assert_eq!(
+                host.workspace.store.recovery_buffers().unwrap(),
+                newer_buffer
             );
         });
     })

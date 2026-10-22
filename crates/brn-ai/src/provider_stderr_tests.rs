@@ -2,6 +2,38 @@ use super::*;
 
 const CHILD: &str = "provider_formats_tests::provider_stderr_tests::provider_stderr_child";
 const CHILD_ENV: &str = "BRN_SYNTHETIC_STDERR_CHILD";
+const CHILD_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+const MAX_CHILD_OUTPUT: u64 = 64 * 1024;
+
+struct OwnedChild(Option<std::process::Child>);
+
+impl OwnedChild {
+    fn wait_until(&mut self, deadline: std::time::Instant) -> std::process::ExitStatus {
+        loop {
+            let child = self.0.as_mut().expect("child is owned until completion");
+            if let Some(status) = child.try_wait().unwrap() {
+                self.0.take();
+                return status;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "synthetic provider stderr child timed out"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+    }
+}
+
+impl Drop for OwnedChild {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.0.take() {
+            if child.try_wait().ok().flatten().is_none() {
+                let _ = child.kill();
+            }
+            let _ = child.wait();
+        }
+    }
+}
 
 #[test]
 fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
@@ -11,24 +43,40 @@ fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
     let name = format!("r4_private_unknown_{nonce}");
     let argument = format!("R4_PRIVATE_ARGUMENT_{nonce}");
     let prior = format!("R4_PRIVATE_PRIOR_{nonce}");
-    let output = std::process::Command::new(std::env::current_exe().unwrap())
-        .args([
-            "--exact",
-            CHILD,
-            "--ignored",
-            "--nocapture",
-            "--test-threads=1",
-        ])
-        .env(CHILD_ENV, "synthetic-three-routes-v1")
-        .env("BRN_SYNTHETIC_STDERR_TOOL", &name)
-        .env("BRN_SYNTHETIC_STDERR_ARGUMENT", &argument)
-        .env("BRN_SYNTHETIC_STDERR_PRIOR", &prior)
-        .env("TMPDIR", parent.path().canonicalize().unwrap())
-        .env("BRN_NATIVE_MODEL_DIR", "")
-        .output()
-        .unwrap();
-    assert!(output.status.success(), "synthetic child failed");
-    let stdout = String::from_utf8(output.stdout).unwrap();
+    let stdout_path = parent.path().join("child.stdout");
+    let stderr_path = parent.path().join("child.stderr");
+    let stdout_file = std::fs::File::create(&stdout_path).unwrap();
+    let stderr_file = std::fs::File::create(&stderr_path).unwrap();
+    let mut child = OwnedChild(Some(
+        std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                CHILD,
+                "--ignored",
+                "--nocapture",
+                "--test-threads=1",
+            ])
+            .env(CHILD_ENV, "synthetic-three-routes-v1")
+            .env("BRN_SYNTHETIC_STDERR_TOOL", &name)
+            .env("BRN_SYNTHETIC_STDERR_ARGUMENT", &argument)
+            .env("BRN_SYNTHETIC_STDERR_PRIOR", &prior)
+            .env("TMPDIR", parent.path().canonicalize().unwrap())
+            .env("BRN_NATIVE_MODEL_DIR", "")
+            .stdout(stdout_file)
+            .stderr(stderr_file)
+            .spawn()
+            .unwrap(),
+    ));
+    let status = child.wait_until(std::time::Instant::now() + CHILD_TIMEOUT);
+    assert!(status.success(), "synthetic child failed");
+    for path in [&stdout_path, &stderr_path] {
+        assert!(
+            std::fs::metadata(path).unwrap().len() <= MAX_CHILD_OUTPUT,
+            "synthetic child output exceeded the capture limit"
+        );
+    }
+    let stdout = String::from_utf8(std::fs::read(&stdout_path).unwrap())
+        .unwrap_or_else(|_| panic!("synthetic child stdout was not UTF-8"));
     assert!(
         stdout.contains("R4_ROUTES_VALIDATED:3"),
         "child did not finish all routes"
@@ -37,7 +85,8 @@ fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
         stdout.contains("1 passed; 0 failed"),
         "child test did not execute"
     );
-    let stderr = String::from_utf8(output.stderr).unwrap();
+    let stderr = String::from_utf8(std::fs::read(&stderr_path).unwrap())
+        .unwrap_or_else(|_| panic!("synthetic child stderr was not UTF-8"));
     for marker in ["PARTIAL", name.as_str(), argument.as_str(), prior.as_str()] {
         assert!(
             !stderr.contains(marker),

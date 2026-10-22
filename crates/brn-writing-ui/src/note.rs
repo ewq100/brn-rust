@@ -91,6 +91,17 @@ impl WritingPanel {
         {
             return Err(AppError::Invalid(message.into()));
         }
+        if !recovering_current
+            && let Some(session) = self.note.as_ref().and_then(|open| open.session())
+        {
+            let current = workspace.store.edit_session(&session.id)?;
+            if current.closed || current.generation != session.generation {
+                return Err(AppError::Invalid(
+                    "The recovery buffer changed or closed. Recover or compare it before replacing this visible edit."
+                        .into(),
+                ));
+            }
+        }
         self.load_note(workspace, id, Load::Recover(recovery), window, cx)
     }
     fn load_note<T: 'static>(
