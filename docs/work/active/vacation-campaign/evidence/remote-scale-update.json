@@ -1,0 +1,74 @@
+{
+  "observed_at": "2026-10-22T01:48:13.617Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "2236cd1b",
+  "updated_at": "2026-10-22T01:47:58.450Z",
+  "edit": {
+    "new_sequence": 63,
+    "through_sequence": 63,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "3815e5a044dd19e82638dceafae46190f4cae724dd402380917e6d82ea3ca74a"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "0b79fc04dcb9d6dcab7125c8e9defff1d85272d0c45df5787e4a49b743314a1c"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "e5a186e5-1c67-4c55-9e30-c969199d3a1c",
+        "created_block_ids": [
+          "e5a186e5-1c67-4c55-9e30-c969199d3a1c",
+          "cb195842-f06e-450b-a7b7-0485293f0a4a"
+        ],
+        "continuation_position": {
+          "block_id": "cb195842-f06e-450b-a7b7-0485293f0a4a",
+          "relative_position_base64": "AOO6g5oKyw1B"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "e5a186e5-1c67-4c55-9e30-c969199d3a1c",
+            "hash": "702f549767c6f532a2bde16a1df915277b35e2bcefb55649bbd796fe47b9cc66"
+          },
+          {
+            "block_id": "cb195842-f06e-450b-a7b7-0485293f0a4a",
+            "hash": "59439a8dc9da0f2a3363ae03d1b8ce492e89635b0152e6311c60343309472d35"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "previous_blocks_preserved": 37,
+    "blocks_now": 39,
+    "added_blocks": [
+      "e5a186e5-1c67-4c55-9e30-c969199d3a1c",
+      "cb195842-f06e-450b-a7b7-0485293f0a4a"
+    ],
+    "unchanged_text_metadata_order": "PASS",
+    "rendering": "Saved content only; no rendered-layout claim"
+  }
+}
