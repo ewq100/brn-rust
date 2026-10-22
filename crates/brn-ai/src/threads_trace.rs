@@ -16,6 +16,7 @@ use std::{
 /// Calls kept per trace; later calls only increase `dropped_calls`.
 pub const MAX_CALLS: usize = 256;
 const MAX_IDS: usize = 100;
+const OTHER_PREPARATION_REFUSAL: &str = "Other checked preparation refusal.";
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -264,6 +265,30 @@ impl TraceCollector {
             "note_connections" => {
                 json!({"id": n("id"), "hops": n("hops"), "sources": n("sources")})
             }
+            "prepare_note_edit" => {
+                let id = args
+                    .get("id")
+                    .and_then(Value::as_str)
+                    .filter(|id| id.len() <= 256)
+                    .map_or(Value::Null, |id| json!(id));
+                let number = |key: &str| {
+                    args.get(key)
+                        .and_then(Value::as_u64)
+                        .map_or(Value::Null, |value| json!(value))
+                };
+                json!({
+                    "id": id, "version": number("version"),
+                    "start": number("start"), "end": number("end"),
+                    "expected_bytes": args
+                        .get("expected_text")
+                        .and_then(Value::as_str)
+                        .map_or(0, str::len),
+                    "replacement_bytes": args
+                        .get("replacement_text")
+                        .and_then(Value::as_str)
+                        .map_or(0, str::len),
+                })
+            }
             "read_source" => json!({"source": "supplied"}),
             "read_skill" => json!({"name": n("id")}),
             "prepare_changes" | "refresh_candidate" => {
@@ -363,6 +388,28 @@ impl TraceCollector {
                 json!({"neighbours": neighbours.len(), "ids": neighbours})
             }
             "prepare_changes" | "refresh_candidate" => json!({"operation": value.get("operation")}),
+            "prepare_note_edit" => match value.get("outcome").and_then(Value::as_str) {
+                Some("Invalid") => {
+                    let reason = value
+                        .get("reason")
+                        .and_then(Value::as_str)
+                        .filter(|reason| {
+                            matches!(
+                                *reason,
+                                "request_key is already bound to different exact-edit arguments; use a fresh key."
+                                    | "The Note version changed; read the current passage and use a fresh request_key."
+                                    | "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+                                    | "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note."
+                            )
+                        })
+                        .unwrap_or(OTHER_PREPARATION_REFUSAL);
+                    json!({"outcome":"Invalid", "reason":reason})
+                }
+                _ => value
+                    .get("operation")
+                    .map(|operation| json!({"operation":operation}))
+                    .unwrap_or(Value::Null),
+            },
             "research" => json!({
                 "outcomes": value
                     .get("reports")
@@ -581,6 +628,99 @@ mod tests {
         assert_eq!(
             TraceCollector::result("read_records", Some(&json!({"records":[]}))),
             json!({"rows":0,"ids":[],"truncated":false})
+        );
+    }
+
+    #[test]
+    fn precise_edit_trace_keeps_only_exact_metadata_and_utf8_lengths() {
+        let args = json!({
+            "id":"note-private", "version":7, "start":2, "end":8,
+            "expected_text":"é🙂", "replacement_text":"✓",
+            "reason":"private rationale", "request_key":"private-key",
+            "extra":"private passage",
+        });
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Summary)
+                .unwrap()
+                .args("prepare_note_edit", &args),
+            json!({"id":"note-private", "version":7, "start":2, "end":8,
+                "expected_bytes":6, "replacement_bytes":3})
+        );
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Full)
+                .unwrap()
+                .args("prepare_note_edit", &args),
+            json!({"id":"note-private", "version":7, "start":2, "end":8,
+                "expected_bytes":6, "replacement_bytes":3})
+        );
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Summary)
+                .unwrap()
+                .args(
+                    "prepare_note_edit",
+                    &json!({
+                        "id":{"private":"payload"}, "version":["private"],
+                        "start":{"offset":3}, "end":[9],
+                        "expected_text":{"passage":"private"},
+                        "replacement_text":["private"],
+                    }),
+                ),
+            json!({
+                "id":null, "version":null, "start":null, "end":null,
+                "expected_bytes":0, "replacement_bytes":0,
+            })
+        );
+    }
+
+    #[test]
+    fn precise_edit_trace_projects_prepared_operation_and_static_invalid_reasons_only() {
+        assert_eq!(
+            TraceCollector::result(
+                "prepare_note_edit",
+                Some(
+                    &json!({"operation":"op-private-id", "request_hash":"private-hash",
+                    "writes":[{"data":{"Note":{"markdown":"private markdown"}}}],
+                    "reason":"private prepared reason"})
+                ),
+            ),
+            json!({"operation":"op-private-id"})
+        );
+        let known_reasons = [
+            "request_key is already bound to different exact-edit arguments; use a fresh key.",
+            "The Note version changed; read the current passage and use a fresh request_key.",
+            "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted.",
+            "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note.",
+        ];
+        for reason in known_reasons {
+            assert_eq!(
+                TraceCollector::result(
+                    "prepare_note_edit",
+                    Some(&json!({"outcome":"Invalid", "reason":reason,
+                        "request_key":"private-key", "expected_text":"private passage"})),
+                ),
+                json!({"outcome":"Invalid", "reason":reason})
+            );
+        }
+        for reason in [
+            Some("note private-id already has an active candidate"),
+            Some("private dynamic preparation failure"),
+            None,
+        ] {
+            let result = reason.map_or_else(
+                || json!({"outcome":"Invalid"}),
+                |reason| json!({"outcome":"Invalid", "reason":reason}),
+            );
+            assert_eq!(
+                TraceCollector::result("prepare_note_edit", Some(&result)),
+                json!({"outcome":"Invalid", "reason":"Other checked preparation refusal."})
+            );
+        }
+        assert_eq!(
+            TraceCollector::result(
+                "prepare_note_edit",
+                Some(&json!({"outcome":"Invalid", "reason":{"private":"payload"}})),
+            ),
+            json!({"outcome":"Invalid", "reason":"Other checked preparation refusal."})
         );
     }
 }
