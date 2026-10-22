@@ -38,9 +38,9 @@ Attempts:
 
 ### Keep shared build-cache use focused on Mac and Linux
 
-Owner: Bounded Luna small CI author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T05:55:19.201831+00:00
-Activity: Selected one composite-action cache condition change after repeated actualMac cachemiss diagnosis. OptionalWindows jobs remain enabled but stop using/updating sharedRustcache; Mac/Linux cache behavior and every requiredcheck stay unchanged. No cachedeletion/paidlimit change.
-Next: Prepare one small reviewed CI-onlycandidate from approvedeae in clean reusableexport-durability checkout, preserve priorfrozenbranch/artifact. Validate YAML/existingaffectedPython; no localRustreplay. Hold publication until parentPR210 integrates/currentmain reconciles.
+Owner: Bounded Luna small CI author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T06:02:18.911812+00:00
+Activity: One-file candidate786ebfd2 independently reviewed with no findings. Windows jobs remain enabled; only Rust-cache use stops on Windows. YAML parse, all10 existing affectedPython checks and diff/cleanHEAD pass. Not pushed/published; parentPR210 lastMacgate pending.
+Next: Hold publication for normalPR210 integration; reconcile candidate onto actualmain and confirm identicalone-file delta. Then publish and satisfy all required head/preceding-main/liveprotection gates; no redundant localRustchecks.
 Depends on: indexed-settings-read-reuse when Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (reported satisfied: false)
 
 <details>
@@ -48,13 +48,34 @@ Depends on: indexed-settings-read-reuse when Publication only: PR210 normally in
 
 Gates:
 
-- **implementation:** One action condition/comment selected; no source/configcandidate yet.
-- **checks:** PendingYAML/existingPython; Rustsource unchanged, no redundantlocalRustchecks.
+- **implementation:** PASS exact786ebfd2 independent Sol full source/config review; one compositeaction condition/comment, every job/check/protection unchanged.
+- **checks:** PASS YAML,10 existing affectedPython checks4.241s, diff and cleanexactHEAD. No Rust rebuild needed for unchangedsource.
 - **integration:** Pending completeindependentreview/qualification, parent210integration, liveprotection/exacthead/precedingmain then resultingmain.
 - **native:** No native interaction selected.
 - **owner acceptance:** No new paid/productdecision selected; ownerMacfirst and Windowsqualification deferred.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md](active/vacation-campaign/evidence/ci-cache-scope-selection.md), [docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md](active/vacation-campaign/evidence/main209-mac-core-assessment.md), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md](active/vacation-campaign/evidence/ci-cache-scope-selection.md), [docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md](active/vacation-campaign/evidence/main209-mac-core-assessment.md), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-implementation.md](active/vacation-campaign/evidence/ci-cache-scope-implementation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope.patch](active/vacation-campaign/evidence/ci-cache-scope.patch), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-review.md](active/vacation-campaign/evidence/ci-cache-scope-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json](active/vacation-campaign/evidence/ci-cache-scope-qualification.json)
+
+</details>
+
+### Check edited proposals survive refused preparation and replacement
+
+Owner: Bounded Luna read-only assessment; lead disposition · State: **active** · Last observed: 2026-10-22T06:02:38.051794+00:00
+Activity: Selected one distinct ReviewLifecycle failure-path preflight following the confirmed Note reload defect. Reuse existing independent-host and desktop witnesses; no general reducer migration or new tests selected.
+Next: Inspect exact eae review-edit preparation, replacement, candidate completion and navigation callers plus existing fault/stale witnesses. Return one concrete gap or explicit no-change finding before any implementation.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Assessment only; no candidate selected.
+- **checks:** Source/caller and existing witness inventory; no execution yet.
+- **integration:** Inapplicable unless actual correction selected.
+- **native:** Deferred for owner-reported screen unavailability.
+- **owner acceptance:** No new product choice selected.
+
+Evidence: [crates/brn-writing-ui/src/review.rs](../../crates/brn-writing-ui/src/review.rs), [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md), [docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md](active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md), [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md)
 
 </details>
 
@@ -322,4 +343,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:55:19.201831+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T06:02:38.051794+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

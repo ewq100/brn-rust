@@ -28,7 +28,7 @@
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
     "quota": "See admission observation; no purchases/reset credits.",
-    "wake": "Repeated same-chat heartbeat delivery observed19\u201320October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
+    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -58,7 +58,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
-    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T05:49:34.147968+00:00",
+    "observed_at": "2026-10-22T06:02:18.911812+00:00",
     "remaining_percent": 52,
     "reset_unix": 1793083360,
     "ordinary_work": "Admitted: actual48% used/52% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, originalexpiry and closedaccountsession bounds retained.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:55:19.201831+00:00",
+    "observed_at": "2026-10-22T06:02:38.051794+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -176,7 +176,7 @@
           "https://github.com/ewq100/brn-rust/pull/176"
         ],
         "gates": {
-          "implementation": "complete; final writing.rs SHA b14e8bc9\u2026932ffe8",
+          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
           "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
@@ -299,7 +299,7 @@
           "docs/work/active/agent-first-simplification/reconciliation.md"
         ],
         "gates": {
-          "implementation": "merged in earlier campaign PR163\u2013174; per-slice identities retained in receipts",
+          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
           "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
           "integration": "verified per dated integration receipt; no whole-program completion claim",
           "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
@@ -431,7 +431,7 @@
         ],
         "gates": {
           "implementation": "inapplicable: exercising existing test and public routes; no source change selected",
-          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6\u21927 with Runs1\u21922, unchanged owner Message and source bytes",
+          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes",
           "integration": "inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen",
           "native": "headless toolkit only; actual OS interaction not exercised",
           "owner_acceptance": "not claimed"
@@ -2212,7 +2212,7 @@
         "attempts": [
           {
             "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
-            "change": "Extend existing positive Save test with Low\u2192Off\u2192Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
             ]
@@ -4127,10 +4127,10 @@
         "title": "Keep shared build-cache use focused on Mac and Linux",
         "state": "active",
         "owner": "Bounded Luna small CI author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T05:55:19.201831+00:00",
+        "observed_at": "2026-10-22T06:02:18.911812+00:00",
         "origin": "observed",
-        "activity": "Selected one composite-action cache condition change after repeated actualMac cachemiss diagnosis. OptionalWindows jobs remain enabled but stop using/updating sharedRustcache; Mac/Linux cache behavior and every requiredcheck stay unchanged. No cachedeletion/paidlimit change.",
-        "next_action": "Prepare one small reviewed CI-onlycandidate from approvedeae in clean reusableexport-durability checkout, preserve priorfrozenbranch/artifact. Validate YAML/existingaffectedPython; no localRustreplay. Hold publication until parentPR210 integrates/currentmain reconciles.",
+        "activity": "One-file candidate786ebfd2 independently reviewed with no findings. Windows jobs remain enabled; only Rust-cache use stops on Windows. YAML parse, all10 existing affectedPython checks and diff/cleanHEAD pass. Not pushed/published; parentPR210 lastMacgate pending.",
+        "next_action": "Hold publication for normalPR210 integration; reconcile candidate onto actualmain and confirm identicalone-file delta. Then publish and satisfy all required head/preceding-main/liveprotection gates; no redundant localRustchecks.",
         "depends_on": [
           {
             "task": "indexed-settings-read-reuse",
@@ -4143,17 +4143,48 @@
           "docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md",
           "docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md",
           ".github/actions/setup-rust/action.yml",
-          ".github/workflows/ci.yml"
+          ".github/workflows/ci.yml",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope.patch",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-review.md",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json"
         ],
         "gates": {
-          "implementation": "One action condition/comment selected; no source/configcandidate yet.",
-          "checks": "PendingYAML/existingPython; Rustsource unchanged, no redundantlocalRustchecks.",
+          "implementation": "PASS exact786ebfd2 independent Sol full source/config review; one compositeaction condition/comment, every job/check/protection unchanged.",
+          "checks": "PASS YAML,10 existing affectedPython checks4.241s, diff and cleanexactHEAD. No Rust rebuild needed for unchangedsource.",
           "integration": "Pending completeindependentreview/qualification, parent210integration, liveprotection/exacthead/precedingmain then resultingmain.",
           "native": "No native interaction selected.",
           "owner_acceptance": "No new paid/productdecision selected; ownerMacfirst and Windowsqualification deferred."
         },
         "attempts": [],
         "resource_plan": "One boundedLuna medium smallYAMLauthor, independentSol consequentialCIreview andlead within4slots. No nestedhelper/build/CIrerun/cacheoperation/purchases/billing/limit/provider/native actions; lead owns allsharedrecords/integration. ExistingWindowsentries not deleted; resource/speedeffect remains observation."
+      },
+      {
+        "id": "review-draft-failure-preflight",
+        "title": "Check edited proposals survive refused preparation and replacement",
+        "state": "active",
+        "owner": "Bounded Luna read-only assessment; lead disposition",
+        "observed_at": "2026-10-22T06:02:38.051794+00:00",
+        "origin": "observed",
+        "activity": "Selected one distinct ReviewLifecycle failure-path preflight following the confirmed Note reload defect. Reuse existing independent-host and desktop witnesses; no general reducer migration or new tests selected.",
+        "next_action": "Inspect exact eae review-edit preparation, replacement, candidate completion and navigation callers plus existing fault/stale witnesses. Return one concrete gap or explicit no-change finding before any implementation.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-writing-ui/src/review.rs",
+          "crates/brn-writing-ui/README.md",
+          "docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md",
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md"
+        ],
+        "gates": {
+          "implementation": "Assessment only; no candidate selected.",
+          "checks": "Source/caller and existing witness inventory; no execution yet.",
+          "integration": "Inapplicable unless actual correction selected.",
+          "native": "Deferred for owner-reported screen unavailability.",
+          "owner_acceptance": "No new product choice selected."
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium bounded read-only inspection in frozen architecture-status-route eae, one helper plus lead and independent CI reviewer within4slots. No writer/build/test/native/account/web/cache action or nested helper. Stop after one located defect/missing distinct boundary or supported no-change report; do not add tests that duplicate existing hosts."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

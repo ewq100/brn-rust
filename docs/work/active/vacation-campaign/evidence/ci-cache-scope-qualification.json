@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-10-22T06:02:18.911812+00:00",
+  "candidate": "786ebfd2f1a29f93eb2be4f43ee64606023db791",
+  "parent": "eae61dde04cda19c764246993966b13b997014eb",
+  "worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "checks": [
+    {
+      "command": "ruby -e 'require \"yaml\"; YAML.load_file(\".github/actions/setup-rust/action.yml\"); puts \"YAML parse PASS\"'",
+      "exit_code": 0,
+      "outcome": "YAML parse PASS"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -p test_prepare_xberg_adapted.py",
+      "exit_code": 0,
+      "tests": 10,
+      "seconds": 4.241,
+      "outcome": "OK; existing action-derived cleanup and helper reproduction checks"
+    },
+    {
+      "command": "git diff --check; git status --short",
+      "exit_code": 0,
+      "outcome": "No output; clean unchanged candidate"
+    }
+  ],
+  "limits": "CI-only condition; no Rust rebuild, new mirror test, native interaction, cache deletion or CI launch. Actual required hosted gates remain mandatory; no speed or cache-miss-cause claim."
+}
