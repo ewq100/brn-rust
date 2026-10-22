@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:32:45.816432+00:00",
+    "observed_at": "2026-10-22T01:35:05.469056+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2996,21 +2996,22 @@
       {
         "id": "worker-progress-ownership-assessment",
         "title": "Assess operation-scoped progress ownership",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead selection; bounded read-only Luna assessor",
-        "observed_at": "2026-10-22T01:32:45.816432+00:00",
+        "observed_at": "2026-10-22T01:35:05.469056+00:00",
         "origin": "observed",
-        "activity": "Read-only Luna source assessment of ambient progress/stream state and Worker operations; select a bounded owner only if it simplifies real protocol or fixes a concrete reachable defect.",
-        "next_action": "Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.",
+        "activity": "Read-only source assessment completed on frozenf79f6540. No consequential defect or justified owner migration selected; existing per-worker channels, captured destinations and checked admission remain authoritative.",
+        "next_action": "No new implementation/checks. Revisit only on demonstrated stale operation/destination mismatch, a new producer or growing duplicated cleanup.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/workflows.md"
+          "docs/work/active/vacation-campaign/workflows.md",
+          "docs/work/active/vacation-campaign/evidence/worker-progress-ownership-assessment.md"
         ],
         "gates": {
-          "implementation": "Assessment only; no implementation selected.",
-          "checks": "No tests/builds selected for read-only assessment.",
-          "integration": "Not applicable until outcome selected.",
+          "implementation": "No change selected after bounded source assessment.",
+          "checks": "Source-only assessment; no tests/builds executed or inferred.",
+          "integration": "Inapplicable; no production candidate.",
           "native": "Unavailable; no access attempt.",
           "owner_acceptance": "Not claimed."
         },
@@ -3020,21 +3021,22 @@
       {
         "id": "file-picker-lifecycle-assessment",
         "title": "Check delayed file-picker completion ownership",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead selection; bounded read-only Luna assessor",
-        "observed_at": "2026-10-22T01:32:45.816432+00:00",
+        "observed_at": "2026-10-22T01:35:05.469056+00:00",
         "origin": "observed",
-        "activity": "Read-only Luna trace of OS file-picker callbacks through conversion worker admission, cancellation and originating destination; distinguish existing captured-target guarantees and actual gaps. No native action.",
-        "next_action": "Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.",
+        "activity": "Read-only source assessment completed on frozenf79f6540. No consequential defect or justified owner migration selected; existing per-worker channels, captured destinations and checked admission remain authoritative.",
+        "next_action": "No new implementation/checks. Revisit only on demonstrated stale operation/destination mismatch, a new producer or growing duplicated cleanup.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/workflows.md"
+          "docs/work/active/vacation-campaign/workflows.md",
+          "docs/work/active/vacation-campaign/evidence/file-picker-lifecycle-assessment.md"
         ],
         "gates": {
-          "implementation": "Assessment only; no implementation selected.",
-          "checks": "No tests/builds selected for read-only assessment.",
-          "integration": "Not applicable until outcome selected.",
+          "implementation": "No change selected after bounded source assessment.",
+          "checks": "Source-only assessment; no tests/builds executed or inferred.",
+          "integration": "Inapplicable; no production candidate.",
           "native": "Unavailable; no access attempt.",
           "owner_acceptance": "Not claimed."
         },
@@ -3054,8 +3056,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-queue-fix-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:32:45.816432+00:00",
-    "runtime_capacity": "Lead plus two bounded Luna read-only assessors, within four total slots. Prior authors/reviewer completed.",
+    "observed_at": "2026-10-22T01:35:05.469056+00:00",
+    "runtime_capacity": "Lead only. Both bounded Luna assessors completed with source-only no-change recommendations; prior queued author/reviewer complete.",
     "build_slot": "No active Rust build; frozenf79 qualified.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [

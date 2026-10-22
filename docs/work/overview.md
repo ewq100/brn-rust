@@ -109,48 +109,6 @@ Attempts:
 
 </details>
 
-### Assess operation-scoped progress ownership
-
-Owner: Lead selection; bounded read-only Luna assessor · State: **active** · Last observed: 2026-10-22T01:32:45.816432+00:00
-Activity: Read-only Luna source assessment of ambient progress/stream state and Worker operations; select a bounded owner only if it simplifies real protocol or fixes a concrete reachable defect.
-Next: Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Assessment only; no implementation selected.
-- **checks:** No tests/builds selected for read-only assessment.
-- **integration:** Not applicable until outcome selected.
-- **native:** Unavailable; no access attempt.
-- **owner acceptance:** Not claimed.
-
-Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md)
-
-</details>
-
-### Check delayed file-picker completion ownership
-
-Owner: Lead selection; bounded read-only Luna assessor · State: **active** · Last observed: 2026-10-22T01:32:45.816432+00:00
-Activity: Read-only Luna trace of OS file-picker callbacks through conversion worker admission, cancellation and originating destination; distinguish existing captured-target guarantees and actual gaps. No native action.
-Next: Return source-bound no-change verdict or one concrete minimal next slice; no source dispatch or checks until lead selects it.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Assessment only; no implementation selected.
-- **checks:** No tests/builds selected for read-only assessment.
-- **integration:** Not applicable until outcome selected.
-- **native:** Unavailable; no access attempt.
-- **owner acceptance:** Not claimed.
-
-Evidence: [docs/work/active/vacation-campaign/workflows.md](active/vacation-campaign/workflows.md)
-
-</details>
-
 ## Next
 
 None recorded.
@@ -346,6 +304,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `run-continuation-ownership` — Keep Stop and send continuation attached to its Run
 - `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
 - `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
+- `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
+- `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
 
 ## Dependencies
 
@@ -381,4 +341,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T01:32:45.816432+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T01:35:05.469056+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
