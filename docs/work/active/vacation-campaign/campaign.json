@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:38:26.145151+00:00",
+    "observed_at": "2026-10-22T02:43:14.630437+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2907,12 +2907,12 @@
       {
         "id": "reference-search-request-ownership",
         "title": "Assess one owner for reference-search cancellation and freshness",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead design/integration; bounded Luna author; independent Sol complete-candidate review",
-        "observed_at": "2026-10-22T02:20:05.134742+00:00",
+        "observed_at": "2026-10-22T02:43:14.630437+00:00",
         "origin": "observed",
-        "activity": "PR204 normal merged at42906128 after all four required head/preceding-main checks and live protection PASS. Entire merged tree equals independently reviewed and fully qualified f79f6540.",
-        "next_action": "Inspect all four required checks on resulting main42906128; no native or owner acceptance inferred.",
+        "activity": "PR204 normally merged42906128; all four required exact-head, preceding-main and resulting-main checks PASS. Whole integrated tree equals independently reviewed/qualifiedf79. Native/owner qualification remains separate.",
+        "next_action": "Reuse integrated captured-owner behavior and source-bound evidence; revisit on a concrete stale result or cross-chat edit regression.",
         "depends_on": [
           {
             "task": "precise-edit-unique-quote-selector",
@@ -2938,12 +2938,13 @@
           "https://github.com/ewq100/brn-rust/pull/204",
           "docs/work/active/vacation-campaign/evidence/pr204-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr204-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr204-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr204-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr204-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.",
           "checks": "PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.",
-          "integration": "MERGED PR20442906128; all4 head/preceding-main/protection and whole-tree equality PASS; resulting-main pending separately.",
+          "integration": "MERGED PR20442906128; all4 required head/preceding-main/resulting-main and live protection/whole qualified-tree equality PASS.",
           "native": "Existing Mac availability deferral preserved",
           "owner_acceptance": "Not claimed"
         },
@@ -2953,12 +2954,12 @@
       {
         "id": "queued-edit-destination-ownership",
         "title": "Keep a queued-message edit attached to its original chat",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction",
-        "observed_at": "2026-10-22T02:20:05.134742+00:00",
+        "observed_at": "2026-10-22T02:43:14.630437+00:00",
         "origin": "observed",
-        "activity": "PR204 normal merged at42906128 after all four required head/preceding-main checks and live protection PASS. Entire merged tree equals independently reviewed and fully qualified f79f6540.",
-        "next_action": "Inspect all four required checks on resulting main42906128; no native or owner acceptance inferred.",
+        "activity": "PR204 normally merged42906128; all four required exact-head, preceding-main and resulting-main checks PASS. Whole integrated tree equals independently reviewed/qualifiedf79. Native/owner qualification remains separate.",
+        "next_action": "Reuse integrated captured-owner behavior and source-bound evidence; revisit on a concrete stale result or cross-chat edit regression.",
         "depends_on": [
           {
             "task": "reference-search-request-ownership",
@@ -2989,12 +2990,13 @@
           "https://github.com/ewq100/brn-rust/pull/204",
           "docs/work/active/vacation-campaign/evidence/pr204-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr204-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr204-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr204-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr204-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review of finalf79; no unresolved findings.",
           "checks": "PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.",
-          "integration": "MERGED PR20442906128; all4 head/preceding-main/protection and whole-tree equality PASS; resulting-main pending separately.",
+          "integration": "MERGED PR20442906128; all4 required head/preceding-main/resulting-main and live protection/whole qualified-tree equality PASS.",
           "native": "Actual Mac access deferred",
           "owner_acceptance": "No new owner decision expected for preventing cross-chat unintended edits"
         },
@@ -3300,14 +3302,21 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-knowledge-refresh-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T02:33:02.672555+00:00",
+    "observed_at": "2026-10-22T02:43:14.630437+00:00",
     "runtime_capacity": "Four actual slots including lead. Bounded Luna author and independent Sol reviewer completed restore candidate; no current source writer. Historical pending_init run_activity_author is not admitted work.",
     "build_slot": "Final restore-process core qualification complete; shared build slot free at this observation.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "kind": "PR205 required checks",
+        "session_id": 43314,
+        "output": "/tmp/brn-pr205-required.log",
+        "head": "a77b2edece4fb91ec6303f829d9ed8792b9adf95"
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Protected PR205 head/preceding-main checks and main204 checks still pending; restore-process final candidate independently reviewed/qualified for later stable-main publication.",
+    "wait_reason": "Main204 fully verified; PR205 required UbuntuCore remains pending at last direct observation, other3required pass. Restore outcome frozen/qualified awaiting stable main reconciliation.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean codex/restore-process-interruption; exact candidate/next action in selected restore-process-stage-ownership task.",

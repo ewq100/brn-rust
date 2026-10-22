@@ -9,54 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Assess one owner for reference-search cancellation and freshness
-
-Owner: Lead design/integration; bounded Luna author; independent Sol complete-candidate review · State: **active** · Last observed: 2026-10-22T02:20:05.134742+00:00
-Activity: PR204 normal merged at42906128 after all four required head/preceding-main checks and live protection PASS. Entire merged tree equals independently reviewed and fully qualified f79f6540.
-Next: Inspect all four required checks on resulting main42906128; no native or owner acceptance inferred.
-Depends on: precise-edit-unique-quote-selector when Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks. (reported satisfied: true)
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.
-- **checks:** PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.
-- **integration:** MERGED PR20442906128; all4 head/preceding-main/protection and whole-tree equality PASS; resulting-main pending separately.
-- **native:** Existing Mac availability deferral preserved
-- **owner acceptance:** Not claimed
-
-Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacation-campaign/reference-search.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md](active/vacation-campaign/evidence/reference-search-owner-assessment.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md](active/vacation-campaign/evidence/reference-search-owner-implementation.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-review.md](active/vacation-campaign/evidence/reference-search-owner-review.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-qualification.json](active/vacation-campaign/evidence/reference-search-owner-qualification.json), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log](active/vacation-campaign/evidence/reference-search-owner-b4-final.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh](active/vacation-campaign/evidence/reference-search-owner-b4-final.sh), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log](active/vacation-campaign/evidence/reference-search-owner-final-focused.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh](active/vacation-campaign/evidence/reference-search-owner-final-focused.sh), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md), [docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md](active/vacation-campaign/evidence/desktop-context-batch-review.md), [https://github.com/ewq100/brn-rust/pull/204](https://github.com/ewq100/brn-rust/pull/204), [docs/work/active/vacation-campaign/evidence/pr204-publication.json](active/vacation-campaign/evidence/pr204-publication.json), [docs/work/active/vacation-campaign/evidence/pr204-premerge.json](active/vacation-campaign/evidence/pr204-premerge.json), [docs/work/active/vacation-campaign/evidence/pr204-integration.json](active/vacation-campaign/evidence/pr204-integration.json)
-
-</details>
-
-### Keep a queued-message edit attached to its original chat
-
-Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T02:20:05.134742+00:00
-Activity: PR204 normal merged at42906128 after all four required head/preceding-main checks and live protection PASS. Entire merged tree equals independently reviewed and fully qualified f79f6540.
-Next: Inspect all four required checks on resulting main42906128; no native or owner acceptance inferred.
-Depends on: reference-search-request-ownership when Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required. (reported satisfied: true)
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS complete independent Sol review of finalf79; no unresolved findings.
-- **checks:** PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.
-- **integration:** MERGED PR20442906128; all4 head/preceding-main/protection and whole-tree equality PASS; resulting-main pending separately.
-- **native:** Actual Mac access deferred
-- **owner acceptance:** No new owner decision expected for preventing cross-chat unintended edits
-
-Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-regression.md](active/vacation-campaign/evidence/queued-edit-destination-regression.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-design.md](active/vacation-campaign/evidence/queued-edit-destination-design.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-implementation.md](active/vacation-campaign/evidence/queued-edit-destination-implementation.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-review.md](active/vacation-campaign/evidence/queued-edit-destination-review.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.log](active/vacation-campaign/evidence/queued-edit-destination-green.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh](active/vacation-campaign/evidence/queued-edit-destination-green.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log](active/vacation-campaign/evidence/queued-edit-destination-final.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh](active/vacation-campaign/evidence/queued-edit-destination-final.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json](active/vacation-campaign/evidence/queued-edit-destination-qualification.json), [docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md](active/vacation-campaign/evidence/desktop-context-integration-design.md), [docs/work/active/vacation-campaign/evidence/desktop-context-batch-review.md](active/vacation-campaign/evidence/desktop-context-batch-review.md), [https://github.com/ewq100/brn-rust/pull/204](https://github.com/ewq100/brn-rust/pull/204), [docs/work/active/vacation-campaign/evidence/pr204-publication.json](active/vacation-campaign/evidence/pr204-publication.json), [docs/work/active/vacation-campaign/evidence/pr204-premerge.json](active/vacation-campaign/evidence/pr204-premerge.json), [docs/work/active/vacation-campaign/evidence/pr204-integration.json](active/vacation-campaign/evidence/pr204-integration.json)
-
-Attempts:
-
-- Old-source97fa29c2 actual1test failed: queued A Original A message became B independent message;347other cases filtered, no account/provider calls.: Select immutable captured item+thread UI intent and one current-chat resolver; independent sends retain original edit. No canonical/queue policy change. ([docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh))
-
-</details>
-
 ### Keep previous knowledge findings out of a replacement check
 
 Owner: Lead diagnosis/implementation/integration; bounded Luna original regression author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:20:05.134742+00:00
@@ -309,6 +261,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
 - `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
 - `precise-edit-unique-quote-selector` — Prepare exact edits from one unique quoted passage
+- `reference-search-request-ownership` — Assess one owner for reference-search cancellation and freshness
+- `queued-edit-destination-ownership` — Keep a queued-message edit attached to its original chat
 - `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
 - `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
 - `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
@@ -351,4 +305,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:38:26.145151+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:43:14.630437+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
