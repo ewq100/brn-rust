@@ -4952,8 +4952,8 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T10:29:52.730757+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-tls-under-verification.json"
+    "last_refresh_at": "2026-10-22T10:44:53+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-pending.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-22T10:43:24.586018+00:00",
@@ -4969,7 +4969,9 @@
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
     "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
-    "required_ci_runs": []
+    "required_ci_runs": [
+      39764798850
+    ]
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",

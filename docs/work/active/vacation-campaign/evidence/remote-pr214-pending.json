@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22 10:44:53 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "886dee3e1ed00b5ae934714b822fceb061d4962e",
+  "sequence": 90,
+  "all_operations_applied": true,
+  "managed_blocks": 3,
+  "unmanaged_blocks_preserved": 38,
+  "all41blocks_verified": true,
+  "title_order_metadata_preserved": true,
+  "scope": "PR214 local checks/audit passed, hosted pending; separate helper ZIP assessment; native/account deferral unchanged"
+}
