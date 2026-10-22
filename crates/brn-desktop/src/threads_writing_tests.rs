@@ -1790,6 +1790,10 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     cx.update(|cx| cx.set_reduce_motion(true));
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
+        install_exit_handlers(window, cx, f.view.downgrade());
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
         f.view
             .update(cx, |view, cx| view.open_note(&f.a.id, None, window, cx))
     })
@@ -1797,17 +1801,28 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     cx.run_until_parked();
     let mut other = Workspace::open(&f.data).unwrap();
     let elsewhere = other.store.begin_edit(&f.a.id, f.a.version).unwrap();
+    let elsewhere_text = "Edit from elsewhere";
     other
         .store
-        .update_buffer(&elsewhere.id, 1, "Edit from elsewhere")
+        .update_buffer(&elsewhere.id, 1, elsewhere_text)
         .unwrap();
     drop(other);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.writing.note_editor
-                .update(cx, |editor, cx| editor.set_value("What I typed here", window, cx));
-            view.preserve_visible_note_input(cx);
+            view.writing
+                .note_editor
+                .update(cx, |editor, cx| editor.focus(window, cx));
+        });
+        window.press("cmd-a", cx);
+    })
+    .unwrap();
+    let attempted = "Private typing · õun 私密\nSecond line stays live.";
+    cx.simulate_input(f.window, attempted);
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
             assert_eq!(view.writing.note.open_edit_elsewhere(), Some((f.a.id.as_str(), f.a.version)));
+            assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), attempted);
             assert_eq!(
                 view.notice.text(),
                 format!(
@@ -1819,7 +1834,29 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             // an open unsaved edit. …" and nothing to act on.
             assert!(!view.notice.text().contains("Could not preserve"));
             assert!(view.writing.note.as_ref().unwrap().session().is_none());
-            cx.notify();
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            let recovery = view.workspace.store.edit_session(&elsewhere.id).unwrap();
+            assert_eq!(recovery.markdown, elsewhere_text);
+            assert!(!recovery.closed);
+        })
+    })
+    .unwrap();
+    let mut visual = gpui_kit::VisualTestContext::from_window(f.window, cx);
+    assert!(
+        !visual.simulate_close(),
+        "normal close must refuse while the exact live Note typing is not in durable recovery"
+    );
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                attempted
+            );
+            assert_eq!(view.writing.note.as_ref().unwrap().session(), None);
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            let recovery = view.workspace.store.edit_session(&elsewhere.id).unwrap();
+            assert_eq!(recovery.markdown, elsewhere_text);
+            assert!(!recovery.closed);
         })
     })
     .unwrap();
@@ -1895,7 +1932,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
             .cloned()
             .unwrap();
         assert_ne!(session.id, elsewhere.id);
-        assert_eq!(session.markdown, "What I typed here");
+        assert_eq!(session.markdown, attempted);
         assert!(
             view.workspace
                 .store

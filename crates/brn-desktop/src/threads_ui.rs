@@ -4834,36 +4834,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                         view
                     });
                     view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
-                    let weak = view.downgrade();
-                    window.on_window_should_close(cx, move |_, cx| {
-                        let _ = weak.update(cx, |this, _| {
-                            if let Some(worker) = this.worker.as_mut() {
-                                worker.discard_continuation();
-                            }
-                            if let Some(worker) = &this.worker {
-                                worker.cancel.cancel();
-                                worker
-                                    .conversion_cancel
-                                    .store(true, std::sync::atomic::Ordering::SeqCst);
-                            }
-                        });
-                        true
-                    });
-                    let quit_view = view.downgrade();
-                    cx.on_action::<Quit>(move |_, cx| {
-                        let _ = quit_view.update(cx, |this, _| {
-                            if let Some(worker) = this.worker.as_mut() {
-                                worker.discard_continuation();
-                            }
-                            if let Some(worker) = &this.worker {
-                                worker.cancel.cancel();
-                                worker
-                                    .conversion_cancel
-                                    .store(true, std::sync::atomic::Ordering::SeqCst);
-                            }
-                        });
-                        cx.quit();
-                    });
+                    install_exit_handlers(window, cx, view.downgrade());
                     cx.new(|cx| Root::new(view, window, cx))
                 },
             )
@@ -4871,6 +4842,38 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
             cx.activate(true);
         });
     Ok(())
+}
+
+fn install_exit_handlers(window: &Window, cx: &mut App, view: WeakEntity<ThreadsUi>) {
+    let close_view = view.clone();
+    window.on_window_should_close(cx, move |_, cx| {
+        let _ = close_view.update(cx, |this, _| {
+            if let Some(worker) = this.worker.as_mut() {
+                worker.discard_continuation();
+            }
+            if let Some(worker) = &this.worker {
+                worker.cancel.cancel();
+                worker
+                    .conversion_cancel
+                    .store(true, std::sync::atomic::Ordering::SeqCst);
+            }
+        });
+        true
+    });
+    cx.on_action::<Quit>(move |_, cx| {
+        let _ = view.update(cx, |this, _| {
+            if let Some(worker) = this.worker.as_mut() {
+                worker.discard_continuation();
+            }
+            if let Some(worker) = &this.worker {
+                worker.cancel.cancel();
+                worker
+                    .conversion_cancel
+                    .store(true, std::sync::atomic::Ordering::SeqCst);
+            }
+        });
+        cx.quit();
+    });
 }
 
 #[cfg(test)]
