@@ -1,0 +1,61 @@
+{
+  "observed_at": "2026-10-22T15:50:06.240Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "034990a3",
+  "sequence": 103,
+  "blocks_before": 41,
+  "blocks_after": 41,
+  "untouched_blocks_verified": 38,
+  "readback_verified": true,
+  "edit_receipt": {
+    "new_sequence": 103,
+    "through_sequence": 103,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "74d482f7ec5eb638ee9a662bb0de45579d4e9e8fc2bcaf4fb7a1546db5ad5104"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "e7a302fedc01bbd4d024d01351e20dc540215c23f7c45e7312347216602b13f7"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "7ad6916db0a3d3b1a2b9edde48080410aa09f7570eb0678cfe97d197fdad4a99"
+          }
+        ]
+      }
+    ]
+  }
+}
