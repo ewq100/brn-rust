@@ -19,6 +19,7 @@ STATES = {"active", "ready", "blocked", "complete"}
 ORIGINS = {"reported", "observed"}
 GATES = ("implementation", "checks", "integration", "native", "owner_acceptance")
 REQUIRED_TASK = ("id", "title", "state", "owner", "activity", "observed_at", "origin", "next_action", "depends_on", "resource_waits", "evidence", "gates", "attempts")
+COMPLETED_TASK_LIMIT = 10
 
 
 class InvalidRecord(ValueError):
@@ -39,6 +40,7 @@ def _timestamp(value, field):
         raise InvalidRecord(f"{field} must be an ISO-8601 timestamp") from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise InvalidRecord(f"{field} must include a timezone")
+    return parsed
 
 
 def _evidence(value, field):
@@ -178,10 +180,17 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
 
     record_target = os.path.relpath(Path(record_path).resolve(), output_path.parent)
     record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
+    completed = [task for task in tasks if task["state"] == "complete"]
+    completed_by_id = sorted(completed, key=lambda task: task["id"])
+    recent_completed = sorted(
+        completed_by_id,
+        key=lambda task: _timestamp(task["observed_at"], f"task {task['id']}.observed_at"),
+        reverse=True,
+    )[:COMPLETED_TASK_LIMIT]
     out = ["# Development overview", "", f"**Goal:** {view['goal']}"]
     if "owner_attention" in view:
         out.append(f"**Owner attention:** {view['owner_attention']}")
-    out.extend(("", "Activity below is the last reported or observed update. It does not establish that work is running now.", "", "Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.", "", f"Task details: {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown on a task below.", ""))
+    out.extend(("", "Activity below is the last reported or observed update. It does not establish that work is running now.", "", "Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.", "", f"Task details and full history: {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.", ""))
     sections = ("Working on", "Next", "Needs attention", "Completed")
     for heading in sections:
         out.extend((f"## {heading}", ""))
@@ -192,15 +201,17 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
         elif heading == "Next":
             selected = [task for task in tasks if eligible(task)]
         else:
-            selected = [task for task in tasks if task["state"] == "complete"]
+            selected = completed
         if not selected:
             out.extend(("None recorded.", ""))
         elif heading == "Completed":
             out.extend((
                 "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
                 "",
+                f"{len(selected)} completed tasks total; showing up to {COMPLETED_TASK_LIMIT} most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.",
+                "",
             ))
-            out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
+            out.extend(f"- `{task['id']}` — {task['title']}" for task in recent_completed)
             out.append("")
         else:
             for task in selected:
@@ -215,7 +226,19 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
                         out.extend((_task_block(task), ""))
                 else:
                     out.extend((_task_block(task), ""))
-    edges = [(task, dep) for task in tasks for dep in task["depends_on"]]
+    needed = {task["id"] for task in tasks if task["state"] != "complete"}
+    pending = list(needed)
+    while pending:
+        for dependency in by_id[pending.pop()]["depends_on"]:
+            if dependency["task"] not in needed:
+                needed.add(dependency["task"])
+                pending.append(dependency["task"])
+    edges = [
+        (task, dependency)
+        for task in tasks
+        if task["id"] in needed
+        for dependency in task["depends_on"]
+    ]
     if edges:
         ids = {task["id"]: f"t{index}" for index, task in enumerate(tasks)}
         connected = {task["id"] for task, _ in edges} | {dep["task"] for _, dep in edges}

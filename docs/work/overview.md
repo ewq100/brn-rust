@@ -7,7 +7,7 @@ Activity below is the last reported or observed update. It does not establish th
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
-Task details: [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown on a task below.
+Task details and full history: [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
 
@@ -123,50 +123,30 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-- `visibility-adoption` — Clearer instructions and one progress view
-- `feedback-accessibility` — Mac feedback choices expose their selected state
-- `resulting-main-checks` — Confirm checks after the Mac correction merged
-- `exact-note-reading` — AI note reads use the exact note identity
-- `reliability-foundations` — Earlier reliability and agent-workflow improvements
-- `review-group-fixture` — Prepare grouped-review test workspace
-- `review-group-toggle` — Expose grouped Include/Omit selection to accessibility tools
-- `shared-intake-verification` — Check that command-line and desktop imports reuse the same conversation
-- `remote-progress-view` — Read development progress remotely in BRN Space
-- `state-gap-triage` — Inspect remaining Save and run-preview coordination risks
-- `writing-account-route` — Qualify a bounded real-account writing proposal
-- `progress-record-integration` — Integrate remote progress routing and verification records
-- `backup-failure-audit` — Inspect backup and restore failure boundaries
-- `export-publication-durability` — Flush complete export folders before reporting success
-- `queue-recovery-audit` — Inspect saved-message recovery after Stop and restart
-- `ci-cost-triage` — Measure current automated-check feedback cost
-- `action-history-audit` — Inspect Action and history Undo safeguards
-- `action-completion-witness` — Exercise Confirm done and its exact Undo in the desktop journey
-- `historical-authority-routing` — Route older agent-first results to current task facts
-- `project-trash-audit` — Inspect Project deletion and Trash recovery safety
-- `mac-core-ci-time-budget` — Allow the complete Mac Core check to finish within a bounded job
-- `mac-ci-cache-investigation` — Find why Mac CI recompiles converters and misses reuse
+27 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
 - `ci-main-cache-save-policy` — Keep shared Rust caches without duplicate PR uploads
-- `merged-pr-cache-cleanup` — Retire disposable cache copies for merged PR182
-- `general-search-audit` — Inspect stale search results across view and scope changes
-- `composer-drafts-audit` — Inspect drafts and attachments when switching conversations
+- `mac-core-ci-time-budget` — Allow the complete Mac Core check to finish within a bounded job
 - `skill-catalog-ui-audit` — Inspect stale skill choices and scope changes
+- `action-completion-witness` — Exercise Confirm done and its exact Undo in the desktop journey
+- `composer-drafts-audit` — Inspect drafts and attachments when switching conversations
+- `general-search-audit` — Inspect stale search results across view and scope changes
+- `merged-pr-cache-cleanup` — Retire disposable cache copies for merged PR182
+- `export-publication-durability` — Flush complete export folders before reporting success
+- `mac-ci-cache-investigation` — Find why Mac CI recompiles converters and misses reuse
+- `project-trash-audit` — Inspect Project deletion and Trash recovery safety
 
 ## Dependencies
 
 ```mermaid
 graph TD
-  t1["Mac feedback choices expose their selected state"]
-  t2["Confirm checks after the Mac correction merged"]
   t6["Prepare grouped-review test workspace"]
   t7["Expose grouped Include/Omit selection to accessibility tools"]
   t8["Check grouped review controls on the Mac"]
-  t13["Integrate remote progress routing and verification records"]
   t28["Preserve unsent drafts when a note creates its writing conversation"]
   t30["Show unavailable skill choices correctly in inactive Projects"]
-  t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
-  t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
 ```
 
