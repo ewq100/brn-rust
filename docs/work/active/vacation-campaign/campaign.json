@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:46:17.068957+00:00",
+    "observed_at": "2026-10-22T01:50:14.040043+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2905,10 +2905,10 @@
         "title": "Assess one owner for reference-search cancellation and freshness",
         "state": "active",
         "owner": "Lead design/integration; bounded Luna author; independent Sol complete-candidate review",
-        "observed_at": "2026-10-22T01:14:35.054684+00:00",
+        "observed_at": "2026-10-22T01:50:14.040043+00:00",
         "origin": "observed",
         "activity": "Final dee96c9e passed independent review. Broad b4 checks passed focused1, paging1, full desktop346/0/1, strict lint and ordinary native build. Final four-line assertion proves stale replies preserve replacement guard; affected test passes on dee. Production unchanged from b4; binary frozen unlaunched.",
-        "next_action": "Keep qualified final candidate while trace and quote predecessors integrate; reconcile actual main and publish only the two-file request-owner change. No native/account action needed.",
+        "next_action": "Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.",
         "depends_on": [
           {
             "task": "precise-edit-unique-quote-selector",
@@ -2928,16 +2928,17 @@
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log",
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh",
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log",
-          "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh"
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh",
+          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md"
         ],
         "gates": {
           "implementation": "PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.",
           "checks": "PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.",
-          "integration": "Pending upstream trace/quote source chain and actual main reconciliation before separate publication.",
+          "integration": "Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.",
           "native": "Existing Mac availability deferral preserved",
           "owner_acceptance": "Not claimed"
         },
-        "resource_plan": "One requested Luna medium sole author in reusable architecture-status-route checkout, new codex/reference-search-request-owner branch at qualified28fd581e. Scope ui private owner/callers and existing writing tests only. Lead owns sole shared builds and records; independent consequential Sol review after final candidate. No account/native/network/newdependencies/newpublicAPI/genericframework/nested helpers. Stop/reassess after two failures or behavior ambiguity. Other candidates/checkouts frozen.",
+        "resource_plan": "Lead sole integration owner; fresh independent Sol high read-only review of whole combined28..f79 diff. Each original author outcome/evidence retained. No source changes/build repetition/native/account; actual four-slot capacity.",
         "attempts": []
       },
       {
@@ -2945,15 +2946,15 @@
         "title": "Keep a queued-message edit attached to its original chat",
         "state": "active",
         "owner": "Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction",
-        "observed_at": "2026-10-22T01:31:20.769041+00:00",
+        "observed_at": "2026-10-22T01:50:14.040043+00:00",
         "origin": "observed",
         "activity": "Finalf79f6540 independently approved with no actionable findings. Original cross-chat failure becomes focused1PASS; full desktop347PASS/0FAIL/1existing ignored, strict native lint, ordinary build and formatting PASS. Frozen binary retained unlaunched.",
-        "next_action": "Retain reviewed/qualified candidate while prior quote/reference chain integrates. Reconcile actual main before separate queue-fix PR; no native/account action.",
+        "next_action": "Complete independent review of combined six-file28..f79 candidate; after quotePR203 integrates, publish one protected desktop context-ownership batch with whole qualified-tree equality and actual head/main gates.",
         "depends_on": [
           {
             "task": "reference-search-request-ownership",
-            "condition": "Publication only: previous quote/trace/reference source chain integrated and actual main reconciled. Reproduction/implementation may use qualified dee now.",
-            "satisfied": false
+            "condition": "Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required.",
+            "satisfied": true
           }
         ],
         "resource_waits": [],
@@ -2973,12 +2974,13 @@
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh",
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log",
           "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh",
-          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/desktop-context-integration-design.md"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review of finalf79; no unresolved findings.",
           "checks": "PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.",
-          "integration": "Future corrected candidate depends on prior source chain; no publication yet",
+          "integration": "Selected shared desktop batch; full combined review pending, then actual quote/main and exact published-head checks. No extra intermediate reference merge required.",
           "native": "Actual Mac access deferred",
           "owner_acceptance": "No new owner decision expected for preventing cross-chat unintended edits"
         },
@@ -2992,7 +2994,7 @@
             ]
           }
         ],
-        "resource_plan": "Sole Luna author complete; independent Sol high read-only review of complete dee..f79. Lead owns only shared Rust build slot and all integration/records. No desktop/account/nested helpers."
+        "resource_plan": "Lead sole integration owner; fresh independent Sol high read-only review of whole combined28..f79 diff. Each original author outcome/evidence retained. No source changes/build repetition/native/account; actual four-slot capacity."
       },
       {
         "id": "worker-progress-ownership-assessment",
@@ -3096,9 +3098,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-scale-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:46:17.068957+00:00",
-    "runtime_capacity": "Lead only; assessors complete.",
-    "build_slot": "No active Rust build; strict scale exec5539 completed exit0 in320.56seconds. No native/account actor. Remaining hosted integration jobs are read-only.",
+    "observed_at": "2026-10-22T01:50:14.040043+00:00",
+    "runtime_capacity": "Lead plus one independent consequential Sol complete-batch review; no writers/builds.",
+    "build_slot": "No active Rust build; strict scale5539 complete PASS. Frozenf79 combined desktop source already fully checked.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
