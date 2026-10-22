@@ -14,16 +14,16 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:29:19.031011+00:00
-Activity: PR217 exact155bb required MacNativeUI+MacRetrievalPASS; UbuntuNativeUI FAIL346/1/1ignored/3filtered at initialtext1827 beforeClose. Mac-specific cmd-a setup leftoriginaltext. Rawfailure retained, independent crossplatformselection reassessmentactive. No merge despite optionalfailure; do not skip newwitness.
-Next: Confirm supportedneutral editorselection repair, freeze test-only delta, rerun affected desktop/lint and independentreview. Reuseunchangedproduction/component/build; update217normally onlyafterlocalgates andpreserveoriginalCI.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:31:40.691434+00:00
+Activity: Independent reassessment confirmed Base0.7.3 binds cmd-a only on Mac. Test-only660a7371 uses supported UTF-8 selection before the unchanged actual character input. Production, component and contract bytes remain identical to155bb. Final source review refresh and affected Mac desktop/lint running; no PR push or merge yet.
+Next: Inspect affected checks and exact source review; if they pass, normally push660a to existing217 and inspect fresh exact-head hosted results. Reuse unchanged production build/components; keep original Ubuntu failure and all assertions. A further failure requires causal reassessment.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** PASS independent complete six-file review155bb, no unresolved findings. Note-owner preservation and captured local-discard; no Store/schema/runtime prompt change.
+- **implementation:** Production155bb reviewed; test-only portable selection660a implemented, final delta review pending. No assertions or platform gates removed.
 - **checks:** Local155bb PASS and requiredMacwidget/retrievalPASS; new Ubuntu fixture setupFAIL1827 beforeClose; relevant correction required beforemerge. Corehosted lanespending.
 - **integration:** Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.

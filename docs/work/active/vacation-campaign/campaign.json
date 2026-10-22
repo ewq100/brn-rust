@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:29:19.031011+00:00",
+        "observed_at": "2026-10-22T13:31:40.691434+00:00",
         "origin": "observed",
-        "activity": "PR217 exact155bb required MacNativeUI+MacRetrievalPASS; UbuntuNativeUI FAIL346/1/1ignored/3filtered at initialtext1827 beforeClose. Mac-specific cmd-a setup leftoriginaltext. Rawfailure retained, independent crossplatformselection reassessmentactive. No merge despite optionalfailure; do not skip newwitness.",
-        "next_action": "Confirm supportedneutral editorselection repair, freeze test-only delta, rerun affected desktop/lint and independentreview. Reuseunchangedproduction/component/build; update217normally onlyafterlocalgates andpreserveoriginalCI.",
+        "activity": "Independent reassessment confirmed Base0.7.3 binds cmd-a only on Mac. Test-only660a7371 uses supported UTF-8 selection before the unchanged actual character input. Production, component and contract bytes remain identical to155bb. Final source review refresh and affected Mac desktop/lint running; no PR push or merge yet.",
+        "next_action": "Inspect affected checks and exact source review; if they pass, normally push660a to existing217 and inspect fresh exact-head hosted results. Reuse unchanged production build/components; keep original Ubuntu failure and all assertions. A further failure requires causal reassessment.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5312,10 +5312,12 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-final-local.json",
           "docs/work/active/vacation-campaign/evidence/note-exit-candidate-review.md",
           "docs/work/active/vacation-campaign/evidence/pr217-publication.json",
-          "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-ui-first.json"
+          "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-ui-first.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-ubuntu-setup-review.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-run-portable.py"
         ],
         "gates": {
-          "implementation": "PASS independent complete six-file review155bb, no unresolved findings. Note-owner preservation and captured local-discard; no Store/schema/runtime prompt change.",
+          "implementation": "Production155bb reviewed; test-only portable selection660a implemented, final delta review pending. No assertions or platform gates removed.",
           "checks": "Local155bb PASS and requiredMacwidget/retrievalPASS; new Ubuntu fixture setupFAIL1827 beforeClose; relevant correction required beforemerge. Corehosted lanespending.",
           "integration": "Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
