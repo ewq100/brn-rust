@@ -131,7 +131,7 @@ impl ThreadsUi {
         let receipt = self
             .workspace
             .project_command(&format!("ui:{}", uuid::Uuid::new_v4()), command)?;
-        if let Some(worker) = &self.worker
+        if let Some(worker) = self.worker.as_mut()
             && let Some(run) = worker.run_identity()
             && receipt.writes.iter().any(|w| {
                 w.after.id == run.run_id
@@ -139,7 +139,7 @@ impl ThreadsUi {
             })
         {
             worker.cancel.cancel();
-            self.pending_send = None;
+            worker.discard_continuation();
         }
         // A returned receipt is an applied change, like ApplyOutcome::Applied.
         self.confirm("Project saved.");
