@@ -4686,16 +4686,34 @@ impl ThreadsUi {
         let Some(open) = self.writing.note.as_ref() else {
             return;
         };
+        let Some(session) = open.session() else {
+            return;
+        };
+        let source = open.record().id.clone();
+        let basis_version = session.base_version;
+        let scope = self.note_writing_scope.clone();
+        let scope_key = scope
+            .as_deref()
+            .map_or_else(|| "general".to_owned(), |scope| format!("scope:{scope}"));
+        let key = format!("{}:{}:{scope_key}", session.id, session.generation);
         let text = self.writing.note_editor.read(cx).value().to_string();
         let name = format!("Recovered {}", title(open.record()));
-        match self.workspace.new_note(&name, &text) {
-            Ok(record) => {
-                self.open_note(&record.id, None, window, cx);
+        match self.workspace.save_recovery_copy(
+            &key,
+            &source,
+            basis_version,
+            scope.as_deref(),
+            &name,
+            &text,
+        ) {
+            Ok(receipt) => {
                 self.inform("Saved your text as a new working note. The original edit stays recoverable from Home.");
+                if let Some(write) = receipt.writes.first() {
+                    self.open_note(&write.after.id, None, window, cx);
+                }
             }
             Err(e) => self.fail(e.to_string()),
         };
-        self.refresh();
         cx.notify();
     }
 }
