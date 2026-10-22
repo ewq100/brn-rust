@@ -31,23 +31,23 @@ Gates:
 
 </details>
 
-### Check Close and Quit preserve typing after a refused storage write
+### Preserve live-only note typing before normal Close or Quit
 
-Task ID: `note-exit-preservation-assessment`
-Owner: Consequential Sol design/source assessment; lead admission and qualification · State: **active** · Last observed: 2026-10-22T12:32:19.376188+00:00
-Activity: Sol assesses Note-owner exit contract and a supported refusal ordering. In parallel, Luna inventories existing pinned toolkit Close/Quit APIs and a meaningful headless witness route; neither may write product source or run faults/builds/tests.
-Next: Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.
+Task ID: `note-exit-preservation`
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:42:07.562502+00:00
+Activity: Design reconciled; bounded Luna author selected onmain5c606c10 for unchanged production registration extraction and one actual installed-close predicate witness. No tests or admission repair launched yet.
+Next: Author and inspect one witness/foundation; run it once on unchanged exit semantics and retain meaningful failure before selecting repair. Final exit policy/design remains under separate assessment, including durable-byte and explicit-discard escape cases.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Independent source/design assessment pending; no product change.
-- **checks:** No execution/fault injection yet; existing native success journeys do not establish storage-failure exit safety.
-- **integration:** No candidate selected; PR216 remains separate and frozen.
-- **native:** Owner-deferred; no actual Mac Close/Quit selected.
-- **owner acceptance:** Preserve existing exact recovery and honest failure guarantees; no new exit policy accepted by source report alone.
+- **implementation:** Witness foundation only selected on isolated branch frommain5c606c10; no admission repair yet.
+- **checks:** Before-source runtime pending; no claimed native or I/O-specific fault observation.
+- **integration:** No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.
+- **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
+- **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
 
 </details>
 
@@ -359,6 +359,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
+- `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
 
 ## Dependencies
 
@@ -416,4 +417,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:34:26.902532+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:42:07.562502+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:34:26.902532+00:00",
+    "observed_at": "2026-10-22T12:42:07.562502+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5236,29 +5236,68 @@
       {
         "id": "note-exit-preservation-assessment",
         "title": "Check Close and Quit preserve typing after a refused storage write",
-        "state": "active",
+        "state": "complete",
         "owner": "Consequential Sol design/source assessment; lead admission and qualification",
-        "observed_at": "2026-10-22T12:32:19.376188+00:00",
+        "observed_at": "2026-10-22T12:42:07.562502+00:00",
         "origin": "observed",
-        "activity": "Sol assesses Note-owner exit contract and a supported refusal ordering. In parallel, Luna inventories existing pinned toolkit Close/Quit APIs and a meaningful headless witness route; neither may write product source or run faults/builds/tests.",
-        "next_action": "Validate contract and supported failure ordering; assess a minimal shared Note-owner exit admission and meaningful before/after witness. No repair/build/fault admitted until evidence and design are reconciled.",
+        "activity": "Independent consequential source assessment confirms normal Close/cmd-Q can admit destruction of live-only Note text after a checked refusal. Design reuses Note owner: allow proven durable exact bytes, otherwise preserve or veto; explicit captured local-discard confirmation prevents closed-session exit traps.",
+        "next_action": "Separate note-exit-preservation owns meaningful installed-hook baseline, then bounded existing-owner repair only after reproduction. No new storage-fault dependency, all-draft policy or native interaction selected.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-storage-refusal-preflight.md",
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-writing-ui/src/note.rs",
-          "docs/work/active/vacation-campaign/evidence/note-exit-witness-route.md"
+          "docs/work/active/vacation-campaign/evidence/note-exit-witness-route.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-witness-route-corrected.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-preservation-design.md"
         ],
         "gates": {
-          "implementation": "Independent source/design assessment pending; no product change.",
-          "checks": "No execution/fault injection yet; existing native success journeys do not establish storage-failure exit safety.",
-          "integration": "No candidate selected; PR216 remains separate and frozen.",
+          "implementation": "Design adopted for selected witness/repair: exact Note bytes, current canonical/open recovery proof, existing checked preservation, explicit local-only discard with stale confirmation guard.",
+          "checks": "PASS source/contracts and actual pinned API assessment; runtime baseline and complete-candidate review still required.",
+          "integration": "No product candidate from assessment; separate engineering task.",
           "native": "Owner-deferred; no actual Mac Close/Quit selected.",
           "owner_acceptance": "Preserve existing exact recovery and honest failure guarantees; no new exit policy accepted by source report alone."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "observed_at": "2026-10-22T12:40:55.492931+00:00",
+            "outcome": "Initial API inventory attributed active backend to gpui-fast incorrectly; consequential assessment caught it. Corrected pinned locked/offline feature tree establishes gpui-pre0.3.9 and no-op TestPlatform::quit; no native/termination claim.",
+            "change": "Original inventory retained. Corrected route supports actual installed Close predicate, not physical OS teardown. Prefer existing checked U4 second-Workspace EditSessionOpen refusal over a new SQLite dependency/fault seam.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-exit-witness-route.md",
+              "docs/work/active/vacation-campaign/evidence/note-exit-witness-route-corrected.md"
+            ]
+          }
+        ],
         "resource_plan": "Two useful read-only flows plus lead within four slots: consequential Sol design and economical Luna toolkit API inventory, separate reports and no source overlap. Lead owns selection/integration. No SQL/fault/build/native/account/network/permissions/disk changes or nested helpers. Stop at one design and one supported witness route; actual OS/native remains deferred."
+      },
+      {
+        "id": "note-exit-preservation",
+        "title": "Preserve live-only note typing before normal Close or Quit",
+        "state": "active",
+        "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
+        "observed_at": "2026-10-22T12:42:07.562502+00:00",
+        "origin": "observed",
+        "activity": "Design reconciled; bounded Luna author selected onmain5c606c10 for unchanged production registration extraction and one actual installed-close predicate witness. No tests or admission repair launched yet.",
+        "next_action": "Author and inspect one witness/foundation; run it once on unchanged exit semantics and retain meaningful failure before selecting repair. Final exit policy/design remains under separate assessment, including durable-byte and explicit-discard escape cases.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/note-exit-witness-route-corrected.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_writing_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/note-exit-preservation-design.md"
+        ],
+        "gates": {
+          "implementation": "Witness foundation only selected on isolated branch frommain5c606c10; no admission repair yet.",
+          "checks": "Before-source runtime pending; no claimed native or I/O-specific fault observation.",
+          "integration": "No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.",
+          "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
+          "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium owns only unchanged exit-hook extraction plus one existing desktop test journey in clean mac-test-roots branch codex/note-exit-preservation-20261022 from5c606c10; no build/test launch, SQL fault, new dependencies, host permissions/disk, native/account/network or nested agents. Lead owns single build and consequential repair; Sol design/candidate review separately. Stop if supported U4 route cannot establish live-only bytes or baseline needs copied/test-only callback simulation."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5273,8 +5312,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-merged.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:34:26.902532+00:00",
-    "runtime_capacity": "Lead integration; Sol exit design active; Luna API inventory complete. No local source writer/build/native/account actor.",
+    "observed_at": "2026-10-22T12:42:07.562502+00:00",
+    "runtime_capacity": "Lead integration/qualification; Luna witness foundation active; independent Sol design complete. No local build/native/account actor.",
     "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
@@ -5284,7 +5323,7 @@
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
-    "fixture_worker_checkout": "mac-test-roots clean codex/connections-project-refresh-20261022 frozen317360bd, PR216 head stable. Prior source/construction and diagnostic branches retained.",
+    "fixture_worker_checkout": "mac-test-roots codex/note-exit-preservation-20261022 frommain5c606c10; Luna witness-only writer. PR216 branch317 remains frozen and merged; previous diagnostic branches/artifacts retained.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39779292111

@@ -1,0 +1,21 @@
+# Note storage-refusal exit-witness route inventory
+
+## Checkout and verification
+
+The relevant app source baseline is `origin/main` `10f2ff80a39408ce411e10c77200e6d4a89b12d3`; at first inspection checkout HEAD was `abe690258cddd5123bed037a10583648d328329f`. The shared checkout later advanced to `fc4192f8e7a2406fe19467866e415d50bdac300c`; against the inspected baseline, the only product-source difference in the reviewed paths is an unrelated `refresh_connections(cx)` call after undo in `threads_ui.rs`. Launch close/Quit wiring and the dependency manifests/lock remain unchanged. The initial report is preserved at `/tmp/brn-note-exit-witness-route.v1.md`.
+
+Confirmed backend selection read-only from pinned manifests and the resolved feature tree. `brn-desktop` pins `gpui-kit = 0.7.3`; `native-test-support` enables `gpui-kit/test-support`, while the kit's `gpui-fast` feature is not selected. `cargo tree --locked --offline -p brn-desktop --features native-ui,native-test-support -e features -i gpui-fast` printed no selected dependency; the corresponding `-i gpui-pre` tree showed `gpui-pre 0.3.9` and its test-support features. Thus the applicable test APIs are in cached `gpui-pre-0.3.9`, not the optional `gpui-fast` package. No build, test, fixture, SQL, or native action was run.
+
+## Headless close and Quit APIs
+
+`VisualTestContext::simulate_close(&mut self) -> bool` in `gpui-pre-0.3.9/src/app/test_context.rs:1073-1099` calls the installed test-platform `should_close_handler`, reinstalls it, and returns its boolean. It invokes the predicate but does not itself remove the window or emulate an OS event. `TestAppContext::dispatch_action(window, action)` at `:600-610` and `VisualTestContext::dispatch_action(action)` at `:889-895` can dispatch a registered action. Existing test helpers send keybindings through `window.press`, e.g. `crates/brn-desktop/src/threads_omakase_tests.rs:74-80`.
+
+The callbacks are currently registered inline only by `launch` (`crates/brn-desktop/src/threads_ui.rs:4805-4866`). Its `on_window_should_close` handler (`:4837-4850`) cancels worker work and unconditionally returns `true`; it does not save/check Note storage. Its registered `Quit` action (`:4852-4865`) cancels worker work then calls `cx.quit()`. The headless fixtures initialize GPUI, bind keys, and build `ThreadsUi` via `gpui_kit::open_window` (`threads_omakase_tests.rs:14-38`), but do not install either launch callback. Consequently their normal close simulation has no production predicate, and their Cmd-Q binding alone does not establish the production Quit action handler.
+
+Important backend distinction: `gpui-pre-0.3.9/src/app.rs:1231-1233` implements `App::quit` as `self.platform.quit()`, and the selected TestPlatform's `quit` is a no-op (`gpui-pre-0.3.9/src/platform/test/platform.rs:489`). This differs from `TestAppContext::quit` (`app/test_context.rs:238`), which is test-harness cleanup/shutdown. Therefore dispatching the actual registered Quit action in the headless backend would run its callback but would not prove native app termination or that the native app remains open after a refusal. No native lifecycle claim follows from this API.
+
+## Storage-refusal stimulus and boundary
+
+The existing desktop fixture provides a fresh temp data directory and checked `Workspace::open`. Core Store uses `threads.sqlite3` and `busy_timeout(Duration::from_secs(5))` (`crates/brn-threads-core/src/store.rs:13,152-155`). `brn-desktop` does not declare `rusqlite` directly, and the fixture exposes no connection/transaction handle; I found no existing desktop route to hold a competing `BEGIN IMMEDIATE` on that database. So the proposed contention stimulus needs an explicit fixture route or a shared core test seam; it cannot be assembled from current desktop APIs alone.
+
+Conclusion: a future headless test can invoke `simulate_close` only after the actual close callback is installed through a shared registration route; current fixtures omit it. Even then, today the predicate always permits close, independent of Note storage. A headless registered Quit action can be dispatched, but TestPlatform's no-op quit cannot validate native termination/admission. Without a supported competing-connection route, a storage-refusal case would also need a new fixture seam. Native OS close/Quit behavior remains unobserved.
