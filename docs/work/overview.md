@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Prepare fresh privacy test data before the Mac session
 
 Task ID: `privacy-native-fixture-preparation`
-Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:15:33.098794+00:00
-Activity: Independent Sol revised-plan review PASS; explicit build/processgroup/disk/token/siblinghelper limits adopted. Narrow current-source CLI build completed; fixture runner implementation under independent inspection, not executed yet.
-Next: Validate completed build receipt/frozenhelperidentity and review concrete fixture runner, then execute one bounded fresh synthetic preparation. ActualMacopening/stalebanner/controlobservations remain deferred.
+Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:27:08.136689+00:00
+Activity: Pinned offline current-source CLI build passed in12seconds; exact helpers matched retained qualification and unchanged helper source. Initial task-only fixture runner is held before execution: static review found initialization, settings-guard, cleanup and receipt-reporting defects. No fixture or desktop action occurred.
+Next: Apply one coherent correction to the reviewed runner findings, obtain final independent review, then execute one bounded fresh preparation. Preserve original runner and any actual failure; no automatic retry.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Validate completed build receipt/frozenhelperidentity and review concrete 
 Gates:
 
 - **implementation:** Existing public CLI route selected; no product source change. Approved bounded preparation plan.
-- **checks:** Pending planreview/source-bound build/actual freshfixturechecks
+- **checks:** PASS source-bound CLI build and helper identity. Initial runner static review pending correction; no fixture execution or native result.
 - **integration:** Evidence-only, normal product integration alreadymain213
 - **native:** Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending
 - **owner acceptance:** No new product policy; preparation is not native acceptance
@@ -319,4 +319,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:11:00.320658+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:27:08.136689+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

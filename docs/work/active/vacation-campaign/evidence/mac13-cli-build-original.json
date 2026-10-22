@@ -1,0 +1,63 @@
+{
+  "observed_at": "2026-10-22T09:15:00.641773+00:00",
+  "head": "3e7a32911e47e29eb6225d07e3e9994cc755e4dd",
+  "production_source": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "runtime_paths": [
+    "crates",
+    "agent",
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml"
+  ],
+  "source_unchanged": true,
+  "seconds": 12.090705374954268,
+  "command": [
+    "cargo",
+    "build",
+    "-p",
+    "brn",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "scoped_rebuild": [
+    "brn",
+    "brn-threads-app"
+  ],
+  "exit_code": 0,
+  "stop_reason": null,
+  "signals": [],
+  "group_absent": true,
+  "leader_reaped": true,
+  "cleanup_errors": [],
+  "qualified_build": true,
+  "artifacts": {
+    "brn": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn",
+      "sha256": "186a6cae4da53d42b3b0c3dd16544c748f580f35c0fafe8dd5596582bfe6c3d2",
+      "bytes": 71481552
+    },
+    "brn-xberg-helper": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "bytes": 131732512
+    },
+    "brn-xberg-helper-brn": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "bytes": 131924176
+    }
+  },
+  "reused_helpers": {
+    "qualified_installation_head": "3b3f9135c318a4a7959e591f2c0774b8177f9266",
+    "source_paths": [
+      "tools/xberg-intake-helper",
+      "scripts/prepare-xberg-adapted.py",
+      "scripts/build-document-helpers.sh"
+    ],
+    "source_unchanged_to_product_baseline": true,
+    "installation_receipt": "docs/work/active/vacation-campaign/evidence/writing-review/ci-helper-installation.json.gz",
+    "hash_receipt": "docs/work/active/vacation-campaign/evidence/helper-build-cache-reclamation.json"
+  }
+}

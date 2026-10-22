@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:11:00.320658+00:00",
+    "observed_at": "2026-10-22T09:27:08.136689+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4590,10 +4590,10 @@
         "title": "Prepare fresh privacy test data before the Mac session",
         "state": "active",
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
-        "observed_at": "2026-10-22T09:15:33.098794+00:00",
+        "observed_at": "2026-10-22T09:27:08.136689+00:00",
         "origin": "observed",
-        "activity": "Independent Sol revised-plan review PASS; explicit build/processgroup/disk/token/siblinghelper limits adopted. Narrow current-source CLI build completed; fixture runner implementation under independent inspection, not executed yet.",
-        "next_action": "Validate completed build receipt/frozenhelperidentity and review concrete fixture runner, then execute one bounded fresh synthetic preparation. ActualMacopening/stalebanner/controlobservations remain deferred.",
+        "activity": "Pinned offline current-source CLI build passed in12seconds; exact helpers matched retained qualification and unchanged helper source. Initial task-only fixture runner is held before execution: static review found initialization, settings-guard, cleanup and receipt-reporting defects. No fixture or desktop action occurred.",
+        "next_action": "Apply one coherent correction to the reviewed runner findings, obtain final independent review, then execute one bounded fresh preparation. Preserve original runner and any actual failure; no automatic retry.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4601,16 +4601,26 @@
           "docs/work/active/vacation-campaign/native-queue.md",
           "docs/work/active/vacation-campaign/evidence/mac13-preparation-plan.md",
           "docs/work/active/vacation-campaign/evidence/mac13-preparation-plan-review.md",
-          "docs/work/active/vacation-campaign/evidence/mac13-cli-command-preflight.md"
+          "docs/work/active/vacation-campaign/evidence/mac13-cli-command-preflight.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-cli-build.json",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz"
         ],
         "gates": {
           "implementation": "Existing public CLI route selected; no product source change. Approved bounded preparation plan.",
-          "checks": "Pending planreview/source-bound build/actual freshfixturechecks",
+          "checks": "PASS source-bound CLI build and helper identity. Initial runner static review pending correction; no fixture execution or native result.",
           "integration": "Evidence-only, normal product integration alreadymain213",
           "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
           "owner_acceptance": "No new product policy; preparation is not native acceptance"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Initial runner eb837f36 rejected before execution by static inspection: self.env read before initialization; init result.settings guard misrouted; descendant cleanup/persistence and Git bounds need correction. No runtime attempt consumed.",
+            "change": "One coherent author correction followed by independent complete review, preserving initial source and findings.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz"
+            ]
+          }
+        ],
         "resource_plan": "Existing selected lead owns shared build/fixture slot; Luna medium command/artifact preflight and Sol high independentreview, within4slots. No nesting/native/account/acquisition. At most2diagnosed attempts,60sprocess/10minfixturebound; cachedbuilddiskstart2GiB/stop1GiB."
       }
     ],
