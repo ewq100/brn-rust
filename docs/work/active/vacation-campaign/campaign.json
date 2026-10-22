@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T10:08:10.310907+00:00",
+    "observed_at": "2026-10-22T10:12:33.543338+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4796,6 +4796,30 @@
         },
         "attempts": [],
         "resource_plan": "Lead selected minimal dependency maintenance within hardening authority; one worker writer and one shared build slot. Allow bounded registry metadata/exact patch package fetch required for this repair (ordinary gates then locked/offline/jobs1). No broad updates/toolchain/global config/model/provider/account acquisition. Independent Sol review; Luna route inspection complete."
+      },
+      {
+        "id": "current-lock-advisory-scan",
+        "title": "Check maintained dependency locks against current advisories",
+        "state": "active",
+        "owner": "Bounded Luna task-local official tool/scan actor; lead findings disposition",
+        "observed_at": "2026-10-22T10:12:33.543338+00:00",
+        "origin": "observed",
+        "activity": "Official RustSec macOS arm64 cargo-audit0.22.2 asset and published SHA256 verified as a proportionate tool route. Selected task-local checksum-verified binary/current isolated DB scans of immutable main213 root, candidate003 root and two maintained helper locks. No tool build/global installation or product source writer.",
+        "next_action": "Capture version/executable hash/DB revision/four lock hashes and raw JSON/exit results. No ignored advisories or platform filters; disable online yanked queries explicitly and disclose that limit. Triage actual matches without broad automatic fixes.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/full-advisory-tool-feasibility.md"
+        ],
+        "gates": {
+          "implementation": "No product change; isolated official read-only audit tool selected",
+          "checks": "Pending actual current DB scans; preflight is not full audit clearance",
+          "integration": "No candidate/CI policy selected by this task",
+          "native": "Not required; no access",
+          "owner_acceptance": "No changed product meaning"
+        },
+        "attempts": [],
+        "resource_plan": "One Luna medium tool/download/scan helper, independent of active build: ~5.68MB official artifact + shallow public DB, task-local CARGO_HOME only; no sharedtarget/caches/config writes, no package updates/account/provider/model/native actions. Runtime <=300s, disk>=2GiBstart/1GiBstop, bounded output/ownedchildcleanup. Stop on digest/schema/uncertain process failure, no blind rerun."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4810,9 +4834,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-mac13-artifacts.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:02:52.989836+00:00",
-    "runtime_capacity": "Lead sole lockfile writer on isolated export-durability worker; independent Sol assessment/review, Luna bounded test-route inspection complete.",
-    "build_slot": "Reserved by lead TLS lock-only repair and following single serialized qualification. Native artifact build complete; old app preserved.",
+    "observed_at": "2026-10-22T10:13:30.416057+00:00",
+    "runtime_capacity": "Lead sole TLScandidate writer/build owner; independent Sol complete candidate reviewapproved; one Luna isolated officialadvisoryscan actor. Four total slots, no nested dispatch.",
+    "build_slot": "Active lead qualifier /tmp/brn-tls-resolution/qualify.py, PTY59751; candidate003edd71 frozen. Current stage/actual completion read qualification.json and raw logs; no competing builds.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",

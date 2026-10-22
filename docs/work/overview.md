@@ -32,6 +32,26 @@ Gates:
 
 </details>
 
+### Check maintained dependency locks against current advisories
+
+Task ID: `current-lock-advisory-scan`
+Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:12:33.543338+00:00
+Activity: Official RustSec macOS arm64 cargo-audit0.22.2 asset and published SHA256 verified as a proportionate tool route. Selected task-local checksum-verified binary/current isolated DB scans of immutable main213 root, candidate003 root and two maintained helper locks. No tool build/global installation or product source writer.
+Next: Capture version/executable hash/DB revision/four lock hashes and raw JSON/exit results. No ignored advisories or platform filters; disable online yanked queries explicitly and disclose that limit. Triage actual matches without broad automatic fixes.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** No product change; isolated official read-only audit tool selected
+- **checks:** Pending actual current DB scans; preflight is not full audit clearance
+- **integration:** No candidate/CI policy selected by this task
+- **native:** Not required; no access
+- **owner acceptance:** No changed product meaning
+
+</details>
+
 ## Next
 
 None recorded.
@@ -355,4 +375,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:08:10.310907+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:12:33.543338+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
