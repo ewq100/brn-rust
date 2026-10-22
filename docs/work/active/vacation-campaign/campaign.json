@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:34:09.510996+00:00",
+        "observed_at": "2026-10-22T13:38:51.370237+00:00",
         "origin": "observed",
-        "activity": "Portable test-only660a7371 independently approved and passed full Mac desktop350/0/1ignored, strict combined lint and pinned format. Production/component/contracts unchanged from155bb. Normal push to existing217 confirmed through GraphQL, REST and remote ref; fresh hosted checks pending. Original Ubuntu failure retained.",
-        "next_action": "Keep217 head frozen at660a. Inspect corrected Ubuntu widget lane plus all four required exact-head checks and live protection; only then normal merge, with resulting-main checked separately. Continue eligible headless work; no native/account actor.",
+        "activity": "Subsequent read-only inspection found a clean stale-view edge: another checked Save advances the Note while the held editor still shows its prior saved checkpoint. Guard can falsely refuse exit despite that immutable revision retaining exact bytes. Source independently under assessment; merge held while660a hosted checks run.",
+        "next_action": "Resolve clean-checkpoint durability assessment and establish one meaningful existing-fixture before-source witness. Preserve all prior failures/checks; do not merge while this ordinary clean-note case is unresolved.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5316,12 +5316,13 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-ubuntu-setup-review.md",
           "docs/work/active/vacation-campaign/evidence/note-exit-run-portable.py",
           "docs/work/active/vacation-campaign/evidence/note-exit-portable-local.json",
-          "docs/work/active/vacation-campaign/evidence/pr217-portable-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr217-portable-publication.json",
+          "docs/work/active/vacation-campaign/evidence/clean-note-exit-preflight.md"
         ],
         "gates": {
-          "implementation": "PASS independent full155bb review plus exact660a portable-selection delta approval; no unresolved findings.",
+          "implementation": "Complete660a review previously passed; subsequent clean historical-checkpoint false refusal under independent assessment, integration held.",
           "checks": "PASS660a full Mac desktop350/0/1ignored, strict combined lint/format; unchanged component/ordinary build reused. Corrected Ubuntu and required hosted exact660a checks pending.",
-          "integration": "PR217 normally updated to660a; no merge. Live protection/required exact-head/preceding-main and resulting-main remain separate.",
+          "integration": "PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
         },
@@ -5496,6 +5497,32 @@
         },
         "attempts": [],
         "resource_plan": "Luna medium bounded source/receipt inspection while Sol reviews separate frozen overview and lead integrates217; actual4slotsincludingstale pendingactor. No nestedhelpers/runtime, provider/account/network/data access or new fixture launches. Stop if existing passing coverage sufficient or account/native prerequisite unavailable."
+      },
+      {
+        "id": "clean-note-exit-assessment",
+        "title": "Keep an already-saved clean note from blocking exit",
+        "state": "active",
+        "owner": "Lead decision; bounded Luna witness author; independent Sol design/review",
+        "observed_at": "2026-10-22T13:38:51.370237+00:00",
+        "origin": "observed",
+        "activity": "Source preflight identifies clean vN editor after external vN+1 Save; current-only/recovery check misses immutable vN. Assess exact held-revision read reuse and bounded witness before any production correction.",
+        "next_action": "Independent design confirms engineering policy/safety; reuse one existing offline fixture and actual Close installer for focused before-source witness. No new framework or history scan.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/clean-note-exit-preflight.md",
+          "crates/brn-writing-ui/src/note.rs",
+          "crates/brn-threads-core/src/store.rs"
+        ],
+        "gates": {
+          "implementation": "Assessment only; no correction selected until source decision.",
+          "checks": "Read-only preflight; witness pending.",
+          "integration": "Holds dependent PR217 integration.",
+          "native": "Owner-deferred; no native action.",
+          "owner_acceptance": "Ordinary already-saved checkpoint exit behavior; escalate only a real product meaning change."
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium owns test-only existing fixture reuse in mac-test-roots after explicit dispatch; Sol read-only design/review; lead owns build/production/docs/integration. Actual4slots including stale pending actor. No concurrent builds or account/native/network/SQL/host fault. Stop if trusted immutable revision proof is unavailable or before-source cannot establish intended state."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

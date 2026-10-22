@@ -14,20 +14,40 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:34:09.510996+00:00
-Activity: Portable test-only660a7371 independently approved and passed full Mac desktop350/0/1ignored, strict combined lint and pinned format. Production/component/contracts unchanged from155bb. Normal push to existing217 confirmed through GraphQL, REST and remote ref; fresh hosted checks pending. Original Ubuntu failure retained.
-Next: Keep217 head frozen at660a. Inspect corrected Ubuntu widget lane plus all four required exact-head checks and live protection; only then normal merge, with resulting-main checked separately. Continue eligible headless work; no native/account actor.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:38:51.370237+00:00
+Activity: Subsequent read-only inspection found a clean stale-view edge: another checked Save advances the Note while the held editor still shows its prior saved checkpoint. Guard can falsely refuse exit despite that immutable revision retaining exact bytes. Source independently under assessment; merge held while660a hosted checks run.
+Next: Resolve clean-checkpoint durability assessment and establish one meaningful existing-fixture before-source witness. Preserve all prior failures/checks; do not merge while this ordinary clean-note case is unresolved.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** PASS independent full155bb review plus exact660a portable-selection delta approval; no unresolved findings.
+- **implementation:** Complete660a review previously passed; subsequent clean historical-checkpoint false refusal under independent assessment, integration held.
 - **checks:** PASS660a full Mac desktop350/0/1ignored, strict combined lint/format; unchanged component/ordinary build reused. Corrected Ubuntu and required hosted exact660a checks pending.
-- **integration:** PR217 normally updated to660a; no merge. Live protection/required exact-head/preceding-main and resulting-main remain separate.
+- **integration:** PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
+
+</details>
+
+### Keep an already-saved clean note from blocking exit
+
+Task ID: `clean-note-exit-assessment`
+Owner: Lead decision; bounded Luna witness author; independent Sol design/review · State: **active** · Last observed: 2026-10-22T13:38:51.370237+00:00
+Activity: Source preflight identifies clean vN editor after external vN+1 Save; current-only/recovery check misses immutable vN. Assess exact held-revision read reuse and bounded witness before any production correction.
+Next: Independent design confirms engineering policy/safety; reuse one existing offline fixture and actual Close installer for focused before-source witness. No new framework or history scan.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Assessment only; no correction selected until source decision.
+- **checks:** Read-only preflight; witness pending.
+- **integration:** Holds dependent PR217 integration.
+- **native:** Owner-deferred; no native action.
+- **owner acceptance:** Ordinary already-saved checkpoint exit behavior; escalate only a real product meaning change.
 
 </details>
 
