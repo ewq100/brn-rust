@@ -84,6 +84,48 @@ Attempts:
 
 </details>
 
+### Find remaining unbounded owned-child waits in deterministic tests
+
+Owner: Bounded Luna assessment; lead validation · State: **active** · Last observed: 2026-10-22T04:02:58.533785+00:00
+Activity: Inspect test-only process readiness/wait and unwind ownership outside the now-qualified backup/restore helper. Distinguish intentional bounded deadline/lock tests from actual unbounded waits.
+Next: At most two source-backed findings with valid trigger, exact location and existing coverage; or explicit no-change conclusion. Reuse existing CI timing evidence; do not remove tests or expand into a generic framework.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only bounded assessment; no repair selected before evidence.
+- **checks:** Source/caller and existing witness assessment only; no build or test launch authorized to helper.
+- **integration:** Inapplicable until an actual selected correction.
+- **native:** Deferred for owner-reported extended screen unavailability.
+- **owner acceptance:** No new decision selected.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json](active/vacation-campaign/evidence/development-maintenance-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md](active/vacation-campaign/evidence/mac-core-test-body-triage.md)
+
+</details>
+
+### Check note switching and recovery for unsaved-work loss
+
+Owner: Bounded Luna assessment; lead validation · State: **active** · Last observed: 2026-10-22T04:02:58.533785+00:00
+Activity: Inspect actual shared NoteLifecycle and both host consumers at current source, specifically ignored newer generations, refused Save, refresh and switching/recovery. Use existing witnesses and preserve checked store authority.
+Next: Return at most two concrete source-backed loss/stale-owner risks or no-change verdict. Do not migrate healthy state, implement changes or repeat passed journeys.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only bounded assessment; no repair selected before evidence.
+- **checks:** Source/caller and existing witness assessment only; no build or test launch authorized to helper.
+- **integration:** Inapplicable until an actual selected correction.
+- **native:** Deferred for owner-reported extended screen unavailability.
+- **owner acceptance:** No new decision selected.
+
+Evidence: [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md), [docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md](active/vacation-campaign/evidence/state-ownership-milestone-20261022.md)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -331,4 +373,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:01:07.568923+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:02:58.533785+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:01:07.568923+00:00",
+    "observed_at": "2026-10-22T04:02:58.533785+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3577,6 +3577,57 @@
         },
         "attempts": [],
         "resource_plan": "One economical bounded Luna read-only helper while lead owns PR207 integration. No nestedhelpers or localsharedbuild; only GitHub read APIs and task-owned logs/report. No cache deletion, reruns, billing/credentials/account/provider/native changes."
+      },
+      {
+        "state": "active",
+        "observed_at": "2026-10-22T04:02:58.533785+00:00",
+        "origin": "observed",
+        "depends_on": [],
+        "resource_waits": [],
+        "attempts": [],
+        "gates": {
+          "implementation": "Read-only bounded assessment; no repair selected before evidence.",
+          "checks": "Source/caller and existing witness assessment only; no build or test launch authorized to helper.",
+          "integration": "Inapplicable until an actual selected correction.",
+          "native": "Deferred for owner-reported extended screen unavailability.",
+          "owner_acceptance": "No new decision selected."
+        },
+        "resource_plan": "Two useful bounded read-only helper flows plus lead within four actual slots. Luna performs defined assessment; lead validates any finding and owns all source/build/integration decisions. No nested helper, account/provider/native/global changes. Stop after one assessment or two failed inspection approaches; no invented migration or coverage quota.",
+        "id": "test-child-readiness-audit",
+        "title": "Find remaining unbounded owned-child waits in deterministic tests",
+        "owner": "Bounded Luna assessment; lead validation",
+        "activity": "Inspect test-only process readiness/wait and unwind ownership outside the now-qualified backup/restore helper. Distinguish intentional bounded deadline/lock tests from actual unbounded waits.",
+        "next_action": "At most two source-backed findings with valid trigger, exact location and existing coverage; or explicit no-change conclusion. Reuse existing CI timing evidence; do not remove tests or expand into a generic framework.",
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md"
+        ]
+      },
+      {
+        "state": "active",
+        "observed_at": "2026-10-22T04:02:58.533785+00:00",
+        "origin": "observed",
+        "depends_on": [],
+        "resource_waits": [],
+        "attempts": [],
+        "gates": {
+          "implementation": "Read-only bounded assessment; no repair selected before evidence.",
+          "checks": "Source/caller and existing witness assessment only; no build or test launch authorized to helper.",
+          "integration": "Inapplicable until an actual selected correction.",
+          "native": "Deferred for owner-reported extended screen unavailability.",
+          "owner_acceptance": "No new decision selected."
+        },
+        "resource_plan": "Two useful bounded read-only helper flows plus lead within four actual slots. Luna performs defined assessment; lead validates any finding and owns all source/build/integration decisions. No nested helper, account/provider/native/global changes. Stop after one assessment or two failed inspection approaches; no invented migration or coverage quota.",
+        "id": "note-lifecycle-transition-audit",
+        "title": "Check note switching and recovery for unsaved-work loss",
+        "owner": "Bounded Luna assessment; lead validation",
+        "activity": "Inspect actual shared NoteLifecycle and both host consumers at current source, specifically ignored newer generations, refused Save, refresh and switching/recovery. Use existing witnesses and preserve checked store authority.",
+        "next_action": "Return at most two concrete source-backed loss/stale-owner risks or no-change verdict. Do not migrate healthy state, implement changes or repeat passed journeys.",
+        "evidence": [
+          "crates/brn-writing-ui/src/note.rs",
+          "crates/brn-writing-ui/README.md",
+          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md"
+        ]
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3591,14 +3642,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:00:40.584033+00:00",
-    "runtime_capacity": "Four actual slots including lead. Both authors, independent batch reviewer and bounded CI log assessor finished. No source writer or nested helper.",
-    "build_slot": "Free after final combined7dde core219/Projects9/Python188/lint/format/links PASS.",
+    "observed_at": "2026-10-22T04:02:58.533785+00:00",
+    "runtime_capacity": "Four total slots; lead and two bounded read-only Luna assessments selected, no nested helpers or source writers.",
+    "build_slot": "Free; no builds dispatched.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR207 resulting-main and PR208 exact-head required checks pending; no active local build/source writer.",
+    "wait_reason": "Hosted PR207 main and PR208 head gates pending while independent assessments proceed.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen combined7dde; no source writer.",
