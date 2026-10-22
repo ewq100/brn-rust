@@ -91,8 +91,62 @@ class WorkOverviewTests(unittest.TestCase):
         self.assertNotIn("### Dependent", output.split("## Next", 1)[1].split("## Needs attention", 1)[0])
         self.assertIn("prerequisite one: reviewed first task (reported satisfied: false; task state: active)", output)
         self.assertNotIn("native Mac slot -->", output)
-        self.assertIn("[docs/work/active/example.md]", output)
+        self.assertNotIn("[docs/work/active/example.md]", output)
         self.assertEqual(output, renderer.render(view(first, second), self.output))
+
+    def test_active_and_blocked_history_stays_in_record_not_summary(self):
+        evidence = [f"docs/work/history/evidence-{index:04}.md" for index in range(120)]
+        attempts = [
+            {
+                "outcome": f"HISTORY-DETAIL-{index:03}",
+                "change": f"Correction details retained only for task {index:03}",
+                "evidence": [f"docs/work/history/attempt-{index:03}.md"],
+            }
+            for index in range(40)
+        ]
+        blocked_fields = {
+            "state": "blocked",
+            "activity": "Waiting on a confirmed prerequisite",
+            "next_action": "Resume after the prerequisite is reported satisfied",
+            "depends_on": [{
+                "task": "active",
+                "condition": "the active task is complete",
+                "satisfied": False,
+            }],
+            "resource_waits": ["one owner-confirmed slot"],
+        }
+        active = task("active", evidence=evidence, attempts=attempts)
+        blocked = task("blocked", **blocked_fields, evidence=evidence, attempts=attempts)
+        detailed = view(active, blocked)
+        compact = view(task("active"), task("blocked", **blocked_fields))
+
+        summary = renderer.render(detailed, self.output, self.record)
+        self.assertEqual(summary, renderer.render(compact, self.output, self.record))
+        self.assertTrue(all(item in summary for item in (
+            "Owner: Ari",
+            "Last observed: 2026-10-20T10:00:00+03:00",
+            "Activity: Reviewing the source",
+            "Next: Run focused check",
+            "Activity: Waiting on a confirmed prerequisite",
+            "Next: Resume after the prerequisite is reported satisfied",
+            "**implementation:** implementation claim",
+            "**owner acceptance:** owner_acceptance claim",
+            "Resource waits: one owner-confirmed slot",
+            "t0 -->|the active task is complete (not satisfied)| t1",
+        )))
+        self.assertNotIn("HISTORY-DETAIL-", summary)
+        self.assertNotIn("Correction details retained", summary)
+        self.assertNotIn("evidence-0000.md", summary)
+
+        self.save(detailed)
+        record_before = self.record.read_bytes()
+        for selected_id, selected in (("active", active), ("blocked", blocked)):
+            result, stdout, stderr = self.run_main("--task", selected_id)
+            self.assertEqual(result, 0, stderr)
+            self.assertEqual(stdout, json.dumps(selected, ensure_ascii=False, indent=2) + "\n")
+            self.assertEqual(json.loads(stdout), selected)
+            self.assertEqual(self.record.read_bytes(), record_before)
+            self.assertFalse(self.output.parent.exists())
 
     def test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write(self):
         self.save(view(task()))

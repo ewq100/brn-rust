@@ -148,27 +148,15 @@ def _safe_label(text):
     return text.replace("&", "&amp;").replace('"', "'").replace("<", "&lt;").replace(">", "&gt;").replace("\n", " ")
 
 
-def _link(item, output_path):
-    if item.startswith("https://"):
-        return f"[{item}]({item})"
-    target = ROOT / PurePosixPath(item)
-    relative = os.path.relpath(target, output_path.parent)
-    return f"[{item}]({quote(relative, safe='/._-()')})"
-
-
-def _task_block(task, output_path):
+def _task_block(task):
     lines = [f"### {task['title']}", "", f"Owner: {task['owner']} · State: **{task['state']}** · Last {task['origin']}: {task['observed_at']}",
              f"Activity: {task['activity']}", f"Next: {task['next_action']}"]
     if task["depends_on"]:
         lines.append("Depends on: " + "; ".join(f"{dep['task']} when {dep['condition']} (reported satisfied: {str(dep['satisfied']).lower()})" for dep in task["depends_on"]))
     if task["resource_waits"]:
         lines.append("Resource waits: " + "; ".join(task["resource_waits"]))
-    lines.extend(("", "<details>", "<summary>Checks, evidence and corrections</summary>", "", "Gates:", ""))
+    lines.extend(("", "<details>", "<summary>Gate status</summary>", "", "Gates:", ""))
     lines.extend(f"- **{key.replace('_', ' ')}:** {task['gates'][key]}" for key in GATES)
-    lines.extend(("", "Evidence: " + ", ".join(_link(item, output_path) for item in task["evidence"])))
-    if task["attempts"]:
-        lines.extend(("", "Attempts:", ""))
-        lines.extend(f"- {a['outcome']}: {a['change']} ({', '.join(_link(e, output_path) for e in a['evidence'])})" for a in task["attempts"])
     lines.extend(("", "</details>"))
     return "\n".join(lines)
 
@@ -210,7 +198,7 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
             record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
             out.extend((
                 "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
-                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below.",
+                f"The selected record retains exact task fields, detailed evidence, and attempt history. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below. The record is {record_link}.",
                 "",
             ))
             out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
@@ -223,11 +211,11 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
                         if task["state"] == "active":
                             out.extend((f"### {task['title']}", "", f"Owner: {task['owner']}", "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
                         else:
-                            out.extend((_task_block(task, output_path), "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
+                            out.extend((_task_block(task), "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
                     else:
-                        out.extend((_task_block(task, output_path), ""))
+                        out.extend((_task_block(task), ""))
                 else:
-                    out.extend((_task_block(task, output_path), ""))
+                    out.extend((_task_block(task), ""))
     edges = [(task, dep) for task in tasks for dep in task["depends_on"]]
     if edges:
         ids = {task["id"]: f"t{index}" for index, task in enumerate(tasks)}
