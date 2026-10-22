@@ -31,6 +31,27 @@ Gates:
 
 </details>
 
+### Keep completed history from crowding the startup summary
+
+Task ID: `bounded-completed-overview`
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:02:34.261681+00:00
+Activity: Ready unpublished ddf candidate retained. Additional measured startup noise: current dependency graph20edges/33nodes includes13closed-onlyedges;7edges/12nodes are ancestors needed by unfinished work. Select bounded projection-only extension before publication; retain all task validation, conditions and historical lookup.
+Next: Luna extends existing graph regression and renderer to show unfinished work dependency closure, including completed prerequisites; preserve complete record/acyclic validation and exact task lookup. Freeze for complete independent review and focused qualification, then publish after217normalmerge.
+Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Reviewed ddf completed index retained; graph projection extension selected/in progress, not yet reviewed or qualified.
+- **checks:** Prior15Python and current-record checks apply only to ddf. New graph boundary needs meaningful before-source witness and final focused qualification; no Rust/native change.
+- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
+- **native:** Inapplicable: development view only.
+- **owner acceptance:** No new product meaning or shipped behavior.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -216,31 +237,6 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
-### Keep completed history from crowding the startup summary
-
-Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **ready** · Last observed: 2026-10-22T13:25:58.817213+00:00
-Activity: Independent complete ddf review APPROVED/no findings. Lead adopted byte-identical renderer/test and regenerated actual current record:35085→25021bytes,471→362lines; exact authoritative record unchanged across qualification.15PythonPASS/overview/docs/diffPASS. Tooling not merged to main.
-Next: After PR217 normal merge, reconcile actualmain without replacing current records; publish source-equivalent tooling candidate, inspect required checks/protection and resulting-main normally.
-Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independently reviewed ddf renderer/test; adopted identical scripts in lead projection. No record/schema/runtime change.
-- **checks:** PASS lead focused15Python, actual-current-record regen/check,883files3116links0fail, whitespace. Record bytes unchanged; author baseline failure report-only limitation retained.
-- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
-- **native:** Inapplicable: development view only.
-- **owner acceptance:** No new product meaning or shipped behavior.
-
-</details>
-
-Waiting:
-
-- prerequisite note-exit-preservation: Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false; task state: active)
-
 ### Observe note preservation during Mac Close and Quit
 
 Task ID: `note-exit-native-qualification`
@@ -346,4 +342,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T13:00:46.906013+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:02:34.261681+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

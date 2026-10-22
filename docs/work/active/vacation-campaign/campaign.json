@@ -28,7 +28,7 @@
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
     "quota": "See admission observation; no purchases/reset credits.",
-    "wake": "Repeated same-chat heartbeat delivery observed19\u201320October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
+    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -58,7 +58,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
-    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T13:49:32.597605+00:00",
+    "observed_at": "2026-10-22T14:02:34.261681+00:00",
     "remaining_percent": 35,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual65%used/35%remaining; ordinaryUsageAllowed=true, secondary unavailable. Continue ordinary headless review/integration; native and account constraints unchanged.",
+    "ordinary_work": "Actual65%used/35%remaining; ordinaryUsageAllowed=true; secondary unavailable. Continue authorized headless work; no native or account dispatch.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T13:00:46.906013+00:00",
+    "observed_at": "2026-10-22T14:02:34.261681+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -176,7 +176,7 @@
           "https://github.com/ewq100/brn-rust/pull/176"
         ],
         "gates": {
-          "implementation": "complete; final writing.rs SHA b14e8bc9\u2026932ffe8",
+          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
           "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
@@ -299,7 +299,7 @@
           "docs/work/active/agent-first-simplification/reconciliation.md"
         ],
         "gates": {
-          "implementation": "merged in earlier campaign PR163\u2013174; per-slice identities retained in receipts",
+          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
           "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
           "integration": "verified per dated integration receipt; no whole-program completion claim",
           "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
@@ -431,7 +431,7 @@
         ],
         "gates": {
           "implementation": "inapplicable: exercising existing test and public routes; no source change selected",
-          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6\u21927 with Runs1\u21922, unchanged owner Message and source bytes",
+          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes",
           "integration": "inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen",
           "native": "headless toolkit only; actual OS interaction not exercised",
           "owner_acceptance": "not claimed"
@@ -2212,7 +2212,7 @@
         "attempts": [
           {
             "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
-            "change": "Extend existing positive Save test with Low\u2192Off\u2192Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
             ]
@@ -4318,7 +4318,7 @@
           },
           {
             "outcome": "APPROVED source and adapters, runtime pending. Both P2s valid/fixed atccd05b28, no remaining source findings.",
-            "change": "Corrected guardedfixture order; asserted actualpreparedHistorical/Currentrequest, checkedsecondconnectionprivacychange\u2192Stale/noeffect, actualreopenimmutable replaywhileprivate and sameversionpositive; concisebehaviorcontract. No newseam/schema/framework.",
+            "change": "Corrected guardedfixture order; asserted actualpreparedHistorical/Currentrequest, checkedsecondconnectionprivacychange→Stale/noeffect, actualreopenimmutable replaywhileprivate and sameversionpositive; concisebehaviorcontract. No newseam/schema/framework.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md",
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final.patch"
@@ -4399,7 +4399,7 @@
         ],
         "gates": {
           "implementation": "No productionfix selected. Test-onlywitness4c preserved asdiagnostic source, not a productcandidate to merge without need.",
-          "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold\u00d722PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
+          "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold×22PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
           "integration": "No startupfixpublished/merged. Independent scope disposition acceptedprivacycandidateadmission only; unresolvedfault/debt retained.",
           "native": "No nativeinteraction selected; ownerdeferred.",
           "owner_acceptance": "No new productbehavior or ownerdecision selected; reliability engineering in authorizedscope."
@@ -4415,7 +4415,7 @@
             ]
           },
           {
-            "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses\u00d722paralleltests allPASS;440testexecutions; qualifiedfalse.",
+            "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses×22paralleltests allPASS;440testexecutions; qualifiedfalse.",
             "change": "One separatelyreviewedno-rebuild exactoriginalbinary/UUID campaign restoredappfixture/link/layout beyondcore-onlywitness. Stopcoldrepetition aftertwodistinctnonreproapproaches; originalnativefault retained andcausalreassessment required.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
@@ -4516,7 +4516,7 @@
         ],
         "gates": {
           "implementation": "PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.",
-          "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796\u219226,284UTF8bytes; no token/cost/nativeclaim.",
+          "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.",
           "integration": "PASS normal protectedmerge3827d6a1, whole qualifiedtree equality, all4required head/precedingmain/resultingmain PASS; optionalWindows failures retained.",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
@@ -4604,7 +4604,7 @@
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
         "observed_at": "2026-10-22T09:45:08.700280+00:00",
         "origin": "observed",
-        "activity": "Independent actual-result review PASS:109bounded commands, exact initial privatev2/generalv1, unchanged primary roots, distinct checked private2\u21923/general1\u21922 rehearsals, metadata/source/sentinel/history preserved, tokens absent andallgroupsresolved. Original first failure/importrevision1 retained; noimportfidelity/nativeclaim.",
+        "activity": "Independent actual-result review PASS:109bounded commands, exact initial privatev2/generalv1, unchanged primary roots, distinct checked private2→3/general1→2 rehearsals, metadata/source/sentinel/history preserved, tokens absent andallgroupsresolved. Original first failure/importrevision1 retained; noimportfidelity/nativeclaim.",
         "next_action": "Use separate MAC13 manifest during later actual authorized Mac session; recheck current app/helpers/versions and read-only state. No further preparation runs. Nativecontrol task remains separately blocked on availability.",
         "depends_on": [],
         "resource_waits": [],
@@ -4879,7 +4879,7 @@
         ],
         "gates": {
           "implementation": "No product change; isolated official read-only audit tool selected",
-          "checks": "COMPLETE actual baseline+3remaining scans bound to input/tool/DB hashes; root7\u21920vulnerabilitymatches/8notices; helper3zipmatches each/1notice each. no-yanked/notexploitproof.",
+          "checks": "COMPLETE actual baseline+3remaining scans bound to input/tool/DB hashes; root7→0vulnerabilitymatches/8notices; helper3zipmatches each/1notice each. no-yanked/notexploitproof.",
           "integration": "No candidate/CI policy selected by this task",
           "native": "Not required; no access",
           "owner_acceptance": "No changed product meaning"
@@ -5355,7 +5355,7 @@
           {
             "observed_at": "2026-10-22T12:54:06.528892+00:00",
             "candidate": "1cf745d9f31802641d16384841675479edcd7c9c",
-            "outcome": "Meaningful before-source FAIL at actual installed close predicate after exact live \u00f5/canonical/recovery/history setup passed.0passed/1failed,50.24s; cleanup/source PASS. Post-Close assertions and continuation not reached; no native teardown.",
+            "outcome": "Meaningful before-source FAIL at actual installed close predicate after exact live õ/canonical/recovery/history setup passed.0passed/1failed,50.24s; cleanup/source PASS. Post-Close assertions and continuation not reached; no native teardown.",
             "change": "Admit the adopted bounded Note-owner/desktop repair and necessary existing-journey extensions. Do not alter checked data authority, native/account boundaries or broader draft policy.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
@@ -5376,7 +5376,7 @@
           {
             "observed_at": "2026-10-22T13:29:19.031011+00:00",
             "candidate": "155bb86776eea697135de8d6782bddc4481b3de0",
-            "outcome": "UbuntuCIsetupFAIL actual\u00f5+originalbody, expected\u00f5,1827;346PASS/1FAIL/1ignored/3filtered. LocalMacfullsuite350PASS; noUbuntuexitproof.",
+            "outcome": "UbuntuCIsetupFAIL actualõ+originalbody, expectedõ,1827;346PASS/1FAIL/1ignored/3filtered. LocalMacfullsuite350PASS; noUbuntuexitproof.",
             "change": "Independent source-based reassessment before test-only platform-neutral selection setup. Keep actual input and exitassertions; no bypass/skips/newproductAPI.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-ui-first.json"
@@ -5424,12 +5424,12 @@
       {
         "id": "bounded-completed-overview",
         "title": "Keep completed history from crowding the startup summary",
-        "state": "ready",
+        "state": "active",
         "owner": "Bounded Luna medium author; lead integration; independent Sol review",
-        "observed_at": "2026-10-22T13:25:58.817213+00:00",
+        "observed_at": "2026-10-22T14:02:34.261681+00:00",
         "origin": "observed",
-        "activity": "Independent complete ddf review APPROVED/no findings. Lead adopted byte-identical renderer/test and regenerated actual current record:35085\u219225021bytes,471\u2192362lines; exact authoritative record unchanged across qualification.15PythonPASS/overview/docs/diffPASS. Tooling not merged to main.",
-        "next_action": "After PR217 normal merge, reconcile actualmain without replacing current records; publish source-equivalent tooling candidate, inspect required checks/protection and resulting-main normally.",
+        "activity": "Ready unpublished ddf candidate retained. Additional measured startup noise: current dependency graph20edges/33nodes includes13closed-onlyedges;7edges/12nodes are ancestors needed by unfinished work. Select bounded projection-only extension before publication; retain all task validation, conditions and historical lookup.",
+        "next_action": "Luna extends existing graph regression and renderer to show unfinished work dependency closure, including completed prerequisites; preserve complete record/acyclic validation and exact task lookup. Freeze for complete independent review and focused qualification, then publish after217normalmerge.",
         "depends_on": [
           {
             "task": "note-exit-preservation",
@@ -5446,14 +5446,14 @@
           "docs/work/active/vacation-campaign/evidence/bounded-overview-lead-qualification.json"
         ],
         "gates": {
-          "implementation": "PASS independently reviewed ddf renderer/test; adopted identical scripts in lead projection. No record/schema/runtime change.",
-          "checks": "PASS lead focused15Python, actual-current-record regen/check,883files3116links0fail, whitespace. Record bytes unchanged; author baseline failure report-only limitation retained.",
+          "implementation": "Reviewed ddf completed index retained; graph projection extension selected/in progress, not yet reviewed or qualified.",
+          "checks": "Prior15Python and current-record checks apply only to ddf. New graph boundary needs meaningful before-source witness and final focused qualification; no Rust/native change.",
           "integration": "No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.",
           "native": "Inapplicable: development view only.",
           "owner_acceptance": "No new product meaning or shipped behavior."
         },
         "attempts": [],
-        "resource_plan": "Luna medium owns renderer/test and generated worker overview only. Lead owns current campaign/remote views and integration; one read-only Sol review after freeze. No Rust builds, global config, provider/account/native, nested helpers or source runtime edits. Stop if old IDs/history cease discoverable or projection changes task authority."
+        "resource_plan": "Luna medium owns renderer/test and generated overview in isolated export-durability worker; lead owns current campaign and CI integration; Sol independently reviews complete final candidate. Two useful helpers max, one source writer, no builds/native/account/nested agents. Stop if required dependencies, invalid-history rejection or exact old task lookup are lost."
       },
       {
         "id": "note-exit-native-qualification",
@@ -5558,20 +5558,22 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-final-note-exit-pr217.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T13:00:46.906013+00:00",
-    "runtime_capacity": "Lead consequential implementation/docs and integration; Luna test-only U4 writer active; Sol reviewer idle/available. No local build/native/account.",
-    "build_slot": "Free; all baseline child groups absent. Held free during source/test edits.",
+    "observed_at": "2026-10-22T14:02:34.261681+00:00",
+    "runtime_capacity": "Four total runtime slots: lead integration/currentfacts; Luna bounded overview writer; Sol independent reviewer available; stale pending-init actor has no observed job.",
+    "build_slot": "Free; no cargo/rustc/test child active. Shared target remains serialized.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "No required hosted gate wait; optional Ubuntu native UI from216 main still running at snapshot. Native owner-deferred.",
+    "wait_reason": "PR217 final174 exact-head hosted gates running; required Mac NativeUI and docs PASS at14:01, remaining required lanes and corrected UbuntuNativeUI pending. No merge yet.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
-    "fixture_worker_checkout": "mac-test-roots codex/note-exit-preservation-20261022 frommain5c606c10; Luna witness-only writer. PR216 branch317 remains frozen and merged; previous diagnostic branches/artifacts retained.",
+    "worker_checkout": "export-durability clean ddf07b97 bounded-overview candidate; Luna has exclusive renderer/tests/generated-worker-page ownership.",
+    "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
-    "required_ci_runs": []
+    "required_ci_runs": [
+      "39790658023"
+    ]
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",
