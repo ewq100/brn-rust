@@ -34,17 +34,17 @@ Gates:
 ### Keep completed history from crowding the startup summary
 
 Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:18:24.728663+00:00
-Activity: Selected ten latest-observed completed tasks plus total count/full selected-record route. Clean isolated export-durability checkout branch codex/bounded-completed-overview-20261022 frommain5c606c10; PR217 head remains frozen.
-Next: Implement renderer projection and meaningful bounded-history/ordering/old-task-lookup witnesses; independently review actual complete candidate and run proportionate Python/docs checks. No Rust build or runtime change.
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:22:29.972895+00:00
+Activity: Luna froze clean3-file ddf07b97: bounded10latest-observed completed list, parsed timezone ordering/IDties, total/fullrecordroute; existing regression extended for12tasks and exact omitted-task lookup. Reported15PythonPASS, worker regenerate/check/docsPASS. Independent Sol complete candidate review active.
+Next: Resolve independent review, then adopt identical renderer/test locally and regenerate from actual current record with proportionate checks/size receipt. Keep separate product candidate unpublished until217integrated, reconcile newmain, then publish normal required checks.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Selected; pending candidate.
-- **checks:** Pending focused tooling suite and docs/overview check.
+- **implementation:** Implemented ddf07b97 draft; independent review pending. Record/schema and runtime unchanged.
+- **checks:** Author reports focused15PASS/renderercheck/docs625files2813links/diffPASS; source review and actual lead projection qualification pending.
 - **integration:** No PR; must reconcile actual main and avoid superseding open217. Normal required checks remain.
 - **native:** Inapplicable: development view only.
 - **owner acceptance:** No new product meaning or shipped behavior.
