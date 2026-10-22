@@ -1,0 +1,64 @@
+{
+  "observed_at": {
+    "current_time": "2026-10-22 10:29:52 UTC"
+  },
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "425910f5c1b494d4cd0855d77007cb944fedbdfe",
+  "sequence": 89,
+  "all_intended_exact": true,
+  "unmanaged_preserved": 38,
+  "total_blocks": 41,
+  "errors": [],
+  "operation_results": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "b3477b5c6d79d9a5f07ea616f8d47f0f14959fc29837a7e0e9cac570fc2e2865"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "7bb16004ace89d743387fb267146a5b3c7aec996a75d1a7bfc03412f357a897b"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "80edec311287696eaf5bd2bf28ce62665a0d4842c97ef91991107cc6e2d24c1f"
+        }
+      ]
+    }
+  ],
+  "intended": {
+    "a37e5801-b0c8-4330-800f-13d98b10338a": "Last refreshed: **22 October 2026 at 13:29 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528": "**A small security dependency update is under verification.** The current advisory scan found seven matches in the original dependency file. An independently reviewed candidate updates four packages to compatible fixes; this does not establish that BRN was exploited or that every affected path is used. Final tests, remaining audit files and integration are pending. The earlier privacy repair ([PR 212](https://github.com/ewq100/brn-rust/pull/212)) and shorter progress view ([PR 213](https://github.com/ewq100/brn-rust/pull/213)) are merged and passed every required check before and after merging. Fresh privacy-test data and matching app packages are prepared, with both apps still unopened. [Current work and evidence](https://github.com/ewq100/brn-rust/blob/425910f5c1b494d4cd0855d77007cb944fedbdfe/docs/work/overview.md).",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea": "1. Finish the final dependency tests, app builds and the remaining advisory scans. Preserve the original findings, maintenance warnings and failed checks; publish and merge only after independent review and the required checks pass, then verify the merged version separately. The first candidate passed normal tests and app builds but its optional retrieval check hit a local library-linking setup issue; final checks use the existing cached library. Actual Mac privacy controls still await your reported screen availability. No desktop access or account test is running."
+  }
+}
