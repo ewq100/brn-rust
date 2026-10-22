@@ -4390,7 +4390,8 @@
           "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
           "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz",
           "docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md",
-          "docs/work/active/vacation-campaign/evidence/writing-setup-original-artifact.json"
+          "docs/work/active/vacation-campaign/evidence/writing-setup-original-artifact.json",
+          "docs/work/active/vacation-campaign/evidence/sqlite-later-release-research.md"
         ],
         "gates": {
           "implementation": "No productionfix selected. Test-onlywitness4c preserved asdiagnostic source, not a productcandidate to merge without need.",
@@ -4416,6 +4417,13 @@
               "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
               "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
               "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz"
+            ]
+          },
+          {
+            "outcome": "Bounded primary-source supplement: existing exactversionresearch reused; later3.53.3/3.53.4/3.54.0 release summaries establish no matching macOS null-callback fix. Windows-onlymutexchange notmatchedcause.",
+            "change": "No causalreopening/productionchange/reproduction/build/dependencyupdate selected. Originaldebt/revisittriggers unchanged; source absence isnotproofnofixexists.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/sqlite-later-release-research.md"
             ]
           }
         ],
@@ -4989,15 +4997,26 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T10:44:53+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-pending.json"
+    "last_refresh_at": "2026-10-22T11:01:12+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-merged-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:59:26.405781+00:00",
-    "runtime_capacity": "Lead integration only; helpers complete/idle, no localwriter/build/scanner/native/accountactor. PR215 head and PR214 resultingmain hostedchecks active.",
+    "observed_at": "2026-10-22T11:05:49.047059+00:00",
+    "runtime_capacity": "Leadintegration only; boundedLuna laterSQLite-primary checkcomplete/noreopening; allhelpersidle. Two readonly hostedwatchers, no writer/build/native/account actor.",
     "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39766894309,
+        "session": 94411,
+        "scope": "main214overallwatch; actualrequired4 muststillbeinspectedseparately"
+      },
+      {
+        "run": 39767073233,
+        "session": 17018,
+        "scope": "PR215requiredchecksonexact80ea"
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
     "wait_reason": "No headless capacity wait. Native actual interaction awaits changed owner availability; account session closed.",
@@ -5007,7 +5026,8 @@
     "fixture_worker_checkout": "mac-test-roots frozen clean80ea524e oncodex/offline-native-retrieval-guide-20261022 after normalmaine7merge. Reviewed9533docblobsunchanged; publishedPR215stable.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
-      39766894309
+      39766894309,
+      39767073233
     ]
   },
   "native_availability": {

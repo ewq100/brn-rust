@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22 11:01:12 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "f7ccf8fb2f5b8450cb1eb48e6512e74c35e2b952",
+  "sequence": 91,
+  "all_operations_applied": true,
+  "managed_blocks": 3,
+  "unmanaged_blocks_preserved": 38,
+  "all41blocks_verified": true,
+  "title_order_metadata_preserved": true,
+  "scope": "PR214 protected merge/resultingmain pending; helper assessment retained; docs215 published/required gates pending; native/account unchanged"
+}
