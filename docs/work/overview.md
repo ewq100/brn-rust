@@ -11,39 +11,19 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Clear outdated Connections after project membership changes
-
-Task ID: `connections-project-freshness`
-Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:34:26.902532+00:00
-Activity: PR216 normally merged5c606c10 after independent review and all4required exact-head/preceding-main PASS. Integrated whole tree exactly equals qualified317360bd. Resulting-main run39779292111 now running; optional Windows compile failures retained.
-Next: Inspect all4 required resulting-main checks at exact5c606c10 before completing engineering integration and satisfying MAC14 prerequisite. Continue independently admitted exit-preservation assessment; no native/account attempt.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.
-- **checks:** PASS local desktop350/0/1 existingignored, strict all-target lint, ordinary native-ui build, direct pinned rustfmt. Meaningful pre-fix and Undo-only negative failures preserved; no native observation.
-- **integration:** PASS normal merge5c606c10 and qualified whole-tree equality. Required resulting-main checks PENDING run39779292111; not yet complete.
-- **native:** Owner-deferred; no actual interaction.
-- **owner acceptance:** Preserve accepted visibility, selected scope and note bytes; no new product meaning.
-
-</details>
-
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:54:06.528892+00:00
-Activity: Meaningful before-source FAIL0/1 at intended installed Close predicate1848 on1cf745d9: exact live õ, unchanged canonical Note, other open recovery and full history all passed first; predicate still permits close.50.24s cleanup/source PASS. No actual OS close or destruction performed.
-Next: Implement adopted shared Note-owner exact-byte preservation admission, shared desktop Close/Cmd-Q guard before cancellation, and explicit captured local-only discard confirmation with stale-intent protection. Extend existing journey for safe resolution, durable external Save and confirmation behavior; independent full candidate review before qualification/publication.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:00:06.269249+00:00
+Activity: Lead implemented bounded shared Note-owner byte-durability admission, shared actual Close/Cmd-Q guard before worker cancellation, and captured local-only discard confirmation with final stale-intent check. Production/docs commitse05f6ed6. Luna extends only existing U4 journey; no build/test during source writes.
+Next: Finish/freeze meaningful journey extensions, inspect full actual candidate and obtain independent Sol review. Then select final component, independent host, desktop, strict combined native lint, format/docs and ordinary app checks sequentially; no duplicate account/native work.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Reproduction confirmed; consequential lead implementation admitted, not yet implemented.
+- **implementation:** Implemented draft0a31086f + contractdocse05f6ed6; final test author, complete candidate review and qualification pending. No PR yet.
 - **checks:** BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.
 - **integration:** No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
@@ -213,10 +193,10 @@ Waiting:
 ### Observe Connections after Project Unlink and Undo on the Mac
 
 Task ID: `connections-native-qualification`
-Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T12:17:49.395063+00:00
-Activity: MAC14 source-bound scenario defined from the reproduced scoped-result freshness gap and reviewed/locally qualified PR216. No new app/fixture preparation or native launch selected while owner availability is unchanged.
+Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T13:00:46.906013+00:00
+Activity: MAC14 engineering prerequisite satisfied: PR216 normally merged5c606c10 and all4required resulting-main PASS. Scenario remains owner-deferred; no new fixture/app preparation or desktop action.
 Next: After repair integration and required resulting-main PASS, wait for owner-reported changed availability. Reconcile current source/binary/helpers and prepare fresh checked synthetic data, then observe actual Unlink and Undo controls once.
-Depends on: connections-project-freshness when Connections repair normally merged and all four required resulting-main checks PASS. (reported satisfied: false)
+Depends on: connections-project-freshness when Connections repair normally merged and all four required resulting-main checks PASS. (reported satisfied: true)
 Resource waits: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
 <details>
@@ -226,7 +206,7 @@ Gates:
 
 - **implementation:** Scenario defined; existing two mutation-family refresh calls in PR216.
 - **checks:** Local toolkit checks PASS on317360bd; native source/binary/fixture entry checks pending.
-- **integration:** PR216 normally merged5c606c10; all4 required resulting-main checks still pending. Native remains owner-deferred.
+- **integration:** PASS normally merged5c606c10 and all4 required resulting-main checks. Actual Mac interaction remains separate.
 - **native:** Owner-deferred; no actual interaction.
 - **owner acceptance:** Not claimed.
 
@@ -234,7 +214,6 @@ Gates:
 
 Waiting:
 
-- prerequisite connections-project-freshness: Connections repair normally merged and all four required resulting-main checks PASS. (reported satisfied: false; task state: active)
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
 ## Completed
@@ -357,6 +336,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
+- `connections-project-freshness` — Clear outdated Connections after project membership changes
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
 - `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
@@ -412,9 +392,9 @@ graph TD
   t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
   t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
-  t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (not satisfied)| t123
+  t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:54:06.528892+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T13:00:46.906013+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
