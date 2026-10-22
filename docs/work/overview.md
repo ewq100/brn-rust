@@ -84,6 +84,27 @@ Attempts:
 
 </details>
 
+### Explain the latest longer Mac check using completed job evidence
+
+Owner: Bounded Luna log assessment; lead disposition · State: **active** · Last observed: 2026-10-22T03:46:47.109829+00:00
+Activity: New completed main206 Mac Core job took about30 minutes, versus about16 on main205; current PR207 is still waiting on that lane. Existing cache/test-cost investigations are reused. Select one bounded comparison of these completed jobs, not another optimization or repeated local build.
+Next: Compare actual step/cache/compile timing of main206 and main205; identify concrete cache/profile differences or leave runner variance unproven. Retain source logs and at most one evidenced next action. No new CI run, cache deletion or workflow change.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only diagnosis; no CI change selected.
+- **checks:** Actual completed hosted logs and job metadata only; no new tests/builds.
+- **integration:** Inapplicable unless separately selected actual repair.
+- **native:** No native interaction.
+- **owner acceptance:** No owner decision selected.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/pr205-resulting-main.json](active/vacation-campaign/evidence/pr205-resulting-main.json), [docs/work/active/vacation-campaign/evidence/pr206-resulting-main.json](active/vacation-campaign/evidence/pr206-resulting-main.json), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md](active/vacation-campaign/evidence/mac-core-test-body-triage.md)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -330,4 +351,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:57:28.927671+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T03:47:56.429185+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

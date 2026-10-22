@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T03:22:09.978746+00:00",
-    "remaining_percent": 59,
+    "observed_at": "2026-10-22T03:47:56.429185+00:00",
+    "remaining_percent": 58,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual41%used/59%remaining, ordinaryUsageAllowed=true; secondaryunavailable. No ownerpause, originalexpiryunchanged; accountsessionclosed.",
+    "ordinary_work": "Admitted: actual42% used/58% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; original expiry unchanged. Account session separately closed.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:57:28.927671+00:00",
+    "observed_at": "2026-10-22T03:47:56.429185+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3535,6 +3535,33 @@
           }
         ],
         "resource_plan": "One boundedLuna author in reusable mac-test-roots frommain206, no overlappingwriter. Leadownsrecord/overview; authorreconstructs generatedoverviewinowncheckout only. NoRustbuild/provider/account/native/network/globalconfig/nestedhelper. Stop onnewtrackingframework or tasksemanticchange."
+      },
+      {
+        "id": "mac-core-ci-variance-20261022",
+        "title": "Explain the latest longer Mac check using completed job evidence",
+        "state": "active",
+        "owner": "Bounded Luna log assessment; lead disposition",
+        "observed_at": "2026-10-22T03:46:47.109829+00:00",
+        "origin": "observed",
+        "activity": "New completed main206 Mac Core job took about30 minutes, versus about16 on main205; current PR207 is still waiting on that lane. Existing cache/test-cost investigations are reused. Select one bounded comparison of these completed jobs, not another optimization or repeated local build.",
+        "next_action": "Compare actual step/cache/compile timing of main206 and main205; identify concrete cache/profile differences or leave runner variance unproven. Retain source logs and at most one evidenced next action. No new CI run, cache deletion or workflow change.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/pr205-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr206-resulting-main.json",
+          ".github/workflows/ci.yml",
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md"
+        ],
+        "gates": {
+          "implementation": "Read-only diagnosis; no CI change selected.",
+          "checks": "Actual completed hosted logs and job metadata only; no new tests/builds.",
+          "integration": "Inapplicable unless separately selected actual repair.",
+          "native": "No native interaction.",
+          "owner_acceptance": "No owner decision selected."
+        },
+        "attempts": [],
+        "resource_plan": "One economical bounded Luna read-only helper while lead owns PR207 integration. No nestedhelpers or localsharedbuild; only GitHub read APIs and task-owned logs/report. No cache deletion, reruns, billing/credentials/account/provider/native changes."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3545,12 +3572,12 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T03:20:12.783Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-public-restore-update.json"
+    "last_refresh_at": "2026-10-22T03:44:25.427Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T03:43:19.021953+00:00",
-    "runtime_capacity": "Four actual slots including lead. Bounded Luna author and independent Sol reviewer have completed both maintenance candidates; no source writer is active.",
+    "observed_at": "2026-10-22T03:47:56.429185+00:00",
+    "runtime_capacity": "Four actual slots including lead. One bounded Luna compares completed CI logs; both source authors and consequential reviewers have finished. No source writer or nested helper.",
     "build_slot": "Free. Exact backup candidate is restored; the diagnostic target binary is not the qualified artifact.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
@@ -3563,7 +3590,7 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR207 required checks. The two qualified maintenance candidates will use one reviewed integration batch after main is reconciled.",
+    "wait_reason": "One required Mac Core gate remains on PR207. Completed main206 gates passed. Preserve both qualified maintenance candidates until current main is reconciled, then use one complete reviewed batch.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen backup-process-witness-bounds dc169; exactcandidate/nextgate inselectedtask.",
