@@ -1,0 +1,33 @@
+# MAC-15 synthetic fixture preflight
+
+**Source:** `/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust`, lead branch `codex/agent-first-followthrough`, clean source tree at HEAD `6afc029b49ace2cc93a9b179a406af0b9ec2ec66`; selected product source is main `765f2dda` per the campaign task. No data roots, binaries, running app, screen, account or credentials were opened or changed. MAC-15 remains pending the owner-availability condition in `native-queue.md:322-345`.
+
+## Feasible checked setup
+
+The existing public CLI can prepare a minimal fresh synthetic root without provider/model/conversion activity:
+
+```sh
+brn --json --data-dir ABS_FRESH_ROOT init
+brn --json --data-dir ABS_FRESH_ROOT note-create --title 'MAC15 Note' --text 'Initial saved text.'
+brn --json --data-dir ABS_FRESH_ROOT note-create --title 'Unrelated sentinel' --text 'Leave unchanged.'
+brn --json --data-dir ABS_FRESH_ROOT records
+```
+
+`init` defaults to Owner purpose and no credential source (`crates/brn/src/main.rs:1003-1023`; historical headless preparation independently confirmed null credentials and no Run/provider/model command in `evidence/mac13-preparation-result-review.md:9-11`). `note-create` is a checked `Workspace::new_note_with_key` call (`main.rs:1206-1209`). Parse the exact note/sentinel IDs and versions from CLI JSON, then retain read-only `read`, `history`, `records`, and `recovery` snapshots (`main.rs:1204-1209,1349-1350`). For the interleaved edit, `update-buffer` accepts `--text-file`: the command schema lists `text-file` (`spec.rs:954-961`), global text-option handling recognizes `--NAME-file` (`spec.rs:487-488`), and the parser queues then resolves it into `text` before dispatch (`main.rs:354-405,1722-1725`; `input.rs:49-58`). Public help includes an `update-buffer --text-file merged.md` example (`main.rs:56,62-65`); file input requires an absolute path (or `-` for stdin), so the synthetic fixture should use an absolute file path. No account, provider call, network, model or document helper is needed for Note-only creation and editing. MAC13's saved workspaces and artifact were prepared against source `3827d6a`; they are historical and should stay untouched. Build/identify an ordinary desktop+CLI pair from the then-reviewed current source when the native gate is actually reopened.
+
+For normal recovery, use separate fresh roots for OS Close and Cmd-Q. Open each saved Note normally, type the exact approved Unicode/multiline body, and wait until the editor visibly reports it is recoverable before invoking the exit route. After exit and again after relaunch/reopen (use the normal Note route and the offered Recover control if needed), compare the exact visible/recovery bytes, original canonical Note/version, sentinel and history with the pre-typing snapshots. The existing `WritingPanel::open_note` route resolves current recovery through checked `recovery_buffers` (`crates/brn-writing-ui/src/note.rs:195-241`). Do not close before autosave confirms the durable buffer; do not claim this covers a Change event that has not reached storage.
+
+For live-only refusal, precreate a third fresh root containing just a clean saved Note and sentinel. **Do not create its edit session before opening the app**: `load_note(Load::Recover(None))` adopts an existing recovery buffer on open (`note.rs:203-232`), which would invalidate the clean-view precondition. Open the app and Note first, then, while it remains open, use a second CLI process and its checked token path:
+
+```sh
+brn --json --data-dir ABS_ROOT begin-edit --note NOTE_ID --base CURRENT_VERSION --token-out ABS_PRIVATE_DIR/new-token
+brn --json --data-dir ABS_ROOT update-buffer --session SESSION_ID --generation NEXT_GENERATION --text-file ABS_OTHER_EDIT --token-file ABS_PRIVATE_DIR/new-token
+```
+
+`begin-edit` returns session metadata and a null JSON token when `--token-out` is used (`main.rs:642-676,1297-1327`). Use the session and generation actually returned; `update-buffer` must report `Updated`. Keep the new token file outside the data root in an already-created private 0700 task directory; the CLI creates it 0600 and reads it by `--token-file`, never argv/environment (`main.rs:608-620`; CLI contract at `main.rs:62-65`). Do not capture its contents. This creates a real conflicting open recovery only after the app's clean load.
+
+Then select the whole displayed body and enter a distinct Unicode character such as `õ` as one input event. This mirrors existing U4 `an_edit_already_open_elsewhere_offers_compare_and_discard` (`threads_writing_tests.rs:1932-1938`): the first attempted `õ` remains visible after `EditSessionOpen` refusal, with the refusal notice and no local session (`:1971-1997`); normal close then refuses and asserts the consequence text/control (`:1998-2015`). The same journey separately asserts the Cmd-Q consequence label (`:2034-2045`). The later stale-confirmation boundary uses host-driven editor mutation while the prompt is open (`:2310-2354`), then checks a fresh refusal/confirmation (`:2356-2366`); it is not native keyboard input. The underlying checked UI refusal path is in `threads_ui.rs` and `note.rs:243-280`. One typed character is the supported proven live-only boundary; don't assume multiple keystrokes or a multiline paste survive the redraw guard. Attempt OS Close, observe refusal/consequence dialog, Cancel and confirm visible text is intact; repeat Cmd-Q separately, Cancel, and check canonical Note, sentinel, history and external recovery are unchanged. A later explicit current “Discard and close/quit” choice can prove only the captured local attempt is abandoned while the other edit remains open and exact. `request_exit` and confirmation recheck use the actual source dialog (`threads_ui.rs:4847-4875,4906-4965).
+
+The source-reviewed stale-snapshot guard is meaningful, but changing the background editor while its consequence dialog is open is not an available normal native-input route; the existing desktop test changes it through a host editor API (`threads_writing_tests.rs:2310-2354`). Native MAC-15 may observe Cancel and confirmation of unchanged captured text, but should leave that stale-confirmation race to its existing headless test. Headless `simulate_close` does not establish OS Close, and TestPlatform Quit is not native app termination.
+
+**Disposition:** three-root preparation and the interleaved CLI conflict are supported without new helpers. No preparation was executed here; all old MAC13 workspaces/PID and wrapper artifacts remain out of scope. MAC-15 still requires a then-current source-bound desktop/CLI artifact and actual owner-available native session. No product or task-state changes are selected by this report.

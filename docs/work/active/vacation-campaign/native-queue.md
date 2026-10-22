@@ -336,6 +336,13 @@ route. Reopen normally and verify exact recoverable text and unchanged saved Not
 and unrelated sentinel through supported read-only checks. Do not infer one exit
 route from the other or claim forced-shutdown/IME behavior.
 
+[The source-bound MAC15 preflight](evidence/mac15-fixture-preflight.md) identifies
+three separate fresh-root cases and public checked CLI setup. It is a plan, not
+executed fixture or native evidence. A conflicting edit must start only after the
+app has opened its clean Note; preseeded recovery would be adopted on load. The
+unchanged captured confirmation can be observed normally; mutation behind a modal
+is covered by the existing headless witness, not claimed as native input.
+
 The new refusal/confirmation controls require a supported checked synthetic fixture
 that establishes live-only typing after a conflicting edit, as the existing U4
 journey does. Prepare and qualify that fixture only when the native session is

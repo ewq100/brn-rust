@@ -52,26 +52,6 @@ Gates:
 
 </details>
 
-### Prepare a short route to the future Mac Close and Quit check
-
-Task ID: `note-exit-native-fixture-preflight`
-Owner: Bounded Luna medium read-only preflight; lead disposition · State: **active** · Last observed: 2026-10-22T14:40:28.762425+00:00
-Activity: Select source-bound feasibility assessment for MAC15 fresh synthetic data/checked live-only refusal setup, to minimize future owner screen time. PR217 reviewed source is integrated; no app/data/desktop actor selected. Existing native deferral stays.
-Next: Identify supported checked CLI/service fixture routes and readiness assertions for normal recovery and other-session-write refusal, preserving old app/workspaces. Return one concrete bounded plan or no-change/blocker; do not implement or run yet.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Read-only preparation assessment only; no new source fixture driver or native case dispatched.
-- **checks:** Source/caller feasibility only; no execution/native/fixture qualification claimed.
-- **integration:** No product change or PR selected by this preflight.
-- **native:** Owner-deferred; no access/close/launch/unlock attempt.
-- **owner acceptance:** No new product behavior/acceptance selected.
-
-</details>
-
 ## Next
 
 None recorded.
@@ -288,8 +268,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-123 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+124 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `note-exit-native-fixture-preflight` — Prepare a short route to the future Mac Close and Quit check
 - `clean-note-exit-assessment` — Keep an already-saved clean note from blocking exit
 - `shared-cli-desktop-intake-preflight` — Assess the remaining manual CLI-to-desktop intake check
 - `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
@@ -299,7 +280,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
-- `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
 
 ## Dependencies
 
@@ -328,4 +308,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:40:28.762425+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:46:22.516261+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
