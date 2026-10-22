@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:18:26.864370+00:00",
+    "observed_at": "2026-10-22T06:19:37.260252+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4190,6 +4190,34 @@
         },
         "attempts": [],
         "resource_plan": "Luna medium bounded read-only inspection in frozen architecture-status-route eae, one helper plus lead and independent CI reviewer within4slots. No writer/build/test/native/account/web/cache action or nested helper. Stop after one located defect/missing distinct boundary or supported no-change report; do not add tests that duplicate existing hosts."
+      },
+      {
+        "id": "recovery-copy-privacy-preflight",
+        "title": "Check recovery copies preserve private-note boundaries",
+        "state": "active",
+        "owner": "Bounded Luna source assessment; lead validates any finding",
+        "observed_at": "2026-10-22T06:19:37.260252+00:00",
+        "origin": "observed",
+        "activity": "Lead found desktop Save as new note delegates to general new_note without visibly carrying source Note.chat. Select bounded reachability/privacy-contract assessment before any repair; exact source eae equals integratedmain210 production tree.",
+        "next_action": "Establish whether a private Note can reach real SaveCopy and whether resulting copy becomes general/searchable; identify existing checked reuse and distinct tests. Report one located defect or supported no-change, with no implementation yet.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-writing-ui/src/writing.rs",
+          "crates/brn-threads-app/src/lib.rs",
+          "docs/architecture/invariants.md",
+          "docs/work/active/vacation-campaign/evidence/pr210-integration.json"
+        ],
+        "gates": {
+          "implementation": "Source assessment only; no repair selected.",
+          "checks": "Pending reachable source/caller/test evidence; no execution selected yet.",
+          "integration": "Inapplicable until actual candidate selected.",
+          "native": "Deferred for owner screen unavailability.",
+          "owner_acceptance": "Preserve existing private-content contract; no new publication behavior selected."
+        },
+        "attempts": [],
+        "resource_plan": "One boundedLuna medium read-only source preflight while hosted gates run; lead plus helper within4slots. No source/Git changes, tests/builds/native/account/provider/cache/web or nestedhelper. Stop after concrete reachable finding/reuse plan or no-change report; lead chooses actual synthetic witness and independentSol review if needed."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
