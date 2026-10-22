@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:19:42.026861+00:00",
+    "observed_at": "2026-10-22T12:28:10.162108+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5059,7 +5059,9 @@
           "docs/work/active/vacation-campaign/evidence/connections-final-local.json",
           "docs/work/active/vacation-campaign/evidence/connections-final-local-logs.tar.gz",
           "docs/work/active/vacation-campaign/evidence/connections-prepublication.json",
-          "docs/work/active/vacation-campaign/evidence/pr216-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr216-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr216-windows-core.json",
+          "docs/work/active/vacation-campaign/evidence/pr216-windows-core.log.gz"
         ],
         "gates": {
           "implementation": "PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.",
@@ -5200,6 +5202,33 @@
         },
         "attempts": [],
         "resource_plan": "Existing Luna medium helper inspects one boundary and writes only a temporary report; no source/build/native/account/network work or nested agents. Lead reviews exact callers and retains result. Stop at resolved boundary rather than repeat earlier ownership audit."
+      },
+      {
+        "id": "note-storage-refusal-preflight",
+        "title": "Check unsaved note preservation when storage refuses a write",
+        "state": "active",
+        "owner": "Bounded Luna read-only preflight; lead source and scope decision",
+        "observed_at": "2026-10-22T12:28:10.162108+00:00",
+        "origin": "observed",
+        "activity": "Selected the distinct I/O refusal boundary during an already-open Note edit and Save, after reusing completed stale-generation Reload work. No fault, test or product change dispatched.",
+        "next_action": "Inspect Note owner/adapters, core transaction/error paths and existing witnesses. Select at most one consequential missing boundary with safe disposable bounded method, or close with justified no change.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-writing-ui/src/note.rs",
+          "crates/brn-writing-ui/src/document.rs",
+          "docs/architecture/invariants.md",
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md"
+        ],
+        "gates": {
+          "implementation": "Read-only preflight only; no repair selected.",
+          "checks": "No new execution; source/caller/coverage assessment pending.",
+          "integration": "Inapplicable until concrete reviewed candidate.",
+          "native": "Owner-deferred; no access/launch selected.",
+          "owner_acceptance": "Preserve existing unsaved-work and honest Save behavior; no new product meaning."
+        },
+        "attempts": [],
+        "resource_plan": "Existing Luna medium helper on one bounded source question while lead owns PR216 integration. No source/build/SQL/fault/account/native/network/disk-fill/permission changes or nested helpers. Stop after one boundary; do not repeat stale/conflict witnesses or invent a general stress campaign."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5215,8 +5244,8 @@
     "last_refresh_evidence": "docs/work/active/vacation-campaign/evidence/remote-connections-pr216.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:19:42.026861+00:00",
-    "runtime_capacity": "Lead integration; Luna assessment and independent reviewer complete; stale pending_init author remains cancelled/unassigned.",
+    "observed_at": "2026-10-22T12:28:10.162108+00:00",
+    "runtime_capacity": "Lead integration, bounded Luna storage-refusal preflight active; independent reviewer complete; stale pending_init author remains cancelled/unassigned.",
     "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],

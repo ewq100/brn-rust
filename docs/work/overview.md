@@ -31,6 +31,26 @@ Gates:
 
 </details>
 
+### Check unsaved note preservation when storage refuses a write
+
+Task ID: `note-storage-refusal-preflight`
+Owner: Bounded Luna read-only preflight; lead source and scope decision · State: **active** · Last observed: 2026-10-22T12:28:10.162108+00:00
+Activity: Selected the distinct I/O refusal boundary during an already-open Note edit and Save, after reusing completed stale-generation Reload work. No fault, test or product change dispatched.
+Next: Inspect Note owner/adapters, core transaction/error paths and existing witnesses. Select at most one consequential missing boundary with safe disposable bounded method, or close with justified no change.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Read-only preflight only; no repair selected.
+- **checks:** No new execution; source/caller/coverage assessment pending.
+- **integration:** Inapplicable until concrete reviewed candidate.
+- **native:** Owner-deferred; no access/launch selected.
+- **owner acceptance:** Preserve existing unsaved-work and honest Save behavior; no new product meaning.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -395,4 +415,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:19:42.026861+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:28:10.162108+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
