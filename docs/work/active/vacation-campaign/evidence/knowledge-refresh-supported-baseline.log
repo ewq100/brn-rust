@@ -1,0 +1,21 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 47.37s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)
+
+running 1 test
+
+thread 'threads_ui::tiled_tests::knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat' (18434994) panicked at crates/brn-desktop/src/threads_tiled_tests.rs:1280:9:
+assertion failed: window.try_find("knowledge-summary").is_none()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads_ui::tiled_tests::knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat ... FAILED
+
+failures:
+
+failures:
+    threads_ui::tiled_tests::knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 347 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

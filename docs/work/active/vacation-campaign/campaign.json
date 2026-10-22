@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:08:27.738980+00:00",
+    "observed_at": "2026-10-22T02:11:05.041905+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3098,10 +3098,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
-        "observed_at": "2026-10-22T02:08:27.738980+00:00",
+        "observed_at": "2026-10-22T02:11:05.041905+00:00",
         "origin": "observed",
-        "activity": "Original run loop stopped and independent reassessment completed. Exact pending accessibility label is supported by pinned Component/Base0.7.3 and already observed in second run; disabled snapshot absence is explained. Lead separately selects one bounded alternate-seam continuation under existing hardening authority.",
-        "next_action": "Freeze exact observed-AX-label test-only correction and run one old-source baseline. Stop/defer if another harness assumption fails; if actual stale-summary/Review assertion fails, select minimal explicit-refresh result retirement and independent review.",
+        "activity": "Separately admitted supported-seam baseline78da4ac2 executed1FAIL at intended knowledge-summary still present assertion, after actual pending AX marker. Original3harness failures retained separately. Lead selects one-line explicit-refresh old-result retirement, with snapshot semantics and toolkit observation guidance documented.",
+        "next_action": "Independent complete-candidate review and focused red-to-green; after final source settles run full desktop, strict lint, ordinary build and formatting/links. No global auto-refresh, generation framework, account or native action.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3122,11 +3122,13 @@
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-seam-reassessment.md",
-          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-continuation-selection.md"
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-continuation-selection.md",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-supported-baseline.log",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-supported-baseline.sh"
         ],
         "gates": {
-          "implementation": "Hypothesis only; no production change selected before red observation.",
-          "checks": "Three actual1FAIL harness observations retained; selected app behavior unconfirmed. Test retry loop stopped.",
+          "implementation": "Implemented minimal explicit replacement-result retirement; final independent review pending.",
+          "checks": "Supported-seam actual old-source1FAIL at intended retained-summary assertion; corrected qualification pending. Three prior harness failures not counted as product evidence.",
           "integration": "No candidate; future source only after diagnosis, independent review and required gates.",
           "native": "Actual Mac unavailable; toolkit only.",
           "owner_acceptance": "No owner decision selected for bounded misleading replacement presentation."
@@ -3156,6 +3158,14 @@
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log",
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh"
             ]
+          },
+          {
+            "outcome": "Separately admitted supported78da4ac2 actual1FAIL at window.try_find(knowledge-summary).is_none() after exact observed pending AX marker passed; a genuine stale-result baseline is now established.",
+            "change": "Select only knowledge.result=None on explicit replacement start. Preserve global snapshot semantics, existing asynchronous read/task, no repairs/provider/writes. Complete independent review and final green checks next.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-supported-baseline.log",
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-supported-baseline.sh"
+            ]
           }
         ],
         "resource_plan": "Lead sole local test-only writer/build actor for independently validated alternate seam; one admitted baseline attempt. Original loop stopped, no automatic further retry. No account/native/network, hooks, new generation framework or broader snapshot-currentness promise."
@@ -3173,9 +3183,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-desktop-batch-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T02:04:05.006654+00:00",
-    "runtime_capacity": "Lead plus selected independent read-only Sol seam reassessment; no source writers.",
-    "build_slot": "No active Rust build. Knowledge baseline38520 completed exit101 at unsupported disabled snapshot; retry loop stopped.",
+    "observed_at": "2026-10-22T02:11:05.041905+00:00",
+    "runtime_capacity": "Lead plus independent Sol final reviewer selected; no additional source author.",
+    "build_slot": "No active Rust build; supported baseline61144 exit101 at intended old-summary assertion. New minimal candidate awaits final review/qualification.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
