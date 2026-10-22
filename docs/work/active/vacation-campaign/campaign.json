@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T04:37:21.884812+00:00",
-    "remaining_percent": 56,
+    "observed_at": "2026-10-22T04:56:30.476551+00:00",
+    "remaining_percent": 55,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual44% used/56% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; fixed expiry unchanged. Closed account-test session remains separate.",
+    "ordinary_work": "Admitted: actual45% used/55% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry unchanged; account-test session remains closed.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:49:27.391119+00:00",
+    "observed_at": "2026-10-22T04:56:30.476551+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3860,10 +3860,10 @@
         "title": "Recover an owned search index whose term tables disagree with its content",
         "state": "active",
         "owner": "Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration",
-        "observed_at": "2026-10-22T04:49:27.391119+00:00",
+        "observed_at": "2026-10-22T04:56:30.476551+00:00",
         "origin": "observed",
-        "activity": "Focused actualbundledSQLitebaseline atfinaltesta499:0PASS/1FAIL exit101 intended firstlane: currentopen reportsExisting, expectedRebuilt; priorquickcheckok, DatabaseCorruptexternalcontentmismatch, othershealthy, ordinaryschema/meta/rowsunchanged. Fourlanesindividuallyisolated in finalwitness. Independentdesignassessment says admission+inplacerebuild onlyif costqualified. Leadselects ONE temporaryhealthy-index admission-costexperiment before productfix.",
-        "next_action": "Prepare/review a temporary four-lane scan in existingUsableopen path, then run unchanged existingstrictrelease10kMac witness once. Diagnostic only, no repair/adoptionclaim; restore exactsource afterward. If50msreopenbound fails, stopautomatic-scan approach/reassess; no weakeningtargets.",
+        "activity": "Focused actualbundledSQLitebaseline atfinaltesta499:0PASS/1FAIL exit101 intended firstlane: currentopen reportsExisting, expectedRebuilt; priorquickcheckok, DatabaseCorruptexternalcontentmismatch, othershealthy, ordinaryschema/meta/rowsunchanged. Fourlanesindividuallyisolated in finalwitness. Independentdesignassessment says admission+inplacerebuild onlyif costqualified. Leadselects ONE temporaryhealthy-index admission-costexperiment before productfix. Complete independent cost-experiment review PASS finalsupervisora6ccf7; bothinertsupervisorP2 findingsfixedbeforelaunch. Reserve sole strictrelease10kexperiment withcost-onlyoverlay61cf, unchangedexistinguser_scale witness. No productionrepair candidate.",
+        "next_action": "Launch reviewed cost-supervisor once, inspectactualstrictresult/reopen timing and exactsource restoration before anybuild/reuse. If existing50ms/quartercold bound fails, stopautomaticfullscan approach/reassess; no weakening.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3873,7 +3873,16 @@
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-design.md",
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md",
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.sh",
-          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log"
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-only.patch",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-run.sh",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-supervise-initial.py",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-supervise-v1.py",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-supervisor-correction.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-review-initial.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-review-final.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.patch"
         ],
         "gates": {
           "implementation": "Test-only characterization selected; productionfixpending evidence.",
@@ -3889,6 +3898,15 @@
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.md",
               "docs/work/active/vacation-campaign/evidence/derived-index-integrity-baseline.log"
+            ]
+          },
+          {
+            "outcome": "Beforeexecution initialsupervisorreviewfound wholeownedgroupcleanup/independentrestoration P2; correctedversionfollowupfound persist-failure couldprint qualified:true despite exit1. No workloadranon eitherrevision.",
+            "change": "FiniteTERM/KILLwholegroup, independentlyguardedhash-restorationandreceipt; unresolvedgroupcannotrestore/qualify. Persistencefailureexplicitlyclearsqualified. Finalfullreviewapproveda6ccf7; alloriginalbytes/reportsretained.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-review-initial.md",
+              "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-review-final.md",
+              "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-supervisor-correction.md"
             ]
           }
         ],
@@ -3907,9 +3925,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:49:27.391119+00:00",
-    "runtime_capacity": "Lead singlebuildactor; authors/designreview finished. Independent temporarydiagnosticreview next.",
-    "build_slot": "Free: focusedbaseline18450 finished expected101. One strictrelease admission-costexperiment selected; not yetlaunched.",
+    "observed_at": "2026-10-22T04:56:30.476551+00:00",
+    "runtime_capacity": "Lead singlebuild/processactor; boundedLuna originassessment read-only; Sol finalcostreview complete.",
+    "build_slot": "Reserved sole cost-onlystrictrelease10kexperiment; finalreviewPASS, launch next. Worker mac-test-roots a499 plus known14line temporarysourceoverlay61cf; supervisor restores exact94ef before reuse.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
@@ -3921,7 +3939,7 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 requiredhead pending; main208completeall4PASS. BaselineconfirmedFTSrecoverygap; costexperimentbefore choosingrepair.",
+    "wait_reason": "PR209 finalMacCore headcheck pending; main208all4PASS. Cost-onlyexperimentreserved before anyproductrepair.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",

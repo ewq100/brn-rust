@@ -1,0 +1,25 @@
+diff --git a/crates/brn-retrieval/src/search_index.rs b/crates/brn-retrieval/src/search_index.rs
+index bf8ed149..03a76e31 100644
+--- a/crates/brn-retrieval/src/search_index.rs
++++ b/crates/brn-retrieval/src/search_index.rs
+@@ -1158,6 +1158,20 @@ fn open_locked(path: &Path) -> Result<(Connection, Opened)> {
+     let mut conn = Connection::open(path)?;
+     configure(&conn)?;
+     if matches!(found, Found::Usable) {
++        // Temporary cost-only experiment. This is not a recovery candidate.
++        let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
++        for table in [
++            "fts_exact",
++            "fts_stem",
++            "fts_message_exact",
++            "fts_message_stem",
++        ] {
++            tx.execute(
++                &format!("INSERT INTO {table}({table}, rank) VALUES ('integrity-check', 1)"),
++                [],
++            )?;
++        }
++        tx.commit()?;
+         return Ok((conn, Opened::Existing));
+     }
+     let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;

@@ -1,0 +1,192 @@
+diff --git a/crates/brn-retrieval/tests/search_index.rs b/crates/brn-retrieval/tests/search_index.rs
+index 0c3ca7fa..d5edd68a 100644
+--- a/crates/brn-retrieval/tests/search_index.rs
++++ b/crates/brn-retrieval/tests/search_index.rs
+@@ -60,6 +60,68 @@ fn fts_consistent(path: &Path) {
+     }
+ }
+ 
++#[derive(Debug, PartialEq)]
++struct PersistedIndexState {
++    application_id: i64,
++    user_version: i64,
++    schema: Vec<(String, String, String, Option<String>)>,
++    tables: Vec<(String, Vec<Vec<rusqlite::types::Value>>)>,
++}
++
++fn persisted_index_state(conn: &Connection) -> PersistedIndexState {
++    let schema = {
++        let mut statement = conn
++            .prepare(
++                "SELECT type, name, tbl_name, sql FROM sqlite_schema
++                 WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
++            )
++            .unwrap();
++        statement
++            .query_map([], |row| {
++                Ok((
++                    row.get::<_, String>(0)?,
++                    row.get::<_, String>(1)?,
++                    row.get::<_, String>(2)?,
++                    row.get::<_, Option<String>>(3)?,
++                ))
++            })
++            .unwrap()
++            .collect::<rusqlite::Result<Vec<_>>>()
++            .unwrap()
++    };
++    let tables = [
++        "docs", "passages", "vectors", "links", "meta", "chats", "messages",
++    ]
++    .into_iter()
++    .map(|table| {
++        let mut statement = conn
++            .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
++            .unwrap();
++        let columns = statement.column_count();
++        let rows = statement
++            .query_map([], |row| {
++                (0..columns)
++                    .map(|column| row.get::<_, rusqlite::types::Value>(column))
++                    .collect::<rusqlite::Result<Vec<_>>>()
++            })
++            .unwrap()
++            .collect::<rusqlite::Result<Vec<_>>>()
++            .unwrap();
++        (table.to_string(), rows)
++    })
++    .collect();
++    PersistedIndexState {
++        application_id: conn
++            .query_row("PRAGMA application_id", [], |row| row.get(0))
++            .unwrap(),
++        user_version: conn
++            .query_row("PRAGMA user_version", [], |row| row.get(0))
++            .unwrap(),
++        schema,
++        tables,
++    }
++}
++
+ #[test]
+ fn creates_reopens_and_finds_exact_and_inflected_terms() {
+     let (_root, dir) = derived();
+@@ -367,6 +429,118 @@ fn outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place() {
+     std::fs::write(&file, b"").unwrap();
+     assert_eq!(SearchIndex::open(&dir).unwrap().1, Opened::Rebuilt);
+     fts_consistent(&dir);
++
++    // A supported FTS5 delete-all command damages only the derived inverted
++    // indexes: SQLite, the external-content rows, schema/meta, and watermark
++    // remain readable and current. Recovery must still rebuild the mirror.
++    let note = doc(
++        "fts-recovery-note",
++        1,
++        "FTS recovery",
++        "quartzorchidtoken remains canonical content\n",
++        Visibility::General,
++    );
++    let chat = "fts-recovery-chat";
++    let saved_message = message(
++        "fts-recovery-message",
++        chat,
++        1,
++        "owner",
++        "mangrovecrystal remains canonical content",
++    );
++    let fixture = Changes {
++        upsert_docs: vec![note.clone()],
++        upsert_messages: vec![saved_message.clone()],
++        chat_scopes: vec![(chat.into(), ChatScope::General)],
++        watermark: 41,
++        ..Changes::default()
++    };
++    let (mut index, _) = SearchIndex::open(&dir).unwrap();
++    step(&mut index, fixture.clone());
++    let general = [ChatScope::General];
++    let file = dir.join(FILE_NAME);
++    let lanes = [
++        "fts_exact",
++        "fts_stem",
++        "fts_message_exact",
++        "fts_message_stem",
++    ];
++    fts_consistent(&dir);
++    message_fts_consistent(&dir);
++
++    for damaged_lane in lanes {
++        assert_eq!(
++            docs_for(&index, "quartzorchidtoken", None),
++            [note.id.as_str()]
++        );
++        assert_eq!(
++            messages_for(&index, "mangrovecrystal", &general),
++            [saved_message.id.as_str()]
++        );
++        let state_before = index.sync_state().unwrap();
++        drop(index);
++
++        let conn = Connection::open(&file).unwrap();
++        let persisted_before = persisted_index_state(&conn);
++        conn.execute(
++            &format!("INSERT INTO {damaged_lane}({damaged_lane}) VALUES ('delete-all')"),
++            [],
++        )
++        .unwrap();
++        let quick_check: String = conn
++            .query_row("PRAGMA quick_check", [], |row| row.get(0))
++            .unwrap();
++        assert_eq!(quick_check, "ok", "{damaged_lane}");
++
++        let error = conn
++            .execute(
++                &format!(
++                    "INSERT INTO {damaged_lane}({damaged_lane}, rank) VALUES ('integrity-check', 1)"
++                ),
++                [],
++            )
++            .unwrap_err();
++        assert_eq!(
++            error.sqlite_error_code(),
++            Some(rusqlite::ErrorCode::DatabaseCorrupt),
++            "{damaged_lane} should report external-content corruption"
++        );
++        for healthy_lane in lanes.into_iter().filter(|lane| *lane != damaged_lane) {
++            conn.execute(
++                &format!(
++                    "INSERT INTO {healthy_lane}({healthy_lane}, rank) VALUES ('integrity-check', 1)"
++                ),
++                [],
++            )
++            .unwrap();
++        }
++        assert_eq!(persisted_index_state(&conn), persisted_before);
++        drop(conn);
++
++        let (mut rebuilt, opened) = SearchIndex::open(&dir).unwrap();
++        assert_eq!(
++            opened,
++            Opened::Rebuilt,
++            "FTS-only corruption in {damaged_lane} at the current watermark must rebuild"
++        );
++        assert_eq!(rebuilt.doc_count().unwrap(), 0);
++        assert_eq!(rebuilt.sync_state().unwrap(), None);
++        fts_consistent(&dir);
++        message_fts_consistent(&dir);
++        step(&mut rebuilt, fixture.clone());
++        assert_eq!(
++            docs_for(&rebuilt, "quartzorchidtoken", None),
++            [note.id.as_str()]
++        );
++        assert_eq!(
++            messages_for(&rebuilt, "mangrovecrystal", &general),
++            [saved_message.id.as_str()]
++        );
++        assert_eq!(rebuilt.sync_state().unwrap(), state_before);
++        fts_consistent(&dir);
++        message_fts_consistent(&dir);
++        index = rebuilt;
++    }
+ }
+ 
+ #[test]
