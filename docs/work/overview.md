@@ -55,24 +55,24 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 </details>
 
-### Locate a useful headless check for app refresh at larger workspace size
+### Measure the existing app refresh on a larger synthetic workspace
 
-Owner: Bounded Luna read-only auditor; lead measurementselection · State: **active** · Last observed: 2026-10-22T05:00:21.925626+00:00
-Activity: Lead selects one bounded source/test assessment of actual desktoprefresh costs/triggers while PR209integrationchecks and index-costresultreview finish. Existing10kresult qualifies keywordindexprepare only, not wholeapprefresh.
-Next: Trace actual refresh hotpaths and available existing syntheticfixtures/testseams; return at mostone justified boundedmeasurement or no-change disposition. No implementation/newlatencytarget selected.
+Owner: Bounded Luna diagnostic-only author; independent Sol review; lead singlebuildactor · State: **active** · Last observed: 2026-10-22T05:04:25.758623+00:00
+Activity: Lead selects one headless diagnostic inexistingthreads_omakase_tests harness,10kNotes via20x500checkedownerbatches; actualrefresh methodonlytimed aftersetup/constructor. Reused cleanmac-test-roots branchcodex/desktop-refresh-scale-diagnostic frommain20811c48; no productionchange/newlatencytarget.
+Next: Prepare a reviewable diagnostic-onlyfixture patch, fullindependentreview/no liveworker, then one pinnedheadless filteredrun. Print population/profile/time; distinguish no-request/receipt-heavybranches honestly. Do not infernative/fullappresponsiveness frommethodtime.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Read-only preflight; no productfix orcacheframeworkselected.
-- **checks:** No new measurement/test/build/native/account launched by this preflight.
-- **integration:** No productPRselected.
-- **native:** Deferred owneravailability; headlessmeasurementcannotprovefullnativeperformance.
-- **owner acceptance:** No newrequirement/latencytargetmanufactured.
+- **implementation:** Diagnostic-onlytestauthor selected; no productioncode/permanentbenchmarkframework.
+- **checks:** One headlessfiltereddiagnosticpending; no latencythresholdmanufactured.
+- **integration:** No productPRselected; diagnosticbranchwillnotbemergedwithoutseparatejustification.
+- **native:** HeadlessTestAppContextonly; actualMac/IME/rendering/ownerexperience deferred.
+- **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md](active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md), [crates/brn-desktop/src/threads_omakase_tests.rs](../../crates/brn-desktop/src/threads_omakase_tests.rs), [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs)
 
 </details>
 
@@ -295,6 +295,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `public-cli-backup-interruption` — Qualify a public backup interrupted while copying
 - `derived-index-recovery-audit` — Inspect recovery of damaged or stale derived search indexes
 - `derived-index-integrity-recovery` — Assess automatic detection of an inconsistent derived search index
+- `desktop-refresh-scale-preflight` — Locate a useful headless check for app refresh at larger workspace size
 
 ## Dependencies
 
@@ -332,4 +333,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:02:17.834163+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T05:04:25.758623+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

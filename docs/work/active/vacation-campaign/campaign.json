@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:02:17.834163+00:00",
+    "observed_at": "2026-10-22T05:04:25.758623+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3934,17 +3934,18 @@
       {
         "id": "desktop-refresh-scale-preflight",
         "title": "Locate a useful headless check for app refresh at larger workspace size",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only auditor; lead measurementselection",
-        "observed_at": "2026-10-22T05:00:21.925626+00:00",
+        "observed_at": "2026-10-22T05:04:25.758623+00:00",
         "origin": "observed",
-        "activity": "Lead selects one bounded source/test assessment of actual desktoprefresh costs/triggers while PR209integrationchecks and index-costresultreview finish. Existing10kresult qualifies keywordindexprepare only, not wholeapprefresh.",
-        "next_action": "Trace actual refresh hotpaths and available existing syntheticfixtures/testseams; return at mostone justified boundedmeasurement or no-change disposition. No implementation/newlatencytarget selected.",
+        "activity": "Preflight complete: synchronousfullrefresh follows explicitactions/completion, notordinarytyping/emptyworkerpolls. Existingkeyword10k anddesktop240notechecks do notmeasurethiswhole-viewmethod. One existingheadlessfixture canprovide a boundeddiagnostic; no measureddefect/latencytarget/productchange yet.",
+        "next_action": "Selected desktop-refresh-scale-diagnostic: existingheadless10kNotes fixture, setupoutside measurement, directactualrefresh sample and explicitpopulation/profilelimits; no inventedthreshold.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-desktop/src/threads_ui.rs",
-          "crates/brn-threads-app/tests/user_scale.rs"
+          "crates/brn-threads-app/tests/user_scale.rs",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md"
         ],
         "gates": {
           "implementation": "Read-only preflight; no productfix orcacheframeworkselected.",
@@ -3955,6 +3956,32 @@
         },
         "attempts": [],
         "resource_plan": "One Luna medium read-only assessor, independentSol costresultreview andlead within4slots. No nestedhelpers/sourceedits/tests/builds/fixtures/network/provider/native/private-data. Bounded report with atmostonecandidate ornochange; do not forceoptimization from sourcecomplexity alone."
+      },
+      {
+        "id": "desktop-refresh-scale-diagnostic",
+        "title": "Measure the existing app refresh on a larger synthetic workspace",
+        "state": "active",
+        "owner": "Bounded Luna diagnostic-only author; independent Sol review; lead singlebuildactor",
+        "observed_at": "2026-10-22T05:04:25.758623+00:00",
+        "origin": "observed",
+        "activity": "Lead selects one headless diagnostic inexistingthreads_omakase_tests harness,10kNotes via20x500checkedownerbatches; actualrefresh methodonlytimed aftersetup/constructor. Reused cleanmac-test-roots branchcodex/desktop-refresh-scale-diagnostic frommain20811c48; no productionchange/newlatencytarget.",
+        "next_action": "Prepare a reviewable diagnostic-onlyfixture patch, fullindependentreview/no liveworker, then one pinnedheadless filteredrun. Print population/profile/time; distinguish no-request/receipt-heavybranches honestly. Do not infernative/fullappresponsiveness frommethodtime.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md",
+          "crates/brn-desktop/src/threads_omakase_tests.rs",
+          "crates/brn-threads-app/tests/user_scale.rs"
+        ],
+        "gates": {
+          "implementation": "Diagnostic-onlytestauthor selected; no productioncode/permanentbenchmarkframework.",
+          "checks": "One headlessfiltereddiagnosticpending; no latencythresholdmanufactured.",
+          "integration": "No productPRselected; diagnosticbranchwillnotbemergedwithoutseparatejustification.",
+          "native": "HeadlessTestAppContextonly; actualMac/IME/rendering/ownerexperience deferred.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One boundedLuna medium author, independentSolreview andlead within4slots. One syntheticworkspace<=10kNotes, fixedsmallbodies,20checkedbatches; existingofflinefixture andpollNone. No providerworker/AI/account/nativeapp launch/model/dependency/globalchange/nestedhelper; leadserializespinnedofflinejobs1 build and finiteexecution/diskguard. Stopafterone actualdiagnostic; nopersistednewlatencygate/framework."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3969,8 +3996,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T05:02:17.834163+00:00",
-    "runtime_capacity": "Lead andboundedLuna desktoprefreshpreflight; independentSolcostresultreviewcomplete. No nestedhelper.",
+    "observed_at": "2026-10-22T05:04:25.758623+00:00",
+    "runtime_capacity": "Lead andboundedLuna diagnostic-onlywriter, independentSolreview next; allcostreviewcomplete.",
     "build_slot": "Free: sole cost2162 finished101 atstrict50msgate; exactsource94ef restored, workerHEADa499clean. No activebuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
@@ -3983,11 +4010,11 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 finalMacCore headpending. Indexassessmentcompletewithnegativegate/deferredunfixedrisk; desktoprefreshpreflight active.",
+    "wait_reason": "PR209 finalMacCore headpending; main208all4PASS. Newselectedheadlessrefreshdiagnosticauthoring; no activebuild.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
-    "fixture_worker_checkout": "mac-test-roots clean switched from retainedprovidera6b6 to codex/derived-index-integrity-recovery atmain20811c48; test-onlywriter selected.",
+    "fixture_worker_checkout": "mac-test-roots clean switched from retaineda499characterization to codex/desktop-refresh-scale-diagnostic onmain20811c48; owns onlyexistingheadlesstestfile.",
     "documentation_worker_checkout": "architecture-status-route frozen combined dfe4 on actualmain208; no writer.",
     "required_ci_runs": [
       39723336384

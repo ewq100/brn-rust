@@ -1,0 +1,25 @@
+# Desktop refresh scale preflight
+
+## Finding
+
+A bounded headless measurement is justified; no product change or latency target follows from this assessment. `ThreadsUi::refresh` is a synchronous whole-view reload with cost that grows with workspace records, receipt history, candidates, recovery sessions, and retained assets. The existing 10,000-Note `user_scale` journey measures `Workspace.search_handle().prepare()`/index work, not this desktop reload. The existing desktop large-list check seeds 240 Notes and asserts section/filter visibility, not refresh time.
+
+## Real trigger path
+
+At checkout HEAD `a2917c5e48a804793d5b45af9e5ceb56e6ee244a` (`codex/agent-first-followthrough`, clean before and after inspection; all cited source/test files are unchanged from `66eab91`), `ThreadsUi::new` performs an initial refresh (`crates/brn-desktop/src/threads_ui.rs:727`). Other production calls are attached to explicit navigation/layout or state-changing actions, including opening a tile (`:1004–1009`), opening a Note/Thread (`:1278–1281`), Save (`:1420–1437`), discard (`:1459–1463`), review actions and Undo (`:2455–2532`), and worker completion/recovery paths (`:2692–2700, 2870–2900, 2990–2998, 3034–3038`). `poll_worker` drains a batch and returns immediately if it has no events and is pending (`:2692–2699`); refresh is not performed on every poll or render.
+
+Editor change dispatch reaches `note_changed` (`threads_ui.rs:562,1398–1417`). Ordinary successful typing does not refresh; this method calls `refresh` only for `EditSessionOpen` (`:1407–1413`). Thus per-keystroke or per-render refresh cost is not supported by the caller chain.
+
+## Work included in one refresh
+
+`refresh` synchronously loads records, all receipts/history, prepared candidates, open recovery buffers, settings and topics (`threads_ui.rs:805–815`). It then builds rewrite-name and applied-rewrite lookup state from records/history, including prepared-operation and writing-request lookups where applicable (`:817–873`), recreates supported asset images from record bytes (`:878–893`), and rebuilds activity, thread rows, note rows, skills and MCP projections (`:897–901`). These reads can repeat full or broad record scans: `Workspace::records/history/candidates` delegate to all-row store queries (`crates/brn-threads-app/src/lib.rs:280,323–327`; `crates/brn-threads-core/src/store.rs:624–657`); `settings()` itself scans `records()` (`crates/brn-threads-app/src/settings.rs:15–27`), and `topics()` loads general records and links (`crates/brn-threads-app/src/topics.rs:42–67`). `recovery_buffers()` enumerates open sessions and loads each one (`crates/brn-threads-core/src/edit.rs:62–67`). The separate `refresh_writing_review_cache` method at `threads_ui.rs:742` has no call site in this checkout, so it should not be included in a timing claim for normal `refresh` without first establishing a caller.
+
+## Smallest useful optional measurement
+
+Add one diagnostic-only headless measurement in the existing `threads_omakase_tests` module, which already creates a fresh temp workspace, uses `TestAppContext` and `ThreadsUi::new`, and disables the periodic poll (`crates/brn-desktop/src/threads_omakase_tests.rs:14–42`). Seed 10,000 synthetic Notes using the same checked owner-write batching pattern as `crates/brn-threads-app/tests/user_scale.rs:15–49` (20 batches of 500, with setup excluded from timing). Instantiate the UI, then take one `Instant` sample around a direct `view.refresh()` inside the existing headless window update. Print the elapsed duration and assert the loaded record/note-row count only as fixture sanity; do not gate on an invented latency threshold. If a reusable fixture already supplies a normal writing-request/Apply example, include one to exercise the feedback-cache branch; otherwise keep the primary sample ordinary and state that the request-linked receipt branch was not activated. The measurement should record whether the fixture has candidates, recovery buffers and asset bytes so those dimensions are not silently implied by a Notes-only corpus.
+
+This measures the actual synchronous method, including its repeated reads and in-memory projections, while avoiding fixture-creation and index-prepare time in the reported interval. It is a headless diagnostic, not proof of native responsiveness. It would not measure GPUI/native drawing, OS event-loop scheduling, physical-device storage variation, interactive scrolling/IME/accessibility, or owner-perceived latency. No target-Mac observation or product acceptance can be claimed from it.
+
+The lead overview records that the prior strict keyword/index run passed, while the separate derived-index admission experiment measured 52.103 ms against the existing 50 ms reopen bound and was not adopted. That is a different path and must not be used as evidence for or against desktop `refresh` timing.
+
+No tests, builds, fixture/workloads, source edits, Git changes, providers, network, native actions or owner data were used. This report is the only write.
