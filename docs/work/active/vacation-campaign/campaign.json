@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:19:37.260252+00:00",
+    "observed_at": "2026-10-22T06:26:45.259077+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4194,12 +4194,12 @@
       {
         "id": "recovery-copy-privacy-preflight",
         "title": "Check recovery copies preserve private-note boundaries",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna source assessment; lead validates any finding",
-        "observed_at": "2026-10-22T06:19:37.260252+00:00",
+        "observed_at": "2026-10-22T06:26:45.259077+00:00",
         "origin": "observed",
-        "activity": "Lead found desktop Save as new note delegates to general new_note without visibly carrying source Note.chat. Select bounded reachability/privacy-contract assessment before any repair; exact source eae equals integratedmain210 production tree.",
-        "next_action": "Establish whether a private Note can reach real SaveCopy and whether resulting copy becomes general/searchable; identify existing checked reuse and distinct tests. Report one located defect or supported no-change, with no implementation yet.",
+        "activity": "Source confirms reachable SaveCopy losesprivate Note.chat: importedprivateNote canbe madeworking withoutpromotion; projectprivateNote isalso editable. Ordinarynew_note makes chatNone and generalNotes/search/export eligible. No runtimewitness yet; originalprivate provenance preserved. Lead validatedpublicstale-copy purpose and existing scoped creation semantics.",
+        "next_action": "Separate recovery-copy-privacy-guard owns one before-source desktopwitness, consequential small-design choice and only then correction. Do not equate scopepreservation with blindprojectchat assignment or reject all ordinary stale versions.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4207,17 +4207,46 @@
           "crates/brn-writing-ui/src/writing.rs",
           "crates/brn-threads-app/src/lib.rs",
           "docs/architecture/invariants.md",
-          "docs/work/active/vacation-campaign/evidence/pr210-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr210-integration.json",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md"
         ],
         "gates": {
           "implementation": "Source assessment only; no repair selected.",
-          "checks": "Pending reachable source/caller/test evidence; no execution selected yet.",
+          "checks": "PASS located source/caller/contract assessment only; runtime reproduction pending separate task.",
           "integration": "Inapplicable until actual candidate selected.",
           "native": "Deferred for owner screen unavailability.",
           "owner_acceptance": "Preserve existing private-content contract; no new publication behavior selected."
         },
         "attempts": [],
         "resource_plan": "One boundedLuna medium read-only source preflight while hosted gates run; lead plus helper within4slots. No source/Git changes, tests/builds/native/account/provider/cache/web or nestedhelper. Stop after concrete reachable finding/reuse plan or no-change report; lead chooses actual synthetic witness and independentSol review if needed."
+      },
+      {
+        "id": "recovery-copy-privacy-guard",
+        "title": "Prevent recovery copies from becoming general knowledge accidentally",
+        "state": "active",
+        "owner": "Lead design; bounded Luna witness/author; consequential independent Sol review",
+        "observed_at": "2026-10-22T06:26:45.259077+00:00",
+        "origin": "observed",
+        "activity": "Selected one actual desktop stale-copy privacy witness before production repair. Sharedservice design under independentassessment; preserve public stale-copy and existing recovery/version/authority invariants. No new private duplication/publication semantics selected yet.",
+        "next_action": "Author one focused synthetic real-input/actualSaveCopy witness and execute once on unchanged production source under finite guards. Settle smallest checked-service design and exclusions before implementation; preserve original failure.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_polish_tests.rs",
+          "crates/brn-threads-app/src/lib.rs",
+          "crates/brn-threads-core/src/context.rs"
+        ],
+        "gates": {
+          "implementation": "Witness only next; production correction not dispatched before sound design.",
+          "checks": "Before-source runtimewitness pending; existinggeneralstale-copy positivecontrol retained.",
+          "integration": "Pending completeactualcandidate independentreview/requiredchecks/normalmerge/resultingmain.",
+          "native": "Deferred for owner-reported screenunavailability.",
+          "owner_acceptance": "No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract."
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium bounded one-test writer in clean reused architecture-status-route newbranch from actualmain210, preserving old eae branch. IndependentSol high design/review andlead within4slots. One sharedbuild slot/finitefreshsyntheticroot/diagnosedpackageidentityguard; no native/account/provider/cacheactions/nestedhelper. Stop after one actual pre-source result; two failed approaches require reassessment. Lead owns allsharedfacts/integration."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

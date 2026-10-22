@@ -58,24 +58,24 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.
 
 </details>
 
-### Check recovery copies preserve private-note boundaries
+### Prevent recovery copies from becoming general knowledge accidentally
 
-Owner: Bounded Luna source assessment; lead validates any finding · State: **active** · Last observed: 2026-10-22T06:19:37.260252+00:00
-Activity: Lead found desktop Save as new note delegates to general new_note without visibly carrying source Note.chat. Select bounded reachability/privacy-contract assessment before any repair; exact source eae equals integratedmain210 production tree.
-Next: Establish whether a private Note can reach real SaveCopy and whether resulting copy becomes general/searchable; identify existing checked reuse and distinct tests. Report one located defect or supported no-change, with no implementation yet.
+Owner: Lead design; bounded Luna witness/author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T06:26:45.259077+00:00
+Activity: Selected one actual desktop stale-copy privacy witness before production repair. Sharedservice design under independentassessment; preserve public stale-copy and existing recovery/version/authority invariants. No new private duplication/publication semantics selected yet.
+Next: Author one focused synthetic real-input/actualSaveCopy witness and execute once on unchanged production source under finite guards. Settle smallest checked-service design and exclusions before implementation; preserve original failure.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Source assessment only; no repair selected.
-- **checks:** Pending reachable source/caller/test evidence; no execution selected yet.
-- **integration:** Inapplicable until actual candidate selected.
-- **native:** Deferred for owner screen unavailability.
-- **owner acceptance:** Preserve existing private-content contract; no new publication behavior selected.
+- **implementation:** Witness only next; production correction not dispatched before sound design.
+- **checks:** Before-source runtimewitness pending; existinggeneralstale-copy positivecontrol retained.
+- **integration:** Pending completeactualcandidate independentreview/requiredchecks/normalmerge/resultingmain.
+- **native:** Deferred for owner-reported screenunavailability.
+- **owner acceptance:** No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract.
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-writing-ui/src/writing.rs](../../crates/brn-writing-ui/src/writing.rs), [crates/brn-threads-app/src/lib.rs](../../crates/brn-threads-app/src/lib.rs), [docs/architecture/invariants.md](../architecture/invariants.md), [docs/work/active/vacation-campaign/evidence/pr210-integration.json](active/vacation-campaign/evidence/pr210-integration.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md](active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_polish_tests.rs](../../crates/brn-desktop/src/threads_polish_tests.rs), [crates/brn-threads-app/src/lib.rs](../../crates/brn-threads-app/src/lib.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs)
 
 </details>
 
@@ -304,6 +304,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `desktop-refresh-scale-diagnostic` — Measure the existing app refresh on a larger synthetic workspace
 - `request-history-refresh-preflight` — Check coverage for refresh after accumulated writing history
 - `review-draft-failure-preflight` — Check edited proposals survive refused preparation and replacement
+- `recovery-copy-privacy-preflight` — Check recovery copies preserve private-note boundaries
 
 ## Dependencies
 
@@ -344,4 +345,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T06:19:37.260252+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T06:26:45.259077+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
