@@ -31,26 +31,6 @@ Gates:
 
 </details>
 
-### Check every recovery-copy entry point uses the privacy guard
-
-Task ID: `recovery-copy-route-audit`
-Owner: Bounded Luna caller audit; lead decision · State: **active** · Last observed: 2026-10-22T08:52:57.381750+00:00
-Activity: Select bounded consumer audit of the newly integrated recovery-copy boundary while main213 checks run. Inspect shipped SaveCopy entry points and text-copy Note producers, including independent writing host responsibility; avoid redoing existing tests or importing a new policy.
-Next: Report a bypass with exact real caller evidence or a concise no-change responsibility map; no source/test/build dispatch from this audit.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Read-only assessment selected; no source change
-- **checks:** Reuse current source/callers/tests; no new execution selected
-- **integration:** Inapplicable until a supported candidate is selected
-- **native:** Owner-deferred; no desktop attempt
-- **owner acceptance:** No new private publication or copy policy selected
-
-</details>
-
 ## Next
 
 None recorded.
@@ -293,6 +273,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `recovery-copy-privacy-guard` — Prevent recovery copies from becoming general knowledge accidentally
 - `launcher-request-close-preflight` — Check quick search request ownership when it closes
 - `comment-draft-ownership-preflight` — Check comment drafts remain attached to their saved passage
+- `recovery-copy-route-audit` — Check every recovery-copy entry point uses the privacy guard
 
 ## Dependencies
 
@@ -336,4 +317,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:52:57.381750+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:56:59.611545+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

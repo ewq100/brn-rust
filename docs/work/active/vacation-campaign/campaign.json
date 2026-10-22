@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T08:52:57.381750+00:00",
+    "observed_at": "2026-10-22T08:56:59.611545+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4532,24 +4532,25 @@
       {
         "id": "recovery-copy-route-audit",
         "title": "Check every recovery-copy entry point uses the privacy guard",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna caller audit; lead decision",
-        "observed_at": "2026-10-22T08:52:57.381750+00:00",
+        "observed_at": "2026-10-22T08:56:59.611545+00:00",
         "origin": "observed",
-        "activity": "Select bounded consumer audit of the newly integrated recovery-copy boundary while main213 checks run. Inspect shipped SaveCopy entry points and text-copy Note producers, including independent writing host responsibility; avoid redoing existing tests or importing a new policy.",
-        "next_action": "Report a bypass with exact real caller evidence or a concise no-change responsibility map; no source/test/build dispatch from this audit.",
+        "activity": "Bounded consumer map found both shipped recovery-copy controls dispatch through the checked privacy service. The independent development host explicitly refuses unsupported requests; blank creation/import/explicit decision-note routes are distinct. No additional shipped bypass or useful source change found.",
+        "next_action": "No new test or implementation selected. Revisit on a new recovery-copy consumer, concrete bypass report or changed creation/private-publication contract.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-writing-ui/src/writing.rs",
           "crates/brn-writing-ui/examples/writing_host",
-          "crates/brn-threads-app/src/writing.rs"
+          "crates/brn-threads-app/src/writing.rs",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-route-audit.md"
         ],
         "gates": {
-          "implementation": "Read-only assessment selected; no source change",
-          "checks": "Reuse current source/callers/tests; no new execution selected",
-          "integration": "Inapplicable until a supported candidate is selected",
+          "implementation": "NO CHANGE after bounded source/caller map",
+          "checks": "Source-only evidence; no tests/build/runtime/native qualification inferred",
+          "integration": "Inapplicable: no new product candidate",
           "native": "Owner-deferred; no desktop attempt",
           "owner_acceptance": "No new private publication or copy policy selected"
         },
@@ -4569,14 +4570,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-verified-pr213-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:52:57.381750+00:00",
-    "runtime_capacity": "Lead owns resultingmain213 CI/sharedfacts; one boundedLuna consumer audit; independentSol idle withinfour slots.",
+    "observed_at": "2026-10-22T08:56:59.611545+00:00",
+    "runtime_capacity": "Lead owns main213 CI/integration; boundedLuna consumer audit complete/nochange; independentSol idle. Fourtotal slots, no local sourcewriter/build.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Main213 required four checks pending after normalmerge; one independent read-only privacyconsumer audit selected. No local build/account/native actor.",
+    "wait_reason": "Only main213 required resulting-main qualification pending; reviewed consumer audit complete, no justified follow-on source selected.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
