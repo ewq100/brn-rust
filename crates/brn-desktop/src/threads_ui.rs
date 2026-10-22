@@ -4844,7 +4844,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
     Ok(())
 }
 
-fn install_exit_handlers(window: &Window, cx: &mut App, view: WeakEntity<ThreadsUi>) {
+fn install_exit_handlers(window: &Window, cx: &mut App, view: gpui_kit::WeakEntity<ThreadsUi>) {
     let close_view = view.clone();
     window.on_window_should_close(cx, move |_, cx| {
         let _ = close_view.update(cx, |this, _| {
