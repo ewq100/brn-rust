@@ -107,9 +107,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 ### Qualify a public backup interrupted while copying
 
-Owner: Bounded Luna driver author; consequential independent Sol review; lead single process/build actor · State: **active** · Last observed: 2026-10-22T04:38:29.662524+00:00
-Activity: Complete independent corrected-driver review approved exact9f515e70 with no outstanding findings. Reserve the sole actual interruption attempt before launch; currentmain208 ordinaryCLI edf780 frozen. No native/account work.
-Next: Run once at fresh /private/tmp/brn-public-backup-interruption-20261022T0444. Preserve any failed/inconclusive result; no second interruption. Publicretry only after retainedpartial+actualSIGKILL/reap proof.
+Owner: Bounded Luna driver author; consequential independent Sol review; lead single process/build actor · State: **active** · Last observed: 2026-10-22T04:39:38.802961+00:00
+Activity: Single selected workload exit0 PASS: actualSIGKILL/reap retained the same1,634,304B partialcopy vs34,222,080B completebackup. Exactlyone publicretry swept it and published standalonevalidSQLite with exactschema/allrows/8,388,548BUnicodeNote. SourceDB/marker/logicaldata, earliercompletebackup, sentinel/unrelateddirectory unchanged. Independent resultassessment underway; no furtherattempt.
+Next: Finish independent actual-result assessment, preserve originalreceipt/captures/sourceproof and publish qualifiedlimits. Never repeat this completed interruption scenario without a relevant change.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -117,17 +117,42 @@ Next: Run once at fresh /private/tmp/brn-public-backup-interruption-20261022T044
 Gates:
 
 - **implementation:** PASS complete independent final9f515e70 review; all3initialP2 valid/fixed before workload.
-- **checks:** At most1 interruption,1 public retry; exact UTF8/schema/rows/source/earlier complete backup/sentinel preservation. No workload launched yet.
+- **checks:** Actual singleattempt PASS exit0: partialcopy retained afterkill/reap9, absentfinal,1proof-gated publicretry, noabandonedstage, standaloneDELETE/noSQLitecompanions, exactschema/allrows/Note/source/earlieroutput/siblings; resultreviewpending.
 - **integration:** Evidence-only check; no product PR selected. Reconcile source identity against actual main before any current-main claim.
 - **native:** No native or power-loss evidence.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/public-backup-interruption-preflight.md](active/vacation-campaign/evidence/public-backup-interruption-preflight.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver.py](active/vacation-campaign/evidence/public-cli-restore-driver.py), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md), [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.sh](active/vacation-campaign/evidence/public-backup-cli-build.sh), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.log](active/vacation-campaign/evidence/public-backup-cli-build.log), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build-qualification.json](active/vacation-campaign/evidence/public-backup-cli-build-qualification.json), [docs/work/active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json](active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md](active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py](active/vacation-campaign/evidence/public-backup-driver-initial.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md), [docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/public-backup-interruption-preflight.md](active/vacation-campaign/evidence/public-backup-interruption-preflight.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver.py](active/vacation-campaign/evidence/public-cli-restore-driver.py), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md), [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.sh](active/vacation-campaign/evidence/public-backup-cli-build.sh), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.log](active/vacation-campaign/evidence/public-backup-cli-build.log), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build-qualification.json](active/vacation-campaign/evidence/public-backup-cli-build-qualification.json), [docs/work/active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json](active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md](active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py](active/vacation-campaign/evidence/public-backup-driver-initial.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md), [docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md), [docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-qualification.json](active/vacation-campaign/evidence/public-cli-backup-interruption-qualification.json), [docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-run.log](active/vacation-campaign/evidence/public-cli-backup-interruption-run.log), [docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-captures.tar.gz](active/vacation-campaign/evidence/public-cli-backup-interruption-captures.tar.gz)
 
 Attempts:
 
 - Initial inert-driver review requested3P2 changes; no workload executed.: Aligned imported extractor title, separated canonicalmainDB/logicaldata from diagnostic sidecars, added no-companions+read-onlyDELETE checks for bothcompleteoutputs. Full corrected review before execution. ([docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md))
-- Reserved: sole actual interruption attempt; not a success claim.: Frozen9f515e70 ordinaryCLIedf780; fresh /private/tmp/brn-public-backup-interruption-20261022T0444. At most one actual interruptedlaunch and one proof-gated same-destination publicretry. ([docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md))
+- Executed once: qualified_partial_backup_retry_and_exact_data_checks_passed, exit0; retainedpartial1,634,304B, actualSIGKILL/reaped, publicretry1.: Frozen9f515e70 ordinaryCLIedf780; fresh /private/tmp/brn-public-backup-interruption-20261022T0444. At most one actual interruptedlaunch and one proof-gated same-destination publicretry. ([docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md))
+
+</details>
+
+### Inspect recovery of damaged or stale derived search indexes
+
+Owner: Bounded Luna read-only auditor; lead validation · State: **active** · Last observed: 2026-10-22T04:39:38.802961+00:00
+Activity: Lead selects one bounded source/test audit of derived-index freshness/corruption recovery while independent backup-result review and required hostedchecks run. No implementation selected.
+Next: Inspect currentmain208 retrieval freshness/corruption handling and existing witnesses; return at most one distinct consequential uncovered boundary or explicit no-change disposition.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Not selected; read-only audit.
+- **checks:** No workload/build/liveprovider/native actions authorized by this audit.
+- **integration:** No productPR selected.
+- **native:** Deferred owneravailability.
+- **owner acceptance:** Not claimed.
+
+Evidence: [crates/brn-retrieval/README.md](../../crates/brn-retrieval/README.md), [docs/architecture/invariants.md](../architecture/invariants.md)
+
+Attempts:
+
+- Initial overview validation refused the new audit record because its evidence list was empty; no source/build/workload action followed.: Linked the selected retrieval README and permanent invariants; regenerate/validate the overview before dispatch. ([crates/brn-retrieval/README.md](../../crates/brn-retrieval/README.md), [docs/architecture/invariants.md](../architecture/invariants.md))
 
 </details>
 
@@ -382,4 +407,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:38:29.662524+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:39:38.802961+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
