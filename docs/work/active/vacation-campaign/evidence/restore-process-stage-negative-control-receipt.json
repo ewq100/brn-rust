@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-22T02:38:26.085186+00:00",
+  "base": "f4650db41dde3c1460af946aa59244f74a481671",
+  "scope": "Temporary test-only child explicitly abandons OS stage lock before signaling ready, while remaining alive. Production untouched.",
+  "expected": "Live-stage preservation assertion must fail",
+  "actual": "FAIL1 at a live process stage must remain; exit101",
+  "restored": true,
+  "restored_sha256": "74b9871721d453f300fc6a50e9853d0cf4ace4492c284366b55b565537f17d24",
+  "clean_head_verified": true,
+  "limits": "Negative control validates selected live-process lock witness; not a product defect or power-loss proof."
+}

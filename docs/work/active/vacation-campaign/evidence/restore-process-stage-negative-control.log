@@ -1,0 +1,19 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 9.02s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_threads_core-de10105332b95afc)
+
+running 1 test
+
+thread 'restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent' (18462754) panicked at crates/brn-threads-core/src/restore.rs:444:9:
+a live process stage must remain
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent ... FAILED
+
+failures:
+
+failures:
+    restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 43 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p brn-threads-core --lib`

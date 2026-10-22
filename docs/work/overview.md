@@ -88,9 +88,9 @@ Attempts:
 
 ### Check that interrupted restore work is reclaimed safely
 
-Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:31:54.002559+00:00
-Activity: Finalf465 independently approved after two valid P2 test corrections. Full core219/0/1existing ignored, strict alltarget lint and formatting PASS; corrected actual process journey ran within full suite. Production unchanged.
-Next: Reconcile current main/integration queue, publish this reviewed test-only outcome without duplicating in-flight work; required exact-head/preceding-main and resulting-main gates remain separate.
+Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:38:26.145151+00:00
+Activity: Finalf465 independently reviewed/qualified: core219/0/1existingignored, strict lint/fmt. One deliberately broken child-lock negative control failed exactly at live-stage preservation; exact qualified file restored with byte/hash/clean HEAD proof. No production change.
+Next: Publish reviewed test-only outcome after current main is reconciled; reuse unchanged core qualification explicitly, then required exact-head/main gates. No duplicate broad run needed for restored byte-identical source.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -98,16 +98,17 @@ Next: Reconcile current main/integration queue, publish this reviewed test-only 
 Gates:
 
 - **implementation:** PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.
-- **checks:** PASS all core219/0/1existingignored including actualchild/publicretry, strict corealltargetlint, format/diff.
+- **checks:** PASS core219/0/1, strictalltargetlint/fmt. Expected negativecontrol1FAIL at actual live-stage guard; exact finalsource restored.
 - **integration:** No PR yet; final source frozen for protected publication.
 - **native:** Headless process/OS lock evidence only, no native app or power-loss proof.
 - **owner acceptance:** No owner decision selected.
 
-Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-implementation.md](active/vacation-campaign/evidence/restore-process-stage-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-qualification.json](active/vacation-campaign/evidence/restore-process-stage-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.sh](active/vacation-campaign/evidence/restore-process-stage-final.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.log](active/vacation-campaign/evidence/restore-process-stage-final.log)
+Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-implementation.md](active/vacation-campaign/evidence/restore-process-stage-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-qualification.json](active/vacation-campaign/evidence/restore-process-stage-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.sh](active/vacation-campaign/evidence/restore-process-stage-final.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.log](active/vacation-campaign/evidence/restore-process-stage-final.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.patch](active/vacation-campaign/evidence/restore-process-stage-negative-control.patch), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.sh](active/vacation-campaign/evidence/restore-process-stage-negative-control.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.log](active/vacation-campaign/evidence/restore-process-stage-negative-control.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json](active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json)
 
 Attempts:
 
 - Initial2f3f65c8 focused1PASS/0FAIL, but independent review identifies readiness race and weaker-than-claimed public-retry sweep proof.: Publish readiness atomically; hold same-process fixture before SIGKILL, then assert child stage remains immediately before public Store::restore. No production change. ([docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log))
+- Expected negative control0PASS/1FAIL at a live process stage must remain, after child deliberately abandoned lock while alive.: Restored only task-owned test mutation to exact qualifiedf465 bytes; clean HEAD/hash verified. No product fix or broader rerun needed. ([docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json](active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.patch](active/vacation-campaign/evidence/restore-process-stage-negative-control.patch), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.log](active/vacation-campaign/evidence/restore-process-stage-negative-control.log))
 
 </details>
 
@@ -350,4 +351,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:34:46.839166+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:38:26.145151+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

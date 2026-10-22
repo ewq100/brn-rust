@@ -1,0 +1,29 @@
+diff --git a/crates/brn-threads-core/src/restore.rs b/crates/brn-threads-core/src/restore.rs
+index dc8dfacf..9d9bf0c5 100644
+--- a/crates/brn-threads-core/src/restore.rs
++++ b/crates/brn-threads-core/src/restore.rs
+@@ -379,18 +379,21 @@ mod tests {
+             let root = PathBuf::from(root);
+             let backup = root.join("backup.sqlite3");
+             let destination = root.join("child-process-destination");
+-            let stage = StagedRestore::create(&backup, &destination).unwrap();
++            let StagedRestore { _stage, directory, .. } =
++                StagedRestore::create(&backup, &destination).unwrap();
++            // Deliberately broken witness: alive process released its owner lock.
++            let unlocked_stage = _stage.abandon();
+             let ready = root.join("restore-process-stage-ready");
+             let ready_temporary = root.join("restore-process-stage-ready.tmp");
+             fs::write(
+                 &ready_temporary,
+-                stage._stage.path().as_os_str().as_encoded_bytes(),
++                unlocked_stage.as_os_str().as_encoded_bytes(),
+             )
+             .unwrap();
+             fs::rename(ready_temporary, ready).unwrap();
+             let started = Instant::now();
+             while started.elapsed() < Duration::from_secs(30) {
+-                assert!(stage.directory.is_dir());
++                assert!(directory.is_dir());
+                 thread::sleep(Duration::from_millis(20));
+             }
+             panic!("restore stage child exceeded its 30-second fail-safe");
