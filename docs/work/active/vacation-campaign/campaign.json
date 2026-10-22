@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T15:57:18.662292+00:00",
+    "observed_at": "2026-10-22T16:12:08.067325+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5613,10 +5613,10 @@
         "title": "Guide local AI edits away from guessed text positions",
         "state": "active",
         "owner": "bounded Luna source writer in export-durability; lead builds/integration; independent Sol review",
-        "observed_at": "2026-10-22T15:57:18.662292+00:00",
+        "observed_at": "2026-10-22T16:12:08.067325+00:00",
         "origin": "observed",
-        "activity": "PR219 stable e5; all local checks/reviewPASS. RequiredMacNativeUI nowPASS; remainingrequired jobs inprogress. OptionalWindows failed with existingUnix-only filesystem compilation; exact-head job/rawlogs retained. No source change/retry.",
-        "next_action": "Keep PR219 head stable. Inspect actual live required checks/protection and preceding-main; normal merge only after all four exact-head PASS, then separately inspect resulting-main.",
+        "activity": "PR219 normally merged24a77f4f after all4required exact-head and preceding-main checks PASS plus liveprotection/tree validation. Required resulting-main checks pending separately. No additional live account or native test.",
+        "next_action": "Reconcile merged production tree with qualifiede5; integrate into preserved lead records; inspect all4 exact resulting-main required checks. Keep live reliability unverified and account sessions closed.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5629,12 +5629,14 @@
           "docs/work/active/vacation-campaign/evidence/pr219-publication.json",
           "https://github.com/ewq100/brn-rust/pull/219",
           "docs/work/active/vacation-campaign/evidence/pr219-windows.json",
-          "docs/work/active/vacation-campaign/evidence/pr219-windows.log.gz"
+          "docs/work/active/vacation-campaign/evidence/pr219-windows.log.gz",
+          "docs/work/active/vacation-campaign/evidence/pr219-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-integration.json"
         ],
         "gates": {
           "implementation": "PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.",
-          "checks": "PASS exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs. Hosted requiredMacNativeUI PASS; remainingrequired pending. OptionalWindows existing Unix-only compileFAIL retained; no allCIgreen claim.",
-          "integration": "OPEN PR219 e5e9613b; no merge yet, required head/main gates pending.",
+          "checks": "PASS local531/0/2 andCLIidentity1/0, lint/build/format/docs; all4 required hostedheadPASS; optionalWindows existingUnix-only compileFAIL retained. Resultingmain pending.",
+          "integration": "MERGED24a77f4f PR219 after all4required exact-head/precedingmain PASS; resultingmain pending.",
           "native": "Owner-deferred; no native action.",
           "owner_acceptance": "Not claimed."
         },
@@ -5654,14 +5656,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-open.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T15:57:18.662292+00:00",
+    "observed_at": "2026-10-22T16:12:08.067325+00:00",
     "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
     "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR219 awaits four actual exact-head required hosted checks; no further account/native test selected.",
+    "wait_reason": "Normal merge done; resulting-main gate remains pending, no new account/native dispatch.",
     "resumption": "Continue current selected headless preflight; preserve old session closure and daily counts; one account actor and one shared build slot.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanfrozen e5 PR219; keep head stable during required CI.",
@@ -5670,9 +5672,8 @@
     "required_ci_runs": [
       {
         "pr": 219,
-        "run_id": 39808309862,
-        "head": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
-        "state": "Required MacNativeUI PASS; remainingrequired inprogress; optionalWindowsFAIL retained."
+        "head": "24a77f4f44072a084423f71bca0356f140dcd968",
+        "state": "Merged; resulting-main run discovery/checks pending."
       }
     ]
   },
