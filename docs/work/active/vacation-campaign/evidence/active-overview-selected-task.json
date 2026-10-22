@@ -1,0 +1,71 @@
+{
+  "id": "sqlite-cold-start-crash",
+  "title": "Diagnose the database crash during simultaneous startup",
+  "state": "blocked",
+  "owner": "Lead causal decision/checks; bounded Luna test-only witness; independent Sol review",
+  "observed_at": "2026-10-22T07:40:21.528725+00:00",
+  "origin": "observed",
+  "activity": "Boundedinitialinvestigation complete; originalnativeSQLiteinitfault UNRESOLVED. Bothcore20cold andoriginalapp20cold nonreproduced. Independent scope review/lead adoptedprivacyseparation; thisisnotstartupfix, pre-existing-main proof or safetyqualification. Stopcoldloops; retainasdeferredreliabilitydebt.",
+  "next_action": "Reopen causalinvestigation onmatchinginitializercrash/realstartupincidence orSQLite/build/configuration/concurrency change. Captureexactcallback/buildinputs/corruptionprovenance withhigher-valueinstrumentation then; no speculativemutex/dependency/globaltestchange. MatchingrequiredCIrecurrence blocks affectedmerge.",
+  "depends_on": [],
+  "resource_waits": [
+    "Further causal work awaits a concrete recurrence or relevant SQLite/build/configuration/concurrency change after two bounded non-reproductions; no owner action required."
+  ],
+  "evidence": [
+    "docs/work/active/vacation-campaign/evidence/writing-setup-crash-triage.md",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-crash-symbols.json",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-serial.json",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.md",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review.md",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review-final.md",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-run.sh",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-processes.py",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-supervise.py",
+    "docs/work/active/vacation-campaign/evidence/sqlite-startup-upstream-research.md",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.patch",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.log",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-compile.jsonl",
+    "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-run.sh",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-processes.py",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-supervise.py",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-review.md",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.log",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz",
+    "docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md",
+    "docs/work/active/vacation-campaign/evidence/writing-setup-original-artifact.json"
+  ],
+  "gates": {
+    "implementation": "No productionfix selected. Test-onlywitness4c preserved asdiagnostic source, not a productcandidate to merge without need.",
+    "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold×22PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
+    "integration": "No startupfixpublished/merged. Independent scope disposition acceptedprivacycandidateadmission only; unresolvedfault/debt retained.",
+    "native": "No nativeinteraction selected; ownerdeferred.",
+    "owner_acceptance": "No new productbehavior or ownerdecision selected; reliability engineering in authorizedscope."
+  },
+  "attempts": [
+    {
+      "outcome": "NONREPRODUCTION only:20coldprocessPASS/320Storeopens; qualifiedfalse.",
+      "change": "One reviewedtest-only4c public-core16-threadBarrier campaign withfreshprocesses and20max, stopfirstinvalid. Doesnotcoveroriginalappfixture/link/layout; originalparallelcrash retained.",
+      "evidence": [
+        "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json",
+        "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json",
+        "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz"
+      ]
+    },
+    {
+      "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses×22paralleltests allPASS;440testexecutions; qualifiedfalse.",
+      "change": "One separatelyreviewedno-rebuild exactoriginalbinary/UUID campaign restoredappfixture/link/layout beyondcore-onlywitness. Stopcoldrepetition aftertwodistinctnonreproapproaches; originalnativefault retained andcausalreassessment required.",
+      "evidence": [
+        "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
+        "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
+        "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz"
+      ]
+    }
+  ],
+  "resource_plan": "BoundedLuna medium test-onlywriter; independentSol consequentialreview; lead solebuild/check/integrationowner;4totalslots. Preservefrozenprivacyccd/source and oldbackupartifact/CIbranch; no account/provider/native actions."
+}

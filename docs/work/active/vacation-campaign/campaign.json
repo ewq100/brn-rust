@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T08:19:34.652399+00:00",
+    "observed_at": "2026-10-22T08:23:37.414885+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4476,10 +4476,10 @@
         "title": "Keep raw check history out of the startup summary",
         "state": "active",
         "owner": "Bounded Luna author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T08:19:34.652399+00:00",
+        "observed_at": "2026-10-22T08:23:37.414885+00:00",
         "origin": "observed",
-        "activity": "Corrected complete candidate7ccb552e (renderer/test plus branch-generated overview) is frozen for final independent Sol review. Author reports15tests/branch--checkPASS, unchanged inputrecord hash and18,880→10,565byte branch projection. No final source approval or lead qualification yet.",
-        "next_action": "Finish independent full corrected review; only after approval qualify final source and authoritative lead projection using frozen input, publish stable normal candidate and inspect all required exact-head/protection/main gates.",
+        "activity": "Final complete7ccb552e approved independently, bothP2s valid/fixed. Actual final190Python tests PASS with branch--check/links/diff and real custom-record render/query/check; exactdetail lookup preserves27evidence/2attempts withoutinput/outputmutation. Frozen same111task input51,796→26,284bytes. Source adopted locally onlead withseparatelyregenerated authoritativepage; no main merge yet.",
+        "next_action": "Publish frozen reviewed/qualified7ccb552e candidate from main212; keep head stable, inspect live protection/all required exacthead and precedingmain before normalmerge, then resultingmain separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4488,12 +4488,18 @@
           "docs/development/workflow.md",
           "docs/work/active/vacation-campaign/evidence/active-overview-original-implementation.md",
           "docs/work/active/vacation-campaign/evidence/active-overview-initial-review.md",
-          "docs/work/active/vacation-campaign/evidence/active-overview-corrected-implementation.md"
+          "docs/work/active/vacation-campaign/evidence/active-overview-corrected-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/active-overview-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/active-overview-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/active-overview-qualification-run.py",
+          "docs/work/active/vacation-campaign/evidence/active-overview-development-tooling-tests.log",
+          "docs/work/active/vacation-campaign/evidence/active-overview-selected-task.json",
+          "docs/work/active/vacation-campaign/evidence/active-overview-qualification-logs.tar.gz"
         ],
         "gates": {
-          "implementation": "Initial two P2s corrected in complete7ccb552e candidate, final independent review pending; original findings retained.",
-          "checks": "Pending selected existing Python/CLI and projection-growth checks; no Rust/native/account workload",
-          "integration": "Not published; normal live protection and required checks remain required",
+          "implementation": "PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.",
+          "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.",
+          "integration": "Locally adopted source onlead with own currentprojection; candidate7ccb552e not yetpublished/merged. Required hostedgates remainpending.",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
         },
@@ -4504,6 +4510,14 @@
             "evidence": [
               "scripts/render-work-overview.py",
               "scripts/tests/test_work_overview.py"
+            ]
+          },
+          {
+            "outcome": "PASS finalcomplete source/derivative review, no findings;190Python +actualCLI/docchecks, no source/inputmutation.",
+            "change": "Global detail route and noncompleted IDs fixed; only worker derivative regenerated from unchanged branchrecord. Leadcurrentprojection separatelyadopted; originalfailedsourcecheck retained.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/active-overview-final-review.md",
+              "docs/work/active/vacation-campaign/evidence/active-overview-qualification.json"
             ]
           }
         ],
@@ -4523,18 +4537,18 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:17:04.774251+00:00",
-    "runtime_capacity": "Lead owns main212 CI and shared facts; one Luna summary correction writer; one consequential Sol reviewer. Within four total slots.",
+    "observed_at": "2026-10-22T08:23:37.414885+00:00",
+    "runtime_capacity": "Lead owns CI/integration; Lunaauthor and consequentialSolreview complete/idle. Fourtotal slots, no sourcewriters or localbuild.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Main212 required Mac native UI/retrieval PASS; Core Mac/Ubuntu pending. Overview correction source and generated output review pending.",
+    "wait_reason": "Main212 CoreMac/Ubuntu stillpending atlastcheck; two nativeMaccontextsPASS. Summarycandidate readyforstablepublication, no new build/account/native workload.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
-    "fixture_worker_checkout": "mac-test-roots correcting source route/IDs on codex/concise-active-overview after source findings at a613; explicitly authorized local branch derivative regeneration only from unchanged worker record. Lead campaign remains separate authoritative assignment.",
+    "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39745276731

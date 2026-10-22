@@ -1,0 +1,153 @@
+{
+  "started_at": "2026-10-22T08:21:56.560866+00:00",
+  "candidate": "7ccb552efc152443f1ae57a044673500e7fe91c3",
+  "base": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+  "input_commit": "8d91c86d8978e59b4d22d936f7807555afa64b65",
+  "qualified": true,
+  "steps": [
+    {
+      "name": "actual-selected-task",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/scripts/render-work-overview.py",
+        "--record",
+        "/tmp/brn-active-overview-qualification/source-record.json",
+        "--output",
+        "/tmp/brn-active-overview-qualification/uncreated-owner-view/overview.md",
+        "--task",
+        "sqlite-cold-start-crash"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.042,
+      "stdout_bytes": 5894,
+      "stderr_bytes": 0,
+      "stdout_sha256": "4b1201b5b5beaf25aa22b7706b9982b5a65d6e0d30025328a53ecd4b5ad3e546",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "actual-custom-render",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/scripts/render-work-overview.py",
+        "--record",
+        "/tmp/brn-active-overview-qualification/source-record.json",
+        "--output",
+        "/tmp/brn-active-overview-qualification/uncreated-owner-view/overview.md"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.041,
+      "stdout_bytes": 95,
+      "stderr_bytes": 0,
+      "stdout_sha256": "17981df847b19593727988a1e22cb42e9cbfb71d097231ae678aa5bbf99aecd2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "actual-custom-check",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/scripts/render-work-overview.py",
+        "--record",
+        "/tmp/brn-active-overview-qualification/source-record.json",
+        "--output",
+        "/tmp/brn-active-overview-qualification/uncreated-owner-view/overview.md",
+        "--check"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.038,
+      "stdout_bytes": 98,
+      "stderr_bytes": 0,
+      "stdout_sha256": "0683e3c4a3af11bb9fe0ff7c4e04101a1a1b126b75263258ae97633bfdf60836",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "development-tooling-tests",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-v"
+      ],
+      "returncode": 0,
+      "duration_seconds": 11.686,
+      "stdout_bytes": 1336,
+      "stderr_bytes": 26564,
+      "stdout_sha256": "40a9ff29d58553c62649a46133d849c1e9e38d372bfb5474edbfb5524c392e2a",
+      "stderr_sha256": "99b4df5102f34d2f1a17c212c38a5fd52cec297b4395ff2daa9293af4cdab6ac"
+    },
+    {
+      "name": "branch-overview-check",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "scripts/render-work-overview.py",
+        "--check"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.037,
+      "stdout_bytes": 107,
+      "stderr_bytes": 0,
+      "stdout_sha256": "5dd9fce82a0660f3e4d798337c7054c16789affacca96182206790a92586a835",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "markdown-links",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "scripts/check-markdown-links.py"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.455,
+      "stdout_bytes": 103,
+      "stderr_bytes": 0,
+      "stdout_sha256": "58c78954a3ed04dd0539b87c42220e40e66c9a36c6537a33fa8ee5c938ca2e22",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+        "7ccb552efc152443f1ae57a044673500e7fe91c3"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.013,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": "Python/documentation qualification only. Branch snapshot and current lead authority stay separate. No Rust, native, account, provider, hosted CI or integration proof; byte counts are not token/cost/speed measurements.",
+  "source_hashes": {
+    "scripts/render-work-overview.py": "f5c4b078270190730e4c6b89fd8d66d986580ae4a9bd17ddfc5d71ff127fb049",
+    "scripts/tests/test_work_overview.py": "8277b76b8a4b5be61a94aee053f56871955fc8d3db0391c8ed939111c5474b53",
+    "docs/work/overview.md": "d6eca7f28b0e5a4f79728a3a544c82ff785ace63672c4d49150caa6025856fc0"
+  },
+  "branch_record_sha256": "c54e90923ff70271416636dedf06f235f06e7daca58ef0dd3432ce8869283aa5",
+  "input_record_sha256": "4c6acdd4f7905dd0b38d0a1eed166987a7b28ce3e8fb231aa6c42ca3baf76f99",
+  "same_input_projection": {
+    "before_utf8_bytes": 51796,
+    "after_utf8_bytes": 26284,
+    "before_sha256": "440705fd670ca1d2fe5ef75a3968132d1799f2b151c7fbada97034f2cefe07c4",
+    "after_sha256": "166062a486a0eb45a46c80d0ae7a3cb9821ff2fe54c51627143b4601a55c9371",
+    "task_count": 111
+  },
+  "detail_lookup": {
+    "task": "sqlite-cold-start-crash",
+    "exact_object": true,
+    "evidence_items": 27,
+    "attempts": 2,
+    "input_unchanged": true,
+    "output_parent_uncreated": true
+  },
+  "tests_run": 190,
+  "source_unchanged": true,
+  "branch_record_unchanged": true,
+  "worker_clean": true,
+  "duration_seconds": 12.466,
+  "finished_at": "2026-10-22T08:22:09.026602+00:00"
+}

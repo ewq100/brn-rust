@@ -7,17 +7,20 @@ Activity below is the last reported or observed update. It does not establish th
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
+Task details: [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown on a task below.
+
 ## Working on
 
 ### Prevent recovery copies from becoming general knowledge accidentally
 
+Task ID: `recovery-copy-privacy-guard`
 Owner: Lead design; bounded Luna witness/author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T08:07:51.915312+00:00
 Activity: PR212 normally merged e918b2b3 after all four exact-head and preceding-main required checks plus live strict/enforced protection passed. Entire integrated tree equals reviewed candidate ccd05b28. Resulting-main checks now separate/pending; unresolved startup debt remains.
 Next: Observe all four required resulting-main contexts for exact e918b2b3; preserve optional failures and any actual failure. Keep startup fault unresolved with its trigger; no build implies native acceptance.
 Depends on: sqlite-cold-start-crash when Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (reported satisfied: true)
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -27,41 +30,25 @@ Gates:
 - **native:** Deferred for owner-reported screenunavailability.
 - **owner acceptance:** No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md](active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_polish_tests.rs](../../crates/brn-desktop/src/threads_polish_tests.rs), [crates/brn-threads-app/src/lib.rs](../../crates/brn-threads-app/src/lib.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-design-review.md](active/vacation-campaign/evidence/recovery-copy-privacy-design-review.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-witness-implementation.md](active/vacation-campaign/evidence/recovery-copy-privacy-witness-implementation.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-witness.patch](active/vacation-campaign/evidence/recovery-copy-privacy-witness.patch), [docs/work/active/vacation-campaign/evidence/recovery-copy-before-review.md](active/vacation-campaign/evidence/recovery-copy-before-review.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-before-run.sh](active/vacation-campaign/evidence/recovery-copy-before-run.sh), [docs/work/active/vacation-campaign/evidence/recovery-copy-before-supervise.py](active/vacation-campaign/evidence/recovery-copy-before-supervise.py), [docs/work/active/vacation-campaign/evidence/recovery-copy-before.log](active/vacation-campaign/evidence/recovery-copy-before.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-before-completion.json](active/vacation-campaign/evidence/recovery-copy-before-completion.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review.md](active/vacation-campaign/evidence/recovery-copy-privacy-review.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-original-implementation.md](active/vacation-campaign/evidence/recovery-copy-privacy-original-implementation.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-original.patch](active/vacation-campaign/evidence/recovery-copy-privacy-original.patch), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md](active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-corrected-implementation.md](active/vacation-campaign/evidence/recovery-copy-privacy-corrected-implementation.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final.patch](active/vacation-campaign/evidence/recovery-copy-privacy-final.patch), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-run.sh](active/vacation-campaign/evidence/recovery-copy-privacy-final-run.sh), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-supervise.py](active/vacation-campaign/evidence/recovery-copy-privacy-final-supervise.py), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log), [docs/work/active/vacation-campaign/evidence/writing-setup-crash-triage.md](active/vacation-campaign/evidence/writing-setup-crash-triage.md), [docs/work/active/vacation-campaign/evidence/writing-setup-crash-symbols.json](active/vacation-campaign/evidence/writing-setup-crash-symbols.json), [docs/work/active/vacation-campaign/evidence/remote-privacy-qualification-crash-update.json](active/vacation-campaign/evidence/remote-privacy-qualification-crash-update.json), [docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md](active/vacation-campaign/evidence/writing-setup-crash-assessment.md), [docs/work/active/vacation-campaign/evidence/writing-setup-serial-run.sh](active/vacation-campaign/evidence/writing-setup-serial-run.sh), [docs/work/active/vacation-campaign/evidence/writing-setup-serial-supervise.py](active/vacation-campaign/evidence/writing-setup-serial-supervise.py), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.json](active/vacation-campaign/evidence/writing-setup-serial.json), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.log](active/vacation-campaign/evidence/writing-setup-serial.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-review.md](active/vacation-campaign/evidence/recovery-copy-remaining-review.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-run.sh](active/vacation-campaign/evidence/recovery-copy-remaining-run.sh), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-supervise.py](active/vacation-campaign/evidence/recovery-copy-remaining-supervise.py), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.log](active/vacation-campaign/evidence/recovery-copy-remaining.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json](active/vacation-campaign/evidence/recovery-copy-remaining.json), [docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md](active/vacation-campaign/evidence/sqlite-crash-reassessment.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-qualification-assessment.md](active/vacation-campaign/evidence/recovery-copy-privacy-qualification-assessment.md), [docs/work/active/vacation-campaign/evidence/pr212-publication.json](active/vacation-campaign/evidence/pr212-publication.json), [docs/work/active/vacation-campaign/evidence/pr212-premerge.json](active/vacation-campaign/evidence/pr212-premerge.json), [docs/work/active/vacation-campaign/evidence/pr212-integration.json](active/vacation-campaign/evidence/pr212-integration.json)
-
-Attempts:
-
-- REPRODUCED baselineprivacyFAIL: child101,1failed/0passed, intendedgeneralNotes assertion; no qualification/native claim.: One reviewedtest-only2ff on unchangedproduction13813f6f, scopedmutable desktopclean for sourceidentity, fresh syntheticUTF8input +actualSaveCopy. Stop after one baseline; no blindretry. ([docs/work/active/vacation-campaign/evidence/recovery-copy-before-completion.json](active/vacation-campaign/evidence/recovery-copy-before-completion.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-before.log](active/vacation-campaign/evidence/recovery-copy-before.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-before-review.md](active/vacation-campaign/evidence/recovery-copy-before-review.md))
-- CHANGES REQUIRED: two P2 test-validity/effectiveness findings at049819a4 before any after-fix execution. No production defect found by source review.: Promote source before opening historical edit; inspect actual public prepared request, exercise changed-private-source Apply fence and reopen immutable replay using existing checked seams. ([docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review.md](active/vacation-campaign/evidence/recovery-copy-privacy-review.md))
-- APPROVED source and adapters, runtime pending. Both P2s valid/fixed atccd05b28, no remaining source findings.: Corrected guardedfixture order; asserted actualpreparedHistorical/Currentrequest, checkedsecondconnectionprivacychange→Stale/noeffect, actualreopenimmutable replaywhileprivate and sameversionpositive; concisebehaviorcontract. No newseam/schema/framework. ([docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md](active/vacation-campaign/evidence/recovery-copy-privacy-review-final.md), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final.patch](active/vacation-campaign/evidence/recovery-copy-privacy-final.patch))
-- FAILED101/SIGSEGV11, qualificationfalse;9core/66app passed, no desktop/lint/nativebuild result.: First finalsource run, scopedapp+desktop packageclean addressedsharedtargetidentity. Newservicecasesactualpass; neighboringwriting_setup crashedbeforeindividualcompletion. Preserveoriginalfailure; read-onlycrashtriage before anyretry. ([docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log))
-- DIAGNOSTIC ONLY: exactsamebinary serialized22PASS0.31s; qualifiedfalse, no repair inferred.: One independentlyapproved180second samebinary--test-threads=1 discriminator, no rebuild/source/globaltestsettingchange. Supports concurrency/timing hypothesis; not proven cause. ([docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md](active/vacation-campaign/evidence/writing-setup-crash-assessment.md), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.json](active/vacation-campaign/evidence/writing-setup-serial.json), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.log](active/vacation-campaign/evidence/writing-setup-serial.log))
-- RemaininggatesPASS, overallqualifiedfalse.346desktop/1ignored/3filtered;strictlints/nativebuild/fmt/diff pass90.22s.: One separatelyreviewedcontinuationranonlyunreachedstages onunchangedccd, no replayofsuccessfulcore/app orpackageclean; cleanup/sourceidentityallpass. ([docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json](active/vacation-campaign/evidence/recovery-copy-remaining.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.log](active/vacation-campaign/evidence/recovery-copy-remaining.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-review.md](active/vacation-campaign/evidence/recovery-copy-remaining-review.md))
-
 </details>
 
 ### Keep raw check history out of the startup summary
 
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:19:34.652399+00:00
-Activity: Corrected complete candidate7ccb552e (renderer/test plus branch-generated overview) is frozen for final independent Sol review. Author reports15tests/branch--checkPASS, unchanged inputrecord hash and18,880→10,565byte branch projection. No final source approval or lead qualification yet.
-Next: Finish independent full corrected review; only after approval qualify final source and authoritative lead projection using frozen input, publish stable normal candidate and inspect all required exact-head/protection/main gates.
+Task ID: `active-overview-reading-route`
+Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:23:37.414885+00:00
+Activity: Final complete7ccb552e approved independently, bothP2s valid/fixed. Actual final190Python tests PASS with branch--check/links/diff and real custom-record render/query/check; exactdetail lookup preserves27evidence/2attempts withoutinput/outputmutation. Frozen same111task input51,796→26,284bytes. Source adopted locally onlead withseparatelyregenerated authoritativepage; no main merge yet.
+Next: Publish frozen reviewed/qualified7ccb552e candidate from main212; keep head stable, inspect live protection/all required exacthead and precedingmain before normalmerge, then resultingmain separately.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Initial two P2s corrected in complete7ccb552e candidate, final independent review pending; original findings retained.
-- **checks:** Pending selected existing Python/CLI and projection-growth checks; no Rust/native/account workload
-- **integration:** Not published; normal live protection and required checks remain required
+- **implementation:** PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.
+- **checks:** PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.
+- **integration:** Locally adopted source onlead with own currentprojection; candidate7ccb552e not yetpublished/merged. Required hostedgates remainpending.
 - **native:** Inapplicable to text projection; existing native gates remain deferred
 - **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
-
-Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/active/vacation-campaign/evidence/active-overview-original-implementation.md](active/vacation-campaign/evidence/active-overview-original-implementation.md), [docs/work/active/vacation-campaign/evidence/active-overview-initial-review.md](active/vacation-campaign/evidence/active-overview-initial-review.md), [docs/work/active/vacation-campaign/evidence/active-overview-corrected-implementation.md](active/vacation-campaign/evidence/active-overview-corrected-implementation.md)
-
-Attempts:
-
-- CHANGES REQUIRED: P2 route discoverability and stale generated output, before publication. Initial14renderer tests passed but missed discoverability.: Make canonical detail route independent of completed tasks, expose noncompleted IDs, retain growth/detail guarantee. Regenerate only worker branch derivative from unchanged committed record; preserve lead authority separately. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py))
 
 </details>
 
@@ -73,6 +60,7 @@ None recorded.
 
 ### Check grouped review controls on the Mac
 
+Task ID: `review-group-native`
 Owner: single native actor in consolidated batch · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
 Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
 Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
@@ -80,7 +68,7 @@ Depends on: review-group-fixture when Fresh offline two-group fixture passed pub
 Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -90,8 +78,6 @@ Gates:
 - **native:** pending actual true/false/true pressed-state and unchanged data
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/native-queue.md](active/vacation-campaign/native-queue.md), [docs/work/active/vacation-campaign/evidence/review-group-qualification.json](active/vacation-campaign/evidence/review-group-qualification.json), [docs/work/active/vacation-campaign/evidence/native-group-review-preparation-20261020.json](active/vacation-campaign/evidence/native-group-review-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json)
-
 </details>
 
 Waiting:
@@ -100,13 +86,14 @@ Waiting:
 
 ### Make visible note rows discoverable to Mac accessibility
 
+Task ID: `note-list-accessibility`
 Owner: bounded Luna medium implementation; lead disposition/integration; independent Sol review · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
 Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
 Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
 Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -116,13 +103,6 @@ Gates:
 - **native:** Original missing Notes AX rows reproduced on75a66; corrected9b0b actual AX/keyboard recheck pending Mac access
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-qualification.json](active/vacation-campaign/evidence/note-row-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/note-row-accessibility-review.md](active/vacation-campaign/evidence/note-row-accessibility-review.md), [https://github.com/ewq100/brn-rust/pull/186](https://github.com/ewq100/brn-rust/pull/186), [docs/work/active/vacation-campaign/evidence/pr186-publication.json](active/vacation-campaign/evidence/pr186-publication.json), [docs/work/active/vacation-campaign/evidence/note-row-native-preparation-20261020.json](active/vacation-campaign/evidence/note-row-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [docs/work/active/vacation-campaign/evidence/pr186-premerge.json](active/vacation-campaign/evidence/pr186-premerge.json), [docs/work/active/vacation-campaign/evidence/pr186-integration.json](active/vacation-campaign/evidence/pr186-integration.json), [docs/work/active/vacation-campaign/evidence/pr186-resulting-main.json](active/vacation-campaign/evidence/pr186-resulting-main.json)
-
-Attempts:
-
-- Initial --lib command found no library target; corrected binary-target invocation then exposed actual missing role. Candidate focused run then failed at test harness implicit-focus introspection.: Original role defect reproduced. Harness failure is not product success/failure proof; stopped/reassessed before another attempt. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
-- Role-only candidate passed semantic assertion but harness could not inspect implicit focus. Revised real Tab/Space witness then failed because focusable() leaves tab_stop=false.: Reassessed actual active dependency implementation; replace focusable() with tab_index(0), which sets focusable and Tab stop. Keep real event/effect witness; no production test-only focus state. Independent P2 remains pending final correction check. ([docs/work/active/vacation-campaign/evidence/note-row-accessibility-audit.md](active/vacation-campaign/evidence/note-row-accessibility-audit.md))
-
 </details>
 
 Waiting:
@@ -131,6 +111,7 @@ Waiting:
 
 ### Expose readable Needs you menu choices to Mac accessibility
 
+Task ID: `needs-you-menu-accessibility`
 Owner: development lead integration; bounded Luna implementation and independent Sol review complete · State: **blocked** · Last reported: 2026-10-21T03:56:18.778419+00:00
 Activity: Owner21October reports extended Mac screen unavailability. Actual native observation explicitly deferred; reviewed/automated/merged evidence remains source-bound and unchanged. This does not block independent headless work.
 Next: Wait for owner-reported changed access without repeated unlock requests. Then close old verified-undone app normally, reconcile current reviewed source/binary and execute one consolidated MAC08/11/12 session; preserve original unsaved workspace.
@@ -138,7 +119,7 @@ Depends on: note-list-accessibility when Integration/publication only: PR186 nor
 Resource waits: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -148,8 +129,6 @@ Gates:
 - **native:** pending actual named outer MenuItem/action and bounded rendering check; child semantic witness is not native proof
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-audit.md), [docs/work/active/vacation-campaign/evidence/native-mac-session-20261020.json](active/vacation-campaign/evidence/native-mac-session-20261020.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json](active/vacation-campaign/evidence/needs-you-menu-accessibility-qualification.json), [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md](active/vacation-campaign/evidence/needs-you-menu-accessibility-review.md), [docs/work/active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json](active/vacation-campaign/evidence/combined-navigation-native-preparation-20261020.json), [https://github.com/ewq100/brn-rust/pull/187](https://github.com/ewq100/brn-rust/pull/187), [docs/work/active/vacation-campaign/evidence/pr187-publication.json](active/vacation-campaign/evidence/pr187-publication.json), [docs/work/active/vacation-campaign/evidence/pr187-head-checks.json](active/vacation-campaign/evidence/pr187-head-checks.json), [docs/work/active/vacation-campaign/evidence/pr187-premerge.json](active/vacation-campaign/evidence/pr187-premerge.json), [docs/work/active/vacation-campaign/evidence/pr187-integration.json](active/vacation-campaign/evidence/pr187-integration.json), [docs/work/active/vacation-campaign/evidence/pr187-resulting-main.json](active/vacation-campaign/evidence/pr187-resulting-main.json)
-
 </details>
 
 Waiting:
@@ -158,13 +137,14 @@ Waiting:
 
 ### Check a precise AI edit on fresh synthetic data
 
+Task ID: `targeted-edit-account-qualification`
 Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T00:31:58.900886+00:00
 Activity: Finalattempt Completed but taskFAIL: exact edit49..61 then47..59 refused, requested43..55. Originaltarget/sentinel unchanged, nocandidates. All3sessionattempts exhausted; finalafterquota66%remaining permits ordinaryheadlesswork only.
 Next: No further live launches in this session or renamed retry session. Continue explicit unique-exact-quote design/independent review/deterministic qualification. Future genuine account session requires policy/admission and distinct diagnosed repair; failed qualification remains visible.
 Resource waits: Consolidated accounttest session exhausted3attempts; no automatic retry.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -174,12 +154,6 @@ Gates:
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py](active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md](active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver.py](active/vacation-campaign/evidence/targeted-edit-guidance-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md](active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json](active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz)
-
-Attempts:
-
-- Diagnostic: host rejected48..60; correct requestedrange43..55, no candidate, ToolLimitReached. error:null in nonzero CLI envelope also exposed driver error-handling assumption.: Keep original driver/results and rawenvelope. Reconstructactualfailure from retained trace/fullcanonical reads; select guidance-only arithmetic/coordinate clarification, not guessed edit behavior. ([docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json))
-
 </details>
 
 Waiting:
@@ -188,13 +162,14 @@ Waiting:
 
 ### Diagnose the database crash during simultaneous startup
 
+Task ID: `sqlite-cold-start-crash`
 Owner: Lead causal decision/checks; bounded Luna test-only witness; independent Sol review · State: **blocked** · Last observed: 2026-10-22T07:40:21.528725+00:00
 Activity: Boundedinitialinvestigation complete; originalnativeSQLiteinitfault UNRESOLVED. Bothcore20cold andoriginalapp20cold nonreproduced. Independent scope review/lead adoptedprivacyseparation; thisisnotstartupfix, pre-existing-main proof or safetyqualification. Stopcoldloops; retainasdeferredreliabilitydebt.
 Next: Reopen causalinvestigation onmatchinginitializercrash/realstartupincidence orSQLite/build/configuration/concurrency change. Captureexactcallback/buildinputs/corruptionprovenance withhigher-valueinstrumentation then; no speculativemutex/dependency/globaltestchange. MatchingrequiredCIrecurrence blocks affectedmerge.
 Resource waits: Further causal work awaits a concrete recurrence or relevant SQLite/build/configuration/concurrency change after two bounded non-reproductions; no owner action required.
 
 <details>
-<summary>Checks, evidence and corrections</summary>
+<summary>Gate status</summary>
 
 Gates:
 
@@ -203,13 +178,6 @@ Gates:
 - **integration:** No startupfixpublished/merged. Independent scope disposition acceptedprivacycandidateadmission only; unresolvedfault/debt retained.
 - **native:** No nativeinteraction selected; ownerdeferred.
 - **owner acceptance:** No new productbehavior or ownerdecision selected; reliability engineering in authorizedscope.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/writing-setup-crash-triage.md](active/vacation-campaign/evidence/writing-setup-crash-triage.md), [docs/work/active/vacation-campaign/evidence/writing-setup-crash-symbols.json](active/vacation-campaign/evidence/writing-setup-crash-symbols.json), [docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md](active/vacation-campaign/evidence/writing-setup-crash-assessment.md), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.json](active/vacation-campaign/evidence/writing-setup-serial.json), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.md](active/vacation-campaign/evidence/sqlite-cold-start-witness.md), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review.md](active/vacation-campaign/evidence/sqlite-cold-start-baseline-review.md), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review-final.md](active/vacation-campaign/evidence/sqlite-cold-start-baseline-review-final.md), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-run.sh](active/vacation-campaign/evidence/sqlite-cold-start-baseline-run.sh), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-processes.py](active/vacation-campaign/evidence/sqlite-cold-start-baseline-processes.py), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-supervise.py](active/vacation-campaign/evidence/sqlite-cold-start-baseline-supervise.py), [docs/work/active/vacation-campaign/evidence/sqlite-startup-upstream-research.md](active/vacation-campaign/evidence/sqlite-startup-upstream-research.md), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.patch](active/vacation-campaign/evidence/sqlite-cold-start-witness.patch), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.log](active/vacation-campaign/evidence/sqlite-cold-start-baseline.log), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json](active/vacation-campaign/evidence/sqlite-cold-start-baseline.json), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json](active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-compile.jsonl](active/vacation-campaign/evidence/sqlite-cold-start-baseline-compile.jsonl), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz](active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-run.sh](active/vacation-campaign/evidence/writing-setup-parallel-baseline-run.sh), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-processes.py](active/vacation-campaign/evidence/writing-setup-parallel-baseline-processes.py), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-supervise.py](active/vacation-campaign/evidence/writing-setup-parallel-baseline-supervise.py), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-review.md](active/vacation-campaign/evidence/writing-setup-parallel-baseline-review.md), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.log](active/vacation-campaign/evidence/writing-setup-parallel-baseline.log), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json](active/vacation-campaign/evidence/writing-setup-parallel-baseline.json), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json](active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz](active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz), [docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md](active/vacation-campaign/evidence/sqlite-crash-reassessment.md), [docs/work/active/vacation-campaign/evidence/writing-setup-original-artifact.json](active/vacation-campaign/evidence/writing-setup-original-artifact.json)
-
-Attempts:
-
-- NONREPRODUCTION only:20coldprocessPASS/320Storeopens; qualifiedfalse.: One reviewedtest-only4c public-core16-threadBarrier campaign withfreshprocesses and20max, stopfirstinvalid. Doesnotcoveroriginalappfixture/link/layout; originalparallelcrash retained. ([docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json](active/vacation-campaign/evidence/sqlite-cold-start-baseline.json), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json](active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json), [docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz](active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz))
-- NONREPRODUCTION only:20originalbinarycoldprocesses×22paralleltests allPASS;440testexecutions; qualifiedfalse.: One separatelyreviewedno-rebuild exactoriginalbinary/UUID campaign restoredappfixture/link/layout beyondcore-onlywitness. Stopcoldrepetition aftertwodistinctnonreproapproaches; originalnativefault retained andcausalreassessment required. ([docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json](active/vacation-campaign/evidence/writing-setup-parallel-baseline.json), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json](active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json), [docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz](active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz))
 
 </details>
 
@@ -220,7 +188,6 @@ Waiting:
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
-Full task details, gates, evidence, and attempts remain in the [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below.
 
 - `visibility-adoption` — Clearer instructions and one progress view
 - `feedback-accessibility` — Mac feedback choices expose their selected state
@@ -369,4 +336,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:19:34.652399+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:23:37.414885+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
