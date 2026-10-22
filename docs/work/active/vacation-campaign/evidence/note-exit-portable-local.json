@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T13:33:03.246656+00:00",
+  "source": "660a737174030320ca4c412248117a168e69c8d6",
+  "tree": "848cae8908ba9a9e2de5d1129d538b3399c9a13c",
+  "delta_from": "155bb86776eea697135de8d6782bddc4481b3de0",
+  "delta": "Only existing test selection setup,5insertions/4deletions; production/component/contract bytes identical. Same actual input/expected bytes/assertions.",
+  "independent_review": "note-exit-ubuntu-setup-review.md final exact660a APPROVED/no new findings",
+  "results": {
+    "desktop": "PASS350/0/1ignored,56.25s",
+    "lint": "PASS strict combined native all-target,6.03s",
+    "format": "PASS pinned1.98.1 final changed test",
+    "unchanged_reuse": "Component44unit+12host and independenthost12; ordinary production native-ui build/artifact d6694579 at155bb reused because sole delta is cfg-test file; exact previous artifact/source limits retained."
+  },
+  "original_failure": "pr217-ubuntu-ui-first.json and rawlog.gz retained; beforeClose setup failure, not native termination or SQLite crash.",
+  "limits": [
+    "Corrected Ubuntu CI pending after normal push to existing217",
+    "All required exact-head checks must pass at660a before normal merge",
+    "No native/account action; native owner-deferred; no new build for unchanged shipping source"
+  ]
+}
