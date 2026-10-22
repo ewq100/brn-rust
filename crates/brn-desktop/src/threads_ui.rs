@@ -324,6 +324,41 @@ struct ReferenceImportIntent {
     key: String,
 }
 
+/// Owns invalidation and cancellation for the single scoped reference search
+/// admitted by the writing setup form.
+#[derive(Default)]
+struct ReferenceSearchRequest {
+    generation: u64,
+    cancel: Option<brn_threads_app::search::CancelOnDrop>,
+}
+
+impl ReferenceSearchRequest {
+    /// Retires the current request before a replacement or context transition.
+    fn invalidate(&mut self) -> u64 {
+        self.cancel = None;
+        self.generation += 1;
+        self.generation
+    }
+
+    fn retain_cancel(&mut self, cancel: brn_threads_app::search::CancelOnDrop) {
+        self.cancel = Some(cancel);
+    }
+
+    /// A stale completion must not clear the guard for its replacement.
+    fn finish(&mut self, generation: u64) -> bool {
+        if self.generation != generation {
+            return false;
+        }
+        self.cancel = None;
+        true
+    }
+}
+
+struct QueuedEdit {
+    item: String,
+    thread: String,
+}
+
 struct ThreadsUi {
     writing: WritingPanel,
     workspace: Workspace,
@@ -358,8 +393,7 @@ struct ThreadsUi {
     composer_drafts: ComposerDrafts,
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
-    reference_search_generation: u64,
-    reference_search_cancel: Option<brn_threads_app::search::CancelOnDrop>,
+    reference_search: ReferenceSearchRequest,
     selected_project: Option<String>,
     note_project: Option<String>,
     note_writing_scope: Option<String>,
@@ -371,7 +405,7 @@ struct ThreadsUi {
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
-    editing_queue: Option<String>,
+    editing_queue: Option<QueuedEdit>,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
@@ -639,8 +673,7 @@ impl ThreadsUi {
             composer_drafts: drafts,
             draft_generations,
             scrollers: std::cell::RefCell::new(BTreeMap::new()),
-            reference_search_generation: 0,
-            reference_search_cancel: None,
+            reference_search: ReferenceSearchRequest::default(),
             selected_project: None,
             note_project: None,
             note_writing_scope: None,
@@ -1020,6 +1053,13 @@ impl ThreadsUi {
             ChatTarget::Thread(thread) => Some(thread),
             _ => None,
         }
+    }
+    fn queued_edit_for_current_chat(&self) -> Option<&str> {
+        let thread = self.chat_thread()?;
+        self.editing_queue
+            .as_ref()
+            .filter(|edit| edit.thread == thread)
+            .map(|edit| edit.item.as_str())
     }
     fn destination(&self) -> ComposerDestination {
         match &self.chat {
@@ -2080,7 +2120,7 @@ impl ThreadsUi {
         cx.notify();
     }
     fn ask(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.editing_queue.is_some()
+        if self.queued_edit_for_current_chat().is_some()
             || self.worker.is_some()
             || self.queue_state().paused
                 && (self.queue_state().pending.is_some() || !self.queue_state().queue.is_empty())
@@ -3883,8 +3923,7 @@ impl ThreadsUi {
         self.replace_writing_setup(window, cx);
     }
     fn recheck_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.reference_search_cancel = None;
-        self.reference_search_generation += 1;
+        self.reference_search.invalidate();
         let note = self.open_note_id().map(str::to_owned);
         let scope = self.note_writing_scope.clone();
         if self.writing.setup.as_ref().is_none_or(|draft| {
@@ -3929,8 +3968,7 @@ impl ThreadsUi {
         cx.notify();
     }
     fn replace_writing_setup(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.reference_search_cancel = None;
-        self.reference_search_generation += 1;
+        self.reference_search.invalidate();
         self.writing.setup_open = true;
         // Clear before the fallible load: no old brief/names can survive a refused context.
         self.writing.setup = None;
@@ -4036,9 +4074,7 @@ impl ThreadsUi {
         draft.match_total = 0;
         draft.search_pending = true;
         draft.search_query = Some(query.clone());
-        self.reference_search_cancel = None;
-        self.reference_search_generation += 1;
-        let generation = self.reference_search_generation;
+        let generation = self.reference_search.invalidate();
         let ticket = match self.workspace.search_handle() {
             Ok(handle) => {
                 handle.request_page(&query, target.scope.as_deref(), 12, cursor.as_deref())
@@ -4052,7 +4088,7 @@ impl ThreadsUi {
                 return;
             }
         };
-        self.reference_search_cancel = Some(ticket.cancel_on_drop());
+        self.reference_search.retain_cancel(ticket.cancel_on_drop());
         cx.spawn_in(window, async move |this, cx| {
             let answer = cx
                 .background_executor()
@@ -4073,10 +4109,9 @@ impl ThreadsUi {
         answer: AppResult<brn_threads_app::search::SearchResults>,
         cx: &mut Context<Self>,
     ) {
-        if self.reference_search_generation != generation {
+        if !self.reference_search.finish(generation) {
             return;
         }
-        self.reference_search_cancel = None;
         // Retire this request only on the exact draft it captured, even if
         // that draft is hidden by navigation. Only a displayed draft may show
         // the page; navigation never rebinds a reply to another setup.
@@ -4372,8 +4407,7 @@ impl ThreadsUi {
             }
             WritingRequest::CloseSetup => {
                 self.writing.setup_open = false;
-                self.reference_search_generation += 1;
-                self.reference_search_cancel = None;
+                self.reference_search.invalidate();
                 cx.notify();
             }
             WritingRequest::SaveSetup => self.save_writing_setup(window, cx),

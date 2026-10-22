@@ -3665,7 +3665,7 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
             });
             view.search_writing_references(None, window, cx);
             assert!(view.writing.setup.as_ref().unwrap().search_pending);
-            assert!(view.reference_search_cancel.is_some());
+            assert!(view.reference_search.cancel.is_some());
             assert_eq!(
                 view.writing.setup.as_ref().unwrap().search_query.as_deref(),
                 Some("Second saved paragraph")
@@ -3678,7 +3678,7 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
     })
     .unwrap();
     cx.wait_for(f.window, Duration::from_secs(3), |_, cx| {
-        f.view.read(cx).reference_search_cancel.is_none()
+        f.view.read(cx).reference_search.cancel.is_none()
     })
     .await;
     cx.read(|cx| {
@@ -3723,8 +3723,7 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
             view.load_writing_setup(window, cx);
             let target = view.writing.setup.as_ref().unwrap().target.clone();
             let observed = view.writing.setup.as_ref().unwrap().observed.clone();
-            view.reference_search_generation += 1;
-            let generation = view.reference_search_generation;
+            let generation = view.reference_search.invalidate();
             let page = view
                 .workspace
                 .search_handle()
@@ -3742,6 +3741,10 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
             assert!(view.writing.setup.as_ref().unwrap().search_pending);
             let replacement_query = view.writing.setup.as_ref().unwrap().search_query.clone();
             view.finish_reference_search(generation, target, observed, Ok(page), cx);
+            assert!(
+                view.reference_search.cancel.is_some(),
+                "a stale reply cannot cancel the replacement request"
+            );
             assert!(view.writing.setup.as_ref().unwrap().matches.is_empty());
             assert_eq!(view.writing.setup.as_ref().unwrap().match_total, 0);
             assert!(
@@ -3761,8 +3764,7 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
             view.load_writing_setup(window, cx);
             let target = view.writing.setup.as_ref().unwrap().target.clone();
             let observed = view.writing.setup.as_ref().unwrap().observed.clone();
-            view.reference_search_generation += 1;
-            let generation = view.reference_search_generation;
+            let generation = view.reference_search.invalidate();
             let page = view
                 .workspace
                 .search_handle()

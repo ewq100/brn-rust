@@ -695,6 +695,7 @@ impl ThreadsUi {
         let p = pal();
         let this = cx.entity().downgrade();
         let busy = self.worker.is_some();
+        let editing_queue = self.queued_edit_for_current_chat().is_some();
         let archived = self.chat_thread().filter(|id| self.thread_resolved(id));
         let quiet = self.queue_state().quiet;
         let model_this = this.clone();
@@ -942,7 +943,7 @@ impl ThreadsUi {
                         } else {
                             send.primary()
                         };
-                        send.label(if self.editing_queue.is_some() {
+                        send.label(if editing_queue {
                             "Save queued"
                         } else if busy {
                             "Queue"
@@ -951,7 +952,7 @@ impl ThreadsUi {
                         })
                         .compact()
                         .h(components::tokens::COMPACT_CONTROL)
-                        .tooltip(if self.editing_queue.is_some() {
+                        .tooltip(if editing_queue {
                             "Save the queued message ↵ · Shift-↵ adds a line"
                         } else if busy {
                             "Add this message to the queue ↵"
