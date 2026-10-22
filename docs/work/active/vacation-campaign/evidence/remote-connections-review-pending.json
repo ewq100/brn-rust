@@ -1,0 +1,60 @@
+{
+  "observed_at": "2026-10-22 12:02:29 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "9b6734c7",
+  "sequence": 93,
+  "block_count": 41,
+  "managed_blocks": 3,
+  "unmanaged_preserved": 38,
+  "title_order_kind_metadata_preserved": true,
+  "readback_verified": true,
+  "operation_results": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "15ecdae995526a4942ebc633d49f8f78a50e55389299a5dcb8e4eb4eace27d3a"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "2fc9f2203f8d1d0fe273de47821e70c5cf4899d1a05107afd2554a24335747df"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "262b9daf9b6fcb5b6aab52cb0851f6ebad2fbf3f5c6dc94c969de3259a08b9e6"
+        }
+      ]
+    }
+  ],
+  "limits": "Saved projection, not live activity; both215/214 complete; Connections candidate pending full review/final qualification."
+}
