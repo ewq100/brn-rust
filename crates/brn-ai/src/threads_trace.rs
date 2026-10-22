@@ -399,6 +399,7 @@ impl TraceCollector {
                                 "request_key is already bound to different exact-edit arguments; use a fresh key."
                                     | "The Note version changed; read the current passage and use a fresh request_key."
                                     | "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+                                    | "expected_text must occur exactly once as a nonempty exact quote in the current Note; no candidate was prepared."
                                     | "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note."
                             )
                         })
@@ -689,6 +690,7 @@ mod tests {
             "request_key is already bound to different exact-edit arguments; use a fresh key.",
             "The Note version changed; read the current passage and use a fresh request_key.",
             "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted.",
+            "expected_text must occur exactly once as a nonempty exact quote in the current Note; no candidate was prepared.",
             "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note.",
         ];
         for reason in known_reasons {
