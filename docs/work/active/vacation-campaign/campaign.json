@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T15:38:17.844Z",
+    "observed_at": "2026-10-22T16:13:57.795961+00:00",
     "remaining_percent": 32,
-    "reset_unix": 1793083361,
-    "ordinary_work": "Actual68%used/32%remaining, ordinaryUsageAllowed=true. Continue selected headless guidance audit; newone-run accountsession closed afterfailure, no further launch. Native availability unchanged.",
+    "reset_unix": 1793083360,
+    "ordinary_work": "Native allowance68%used/32%remaining at resulting-main watch entry; ordinaryUsageAllowed=true. No quota pause. No new account/native test selected.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -5653,15 +5653,22 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T15:50:06.240Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-open.json"
+    "last_refresh_at": "2026-10-22T16:13:31.900Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-merged.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T16:12:48.138555+00:00",
+    "observed_at": "2026-10-22T16:13:57.795961+00:00",
     "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
     "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "session_id": 83352,
+        "run_id": 39811859007,
+        "head": "24a77f4f44072a084423f71bca0356f140dcd968",
+        "kind": "One bounded read-only required-main job watcher, no write/account action; inspect actual session before reuse."
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
     "wait_reason": "Normal merge done; resulting-main gate remains pending, no new account/native dispatch.",
