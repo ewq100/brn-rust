@@ -1,0 +1,87 @@
+{
+  "observed_at": "2026-10-22T12:17:19.900377+00:00",
+  "pull_request": {
+    "baseRefOid": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+    "headRefOid": "317360bd46a64c002e1dabba961de755b6226355",
+    "number": 216,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-22T12:11:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815987453",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-22T12:11:18Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815987997",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-22T12:11:18Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-22T12:14:58Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815987901",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-22T12:11:18Z",
+        "status": "COMPLETED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815988102",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-22T12:11:19Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815987935",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-22T12:11:18Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815988184",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-22T12:11:18Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39776297929/job/119815987773",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-22T12:11:19Z",
+        "status": "IN_PROGRESS",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "url": "https://github.com/ewq100/brn-rust/pull/216"
+  },
+  "required_head_checks": "Pending at publication; inspect live exact-head check-runs before normal merge. Documentation PASS; optional Windows failure visible.",
+  "local_qualification": "Independent review c129 whole-tree equal317; desktop350/0/1, strict all-target lint, ordinary native-ui build and direct pinned rustfmt PASS. Discovery failure and expected negative controls preserved.",
+  "source_and_limits": "No native interaction or owner acceptance. No account test. No release. Candidate branch frozen while hosted gates run.",
+  "ci_run": 39776297929,
+  "artifact_attachment": "Codex attach_artifact succeeded after creation."
+}

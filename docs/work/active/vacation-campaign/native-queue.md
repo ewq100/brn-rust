@@ -283,3 +283,38 @@ Record source/binary/helper identity, checked fixture operations, actual control
 visible outcomes and read-only durable evidence. The existing service/toolkit
 witnesses support preparation; they do not pass either native case. No account
 call, private publication, private-copy feature or owner acceptance is selected.
+
+## MAC-14: Connections after Project Unlink and Undo
+
+This scenario covers the existing Project membership and Changes Undo controls
+changed in [PR216](https://github.com/ewq100/brn-rust/pull/216). Current integration,
+readiness and desktop availability belong to `connections-native-qualification`
+in campaign state. [Local qualification](evidence/connections-final-local.json)
+records source317360bd, the independent review and toolkit evidence; none of those
+establish actual Mac behavior. Do not prepare another unused app or attempt
+desktop access while the owner's extended screen unavailability is unchanged.
+
+After changed owner availability, reconcile then-current reviewed main, required
+checks, ordinary binary/helper identity and the single desktop actor. Prepare a
+fresh explicit synthetic workspace through supported checked services: Projects A
+and B, a private Note retained in A and explicitly linked to B, a general center
+Note linked to B, and their relation. Preserve original fixture bytes, identities
+and provenance. No private owner data, SQL repair, provider or account call is
+needed.
+
+Open the center from Project B and confirm Connections shows the private neighbor.
+Use the actual Open beside menu to retain Connections alongside Projects. Activate
+the actual Unlink control for the private Note's membership in B. Require both
+immediate retirement of the outdated neighbor and a settled successful result
+without that neighbor, retaining the center, selected scope and visible panel.
+Use supported read-only checks to confirm current scoped visibility is false and
+the retained Note's exact bytes, identity and provenance are unchanged. A new
+error banner alone is not a successful fresh result.
+
+In Changes, identify the exact Project B unlink receipt and activate its actual
+Undo control. Confirm checked scoped access returns and a fresh Connections result
+again includes the neighbor, with the same center and scope. Retain the actual
+control actions, visible outcomes, useful screenshots and read-only durable
+comparisons; preserve any failure before diagnosing it. Toolkit witnesses and the
+existing generation guard support this scenario but do not prove OS input,
+rendering, IME, VoiceOver or owner acceptance.

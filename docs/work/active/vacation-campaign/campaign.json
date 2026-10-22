@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T12:01:58.614424+00:00",
+    "observed_at": "2026-10-22T12:17:19.900377+00:00",
     "remaining_percent": 39,
-    "reset_unix": 1793083360,
-    "ordinary_work": "Actual61%used/39%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless final repair qualification admitted; native/account constraints unchanged.",
+    "reset_unix": 1793083361,
+    "ordinary_work": "Actual61%used/39%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless integration and bounded independent source assessment admitted; native/account constraints unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:01:58.614424+00:00",
+    "observed_at": "2026-10-22T12:17:49.395063+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5028,10 +5028,10 @@
         "title": "Clear outdated Connections after project membership changes",
         "state": "active",
         "owner": "Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T12:01:58.614424+00:00",
+        "observed_at": "2026-10-22T12:17:19.900377+00:00",
         "origin": "observed",
-        "activity": "Candidate c12966d0 adds only two production refresh_connections calls and one control/checked-service regression journey through Unlink, background completion and exact Undo. Final preflight corrected a moved test String and assertion ordering before any build. Independent full candidate review active; no final qualification claimed.",
-        "next_action": "Finish full actual-source review. Preserve construction history, prepare one clean equivalent candidate for final qualification/publication, and use one bounded Undo-only negative control followed by final desktop/lint/ordinary-build checks; no duplicate passing focused run needed.",
+        "activity": "Independent full source review approved; equivalent final317360bd passed desktop350/0/1, strict lint, ordinary build and pinned formatting. Published ready PR216; required hosted checks running. Baseline and Undo-only negative control failures retained.",
+        "next_action": "Inspect exact-head required checks and live protection/currentmain/all PRs before normal merge; compare integrated whole tree, then verify resulting-main separately. Continue independent bounded source assessment while hosted gates run.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5049,12 +5049,22 @@
           "docs/work/active/vacation-campaign/evidence/connections-witness-reassessment.md",
           "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.json",
           "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.log",
-          "docs/work/active/vacation-campaign/evidence/connections-author-final-candidate.md"
+          "docs/work/active/vacation-campaign/evidence/connections-author-final-candidate.md",
+          "docs/work/active/vacation-campaign/evidence/connections-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/connections-clean-candidate.json",
+          "docs/work/active/vacation-campaign/evidence/connections-negative-run.py",
+          "docs/work/active/vacation-campaign/evidence/connections-undo-negative.json",
+          "docs/work/active/vacation-campaign/evidence/connections-undo-negative.log",
+          "docs/work/active/vacation-campaign/evidence/connections-undo-negative.patch",
+          "docs/work/active/vacation-campaign/evidence/connections-final-local.json",
+          "docs/work/active/vacation-campaign/evidence/connections-final-local-logs.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/connections-prepublication.json",
+          "docs/work/active/vacation-campaign/evidence/pr216-publication.json"
         ],
         "gates": {
-          "implementation": "IMPLEMENTED frozen c12966d0; 3files,2production lines,one284line stateful regression. Pending independent review and final qualification.",
-          "checks": "BASELINE meaningful FAIL0/1 at stale graph after verified revocation; prior fixture failures retained. Native/post-Unlink row observation not claimed.",
-          "integration": "Pending candidate/review/checks; no publication selected yet.",
+          "implementation": "PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.",
+          "checks": "PASS local desktop350/0/1 existingignored, strict all-target lint, ordinary native-ui build, direct pinned rustfmt. Meaningful pre-fix and Undo-only negative failures preserved; no native observation.",
+          "integration": "Published PR216 exact317360bd; required hosted checks pending. Precedingmain10f all4required PASS; protection must be rechecked at merge.",
           "native": "Owner-deferred; no actual interaction.",
           "owner_acceptance": "Preserve accepted visibility, selected scope and note bytes; no new product meaning."
         },
@@ -5106,9 +5116,89 @@
               "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.log",
               "docs/work/active/vacation-campaign/evidence/connections-witness-reassessment.md"
             ]
+          },
+          {
+            "observed_at": "2026-10-22T12:05:09.483712+00:00",
+            "candidate": "4dd5d7cd43f77a9bb9fac9dd34450d334ead8a9c",
+            "outcome": "EXPECTED meaningful FAIL0/1 at post-Undo graph inclusion assertion1481 after actual Undo restored checked access and exactNote passed. Project invalidation/settled exclusion phases passed; sole omitted Undo call detected.50.22s cleanup/source PASS.",
+            "change": "Restored clean final317360bd before qualification; diagnostic4dd5 branch preserved and never published.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-undo-negative.json",
+              "docs/work/active/vacation-campaign/evidence/connections-undo-negative.log",
+              "docs/work/active/vacation-campaign/evidence/connections-undo-negative.patch"
+            ]
+          },
+          {
+            "observed_at": "2026-10-22T12:17:19.900377+00:00",
+            "candidate": "317360bd46a64c002e1dabba961de755b6226355",
+            "outcome": "Final selected local checks PASS on unchanged reviewed-equivalent source; PR216 published, hosted required gates pending. Initial cargo-fmt discovery failed; direct existing pinned rustfmt passed without changing source.",
+            "change": "No product changes after review; final candidate frozen for exact-head hosted checks.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-final-local.json",
+              "docs/work/active/vacation-campaign/evidence/connections-final-local-logs.tar.gz",
+              "docs/work/active/vacation-campaign/evidence/pr216-publication.json"
+            ]
           }
         ],
         "resource_plan": "Luna medium bounded test author owns only existing desktop test/source files in isolated branch; lead one local build slot and shared records. Independent Sol consequential review after candidate. Fresh explicit synthetic data, pinned locked/offline qualified helper reuse, no account/native/network/dependency/credential/runtime-prompt edits. Stop if visibility revocation is not real, baseline cannot prove gap, or two failed approaches; no extra tests/refactor without evidence."
+      },
+      {
+        "id": "connections-native-qualification",
+        "title": "Observe Connections after Project Unlink and Undo on the Mac",
+        "state": "blocked",
+        "owner": "Single native actor in future consolidated owner-available session",
+        "observed_at": "2026-10-22T12:17:49.395063+00:00",
+        "origin": "observed",
+        "activity": "MAC14 source-bound scenario defined from the reproduced scoped-result freshness gap and reviewed/locally qualified PR216. No new app/fixture preparation or native launch selected while owner availability is unchanged.",
+        "next_action": "After repair integration and required resulting-main PASS, wait for owner-reported changed availability. Reconcile current source/binary/helpers and prepare fresh checked synthetic data, then observe actual Unlink and Undo controls once.",
+        "depends_on": [
+          {
+            "task": "connections-project-freshness",
+            "condition": "Connections repair normally merged and all four required resulting-main checks PASS.",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [
+          "Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/connections-final-local.json"
+        ],
+        "gates": {
+          "implementation": "Scenario defined; existing two mutation-family refresh calls in PR216.",
+          "checks": "Local toolkit checks PASS on317360bd; native source/binary/fixture entry checks pending.",
+          "integration": "PR216 required hosted head checks pending; normal merge and resulting-main checks still needed.",
+          "native": "Owner-deferred; no actual interaction.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": []
+      },
+      {
+        "id": "reference-grant-freshness-assessment",
+        "title": "Check scoped reference results after Project access changes",
+        "state": "active",
+        "owner": "Bounded Luna read-only source assessment; lead disposition",
+        "observed_at": "2026-10-22T12:17:49.395063+00:00",
+        "origin": "observed",
+        "activity": "Selected one adjacent source question from the reproduced Connections revocation gap. Reuse PR204 request/draft ownership; inspect SetupDraft displayed/token guards and already displayed matches before proposing any change.",
+        "next_action": "Inspect bounded source report; close with no change if existing guards suffice. Admit a separate repair only for a concrete supported stale-result or checked-operation gap.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-writing-ui/src/setup.rs",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "docs/work/active/vacation-campaign/evidence/displayed-note-scope-assessment.md"
+        ],
+        "gates": {
+          "implementation": "Read-only question selected; no new product change.",
+          "checks": "Source assessment only; no build/test selected.",
+          "integration": "None selected.",
+          "native": "No interaction; owner deferral unchanged.",
+          "owner_acceptance": "No new product meaning selected."
+        },
+        "attempts": [],
+        "resource_plan": "Existing Luna medium helper inspects one boundary and writes only a temporary report; no source/build/native/account/network work or nested agents. Lead reviews exact callers and retains result. Stop at resolved boundary rather than repeat earlier ownership audit."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5123,22 +5213,21 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-review-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:01:58.614424+00:00",
-    "runtime_capacity": "Lead integration/build owner; independent Sol actual full-candidate review active; Luna final author complete. No active local builds/native/account.",
-    "build_slot": "Idle/reserved to lead for one bounded Undo negative control and final scoped qualification after review.",
+    "observed_at": "2026-10-22T12:17:19.900377+00:00",
+    "runtime_capacity": "Four slots including lead; Luna read-only reference freshness assessment active, independent reviewer complete, stale run_activity_author pending_init remains cancelled/unassigned.",
+    "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR215 resulting-main hosted checks running; no local capacity wait. Native deferred by owner.",
+    "wait_reason": "PR216 required hosted gates running; no local capacity wait. Native owner-deferred.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
-    "fixture_worker_checkout": "mac-test-roots frozen clean80ea524e oncodex/offline-native-retrieval-guide-20261022 after normalmaine7merge. Reviewed9533docblobsunchanged; publishedPR215stable.",
+    "fixture_worker_checkout": "mac-test-roots clean codex/connections-project-refresh-20261022 frozen317360bd, PR216 head stable. Prior source/construction and diagnostic branches retained.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
-      39766894309,
-      39767073233
+      39776297929
     ]
   },
   "native_availability": {

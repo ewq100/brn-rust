@@ -1,0 +1,12 @@
+diff --git a/crates/brn-desktop/src/threads_ui.rs b/crates/brn-desktop/src/threads_ui.rs
+index e60e9e79..c534b440 100644
+--- a/crates/brn-desktop/src/threads_ui.rs
++++ b/crates/brn-desktop/src/threads_ui.rs
+@@ -2529,7 +2529,6 @@ impl ThreadsUi {
+         };
+         self.refresh();
+         self.reload_open_note(window, cx);
+-        self.refresh_connections(cx);
+         cx.notify();
+     }
+     fn toggle_protection(&mut self, window: &mut Window, cx: &mut Context<Self>) {

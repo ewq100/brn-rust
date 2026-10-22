@@ -14,20 +14,40 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Clear outdated Connections after project membership changes
 
 Task ID: `connections-project-freshness`
-Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:01:58.614424+00:00
-Activity: Candidate c12966d0 adds only two production refresh_connections calls and one control/checked-service regression journey through Unlink, background completion and exact Undo. Final preflight corrected a moved test String and assertion ordering before any build. Independent full candidate review active; no final qualification claimed.
-Next: Finish full actual-source review. Preserve construction history, prepare one clean equivalent candidate for final qualification/publication, and use one bounded Undo-only negative control followed by final desktop/lint/ordinary-build checks; no duplicate passing focused run needed.
+Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:17:19.900377+00:00
+Activity: Independent full source review approved; equivalent final317360bd passed desktop350/0/1, strict lint, ordinary build and pinned formatting. Published ready PR216; required hosted checks running. Baseline and Undo-only negative control failures retained.
+Next: Inspect exact-head required checks and live protection/currentmain/all PRs before normal merge; compare integrated whole tree, then verify resulting-main separately. Continue independent bounded source assessment while hosted gates run.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** IMPLEMENTED frozen c12966d0; 3files,2production lines,one284line stateful regression. Pending independent review and final qualification.
-- **checks:** BASELINE meaningful FAIL0/1 at stale graph after verified revocation; prior fixture failures retained. Native/post-Unlink row observation not claimed.
-- **integration:** Pending candidate/review/checks; no publication selected yet.
+- **implementation:** PASS independent full source review c129; exact whole-tree-equivalent clean317360bd,3files2productioncalls andonejourney.
+- **checks:** PASS local desktop350/0/1 existingignored, strict all-target lint, ordinary native-ui build, direct pinned rustfmt. Meaningful pre-fix and Undo-only negative failures preserved; no native observation.
+- **integration:** Published PR216 exact317360bd; required hosted checks pending. Precedingmain10f all4required PASS; protection must be rechecked at merge.
 - **native:** Owner-deferred; no actual interaction.
 - **owner acceptance:** Preserve accepted visibility, selected scope and note bytes; no new product meaning.
+
+</details>
+
+### Check scoped reference results after Project access changes
+
+Task ID: `reference-grant-freshness-assessment`
+Owner: Bounded Luna read-only source assessment; lead disposition · State: **active** · Last observed: 2026-10-22T12:17:49.395063+00:00
+Activity: Selected one adjacent source question from the reproduced Connections revocation gap. Reuse PR204 request/draft ownership; inspect SetupDraft displayed/token guards and already displayed matches before proposing any change.
+Next: Inspect bounded source report; close with no change if existing guards suffice. Admit a separate repair only for a concrete supported stale-result or checked-operation gap.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Read-only question selected; no new product change.
+- **checks:** Source assessment only; no build/test selected.
+- **integration:** None selected.
+- **native:** No interaction; owner deferral unchanged.
+- **owner acceptance:** No new product meaning selected.
 
 </details>
 
@@ -190,6 +210,33 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no desktop access/close/launch until changed availability.
 
+### Observe Connections after Project Unlink and Undo on the Mac
+
+Task ID: `connections-native-qualification`
+Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T12:17:49.395063+00:00
+Activity: MAC14 source-bound scenario defined from the reproduced scoped-result freshness gap and reviewed/locally qualified PR216. No new app/fixture preparation or native launch selected while owner availability is unchanged.
+Next: After repair integration and required resulting-main PASS, wait for owner-reported changed availability. Reconcile current source/binary/helpers and prepare fresh checked synthetic data, then observe actual Unlink and Undo controls once.
+Depends on: connections-project-freshness when Connections repair normally merged and all four required resulting-main checks PASS. (reported satisfied: false)
+Resource waits: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Scenario defined; existing two mutation-family refresh calls in PR216.
+- **checks:** Local toolkit checks PASS on317360bd; native source/binary/fixture entry checks pending.
+- **integration:** PR216 required hosted head checks pending; normal merge and resulting-main checks still needed.
+- **native:** Owner-deferred; no actual interaction.
+- **owner acceptance:** Not claimed.
+
+</details>
+
+Waiting:
+
+- prerequisite connections-project-freshness: Connections repair normally merged and all four required resulting-main checks PASS. (reported satisfied: false; task state: active)
+- resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -343,6 +390,8 @@ graph TD
   t118["Check maintained dependency locks against current advisories"]
   t119["Assess document-helper ZIP advisories"]
   t120["Document the existing offline native-library setup"]
+  t122["Clear outdated Connections after project membership changes"]
+  t123["Observe Connections after Project Unlink and Undo on the Mac"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -360,8 +409,9 @@ graph TD
   t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
   t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
+  t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (not satisfied)| t123
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:01:58.614424+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:17:49.395063+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

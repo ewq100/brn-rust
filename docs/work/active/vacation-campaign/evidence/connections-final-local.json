@@ -1,0 +1,134 @@
+{
+  "observed_at": "2026-10-22T12:10:26.512129+00:00",
+  "candidate": "317360bd46a64c002e1dabba961de755b6226355",
+  "tree": "d8a099795028cbb84dc45f20b8e12dba5386e2f1",
+  "reviewed_tree_equal": true,
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+  "stages": [
+    {
+      "head": "317360bd46a64c002e1dabba961de755b6226355",
+      "tree": "d8a099795028cbb84dc45f20b8e12dba5386e2f1",
+      "stage": "desktop",
+      "argv": [
+        "cargo",
+        "test",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "started_at": "2026-10-22T12:07:17.749716+00:00",
+      "temporary_root": "/tmp/brn-connections-project-qualification/desktop/data",
+      "target": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "scope": "Offline synthetic toolkit/compilation only; no native observation/account/model/library acquisition.",
+      "completed_at": "2026-10-22T12:08:11.991383+00:00",
+      "seconds": 54.25048866588622,
+      "exit_code": 0,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "source_unchanged": true,
+      "log_sha256": "f56023411cd7e02c9c8cde8340b89d343adc9aca47a2aa6003bf6f5410c01ca6"
+    },
+    {
+      "head": "317360bd46a64c002e1dabba961de755b6226355",
+      "tree": "d8a099795028cbb84dc45f20b8e12dba5386e2f1",
+      "stage": "lint",
+      "argv": [
+        "cargo",
+        "clippy",
+        "-p",
+        "brn-desktop",
+        "--features",
+        "native-ui,native-test-support",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started_at": "2026-10-22T12:08:12.186088+00:00",
+      "temporary_root": "/tmp/brn-connections-project-qualification/lint/data",
+      "target": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "scope": "Offline synthetic toolkit/compilation only; no native observation/account/model/library acquisition.",
+      "completed_at": "2026-10-22T12:08:28.268727+00:00",
+      "seconds": 16.09084954112768,
+      "exit_code": 0,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "source_unchanged": true,
+      "log_sha256": "66d08e4800d725f2ab2705d070fdae08d228c0bea9ebcb16d33257c13e4e7938"
+    },
+    {
+      "head": "317360bd46a64c002e1dabba961de755b6226355",
+      "tree": "d8a099795028cbb84dc45f20b8e12dba5386e2f1",
+      "stage": "ordinary-build",
+      "argv": [
+        "cargo",
+        "build",
+        "-p",
+        "brn-desktop",
+        "--bin",
+        "brn-desktop",
+        "--features",
+        "native-ui",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "started_at": "2026-10-22T12:08:28.412152+00:00",
+      "temporary_root": "/tmp/brn-connections-project-qualification/ordinary-build/data",
+      "target": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+      "scope": "Offline synthetic toolkit/compilation only; no native observation/account/model/library acquisition.",
+      "completed_at": "2026-10-22T12:08:38.452523+00:00",
+      "seconds": 10.048766165971756,
+      "exit_code": 0,
+      "stop_reason": null,
+      "signals": [],
+      "cleanup_errors": [],
+      "group_absent": true,
+      "leader_reaped": true,
+      "source_unchanged": true,
+      "log_sha256": "cbfd8193b0f007fc502b23d573f3967edbee4d3f4fbc2ec66202738f3097ff6a"
+    }
+  ],
+  "test_counts": {
+    "passed": 350,
+    "failed": 0,
+    "ignored": 1
+  },
+  "format": "PASS pinned1.98.1 rustfmt --check --edition2024 --config skip_children=true on three changedRustfiles; no source change",
+  "format_discovery_failure": "Initial absolute Cargo invocation lacked cargo-fmt in ambient PATH and exited101(no such command fmt), before receipt assembly; no toolchain acquisition. Direct existing pinned rustfmt check used; passing stages not rerun.",
+  "binary": {
+    "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-desktop",
+    "bytes": 165987408,
+    "sha256": "a9d93b52011abdb85ebb53119aa3936e9fc5ec34c99f9e011fd8911cb72b2beb",
+    "launched": false
+  },
+  "qualified_helpers": [
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper",
+      "bytes": 131732512,
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper-brn",
+      "bytes": 131924176,
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "limits": "Toolkit/compilation only; native owner-deferred. Old pending-answer race supported by unchanged generation owner, not directly forced. Existing block0.1.6 future-Rust warning, startup debt and account failure limits retained. No new model/library/account/release actions."
+}
