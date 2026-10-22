@@ -1,0 +1,93 @@
+{
+  "observed_at": {
+    "current_time": "2026-10-22 09:57:12 UTC"
+  },
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "19e3cdc572ba4c968bbaaec01229a9d8318ec7ce",
+  "edit_sequence": 87,
+  "all_intended_exact": true,
+  "unmanaged_preserved": 38,
+  "total_blocks": 41,
+  "errors": [],
+  "operations": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "4b43e7e1117d2fae428024f6ae10d2e4d29b5b5cce8701304ba221e7a99f7cb8"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "fd70fa5042e2bc2acab48cc5a566098f5b277e5567b57ab9a5eff32e3848a023"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "cad45dc926537ca02c321355979a5a3c48c72e140d148a3b9d54a346dbf2864d"
+        }
+      ]
+    }
+  ],
+  "intended": {
+    "a37e5801-b0c8-4330-800f-13d98b10338a": "Last refreshed: **22 October 2026 at 12:57 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528": "**The privacy repair and shorter progress view are merged and checked.** [PR 212](https://github.com/ewq100/brn-rust/pull/212) prevents a private edit from becoming a general note and keeps the edit recoverable. [PR 213](https://github.com/ewq100/brn-rust/pull/213) makes startup reading shorter while keeping full task histories accessible. Both passed independent review and every required check before and after merging; the summary update also passed 190 tooling tests. Fresh privacy-test data and matching Mac app packages are now prepared and independently checked, without opening either app. The database-startup crash remains unresolved; green CI does not establish a repair. [Current work and checks](https://github.com/ewq100/brn-rust/blob/19e3cdc572ba4c968bbaaec01229a9d8318ec7ce/docs/work/overview.md).",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea": "1. Continue headless reliability work with a bounded check of dependency-advisory coverage, using existing tooling and official sources. The future Mac privacy session now has separate fresh test workspaces and matching app packages ready. Actual app opening, stale-edit controls, private-copy refusal and general-note success still need observation after you report screen access is available. No desktop access or account test is running. [Prepared artifacts and limits](https://github.com/ewq100/brn-rust/blob/19e3cdc572ba4c968bbaaec01229a9d8318ec7ce/docs/work/active/vacation-campaign/evidence/mac13-native-artifact-inventory.md)."
+  },
+  "final_sequence": 88,
+  "timestamp_correction": {
+    "clock": {
+      "current_time": "2026-10-22 09:57:31 UTC"
+    },
+    "markdown": "Last refreshed: **22 October 2026 at 12:57 Europe/Tallinn**. This is a saved progress summary, not live activity.",
+    "result": {
+      "new_sequence": 88,
+      "through_sequence": 88,
+      "operation_results": [
+        {
+          "operation_index": 0,
+          "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+          "created_block_ids": [],
+          "continuation_position": {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "relative_position_base64": "AJuY17sC/QJB"
+          },
+          "affected_blocks": [
+            {
+              "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+              "hash": "b7d36ab430a3275ee55cc79c336e8dfa42921524a9547cabb18b7736f25d0167"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "final_readback_exact": true
+}
