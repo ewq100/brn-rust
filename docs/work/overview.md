@@ -86,6 +86,27 @@ Attempts:
 
 </details>
 
+### Check passage-comment drafts across navigation and refused posting
+
+Owner: Bounded Luna read-only assessment; lead disposition · State: **active** · Last observed: 2026-10-22T02:21:23.437892+00:00
+Activity: Selected source-backed audit of unsent passage-comment anchor/body/operation across Note switching, saved-version changes and failed posting. Existing chat-composer recovery audit is supporting history, not coverage of this boundary.
+Next: Read current checked comment/draft ownership and existing tests; recommend no change unless a concrete failure or consequential gap is established. No source edit or duplicate test from static concern alone.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only assessment pending; no product candidate.
+- **checks:** No new command execution selected.
+- **integration:** Inapplicable without selected source change.
+- **native:** Deferred under existing owner availability.
+- **owner acceptance:** No owner decision selected.
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs)
+
+</details>
+
 ## Next
 
 None recorded.
@@ -323,4 +344,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:20:05.134742+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:21:23.437892+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

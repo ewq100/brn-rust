@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-22T02:21:23.386Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "2dd2f1a3",
+  "edit": {
+    "new_sequence": 65,
+    "through_sequence": 65,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "fe99d9a7f26ef60d547a87ad761a950c91a5c037fb16347eece044a3f6962f5b"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "d3bc448f6cef269dc5dacc491c5561cab82d49d6d7351a6da8af6f5a426712e3"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "8c4c43cdf1134207a8fef93ceebc58fdaaa7be5f364e2705f5dc278b4c4ae600"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "block_count": 39,
+    "changed_blocks": [
+      "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+      "30420f5a-d95d-4521-87e6-d8fc7ee085ea"
+    ],
+    "all_other_text_order_and_metadata_preserved": true
+  }
+}
