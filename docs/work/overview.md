@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved.
+**Owner attention:** No owner action needed now. Current headless changes are verified and merged; remaining listed gates are deferred. Mac interaction waits for changed availability; original app and workspaces remain preserved.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,26 +11,7 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 
 ## Working on
 
-### Keep completed history from crowding the startup summary
-
-Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:52:39.164772+00:00
-Activity: PR218 normallymerged6e9fbad7 at14:51:10 afterfreshstrictprotection/allPRs andall4requiredexact23f+preceding765PASS; docs/correctedUbuntuUI alsoPASS. Wholequalifiedtree61a1equalsmerge. Leadreconciledmain; derivative-onlyoverviewconflictregeneratedfrombyte-unchangedauthoritativeleadrecord. Resultingmainchecks pending.
-Next: Inspect allfour required6e9fbad7 resulting-main checks; preserve/diagnose anyrequired failure beforefurtherintegration. Keepactualnative andexistingaccounttestdeferrals. No newsourcewriter/build selected.
-Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: true)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS complete8a independentreview andexact23f source-identicalcompositionverification;3filesonly, recordunchanged. Leadscriptssourceidentical.
-- **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
-- **integration:** Normalprotectedmerge6e9fbad7 PASSwholequalifiedtree61a1equality. Fourrequiredhead/preceding765PASS; requiredresulting6e9checks pending. No bypass/release.
-- **native:** Inapplicable: development view only.
-- **owner acceptance:** No new product meaning or shipped behavior.
-
-</details>
+None recorded.
 
 ## Next
 
@@ -247,8 +228,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-125 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+126 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `bounded-completed-overview` — Keep the startup summary focused on current work
 - `note-exit-preservation` — Preserve live-only note typing before normal Close or Quit
 - `note-exit-native-fixture-preflight` — Prepare a short route to the future Mac Close and Quit check
 - `clean-note-exit-assessment` — Keep an already-saved clean note from blocking exit
@@ -258,7 +240,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
-- `offline-native-retrieval-guide` — Document the existing offline native-library setup
 
 ## Dependencies
 
@@ -274,17 +255,15 @@ graph TD
   t122["Clear outdated Connections after project membership changes"]
   t123["Observe Connections after Project Unlink and Undo on the Mac"]
   t127["Preserve live-only note typing before normal Close or Quit"]
-  t129["Keep completed history from crowding the startup summary"]
   t130["Observe note preservation during Mac Close and Quit"]
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
-  t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (satisfied)| t129
   t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (satisfied)| t130
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:58:43.201635+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T15:21:34.061345+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
