@@ -1,0 +1,25 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-threads-app)
+   Compiling brn-writing-ui v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-writing-ui)
+    Finished `test` profile [optimized] target(s) in 1m 00s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests examples/writing_host.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/examples/writing_host-a44e76e3a48ce4c7)
+
+running 1 test
+
+thread 'journey::note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery' (18557796) panicked at crates/brn-writing-ui/examples/writing_host/journey.rs:998:13:
+assertion failed: host.panel.open_note(&mut host.workspace, &session.note, None, window,
+        cx).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test journey::note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery ... FAILED
+
+failures:
+
+failures:
+    journey::note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-writing-ui --example writing_host`

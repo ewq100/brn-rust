@@ -86,9 +86,9 @@ Attempts:
 
 ### Keep the visible edit when Reload encounters a newer recovery generation
 
-Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:06:56.528812+00:00
-Activity: Source-backed suspected equality-shortcut gap. First extend an existing real host witness to assert ordinary Reload and note switch preserve the older visible attempt when the durable session advanced; explicit same-note Recover must remain allowed.
-Next: Run the test-only baseline once. Validate actual failure, then select the smallest shared open-note transition correction; no per-keystroke database polling or state-machine rewrite.
+Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:10:57.175186+00:00
+Activity: Actual real-host shared reopen baseline failed at the intended refusal assertion on test-only28bb965 over unchanged main207:0 passed/1 failed, exit101. The editor was replaced rather than refused. Lead selects a small checked session-generation guard at open-note replacement; no per-keystroke poll or persistence change.
+Next: Implement the shared non-explicit open-note guard after preserving input: read exact local session from checked Store and refuse closed/changed generation before replacing editor. Preserve validated explicit same-note Recover. Qualify affected independent host and production desktop wiring after independent review.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -96,12 +96,16 @@ Next: Run the test-only baseline once. Validate actual failure, then select the 
 Gates:
 
 - **implementation:** Pending bounded candidate; no production change accepted before actual reproduction/review.
-- **checks:** Pending meaningful affected checks after source freeze.
+- **checks:** Expected baseline FAIL reproduced at shared open_note same-note reload; subsequent navigation assertions await corrected source. No native claim.
 - **integration:** No PR or merge; current maintenance PR208 remains frozen.
 - **native:** No native observation; owner availability remains deferred.
 - **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs), [docs/work/active/vacation-campaign/evidence/note-reload-generation-test.md](active/vacation-campaign/evidence/note-reload-generation-test.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log)
+
+Attempts:
+
+- Expected red baseline:0 passed/1 failed, exit101 at ordinary shared reopen refusal; both hosts call this boundary.: Select only shared non-explicit replacement freshness guard. Desktop Reload menu is disabled for dirty edits; native menu reachability is not claimed by the API witness. Navigation remains a supported replacement consumer. ([docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log))
 
 </details>
 
@@ -375,4 +379,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:06:56.528812+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:10:57.175186+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

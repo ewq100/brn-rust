@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:06:56.528812+00:00",
+    "observed_at": "2026-10-22T04:10:57.175186+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3553,9 +3553,9 @@
         "title": "Explain the latest longer Mac check using completed job evidence",
         "state": "complete",
         "owner": "Bounded Luna log assessment; lead disposition",
-        "observed_at": "2026-10-22T04:00:40.584033+00:00",
+        "observed_at": "2026-10-22T04:10:57.175186+00:00",
         "origin": "observed",
-        "activity": "Completed-job comparison: main205 restored a full1.327GB exact-key cache; main206 missed the identical key and rebuilt more helpers/workspace code. Job15m57 versus30m31; workspace harness totals90.90 versus98.43seconds. Cache unavailability cause and CPU variance remain unproven.",
+        "activity": "Completed-job comparison: main205 restored a full1.327GB exact-key cache; main206 missed the identical key and rebuilt more helpers/workspace code. Job15m57 versus30m31; workspace harness totals90.90 versus98.43seconds. Cache unavailability cause and CPU variance remain unproven. Naturally subsequent main207 Mac Core job passed and restored the same exact key (1,327,307,246 bytes); no repeated-miss trigger occurred.",
         "next_action": "Keep workflow/tests unchanged. Only if a naturally occurring subsequent main Mac Core job again misses this exact key, inspect current cache availability/eviction before selecting any optimization. No forced rerun or cache operation.",
         "depends_on": [],
         "resource_waits": [],
@@ -3566,7 +3566,9 @@
           "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md",
           "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022.md",
           "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022.json",
-          "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/main207-mac-core-cache-observation.json",
+          "docs/work/active/vacation-campaign/evidence/main207-mac-core-cache-observation.log.gz"
         ],
         "gates": {
           "implementation": "Read-only diagnosis; no CI change selected.",
@@ -3633,14 +3635,23 @@
       },
       {
         "state": "active",
-        "observed_at": "2026-10-22T04:06:56.528812+00:00",
+        "observed_at": "2026-10-22T04:10:57.175186+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Expected red baseline:0 passed/1 failed, exit101 at ordinary shared reopen refusal; both hosts call this boundary.",
+            "change": "Select only shared non-explicit replacement freshness guard. Desktop Reload menu is disabled for dirty edits; native menu reachability is not claimed by the API witness. Navigation remains a supported replacement consumer.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh",
+              "docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log"
+            ]
+          }
+        ],
         "gates": {
           "implementation": "Pending bounded candidate; no production change accepted before actual reproduction/review.",
-          "checks": "Pending meaningful affected checks after source freeze.",
+          "checks": "Expected baseline FAIL reproduced at shared open_note same-note reload; subsequent navigation assertions await corrected source. No native claim.",
           "integration": "No PR or merge; current maintenance PR208 remains frozen.",
           "native": "No native observation; owner availability remains deferred.",
           "owner_acceptance": "No new consequential product choice selected."
@@ -3649,12 +3660,15 @@
         "id": "note-reload-generation-guard",
         "title": "Keep the visible edit when Reload encounters a newer recovery generation",
         "owner": "Bounded Luna test-only author; lead diagnosis; independent Sol review",
-        "activity": "Source-backed suspected equality-shortcut gap. First extend an existing real host witness to assert ordinary Reload and note switch preserve the older visible attempt when the durable session advanced; explicit same-note Recover must remain allowed.",
-        "next_action": "Run the test-only baseline once. Validate actual failure, then select the smallest shared open-note transition correction; no per-keystroke database polling or state-machine rewrite.",
+        "activity": "Actual real-host shared reopen baseline failed at the intended refusal assertion on test-only28bb965 over unchanged main207:0 passed/1 failed, exit101. The editor was replaced rather than refused. Lead selects a small checked session-generation guard at open-note replacement; no per-keystroke poll or persistence change.",
+        "next_action": "Implement the shared non-explicit open-note guard after preserving input: read exact local session from checked Store and refuse closed/changed generation before replacing editor. Preserve validated explicit same-note Recover. Qualify affected independent host and production desktop wiring after independent review.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
           "crates/brn-writing-ui/src/note.rs",
-          "crates/brn-writing-ui/examples/writing_host/journey.rs"
+          "crates/brn-writing-ui/examples/writing_host/journey.rs",
+          "docs/work/active/vacation-campaign/evidence/note-reload-generation-test.md",
+          "docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh",
+          "docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log"
         ]
       },
       {
@@ -3696,9 +3710,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:06:56.528812+00:00",
-    "runtime_capacity": "Four slots; two isolated bounded Luna author flows plus lead selected, with independent Sol review next. No nested helpers.",
-    "build_slot": "Free; lead will run note baseline first.",
+    "observed_at": "2026-10-22T04:10:57.175186+00:00",
+    "runtime_capacity": "Lead, one bounded note author and independent provider reviewer; no nested helper. Provider author frozen5d4a pending one diagnosed strict-UTF8 correction.",
+    "build_slot": "Free after note baseline intended0/1 FAIL exit101; source author may now implement selected guard.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
