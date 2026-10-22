@@ -1,0 +1,67 @@
+{
+  "observed_at": "2026-10-22 13:19:32 UTC",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "1e4b662f",
+  "edit": {
+    "new_sequence": 97,
+    "through_sequence": 97,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "fc0378487b964fce51cfcf031cfec262e84257f06f509ab22aa54546da82942a"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "d455704b7d0d11e369561d0a4bb08bfabbdd417becad1a3d2190947b4a4577b9"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "ec9a737cd5fc13276bbb032c0b84c07f63a38f31bd333069b937760cca07cf26"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "block_count": 41,
+    "unmodified_blocks_preserved": 38,
+    "title_order_kind_metadata_preserved": true,
+    "changed_block_ids": [
+      "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+      "30420f5a-d95d-4521-87e6-d8fc7ee085ea"
+    ],
+    "rendering": "Saved Markdown verified; no rendered-layout claim."
+  }
+}
