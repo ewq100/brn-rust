@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Resolve recent certificate-trust dependency advisories
 
 Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:40:38.250510+00:00
-Activity: The final four-package repair passed all eight selected local stages, including both Mac builds and optional retrieval tests. PR214 publishes the unchanged reviewed lock-only candidate; hosted checks have started. Final advisory scans remain pending after a separate checking-script failure.
-Next: Finish the reviewed audit correction and remaining exact-file scans while required PR214 checks run. Reconcile findings, live protection and exact-head/preceding-main results before normal merge; inspect resulting-main separately.
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:43:24.586018+00:00
+Activity: Final four-package repair passed all eight local stages and the exact-file audit now reports zero vulnerability matches, down from seven. PR214 required hosted checks are running. Eight maintenance notices and separate unchanged-helper ZIP findings remain visible.
+Next: Inspect PR214 exact-head checks and current protection/preceding-main, then normal merge if all required gates pass. Verify resulting-main separately; do not fold the helper ZIP assessment into this lock-only candidate.
 Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
@@ -25,30 +25,31 @@ Depends on: dependency-advisory-preflight when Official version matches and main
 Gates:
 
 - **implementation:** PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged
-- **checks:** PASS final234 frozen source/lock and cachedORT unchanged: workspace1331/0/6ignored,capability503/0/1ignored,strictlint,CLI,ordinarynative,optionalretrieval37/0,combinednative; finaladvisoryscansPENDING
+- **checks:** PASS all8localstages on234; actualfinalroot audit0vulns/8maintenance notices, versus7baseline. no-yanked/native/exploit qualification.
 - **integration:** PUBLISHED PR214 exact234956cb, Cargo.lock-only12+/12-. Requiredhead/precedingmain/protection/finalaudit disposition PENDING; no merge.
 - **native:** No native action selected; owner deferral unchanged
 - **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
 </details>
 
-### Check maintained dependency locks against current advisories
+### Assess document-helper ZIP advisories
 
-Task ID: `current-lock-advisory-scan`
-Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:39:15.502731+00:00
-Activity: The selected continuation stopped on a Git-output parser type error before any new scan. The completed baseline and all failed packets remain preserved. Independent reassessment is in progress; the remaining files are still unscanned.
-Next: Reassess the concrete parser failure and validate the actual read-only provenance paths before selecting any corrected invocation. Separately disposition the eight existing maintenance warnings; do not suppress or broadly upgrade dependencies.
+Task ID: `helper-zip-advisory-assessment`
+Owner: Independent Sol source/exposure assessment; lead disposition · State: **active** · Last observed: 2026-10-22T10:43:24.586018+00:00
+Activity: Both maintained helper locks report three advisory matches for ZIP8.6.0. A read-only source assessment is checking the actual archive APIs, platform containment and whether a proportionate repair exists. No helper change is selected yet.
+Next: Disposition exact helper extraction reachability and minimum compatible repair. Select a separate bounded change only when evidence justifies it; preserve original audit findings and avoid unreviewed major dependency churn.
+Depends on: current-lock-advisory-scan when Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (reported satisfied: true)
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** No product change; isolated official read-only audit tool selected
-- **checks:** Pending actual current DB scans; preflight is not full audit clearance
-- **integration:** No candidate/CI policy selected by this task
-- **native:** Not required; no access
-- **owner acceptance:** No changed product meaning
+- **implementation:** Read-only assessment; no product candidate selected
+- **checks:** Actual helperlockmatches3each; reachability and repair unqualified
+- **integration:** No publication/merge selected by this assessment
+- **native:** Not required for source assessment; no interaction
+- **owner acceptance:** No changed product meaning selected
 
 </details>
 
@@ -326,6 +327,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
 - `native-artifact-preparation` — Prepare a matching Mac app without opening it
 - `dependency-advisory-preflight` — Assess a proportionate dependency advisory check
+- `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
 
 ## Dependencies
 
@@ -356,6 +358,8 @@ graph TD
   t115["Observe private and public recovery-copy controls on the Mac"]
   t116["Assess a proportionate dependency advisory check"]
   t117["Resolve recent certificate-trust dependency advisories"]
+  t118["Check maintained dependency locks against current advisories"]
+  t119["Assess document-helper ZIP advisories"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -371,8 +375,9 @@ graph TD
   t107 -->|Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (satisfied)| t106
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
+  t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:40:38.250510+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:43:24.586018+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
