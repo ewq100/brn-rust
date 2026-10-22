@@ -209,3 +209,350 @@ fn knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_excepti
             .is_err()
     );
 }
+
+fn recovery_workspace() -> (tempfile::TempDir, Workspace) {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let app = Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    (root, app)
+}
+
+fn change_note(app: &mut Workspace, key: &str, id: &str, change: impl FnOnce(&mut Note)) -> Record {
+    let current = app.store.note(id).unwrap().unwrap();
+    let RecordData::Note(mut note) = current.data else {
+        panic!("expected Note")
+    };
+    change(&mut note);
+    let ApplyOutcome::Applied(receipt) = app
+        .owner_change(
+            key,
+            &ChangeRequest {
+                reason: "Synthetic recovery-copy fixture change".into(),
+                writes: vec![Put {
+                    id: id.into(),
+                    expected_version: Some(current.version),
+                    archived: false,
+                    data: RecordData::Note(note),
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap()
+    else {
+        panic!("synthetic owner change was not applied")
+    };
+    receipt.writes[0].after.clone()
+}
+
+#[test]
+fn recovery_copy_refuses_private_basis_current_source_and_captured_scope() {
+    let (_root, mut app) = recovery_workspace();
+    let note = app.new_note("Working", "General v1").unwrap();
+    let chat = app.new_thread("Private context").unwrap();
+
+    // A private historical basis stays private even after the Note is retained
+    // generally in a later version.
+    let private_v2 = change_note(&mut app, "private-v2", &note.id, |note| {
+        note.chat = Some(chat.id.clone());
+        note.markdown = "Private historical basis".into();
+    });
+    change_note(&mut app, "retain-general", &note.id, |note| {
+        note.chat = None
+    });
+    let records = app.records().unwrap();
+    let history = app.history().unwrap();
+    let error = app
+        .save_recovery_copy(
+            "private-historical-basis",
+            &note.id,
+            private_v2.version,
+            None,
+            "Recovered",
+            "private draft",
+        )
+        .unwrap_err();
+    assert!(error.to_string().contains("private work"));
+    assert_eq!(app.records().unwrap(), records);
+    assert_eq!(app.history().unwrap(), history);
+
+    // A general historical basis cannot be copied after its current source
+    // enters private scope.
+    let current_private = change_note(&mut app, "private-current", &note.id, |note| {
+        note.chat = Some(chat.id.clone());
+    });
+    let records = app.records().unwrap();
+    let history = app.history().unwrap();
+    let error = app
+        .save_recovery_copy(
+            "private-current-source",
+            &note.id,
+            note.version,
+            None,
+            "Recovered",
+            "draft from general basis",
+        )
+        .unwrap_err();
+    assert!(error.to_string().contains("private work"));
+    assert_eq!(app.records().unwrap(), records);
+    assert_eq!(app.history().unwrap(), history);
+    assert_eq!(app.store.note(&note.id).unwrap(), Some(current_private));
+
+    // A public Note opened under a private/project context still refuses the
+    // general-only action.
+    let public = app.new_note("Public in private context", "Saved").unwrap();
+    assert!(
+        app.save_recovery_copy(
+            "private-captured-context",
+            &public.id,
+            public.version,
+            Some(&chat.id),
+            "Recovered",
+            "draft in scoped context",
+        )
+        .unwrap_err()
+        .to_string()
+        .contains("private work")
+    );
+}
+
+#[test]
+fn recovery_copy_preserves_public_stale_basis_and_replays_immutable_intent() {
+    let (root, mut app) = recovery_workspace();
+    let note = app.new_note("Source", "Saved v1").unwrap();
+    let private_chat = app.new_thread("Private later source scope").unwrap();
+    let current = change_note(&mut app, "source-v2", &note.id, |note| {
+        note.markdown = "Saved v2".into();
+    });
+    let text = "õun 私密\nRecovered exact bytes\n";
+    let receipt = app
+        .save_recovery_copy(
+            "session-7:3",
+            &note.id,
+            note.version,
+            None,
+            "Recovered Source",
+            text,
+        )
+        .unwrap();
+    assert_eq!(receipt.writes.len(), 1);
+    let copy = &receipt.writes[0].after;
+    assert!(matches!(&copy.data, RecordData::Note(created)
+        if created.title == "Recovered Source" && created.markdown == text
+            && created.chat.is_none() && !created.protected && created.import.is_none()));
+    let actual = app.store.prepared(&receipt.operation).unwrap();
+    assert_eq!(
+        actual.request.inputs,
+        vec![
+            RevisionInput {
+                record: note.id.clone(),
+                version: note.version,
+                expectation: InputExpectation::Historical,
+            },
+            RevisionInput {
+                record: note.id.clone(),
+                version: current.version,
+                expectation: InputExpectation::Current,
+            },
+        ],
+        "the emitted copy request binds its old text basis and observed current source"
+    );
+
+    let same_version = app.new_note("Same-version source", "Saved once").unwrap();
+    let same_copy = app
+        .save_recovery_copy(
+            "same-version-session:1",
+            &same_version.id,
+            same_version.version,
+            None,
+            "Same-version recovery",
+            "Same-version text",
+        )
+        .unwrap();
+    let same_request = app.store.prepared(&same_copy.operation).unwrap();
+    assert_eq!(
+        same_request.request.inputs,
+        vec![
+            RevisionInput {
+                record: same_version.id.clone(),
+                version: same_version.version,
+                expectation: InputExpectation::Historical,
+            },
+            RevisionInput {
+                record: same_version.id.clone(),
+                version: same_version.version,
+                expectation: InputExpectation::Current,
+            },
+        ]
+    );
+
+    // Clone the actual service request under a fresh prepared operation. Its
+    // Current fence must reject a privacy change after preparation.
+    let race_operation = app
+        .store
+        .allocate_operation("recovery-copy-current-race")
+        .unwrap();
+    let mut race_request = actual.request.clone();
+    let race_copy_id = race_operation.creation_id(0);
+    assert_eq!(race_request.writes.len(), 1);
+    race_request.writes[0].id = race_copy_id.clone();
+    let authority = HostAuthority::owner("recovery-copy current-fence test");
+    app.store
+        .prepare_owner(&race_operation, &race_request, &authority)
+        .unwrap();
+
+    let mut independent =
+        Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    let private_source = change_note(
+        &mut independent,
+        "source-becomes-private",
+        &note.id,
+        |note| {
+            note.chat = Some(private_chat.id.clone());
+        },
+    );
+    assert_eq!(
+        app.store.note(&note.id).unwrap(),
+        Some(private_source.clone())
+    );
+    let records_before_apply = app.records().unwrap();
+    let history_before_apply = app.history().unwrap();
+    assert!(matches!(
+        app.store.apply(&race_operation, &authority).unwrap(),
+        ApplyOutcome::Stale { records } if records.contains(&note.id)
+    ));
+    assert_eq!(app.records().unwrap(), records_before_apply);
+    assert_eq!(app.history().unwrap(), history_before_apply);
+    assert_eq!(app.store.record(&race_copy_id).unwrap(), None);
+    assert_eq!(app.store.receipt(&race_operation).unwrap(), None);
+    assert_eq!(app.store.note(&note.id).unwrap(), Some(private_source));
+    drop(independent);
+    drop(app);
+
+    // Reopening and retrying the original identical intent returns its exact
+    // accepted receipt before the now-private source is revalidated.
+    let mut reopened =
+        Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    assert_eq!(
+        reopened
+            .save_recovery_copy(
+                "session-7:3",
+                &note.id,
+                note.version,
+                None,
+                "Recovered Source",
+                text,
+            )
+            .unwrap(),
+        receipt
+    );
+    assert_eq!(reopened.store.note(&copy.id).unwrap().unwrap(), *copy);
+    let records_before_changed_intent = reopened.records().unwrap();
+    let history_before_changed_intent = reopened.history().unwrap();
+    assert!(
+        reopened
+            .save_recovery_copy(
+                "session-7:3",
+                &note.id,
+                note.version,
+                None,
+                "Recovered Source",
+                "changed intent",
+            )
+            .is_err()
+    );
+    assert_eq!(reopened.records().unwrap(), records_before_changed_intent);
+    assert_eq!(reopened.history().unwrap(), history_before_changed_intent);
+}
+
+#[test]
+fn recovery_copy_fails_closed_for_missing_wrong_kind_archived_and_superseded_basis() {
+    let (_root, mut app) = recovery_workspace();
+    let note = app.new_note("Source", "Saved").unwrap();
+    let thread = app.new_thread("Not a Note").unwrap();
+    let cases = [
+        ("missing-source", "missing-note", 1),
+        ("missing-basis", note.id.as_str(), 99),
+        ("wrong-kind", thread.id.as_str(), thread.version),
+    ];
+    for (key, source, version) in cases {
+        let records = app.records().unwrap();
+        let history = app.history().unwrap();
+        assert!(
+            app.save_recovery_copy(key, source, version, None, "Recovered", "draft")
+                .is_err()
+        );
+        assert_eq!(app.records().unwrap(), records);
+        assert_eq!(app.history().unwrap(), history);
+    }
+
+    let current = app.store.note(&note.id).unwrap().unwrap();
+    let replacement = app.new_note("Replacement", "Current source").unwrap();
+    let mut retired = current.clone();
+    let RecordData::Note(note_data) = &mut retired.data else {
+        panic!("expected Note")
+    };
+    note_data.superseded_by = Some(replacement.id);
+    let ApplyOutcome::Applied(_) = app
+        .owner_change(
+            "supersede-source",
+            &ChangeRequest {
+                reason: "Synthetic supersession".into(),
+                writes: vec![Put {
+                    id: note.id.clone(),
+                    expected_version: Some(current.version),
+                    archived: false,
+                    data: retired.data,
+                }],
+                inputs: vec![],
+            },
+        )
+        .unwrap()
+    else {
+        panic!("synthetic supersession was not applied")
+    };
+    let records = app.records().unwrap();
+    let history = app.history().unwrap();
+    assert!(
+        app.save_recovery_copy(
+            "superseded-source",
+            &note.id,
+            current.version,
+            None,
+            "Recovered",
+            "draft",
+        )
+        .is_err()
+    );
+    assert_eq!(app.records().unwrap(), records);
+    assert_eq!(app.history().unwrap(), history);
+
+    let archived = app.new_note("Archived source", "Saved").unwrap();
+    app.owner_change(
+        "archive-source",
+        &ChangeRequest {
+            reason: "Synthetic archive".into(),
+            writes: vec![Put {
+                id: archived.id.clone(),
+                expected_version: Some(archived.version),
+                archived: true,
+                data: archived.data.clone(),
+            }],
+            inputs: vec![],
+        },
+    )
+    .unwrap();
+    let records = app.records().unwrap();
+    let history = app.history().unwrap();
+    assert!(
+        app.save_recovery_copy(
+            "archived-source",
+            &archived.id,
+            archived.version,
+            None,
+            "Recovered",
+            "draft",
+        )
+        .is_err()
+    );
+    assert_eq!(app.records().unwrap(), records);
+    assert_eq!(app.history().unwrap(), history);
+}

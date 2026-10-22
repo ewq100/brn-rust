@@ -2,6 +2,7 @@ use crate::*;
 use std::collections::BTreeSet;
 
 const ADDRESSED_ROLE: &str = "writing-addressed";
+const PRIVATE_RECOVERY_COPY_UNAVAILABLE: &str = "This edit belongs to private work. It remains recoverable; saving a separate private copy is not available here.";
 /// Saved feedback and derived explicit-owner addressed state.
 #[derive(Debug, Clone)]
 pub struct WritingComment {
@@ -45,6 +46,95 @@ pub struct ActiveWritingContext {
     pub conversation: Option<String>,
 }
 impl Workspace {
+    /// Save the owner's visible recovery text as a general working Note.
+    /// Private historical/current sources and captured scoped contexts are
+    /// refused; stale general text retains its historical provenance while
+    /// the current source version fences the write.
+    pub fn save_recovery_copy(
+        &mut self,
+        key: &str,
+        source: &str,
+        basis_version: u64,
+        captured_scope: Option<&str>,
+        title: &str,
+        markdown: &str,
+    ) -> AppResult<Receipt> {
+        let operation = self.writing_operation(
+            "recovery-copy",
+            key,
+            (source, basis_version, captured_scope, title, markdown),
+        )?;
+        if let Some(receipt) = self.writing_replay(&operation)? {
+            return Ok(receipt);
+        }
+        if captured_scope.is_some() {
+            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
+        }
+        let basis = self
+            .store
+            .revision(source, basis_version)?
+            .ok_or_else(|| AppError::Invalid("The saved note basis is unavailable".into()))?;
+        let RecordData::Note(basis_note) = &basis.data else {
+            return Err(AppError::Invalid(
+                "The saved note basis is unavailable".into(),
+            ));
+        };
+        if basis.archived || basis_note.superseded_by.is_some() {
+            return Err(AppError::Invalid(
+                "The saved note basis is unavailable".into(),
+            ));
+        }
+        if basis_note.chat.is_some() {
+            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
+        }
+        let current = self
+            .store
+            .record(source)?
+            .ok_or_else(|| AppError::Invalid("The saved note is unavailable".into()))?;
+        let RecordData::Note(current_note) = &current.data else {
+            return Err(AppError::Invalid("The saved note is unavailable".into()));
+        };
+        if current.archived || current_note.superseded_by.is_some() {
+            return Err(AppError::Invalid("The saved note is unavailable".into()));
+        }
+        if current_note.chat.is_some() {
+            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
+        }
+        if !self.store.record_visible_in_chat(source, None)?
+            || !self
+                .store
+                .revision_visible_in_chat(source, basis_version, None)?
+        {
+            return Err(AppError::Invalid(
+                "The saved note is unavailable in general context".into(),
+            ));
+        }
+        self.writing_commit(
+            &operation,
+            ChangeRequest {
+                reason: "Owner saved a general recovery copy of a working Note".into(),
+                writes: vec![Put {
+                    id: operation.creation_id(0),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Note(Note::working(title, markdown)),
+                }],
+                inputs: vec![
+                    RevisionInput {
+                        record: source.into(),
+                        version: basis_version,
+                        expectation: InputExpectation::Historical,
+                    },
+                    RevisionInput {
+                        record: source.into(),
+                        version: current.version,
+                        expectation: InputExpectation::Current,
+                    },
+                ],
+            },
+        )
+    }
+
     pub fn active_writing_context(
         &self,
         note: &str,
