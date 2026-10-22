@@ -22,7 +22,7 @@ mod review;
 pub use review::ReviewLifecycle;
 #[path = "note.rs"]
 mod note;
-pub use note::{NoteDiscard, NoteLifecycle, OpenNote};
+pub use note::{NoteDiscard, NoteExitSnapshot, NoteLifecycle, OpenNote};
 
 gpui_kit::actions!(
     brn_threads,
