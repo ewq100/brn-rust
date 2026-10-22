@@ -16,6 +16,7 @@ use std::{
 /// Calls kept per trace; later calls only increase `dropped_calls`.
 pub const MAX_CALLS: usize = 256;
 const MAX_IDS: usize = 100;
+const OTHER_PREPARATION_REFUSAL: &str = "Other checked preparation refusal.";
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -392,10 +393,16 @@ impl TraceCollector {
                     let reason = value
                         .get("reason")
                         .and_then(Value::as_str)
-                        .unwrap_or("")
-                        .chars()
-                        .take(256)
-                        .collect::<String>();
+                        .filter(|reason| {
+                            matches!(
+                                *reason,
+                                "request_key is already bound to different exact-edit arguments; use a fresh key."
+                                    | "The Note version changed; read the current passage and use a fresh request_key."
+                                    | "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+                                    | "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note."
+                            )
+                        })
+                        .unwrap_or(OTHER_PREPARATION_REFUSAL);
                     json!({"outcome":"Invalid", "reason":reason})
                 }
                 _ => value
@@ -666,7 +673,7 @@ mod tests {
     }
 
     #[test]
-    fn precise_edit_trace_projects_prepared_operation_and_bounded_invalid_reason() {
+    fn precise_edit_trace_projects_prepared_operation_and_static_invalid_reasons_only() {
         assert_eq!(
             TraceCollector::result(
                 "prepare_note_edit",
@@ -678,21 +685,42 @@ mod tests {
             ),
             json!({"operation":"op-private-id"})
         );
+        let known_reasons = [
+            "request_key is already bound to different exact-edit arguments; use a fresh key.",
+            "The Note version changed; read the current passage and use a fresh request_key.",
+            "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted.",
+            "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note.",
+        ];
+        for reason in known_reasons {
+            assert_eq!(
+                TraceCollector::result(
+                    "prepare_note_edit",
+                    Some(&json!({"outcome":"Invalid", "reason":reason,
+                        "request_key":"private-key", "expected_text":"private passage"})),
+                ),
+                json!({"outcome":"Invalid", "reason":reason})
+            );
+        }
+        for reason in [
+            Some("note private-id already has an active candidate"),
+            Some("private dynamic preparation failure"),
+            None,
+        ] {
+            let result = reason.map_or_else(
+                || json!({"outcome":"Invalid"}),
+                |reason| json!({"outcome":"Invalid", "reason":reason}),
+            );
+            assert_eq!(
+                TraceCollector::result("prepare_note_edit", Some(&result)),
+                json!({"outcome":"Invalid", "reason":"Other checked preparation refusal."})
+            );
+        }
         assert_eq!(
             TraceCollector::result(
                 "prepare_note_edit",
-                Some(
-                    &json!({"outcome":"Invalid", "reason":"static host rejection",
-                    "request_key":"private-key", "expected_text":"private passage"})
-                ),
+                Some(&json!({"outcome":"Invalid", "reason":{"private":"payload"}})),
             ),
-            json!({"outcome":"Invalid", "reason":"static host rejection"})
+            json!({"outcome":"Invalid", "reason":"Other checked preparation refusal."})
         );
-        let long_reason = "é".repeat(300);
-        let projected = TraceCollector::result(
-            "prepare_note_edit",
-            Some(&json!({"outcome":"Invalid", "reason":long_reason})),
-        );
-        assert_eq!(projected["reason"].as_str().unwrap().chars().count(), 256);
     }
 }
