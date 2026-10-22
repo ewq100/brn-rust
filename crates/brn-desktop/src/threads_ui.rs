@@ -4834,36 +4834,7 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                         view
                     });
                     view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
-                    let weak = view.downgrade();
-                    window.on_window_should_close(cx, move |_, cx| {
-                        let _ = weak.update(cx, |this, _| {
-                            if let Some(worker) = this.worker.as_mut() {
-                                worker.discard_continuation();
-                            }
-                            if let Some(worker) = &this.worker {
-                                worker.cancel.cancel();
-                                worker
-                                    .conversion_cancel
-                                    .store(true, std::sync::atomic::Ordering::SeqCst);
-                            }
-                        });
-                        true
-                    });
-                    let quit_view = view.downgrade();
-                    cx.on_action::<Quit>(move |_, cx| {
-                        let _ = quit_view.update(cx, |this, _| {
-                            if let Some(worker) = this.worker.as_mut() {
-                                worker.discard_continuation();
-                            }
-                            if let Some(worker) = &this.worker {
-                                worker.cancel.cancel();
-                                worker
-                                    .conversion_cancel
-                                    .store(true, std::sync::atomic::Ordering::SeqCst);
-                            }
-                        });
-                        cx.quit();
-                    });
+                    install_exit_handlers(window, cx, view.downgrade());
                     cx.new(|cx| Root::new(view, window, cx))
                 },
             )
@@ -4871,6 +4842,128 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
             cx.activate(true);
         });
     Ok(())
+}
+
+fn install_exit_handlers(window: &Window, cx: &mut App, view: gpui_kit::WeakEntity<ThreadsUi>) {
+    let close_view = view.clone();
+    window.on_window_should_close(cx, move |window, cx| {
+        close_view
+            .update(cx, |this, cx| {
+                this.request_exit(ExitKind::Window, window, cx)
+            })
+            .unwrap_or(true)
+    });
+    let handle = window.window_handle();
+    cx.on_action::<Quit>(move |_, cx| {
+        let view = view.clone();
+        // Keyboard action dispatch still owns this window. Wait until it is
+        // returned to the App before entering the same exit admission as Close.
+        cx.defer(move |cx| {
+            if cx
+                .update_window(handle, |_, window, cx| {
+                    let admitted = view
+                        .update(cx, |this, cx| {
+                            this.request_exit(ExitKind::Application, window, cx)
+                        })
+                        .unwrap_or(true);
+                    if admitted {
+                        cx.quit();
+                    }
+                })
+                .is_err()
+            {
+                cx.quit();
+            }
+        });
+    });
+}
+
+#[derive(Clone, Copy)]
+enum ExitKind {
+    Window,
+    Application,
+}
+impl ExitKind {
+    fn finish(self, window: &mut Window, cx: &mut App) {
+        match self {
+            Self::Window => window.remove_window(),
+            Self::Application => cx.quit(),
+        }
+    }
+}
+impl ThreadsUi {
+    fn cancel_for_exit(&mut self) {
+        if let Some(worker) = self.worker.as_mut() {
+            worker.discard_continuation();
+        }
+        if let Some(worker) = &self.worker {
+            worker.cancel.cancel();
+            worker
+                .conversion_cancel
+                .store(true, std::sync::atomic::Ordering::SeqCst);
+        }
+    }
+    fn request_exit(
+        &mut self,
+        kind: ExitKind,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        match self.writing.preserve_note_for_exit(&mut self.workspace, cx) {
+            Ok(()) => {
+                self.cancel_for_exit();
+                true
+            }
+            Err(error) => {
+                self.fail(format!("Could not keep the latest note text: {error}"));
+                self.confirm_local_discard_and_exit(kind, window, cx);
+                cx.notify();
+                false
+            }
+        }
+    }
+    fn confirm_local_discard_and_exit(
+        &mut self,
+        kind: ExitKind,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(snapshot) = self.writing.note_exit_snapshot(cx) else {
+            return;
+        };
+        let target = cx.entity().downgrade();
+        self.open_dialog(window, cx, move |dialog, _, _| {
+            let target = target.clone();
+            let snapshot = snapshot.clone();
+            components::consequence_dialog(
+                dialog,
+                "note-exit",
+                "Leave without keeping the latest note text?",
+                "Cancel to keep this window open and copy or resolve your edit. Discarding loses only the text still held in this window. Saved notes and other kept edits stay unchanged. This cannot be undone.",
+                match kind {
+                    ExitKind::Window => "Discard and close",
+                    ExitKind::Application => "Discard and quit",
+                },
+                std::rc::Rc::new(move |window, cx| {
+                    let target = target.clone();
+                    let snapshot = snapshot.clone();
+                    // The consequence dialog closes before deferred teardown.
+                    // Recheck intent at that final boundary; never install a bypass.
+                    window.defer(cx, move |window, cx| {
+                        let _ = target.update(cx, |this, cx| {
+                            if !this.writing.note_exit_snapshot_current(&snapshot, cx) {
+                                this.warn("The note changed after this exit request. Your current text is kept open; close or quit again to reconsider.");
+                                cx.notify();
+                                return;
+                            }
+                            this.cancel_for_exit();
+                            kind.finish(window, cx);
+                        });
+                    });
+                }),
+            )
+        });
+    }
 }
 
 #[cfg(test)]
