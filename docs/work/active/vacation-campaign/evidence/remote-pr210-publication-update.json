@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-22T05:47:19.232Z",
+  "source_commit": "0cb49a27",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "new_sequence": 77,
+  "managed_blocks": [
+    "a37e5801-b0c8-4330-800f-13d98b10338a",
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea"
+  ],
+  "block_count": 40,
+  "unrelated_preserved": 37,
+  "readback_verified": true,
+  "edit": {
+    "new_sequence": 77,
+    "through_sequence": 77,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "10ea2c5c702eedfcfe8f99bcd3178ace08c1830dec8b20d4bd927170c8ed6821"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "5d2944f553ed4c528b8952c8fea4a64bb753d4e2ff8971e604a6bb4a2721fc2e"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "bd7977130507a30d92abacb6345d418076f6b167702ca70046973289aa9232e2"
+          }
+        ]
+      }
+    ]
+  }
+}

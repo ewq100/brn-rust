@@ -9,52 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Keep the visible edit when Reload encounters a newer recovery generation
-
-Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T05:17:25.342789+00:00
-Activity: PR209 exact dfe4 passed all four required head and preceding-main208 checks plus live protection. Normally merged as 5fab84d87f2cff3bc03f40fa5987c1fe73be98ab; whole qualified candidate tree equals actual main209. Resulting-main run39726448605 still in progress; three optional Windows failures remain visible.
-Next: Inspect all four required resulting-main209 checks separately; retain actual preview step outcomes. Do not rerun unchanged local checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS independent complete3file d521 review; current session checked only before non-explicit replacement; explicit same-note Recover retained.
-- **checks:** PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.
-- **integration:** MERGED normally 5fab84d8 after exact head/preceding-main/live protection PASS; resulting-main209 pending.
-- **native:** No native observation; owner availability remains deferred.
-- **owner acceptance:** No new consequential product choice selected.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs), [docs/work/active/vacation-campaign/evidence/note-reload-generation-test.md](active/vacation-campaign/evidence/note-reload-generation-test.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log), [docs/work/active/vacation-campaign/evidence/note-reload-generation-implementation.md](active/vacation-campaign/evidence/note-reload-generation-implementation.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-review.md](active/vacation-campaign/evidence/note-reload-generation-review.md), [docs/work/active/vacation-campaign/evidence/note-reload-generation-final.sh](active/vacation-campaign/evidence/note-reload-generation-final.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-final.log](active/vacation-campaign/evidence/note-reload-generation-final.log), [docs/work/active/vacation-campaign/evidence/note-reload-generation-qualification.json](active/vacation-campaign/evidence/note-reload-generation-qualification.json), [docs/work/active/vacation-campaign/evidence/note-reload-generation-format-attempts.md](active/vacation-campaign/evidence/note-reload-generation-format-attempts.md), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md](active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh](active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log](active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json](active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/pr209-publication.json](active/vacation-campaign/evidence/pr209-publication.json), [docs/work/active/vacation-campaign/evidence/pr209-premerge.json](active/vacation-campaign/evidence/pr209-premerge.json), [docs/work/active/vacation-campaign/evidence/pr209-integration.json](active/vacation-campaign/evidence/pr209-integration.json)
-
-Attempts:
-
-- Expected red baseline:0 passed/1 failed, exit101 at ordinary shared reopen refusal; both hosts call this boundary.: Select only shared non-explicit replacement freshness guard. Desktop Reload menu is disabled for dirty edits; native menu reachability is not claimed by the API witness. Navigation remains a supported replacement consumer. ([docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.sh](active/vacation-campaign/evidence/note-reload-generation-baseline.sh), [docs/work/active/vacation-campaign/evidence/note-reload-generation-baseline.log](active/vacation-campaign/evidence/note-reload-generation-baseline.log))
-
-</details>
-
-### Bound the synthetic provider stderr fixture and retain owned-child cleanup
-
-Owner: Bounded Luna test-only author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:17:25.342789+00:00
-Activity: PR209 exact dfe4 passed all four required head and preceding-main208 checks plus live protection. Normally merged as 5fab84d87f2cff3bc03f40fa5987c1fe73be98ab; whole qualified candidate tree equals actual main209. Resulting-main run39726448605 still in progress; three optional Windows failures remain visible.
-Next: Inspect all four required resulting-main209 checks separately; retain actual preview step outcomes. Do not rerun unchanged local checks.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS independent complete final a6b6 review; initial UTF8 P2 valid/fixed. Output cap is accepted/read output after exit, not hard live disk growth.
-- **checks:** PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.
-- **integration:** MERGED normally 5fab84d8 after exact head/preceding-main/live protection PASS; resulting-main209 pending.
-- **native:** No native observation; owner availability remains deferred.
-- **owner acceptance:** No new consequential product choice selected.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md](active/vacation-campaign/evidence/test-child-readiness-audit.md), [crates/brn-ai/src/provider_stderr_tests.rs](../../crates/brn-ai/src/provider_stderr_tests.rs), [crates/brn-ai/src/skill_packages_tests.rs](../../crates/brn-ai/src/skill_packages_tests.rs), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-implementation.md](active/vacation-campaign/evidence/provider-test-child-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-initial-review.md](active/vacation-campaign/evidence/provider-test-child-bounds-initial-review.md), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final-review.md](active/vacation-campaign/evidence/provider-test-child-bounds-final-review.md), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-negative.py](active/vacation-campaign/evidence/provider-test-child-bounds-negative.py), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-negative.patch](active/vacation-campaign/evidence/provider-test-child-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-negative.log](active/vacation-campaign/evidence/provider-test-child-bounds-negative.log), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-negative-receipt.json](active/vacation-campaign/evidence/provider-test-child-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-negative-driver.log](active/vacation-campaign/evidence/provider-test-child-bounds-negative-driver.log), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final.sh](active/vacation-campaign/evidence/provider-test-child-bounds-final.sh), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final.log](active/vacation-campaign/evidence/provider-test-child-bounds-final.log), [docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-qualification.json](active/vacation-campaign/evidence/provider-test-child-bounds-qualification.json), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md](active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh](active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log](active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log), [docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json](active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/pr209-publication.json](active/vacation-campaign/evidence/pr209-publication.json), [docs/work/active/vacation-campaign/evidence/pr209-premerge.json](active/vacation-campaign/evidence/pr209-premerge.json), [docs/work/active/vacation-campaign/evidence/pr209-integration.json](active/vacation-campaign/evidence/pr209-integration.json)
-
-</details>
-
 ### Read saved Settings without decoding every note
 
 Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:44:12.858586+00:00
@@ -79,6 +33,28 @@ Attempts:
 - PASS exit0 in260.51s, actualsuitecounts219+77+344;2intentionalignored/3outsidefiltered retained, sourceunchanged/groupabsent/reaped; lint/build/fmtPASS. No workload repeat.: Execute approved unchanged eae candidate once under finite process-group/disk/deadline guards. No fixture overlay, extra model/account/native actor or automatic repeat. ([docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md))
 - FAILED qualification: childexit0/zero tests/348filtered, no sample; supervisor1/qualifiedfalse, sourceclean/groupabsent/reaped. No refresh workload ran.: Exact reviewed diagnostic88c61 childofproducteae, identical104linefixture/SHA832d9e; adaptersbbcf13cb/d07cd8c2. Priorbaselinebe97/main208 vsnewmain209base differ; no controlled causal or native claim. No automatic repeat. Preserved first failure; diagnose sharedtarget source-identity mismatch, propose scoped desktoppackage clean before same one actual diagnostic. ([docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py))
 - PASS correctedinvocation0; actualdesktopcompile47.72s +1test/0fail, sameprofiledimensions,67,079us. Ownedgroupabsent/reaped/noerrors/clean88c61. Onlyone actualchanged-source sample; no repeat.: Approved2c861cb0/7caae4f9 adapters clean onlymutable brn-desktop package artifacts, retaining core/app exacteae libraries/frozen appbundles/fixtures/source. Same88c61 fixture andsample; no automaticthirdretry or latencytarget. ([docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py))
+
+</details>
+
+### Keep shared build-cache use focused on Mac and Linux
+
+Owner: Bounded Luna small CI author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T05:55:19.201831+00:00
+Activity: Selected one composite-action cache condition change after repeated actualMac cachemiss diagnosis. OptionalWindows jobs remain enabled but stop using/updating sharedRustcache; Mac/Linux cache behavior and every requiredcheck stay unchanged. No cachedeletion/paidlimit change.
+Next: Prepare one small reviewed CI-onlycandidate from approvedeae in clean reusableexport-durability checkout, preserve priorfrozenbranch/artifact. Validate YAML/existingaffectedPython; no localRustreplay. Hold publication until parentPR210 integrates/currentmain reconciles.
+Depends on: indexed-settings-read-reuse when Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (reported satisfied: false)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** One action condition/comment selected; no source/configcandidate yet.
+- **checks:** PendingYAML/existingPython; Rustsource unchanged, no redundantlocalRustchecks.
+- **integration:** Pending completeindependentreview/qualification, parent210integration, liveprotection/exacthead/precedingmain then resultingmain.
+- **native:** No native interaction selected.
+- **owner acceptance:** No new paid/productdecision selected; ownerMacfirst and Windowsqualification deferred.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md](active/vacation-campaign/evidence/ci-cache-scope-selection.md), [docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md](active/vacation-campaign/evidence/main209-mac-core-assessment.md), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml)
 
 </details>
 
@@ -297,6 +273,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
 - `test-child-readiness-audit` — Find remaining unbounded owned-child waits in deterministic tests
 - `note-lifecycle-transition-audit` — Check note switching and recovery for unsaved-work loss
+- `note-reload-generation-guard` — Keep the visible edit when Reload encounters a newer recovery generation
+- `provider-test-child-bounds` — Bound the synthetic provider stderr fixture and retain owned-child cleanup
 - `public-backup-interruption-preflight` — Assess whether a public backup interrupted during copying needs a distinct witness
 - `public-cli-backup-interruption` — Qualify a public backup interrupted while copying
 - `derived-index-recovery-audit` — Inspect recovery of damaged or stale derived search indexes
@@ -326,6 +304,8 @@ graph TD
   t75["Assess one owner for reference-search cancellation and freshness"]
   t76["Keep a queued-message edit attached to its original chat"]
   t80["Keep previous knowledge findings out of a replacement check"]
+  t101["Read saved Settings without decoding every note"]
+  t103["Keep shared build-cache use focused on Mac and Linux"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -337,8 +317,9 @@ graph TD
   t74 -->|Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks. (satisfied)| t75
   t75 -->|Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required. (satisfied)| t76
   t76 -->|Desktop batch204 normally integrated42906128 and current main reconciled; publication tree equality verified. (satisfied)| t80
+  t101 -->|Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (not satisfied)| t103
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:44:12.858586+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T05:55:19.201831+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
