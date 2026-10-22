@@ -3741,6 +3741,10 @@ async fn b3_delayed_scoped_search_reply_cannot_publish_titles_or_counts_into_ano
             assert!(view.writing.setup.as_ref().unwrap().search_pending);
             let replacement_query = view.writing.setup.as_ref().unwrap().search_query.clone();
             view.finish_reference_search(generation, target, observed, Ok(page), cx);
+            assert!(
+                view.reference_search.cancel.is_some(),
+                "a stale reply cannot cancel the replacement request"
+            );
             assert!(view.writing.setup.as_ref().unwrap().matches.is_empty());
             assert_eq!(view.writing.setup.as_ref().unwrap().match_total, 0);
             assert!(
