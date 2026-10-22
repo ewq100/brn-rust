@@ -573,7 +573,7 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
     assert!(listed[0]["guide_identity"]
         .as_str()
         .unwrap()
-        .starts_with("brn-threads-guidance-17:"));
+        .starts_with("brn-threads-guidance-19:"));
     assert!(listed[0]["loaded_skill_details"]
         .as_array()
         .unwrap()

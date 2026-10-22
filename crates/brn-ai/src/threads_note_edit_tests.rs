@@ -13,13 +13,39 @@ fn args(
     EditArgs {
         id: note.into(),
         version,
-        start,
-        end: start + expected.len(),
+        start: Some(start),
+        end: Some(start + expected.len()),
         expected_text: expected.into(),
         replacement_text: replacement.into(),
         request_key: key.into(),
         reason: "Correct the exact local passage".into(),
     }
+}
+fn quote_args(note: &str, version: u64, quote: &str, replacement: &str, key: &str) -> EditArgs {
+    EditArgs {
+        id: note.into(),
+        version,
+        start: None,
+        end: None,
+        expected_text: quote.into(),
+        replacement_text: replacement.into(),
+        request_key: key.into(),
+        reason: "Correct the exact local passage".into(),
+    }
+}
+fn legacy_binding(args: &EditArgs) -> String {
+    use sha2::{Digest, Sha256};
+    let Some(start) = args.start else { panic!("legacy binding needs a range") };
+    let Some(end) = args.end else { panic!("legacy binding needs a range") };
+    let bytes = format!(
+        "{{\"id\":{},\"version\":{},\"start\":{},\"end\":{},\"expected_text\":{},\"replacement_text\":{},\"request_key\":{},\"reason\":{}}}",
+        serde_json::to_string(&args.id).unwrap(), args.version, start, end,
+        serde_json::to_string(&args.expected_text).unwrap(),
+        serde_json::to_string(&args.replacement_text).unwrap(),
+        serde_json::to_string(&args.request_key).unwrap(),
+        serde_json::to_string(&args.reason).unwrap(),
+    );
+    format!("{:x}", Sha256::digest(bytes.as_bytes()))
 }
 fn owner_note(request: &ThreadRunRequest, note: &str, data: Note) -> Record {
     let mut store = Store::open(&request.data_dir).unwrap();
@@ -174,7 +200,12 @@ fn large_note_local_edit_preserves_exact_bytes_metadata_and_incomplete_coverage_
         "Tuesday",
         "local",
     );
+    let legacy_op = scope.store.lock().unwrap().allocate_bound_operation(
+        &format!("{}:note-edit:{}", scope.run, edit.request_key),
+        &legacy_binding(&edit),
+    ).unwrap();
     let prepared = prepare_edit(&scope, edit.clone()).unwrap();
+    assert_eq!(prepared["operation"], legacy_op.as_str());
     assert!(context_budget::result_fits(&prepared));
     assert!(!prepared.to_string().contains("Suffix"));
     assert_eq!(
@@ -249,6 +280,114 @@ fn repeated_unicode_passage_changes_only_exact_occurrence_and_allows_deletion() 
     );
 }
 #[test]
+fn unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping_matches() {
+    let (_root, request, note) = tests::fixture();
+    let before = owner_note(
+        &request,
+        &note,
+        Note::working("Decision", "Ω lead\r\nMonday\r\ntail aaa"),
+    );
+    let (scope, _) = begin(&request).unwrap();
+    let sliced = read_note(
+        &scope,
+        ReadNoteArgs {
+            id: note.clone(),
+            version: before.version,
+            start: "Ω lead\r\n".len(),
+            max_bytes: 6,
+            section: false,
+        },
+    )
+    .unwrap();
+    assert_eq!(sliced["note"]["markdown"], "Monday");
+    assert!(!scope.reads.lock().unwrap().knows(&note, before.version));
+    assert_eq!(
+        prepare_edit(
+            &scope,
+            args(&note, before.version, 0, "Monday", "Wrong", "no-fallback"),
+        )
+        .unwrap()["outcome"],
+        "Invalid",
+        "an incorrect integer range must not activate unique-quote selection"
+    );
+    let prepared = prepare_edit(
+        &scope,
+        quote_args(&note, before.version, "Monday", "Tuesday", "unique"),
+    )
+    .unwrap();
+    assert_eq!(
+        prepare_edit(
+            &scope,
+            quote_args(&note, before.version, "Monday", "WED", "unique"),
+        )
+        .unwrap()["outcome"],
+        "Invalid",
+        "changing a prepared selector requires a fresh key"
+    );
+    assert_eq!(apply_op(&scope, &prepared)["outcome"], "Applied");
+    assert!(!scope.reads.lock().unwrap().knows(&note, before.version + 1));
+    assert_eq!(
+        prepare_edit(
+            &scope,
+            quote_args(&note, before.version, "Monday", "Tuesday", "unique"),
+        )
+        .unwrap(),
+        prepared,
+        "a prepared null-selector edit replays before reading later canonical text"
+    );
+    assert!(!scope.reads.lock().unwrap().knows(&note, before.version + 1));
+    assert!(matches!(current(&scope, &note).data, RecordData::Note(n) if n.markdown == "Ω lead\r\nTuesday\r\ntail aaa"));
+    let after = current(&scope, &note);
+    for (quote, key) in [("absent", "missing"), ("aa", "overlap")] {
+        let result = prepare_edit(
+            &scope,
+            quote_args(&note, after.version, quote, "X", key),
+        )
+        .unwrap();
+        assert_eq!(result["outcome"], "Invalid");
+        assert!(result.get("operation").is_none());
+    }
+    assert_eq!(current(&scope, &note), after);
+}
+#[test]
+fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guard() {
+    use serde_json::json;
+    let mut raw = serde_json::to_value(args("n", 1, 0, "x", "y", "k")).unwrap();
+    assert!(note_edit::validate_arguments(&raw).is_ok());
+    raw.as_object_mut().unwrap().remove("start");
+    assert!(serde_json::from_value::<EditArgs>(raw.clone()).is_err());
+    assert!(note_edit::validate_arguments(&raw).is_err());
+    let mut no_end = serde_json::to_value(args("n", 1, 0, "x", "y", "k")).unwrap();
+    no_end.as_object_mut().unwrap().remove("end");
+    assert!(serde_json::from_value::<EditArgs>(no_end.clone()).is_err());
+    assert!(note_edit::validate_arguments(&no_end).is_err());
+    raw["start"] = json!(null);
+    raw["end"] = json!(1);
+    assert!(note_edit::validate_arguments(&raw).is_err());
+    raw["end"] = json!(null);
+    raw["expected_text"] = json!("");
+    assert!(note_edit::validate_arguments(&raw).is_err());
+    let schema = note_edit::schema();
+    assert_eq!(schema["required"].as_array().unwrap().len(), 8);
+    assert_eq!(schema["properties"]["start"]["type"], json!(["integer", "null"]));
+
+    let (_root, request, note) = tests::fixture();
+    let record = owner_note(&request, &note, Note::working("Decision", "Monday"));
+    let (scope, _) = begin(&request).unwrap();
+    assert_eq!(
+        prepare_edit(&scope, quote_args(&note, record.version, "Monday", "Tuesday", "whole"))
+            .unwrap()["outcome"],
+        "Invalid"
+    );
+    complete_read(&scope, &note, record.version);
+    let prepared = prepare_edit(
+        &scope,
+        quote_args(&note, record.version, "Monday", "Tuesday", "whole-read"),
+    )
+    .unwrap();
+    assert_eq!(prepared["operation"].is_string(), true);
+}
+#[test]
 fn wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate() {
     let (_root, request, note) = tests::fixture();
     let before = owner_note(&request, &note, Note::working("Decision", "Ω echo echo"));
@@ -268,11 +407,10 @@ fn wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_r
 }
 #[test]
 fn bound_arguments_conflict_even_before_prepare_and_after_success() {
-    use sha2::{Digest, Sha256};
     let (_root, request, note) = tests::fixture();
     let (scope, _) = begin(&request).unwrap();
     let edit = args(&note, 1, 0, "Mon", "Tues", "allocation-gap");
-    let binding = format!("{:x}", Sha256::digest(serde_json::to_vec(&edit).unwrap()));
+    let binding = legacy_binding(&edit);
     let op = scope
         .store
         .lock()
@@ -291,6 +429,18 @@ fn bound_arguments_conflict_even_before_prepare_and_after_success() {
     changed.replacement_text = "Wednes".into();
     assert_eq!(prepare_edit(&scope, changed).unwrap()["outcome"], "Invalid");
     assert_eq!(current(&scope, &note).version, 1);
+}
+#[test]
+fn legacy_range_serialization_and_fingerprint_match_independent_base_golden() {
+    use sha2::{Digest, Sha256};
+    let args = EditArgs {
+        id: "legacy-note:0".into(), version: 7, start: Some(3), end: Some(6),
+        expected_text: "abc".into(), replacement_text: "XY".into(),
+        request_key: "legacy-key".into(), reason: "Correct the exact local passage".into(),
+    };
+    let encoded = serde_json::to_vec(&args).unwrap();
+    assert_eq!(encoded, br#"{"id":"legacy-note:0","version":7,"start":3,"end":6,"expected_text":"abc","replacement_text":"XY","request_key":"legacy-key","reason":"Correct the exact local passage"}"#);
+    assert_eq!(format!("{:x}", Sha256::digest(&encoded)), "13823d0d216c0e2dad4ca192712be2acf333e123fbcbfdda00048bb6b3f0fc10");
 }
 #[test]
 fn full_range_requires_whole_read_and_known_base_promotes_after_local_apply() {
@@ -417,7 +567,7 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
     let (_root, request, note) = tests::fixture();
     let (scope, input) = begin(&request).unwrap();
-    let edit = args(&note, 1, 0, "Mon", "Tues", "provider");
+    let edit = quote_args(&note, 1, "Monday", "Tuesday", "provider");
     let model = MockCompletionModel::from_stream_turns([
         vec![
             MockStreamEvent::tool_call(
@@ -456,6 +606,11 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
             .parameters,
         schema("prepare_note_edit")
     );
+    assert_eq!(
+        schema("prepare_note_edit")["required"],
+        json!(["id", "version", "start", "end", "expected_text", "replacement_text", "request_key", "reason"])
+    );
+    assert_eq!(schema("prepare_note_edit")["properties"]["start"]["type"], json!(["integer", "null"]));
     assert!(
         serde_json::to_string(&requests[1].chat_history)
             .unwrap()

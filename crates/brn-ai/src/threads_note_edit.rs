@@ -8,12 +8,20 @@ use sha2::{Digest, Sha256};
 pub(super) struct EditArgs {
     pub id: String,
     pub version: u64,
-    pub start: usize,
-    pub end: usize,
+    #[serde(deserialize_with = "required_nullable_usize")]
+    pub start: Option<usize>,
+    #[serde(deserialize_with = "required_nullable_usize")]
+    pub end: Option<usize>,
     pub expected_text: String,
     pub replacement_text: String,
     pub request_key: String,
     pub reason: String,
+}
+fn required_nullable_usize<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Option::<usize>::deserialize(deserializer)
 }
 pub(super) fn validate_arguments(raw: &Value) -> std::result::Result<(), ArgumentError> {
     let args = serde_json::from_value::<EditArgs>(raw.clone()).map_err(|_| {
@@ -23,10 +31,17 @@ pub(super) fn validate_arguments(raw: &Value) -> std::result::Result<(), Argumen
         !args.id.is_empty() && args.id.len() <= 256 && args.version > 0,
         "id must contain 1..256 UTF-8 bytes and version must be positive.",
     )?;
-    argument_shape(
-        args.start < args.end && args.end - args.start == args.expected_text.len(),
-        "Use one nonempty UTF-8 byte range start < end; expected_text must have exactly end-start bytes.",
-    )?;
+    match (args.start, args.end) {
+        (Some(start), Some(end)) => argument_shape(
+            start < end && end - start == args.expected_text.len(),
+            "Use one nonempty UTF-8 byte range start < end; expected_text must have exactly end-start bytes.",
+        )?,
+        (None, None) => argument_shape(
+            !args.expected_text.is_empty(),
+            "Quote selection requires nonempty expected_text.",
+        )?,
+        _ => return Err(ArgumentError::Shape("Set both start and end to byte offsets, or set both to null for one unique exact quote.")),
+    }
     argument_shape(
         !args.request_key.is_empty() && args.request_key.len() <= 128,
         "request_key must contain 1..128 UTF-8 bytes.",
@@ -38,9 +53,9 @@ pub(super) fn schema() -> Value {
         json!({
             "id":{"type":"string","description":"Exact current Note ID."},
             "version":{"type":"integer","minimum":1},
-            "start":{"type":"integer","minimum":0,"description":"Inclusive UTF-8 byte offset, never a character index."},
-            "end":{"type":"integer","minimum":1,"description":"Exclusive UTF-8 byte offset; start < end."},
-            "expected_text":{"type":"string","description":"Exact bytes at this range; no search, normalization or relocation."},
+            "start":{"type":["integer","null"],"minimum":0,"description":"Inclusive UTF-8 byte offset; use null together with end for unique exact-quote selection."},
+            "end":{"type":["integer","null"],"minimum":1,"description":"Exclusive UTF-8 byte offset; use null together with start for unique exact-quote selection."},
+            "expected_text":{"type":"string","description":"Exact bytes at the range, or a nonempty exact quote occurring once in the current Note when both offsets are null."},
             "replacement_text":{"type":"string","description":"Replacement passage; empty deletes the range."},
             "request_key":{"type":"string","description":"1..128 UTF-8 bytes. Reuse only for identical arguments in this Run."},
             "reason":{"type":"string","description":"Nonblank explanation of this local change."}
@@ -65,7 +80,7 @@ impl Tool for PrepareNoteEdit {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Prepare one exact local Note passage replacement or deletion at current version and UTF-8 byte range. Read the relevant passage, supply its exact expected_text and replacement_text; the host preserves untouched bytes and metadata. No fuzzy matching or write occurs. Full-document ranges require an actual whole read. Use apply_changes with its operation; all existing scope, protection, review, dirty-writing, stale and Undo rules remain. Unavailable for Rewrite or research helpers.".into()
+            "Prepare one exact local Note passage replacement or deletion at current version. Supply a UTF-8 byte range or set both offsets null for a nonempty exact quote occurring once in the current Note; duplicates require an explicit range. The host preserves untouched bytes and metadata. No fuzzy matching or write occurs. Full-document ranges require an actual whole read. Use a fresh request_key whenever arguments change. Use apply_changes with its operation; all existing scope, protection, review, dirty-writing, stale and Undo rules remain. Unavailable for Rewrite or research helpers.".into()
     }
     fn parameters(&self) -> Value {
         schema()
@@ -140,13 +155,21 @@ pub(super) fn prepare_edit(scope: &Scope, args: EditArgs) -> AiResult<Value> {
             "The Note version changed; read the current passage and use a fresh request_key.",
         ));
     }
-    if note.markdown.get(args.start..args.end) != Some(args.expected_text.as_str()) {
-        return Ok(invalid(
-            "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted.",
-        ));
-    }
-    if args.start == 0
-        && args.end == note.markdown.len()
+    let range = match (args.start, args.end) {
+        (Some(start), Some(end)) => {
+            if note.markdown.get(start..end) != Some(args.expected_text.as_str()) {
+                return Ok(invalid("The exact UTF-8 byte range does not match expected_text; quote selection is not a fallback."));
+            }
+            start..end
+        }
+        (None, None) => match super::threads_text::unique_range(&note.markdown, &args.expected_text) {
+            Some(range) => range,
+            None => return Ok(invalid("expected_text must occur exactly once as a nonempty exact quote in the current Note; no candidate was prepared.")),
+        },
+        _ => return Ok(invalid("Set both start and end to byte offsets, or set both to null for unique exact-quote selection.")),
+    };
+    if range.start == 0
+        && range.end == note.markdown.len()
         && !scope
             .reads
             .lock()
@@ -158,7 +181,7 @@ pub(super) fn prepare_edit(scope: &Scope, args: EditArgs) -> AiResult<Value> {
         ));
     }
     note.markdown
-        .replace_range(args.start..args.end, &args.replacement_text);
+        .replace_range(range, &args.replacement_text);
     let mut request = ChangeRequest {
         reason: args.reason,
         writes: vec![Put {

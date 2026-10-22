@@ -64,6 +64,8 @@ mod mcp_runtime;
 mod mcp_tests;
 #[path = "threads_note_edit.rs"]
 mod note_edit;
+#[path = "threads_text.rs"]
+mod threads_text;
 #[cfg(test)]
 #[path = "threads_note_edit_tests.rs"]
 mod note_edit_tests;
