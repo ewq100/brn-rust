@@ -381,7 +381,13 @@ mod tests {
             let destination = root.join("child-process-destination");
             let stage = StagedRestore::create(&backup, &destination).unwrap();
             let ready = root.join("restore-process-stage-ready");
-            fs::write(&ready, stage._stage.path().as_os_str().as_encoded_bytes()).unwrap();
+            let ready_temporary = root.join("restore-process-stage-ready.tmp");
+            fs::write(
+                &ready_temporary,
+                stage._stage.path().as_os_str().as_encoded_bytes(),
+            )
+            .unwrap();
+            fs::rename(ready_temporary, ready).unwrap();
             let started = Instant::now();
             while started.elapsed() < Duration::from_secs(30) {
                 assert!(stage.directory.is_dir());
@@ -415,10 +421,8 @@ mod tests {
             thread::sleep(Duration::from_millis(10));
         }
         assert!(ready.is_file(), "restore stage child did not become ready");
-        let reported = PathBuf::from(
-            String::from_utf8(fs::read(&ready).unwrap())
-                .expect("stage path is UTF-8 under the canonical temporary root"),
-        );
+        use std::os::unix::ffi::OsStringExt;
+        let reported = PathBuf::from(std::ffi::OsString::from_vec(fs::read(&ready).unwrap()));
         let canonical_root = root.path().canonicalize().unwrap();
         assert_eq!(reported.parent(), Some(canonical_root.as_path()));
         assert!(
@@ -441,6 +445,18 @@ mod tests {
             "a live process stage is untouched"
         );
         assert!(!live_probe.join(STAGE_MARKER).exists());
+        let live_probe_tree = tree(&live_probe);
+
+        // Prepare the original same-process full-copy witness while the child
+        // still owns its lock, so no later prepare can sweep the child stage.
+        let StagedRestore {
+            _stage: full,
+            directory,
+            ..
+        } = StagedRestore::create(&backup, &root.path().join("killed")).unwrap();
+        assert!(directory.join(DATABASE_FILENAME).is_file());
+        let full = full.abandon();
+        assert_eq!(tree(&reported), child_tree);
 
         let status = child.kill_and_reap();
         use std::os::unix::process::ExitStatusExt;
@@ -456,14 +472,6 @@ mod tests {
         );
         assert!(!root.path().join("child-process-destination").exists());
 
-        // Preserve the direct wrapper-abandon and same-process full-copy witnesses.
-        let StagedRestore {
-            _stage: full,
-            directory,
-            ..
-        } = StagedRestore::create(&backup, &root.path().join("killed")).unwrap();
-        assert!(directory.join(DATABASE_FILENAME).is_file());
-        let full = full.abandon();
         // Killed after publication, before the wrapper was removed.
         let wrapper = StageDir::create(root.path(), StageKind::Restore)
             .unwrap()
@@ -472,6 +480,7 @@ mod tests {
         fs::create_dir(&unrelated).unwrap();
         fs::write(unrelated.join("keep"), b"unrelated").unwrap();
         let destination = root.path().join("restored");
+        assert!(reported.is_dir(), "the killed stage awaits public retry");
         let store = Store::restore(&backup, &destination).unwrap();
         assert!(store.records().unwrap().is_empty());
         assert!(!reported.exists(), "the killed process stage must be swept");
@@ -482,6 +491,7 @@ mod tests {
             vec![unrelated.clone()]
         );
         assert_eq!(fs::read(unrelated.join("keep")).unwrap(), b"unrelated");
+        assert_eq!(tree(&live_probe), live_probe_tree);
         assert_eq!(tree(&earlier), earlier_before);
         assert_eq!(fs::read(&backup).unwrap(), backup_bytes);
         assert!(!root.path().join("killed").exists());
