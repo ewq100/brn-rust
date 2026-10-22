@@ -1,0 +1,58 @@
+{
+  "observed_at": "2026-10-22T01:14:35.054684+00:00",
+  "candidate": "dee96c9ed4542eb3c8b595280116628580dc896a",
+  "base": "28fd581ea8451ecd95d899248132b62c8f890d03",
+  "tree": "67de1960042ccf95e68bcc1f8ccdd6d719bda4c9",
+  "independent_review": "reference-search-owner-review.md",
+  "broad_qualification_source": "b4b441a3ba51772736e3c15856f49834f3367c41",
+  "final_delta": "Exactly four assertion lines in existing delayed-result test; production byte-identical to broad-qualified source. Independent final review and affected focused test passed; unchanged broad/lint/build reused.",
+  "results": {
+    "focused_delayed_result_b4": {
+      "passed": 1,
+      "failed": 0
+    },
+    "focused_paging_b4": {
+      "passed": 1,
+      "failed": 0
+    },
+    "full_native_state_b4": {
+      "passed": 346,
+      "failed": 0,
+      "ignored": 1
+    },
+    "strict_native_all_target_lint_b4": "PASS",
+    "ordinary_native_ui_build_b4": "PASS",
+    "final_dee_affected_focused": {
+      "passed": 1,
+      "failed": 0
+    },
+    "final_formatter_whitespace": "PASS"
+  },
+  "existing_ignored": "intake_tests::a_desktop_supply_reuses_the_chat_a_cli_useful_intake_left; separate shared fixture required, prior source-bound campaign proof retained.",
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-reference-search-owner-b4b441a3/brn-desktop",
+    "sha256": "fec4942b10292d7a5da42edc0b00bdcc8856d0f2b04a87fe5a6a7e0f19a75e31",
+    "built_source": "b4b441a3ba51772736e3c15856f49834f3367c41",
+    "production_equal_to_final": true,
+    "launched": false
+  },
+  "helpers": [
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "log_sha256": "a34e43e4db61eb6a3d09c7d08c0d04ef6f88bddda7b613875eed36951f8a6746",
+  "final_focused_log_sha256": "6445396561dc389db1385cc87e3342f51293fd27632b4ffe3ed5326b0bbb9003",
+  "limits": [
+    "Toolkit state and production compilation only; no actual Mac control/IME/accessibility/owner acceptance.",
+    "Existing block0.1.6 future compatibility warning retained.",
+    "No new behavior defect claimed: this centralizes existing request lifecycle rules; final assertion strengthens existing witness.",
+    "Default production graph unchanged outside native UI; qualified28 runtime/CLI checks reused.",
+    "Normal integration and required hosted head/main results pending; upstream trace/quote integration prerequisite remains."
+  ]
+}

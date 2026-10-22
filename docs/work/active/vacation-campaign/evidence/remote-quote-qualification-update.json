@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-22T01:10:56.376Z",
+  "source_commit": "4eab2ffb9be87e399dc7e8d4a9d64ad38b66f69e",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "new_sequence": 61,
+  "blocks": 37,
+  "preservation_verified": true,
+  "operation_results": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "803b140392ded2bfa70144c3a394511e42ebfa509492b9085c003c0b414c1483"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "e5d4805296c7f268c0a32dceb6ba44a6fc2214f14efc9446139f35adfa0e4f71"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "afe554398efd8f7bd2c0c0d7f4867b41c008d30a2139e485f21d07ee56f72f15"
+        }
+      ]
+    }
+  ],
+  "limits": "Saved Markdown/order/metadata verified. No rendered-layout claim. Repository record remains authoritative."
+}

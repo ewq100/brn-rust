@@ -85,9 +85,9 @@ Attempts:
 
 ### Assess one owner for reference-search cancellation and freshness
 
-Owner: Lead design/integration; bounded Luna author; independent Sol complete-candidate review · State: **active** · Last observed: 2026-10-22T01:09:40.218369+00:00
-Activity: Sole Luna author froze b4b441a3 against qualified28fd581e. Only UI private request owner/callers and existing writing test access changed. Independent consequential Sol complete-candidate review and lead serialized focused/paging/full desktop gates now running.
-Next: Disposition actual review/check results before publication. Preserve stale replacement guard, hidden pending retirement and displayed-only publication; no native/account claims.
+Owner: Lead design/integration; bounded Luna author; independent Sol complete-candidate review · State: **active** · Last observed: 2026-10-22T01:14:35.054684+00:00
+Activity: Final dee96c9e passed independent review. Broad b4 checks passed focused1, paging1, full desktop346/0/1, strict lint and ordinary native build. Final four-line assertion proves stale replies preserve replacement guard; affected test passes on dee. Production unchanged from b4; binary frozen unlaunched.
+Next: Keep qualified final candidate while trace and quote predecessors integrate; reconcile actual main and publish only the two-file request-owner change. No native/account action needed.
 Depends on: precise-edit-unique-quote-selector when Publication only: prior quote/trace chain integrated and actual main reconciled; independent implementation/checks may use qualified28 now. (reported satisfied: false)
 
 <details>
@@ -95,13 +95,35 @@ Depends on: precise-edit-unique-quote-selector when Publication only: prior quot
 
 Gates:
 
-- **implementation:** Candidate b4b441a3 implemented; independent review running.
-- **checks:** Final source-bound pipeline running; no pass yet.
-- **integration:** Inapplicable until implementation selected
+- **implementation:** PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.
+- **checks:** PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.
+- **integration:** Pending upstream trace/quote source chain and actual main reconciliation before separate publication.
 - **native:** Existing Mac availability deferral preserved
 - **owner acceptance:** Not claimed
 
-Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacation-campaign/reference-search.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md](active/vacation-campaign/evidence/reference-search-owner-assessment.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md](active/vacation-campaign/evidence/reference-search-owner-implementation.md)
+Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacation-campaign/reference-search.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_search.rs](../../crates/brn-desktop/src/threads_search.rs), [docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md](active/vacation-campaign/evidence/reference-search-owner-assessment.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md](active/vacation-campaign/evidence/reference-search-owner-implementation.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-review.md](active/vacation-campaign/evidence/reference-search-owner-review.md), [docs/work/active/vacation-campaign/evidence/reference-search-owner-qualification.json](active/vacation-campaign/evidence/reference-search-owner-qualification.json), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log](active/vacation-campaign/evidence/reference-search-owner-b4-final.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh](active/vacation-campaign/evidence/reference-search-owner-b4-final.sh), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log](active/vacation-campaign/evidence/reference-search-owner-final-focused.log), [docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh](active/vacation-campaign/evidence/reference-search-owner-final-focused.sh)
+
+</details>
+
+### Keep a queued-message edit attached to its original chat
+
+Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T01:18:21.514880+00:00
+Activity: Source inspection finds editing_queue stores only an item ID, persists across set_chat navigation, and unconditionally selects edit_queued before current composer destination. The checked service edits that explicit ID; a second chat composer may therefore update the first chat queued item. Runtime reproduction pending; earlier composer audit did not cover this edit-mode transition.
+Next: Add one actual-control synthetic A edit -> navigate B -> send witness with dispatch blocked by a local busy worker/paused queue. Observe failure before selecting correction; no account/provider/native actions.
+Depends on: reference-search-request-ownership when Publication only: previous quote/trace/reference source chain integrated and actual main reconciled. Reproduction/implementation may use qualified dee now. (reported satisfied: false)
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Source-supported defect hypothesis; reproduction only selected
+- **checks:** New focused old-source regression pending
+- **integration:** Future corrected candidate depends on prior source chain; no publication yet
+- **native:** Actual Mac access deferred
+- **owner acceptance:** No new owner decision expected for preventing cross-chat unintended edits
+
+Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md)
 
 </details>
 
@@ -319,6 +341,7 @@ graph TD
   t69["Keep Stop and send continuation attached to its Run"]
   t74["Prepare exact edits from one unique quoted passage"]
   t75["Assess one owner for reference-search cancellation and freshness"]
+  t76["Keep a queued-message edit attached to its original chat"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -328,6 +351,7 @@ graph TD
   t69 -->|Prior state candidates integrate before publication of this dependent candidate. (satisfied)| t67
   t68 -->|Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (satisfied)| t69
   t74 -->|Publication only: prior quote/trace chain integrated and actual main reconciled; independent implementation/checks may use qualified28 now. (not satisfied)| t75
+  t75 -->|Publication only: previous quote/trace/reference source chain integrated and actual main reconciled. Reproduction/implementation may use qualified dee now. (not satisfied)| t76
 ```
 
 Resource waits are listed on tasks and are not dependency edges.

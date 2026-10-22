@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T01:02:05.121016+00:00",
+    "observed_at": "2026-10-22T01:19:49.832621+00:00",
     "remaining_percent": 64,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual36% used /64% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. AI test session remains closed separately.",
+    "ordinary_work": "Admitted: actual36% used /64% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. Account test session closed separately.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -2900,10 +2900,10 @@
         "title": "Assess one owner for reference-search cancellation and freshness",
         "state": "active",
         "owner": "Lead design/integration; bounded Luna author; independent Sol complete-candidate review",
-        "observed_at": "2026-10-22T01:09:40.218369+00:00",
+        "observed_at": "2026-10-22T01:14:35.054684+00:00",
         "origin": "observed",
-        "activity": "Sole Luna author froze b4b441a3 against qualified28fd581e. Only UI private request owner/callers and existing writing test access changed. Independent consequential Sol complete-candidate review and lead serialized focused/paging/full desktop gates now running.",
-        "next_action": "Disposition actual review/check results before publication. Preserve stale replacement guard, hidden pending retirement and displayed-only publication; no native/account claims.",
+        "activity": "Final dee96c9e passed independent review. Broad b4 checks passed focused1, paging1, full desktop346/0/1, strict lint and ordinary native build. Final four-line assertion proves stale replies preserve replacement guard; affected test passes on dee. Production unchanged from b4; binary frozen unlaunched.",
+        "next_action": "Keep qualified final candidate while trace and quote predecessors integrate; reconcile actual main and publish only the two-file request-owner change. No native/account action needed.",
         "depends_on": [
           {
             "task": "precise-edit-unique-quote-selector",
@@ -2917,17 +2917,57 @@
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_search.rs",
           "docs/work/active/vacation-campaign/evidence/reference-search-owner-assessment.md",
-          "docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md"
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-review.md",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.log",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-b4-final.sh",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.log",
+          "docs/work/active/vacation-campaign/evidence/reference-search-owner-final-focused.sh"
         ],
         "gates": {
-          "implementation": "Candidate b4b441a3 implemented; independent review running.",
-          "checks": "Final source-bound pipeline running; no pass yet.",
-          "integration": "Inapplicable until implementation selected",
+          "implementation": "PASS complete independent b4 review plus exact final dee assertion review; no unresolved findings.",
+          "checks": "PASS focused1,paging1,full346/0/1existing ignored,strictnativealltargetlint,ordinarynativebuild on b4; production-identical final dee focused1/fmt PASS. Unchanged broad evidence reused.",
+          "integration": "Pending upstream trace/quote source chain and actual main reconciliation before separate publication.",
           "native": "Existing Mac availability deferral preserved",
           "owner_acceptance": "Not claimed"
         },
         "resource_plan": "One requested Luna medium sole author in reusable architecture-status-route checkout, new codex/reference-search-request-owner branch at qualified28fd581e. Scope ui private owner/callers and existing writing tests only. Lead owns sole shared builds and records; independent consequential Sol review after final candidate. No account/native/network/newdependencies/newpublicAPI/genericframework/nested helpers. Stop/reassess after two failures or behavior ambiguity. Other candidates/checkouts frozen.",
         "attempts": []
+      },
+      {
+        "id": "queued-edit-destination-ownership",
+        "title": "Keep a queued-message edit attached to its original chat",
+        "state": "active",
+        "owner": "Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction",
+        "observed_at": "2026-10-22T01:18:21.514880+00:00",
+        "origin": "observed",
+        "activity": "Source inspection finds editing_queue stores only an item ID, persists across set_chat navigation, and unconditionally selects edit_queued before current composer destination. The checked service edits that explicit ID; a second chat composer may therefore update the first chat queued item. Runtime reproduction pending; earlier composer audit did not cover this edit-mode transition.",
+        "next_action": "Add one actual-control synthetic A edit -> navigate B -> send witness with dispatch blocked by a local busy worker/paused queue. Observe failure before selecting correction; no account/provider/native actions.",
+        "depends_on": [
+          {
+            "task": "reference-search-request-ownership",
+            "condition": "Publication only: previous quote/trace/reference source chain integrated and actual main reconciled. Reproduction/implementation may use qualified dee now.",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-desktop/src/threads_chat.rs",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_writing.rs",
+          "crates/brn-desktop/src/threads_chat_tests.rs",
+          "docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md"
+        ],
+        "gates": {
+          "implementation": "Source-supported defect hypothesis; reproduction only selected",
+          "checks": "New focused old-source regression pending",
+          "integration": "Future corrected candidate depends on prior source chain; no publication yet",
+          "native": "Actual Mac access deferred",
+          "owner_acceptance": "No new owner decision expected for preventing cross-chat unintended edits"
+        },
+        "attempts": [],
+        "resource_plan": "One fresh Luna medium author, sole test writer in isolated reusable export-durability branch from locally qualified dee96c9e. Test-only first, freeze and hand off; lead owns actual red run and correction selection. At most one author and later independent Sol reviewer within4slots. No helper builds/tests/account/native/network/newdependencies/nested agents. Stop on reproduction ambiguity; no production correction before lead diagnosis. Prior quote branch/artifact retained."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2938,13 +2978,13 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T00:56:56.381Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-run-state-update.json"
+    "last_refresh_at": "2026-10-22T01:10:56.376Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-quote-qualification-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:09:40.218369+00:00",
-    "runtime_capacity": "Lead plus one fresh Sol high independent reference-search reviewer; Luna author complete.",
-    "build_slot": "Sole lead build: reference-search b4b441a3 focused/paging/full native-state/lint/ordinarybuild pipeline active.",
+    "observed_at": "2026-10-22T01:19:49.832621+00:00",
+    "runtime_capacity": "Lead plus sole Luna queued-edit regression author; all prior authors/reviewers completed. Stale pending-init run_activity_author explicitly interrupted after PR199 completed to prevent obsolete dispatch.",
+    "build_slot": "No active Rust build. Final reference dee focused test passed; lead waiting for frozen test-only queue regression before red execution.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
@@ -2965,12 +3005,12 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR202 head and preceding-main201 required checks; independent reference-search ownership assessment active.",
+    "wait_reason": "Hosted trace202 and preceding-main201 gates plus independent bounded queued-edit regression author. No account/native actor.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean frozen28fd581e, fully locally qualified quote candidate.",
+    "worker_checkout": "export-durability codex/queued-edit-destination-owner at base dee96c9e; sole Luna writes only chat regression test. Frozen quote branch28/artifact retained.",
     "fixture_worker_checkout": "mac-test-roots clean published trace PR202 head0c1b2f09; failed guidance-only branch eac retained.",
-    "documentation_worker_checkout": "architecture-status-route clean frozen b4b441a3 on codex/reference-search-request-owner; prior import source branch retained.",
+    "documentation_worker_checkout": "architecture-status-route clean frozen dee96c9e reference request owner; fully reviewed/qualified, no writer.",
     "required_ci_runs": [
       39703409071,
       39703476677
