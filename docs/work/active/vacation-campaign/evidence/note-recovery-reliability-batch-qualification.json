@@ -1,0 +1,47 @@
+{
+  "observed_at": "2026-10-22T04:33:08.682086+00:00",
+  "candidate": "dfe4cf91e3ed19800f68aaa55f2a32a9eea2a8b0",
+  "base": "11c48f9b91cb0d4e9deba9e0f45b43ef284b63e1",
+  "source_clean_after_checks": true,
+  "process_exit_code": 0,
+  "writing_ui_library": {
+    "passed": 44,
+    "failed": 0,
+    "ignored": 0
+  },
+  "independent_host": {
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0
+  },
+  "desktop_selected_threads_ui": {
+    "passed": 344,
+    "failed": 0,
+    "ignored": 1,
+    "outside_module_filtered": 3
+  },
+  "provider_library": {
+    "passed": 500,
+    "failed": 0,
+    "ignored": 1
+  },
+  "strict_all_target_clippy": "PASS writing-ui/desktop with native features and separate provider crate",
+  "production_native_ui_build": "PASS, not launched",
+  "format_overview_links_whitespace": "PASS;625 markdown files,2850 links,0 failures",
+  "component_entire_files_equal": {
+    "d521722ab984eb2fd125a990b9d4e13956138717": [
+      "crates/brn-writing-ui/README.md",
+      "crates/brn-writing-ui/src/note.rs",
+      "crates/brn-writing-ui/examples/writing_host/journey.rs"
+    ],
+    "a6b6d9902c8797a696cb96e1d9e848c564425b9e": [
+      "crates/brn-ai/src/provider_stderr_tests.rs"
+    ]
+  },
+  "independent_review": "note-recovery-reliability-batch-review.md",
+  "commands": "note-recovery-reliability-batch-final.sh",
+  "raw": "note-recovery-reliability-batch-final.log",
+  "reused_negative_evidence": "Provider controlled-hang expected0/1 and actualownedchild signal9/reap before final component suite; exact4thfile equal. Note oldsource host baseline expected0/1 retained.",
+  "warnings": "Existing block0.1.6 future-incompatible diagnostic retained; prior triage unchanged.",
+  "limits": "Native/owner acceptance not claimed; dirtyReload menu disabled, shared reopen/navigation guard is the tested boundary. No new crossprocess atomic presentation guarantee. Head/protection/normalmerge/resultingmain gates separate."
+}

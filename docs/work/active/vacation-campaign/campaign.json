@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T04:23:09.306100+00:00",
-    "remaining_percent": 57,
+    "observed_at": "2026-10-22T04:37:21.884812+00:00",
+    "remaining_percent": 56,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual43% used/57% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause; fixed expiry unchanged. Closed account-test session remains separate.",
+    "ordinary_work": "Admitted: actual44% used/56% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; fixed expiry unchanged. Closed account-test session remains separate.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:29:11.402421+00:00",
+    "observed_at": "2026-10-22T04:37:21.884812+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3640,7 +3640,7 @@
       },
       {
         "state": "active",
-        "observed_at": "2026-10-22T04:29:11.402421+00:00",
+        "observed_at": "2026-10-22T04:37:21.884812+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
@@ -3656,8 +3656,8 @@
         ],
         "gates": {
           "implementation": "PASS independent complete3file d521 review; current session checked only before non-explicit replacement; explicit same-note Recover retained.",
-          "checks": "PASS writing UI44, host12, desktop344/0/1ignored +3filtered; strict affected alltargetlint, productionbuild/notlaunched, fmt/links/cleanHEAD.",
-          "integration": "Combined dfe4 on main20811c48f9b, complete independent4file review PASS; final combined local checks active, not published.",
+          "checks": "PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.",
+          "integration": "PR209 published exactdfe4 on main20811c48; complete independent4file review PASS and finalcombinedlocalchecks PASS. Required hostedhead/precedingmain pending; not merged.",
           "native": "No native observation; owner availability remains deferred.",
           "owner_acceptance": "No new consequential product choice selected."
         },
@@ -3665,8 +3665,8 @@
         "id": "note-reload-generation-guard",
         "title": "Keep the visible edit when Reload encounters a newer recovery generation",
         "owner": "Bounded Luna test-only author; lead diagnosis; independent Sol review",
-        "activity": "The exact shared replacement guard is independently approved at formatted d521. Final shared UI44/0, independent host12/0 and production desktop344/0/1ignored (3 outside-module filtered) passed; strict lint, production native build, format and links passed. Original intended baseline failure and formatting correction remain visible. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks running.",
-        "next_action": "Keep combined dfe4 frozen. Complete final source-bound combined checks, publish one reviewed reliability batch, then actual required head/preceding-main and live protection before normal merge; resulting-main separate.",
+        "activity": "The exact shared replacement guard is independently approved at formatted d521. Final shared UI44/0, independent host12/0 and production desktop344/0/1ignored (3 outside-module filtered) passed; strict lint, production native build, format and links passed. Original intended baseline failure and formatting correction remain visible. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks PASS. Published as PR209 at frozen exact dfe4cf91; required hosted checks now pending.",
+        "next_action": "Keep PR209 exact dfe4 frozen. Inspect all four required exact-head and preceding-main208 checks plus live protection before normal merge; resulting-main separately.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
           "crates/brn-writing-ui/src/note.rs",
@@ -3680,20 +3680,24 @@
           "docs/work/active/vacation-campaign/evidence/note-reload-generation-final.log",
           "docs/work/active/vacation-campaign/evidence/note-reload-generation-qualification.json",
           "docs/work/active/vacation-campaign/evidence/note-reload-generation-format-attempts.md",
-          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md"
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-publication.json"
         ]
       },
       {
         "state": "active",
-        "observed_at": "2026-10-22T04:29:11.402421+00:00",
+        "observed_at": "2026-10-22T04:37:21.884812+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
         "attempts": [],
         "gates": {
           "implementation": "PASS independent complete final a6b6 review; initial UTF8 P2 valid/fixed. Output cap is accepted/read output after exit, not hard live disk growth.",
-          "checks": "PASS final library500/0/1intentionalchildignored, strictalltargetlint/fmt/cleanHEAD; expectedwatchdognegative0/1 actualownedreap9 and exactsource restored.",
-          "integration": "Combined dfe4 on main20811c48f9b, complete independent4file review PASS; final combined local checks active, not published.",
+          "checks": "PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.",
+          "integration": "PR209 published exactdfe4 on main20811c48; complete independent4file review PASS and finalcombinedlocalchecks PASS. Required hostedhead/precedingmain pending; not merged.",
           "native": "No native observation; owner availability remains deferred.",
           "owner_acceptance": "No new consequential product choice selected."
         },
@@ -3701,8 +3705,8 @@
         "id": "provider-test-child-bounds",
         "title": "Bound the synthetic provider stderr fixture and retain owned-child cleanup",
         "owner": "Bounded Luna test-only author; independent Sol review; lead checks/integration",
-        "activity": "Independently approved a6b6 passed final full500 library checks,1 intentionally ignored child fixture, strict alltargetlint andformat. Controlled stall failed as expected after1.01s and reaped ownedPID61304 withsignal9; exact source restored before final checks. UTF8 P2 valid/fixed. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks running.",
-        "next_action": "Keep combined dfe4 frozen. Complete final source-bound combined checks, publish one reviewed reliability batch, then actual required head/preceding-main and live protection before normal merge; resulting-main separate.",
+        "activity": "Independently approved a6b6 passed final full500 library checks,1 intentionally ignored child fixture, strict alltargetlint andformat. Controlled stall failed as expected after1.01s and reaped ownedPID61304 withsignal9; exact source restored before final checks. UTF8 P2 valid/fixed. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks PASS. Published as PR209 at frozen exact dfe4cf91; required hosted checks now pending.",
+        "next_action": "Keep PR209 exact dfe4 frozen. Inspect all four required exact-head and preceding-main208 checks plus live protection before normal merge; resulting-main separately.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md",
           "crates/brn-ai/src/provider_stderr_tests.rs",
@@ -3718,7 +3722,11 @@
           "docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final.sh",
           "docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-final.log",
           "docs/work/active/vacation-campaign/evidence/provider-test-child-bounds-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md"
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-review.md",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log",
+          "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-publication.json"
         ]
       },
       {
@@ -3755,10 +3763,10 @@
         "title": "Qualify a public backup interrupted while copying",
         "state": "active",
         "owner": "Bounded Luna driver author; consequential independent Sol review; lead single process/build actor",
-        "observed_at": "2026-10-22T04:29:11.402421+00:00",
+        "observed_at": "2026-10-22T04:37:21.884812+00:00",
         "origin": "observed",
-        "activity": "Current ordinary CLI build/source pin passed at7dde, binaryedf78000; whole source tree equals normal merged main20811c48f9b. Inert adapter initiala10fc0da is under full independent review; no workload/fixture launch yet. Lead found a likely imported fixture-title mismatch for review before use.",
-        "next_action": "Finish independent complete driver review and validate/fix findings before any workload. Keep at most one actual interruption attempt and one proof-gated retry; no setup error is a successful backup result.",
+        "activity": "Current ordinary CLI build/source pin passed at7dde, binaryedf78000; whole tree equals merged main208. Initial independent review found3validP2 driver gaps before any workload. Corrected inert9f515e70 is receiving complete independent review. No workload/fixture launch.",
+        "next_action": "Finish complete independent review of corrected9f515e70 before the one bounded interruption attempt. Keep original findings/dispositions; one proof-gated retry only.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3771,16 +3779,27 @@
           "docs/work/active/vacation-campaign/evidence/public-backup-cli-build-qualification.json",
           "docs/work/active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json",
           "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md",
-          "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py"
+          "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py",
+          "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md"
         ],
         "gates": {
-          "implementation": "Pending inert driver/current source-bound CLI artifact; no product change selected.",
+          "implementation": "Initial3P2 valid: fixture-title binding, volatileSHM acceptance, standalonebackup gate. Corrected inert9f515e70; complete final review pending.",
           "checks": "At most1 interruption,1 public retry; exact UTF8/schema/rows/source/earlier complete backup/sentinel preservation. No workload launched yet.",
           "integration": "Evidence-only check; no product PR selected. Reconcile source identity against actual main before any current-main claim.",
           "native": "No native or power-loss evidence.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Initial inert-driver review requested3P2 changes; no workload executed.",
+            "change": "Aligned imported extractor title, separated canonicalmainDB/logicaldata from diagnostic sidecars, added no-companions+read-onlyDELETE checks for bothcompleteoutputs. Full corrected review before execution.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md",
+              "docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md"
+            ]
+          }
+        ],
         "resource_plan": "One bounded Luna author reuses reviewed standalone restore-driver functions; Sol independently reviews complete actual adapter/modified script. Lead serializes CLI build and process actor. SyntheticNote<=8MiB, each backup<=128MiB, taskroot accepted-size<=512MiB checked between steps, CLI60s/observe10s, sourcefree>=2GiB, bounded64KiB saved stream prefixes, owned kill/reap. No newaccount/session/provider/dependency/global config, productionhook/permanent framework/nested helper. Stop after one actual interruption whether pass/fail/inconclusive; do not repeat a third image or restore experiment."
       }
     ],
@@ -3796,14 +3815,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:29:11.402421+00:00",
-    "runtime_capacity": "Lead and independent Sol inert-driver review; all bounded authors finished, no nested helper.",
-    "build_slot": "Combined dfe4 final gate active session43660; CLI build70736 finished PASS, artifact frozen. No competing localbuild.",
+    "observed_at": "2026-10-22T04:37:21.884812+00:00",
+    "runtime_capacity": "Lead plus independent Sol final inert-driver review. Luna corrections finished; no nestedhelper.",
+    "build_slot": "Free: final combined43660 PASS and CLI70736 PASS, both finished. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR208 resulting-main checks pending separately. Next qualified component batch dfe4 final local gate in progress; backup driver review before one bounded workload.",
+    "wait_reason": "PR209 requiredhead and main208 requiredchecks pending. Correctedbackupdriver independentreview before one boundedworkload.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
