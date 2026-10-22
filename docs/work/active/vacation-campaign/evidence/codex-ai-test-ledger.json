@@ -269,6 +269,37 @@
       },
       "qualification": "targeted-edit-account-qualification.json",
       "diagnosis": "Model final report says both byte ranges mismatched expected passage, compatible with observed Invalid outcomes; actual offset arguments and host Invalid reasons are omitted by current trace, so exact cause is not independently established. New bounded trace metadata repair selected before any further account diagnostic."
+    },
+    {
+      "id": "ccf39112-8322-4c4e-b5d3-ef076bca50d6",
+      "session": "2026-10-22-local-edit-01",
+      "tallinn_date": "2026-10-22",
+      "reserved_at_utc": "2026-10-22T00:19:19.517500+00:00",
+      "status": "reserved",
+      "scenario": "One diagnosed trace-evidence repair: fresh exact passage proposal, record actual ranges and static rejection reason; no editing/prompt semantic change or Apply",
+      "provider": "Codex existing signedinaccount only",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "max_initial_input_utf8_bytes": 8192,
+      "initial_input_utf8_bytes": 533,
+      "binary_qualified_source": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+      "binary_sha256": "2500833900d44531455ffa883116e8324d67a5209901bdedc462f4e94eb1e7d3",
+      "harness_source_sha256": "d272b5117f5c6d65762dbe469963618f62e766158d7e4e5e4efb0cf53a6cf2f1",
+      "launch_seal_sha256": "0d6ddfa5cadf74146386d31d580f32bf364fd1b96bb6692a8eb5dcf3bc671048",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-diagnostic-02/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-diagnostic-02",
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-22T00:19:19.478Z",
+        "ordinary_usage_allowed": true,
+        "used_percent": 33,
+        "remaining_percent": 67,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-10-22T00:14:31.501603+00:00",
+  "candidate": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "base": "2ecf634d7de93fbf7381317168109b6d199531e4",
+  "tree": "0a72e02e10211c44f1d9fae1d029c0d25a5b8728",
+  "toolchain": "1.98.1-aarch64-apple-darwin",
+  "environment": "/tmp/brn-launcher-focus-qualification/environment.sh",
+  "fresh_tmpdir": "/private/tmp/brn-precise-edit-trace-qualification/tmp",
+  "results": {
+    "focused_trace": {
+      "passed": 3,
+      "failed": 0
+    },
+    "runtime": {
+      "passed": 494,
+      "failed": 0,
+      "existing_ignored": 1
+    },
+    "strict_all_target_runtime_clippy": "PASS",
+    "ordinary_cli_build": "PASS",
+    "pinned_fmt_and_whitespace": "PASS"
+  },
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-precise-edit-trace-c4f0e2e6/brn",
+    "sha256": "2500833900d44531455ffa883116e8324d67a5209901bdedc462f4e94eb1e7d3"
+  },
+  "raw_log_sha256": "5886af11506efc11f07b45c458f0e4635b5b3cb36c347d6ef47c3dbc0db92f98",
+  "limits": [
+    "Default runtime/CLI graph, no actual native/IME/owner acceptance.",
+    "First live account edit failed on original source and is not repaired by these deterministic trace checks.",
+    "Source editing/application/authorization behavior is unchanged; only existing trace metadata projection changed.",
+    "Intermediate777 tests passed but P2 requiredstaticerrorbodyrepair before finalc4qualification; original review/log retained.",
+    "No second account launch or hosted/main integration yet."
+  ]
+}
