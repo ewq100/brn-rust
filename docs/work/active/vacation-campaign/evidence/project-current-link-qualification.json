@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-22T03:22:09.978746+00:00",
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "candidate": "18abae94fae754834af14214b9fc8910562d046d",
+  "checkout": "/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust",
+  "review": "project-current-link-review.md: independent Sol complete3file review approved nofindings",
+  "actual_results": {
+    "Projects": {
+      "passed": 9,
+      "failed": 0,
+      "ignored": 0
+    },
+    "core": {
+      "passed": 219,
+      "failed": 0,
+      "ignored": 1
+    },
+    "strict_core_and_app_alltarget_clippy": "PASS",
+    "format": "PASS",
+    "links": "625files2850links0failures",
+    "diff_and_clean_HEAD": "PASS"
+  },
+  "baseline": "test-only8c47 actual1FAIL at intended superseded-new-link refusal; lead invocation error separately retained",
+  "commands": "project-current-link-final.sh",
+  "raw_log": "project-current-link-final.log",
+  "raw_log_sha256": "91559dc291d37fb592b8ed9c3f892ec6044509b1bc9fa9239cc1f2878e044348",
+  "limits": "Shared service syntheticjourney; actualstale nativepicker/CLIprocess/concurrency/restart/replayafterretirement not separatelyexecuted. Refusal preserves records/receipthistory, notwholeDB due normaloperationallocation."
+}

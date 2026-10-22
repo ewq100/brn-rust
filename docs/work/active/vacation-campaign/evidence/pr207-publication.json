@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-22T03:22:09.978746+00:00",
+  "pr": 207,
+  "url": "https://github.com/ewq100/brn-rust/pull/207",
+  "head": "18abae94fae754834af14214b9fc8910562d046d",
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "branch": "codex/project-current-document-link",
+  "state": "open",
+  "draft": false,
+  "independent_review_and_local_qualification": "PASS exactsource18aba; no changes after finalchecks",
+  "required_head_and_main_checks": "pending",
+  "release": "No release/deployment selected"
+}

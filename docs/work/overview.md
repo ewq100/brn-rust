@@ -37,22 +37,22 @@ Attempts:
 
 ### Refuse a new Project link when its selected document has been superseded
 
-Owner: Lead diagnosis/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:17:36.398205+00:00
-Activity: Actual test-only8c47 old-source baseline1FAIL at intended superseded new-link refusal after current-link/supersession setup passed. Narrow production guard authored; contract sentence/final independent review/checks pending.
-Next: Freeze complete test/guard/contract candidate; independent review and Projects/core strict checks once after final changes before publication.
+Owner: Lead diagnosis/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:22:09.978746+00:00
+Activity: Final18aba independentcomplete3file Sol review approved nofindings; Projects9/0 and core219/0/1existingignored plus strictcore+app alltargetlint/fmt/links PASS. Published/attached PR207 oncurrentmain20679fa3980; requiredhead/main checks pending.
+Next: Keep PR207 head stable. Inspect all4 actual exact-head/preceding-main gates and live protection before normal merge, then resulting-main separately. No repeated source qualification without change.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Selected; no candidate yet.
-- **checks:** Focused old-source regression then applicable Projects/core strictlint/fmt; exact commands selected by lead before execution.
-- **integration:** Independent review and all actual required head/main gates remain required.
+- **implementation:** PASS LinkDocument-only currenteligibilityguard; Unlink/replay/identityunchanged; independentcomplete3file review approved.
+- **checks:** PASS Projects9/0, core219/0/1existingignored, strictcore+app alltargetlint/fmt/links/diff/cleanHEAD; actualredbaseline retained.
+- **integration:** Published PR20718aba onmain20679fa; exact requiredhead/preceding-main and protection pending.
 - **native:** No native dialog observation; shared service authority repair.
 - **owner acceptance:** No owner decision selected for retaining existing current-document eligibility.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/project-dialog-target-audit.md](active/vacation-campaign/evidence/project-dialog-target-audit.md), [crates/brn-threads-core/src/projects.rs](../../crates/brn-threads-core/src/projects.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [crates/brn-threads-app/tests/projects.rs](../../crates/brn-threads-app/tests/projects.rs), [docs/work/active/vacation-campaign/evidence/project-current-link-test.md](active/vacation-campaign/evidence/project-current-link-test.md), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log)
+Evidence: [docs/work/active/vacation-campaign/evidence/project-dialog-target-audit.md](active/vacation-campaign/evidence/project-dialog-target-audit.md), [crates/brn-threads-core/src/projects.rs](../../crates/brn-threads-core/src/projects.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [crates/brn-threads-app/tests/projects.rs](../../crates/brn-threads-app/tests/projects.rs), [docs/work/active/vacation-campaign/evidence/project-current-link-test.md](active/vacation-campaign/evidence/project-current-link-test.md), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log), [docs/work/active/vacation-campaign/evidence/project-current-link-review.md](active/vacation-campaign/evidence/project-current-link-review.md), [docs/work/active/vacation-campaign/evidence/project-current-link-implementation.md](active/vacation-campaign/evidence/project-current-link-implementation.md), [docs/work/active/vacation-campaign/evidence/project-current-link-final.sh](active/vacation-campaign/evidence/project-current-link-final.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-final.log](active/vacation-campaign/evidence/project-current-link-final.log), [docs/work/active/vacation-campaign/evidence/project-current-link-qualification.json](active/vacation-campaign/evidence/project-current-link-qualification.json), [docs/work/active/vacation-campaign/evidence/pr207-publication.json](active/vacation-campaign/evidence/pr207-publication.json)
 
 Attempts:
 
