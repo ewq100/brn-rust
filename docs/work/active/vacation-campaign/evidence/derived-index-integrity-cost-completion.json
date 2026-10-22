@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-10-22T04:58:00.745939+00:00",
+  "exit_code": 101,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 85.15375479101203,
+  "disk_free_bytes": 16790044672,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "source_restored_exactly": true,
+  "source_restore_status": "restored_exactly",
+  "source_hash_after": "94efb75c085c933130196aa2681aa47624674f6a2a3074522c1280992044cc70",
+  "original_source_sha256": "94efb75c085c933130196aa2681aa47624674f6a2a3074522c1280992044cc70",
+  "temporary_source_sha256": "61cf38702f310fc1c65de835291535cc8f4cee91f08fae058145b7f23b5c0fe9",
+  "qualified": false,
+  "scope": "cost-only healthy-index scan, no recovery candidate or production adoption"
+}

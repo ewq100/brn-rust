@@ -1,0 +1,23 @@
+{"head": "a499ae47c81de2e9101676743d164d6e5ca2cb9b", "temporary_source_sha256": "61cf38702f310fc1c65de835291535cc8f4cee91f08fae058145b7f23b5c0fe9", "purpose": "one healthy-index admission-cost experiment, not a repair candidate"}
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-threads-core)
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-threads-app)
+    Finished `release` profile [optimized] target(s) in 1m 19s
+     Running tests/user_scale.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/release/deps/user_scale-865ee7ec84e6b09c)
+
+running 1 test
+
+thread 'ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly' (18606855) panicked at crates/brn-threads-app/tests/user_scale.rs:88:5:
+reopen 52.103125ms vs cold build 602.944875ms
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly ... FAILED
+
+failures:
+
+failures:
+    ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+error: test failed, to rerun pass `-p brn-threads-app --test user_scale`
