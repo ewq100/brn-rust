@@ -17,6 +17,8 @@ The [canonical acceptance journeys](../architecture/threads-target.md#acceptance
 
 Use the repository pin (currently Rust 1.98.1) and lockfile. Compiler/dependency changes need applicable task scope and relevant qualification. Source inspection is not a passing build or native result. Default workspace checks do not cover optional native features. Run focused checks as needed; repeat broad checks only for relevant changes or a concrete unresolved risk. No zero-test or self-skipped run counts as proof.
 
+For offline native retrieval checks, follow the explicit cached ONNX Runtime library setup in [development tooling](tooling.md); Cargo offline mode alone does not select that native library.
+
 When sharing a target directory between checkouts, a single build slot prevents
 concurrent writers but does not prove cached artifact identity. Timestamp freshness
 can retain an earlier checkout's local library after a source switch. Verify an

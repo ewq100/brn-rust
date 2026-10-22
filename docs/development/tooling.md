@@ -72,3 +72,25 @@ Synthetic envelope/count/wire-order observations do not qualify live discovery o
 For a native qualification artifact, preserve the source-bound original and copy the app plus its matching helpers. Read-only executable copies retain execute permission (for example0555); verify both hashes and executable access before marking the set ready to launch. A matching hash with0444 permissions is a retained file, not a runnable executable.
 
 Local app packaging/launcher helpers remain maintained; packaging is separate from signing/release. [Size reporting](size-report.md) measures explicitly supplied paths, not installed-size savings from source cleanup.
+
+## Offline native retrieval builds
+
+Cargo's `--offline` uses the local crate cache; it does not select a cached ONNX
+Runtime library. When the pinned `ort-sys` build has download skipping enabled,
+provide an existing library directory explicitly with `ORT_LIB_LOCATION` (or
+`ORT_LIB_PATH`). Before building, verify that directory contains the library
+for the current target and the ONNX Runtime version/API expected by the locked
+`ort` dependencies. For example:
+
+```sh
+CARGO_NET_OFFLINE=true ORT_SKIP_DOWNLOAD=1 ORT_OFFLINE=1 \
+  ORT_LIB_LOCATION=/absolute/path/to/compatible/onnxruntime \
+  cargo build -p brn-threads-app --features native-retrieval --locked --offline
+```
+
+Do not point it at a guessed cache path or a library for another
+architecture/version. These variables select native link inputs; they do not
+install or select embedding-model assets, which are separate. A successful
+build or synthetic test does not establish model availability or native app
+behavior. If no compatible library is already available, stop: this route does
+not authorize downloads, model acquisition or account access.
