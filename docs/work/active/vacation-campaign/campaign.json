@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:02:38.051794+00:00",
+    "observed_at": "2026-10-22T06:05:11.455865+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4162,24 +4162,25 @@
       {
         "id": "review-draft-failure-preflight",
         "title": "Check edited proposals survive refused preparation and replacement",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only assessment; lead disposition",
-        "observed_at": "2026-10-22T06:02:38.051794+00:00",
+        "observed_at": "2026-10-22T06:05:11.455865+00:00",
         "origin": "observed",
-        "activity": "Selected one distinct ReviewLifecycle failure-path preflight following the confirmed Note reload defect. Reuse existing independent-host and desktop witnesses; no general reducer migration or new tests selected.",
-        "next_action": "Inspect exact eae review-edit preparation, replacement, candidate completion and navigation callers plus existing fault/stale witnesses. Return one concrete gap or explicit no-change finding before any implementation.",
+        "activity": "No distinct failure-path defect found. Existing independenthost actualinput refusal and desktop candidate/navigation witnesses cover dirtydraft preservation, oldoperation completion and exact replacement. Lead checked reachable failurereturn/hostguards; explicit Dismiss remains intentional abandon, separate from incidental failures. No new test/refactor.",
+        "next_action": "Retain existing guards and distinct host tests. Revisit only on an observed silent draft loss, a new independent producer or changed explicit Dismiss product intent.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-writing-ui/src/review.rs",
           "crates/brn-writing-ui/README.md",
           "docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md",
-          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md"
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
+          "docs/work/active/vacation-campaign/evidence/review-draft-failure-preflight.md"
         ],
         "gates": {
-          "implementation": "Assessment only; no candidate selected.",
-          "checks": "Source/caller and existing witness inventory; no execution yet.",
-          "integration": "Inapplicable unless actual correction selected.",
+          "implementation": "No change selected; lifecycle owner already keeps draft/candidate/selection coherent on inspected refused paths.",
+          "checks": "PASS bounded source/caller/witness inspection only, not new test execution or native proof.",
+          "integration": "Inapplicable, no product candidate.",
           "native": "Deferred for owner-reported screen unavailability.",
           "owner_acceptance": "No new product choice selected."
         },

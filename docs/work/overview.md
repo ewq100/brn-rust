@@ -58,27 +58,6 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.
 
 </details>
 
-### Check edited proposals survive refused preparation and replacement
-
-Owner: Bounded Luna read-only assessment; lead disposition · State: **active** · Last observed: 2026-10-22T06:02:38.051794+00:00
-Activity: Selected one distinct ReviewLifecycle failure-path preflight following the confirmed Note reload defect. Reuse existing independent-host and desktop witnesses; no general reducer migration or new tests selected.
-Next: Inspect exact eae review-edit preparation, replacement, candidate completion and navigation callers plus existing fault/stale witnesses. Return one concrete gap or explicit no-change finding before any implementation.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Assessment only; no candidate selected.
-- **checks:** Source/caller and existing witness inventory; no execution yet.
-- **integration:** Inapplicable unless actual correction selected.
-- **native:** Deferred for owner-reported screen unavailability.
-- **owner acceptance:** No new product choice selected.
-
-Evidence: [crates/brn-writing-ui/src/review.rs](../../crates/brn-writing-ui/src/review.rs), [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md), [docs/work/active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md](active/vacation-campaign/evidence/lifecycle-test-retirement-audit.md), [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md)
-
-</details>
-
 ## Next
 
 None recorded.
@@ -303,6 +282,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `desktop-refresh-scale-preflight` — Locate a useful headless check for app refresh at larger workspace size
 - `desktop-refresh-scale-diagnostic` — Measure the existing app refresh on a larger synthetic workspace
 - `request-history-refresh-preflight` — Check coverage for refresh after accumulated writing history
+- `review-draft-failure-preflight` — Check edited proposals survive refused preparation and replacement
 
 ## Dependencies
 
@@ -343,4 +323,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T06:02:38.051794+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T06:05:11.455865+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
