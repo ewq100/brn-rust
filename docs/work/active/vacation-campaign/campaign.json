@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T09:08:13+00:00",
-    "remaining_percent": 47,
+    "observed_at": "2026-10-22T09:35:44.456044+00:00",
+    "remaining_percent": 45,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted actual53% used/47% remaining, ordinaryUsageAllowed=true; secondary unavailable. No ownerpause; fixedexpiry and closedaccountsession unchanged.",
+    "ordinary_work": "Admitted actual55% used/45% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause; fixedexpiry and closed account session unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:27:08.136689+00:00",
+    "observed_at": "2026-10-22T09:35:44.456044+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4590,10 +4590,10 @@
         "title": "Prepare fresh privacy test data before the Mac session",
         "state": "active",
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
-        "observed_at": "2026-10-22T09:27:08.136689+00:00",
+        "observed_at": "2026-10-22T09:35:44.456044+00:00",
         "origin": "observed",
-        "activity": "Pinned offline current-source CLI build passed in12seconds; exact helpers matched retained qualification and unchanged helper source. Initial task-only fixture runner is held before execution: static review found initialization, settings-guard, cleanup and receipt-reporting defects. No fixture or desktop action occurred.",
-        "next_action": "Apply one coherent correction to the reviewed runner findings, obtain final independent review, then execute one bounded fresh preparation. Preserve original runner and any actual failure; no automatic retry.",
+        "activity": "Final exact59e9bd0d independent static review PASS; all original and bounded-correction findings fixed. Lead selects first actual preparation run with frozen CLI/helper artifacts and45% remaining allowance.",
+        "next_action": "Execute approved runner once; inspect durable success/failure and owned-child cleanup, independently review actual result. Do not retry without diagnosis; no native/account action.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4603,11 +4603,18 @@
           "docs/work/active/vacation-campaign/evidence/mac13-preparation-plan-review.md",
           "docs/work/active/vacation-campaign/evidence/mac13-cli-command-preflight.md",
           "docs/work/active/vacation-campaign/evidence/mac13-cli-build.json",
-          "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz"
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first.py.gz",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare.py",
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-final-review.md"
         ],
         "gates": {
-          "implementation": "Existing public CLI route selected; no product source change. Approved bounded preparation plan.",
-          "checks": "PASS source-bound CLI build and helper identity. Initial runner static review pending correction; no fixture execution or native result.",
+          "implementation": "PASS independent final task-runner review59e9bd0d; no product change.",
+          "checks": "PASS current-source CLI/helper build identity; actual fresh preparation pending first execution.",
           "integration": "Evidence-only, normal product integration alreadymain213",
           "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
           "owner_acceptance": "No new product policy; preparation is not native acceptance"
@@ -4617,7 +4624,24 @@
             "outcome": "Initial runner eb837f36 rejected before execution by static inspection: self.env read before initialization; init result.settings guard misrouted; descendant cleanup/persistence and Git bounds need correction. No runtime attempt consumed.",
             "change": "One coherent author correction followed by independent complete review, preserving initial source and findings.",
             "evidence": [
-              "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz"
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial.py.gz",
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-initial-review.md"
+            ]
+          },
+          {
+            "outcome": "Second static review of ae66bc3b: original five issues fixed; two P2s remain in cumulative cleanup reserve and oversized Git output read. No runtime attempt.",
+            "change": "Lead scoped correction, final59e9bd0d; one shared cleanup deadline and30s reserve, bounded Git reads/overflow rejection plus deterministic diff flags. Independent affected-path review pending.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first.py.gz",
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first-review.md"
+            ]
+          },
+          {
+            "outcome": "First actual preparation selected, not yet completed; static reviews are distinct from runtime attempts.",
+            "change": "Execute exact59e9bd0d once under600s overall/60s CLI/30s cleanup admission reserve; preserve raw outcome before any correction.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare.py",
+              "docs/work/active/vacation-campaign/evidence/mac13-prepare-final-review.md"
             ]
           }
         ],
