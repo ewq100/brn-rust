@@ -3217,12 +3217,12 @@
       {
         "id": "restore-process-stage-ownership",
         "title": "Check that interrupted restore work is reclaimed safely",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead test design/integration; bounded Luna test-only author; independent Sol review",
-        "observed_at": "2026-10-22T03:08:59.109199+00:00",
+        "observed_at": "2026-10-22T03:42:11.071784+00:00",
         "origin": "observed",
-        "activity": "PR206 normal merged79fa3980 after all four exact-head/preceding-main checks and live protection PASS. Whole resulting tree equals actual published3414. Resulting-main verification remains pending.",
-        "next_action": "Inspect all four required checks on resulting main79fa3980; no repeat local qualification for unchanged reviewed source.",
+        "activity": "PR20679fa3980 allfour required resulting-main checks nowPASS, separatelyfromprotectedhead/precedingmain and exactpublishedtree equality. Previewpackaging/qualification/publication steps actuallyskipped; optionalWindowsfailuresretained.",
+        "next_action": "Reuse reviewedqualifiedrestore process witness; no repeatselected. Publicpartialcopyproof isseparatecompletedtask; native/powerloss remainunclaimed.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3243,12 +3243,14 @@
           "docs/work/active/vacation-campaign/evidence/restore-process-stage-integrated-base.json",
           "docs/work/active/vacation-campaign/evidence/pr206-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr206-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr206-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr206-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr206-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/pr206-preview-steps.json"
         ],
         "gates": {
           "implementation": "PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.",
           "checks": "PASS core219/0/1, strictalltargetlint/fmt. Expected negativecontrol1FAIL at actual live-stage guard; exact finalsource restored.",
-          "integration": "MERGED PR20679fa3980; all4 head/preceding-main/live protection and published whole-tree equality PASS; resulting-main pending separately.",
+          "integration": "PASS normalmerge20679fa; all4 exacthead/preceding/resulting-main/liveprotection and actualpublishedwhole-tree equality.",
           "native": "Headless process/OS lock evidence only, no native app or power-loss proof.",
           "owner_acceptance": "No owner decision selected."
         },
@@ -3403,8 +3405,8 @@
         "owner": "Lead diagnosis/integration; bounded Luna author; independent Sol review",
         "observed_at": "2026-10-22T03:22:09.978746+00:00",
         "origin": "observed",
-        "activity": "Final18aba independentcomplete3file Sol review approved nofindings; Projects9/0 and core219/0/1existingignored plus strictcore+app alltargetlint/fmt/links PASS. Published/attached PR207 oncurrentmain20679fa3980; requiredhead/main checks pending.",
-        "next_action": "Keep PR207 head stable. Inspect all4 actual exact-head/preceding-main gates and live protection before normal merge, then resulting-main separately. No repeated source qualification without change.",
+        "activity": "The correction is independently reviewed and locally verified. PR207 is published on main206; required checks are running. It refuses a new Project link to a replaced note while preserving existing link identity and explicit removal.",
+        "next_action": "Keep PR207 stable. Verify all four required checks on its exact head and preceding main, plus live protection, before a normal merge. Check the resulting main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3451,8 +3453,8 @@
         "owner": "Lead design/integration; bounded Luna test-only author; independent Sol review",
         "observed_at": "2026-10-22T03:33:41.318238+00:00",
         "origin": "observed",
-        "activity": "Finaldc169 independently approved; completecore219/0/0 plus strictalltargetlint/fmt/diff PASS. Removed only obsoleteignored childhelper. One expected readinessnegative1FAIL after10.02s proves ownedwaitSIGKILL9; exactqualifiedsource restoredclean. Candidate retained, no PR yet.",
-        "next_action": "Keep test-onlycandidatefrozen; afterPR207 normalintegration reconcile actualmain before publication, review reuse/combinedtree and applicablechecks. Avoid CI restart from publishing stale base.",
+        "activity": "The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored.",
+        "next_action": "AfterPR207 integration, reconcileactualmain and combine this independenttest-onlymaintenance with qualifiedselected-task readingroute into one reviewable development-maintenance batch. Inspectcompleteactualbatch, runcombinedcore gate, preserveindividualreceipts, onefreshrequiredCI cycle; nofalseproductdependency.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3468,7 +3470,8 @@
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch",
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json",
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json",
-          "docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json"
         ],
         "gates": {
           "implementation": "PASS exactdc169 complete4fileindependentreview; sharedUnix test-only childowner, boundedreadiness, helperretirement.",
@@ -3490,6 +3493,48 @@
           }
         ],
         "resource_plan": "One economical Luna bounded author in reusable export-durability checkout frommain206; independent Sol reviewer afterwards. Fouractualslots incllead, no nestedhelpers. Lead owns one shared build; sourceauthor onlyfmt/diff. Stop for scope expansion or two failed approaches. No account/native/CLIworkload/dependency/global changes."
+      },
+      {
+        "id": "selected-task-reading-route",
+        "title": "Read one current task without loading the entire campaign history",
+        "state": "active",
+        "owner": "Bounded Luna tooling author; lead review/integration",
+        "observed_at": "2026-10-22T03:43:19.021953+00:00",
+        "origin": "observed",
+        "activity": "The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance.",
+        "next_action": "Retain the qualified source. After PR207 integration, combine the two independent development-maintenance outcomes into one reviewed batch and one required CI cycle. Keep all task facts in the existing record.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "scripts/render-work-overview.py",
+          "scripts/tests/test_work_overview.py",
+          "docs/development/workflow.md",
+          "docs/work/overview.md",
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json"
+        ],
+        "gates": {
+          "implementation": "PASS final cadcec independent complete review; custom-record P2 valid/fixed.",
+          "checks": "PASS Python188, actual lookup/unknown exit0/2 and byte preservation, default/custom overview and links. Earlier functional proof reused explicitly: lookup main function is byte-identical.",
+          "integration": "Qualified branch only; no PR or merge yet. Selected for a small development-maintenance batch after current main is reconciled.",
+          "native": "Inapplicable developerreadroute; noBRNruntime/nativechanges.",
+          "owner_acceptance": "No ownerdecision selected."
+        },
+        "attempts": [
+          {
+            "outcome": "Initial2cd passed188 tests but independent review found generated custom-record guidance would query the default record.",
+            "change": "Added explicit selected-record argument to the generated instruction and extended the existing custom-record assertion. Final cadcec passed188 and independent review; lookup behavior itself is unchanged.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md",
+              "docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md",
+              "docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json"
+            ]
+          }
+        ],
+        "resource_plan": "One boundedLuna author in reusable mac-test-roots frommain206, no overlappingwriter. Leadownsrecord/overview; authorreconstructs generatedoverviewinowncheckout only. NoRustbuild/provider/account/native/network/globalconfig/nestedhelper. Stop onnewtrackingframework or tasksemanticchange."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3504,9 +3549,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-public-restore-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T03:33:41.318238+00:00",
-    "runtime_capacity": "Fouractualslots includinglead; boundedLuna author and independentSol reviewer completed. Historicalpendingrun_activity_author isnotadmittedwork.",
-    "build_slot": "Free after test-onlycore qualification and negativecontrol; allownedchildren reaped, exactsource restored. Sharedtargetdiagnosticbinary isnotqualifiedartifact.",
+    "observed_at": "2026-10-22T03:43:19.021953+00:00",
+    "runtime_capacity": "Four actual slots including lead. Bounded Luna author and independent Sol reviewer have completed both maintenance candidates; no source writer is active.",
+    "build_slot": "Free. Exact backup candidate is restored; the diagnostic target binary is not the qualified artifact.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
@@ -3518,14 +3563,13 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR206 resultingmain and PR207 protectedgates; freeze nexttestonlycandidate until actualmainreconciled.",
+    "wait_reason": "PR207 required checks. The two qualified maintenance candidates will use one reviewed integration batch after main is reconciled.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen backup-process-witness-bounds dc169; exactcandidate/nextgate inselectedtask.",
-    "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
+    "fixture_worker_checkout": "mac-test-roots holds frozen selected-task reading candidate cadcec; no writer. Earlier CLI28 artifact/source receipts remain retained.",
     "documentation_worker_checkout": "architecture-status-route frozen PR20718aba; nowriter.",
     "required_ci_runs": [
-      39715111426,
       39716336994
     ]
   },

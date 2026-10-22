@@ -1,0 +1,18 @@
+{
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "candidate": "dc16973f711828ae8fc3c7923ab150bd1091f963",
+  "proof": {
+    "backup.rs": {
+      "production_prefix_identical": true,
+      "sha256": "c0f6366c67ce051033ea4bd34371e12c9fd8256352cb7d24f051bc921f4e2c3c"
+    },
+    "restore.rs": {
+      "production_prefix_identical": true,
+      "sha256": "f78b8e81bb04f3802341fcb175eeb9a8b1ad52f724a9b215013b331ba4bd9279"
+    },
+    "lib.rs": {
+      "only_new_module_excluded_unless_test_and_unix": true
+    }
+  },
+  "limits": "Sourcecfgproof only; not a binary/native/runtime claim."
+}

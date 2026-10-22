@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-22T03:39:01.602269+00:00",
+  "candidate": "2cdce8325bee82c2888e4f86c44cca88c82564de",
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "actual_command": [
+    "python3",
+    "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/scripts/render-work-overview.py",
+    "--record",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/active/vacation-campaign/campaign.json",
+    "--output",
+    "/tmp/brn-selected-task-route-qualification/must-stay-absent/overview.md",
+    "--task",
+    "project-current-document-link"
+  ],
+  "selected_task": "project-current-document-link",
+  "exact_selected_object": true,
+  "task_exit": 0,
+  "unknown_task_exit": 2,
+  "output_parent_still_absent": true,
+  "source_record_and_overview_hashes_unchanged": {
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/active/vacation-campaign/campaign.json": "bb1d254fa1a41aa1cfe34784d8b246b8e002ab01f31fed03fac0c63eeb9da1c7",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/overview.md": "002167f2279c3f73d7a0db8d0ce798c865186977b41402616af6724406bf1eb1"
+  },
+  "source_record_bytes": 269329,
+  "selected_output_bytes": 3657,
+  "author_qualification": "Fullscriptsunittest188PASS, renderercheck/links/diffPASS; source-boundauthorreport. Leadactualcurrent-recordlookup above isseparatelyverified.",
+  "limits": "Bytevolumecomparison only, no measured token/cost/speed claim; scriptstillvalidatesfullrecord internally. No runtime/native change or sourcefactrelocation."
+}

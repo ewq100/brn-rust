@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-22T03:39:01.602269+00:00",
+  "candidate": "cadcec0373e4542ffb1e43a8152bba343e142f8f",
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "actual_command": [
+    "python3",
+    "/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/scripts/render-work-overview.py",
+    "--record",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/active/vacation-campaign/campaign.json",
+    "--output",
+    "/tmp/brn-selected-task-route-qualification/must-stay-absent/overview.md",
+    "--task",
+    "project-current-document-link"
+  ],
+  "selected_task": "project-current-document-link",
+  "exact_selected_object": true,
+  "task_exit": 0,
+  "unknown_task_exit": 2,
+  "output_parent_still_absent": true,
+  "source_record_and_overview_hashes_unchanged": {
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/active/vacation-campaign/campaign.json": "bb1d254fa1a41aa1cfe34784d8b246b8e002ab01f31fed03fac0c63eeb9da1c7",
+    "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/overview.md": "002167f2279c3f73d7a0db8d0ce798c865186977b41402616af6724406bf1eb1"
+  },
+  "source_record_bytes": 269329,
+  "selected_output_bytes": 3657,
+  "author_qualification": "Full Python188 PASS on corrected cadcec, custom-record read-only CLI, overview freshness, links and diff passed. Lead actual initial-current-record proof explicitly reused because lookup implementation is byte-identical.",
+  "limits": "Developer-tool lookup and generated routing only. Source record remains authoritative; full record still validated internally. Measured output byte counts are not token/cost/performance measurements.",
+  "initial_functional_candidate": "2cdce8325bee82c2888e4f86c44cca88c82564de",
+  "lookup_main_function_byte_identical_to_initial": true,
+  "lookup_main_function_sha256": "2ca62c2eb40b66a7ede905307835ecb6c4a1bfb708133b1eeffdcaffa6532592",
+  "independent_final_review": "PASS complete four-file candidate; custom-record generated-route P2 valid/fixed."
+}

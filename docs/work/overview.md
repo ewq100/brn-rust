@@ -9,37 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Check that interrupted restore work is reclaimed safely
-
-Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:08:59.109199+00:00
-Activity: PR206 normal merged79fa3980 after all four exact-head/preceding-main checks and live protection PASS. Whole resulting tree equals actual published3414. Resulting-main verification remains pending.
-Next: Inspect all four required checks on resulting main79fa3980; no repeat local qualification for unchanged reviewed source.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.
-- **checks:** PASS core219/0/1, strictalltargetlint/fmt. Expected negativecontrol1FAIL at actual live-stage guard; exact finalsource restored.
-- **integration:** MERGED PR20679fa3980; all4 head/preceding-main/live protection and published whole-tree equality PASS; resulting-main pending separately.
-- **native:** Headless process/OS lock evidence only, no native app or power-loss proof.
-- **owner acceptance:** No owner decision selected.
-
-Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-implementation.md](active/vacation-campaign/evidence/restore-process-stage-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-qualification.json](active/vacation-campaign/evidence/restore-process-stage-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.sh](active/vacation-campaign/evidence/restore-process-stage-final.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.log](active/vacation-campaign/evidence/restore-process-stage-final.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.patch](active/vacation-campaign/evidence/restore-process-stage-negative-control.patch), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.sh](active/vacation-campaign/evidence/restore-process-stage-negative-control.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.log](active/vacation-campaign/evidence/restore-process-stage-negative-control.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json](active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-integrated-base.json](active/vacation-campaign/evidence/restore-process-stage-integrated-base.json), [docs/work/active/vacation-campaign/evidence/pr206-publication.json](active/vacation-campaign/evidence/pr206-publication.json), [docs/work/active/vacation-campaign/evidence/pr206-premerge.json](active/vacation-campaign/evidence/pr206-premerge.json), [docs/work/active/vacation-campaign/evidence/pr206-integration.json](active/vacation-campaign/evidence/pr206-integration.json)
-
-Attempts:
-
-- Initial2f3f65c8 focused1PASS/0FAIL, but independent review identifies readiness race and weaker-than-claimed public-retry sweep proof.: Publish readiness atomically; hold same-process fixture before SIGKILL, then assert child stage remains immediately before public Store::restore. No production change. ([docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log))
-- Expected negative control0PASS/1FAIL at a live process stage must remain, after child deliberately abandoned lock while alive.: Restored only task-owned test mutation to exact qualifiedf465 bytes; clean HEAD/hash verified. No product fix or broader rerun needed. ([docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json](active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.patch](active/vacation-campaign/evidence/restore-process-stage-negative-control.patch), [docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.log](active/vacation-campaign/evidence/restore-process-stage-negative-control.log))
-
-</details>
-
 ### Refuse a new Project link when its selected document has been superseded
 
 Owner: Lead diagnosis/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:22:09.978746+00:00
-Activity: Final18aba independentcomplete3file Sol review approved nofindings; Projects9/0 and core219/0/1existingignored plus strictcore+app alltargetlint/fmt/links PASS. Published/attached PR207 oncurrentmain20679fa3980; requiredhead/main checks pending.
-Next: Keep PR207 head stable. Inspect all4 actual exact-head/preceding-main gates and live protection before normal merge, then resulting-main separately. No repeated source qualification without change.
+Activity: The correction is independently reviewed and locally verified. PR207 is published on main206; required checks are running. It refuses a new Project link to a replaced note while preserving existing link identity and explicit removal.
+Next: Keep PR207 stable. Verify all four required checks on its exact head and preceding main, plus live protection, before a normal merge. Check the resulting main separately.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -63,8 +37,8 @@ Attempts:
 ### Bound backup-process readiness and clean up its owned test child
 
 Owner: Lead design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:33:41.318238+00:00
-Activity: Finaldc169 independently approved; completecore219/0/0 plus strictalltargetlint/fmt/diff PASS. Removed only obsoleteignored childhelper. One expected readinessnegative1FAIL after10.02s proves ownedwaitSIGKILL9; exactqualifiedsource restoredclean. Candidate retained, no PR yet.
-Next: Keep test-onlycandidatefrozen; afterPR207 normalintegration reconcile actualmain before publication, review reuse/combinedtree and applicablechecks. Avoid CI restart from publishing stale base.
+Activity: The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored.
+Next: AfterPR207 integration, reconcileactualmain and combine this independenttest-onlymaintenance with qualifiedselected-task readingroute into one reviewable development-maintenance batch. Inspectcompleteactualbatch, runcombinedcore gate, preserveindividualreceipts, onefreshrequiredCI cycle; nofalseproductdependency.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -77,11 +51,36 @@ Gates:
 - **native:** No native or power-loss claim.
 - **owner acceptance:** No owner decision selected.
 
-Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-implementation.md](active/vacation-campaign/evidence/backup-process-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-review.md](active/vacation-campaign/evidence/backup-process-bounds-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.sh](active/vacation-campaign/evidence/backup-process-bounds-final.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.log](active/vacation-campaign/evidence/backup-process-bounds-final.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.sh](active/vacation-campaign/evidence/backup-process-bounds-negative.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json](active/vacation-campaign/evidence/backup-process-bounds-qualification.json)
+Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-implementation.md](active/vacation-campaign/evidence/backup-process-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-review.md](active/vacation-campaign/evidence/backup-process-bounds-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.sh](active/vacation-campaign/evidence/backup-process-bounds-final.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.log](active/vacation-campaign/evidence/backup-process-bounds-final.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.sh](active/vacation-campaign/evidence/backup-process-bounds-negative.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json](active/vacation-campaign/evidence/backup-process-bounds-qualification.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json](active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json)
 
 Attempts:
 
 - Expectednegative1FAIL at missingready after10.02s; actualownedChildwaitOk signal9. Lead initialreceiptparser mismatchedRustdebugspelling, nottestbehavior.: Correctedreceiptparseragainstpreservedlogwithout rerun; originalreceiptretained. Exactdc169filebytes/hash/cleanHEAD restored; nofullrerunneeded foridenticalsource. ([docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log))
+
+</details>
+
+### Read one current task without loading the entire campaign history
+
+Owner: Bounded Luna tooling author; lead review/integration · State: **active** · Last observed: 2026-10-22T03:43:19.021953+00:00
+Activity: The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance.
+Next: Retain the qualified source. After PR207 integration, combine the two independent development-maintenance outcomes into one reviewed batch and one required CI cycle. Keep all task facts in the existing record.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS final cadcec independent complete review; custom-record P2 valid/fixed.
+- **checks:** PASS Python188, actual lookup/unknown exit0/2 and byte preservation, default/custom overview and links. Earlier functional proof reused explicitly: lookup main function is byte-identical.
+- **integration:** Qualified branch only; no PR or merge yet. Selected for a small development-maintenance batch after current main is reconciled.
+- **native:** Inapplicable developerreadroute; noBRNruntime/nativechanges.
+- **owner acceptance:** No ownerdecision selected.
+
+Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/overview.md](overview.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-implementation.md](active/vacation-campaign/evidence/selected-task-route-implementation.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md](active/vacation-campaign/evidence/selected-task-route-initial-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md](active/vacation-campaign/evidence/selected-task-route-final-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json](active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json), [docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json](active/vacation-campaign/evidence/selected-task-route-qualification.json)
+
+Attempts:
+
+- Initial2cd passed188 tests but independent review found generated custom-record guidance would query the default record.: Added explicit selected-record argument to the generated instruction and extended the existing custom-record assertion. Final cadcec passed188 and independent review; lookup behavior itself is unchanged. ([docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md](active/vacation-campaign/evidence/selected-task-route-initial-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md](active/vacation-campaign/evidence/selected-task-route-final-review.md), [docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json](active/vacation-campaign/evidence/selected-task-route-qualification.json))
 
 </details>
 
@@ -289,6 +288,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
 - `knowledge-check-refresh-ownership` — Keep previous knowledge findings out of a replacement check
 - `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
+- `restore-process-stage-ownership` — Check that interrupted restore work is reclaimed safely
 - `state-ownership-milestone-review` — Reconcile the implemented reducers and state owners
 - `native-future-compatibility-warning-triage` — Identify the native dependency warning before it becomes an upgrade blocker
 - `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
