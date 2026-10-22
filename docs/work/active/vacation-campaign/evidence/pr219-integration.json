@@ -13,7 +13,7 @@
   "qualified_candidate": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
   "qualified_tree": "356b3380f0571d08533457f05a86f07e0e9de9d2",
   "premerge_receipt": "pr219-premerge.json",
-  "resulting_main": "Pending separate actual verification; no release or live-efficacy claim.",
+  "resulting_main": "PASS all four required exact24a77f4f checks, verified separately in pr219-resulting-main.json",
   "merged_tree": "356b3380f0571d08533457f05a86f07e0e9de9d2",
   "whole_tree_equal": true
 }
