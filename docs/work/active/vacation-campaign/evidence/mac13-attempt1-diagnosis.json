@@ -1,0 +1,16 @@
+{
+  "runner_sha256": "59e9bd0d8a20095f51693899589bd8873f2170a5345a6f3168cab9b1a0a77397",
+  "checkout_head": "37317a2a04470e0bd5a7508f8171a9cab0836ce9",
+  "actual_run": "/private/tmp/mac13-preparation-20261022T093544Z-c02f94126f",
+  "command_count": 15,
+  "all_child_groups_absent": true,
+  "secret_files_remaining": 0,
+  "note_id": "3bafaddf-c57c-4ede-9234-750543e87194:1",
+  "actual_version": 1,
+  "expected_bytes": 78,
+  "expected_sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+  "actual_bytes": 78,
+  "actual_sha256": "0141503061f7fc6542af62fb3d9032ec47f2bb011d4a1c001cd39c4f42b03b4e",
+  "observation": "Imported body joins the soft-line between Unicode line and Initial saved line with a space. Strict original-byte fixture expectation failed. No expected bytes altered; no product converter repair claimed.",
+  "next": "Independent reassessment of checked fixture-initialization Save before one permitted diagnosed second attempt; no automatic rerun."
+}

@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Prepare fresh privacy test data before the Mac session
 
 Task ID: `privacy-native-fixture-preparation`
-Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:35:44.456044+00:00
-Activity: Final exact59e9bd0d independent static review PASS; all original and bounded-correction findings fixed. Lead selects first actual preparation run with frozen CLI/helper artifacts and45% remaining allowance.
-Next: Execute approved runner once; inspect durable success/failure and owned-child cleanup, independently review actual result. Do not retry without diagnosis; no native/account action.
+Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:37:24.726876+00:00
+Activity: First actual preparation FAILED safely in2.9seconds: private Markdown import joins a softline asspace and differs from unchanged78-byte initialfixture. All15ownedchildgroups absent; AIoff/no credentials verified; secrets empty. No other roots prepared/no native action.
+Next: Independently reassess one checked initialization Save to restore exact originalexpected fixture body while preserving importv1/provenance/failure; only then select atmostone diagnosedsecondattempt. No converterchange, expectedfixturechange, SQL repair or automatic retry.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Execute approved runner once; inspect durable success/failure and owned-ch
 Gates:
 
 - **implementation:** PASS independent final task-runner review59e9bd0d; no product change.
-- **checks:** PASS current-source CLI/helper build identity; actual fresh preparation pending first execution.
+- **checks:** FAIL first actual fixture preparation; source-boundCLI/helper PASS and correctfail-closedguard retained. No readyfixture/nativeclaim.
 - **integration:** Evidence-only, normal product integration alreadymain213
 - **native:** Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending
 - **owner acceptance:** No new product policy; preparation is not native acceptance
@@ -319,4 +319,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:35:44.456044+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:37:24.726876+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

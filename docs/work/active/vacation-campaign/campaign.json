@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:35:44.456044+00:00",
+    "observed_at": "2026-10-22T09:37:24.726876+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4590,10 +4590,10 @@
         "title": "Prepare fresh privacy test data before the Mac session",
         "state": "active",
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
-        "observed_at": "2026-10-22T09:35:44.456044+00:00",
+        "observed_at": "2026-10-22T09:37:24.726876+00:00",
         "origin": "observed",
-        "activity": "Final exact59e9bd0d independent static review PASS; all original and bounded-correction findings fixed. Lead selects first actual preparation run with frozen CLI/helper artifacts and45% remaining allowance.",
-        "next_action": "Execute approved runner once; inspect durable success/failure and owned-child cleanup, independently review actual result. Do not retry without diagnosis; no native/account action.",
+        "activity": "First actual preparation FAILED safely in2.9seconds: private Markdown import joins a softline asspace and differs from unchanged78-byte initialfixture. All15ownedchildgroups absent; AIoff/no credentials verified; secrets empty. No other roots prepared/no native action.",
+        "next_action": "Independently reassess one checked initialization Save to restore exact originalexpected fixture body while preserving importv1/provenance/failure; only then select atmostone diagnosedsecondattempt. No converterchange, expectedfixturechange, SQL repair or automatic retry.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4610,11 +4610,14 @@
           "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first-review.md",
           "docs/work/active/vacation-campaign/evidence/mac13-prepare-corrected-first-implementation.md",
           "docs/work/active/vacation-campaign/evidence/mac13-prepare.py",
-          "docs/work/active/vacation-campaign/evidence/mac13-prepare-final-review.md"
+          "docs/work/active/vacation-campaign/evidence/mac13-prepare-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt1.json",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt1-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/mac13-attempt1-diagnosis.json"
         ],
         "gates": {
           "implementation": "PASS independent final task-runner review59e9bd0d; no product change.",
-          "checks": "PASS current-source CLI/helper build identity; actual fresh preparation pending first execution.",
+          "checks": "FAIL first actual fixture preparation; source-boundCLI/helper PASS and correctfail-closedguard retained. No readyfixture/nativeclaim.",
           "integration": "Evidence-only, normal product integration alreadymain213",
           "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
           "owner_acceptance": "No new product policy; preparation is not native acceptance"
@@ -4637,11 +4640,12 @@
             ]
           },
           {
-            "outcome": "First actual preparation selected, not yet completed; static reviews are distinct from runtime attempts.",
-            "change": "Execute exact59e9bd0d once under600s overall/60s CLI/30s cleanup admission reserve; preserve raw outcome before any correction.",
+            "outcome": "Actual attempt1 FAIL private-primary exactinitialtext assertion,2.904s; all15childgroups absent, no tokens/account/native. Original importedcanonical differs onlyinsoftline normalization.",
+            "change": "Stop, preserve actualreceipt/rawlogs/input and unchangedexpectedbytes; independent causal/scope reassessment before one remaining diagnosed attempt.",
             "evidence": [
-              "docs/work/active/vacation-campaign/evidence/mac13-prepare.py",
-              "docs/work/active/vacation-campaign/evidence/mac13-prepare-final-review.md"
+              "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt1.json",
+              "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt1-raw.tar.gz",
+              "docs/work/active/vacation-campaign/evidence/mac13-attempt1-diagnosis.json"
             ]
           }
         ],
