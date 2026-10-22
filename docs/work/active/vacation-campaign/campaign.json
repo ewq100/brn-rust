@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T08:35:29.516897+00:00",
+    "observed_at": "2026-10-22T09:08:13+00:00",
     "remaining_percent": 47,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted actual53% used/47% remaining, ordinaryUsageAllowed=true; secondary unavailable. Fixed expiry/no owner pause/closed account session unchanged.",
+    "ordinary_work": "Admitted actual53% used/47% remaining, ordinaryUsageAllowed=true; secondary unavailable. No ownerpause; fixedexpiry and closedaccountsession unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T08:56:59.611545+00:00",
+    "observed_at": "2026-10-22T09:11:00.320658+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4476,12 +4476,12 @@
       {
         "id": "active-overview-reading-route",
         "title": "Keep raw check history out of the startup summary",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T08:52:57.381750+00:00",
+        "observed_at": "2026-10-22T09:11:00.320658+00:00",
         "origin": "observed",
-        "activity": "PR213 normally merged3827d6a1 after all four exact-head/precedingmain/live protection PASS; integrated entiretree equals reviewed7ccb552e. Lead regenerated only its derivedoverview during reconciliation and preserved authoritative recordhash exactly. Resultingmain checks pending.",
-        "next_action": "Observe all four required resulting-main contexts for exact3827d6a1, retaining optional failures. Keep branch snapshot and lead authority distinct; no local tests/source changes without new concern.",
+        "activity": "PR213 normally merged3827d6a1; all four exact-head/preceding-main/live-protection and resulting-main required checks PASS. Entire integratedtree equals independently reviewed7ccb552e; canonical taskrecord preserved.",
+        "next_action": "Use concise overview and exact-task lookup; revisit only changed requirements or a concrete projection defect. No new validation/native claim.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4499,12 +4499,13 @@
           "docs/work/active/vacation-campaign/evidence/active-overview-qualification-logs.tar.gz",
           "docs/work/active/vacation-campaign/evidence/pr213-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr213-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr213-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr213-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr213-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.",
           "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.",
-          "integration": "PASS normalprotectedmerge3827d6a1 and wholequalifiedtree equality; required head/precedingmain/protectionPASS. Resultingmain pending.",
+          "integration": "PASS normal protectedmerge3827d6a1, whole qualifiedtree equality, all4required head/precedingmain/resultingmain PASS; optionalWindows failures retained.",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
         },
@@ -4556,6 +4557,58 @@
         },
         "attempts": [],
         "resource_plan": "One idle Luna medium helper for bounded shipping-call-site map while lead owns hostedmain213 qualification; no nested/source/sharedfacts/build/native/account/provider actions. Exclude already reviewed ordinary import/productpolicy and do not manufacture a refactor."
+      },
+      {
+        "id": "privacy-native-fixture-preflight",
+        "title": "Prepare a short path to the future Mac privacy check",
+        "state": "complete",
+        "owner": "Bounded Luna feasibility inspection; lead selection",
+        "observed_at": "2026-10-22T09:11:00.320658+00:00",
+        "origin": "observed",
+        "activity": "Source feasibility found existing publicCLI private chat attachment, generalNote and checked clean canonicaladvance routes, plus ordinary attachment Inspect UI route. No new product helper/capability indicated; no fixture/runtime/native action yet.",
+        "next_action": "Lead selects independent reviewed bounded preparation with qualifiedCLI/helpers, separateMAC13manifest/freshroots and pendingactualappopening. Preserve oldscenarioapp-created-rootrule.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "crates/brn-desktop/src/threads_polish_tests.rs",
+          "docs/work/active/vacation-campaign/native-fixtures/manifest.json",
+          "docs/work/active/vacation-campaign/evidence/privacy-native-fixture-preflight.md"
+        ],
+        "gates": {
+          "implementation": "Read-only feasibility only; no new source or fixture yet",
+          "checks": "PASS source-only feasibility; no execution or native proof.",
+          "integration": "Inapplicable until selected change",
+          "native": "Owner-deferred screen availability; preparation cannot establish native success",
+          "owner_acceptance": "Existing private refusal/public positive behavior only, no new copy/publication policy"
+        },
+        "attempts": [],
+        "resource_plan": "One Luna medium source feasibility helper while lead owns resulting-main checks. No nested/source/sharedfacts/build/fixture execution/native/account/provider/network/push actions; stop at existing reusable route or concrete capability gap."
+      },
+      {
+        "id": "privacy-native-fixture-preparation",
+        "title": "Prepare fresh privacy test data before the Mac session",
+        "state": "active",
+        "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
+        "observed_at": "2026-10-22T09:11:00.320658+00:00",
+        "origin": "observed",
+        "activity": "Selected bounded preparation using existing checked CLI; command/artifact preflight and independentplanreview in progress. No build/fixture execution yet.",
+        "next_action": "Review concrete commands/bounds, qualify existing CLI/helper identity, then prepare fresh private/general roots and separate canonicaladvance rehearsal. Keep native/usercontrol gate deferred.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/privacy-native-fixture-preflight.md",
+          "docs/work/active/vacation-campaign/native-queue.md"
+        ],
+        "gates": {
+          "implementation": "No new product source; selected existing CLI preparation only",
+          "checks": "Pending planreview/source-bound build/actual freshfixturechecks",
+          "integration": "Evidence-only, normal product integration alreadymain213",
+          "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
+          "owner_acceptance": "No new product policy; preparation is not native acceptance"
+        },
+        "attempts": [],
+        "resource_plan": "Existing selected lead owns shared build/fixture slot; Luna medium command/artifact preflight and Sol high independentreview, within4slots. No nesting/native/account/acquisition. At most2diagnosed attempts,60sprocess/10minfixturebound; cachedbuilddiskstart2GiB/stop1GiB."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4570,14 +4623,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-verified-pr213-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:56:59.611545+00:00",
-    "runtime_capacity": "Lead owns main213 CI/integration; boundedLuna consumer audit complete/nochange; independentSol idle. Fourtotal slots, no local sourcewriter/build.",
+    "observed_at": "2026-10-22T09:00:34.325051+00:00",
+    "runtime_capacity": "Lead main213 CI/integration plus one bounded Luna MAC13 fixture feasibility inspection; independentSol idle within four slots.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Only main213 required resulting-main qualification pending; reviewed consumer audit complete, no justified follow-on source selected.",
+    "wait_reason": "Main213 required checks pending; source-only future native fixture preparation feasibility selected without desktop/account/build actions.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",

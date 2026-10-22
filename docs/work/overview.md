@@ -11,23 +11,23 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Keep raw check history out of the startup summary
+### Prepare fresh privacy test data before the Mac session
 
-Task ID: `active-overview-reading-route`
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:52:57.381750+00:00
-Activity: PR213 normally merged3827d6a1 after all four exact-head/precedingmain/live protection PASS; integrated entiretree equals reviewed7ccb552e. Lead regenerated only its derivedoverview during reconciliation and preserved authoritative recordhash exactly. Resultingmain checks pending.
-Next: Observe all four required resulting-main contexts for exact3827d6a1, retaining optional failures. Keep branch snapshot and lead authority distinct; no local tests/source changes without new concern.
+Task ID: `privacy-native-fixture-preparation`
+Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:11:00.320658+00:00
+Activity: Selected bounded preparation using existing checked CLI; command/artifact preflight and independentplanreview in progress. No build/fixture execution yet.
+Next: Review concrete commands/bounds, qualify existing CLI/helper identity, then prepare fresh private/general roots and separate canonicaladvance rehearsal. Keep native/usercontrol gate deferred.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.
-- **checks:** PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.
-- **integration:** PASS normalprotectedmerge3827d6a1 and wholequalifiedtree equality; required head/precedingmain/protectionPASS. Resultingmain pending.
-- **native:** Inapplicable to text projection; existing native gates remain deferred
-- **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
+- **implementation:** No new product source; selected existing CLI preparation only
+- **checks:** Pending planreview/source-bound build/actual freshfixturechecks
+- **integration:** Evidence-only, normal product integration alreadymain213
+- **native:** Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending
+- **owner acceptance:** No new product policy; preparation is not native acceptance
 
 </details>
 
@@ -273,7 +273,9 @@ Completion here means the selected task scope is complete; it does not establish
 - `recovery-copy-privacy-guard` — Prevent recovery copies from becoming general knowledge accidentally
 - `launcher-request-close-preflight` — Check quick search request ownership when it closes
 - `comment-draft-ownership-preflight` — Check comment drafts remain attached to their saved passage
+- `active-overview-reading-route` — Keep raw check history out of the startup summary
 - `recovery-copy-route-audit` — Check every recovery-copy entry point uses the privacy guard
+- `privacy-native-fixture-preflight` — Prepare a short path to the future Mac privacy check
 
 ## Dependencies
 
@@ -317,4 +319,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:56:59.611545+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:11:00.320658+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
