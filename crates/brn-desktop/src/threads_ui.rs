@@ -32,6 +32,9 @@ use std::{
 use tokio_util::sync::CancellationToken;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_run_activity.rs"]
+mod run_activity;
+use run_activity::{Event as RunActivityEvent, RunActivity};
 #[path = "threads_components.rs"]
 mod components;
 #[path = "threads_connections.rs"]
@@ -416,9 +419,7 @@ struct ThreadsUi {
     pending_send: Option<PendingSend>,
     stream: String,
     progress: String,
-    run_activity_labels: Vec<String>,
-    run_activity_chat: Option<String>,
-    run_activity_status: String,
+    run_activity: RunActivity,
     run_activity_scroll: gpui_kit::ScrollHandle,
     notice: NoticeState,
     export_status: String,
@@ -690,9 +691,7 @@ impl ThreadsUi {
             pending_send: None,
             stream: String::new(),
             progress: String::new(),
-            run_activity_labels: vec![],
-            run_activity_chat: None,
-            run_activity_status: String::new(),
+            run_activity: RunActivity::default(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
             notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
@@ -2021,8 +2020,8 @@ impl ThreadsUi {
             cx.notify();
             return;
         }
-        self.run_activity_chat = Some(thread.clone());
-        self.run_activity_status.clear();
+        self.run_activity
+            .transition(RunActivityEvent::Started(&thread));
         self.worker = Some(Worker::run(
             receiver,
             cancel,
@@ -2031,7 +2030,6 @@ impl ThreadsUi {
             edit_note_target,
         ));
         self.stream.clear();
-        self.run_activity_labels.clear();
         self.progress = "Starting…".into();
         self.notice.clear();
         cx.notify();
@@ -2688,12 +2686,14 @@ impl ThreadsUi {
                     }
                 }
                 WorkerEvent::Progress(text) => {
-                    if self
+                    let activity_chat = self
                         .worker
                         .as_ref()
-                        .is_some_and(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
-                    {
-                        self.record_activity(&text);
+                        .filter(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
+                        .and_then(Worker::run_identity)
+                        .map(|run| run.thread.clone());
+                    if let Some(chat) = activity_chat {
+                        self.observe_run_activity(&chat, &text);
                     }
                     if !self
                         .worker
@@ -2704,12 +2704,14 @@ impl ThreadsUi {
                     }
                 }
                 WorkerEvent::Activity(text) => {
-                    if self
+                    let activity_chat = self
                         .worker
                         .as_ref()
-                        .is_some_and(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
-                    {
-                        self.record_activity(&text);
+                        .filter(|w| w.kind() == WorkerKind::Run && !w.cancel.is_cancelled())
+                        .and_then(Worker::run_identity)
+                        .map(|run| run.thread.clone());
+                    if let Some(chat) = activity_chat {
+                        self.observe_run_activity(&chat, &text);
                     }
                 }
                 WorkerEvent::CopilotLogin {
@@ -2779,12 +2781,16 @@ impl ThreadsUi {
                         tone = *terminal_tone;
                     }
                     let ok = result.is_ok();
-                    if identity.is_some() {
-                        self.run_activity_status = match &run_state {
+                    if let Some(identity) = &identity {
+                        let status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
                             Some(state) => format!("{state:?}"),
                             None => "Work ended".into(),
                         };
+                        self.run_activity.transition(RunActivityEvent::Finished {
+                            chat: &identity.thread,
+                            status: &status,
+                        });
                     }
                     let thread = identity.map(|run| run.thread.clone());
                     if identity.is_none() {
@@ -2970,13 +2976,9 @@ impl ThreadsUi {
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
         self.pause_failed_worker();
-        if self
-            .worker
-            .as_ref()
-            .and_then(Worker::run_identity)
-            .is_some()
-        {
-            self.run_activity_status = "Disconnected".into();
+        if let Some(identity) = self.worker.as_ref().and_then(Worker::run_identity) {
+            self.run_activity
+                .transition(RunActivityEvent::Disconnected(&identity.thread));
         }
         self.worker = None;
         self.pending_send = None;

@@ -185,10 +185,7 @@ impl ThreadsUi {
                 } else {
                     Some(self.live_activity(true, cx))
                 }
-            } else if !self.queue_state().quiet
-                && self.run_activity_chat.as_deref() == Some(id)
-                && !self.run_activity_labels.is_empty()
-            {
+            } else if !self.queue_state().quiet && self.run_activity.has_steps_for(id) {
                 Some(self.live_activity(false, cx))
             } else {
                 None

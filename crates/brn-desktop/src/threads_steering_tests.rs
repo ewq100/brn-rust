@@ -619,7 +619,7 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                     .unwrap();
                 ui.poll_worker(window, cx);
             }
-            assert_eq!(ui.run_activity_labels.len(), 32);
+            assert_eq!(ui.run_activity.steps().len(), 32);
             f.sender
                 .send(WorkerEvent::Finished(Err(
                     "Synthetic failure remains visible".into(),
@@ -627,7 +627,7 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
                 .unwrap();
             ui.poll_worker(window, cx);
             assert!(
-                !ui.run_activity_labels.is_empty(),
+                !ui.run_activity.steps().is_empty(),
                 "latest activity remains inspectable after the answer ends"
             );
             assert!(
@@ -680,11 +680,12 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
             "a completed chat must not offer Stop for another worker"
         );
         f.view.update(cx, |ui, cx| {
-            let retained_status = ui.run_activity_status.clone();
+            let retained_status = ui.run_activity.status().to_owned();
             ui.poll_worker(window, cx);
             assert!(ui.worker.is_none());
             assert_eq!(
-                ui.run_activity_status, retained_status,
+                ui.run_activity.status(),
+                retained_status,
                 "unrelated disconnect must not rewrite the retained run outcome"
             );
             ui.open_thread(&f.other, window, cx);
