@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T01:51:51.169785+00:00",
+  "pr": {
+    "headRefOid": "a780c87ddc8906718f53a977588e805dcd35fdb7",
+    "mergeCommit": {
+      "oid": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478"
+    },
+    "mergedAt": "2026-10-22T01:51:15Z",
+    "state": "MERGED"
+  },
+  "merge_strategy": "Normal protected merge with exact head; no bypass/admin/force",
+  "qualified_candidate": "28fd581ea8451ecd95d899248132b62c8f890d03",
+  "merged_main": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478",
+  "qualified_tree": "23db40d9d03161b26af94f4c57c7202440d1a560",
+  "merged_tree": "23db40d9d03161b26af94f4c57c7202440d1a560",
+  "whole_tree_equal": true,
+  "premerge_receipt": "pr203-premerge.json",
+  "resulting_main": "Pending actual required checks separately; run39708067715",
+  "limits": "Real-model usefulness unmeasured; all3 earlier account attempts failed and session closed. No native/owner acceptance or release proof."
+}

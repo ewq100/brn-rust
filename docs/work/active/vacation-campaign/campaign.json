@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:50:14.040043+00:00",
+    "observed_at": "2026-10-22T01:51:51.169785+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2837,10 +2837,10 @@
         "title": "Prepare exact edits from one unique quoted passage",
         "state": "active",
         "owner": "Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review",
-        "activity": "Published separate PR203a780c87d on actual main20288866d40. Whole tree equals reviewed/qualified28fd581e; diff is only the selected14-file quote outcome. Required head and preceding-main checks running.",
-        "observed_at": "2026-10-22T01:30:13.246559+00:00",
+        "activity": "PR203 normal merged ate4bb65e3 after all four exact-head/preceding-main required checks and live protection PASS. Whole resulting tree equals qualified28fd581e. Resulting-main required checks pending separately.",
+        "observed_at": "2026-10-22T01:51:51.169785+00:00",
         "origin": "observed",
-        "next_action": "Keep published head stable. Inspect actual head/preceding-main required results and protection before normal merge; resulting-main separately. No new account call.",
+        "next_action": "Inspect all four required checks on resulting maine4bb65e3. Live-model usefulness remains unmeasured; account session closed.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2863,12 +2863,14 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.log",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.sh",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md",
-          "docs/work/active/vacation-campaign/evidence/pr203-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr203-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr203-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr203-integration.json"
         ],
         "gates": {
           "implementation": "PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.",
           "checks": "PASS focused17/0, actual research1/0, scripted runtime531/0/2existing ignored, strict default+scripted all-target AI/CLI lint, CLI identity1/0, ordinary CLI build, formatting and625files2850links.",
-          "integration": "PR203 publisheda780c87d; qualified whole-tree equality PASS. Head/preceding-main required checks pending.",
+          "integration": "MERGED PR203e4bb65e3; required head/preceding-main/protection and whole-tree equality PASS; resulting-main pending.",
           "native": "actual Mac deferred",
           "owner_acceptance": "not claimed"
         },
@@ -2912,8 +2914,8 @@
         "depends_on": [
           {
             "task": "precise-edit-unique-quote-selector",
-            "condition": "Publication only: prior quote/trace chain integrated and actual main reconciled; independent implementation/checks may use qualified28 now.",
-            "satisfied": false
+            "condition": "Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks.",
+            "satisfied": true
           }
         ],
         "resource_waits": [],
@@ -3098,36 +3100,29 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-scale-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:50:14.040043+00:00",
+    "observed_at": "2026-10-22T01:51:51.169785+00:00",
     "runtime_capacity": "Lead plus one independent consequential Sol complete-batch review; no writers/builds.",
     "build_slot": "No active Rust build; strict scale5539 complete PASS. Frozenf79 combined desktop source already fully checked.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
-        "kind": "PR203 required checks",
-        "session_id": 39365,
-        "output": "/tmp/brn-pr203-required.log",
-        "head": "a780c87ddc8906718f53a977588e805dcd35fdb7"
-      },
-      {
-        "kind": "Main202 workflow",
-        "session_id": 99018,
-        "output": "/tmp/brn-main202-watch.log",
-        "run": 39705880332,
-        "sha": "88866d40f3f3ff1d5d0d351cf687076890f9ab79"
+        "kind": "Main203 workflow",
+        "run": 39708067715,
+        "sha": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478",
+        "output": "/tmp/brn-main203-watch.log",
+        "state": "About to start standard readonly gh watcher; no success inferred"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Required hosted checks for main202/PR203; independent queue correction review/qualification continues.",
+    "wait_reason": "Combined desktop independent review before publication; main203 required checks before next protected merge. No local build/native/account action.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanf79f6540 queued edit correction; no active writer.",
     "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
     "documentation_worker_checkout": "architecture-status-route clean frozen dee96c9e reference request owner; fully reviewed/qualified, no writer.",
     "required_ci_runs": [
-      39705880332,
-      39705927393
+      39708067715
     ]
   },
   "native_availability": {
