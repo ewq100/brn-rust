@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-22T05:39:22.754396+00:00",
+  "exit_code": 0,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 50.14929920807481,
+  "disk_free_bytes": 16899325952,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "88c61df18cf6d09e7efc3a2d2349484645b2378a",
+  "log_validation": {
+    "sample_lines": 1,
+    "one_test_passed": true,
+    "error_type": null
+  },
+  "qualified": true,
+  "scope": "one headless refresh-method measurement; no native or latency acceptance/product adoption"
+}

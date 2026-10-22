@@ -1,0 +1,5 @@
+# Request-history preflight disposition
+
+At the existing eae/main209 source, the retained two-Note offline journey already checks actual request-linked Apply identities, later request creation, refresh/reopen and selective Undo. The source-only preflight found no product defect, cutoff or new ordering invariant that adding four unrelated saved updates would distinguish. Lead therefore selects **no additional test or workload** from that suggestion. More copies of an already-covered receipt shape do not qualify large-history latency, and no latency target was requested.
+
+The original ordinary10kNotes sample still leaves request/Apply-heavy history and full rendering unmeasured; it is not promoted to broad responsiveness evidence. Revisit with a concrete stale/wrong operation association, a distinct unsupported ordering case, or an observed ordinary large-history slowdown; then choose an outcome-specific witness. Existing real semantic/Undo/reopen tests remain unchanged. No passing measurement, defect repair or new framework follows from this preflight.

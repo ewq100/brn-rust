@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-10-22T05:40:37.172066+00:00",
+  "product_candidate": "eae61dde04cda19c764246993966b13b997014eb",
+  "base_main": "5fab84d87f2cff3bc03f40fa5987c1fe73be98ab",
+  "independent_review": "indexed-settings-read-review.md",
+  "final_checks_receipt": "indexed-settings-read-qualification.json",
+  "counts": {
+    "core": {
+      "passed": 219,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    "app": {
+      "passed": 77,
+      "failed": 0,
+      "ignored": 1,
+      "filtered": 0
+    },
+    "desktop": {
+      "passed": 344,
+      "failed": 0,
+      "ignored": 1,
+      "filtered": 3
+    }
+  },
+  "diagnostic_candidate": "88c61df18cf6d09e7efc3a2d2349484645b2378a",
+  "diagnostic_parent_is_product": true,
+  "diagnostic_test_file_sha256": "832d9e68810d6f52ea5eda317e301b8b574c04516a7ba6d16659339fb89a40ba",
+  "first_diagnostic_launch": "FAILED qualification/zero tests; no sample; retained separately",
+  "correction": "scoped desktop package clean; actual compilation and exact1test then observed",
+  "changed_source_elapsed_us": 67079,
+  "baseline_elapsed_us": 80819,
+  "native_observed": false,
+  "latency_acceptance": false,
+  "causal_or_statistical_speedup_claim": false,
+  "limits": [
+    "one valid sample per source",
+    "different main208/main209 bases, same fixture/refresh/profile",
+    "test opt1 warm directmethod, setup/render excluded",
+    "possible detached searchCPU/I/O",
+    "requests/Apply/buffers/assets/Topics-heavy profile unactivated",
+    "ordinary native build passed before mutable package artifact clean; no frozen current launch artifact promised"
+  ],
+  "qualified": true
+}

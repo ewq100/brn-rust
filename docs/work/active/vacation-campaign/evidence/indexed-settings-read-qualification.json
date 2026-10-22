@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-22T05:32:52.738212+00:00",
+  "exit_code": 0,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 260.5115591669455,
+  "disk_free_bytes": 16732553216,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "eae61dde04cda19c764246993966b13b997014eb",
+  "log_validation": {
+    "error_type": null,
+    "one_or_more_tests_passed": true,
+    "production_build_completed": true
+  },
+  "qualified": true,
+  "scope": "indexed Settings read candidate existing core/app/desktop gates; no native interaction/latency acceptance"
+}

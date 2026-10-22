@@ -1,0 +1,14 @@
+{"candidate": "88c61df18cf6d09e7efc3a2d2349484645b2378a", "base": "5fab84d87f2cff3bc03f40fa5987c1fe73be98ab", "purpose": "one headless directrefresh diagnostic, no native/latency/owner acceptance", "profile": "test opt-level1/debugassertions; native-ui,native-test-support; offlinefixture"}
+     Removed 59 files, 397.0MiB total
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 47.72s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)
+
+running 1 test
+desktop_refresh_diagnostic profile=headless_gpui_refresh_only native_interaction=unobserved notes=10000 records=10002 receipts=23 candidates=0 recovery_buffers=0 assets=0 topics_configured=false writing_requests=0 applied_rewrite=0 request_apply_path=unactivated elapsed_us=67079
+test threads_ui::omakase_tests::ten_thousand_notes_report_headless_refresh_duration ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 348 filtered out; finished in 0.85s
+

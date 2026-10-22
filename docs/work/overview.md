@@ -57,9 +57,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 ### Read saved Settings without decoding every note
 
-Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:28:32.103826+00:00
-Activity: Exact two-file eae61dde candidate on actualmain2095fab independently approved with no findings. Existing SQL/helper/index/writer unchanged, app missing error retained. Removed redundant all-records selector; no new wrapper test or cache. Approved execution adapter reserved for one existing-check pass now.
-Next: Run one pinned offline serialized final gate through approved adapter; inspect suite counts, strict lint, production build/notlaunch, actual compilation and unchanged checkout. Retain failures; do not publish before qualification.
+Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:44:12.858586+00:00
+Activity: Exact eae fullselectedlocalchecks PASS219core+77app+344desktop with2intentionalignored/3filtered; strictlint/nativebuild/notlaunch/fmt/diff. Initial0testcomparison correctlyrejected/preserved; scoped package rebuild then actual1test PASS67,079us with same10kNotes/10,002records/23receipts. No causal/statistical/native speedup claim. Source and adapters independentlyreviewed; ready for exactproductpublication excludingdiagnostic. Published product-only PR210 at frozen exacteae, twofiles5+/11-; attached. Required hostedhead/precedingmain209/liveprotection pending; notmerged.
+Next: Keep PR210 exacteae frozen. Inspect all four required exacthead and preceding-main209 checks plus actual liveprotection before normal merge; resulting-main separately. No repeated localchecks/measurement.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -67,37 +67,18 @@ Next: Run one pinned offline serialized final gate through approved adapter; ins
 Gates:
 
 - **implementation:** PASS complete independent exacteae two-file review; core query/index bytes unchanged, missing/archived and error surface reviewed.
-- **checks:** RESERVED approved adapter e153e9d2/bc3843f5: core,11app suites,desktopUI,strictaffectedalltargetlint,nativebuild/notlaunch,fmt/diff; no execution result yet.
-- **integration:** Pending complete actual candidate review/checks, live protection/exacthead/precedingmain then normal merge; no published PR yet.
+- **checks:** PASS core219/0,11app77/0/1ignored,desktop344/0/1ignored+3filtered,strictlint,productionnativebuild/notlaunch,fmt/diff. Changed-source diagnostic1/0 at67.079ms after scopedcachecorrection; original0testfail retained. No latency/native acceptance.
+- **integration:** PR210 PUBLISHED exactreviewed/qualifiedeae onactualmain2095fab; diagnosticfixture excluded. Required hostedhead/precedingmain/liveprotection pending; notmerged.
 - **native:** Headless task only; no actual native interaction or owner acceptance claim.
 - **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [crates/brn-threads-core/src/store.rs](../../crates/brn-threads-core/src/store.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json](active/vacation-campaign/evidence/desktop-refresh-scale-completion.json), [docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md](active/vacation-campaign/evidence/desktop-refresh-read-amplification.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-implementation.md](active/vacation-campaign/evidence/indexed-settings-read-implementation.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read.patch](active/vacation-campaign/evidence/indexed-settings-read.patch), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py)
+Evidence: [crates/brn-threads-core/src/store.rs](../../crates/brn-threads-core/src/store.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json](active/vacation-campaign/evidence/desktop-refresh-scale-completion.json), [docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md](active/vacation-campaign/evidence/desktop-refresh-read-amplification.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-implementation.md](active/vacation-campaign/evidence/indexed-settings-read-implementation.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read.patch](active/vacation-campaign/evidence/indexed-settings-read.patch), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.log](active/vacation-campaign/evidence/indexed-settings-read-final.log), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-qualification.json](active/vacation-campaign/evidence/indexed-settings-read-qualification.json), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-test-counts.json](active/vacation-campaign/evidence/indexed-settings-read-test-counts.json), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-initial.log](active/vacation-campaign/evidence/indexed-settings-refresh-initial.log), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-initial-completion.json](active/vacation-campaign/evidence/indexed-settings-refresh-initial-completion.json), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-cache-correction.md](active/vacation-campaign/evidence/indexed-settings-refresh-cache-correction.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-final.log](active/vacation-campaign/evidence/indexed-settings-refresh-final.log), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-final-completion.json](active/vacation-campaign/evidence/indexed-settings-refresh-final-completion.json), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-combined-qualification.json](active/vacation-campaign/evidence/indexed-settings-read-combined-qualification.json), [docs/work/active/vacation-campaign/evidence/pr210-publication.json](active/vacation-campaign/evidence/pr210-publication.json)
 
 Attempts:
 
-- Reserved before launch; no qualification result yet.: Execute approved unchanged eae candidate once under finite process-group/disk/deadline guards. No fixture overlay, extra model/account/native actor or automatic repeat. ([docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md))
-
-</details>
-
-### Check coverage for refresh after accumulated writing history
-
-Owner: Bounded Luna read-only preflight; lead selection · State: **active** · Last observed: 2026-10-22T05:31:17.453528+00:00
-Activity: Selected source-only preflight for an explicitly unactivated boundary in the first refresh sample: actual writing-request/Apply/history reconstruction. Assess existing coverage and a smallest useful offline witness before selecting any workload or product change.
-Next: Inspect exact eae/main209 desktop refresh callers and existing offline writing request/Apply fixtures/tests; report whether a consequential uncovered scale/reconstruction boundary exists and whether an existing bounded fixture can test it. Stop with no-change if existing coverage adequate.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Read-only preflight only; no new fixture/product source selected.
-- **checks:** No workloads/builds/measurements authorized by this preflight.
-- **integration:** No PR or new product behavior selected.
-- **native:** No native/IME/owner interaction claim.
-- **owner acceptance:** No new product decision required.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing_tests.rs](../../crates/brn-desktop/src/threads_writing_tests.rs)
+- PASS exit0 in260.51s, actualsuitecounts219+77+344;2intentionalignored/3outsidefiltered retained, sourceunchanged/groupabsent/reaped; lint/build/fmtPASS. No workload repeat.: Execute approved unchanged eae candidate once under finite process-group/disk/deadline guards. No fixture overlay, extra model/account/native actor or automatic repeat. ([docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md))
+- FAILED qualification: childexit0/zero tests/348filtered, no sample; supervisor1/qualifiedfalse, sourceclean/groupabsent/reaped. No refresh workload ran.: Exact reviewed diagnostic88c61 childofproducteae, identical104linefixture/SHA832d9e; adaptersbbcf13cb/d07cd8c2. Priorbaselinebe97/main208 vsnewmain209base differ; no controlled causal or native claim. No automatic repeat. Preserved first failure; diagnose sharedtarget source-identity mismatch, propose scoped desktoppackage clean before same one actual diagnostic. ([docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-supervise.py))
+- PASS correctedinvocation0; actualdesktopcompile47.72s +1test/0fail, sameprofiledimensions,67,079us. Ownedgroupabsent/reaped/noerrors/clean88c61. Onlyone actualchanged-source sample; no repeat.: Approved2c861cb0/7caae4f9 adapters clean onlymutable brn-desktop package artifacts, retaining core/app exacteae libraries/frozen appbundles/fixtures/source. Same88c61 fixture andsample; no automaticthirdretry or latencytarget. ([docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md](active/vacation-campaign/evidence/indexed-settings-refresh-cache-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh](active/vacation-campaign/evidence/indexed-settings-refresh-retry-run.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py](active/vacation-campaign/evidence/indexed-settings-refresh-retry-supervise.py))
 
 </details>
 
@@ -322,6 +303,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `derived-index-integrity-recovery` — Assess automatic detection of an inconsistent derived search index
 - `desktop-refresh-scale-preflight` — Locate a useful headless check for app refresh at larger workspace size
 - `desktop-refresh-scale-diagnostic` — Measure the existing app refresh on a larger synthetic workspace
+- `request-history-refresh-preflight` — Check coverage for refresh after accumulated writing history
 
 ## Dependencies
 
@@ -359,4 +341,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:31:17.453528+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T05:44:12.858586+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

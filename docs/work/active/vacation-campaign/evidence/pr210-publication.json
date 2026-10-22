@@ -1,0 +1,43 @@
+{
+  "observed_at": "2026-10-22T05:44:12.858586+00:00",
+  "pr": {
+    "additions": 5,
+    "baseRefOid": "5fab84d87f2cff3bc03f40fa5987c1fe73be98ab",
+    "changedFiles": 2,
+    "deletions": 11,
+    "files": [
+      {
+        "path": "crates/brn-threads-app/src/settings.rs",
+        "additions": 2,
+        "deletions": 11,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-threads-core/src/store.rs",
+        "additions": 3,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "eae61dde04cda19c764246993966b13b997014eb",
+    "isDraft": false,
+    "number": 210,
+    "state": "OPEN",
+    "url": "https://github.com/ewq100/brn-rust/pull/210"
+  },
+  "candidate_tree": "e07b9c7b5570b9a714b148b4db70048c6e28458b",
+  "scope": "exact independently reviewed/locally qualified two-file product candidate; diagnostic fixture excluded; head frozen",
+  "checks": "required hosted head and preceding-main209 plus live protection pending; not merged",
+  "local_qualification": "indexed-settings-read-combined-qualification.json",
+  "independent_review": "indexed-settings-read-review.md",
+  "all_open_prs_before_publication": [
+    177,
+    149,
+    112,
+    84,
+    82,
+    80
+  ],
+  "unrelated_open_prs": "preserved; no competing Settings candidate found",
+  "native": "owner unavailable; no app launch or acceptance"
+}

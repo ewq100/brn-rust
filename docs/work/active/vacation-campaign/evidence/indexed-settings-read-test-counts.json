@@ -1,0 +1,178 @@
+{
+  "core": {
+    "passed": 219,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0,
+    "runs": [
+      {
+        "section": "Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_threads_core-de10105332b95afc)",
+        "summary": "test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s"
+      },
+      {
+        "section": "Running tests/backup_directory.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/backup_directory-cc39c7d33f99fdc3)",
+        "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      },
+      {
+        "section": "Running tests/candidate_refresh.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/candidate_refresh-f0131f25d00326cb)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+      },
+      {
+        "section": "Running tests/chat_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_format-d1a6aff821e55b59)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      },
+      {
+        "section": "Running tests/chat_storage.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_storage-5394ece77d96bbb8)",
+        "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s"
+      },
+      {
+        "section": "Running tests/converge.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/converge-46b20f818dfa8713)",
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+      },
+      {
+        "section": "Running tests/core.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/core-568c6f5461946bfc)",
+        "summary": "test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s"
+      },
+      {
+        "section": "Running tests/current_inputs.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/current_inputs-708e9f1fb8438dae)",
+        "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      },
+      {
+        "section": "Running tests/cw2_visibility.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/cw2_visibility-4eedf6d2676b5b27)",
+        "summary": "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      },
+      {
+        "section": "Running tests/data_folder.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/data_folder-d05c8880351cb01d)",
+        "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+      },
+      {
+        "section": "Running tests/delegation.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/delegation-b39ec33953911ecd)",
+        "summary": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      },
+      {
+        "section": "Running tests/document_conversion.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/document_conversion-e5638641ec0e1a57)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s"
+      },
+      {
+        "section": "Running tests/edit_tokens.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/edit_tokens-5030824d99f4ccab)",
+        "summary": "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.51s"
+      },
+      {
+        "section": "Running tests/inspect.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/inspect-9a9137c182032cf3)",
+        "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      },
+      {
+        "section": "Running tests/mcp_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_format-2322ff13226fa6d7)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+      },
+      {
+        "section": "Running tests/mcp_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_policy-8f24b32ccfa027fe)",
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+      },
+      {
+        "section": "Running tests/message_search_scope.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/message_search_scope-26f1554206e78d67)",
+        "summary": "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s"
+      },
+      {
+        "section": "Running tests/note_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/note_read-73fd3516e20ca138)",
+        "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      },
+      {
+        "section": "Running tests/project_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/project_format-2f6f39db31909f21)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      },
+      {
+        "section": "Running tests/revision_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/revision_read-08d60a8d06fad69d)",
+        "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+      },
+      {
+        "section": "Running tests/search_reader.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/search_reader-0bb9f7d442f939f3)",
+        "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s"
+      },
+      {
+        "section": "Running tests/skill_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/skill_policy-98ad41361eb70367)",
+        "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      },
+      {
+        "section": "Running tests/steering.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/steering-e284d0fe7b86ae3f)",
+        "summary": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+      },
+      {
+        "section": "Running tests/writing.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing-6ee36d972d5ba938)",
+        "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      },
+      {
+        "section": "Running tests/writing_setup.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing_setup-038d62749b41dd8a)",
+        "summary": "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s"
+      },
+      {
+        "section": "Doc-tests brn_threads_core",
+        "summary": "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      }
+    ]
+  },
+  "app": {
+    "passed": 77,
+    "failed": 0,
+    "ignored": 1,
+    "filtered": 0,
+    "runs": [
+      {
+        "section": "Running tests/backup_directory.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/backup_directory-19ae020a2f83c593)",
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s"
+      },
+      {
+        "section": "Running tests/delegation.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/delegation-2648661f2464f7e9)",
+        "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+      },
+      {
+        "section": "Running tests/document_conversion_settings.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/document_conversion_settings-c449d6e942bc65c7)",
+        "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s"
+      },
+      {
+        "section": "Running tests/killed_run_candidate.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/killed_run_candidate-5069d2df86906d0c)",
+        "summary": "test result: ok. 16 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.17s"
+      },
+      {
+        "section": "Running tests/mcp.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp-b7360bd6bc3589d3)",
+        "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s"
+      },
+      {
+        "section": "Running tests/product.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/product-9212a920c49125e4)",
+        "summary": "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s"
+      },
+      {
+        "section": "Running tests/projects.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/projects-9eef44db2b5df17b)",
+        "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+      },
+      {
+        "section": "Running tests/skills.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/skills-b1cfc236e4c6dbdb)",
+        "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s"
+      },
+      {
+        "section": "Running tests/thread_lifecycle.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/thread_lifecycle-bcb34a0bd9dddae8)",
+        "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+      },
+      {
+        "section": "Running tests/topics_knowledge.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/topics_knowledge-2414f50818066571)",
+        "summary": "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s"
+      },
+      {
+        "section": "Running tests/workspace_purpose.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/workspace_purpose-f8e190afdea6635c)",
+        "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+      }
+    ]
+  },
+  "desktop": {
+    "passed": 344,
+    "failed": 0,
+    "ignored": 1,
+    "filtered": 3,
+    "runs": [
+      {
+        "section": "Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)",
+        "summary": "test result: ok. 344 passed; 0 failed; 1 ignored; 0 measured; 3 filtered out; finished in 5.95s"
+      }
+    ]
+  }
+}
