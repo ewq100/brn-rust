@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:39:38.802961+00:00",
+    "observed_at": "2026-10-22T04:42:39.073184+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3761,12 +3761,12 @@
       {
         "id": "public-cli-backup-interruption",
         "title": "Qualify a public backup interrupted while copying",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna driver author; consequential independent Sol review; lead single process/build actor",
-        "observed_at": "2026-10-22T04:39:38.802961+00:00",
+        "observed_at": "2026-10-22T04:42:39.073184+00:00",
         "origin": "observed",
-        "activity": "Single selected workload exit0 PASS: actualSIGKILL/reap retained the same1,634,304B partialcopy vs34,222,080B completebackup. Exactlyone publicretry swept it and published standalonevalidSQLite with exactschema/allrows/8,388,548BUnicodeNote. SourceDB/marker/logicaldata, earliercompletebackup, sentinel/unrelateddirectory unchanged. Independent resultassessment underway; no furtherattempt.",
-        "next_action": "Finish independent actual-result assessment, preserve originalreceipt/captures/sourceproof and publish qualifiedlimits. Never repeat this completed interruption scenario without a relevant change.",
+        "activity": "Single selected workload exit0 PASS: actualSIGKILL/reap retained the same1,634,304B partialcopy vs34,222,080B completebackup. Exactlyone publicretry swept it and published standalonevalidSQLite with exactschema/allrows/8,388,548BUnicodeNote. SourceDB/marker/logicaldata, earliercompletebackup, sentinel/unrelateddirectory unchanged. Independent resultassessment underway; no furtherattempt. Independent actual-result review confirmed all11table schemas/rows, exactNote and standalonefiles/hash/siblingpreservation; qualified with explicit transient-observation limits.",
+        "next_action": "Complete one-attempt witness retained and independently qualified. Keep source7dde/main208 proof and syntheticfixtures; no repeat without relevant change. Native/powerloss/owneracceptance remain separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3786,12 +3786,13 @@
           "docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md",
           "docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-qualification.json",
           "docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-run.log",
-          "docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-captures.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/public-cli-backup-interruption-captures.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/public-backup-result-review.md"
         ],
         "gates": {
           "implementation": "PASS complete independent final9f515e70 review; all3initialP2 valid/fixed before workload.",
-          "checks": "Actual singleattempt PASS exit0: partialcopy retained afterkill/reap9, absentfinal,1proof-gated publicretry, noabandonedstage, standaloneDELETE/noSQLitecompanions, exactschema/allrows/Note/source/earlieroutput/siblings; resultreviewpending.",
-          "integration": "Evidence-only check; no product PR selected. Reconcile source identity against actual main before any current-main claim.",
+          "checks": "Actual singleattempt PASS exit0: partialcopy retained afterkill/reap9, absentfinal,1proof-gated publicretry, noabandonedstage, standaloneDELETE/noSQLitecompanions, exactschema/allrows/Note/source/earlieroutput/siblings; resultreviewpending. Independentread-only actualresultreview PASS; no rerun/repair.",
+          "integration": "Evidence-only completed; no productchange/PR. FrozenCLI7dde whole source tree equals normalmain20811c48; not a hostedcheck/releaseclaim.",
           "native": "No native or power-loss evidence.",
           "owner_acceptance": "Not claimed."
         },
@@ -3818,21 +3819,22 @@
       {
         "id": "derived-index-recovery-audit",
         "title": "Inspect recovery of damaged or stale derived search indexes",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only auditor; lead validation",
-        "observed_at": "2026-10-22T04:39:38.802961+00:00",
+        "observed_at": "2026-10-22T04:42:39.073184+00:00",
         "origin": "observed",
-        "activity": "Lead selects one bounded source/test audit of derived-index freshness/corruption recovery while independent backup-result review and required hostedchecks run. No implementation selected.",
-        "next_action": "Inspect currentmain208 retrieval freshness/corruption handling and existing witnesses; return at most one distinct consequential uncovered boundary or explicit no-change disposition.",
+        "activity": "Read-only audit found one inferred gap: readable current-watermark external-content FTS mismatch may bypass open/rebuild and suppress matches. Lead validated code path and primarySQLite docs; actualbundledSQLite behavior untested.",
+        "next_action": "Selected a bounded synthetic characterization in derived-index-integrity-recovery. No productionfix until meaningfulbaseline; no account/nativework.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-retrieval/README.md",
-          "docs/architecture/invariants.md"
+          "docs/architecture/invariants.md",
+          "docs/work/active/vacation-campaign/evidence/derived-index-recovery-audit.md"
         ],
         "gates": {
           "implementation": "Not selected; read-only audit.",
-          "checks": "No workload/build/liveprovider/native actions authorized by this audit.",
+          "checks": "Sourceauditcomplete, noexecutedfailure. PrimarySQLite documents separateFTS rank1 externalcontentcheck and quick_check omitting index-contentconsistency.",
           "integration": "No productPR selected.",
           "native": "Deferred owneravailability.",
           "owner_acceptance": "Not claimed."
@@ -3848,6 +3850,32 @@
           }
         ],
         "resource_plan": "One bounded Luna medium read-only auditor, Sol backup-resultreview and lead within4slots. No nestedhelpers/writes outside its temporary report, tests/builds/fixture creation/account/network/native or dependency acquisition; stop after boundedsource/test assessment with at mostonecandidate."
+      },
+      {
+        "id": "derived-index-integrity-recovery",
+        "title": "Recover an owned search index whose term tables disagree with its content",
+        "state": "active",
+        "owner": "Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration",
+        "observed_at": "2026-10-22T04:42:39.073184+00:00",
+        "origin": "observed",
+        "activity": "Lead selects a test-only characterization of the audit inference at currentmain208. Reused clean mac-test-roots checkout now codex/derived-index-integrity-recovery at11c48. No productfix selected until baseline proves gap.",
+        "next_action": "Extend existing recovery witness with a synthetic FTS-only mismatch, prove readablequickcheck+externalcontentmismatch and expectedrebuild. Lead runs focusedbaseline once; then reassess design/performance/errorclassification.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/derived-index-recovery-audit.md",
+          "crates/brn-retrieval/tests/search_index.rs",
+          "crates/brn-retrieval/src/search_index.rs"
+        ],
+        "gates": {
+          "implementation": "Test-only characterization selected; productionfixpending evidence.",
+          "checks": "Focusedbaselinepending on pinnedSQLite; no claimedobservedfailure.",
+          "integration": "No PR selected; preserve frozenPR209.",
+          "native": "Inapplicable to index-onlysyntheticwitness; nativeacceptance notclaimed.",
+          "owner_acceptance": "No new productdecision selected."
+        },
+        "attempts": [],
+        "resource_plan": "One bounded Luna medium test-onlywriter in clean isolatedreusedcheckout, lead serializes sharedtarget build, Sol consequence/designreview. No nestedhelper/schema/native/account/private-data/network/dependency/toolchain change. Stop/reassess after two failed hypotheses; meaningfulbaselinebeforeproductfix. Costs/performance of extraopenchecks require explicitassessment, not blind integrityscan perquery."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3862,18 +3890,25 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-reliability-publication-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:39:38.802961+00:00",
-    "runtime_capacity": "Lead, independent Sol resultassessor, selected bounded Luna indexauditor; no nestedhelper.",
+    "observed_at": "2026-10-22T04:42:39.073184+00:00",
+    "runtime_capacity": "Lead plus bounded Luna test-only writer; independentSol actualresultreview finished. No nestedhelper.",
     "build_slot": "Free; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "session_id": 87909,
+        "scope": "PR209 requiredheadchecks",
+        "command": "gh pr checks209 --required --watch --interval60",
+        "log": "/tmp/brn-pr209-required.log"
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 requiredhead and main208Ubuntu check pending. Backupworkload finishedPASS, independentresultassessment underway; boundedretrievalaudit selected.",
+    "wait_reason": "PR209 requiredhead and main208Ubuntu pending. Backupqualificationcomplete; syntheticFTScharacterizationselected.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
-    "fixture_worker_checkout": "mac-test-roots frozen qualified provider a6b6, exact source restored, no writer.",
+    "fixture_worker_checkout": "mac-test-roots clean switched from retainedprovidera6b6 to codex/derived-index-integrity-recovery atmain20811c48; test-onlywriter selected.",
     "documentation_worker_checkout": "architecture-status-route frozen combined dfe4 on actualmain208; no writer.",
     "required_ci_runs": [
       39722288570,
