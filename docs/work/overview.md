@@ -236,6 +236,33 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
+### Observe note preservation during Mac Close and Quit
+
+Task ID: `note-exit-native-qualification`
+Owner: Single native actor after owner reports changed availability · State: **blocked** · Last observed: 2026-10-22T13:21:06.206143+00:00
+Activity: MAC15 scenario defined for changed exit controls. No fresh fixture/app/desktop attempt while owner unavailable; original apps/workspaces preserved.
+Next: After owner reports changed access and PR217 required integrated-main gates pass, prepare supported fresh fixtures and execute source-bound MAC15. Live-only refusal fixture must be qualified; leave unsupported portions pending.
+Depends on: note-exit-preservation when PR217 normally merged with all four required resulting-main checks PASS. (reported satisfied: false)
+Resource waits: Owner reports extended screen unavailability; native gate only.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Scenario defined; no new product source.
+- **checks:** Future fixture/source/binary/helper reconciliation required; current toolkit evidence separate.
+- **integration:** PR217 pending required checks/normal merge/resulting-main.
+- **native:** Owner-deferred; no actual Mac Close/Quit/confirmation observation.
+- **owner acceptance:** Not claimed.
+
+</details>
+
+Waiting:
+
+- prerequisite note-exit-preservation: PR217 normally merged with all four required resulting-main checks PASS. (reported satisfied: false; task state: active)
+- resource: Owner reports extended screen unavailability; native gate only.
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -396,6 +423,8 @@ graph TD
   t120["Document the existing offline native-library setup"]
   t122["Clear outdated Connections after project membership changes"]
   t123["Observe Connections after Project Unlink and Undo on the Mac"]
+  t127["Preserve live-only note typing before normal Close or Quit"]
+  t130["Observe note preservation during Mac Close and Quit"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -414,6 +443,7 @@ graph TD
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
   t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
+  t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (not satisfied)| t130
 ```
 
 Resource waits are listed on tasks and are not dependency edges.

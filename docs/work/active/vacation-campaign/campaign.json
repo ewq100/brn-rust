@@ -5415,6 +5415,38 @@
         },
         "attempts": [],
         "resource_plan": "Luna medium owns renderer/test and generated worker overview only. Lead owns current campaign/remote views and integration; one read-only Sol review after freeze. No Rust builds, global config, provider/account/native, nested helpers or source runtime edits. Stop if old IDs/history cease discoverable or projection changes task authority."
+      },
+      {
+        "id": "note-exit-native-qualification",
+        "title": "Observe note preservation during Mac Close and Quit",
+        "state": "blocked",
+        "owner": "Single native actor after owner reports changed availability",
+        "observed_at": "2026-10-22T13:21:06.206143+00:00",
+        "origin": "observed",
+        "activity": "MAC15 scenario defined for changed exit controls. No fresh fixture/app/desktop attempt while owner unavailable; original apps/workspaces preserved.",
+        "next_action": "After owner reports changed access and PR217 required integrated-main gates pass, prepare supported fresh fixtures and execute source-bound MAC15. Live-only refusal fixture must be qualified; leave unsupported portions pending.",
+        "depends_on": [
+          {
+            "task": "note-exit-preservation",
+            "condition": "PR217 normally merged with all four required resulting-main checks PASS.",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [
+          "Owner reports extended screen unavailability; native gate only."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-final-local.json"
+        ],
+        "gates": {
+          "implementation": "Scenario defined; no new product source.",
+          "checks": "Future fixture/source/binary/helper reconciliation required; current toolkit evidence separate.",
+          "integration": "PR217 pending required checks/normal merge/resulting-main.",
+          "native": "Owner-deferred; no actual Mac Close/Quit/confirmation observation.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": []
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

@@ -318,3 +318,30 @@ control actions, visible outcomes, useful screenshots and read-only durable
 comparisons; preserve any failure before diagnosing it. Toolkit witnesses and the
 existing generation guard support this scenario but do not prove OS input,
 rendering, IME, VoiceOver or owner acceptance.
+
+## MAC-15: Note preservation during normal Close and registered Quit
+
+This follows the changed exit boundary in [PR217](https://github.com/ewq100/brn-rust/pull/217),
+not an unchanged replay of MAC-01/04. Current readiness lives in
+`note-exit-native-qualification` in campaign state. [Local qualification](evidence/note-exit-final-local.json)
+binds source155bb867; the [independent review](evidence/note-exit-candidate-review.md)
+and retained failed Quit check distinguish toolkit callbacks from native termination.
+No fixture or app is prepared or launched while owner-reported screen unavailability remains.
+
+After changed availability and normal integration, reconcile current reviewed main,
+required checks, ordinary binary/helpers and the sole desktop actor. On separate
+fresh explicit synthetic roots, type exact Unicode/multiline Note text without Save,
+close through the actual OS window control, and repeat through the registered Cmd-Q
+route. Reopen normally and verify exact recoverable text and unchanged saved Note
+and unrelated sentinel through supported read-only checks. Do not infer one exit
+route from the other or claim forced-shutdown/IME behavior.
+
+The new refusal/confirmation controls require a supported checked synthetic fixture
+that establishes live-only typing after a conflicting edit, as the existing U4
+journey does. Prepare and qualify that fixture only when the native session is
+actually available. Then observe that both exit requests retain the window, Enter
+does not discard, Cancel retains exact typing, and an explicit current local-discard
+choice closes while saved data and the other recovery remain unchanged. If the
+fixture cannot establish that state through supported service paths, leave this
+part pending; do not simulate success, alter permissions, inject SQL repairs or
+use owner data. Retain exact actions and original failures. No account call is needed.
