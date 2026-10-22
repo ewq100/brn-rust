@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-22T06:18:26.864370+00:00",
+  "pr": {
+    "baseRefOid": "13813f6ff827de776a663036f5d468500e7a5ed1",
+    "files": [
+      {
+        "path": ".github/actions/setup-rust/action.yml",
+        "additions": 2,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "aa25edf36950a88bfd481bf7d475ce9d4b62809e",
+    "isDraft": false,
+    "number": 211,
+    "url": "https://github.com/ewq100/brn-rust/pull/211"
+  },
+  "local_checks": "Original exact one-file reviewed diff/wholetree equality after ancestry-only reconciliation; YAML and10Python reused, no Rust rebuild.",
+  "required_gates": "Pending exacthead/precedingmain210/liveprotection before normal merge, resultingmain separately.",
+  "attached": true
+}

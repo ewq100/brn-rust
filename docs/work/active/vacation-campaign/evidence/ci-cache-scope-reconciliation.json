@@ -1,0 +1,12 @@
+{
+  "head": "aa25edf36950a88bfd481bf7d475ce9d4b62809e",
+  "base": "13813f6ff827de776a663036f5d468500e7a5ed1",
+  "original_reviewed": "786ebfd2f1a29f93eb2be4f43ee64606023db791",
+  "one_file_diff_identical": true,
+  "whole_tree_equal": true,
+  "paths": [
+    ".github/actions/setup-rust/action.yml"
+  ],
+  "status": "clean; prior frozen branch unchanged",
+  "qualification_reuse": "Original complete review/YAML/10 existing Python/diff applicable; reconciliation changed only Git ancestry, no source bytes."
+}

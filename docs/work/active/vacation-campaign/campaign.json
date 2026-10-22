@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T06:02:18.911812+00:00",
-    "remaining_percent": 52,
+    "observed_at": "2026-10-22T06:18:26.864370+00:00",
+    "remaining_percent": 51,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual48% used/52% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, originalexpiry and closedaccountsession bounds retained.",
+    "ordinary_work": "Admitted: actual49% used/51% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, originalexpiry and closedaccountsession retained.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:16:40.653661+00:00",
+    "observed_at": "2026-10-22T06:18:26.864370+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4129,10 +4129,10 @@
         "title": "Keep shared build-cache use focused on Mac and Linux",
         "state": "active",
         "owner": "Bounded Luna small CI author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T06:16:40.653661+00:00",
+        "observed_at": "2026-10-22T06:18:26.864370+00:00",
         "origin": "observed",
-        "activity": "One-file candidate786ebfd2 independently reviewed with no findings. Windows jobs remain enabled; only Rust-cache use stops on Windows. YAML parse, all10 existing affectedPython checks and diff/cleanHEAD pass. Not pushed/published; parentPR210 lastMacgate pending.",
-        "next_action": "Reconcile reviewed786ebfd2 CI-only change onto actualmain21013813f6f, verify identicalone-file diff and publish. Required exacthead and precedingmain210 checks/liveprotection before normalmerge; resultingmain separately.",
+        "activity": "Published PR211 exactaa25ed onto actualmain21013813f6f. Completeone-file diff andwholetree equal independentlyreviewed786ebfd2; applicableYAML/10Python qualification reused. AllWindowsjobs remain enabled. Required head/precedingmain/protection pending; notmerged.",
+        "next_action": "Keep exactaa25ed frozen. Inspect all4 requiredhead and precedingmain210 plus liveprotection before normalmerge; inspect resultingmain separately. Preserve optionalWindows failures and observe future naturalcache availability without force rerun/deletion.",
         "depends_on": [
           {
             "task": "indexed-settings-read-reuse",
@@ -4149,12 +4149,14 @@
           "docs/work/active/vacation-campaign/evidence/ci-cache-scope-implementation.md",
           "docs/work/active/vacation-campaign/evidence/ci-cache-scope.patch",
           "docs/work/active/vacation-campaign/evidence/ci-cache-scope-review.md",
-          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/ci-cache-scope-reconciliation.json",
+          "docs/work/active/vacation-campaign/evidence/pr211-publication.json"
         ],
         "gates": {
           "implementation": "PASS exact786ebfd2 independent Sol full source/config review; one compositeaction condition/comment, every job/check/protection unchanged.",
           "checks": "PASS YAML,10 existing affectedPython checks4.241s, diff and cleanexactHEAD. No Rust rebuild needed for unchangedsource.",
-          "integration": "Pending completeindependentreview/qualification, parent210integration, liveprotection/exacthead/precedingmain then resultingmain.",
+          "integration": "PUBLISHED PR211exactaa25ed, onefile2+/1-, notmerged; head/precedingmain210/liveprotection PENDING.",
           "native": "No native interaction selected.",
           "owner_acceptance": "No new paid/productdecision selected; ownerMacfirst and Windowsqualification deferred."
         },

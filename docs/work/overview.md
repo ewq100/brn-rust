@@ -38,9 +38,9 @@ Attempts:
 
 ### Keep shared build-cache use focused on Mac and Linux
 
-Owner: Bounded Luna small CI author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T06:16:40.653661+00:00
-Activity: One-file candidate786ebfd2 independently reviewed with no findings. Windows jobs remain enabled; only Rust-cache use stops on Windows. YAML parse, all10 existing affectedPython checks and diff/cleanHEAD pass. Not pushed/published; parentPR210 lastMacgate pending.
-Next: Reconcile reviewed786ebfd2 CI-only change onto actualmain21013813f6f, verify identicalone-file diff and publish. Required exacthead and precedingmain210 checks/liveprotection before normalmerge; resultingmain separately.
+Owner: Bounded Luna small CI author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T06:18:26.864370+00:00
+Activity: Published PR211 exactaa25ed onto actualmain21013813f6f. Completeone-file diff andwholetree equal independentlyreviewed786ebfd2; applicableYAML/10Python qualification reused. AllWindowsjobs remain enabled. Required head/precedingmain/protection pending; notmerged.
+Next: Keep exactaa25ed frozen. Inspect all4 requiredhead and precedingmain210 plus liveprotection before normalmerge; inspect resultingmain separately. Preserve optionalWindows failures and observe future naturalcache availability without force rerun/deletion.
 Depends on: indexed-settings-read-reuse when Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (reported satisfied: true)
 
 <details>
@@ -50,11 +50,11 @@ Gates:
 
 - **implementation:** PASS exact786ebfd2 independent Sol full source/config review; one compositeaction condition/comment, every job/check/protection unchanged.
 - **checks:** PASS YAML,10 existing affectedPython checks4.241s, diff and cleanexactHEAD. No Rust rebuild needed for unchangedsource.
-- **integration:** Pending completeindependentreview/qualification, parent210integration, liveprotection/exacthead/precedingmain then resultingmain.
+- **integration:** PUBLISHED PR211exactaa25ed, onefile2+/1-, notmerged; head/precedingmain210/liveprotection PENDING.
 - **native:** No native interaction selected.
 - **owner acceptance:** No new paid/productdecision selected; ownerMacfirst and Windowsqualification deferred.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md](active/vacation-campaign/evidence/ci-cache-scope-selection.md), [docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md](active/vacation-campaign/evidence/main209-mac-core-assessment.md), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-implementation.md](active/vacation-campaign/evidence/ci-cache-scope-implementation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope.patch](active/vacation-campaign/evidence/ci-cache-scope.patch), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-review.md](active/vacation-campaign/evidence/ci-cache-scope-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json](active/vacation-campaign/evidence/ci-cache-scope-qualification.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/ci-cache-scope-selection.md](active/vacation-campaign/evidence/ci-cache-scope-selection.md), [docs/work/active/vacation-campaign/evidence/main209-mac-core-assessment.md](active/vacation-campaign/evidence/main209-mac-core-assessment.md), [.github/actions/setup-rust/action.yml](../../.github/actions/setup-rust/action.yml), [.github/workflows/ci.yml](../../.github/workflows/ci.yml), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-implementation.md](active/vacation-campaign/evidence/ci-cache-scope-implementation.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope.patch](active/vacation-campaign/evidence/ci-cache-scope.patch), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-review.md](active/vacation-campaign/evidence/ci-cache-scope-review.md), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-qualification.json](active/vacation-campaign/evidence/ci-cache-scope-qualification.json), [docs/work/active/vacation-campaign/evidence/ci-cache-scope-reconciliation.json](active/vacation-campaign/evidence/ci-cache-scope-reconciliation.json), [docs/work/active/vacation-campaign/evidence/pr211-publication.json](active/vacation-campaign/evidence/pr211-publication.json)
 
 </details>
 
@@ -323,4 +323,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T06:16:40.653661+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T06:18:26.864370+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
