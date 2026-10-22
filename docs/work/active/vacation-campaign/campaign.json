@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:17:25.342789+00:00",
+    "observed_at": "2026-10-22T05:24:40.668568+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3964,12 +3964,12 @@
       {
         "id": "desktop-refresh-scale-diagnostic",
         "title": "Measure the existing app refresh on a larger synthetic workspace",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna diagnostic-only author; independent Sol review; lead singlebuildactor",
-        "observed_at": "2026-10-22T05:17:25.342789+00:00",
+        "observed_at": "2026-10-22T05:24:40.668568+00:00",
         "origin": "observed",
-        "activity": "Exact diagnostic-only be97dc0a source and execution adapter independently approved. Initial valid P2 stale-row/failed-refresh false-sample path fixed before workload by clean-notice assertions outside timer. Reserve the single bounded headless filtered run now; no production change.",
-        "next_action": "Lead executes the one reviewed runner, retaining raw log and completion, actual dimensions/profile/time, unchanged checkout and owned-group cleanup; assess result without a new latency target or automatic repeat.",
+        "activity": "SOLE approved filtered headless run PASS1/0; 10,000Notes/10,002records/23receipts, zero candidates/buffers/assets/topics/requests/Apply. Direct warm refresh80,819us in test opt1; setup/rendering excluded, detached search may overlap. Source clean/unchanged, owned group absent/reaped, no stop/errors. Independent actual-result review qualified; no product speed/latency or native claim.",
+        "next_action": "Completed one narrow warm direct-refresh diagnostic. Follow selected indexed-settings-read-reuse for any changed-source comparison; do not repeat this unchanged workload or infer full app/native speed.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3982,27 +3982,61 @@
           "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md",
           "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh",
           "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py",
-          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale.patch"
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale.patch",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.log",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-executable.json",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification-initial.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md"
         ],
         "gates": {
           "implementation": "PASS complete exact be97dc0a independent final review; initial P2 valid/fixed; test-only branch not selected for integration.",
-          "checks": "RESERVED one headless filtered run: exact reviewed runner09af74ac/supervisor5115b3d4, pinned1.98.1/offline/jobs1/test opt1; 30min trigger/1GiB sampled stop, finite owned-group cleanup.",
+          "checks": "PASS1/0 single exactbe97 run,80,819us direct warmrefresh; cleanNotice/assertednoteCount, logvalid and cleanup verified. Independent actual-result review PASS; original no-caller audit error corrected with render caller and existing cache checks.",
           "integration": "No productPRselected; diagnosticbranchwillnotbemergedwithoutseparatejustification.",
           "native": "HeadlessTestAppContextonly; actualMac/IME/rendering/ownerexperience deferred.",
           "owner_acceptance": "Not claimed."
         },
         "attempts": [
           {
-            "outcome": "Reserved before launch; no execution result yet.",
+            "outcome": "Executed once: exit0/1passed,80,819us; qualified true, no stop/error, group absent and leader reaped, checkout unchanged.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh",
               "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py",
               "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md"
             ],
-            "change": "One exact headless direct-refresh diagnostic on main208-based be97dc0a; no native/isolated CPU/full startup/latency acceptance claim. Initial record validation rejected the disposition field instead of required change; corrected before any launch."
+            "change": "One exact headless direct-refresh diagnostic on main208-based be97dc0a; no native/isolated CPU/full startup/latency acceptance claim. Initial record validation rejected the disposition field instead of required change; corrected before any launch. No workload repeat. Lead found no-caller audit claim incorrect: real render caller threads_shell.rs:1642; original reports retained, corrected amplification report distinguishes in-timer method from render/cache costs."
           }
         ],
         "resource_plan": "One boundedLuna medium author, independentSolreview andlead within4slots. One syntheticworkspace<=10kNotes, fixedsmallbodies,20checkedbatches; existingofflinefixture andpollNone. No providerworker/AI/account/nativeapp launch/model/dependency/globalchange/nestedhelper; leadserializespinnedofflinejobs1 build and finiteexecution/diskguard. Stopafterone actualdiagnostic; nopersistednewlatencygate/framework."
+      },
+      {
+        "id": "indexed-settings-read-reuse",
+        "title": "Read saved Settings without decoding every note",
+        "state": "active",
+        "owner": "Bounded Luna medium author; independent Sol review; lead checks/integration",
+        "observed_at": "2026-10-22T05:24:05.524428+00:00",
+        "origin": "observed",
+        "activity": "Selected narrow existing-query reuse after one warm direct-refresh sample80.819ms and structural confirmation of three all-record reads. Core already owns workspace_settings_on and unique partial one_workspace_settings index; expose its existing read through Store, use from Workspace::settings. No UI selector, cache/invalidation, schema/index change or Topics visibility rewrite.",
+        "next_action": "Prepare one small reviewable candidate on actualmain2095fab using clean architecture-status-route checkout; preserve prior frozen dfe4 branch. Independently review exact complete change and choose existing configuration/affected-core/app/desktop checks, then one distinct changed-source diagnostic if useful. No latency target or blanket speed claim.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-core/src/store.rs",
+          "crates/brn-threads-app/src/settings.rs",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md"
+        ],
+        "gates": {
+          "implementation": "Selected for bounded existing service/query reuse only; no source change yet.",
+          "checks": "Pending candidate/review; preserve existing Settings missing/archived behavior and core writer/authorization rules. No new test for trivial forwarding alone.",
+          "integration": "Pending complete actual candidate review/checks, live protection/exacthead/precedingmain then normal merge; no published PR yet.",
+          "native": "Headless task only; no actual native interaction or owner acceptance claim.",
+          "owner_acceptance": "No new consequential product choice selected."
+        },
+        "attempts": [],
+        "resource_plan": "One bounded Luna medium author plus independent Sol high reviewer and lead within actual4slots; no nestedhelpers. Author may edit only core Store read wrapper and app Settings delegation plus concise affected README if needed; do not build/test/workload/push/launchaccount/native. Lead owns serialized pinned offline jobs1 checks and fresh synthetic data. Stop for authority/schema/duplicatepolicy change; no broad API/cache/benchmark framework.",
+        "design": "Reuse existing indexed canonical query and type instead of copying the Settings selector into UI or creating a snapshot/cache. Keep absence mapping identical at app boundary. Existing UNIQUE one_workspace_settings rules out first-match ambiguity. A settings read is not a whole-database validity check; do not silently alter write policy or imply an integrity scan."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4013,23 +4047,23 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T05:09:24.253Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-index-assessment-update.json"
+    "last_refresh_at": "2026-10-22T05:18:56.270Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr209-merge-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T05:17:25.342789+00:00",
-    "runtime_capacity": "Lead sole build actor; Luna author completed; independent Sol final source/adapter review completed.",
-    "build_slot": "Reserved for one independently reviewed headless refresh diagnostic; no competing build at reservation.",
+    "observed_at": "2026-10-22T05:24:05.524428+00:00",
+    "runtime_capacity": "Lead, boundedLuna indexed Settings reuse author, independentSol diagnostic-result review; within4slots.",
+    "build_slot": "Free: sole headlessrefresh58746 finished0 after105.27s, group absent/reaped, unchanged be97 checkout. No active build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "No headless dispatch wait; main209 resulting checks remain pending separately.",
+    "wait_reason": "No ordinary dispatch wait; indexed Settings reuse selected. Main209 resulting checks pending separately.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
     "fixture_worker_checkout": "mac-test-roots clean switched from retaineda499characterization to codex/desktop-refresh-scale-diagnostic onmain20811c48; owns onlyexistingheadlesstestfile.",
-    "documentation_worker_checkout": "architecture-status-route frozen combined dfe4 on actualmain208; no writer.",
+    "documentation_worker_checkout": "architecture-status-route clean atdfe4 before reuse; create codex/indexed-settings-read from actualmain2095fab, preserve old frozen branch.",
     "required_ci_runs": [
       39726448605
     ]

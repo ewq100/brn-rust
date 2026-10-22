@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-22T05:23:13.646421+00:00",
+  "candidate": "be97dc0aeb4a441e12a4bb8193055eb6ece64024",
+  "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be",
+  "bytes": 78263456,
+  "sha256": "5a443a9d10875a59e202fd704c049d29cbc02fafd63dc440552e79121b993c87",
+  "source_fixture_sha256": "832d9e68810d6f52ea5eda317e301b8b574c04516a7ba6d16659339fb89a40ba",
+  "scope": "test executable from exact filtered run; mutable target path, not a frozen ordinary native artifact"
+}

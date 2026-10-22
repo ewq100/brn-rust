@@ -55,28 +55,24 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 </details>
 
-### Measure the existing app refresh on a larger synthetic workspace
+### Read saved Settings without decoding every note
 
-Owner: Bounded Luna diagnostic-only author; independent Sol review; lead singlebuildactor · State: **active** · Last observed: 2026-10-22T05:17:25.342789+00:00
-Activity: Exact diagnostic-only be97dc0a source and execution adapter independently approved. Initial valid P2 stale-row/failed-refresh false-sample path fixed before workload by clean-notice assertions outside timer. Reserve the single bounded headless filtered run now; no production change.
-Next: Lead executes the one reviewed runner, retaining raw log and completion, actual dimensions/profile/time, unchanged checkout and owned-group cleanup; assess result without a new latency target or automatic repeat.
+Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:24:05.524428+00:00
+Activity: Selected narrow existing-query reuse after one warm direct-refresh sample80.819ms and structural confirmation of three all-record reads. Core already owns workspace_settings_on and unique partial one_workspace_settings index; expose its existing read through Store, use from Workspace::settings. No UI selector, cache/invalidation, schema/index change or Topics visibility rewrite.
+Next: Prepare one small reviewable candidate on actualmain2095fab using clean architecture-status-route checkout; preserve prior frozen dfe4 branch. Independently review exact complete change and choose existing configuration/affected-core/app/desktop checks, then one distinct changed-source diagnostic if useful. No latency target or blanket speed claim.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** PASS complete exact be97dc0a independent final review; initial P2 valid/fixed; test-only branch not selected for integration.
-- **checks:** RESERVED one headless filtered run: exact reviewed runner09af74ac/supervisor5115b3d4, pinned1.98.1/offline/jobs1/test opt1; 30min trigger/1GiB sampled stop, finite owned-group cleanup.
-- **integration:** No productPRselected; diagnosticbranchwillnotbemergedwithoutseparatejustification.
-- **native:** HeadlessTestAppContextonly; actualMac/IME/rendering/ownerexperience deferred.
-- **owner acceptance:** Not claimed.
+- **implementation:** Selected for bounded existing service/query reuse only; no source change yet.
+- **checks:** Pending candidate/review; preserve existing Settings missing/archived behavior and core writer/authorization rules. No new test for trivial forwarding alone.
+- **integration:** Pending complete actual candidate review/checks, live protection/exacthead/precedingmain then normal merge; no published PR yet.
+- **native:** Headless task only; no actual native interaction or owner acceptance claim.
+- **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md](active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md), [crates/brn-desktop/src/threads_omakase_tests.rs](../../crates/brn-desktop/src/threads_omakase_tests.rs), [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-implementation.md](active/vacation-campaign/evidence/desktop-refresh-scale-implementation.md), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-initial-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-initial-review.md), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-final-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-final-review.md), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh](active/vacation-campaign/evidence/desktop-refresh-scale-run.sh), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py](active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale.patch](active/vacation-campaign/evidence/desktop-refresh-scale.patch)
-
-Attempts:
-
-- Reserved before launch; no execution result yet.: One exact headless direct-refresh diagnostic on main208-based be97dc0a; no native/isolated CPU/full startup/latency acceptance claim. Initial record validation rejected the disposition field instead of required change; corrected before any launch. ([docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh](active/vacation-campaign/evidence/desktop-refresh-scale-run.sh), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py](active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md))
+Evidence: [crates/brn-threads-core/src/store.rs](../../crates/brn-threads-core/src/store.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json](active/vacation-campaign/evidence/desktop-refresh-scale-completion.json), [docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md](active/vacation-campaign/evidence/desktop-refresh-read-amplification.md)
 
 </details>
 
@@ -300,6 +296,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `derived-index-recovery-audit` — Inspect recovery of damaged or stale derived search indexes
 - `derived-index-integrity-recovery` — Assess automatic detection of an inconsistent derived search index
 - `desktop-refresh-scale-preflight` — Locate a useful headless check for app refresh at larger workspace size
+- `desktop-refresh-scale-diagnostic` — Measure the existing app refresh on a larger synthetic workspace
 
 ## Dependencies
 
@@ -337,4 +334,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:17:25.342789+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T05:24:40.668568+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

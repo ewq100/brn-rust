@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-22T05:18:56.270Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "6bdc5a59",
+  "new_sequence": 75,
+  "managed_blocks": [
+    "a37e5801-b0c8-4330-800f-13d98b10338a",
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea"
+  ],
+  "block_count": 40,
+  "unrelated_preserved": 37,
+  "readback_verified": true,
+  "edit": {
+    "new_sequence": 75,
+    "through_sequence": 75,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "d863dcb30a0a434ce5d7a0d6b76fffcb8411676c2dd917c0daa79b881320fe12"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "5eff37faf8975cb0935e15408741a9330668886b9a5ea3f7798c4c4af4eafba9"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "4dab6b8027d9887521fc7f72ee05565b91c72a0685161a77265ee36307715f70"
+          }
+        ]
+      }
+    ]
+  }
+}
