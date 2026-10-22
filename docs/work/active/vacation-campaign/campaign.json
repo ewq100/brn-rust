@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T06:41:24.343340+00:00",
-    "remaining_percent": 51,
+    "observed_at": "2026-10-22T06:59:30.568214+00:00",
+    "remaining_percent": 50,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual49% used/51% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, originalexpiry and closedaccountsession retained.",
+    "ordinary_work": "Admitted: actual50% used/50% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry and closed account-test session retained.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -4130,9 +4130,9 @@
         "title": "Keep shared build-cache use focused on Mac and Linux",
         "state": "active",
         "owner": "Bounded Luna small CI author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T06:43:32.642816+00:00",
+        "observed_at": "2026-10-22T07:00:35.714566+00:00",
         "origin": "observed",
-        "activity": "PR211 normally mergedaded398a after all4requiredexacthead andprecedingmain210 plusliveprotection PASS. Wholequalifiedaa25ed tree equalsactualmain. Required resulting-main gates pendingseparately; nocachedeletion or speed/causalclaim.",
+        "activity": "PR211 normally mergedaded398a after all4 required head and preceding-main gates plus liveprotection PASS. Three requiredMac resulting-main gates PASS; requiredUbuntuCore still running at07:00UTC. AllWindows optional lanes failed and retained. Observed preview label success had build/package/upload/publish steps skipped; no release/artifact qualification.",
         "next_action": "Inspect all4required resulting-mainaded398a checks and actualpreviewsteps. Retain optionalWindowsfailures; observe naturalcache behavior only if useful, no forced rerun/cleanup.",
         "depends_on": [
           {
@@ -4154,7 +4154,9 @@
           "docs/work/active/vacation-campaign/evidence/ci-cache-scope-reconciliation.json",
           "docs/work/active/vacation-campaign/evidence/pr211-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr211-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr211-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr211-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr211-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/preview-20261022T0642-steps.json"
         ],
         "gates": {
           "implementation": "PASS exact786ebfd2 independent Sol full source/config review; one compositeaction condition/comment, every job/check/protection unchanged.",
@@ -4228,10 +4230,10 @@
         "title": "Prevent recovery copies from becoming general knowledge accidentally",
         "state": "active",
         "owner": "Lead design; bounded Luna witness/author; consequential independent Sol review",
-        "observed_at": "2026-10-22T06:41:24.343340+00:00",
+        "observed_at": "2026-10-22T06:59:30.568214+00:00",
         "origin": "observed",
-        "activity": "Before-source exact2ff actual1test FAIL at intendedprivacyassertion: private recovery copy entered generalNotes. Actualdesktopcompile51.14s, supervisor55.20s exit101, sourceclean/groupabsent/reaped/noerrors; qualifiedfalse/baseline_reproducedtrue. Earlier exactsource/originalsession assertions passed; latersearch/export assertions notreached, not claimed as separate failures. Selected narrow sharedgeneral-only repair.",
-        "next_action": "Implement revieweddesign using existing writing_operation/replay/commit primitives and actualsessionbasis; retainpublicstale-copy. Strengthen sameUIwitness withclearrefusal and unchangedvisible/context/recovery/noCopyreceipt; add distinctservice historical/current/context/replay guards. Then independentcompletecandidate review and applicableonce-only gates.",
+        "activity": "Implemented candidate049819a4, reconciled with main211aded398a. Full independent source review requires two test corrections before qualification: historical-recovery fixture violates dirty guard, and actual emitted Current fence/reopen replay need the available public seam. No production privacy defect found by source review; no after-fix tests run.",
+        "next_action": "Bounded Luna author correcting only affected existing tests and report. Then affected independent review refresh, exact final-source local gates and normal PR integration. Preserve original baseline failure and all review findings.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4247,10 +4249,13 @@
           "docs/work/active/vacation-campaign/evidence/recovery-copy-before-run.sh",
           "docs/work/active/vacation-campaign/evidence/recovery-copy-before-supervise.py",
           "docs/work/active/vacation-campaign/evidence/recovery-copy-before.log",
-          "docs/work/active/vacation-campaign/evidence/recovery-copy-before-completion.json"
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-before-completion.json",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review.md",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-original-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-original.patch"
         ],
         "gates": {
-          "implementation": "Witness only next; production correction not dispatched before sound design.",
+          "implementation": "Implemented general-only checked recovery-copy boundary, full independent review found two P2 test corrections; correction in progress. No new private duplication/publication behavior.",
           "checks": "FAIL before-source productprivacytest, reproduced exactintendedassertion; rawnegative retained. After-fix qualification pending.",
           "integration": "Pending completeactualcandidate independentreview/requiredchecks/normalmerge/resultingmain.",
           "native": "Deferred for owner-reported screenunavailability.",
@@ -4264,6 +4269,13 @@
               "docs/work/active/vacation-campaign/evidence/recovery-copy-before-completion.json",
               "docs/work/active/vacation-campaign/evidence/recovery-copy-before.log",
               "docs/work/active/vacation-campaign/evidence/recovery-copy-before-review.md"
+            ]
+          },
+          {
+            "outcome": "CHANGES REQUIRED: two P2 test-validity/effectiveness findings at049819a4 before any after-fix execution. No production defect found by source review.",
+            "change": "Promote source before opening historical edit; inspect actual public prepared request, exercise changed-private-source Apply fence and reopen immutable replay using existing checked seams.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-review.md"
             ]
           }
         ],

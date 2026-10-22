@@ -1,0 +1,144 @@
+{
+  "observed_at": "2026-10-22T06:46:57.842768+00:00",
+  "run_id": 39735608801,
+  "metadata_head_sha": "aded398a0c1960d1feabe48166284ec0824ee4e1",
+  "jobs": {
+    "total_count": 1,
+    "jobs": [
+      {
+        "id": 119680447415,
+        "run_id": 39735608801,
+        "workflow_name": "BRN macOS preview release",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/ewq100/brn-rust/actions/runs/39735608801",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUumqvM8AAAAb3YKztw",
+        "head_sha": "aded398a0c1960d1feabe48166284ec0824ee4e1",
+        "url": "https://api.github.com/repos/ewq100/brn-rust/actions/jobs/119680447415",
+        "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39735608801/job/119680447415",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-22T06:42:15Z",
+        "started_at": "2026-10-22T06:42:18Z",
+        "completed_at": "2026-10-22T06:42:27Z",
+        "name": "Package and publish approved Apple Silicon preview",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-22T06:42:19Z",
+            "completed_at": "2026-10-22T06:42:20Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-22T06:42:20Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Verify exact main, approval and the four required CI jobs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Run ./.github/actions/setup-rust",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Fetch the committed stock lock for generator fixtures",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Check portable packaging and release guards",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Prepare locked stock and adapted document helpers",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Build locked desktop and retain target graphs",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Package and verify the relocated signed archive",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Qualify packaged startup and helper using disposable fixtures",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Upload, verify and publish the current-main prerelease",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:24Z"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-22T06:42:24Z",
+            "completed_at": "2026-10-22T06:42:25Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-22T06:42:25Z",
+            "completed_at": "2026-10-22T06:42:25Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/119680447415",
+        "labels": [
+          "macos-15"
+        ],
+        "runner_id": 1000003737,
+        "runner_name": "GitHub Actions 1000003737",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  },
+  "actual_packaging_and_publication": "SKIPPED; no new packaged/released artifact established",
+  "limits": "workflow_run executes workflow at latestdefaultbranch; metadataheadaded doesnot establish triggeringCI source. Labelsuccess is not native/build/package/release proof."
+}

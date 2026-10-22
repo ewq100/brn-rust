@@ -1,0 +1,776 @@
+diff --git a/crates/brn-desktop/src/threads_polish_tests.rs b/crates/brn-desktop/src/threads_polish_tests.rs
+index 1fc0eb26..4438e4f3 100644
+--- a/crates/brn-desktop/src/threads_polish_tests.rs
++++ b/crates/brn-desktop/src/threads_polish_tests.rs
+@@ -592,6 +592,330 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
+     }
+ }
+ 
++#[gpui_kit::test]
++fn stale_private_note_copy_stays_out_of_general_knowledge(cx: &mut TestAppContext) {
++    // A recovery copy of a chat-scoped Note must not silently enter general
++    // Notes, search, or export. Keep this independent of whether the owner
++    // service safely creates a private copy or refuses the copy and retains it.
++    let f = fixture(cx, 900., 600., "Private source baseline.");
++    let private_chat = update(cx, &f, |view, window, cx| {
++        let chat = view
++            .workspace
++            .new_thread("Private recovery scope")
++            .unwrap()
++            .id;
++        let current = view.workspace.store.note(&f.note.id).unwrap().unwrap();
++        let RecordData::Note(mut note) = current.data.clone() else {
++            unreachable!()
++        };
++        note.chat = Some(chat.clone());
++        assert!(matches!(
++            view.workspace
++                .owner_change(
++                    "private-recovery-scope",
++                    &ChangeRequest {
++                        reason: "Keep this synthetic Note in its chat scope".into(),
++                        writes: vec![Put {
++                            id: current.id.clone(),
++                            expected_version: Some(current.version),
++                            archived: false,
++                            data: RecordData::Note(note),
++                        }],
++                        inputs: vec![],
++                    },
++                )
++                .unwrap(),
++            ApplyOutcome::Applied(_)
++        ));
++        view.open_note_in_context(&f.note.id, None, Some(&chat), window, cx);
++        assert!(
++            view.workspace
++                .store
++                .record_visible_in_chat(&f.note.id, Some(&chat))
++                .unwrap()
++        );
++        assert!(
++            !view
++                .workspace
++                .store
++                .record_visible_in_chat(&f.note.id, None)
++                .unwrap()
++        );
++        chat
++    });
++    change_saved(cx, &f, |note| {
++        note.markdown = "Newer canonical private version.".into()
++    });
++    let source_before = cx.read(|cx| {
++        f.view
++            .read(cx)
++            .workspace
++            .store
++            .note(&f.note.id)
++            .unwrap()
++            .unwrap()
++    });
++    update(cx, &f, |view, window, cx| {
++        let end = view.writing.note_editor.read(cx).value().len();
++        view.writing.note_editor.update(cx, |editor, cx| {
++            editor.set_selected_range(end..end, cx);
++            editor.focus(window, cx);
++        });
++    });
++    on_window(cx, &f, |window, cx| {
++        window.input("\n\nõun 私密 privatezrecoverywitnessmarker", cx)
++    });
++    let (draft, session_before, selection_before, receipts_before) = cx.read(|cx| {
++        let view = f.view.read(cx);
++        let draft = view.writing.note_editor.read(cx).value().to_string();
++        let selection = view.writing.note_editor.read(cx).selected_range();
++        let receipts = view.workspace.store.receipts().unwrap();
++        let session = view
++            .writing
++            .note
++            .as_ref()
++            .unwrap()
++            .session()
++            .unwrap()
++            .clone();
++        (draft, session, selection, receipts)
++    });
++    assert_eq!(session_before.note, f.note.id);
++    assert_eq!(session_before.markdown, draft);
++    assert!(session_before.base_version < source_before.version);
++    assert_eq!(row(cx, &f), Some(workbench::WritingRow::DirtyStale));
++    on_window(cx, &f, |window, _| {
++        assert!(window.find("save-buffer-copy").visible());
++    });
++    on_window(cx, &f, |window, cx| window.click("save-buffer-copy", cx));
++    update(cx, &f, |view, _, cx| {
++        let open = view.writing.note.as_ref().unwrap();
++        assert_eq!(open.record().id, f.note.id);
++        assert_eq!(view.writing.note_editor.read(cx).value().to_string(), draft);
++        assert_eq!(
++            view.writing.note_editor.read(cx).selected_range(),
++            selection_before
++        );
++        assert_eq!(
++            view.note_writing_scope.as_deref(),
++            Some(private_chat.as_str())
++        );
++        assert_eq!(
++            view.workspace.store.note(&f.note.id).unwrap().as_ref(),
++            Some(&source_before),
++            "saving a copy leaves the newer canonical private Note unchanged"
++        );
++        assert!(
++            view.workspace
++                .store
++                .record_visible_in_chat(&f.note.id, Some(&private_chat))
++                .unwrap()
++        );
++        assert_eq!(
++            view.workspace
++                .store
++                .edit_session(&session_before.id)
++                .unwrap(),
++            session_before,
++            "the exact original private recovery buffer remains available"
++        );
++        assert_eq!(
++            view.workspace.store.receipts().unwrap(),
++            receipts_before,
++            "a refused copy has no accepted receipt"
++        );
++        assert!(
++            view.workspace.notes().unwrap().iter().all(|record| {
++                !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
++            }),
++            "private recovery copy entered general Notes"
++        );
++        assert!(
++            view.workspace
++                .store
++                .records_for_chat(None)
++                .unwrap()
++                .iter()
++                .all(|record| {
++                    !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
++                })
++        );
++        assert!(
++            view.workspace
++                .search("privatezrecoverywitnessmarker")
++                .unwrap()
++                .is_empty()
++        );
++        let export = view
++            .workspace
++            .export_now(&f._root.path().join("general-private-copy-export"))
++            .unwrap();
++        assert!(
++            export.files.iter().all(|file| file.record != f.note.id),
++            "a private source must not appear in the general export"
++        );
++        assert!(export.files.iter().all(|file| {
++            view.workspace
++                .store
++                .record(&file.record)
++                .unwrap()
++                .is_none_or(|record| {
++                    !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
++                })
++        }));
++    });
++    on_window(cx, &f, |window, _| {
++        assert_eq!(
++            window.find("workspace-notice").label(),
++            Some(
++                "This edit belongs to private work. It remains recoverable; saving a separate private copy is not available here."
++            )
++        );
++    });
++}
++
++#[gpui_kit::test]
++fn stale_recovery_from_private_basis_is_refused_in_general_scope(cx: &mut TestAppContext) {
++    let f = fixture(cx, 900., 600., "Original general version.");
++    let (private_basis, current_public, session_before, selection_before, receipts_before) =
++        update(cx, &f, |view, window, cx| {
++            let chat = view
++                .workspace
++                .new_thread("Private recovery history")
++                .unwrap();
++            let original = view.workspace.store.note(&f.note.id).unwrap().unwrap();
++            let RecordData::Note(mut private_data) = original.data.clone() else {
++                unreachable!()
++            };
++            private_data.chat = Some(chat.id.clone());
++            assert!(matches!(
++                view.workspace
++                    .owner_change(
++                        "recovery-history-private",
++                        &ChangeRequest {
++                            reason: "Create a synthetic private Note version".into(),
++                            writes: vec![Put {
++                                id: original.id.clone(),
++                                expected_version: Some(original.version),
++                                archived: false,
++                                data: RecordData::Note(private_data),
++                            }],
++                            inputs: vec![],
++                        },
++                    )
++                    .unwrap(),
++                ApplyOutcome::Applied(_)
++            ));
++            let private_basis = view.workspace.store.note(&f.note.id).unwrap().unwrap();
++            assert!(matches!(&private_basis.data, RecordData::Note(note)
++                if note.chat.as_deref() == Some(chat.id.as_str())));
++            let session = view
++                .workspace
++                .store
++                .begin_edit(&f.note.id, private_basis.version)
++                .unwrap();
++            let recovered = "õun 私密\nRecovered from private basis";
++            let session = match view
++                .workspace
++                .store
++                .update_buffer(&session.id, 1, recovered)
++                .unwrap()
++            {
++                BufferOutcome::Updated(session) => session,
++                BufferOutcome::Ignored(_) => panic!("fresh recovery buffer was ignored"),
++            };
++            let RecordData::Note(mut public_data) = private_basis.data.clone() else {
++                unreachable!()
++            };
++            public_data.chat = None;
++            assert!(matches!(
++                view.workspace
++                    .owner_change(
++                        "recovery-history-general",
++                        &ChangeRequest {
++                            reason: "Retain the current Note generally".into(),
++                            writes: vec![Put {
++                                id: f.note.id.clone(),
++                                expected_version: Some(private_basis.version),
++                                archived: false,
++                                data: RecordData::Note(public_data),
++                            }],
++                            inputs: vec![],
++                        },
++                    )
++                    .unwrap(),
++                ApplyOutcome::Applied(_)
++            ));
++            let current_public = view.workspace.store.note(&f.note.id).unwrap().unwrap();
++            assert!(matches!(&current_public.data, RecordData::Note(note)
++                if note.chat.is_none()));
++            view.open_note(&f.note.id, None, window, cx);
++            let open = view.writing.note.as_ref().unwrap();
++            assert_eq!(open.record().version, current_public.version);
++            assert_eq!(open.session().unwrap(), &session);
++            assert_eq!(view.note_writing_scope, None);
++            assert_eq!(
++                view.writing.note_editor.read(cx).value().as_ref(),
++                recovered
++            );
++            let selection = view.writing.note_editor.read(cx).selected_range();
++            let receipts = view.workspace.store.receipts().unwrap();
++            (private_basis, current_public, session, selection, receipts)
++        });
++    assert_eq!(
++        private_basis.version + 1,
++        current_public.version,
++        "the displayed current general version follows the private edit basis"
++    );
++    assert_eq!(row(cx, &f), Some(workbench::WritingRow::DirtyStale));
++    on_window(cx, &f, |window, _| {
++        assert!(window.find("save-buffer-copy").visible());
++    });
++    on_window(cx, &f, |window, cx| window.click("save-buffer-copy", cx));
++    update(cx, &f, |view, _, cx| {
++        assert_eq!(view.open_note_id(), Some(f.note.id.as_str()));
++        assert_eq!(view.note_writing_scope, None);
++        assert_eq!(
++            view.writing.note_editor.read(cx).value().as_ref(),
++            "õun 私密\nRecovered from private basis"
++        );
++        assert_eq!(
++            view.writing.note_editor.read(cx).selected_range(),
++            selection_before
++        );
++        assert_eq!(
++            view.workspace.store.note(&f.note.id).unwrap().unwrap(),
++            current_public
++        );
++        assert_eq!(
++            view.workspace
++                .store
++                .revision(&f.note.id, private_basis.version)
++                .unwrap(),
++            Some(private_basis.clone())
++        );
++        assert_eq!(
++            view.workspace
++                .store
++                .edit_session(&session_before.id)
++                .unwrap(),
++            session_before
++        );
++        assert_eq!(view.workspace.store.receipts().unwrap(), receipts_before);
++        assert!(view.workspace.notes().unwrap().iter().all(|record| {
++            !matches!(&record.data, RecordData::Note(note) if note.markdown == "õun 私密\nRecovered from private basis")
++        }));
++    });
++    on_window(cx, &f, |window, _| {
++        assert_eq!(
++            window.find("workspace-notice").label(),
++            Some(
++                "This edit belongs to private work. It remains recoverable; saving a separate private copy is not available here."
++            )
++        );
++    });
++}
++
+ #[gpui_kit::test]
+ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut TestAppContext) {
+     let f = widest(cx, 1250., 860.);
+diff --git a/crates/brn-desktop/src/threads_ui.rs b/crates/brn-desktop/src/threads_ui.rs
+index b7960398..c534b440 100644
+--- a/crates/brn-desktop/src/threads_ui.rs
++++ b/crates/brn-desktop/src/threads_ui.rs
+@@ -4686,16 +4686,34 @@ impl ThreadsUi {
+         let Some(open) = self.writing.note.as_ref() else {
+             return;
+         };
++        let Some(session) = open.session() else {
++            return;
++        };
++        let source = open.record().id.clone();
++        let basis_version = session.base_version;
++        let scope = self.note_writing_scope.clone();
++        let scope_key = scope
++            .as_deref()
++            .map_or_else(|| "general".to_owned(), |scope| format!("scope:{scope}"));
++        let key = format!("{}:{}:{scope_key}", session.id, session.generation);
+         let text = self.writing.note_editor.read(cx).value().to_string();
+         let name = format!("Recovered {}", title(open.record()));
+-        match self.workspace.new_note(&name, &text) {
+-            Ok(record) => {
+-                self.open_note(&record.id, None, window, cx);
++        match self.workspace.save_recovery_copy(
++            &key,
++            &source,
++            basis_version,
++            scope.as_deref(),
++            &name,
++            &text,
++        ) {
++            Ok(receipt) => {
+                 self.inform("Saved your text as a new working note. The original edit stays recoverable from Home.");
++                if let Some(write) = receipt.writes.first() {
++                    self.open_note(&write.after.id, None, window, cx);
++                }
+             }
+             Err(e) => self.fail(e.to_string()),
+         };
+-        self.refresh();
+         cx.notify();
+     }
+ }
+diff --git a/crates/brn-threads-app/src/writing.rs b/crates/brn-threads-app/src/writing.rs
+index c34e380d..b66d3db4 100644
+--- a/crates/brn-threads-app/src/writing.rs
++++ b/crates/brn-threads-app/src/writing.rs
+@@ -2,6 +2,7 @@ use crate::*;
+ use std::collections::BTreeSet;
+ 
+ const ADDRESSED_ROLE: &str = "writing-addressed";
++const PRIVATE_RECOVERY_COPY_UNAVAILABLE: &str = "This edit belongs to private work. It remains recoverable; saving a separate private copy is not available here.";
+ /// Saved feedback and derived explicit-owner addressed state.
+ #[derive(Debug, Clone)]
+ pub struct WritingComment {
+@@ -45,6 +46,95 @@ pub struct ActiveWritingContext {
+     pub conversation: Option<String>,
+ }
+ impl Workspace {
++    /// Save the owner's visible recovery text as a general working Note.
++    /// Private historical/current sources and captured scoped contexts are
++    /// refused; stale general text retains its historical provenance while
++    /// the current source version fences the write.
++    pub fn save_recovery_copy(
++        &mut self,
++        key: &str,
++        source: &str,
++        basis_version: u64,
++        captured_scope: Option<&str>,
++        title: &str,
++        markdown: &str,
++    ) -> AppResult<Receipt> {
++        let operation = self.writing_operation(
++            "recovery-copy",
++            key,
++            (source, basis_version, captured_scope, title, markdown),
++        )?;
++        if let Some(receipt) = self.writing_replay(&operation)? {
++            return Ok(receipt);
++        }
++        if captured_scope.is_some() {
++            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
++        }
++        let basis = self
++            .store
++            .revision(source, basis_version)?
++            .ok_or_else(|| AppError::Invalid("The saved note basis is unavailable".into()))?;
++        let RecordData::Note(basis_note) = &basis.data else {
++            return Err(AppError::Invalid(
++                "The saved note basis is unavailable".into(),
++            ));
++        };
++        if basis.archived || basis_note.superseded_by.is_some() {
++            return Err(AppError::Invalid(
++                "The saved note basis is unavailable".into(),
++            ));
++        }
++        if basis_note.chat.is_some() {
++            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
++        }
++        let current = self
++            .store
++            .record(source)?
++            .ok_or_else(|| AppError::Invalid("The saved note is unavailable".into()))?;
++        let RecordData::Note(current_note) = &current.data else {
++            return Err(AppError::Invalid("The saved note is unavailable".into()));
++        };
++        if current.archived || current_note.superseded_by.is_some() {
++            return Err(AppError::Invalid("The saved note is unavailable".into()));
++        }
++        if current_note.chat.is_some() {
++            return Err(AppError::Invalid(PRIVATE_RECOVERY_COPY_UNAVAILABLE.into()));
++        }
++        if !self.store.record_visible_in_chat(source, None)?
++            || !self
++                .store
++                .revision_visible_in_chat(source, basis_version, None)?
++        {
++            return Err(AppError::Invalid(
++                "The saved note is unavailable in general context".into(),
++            ));
++        }
++        self.writing_commit(
++            &operation,
++            ChangeRequest {
++                reason: "Owner saved a general recovery copy of a working Note".into(),
++                writes: vec![Put {
++                    id: operation.creation_id(0),
++                    expected_version: None,
++                    archived: false,
++                    data: RecordData::Note(Note::working(title, markdown)),
++                }],
++                inputs: vec![
++                    RevisionInput {
++                        record: source.into(),
++                        version: basis_version,
++                        expectation: InputExpectation::Historical,
++                    },
++                    RevisionInput {
++                        record: source.into(),
++                        version: current.version,
++                        expectation: InputExpectation::Current,
++                    },
++                ],
++            },
++        )
++    }
++
+     pub fn active_writing_context(
+         &self,
+         note: &str,
+diff --git a/crates/brn-threads-app/tests/writing_context.rs b/crates/brn-threads-app/tests/writing_context.rs
+index b391ac1b..b525ad39 100644
+--- a/crates/brn-threads-app/tests/writing_context.rs
++++ b/crates/brn-threads-app/tests/writing_context.rs
+@@ -209,3 +209,285 @@ fn knowledge_off_display_batch_keeps_only_the_actual_linked_working_note_excepti
+             .is_err()
+     );
+ }
++
++fn recovery_workspace() -> (tempfile::TempDir, Workspace) {
++    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
++    let app = Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
++    (root, app)
++}
++
++fn change_note(app: &mut Workspace, key: &str, id: &str, change: impl FnOnce(&mut Note)) -> Record {
++    let current = app.store.note(id).unwrap().unwrap();
++    let RecordData::Note(mut note) = current.data else {
++        panic!("expected Note")
++    };
++    change(&mut note);
++    let ApplyOutcome::Applied(receipt) = app
++        .owner_change(
++            key,
++            &ChangeRequest {
++                reason: "Synthetic recovery-copy fixture change".into(),
++                writes: vec![Put {
++                    id: id.into(),
++                    expected_version: Some(current.version),
++                    archived: false,
++                    data: RecordData::Note(note),
++                }],
++                inputs: vec![],
++            },
++        )
++        .unwrap()
++    else {
++        panic!("synthetic owner change was not applied")
++    };
++    receipt.writes[0].after.clone()
++}
++
++#[test]
++fn recovery_copy_refuses_private_basis_current_source_and_captured_scope() {
++    let (_root, mut app) = recovery_workspace();
++    let note = app.new_note("Working", "General v1").unwrap();
++    let chat = app.new_thread("Private context").unwrap();
++
++    // A private historical basis stays private even after the Note is retained
++    // generally in a later version.
++    let private_v2 = change_note(&mut app, "private-v2", &note.id, |note| {
++        note.chat = Some(chat.id.clone());
++        note.markdown = "Private historical basis".into();
++    });
++    change_note(&mut app, "retain-general", &note.id, |note| {
++        note.chat = None
++    });
++    let records = app.records().unwrap();
++    let history = app.history().unwrap();
++    let error = app
++        .save_recovery_copy(
++            "private-historical-basis",
++            &note.id,
++            private_v2.version,
++            None,
++            "Recovered",
++            "private draft",
++        )
++        .unwrap_err();
++    assert!(error.to_string().contains("private work"));
++    assert_eq!(app.records().unwrap(), records);
++    assert_eq!(app.history().unwrap(), history);
++
++    // A general historical basis cannot be copied after its current source
++    // enters private scope.
++    let current_private = change_note(&mut app, "private-current", &note.id, |note| {
++        note.chat = Some(chat.id.clone());
++    });
++    let records = app.records().unwrap();
++    let history = app.history().unwrap();
++    let error = app
++        .save_recovery_copy(
++            "private-current-source",
++            &note.id,
++            note.version,
++            None,
++            "Recovered",
++            "draft from general basis",
++        )
++        .unwrap_err();
++    assert!(error.to_string().contains("private work"));
++    assert_eq!(app.records().unwrap(), records);
++    assert_eq!(app.history().unwrap(), history);
++    assert_eq!(app.store.note(&note.id).unwrap(), Some(current_private));
++
++    // A public Note opened under a private/project context still refuses the
++    // general-only action.
++    let public = app.new_note("Public in private context", "Saved").unwrap();
++    assert!(
++        app.save_recovery_copy(
++            "private-captured-context",
++            &public.id,
++            public.version,
++            Some(&chat.id),
++            "Recovered",
++            "draft in scoped context",
++        )
++        .unwrap_err()
++        .to_string()
++        .contains("private work")
++    );
++}
++
++#[test]
++fn recovery_copy_preserves_public_stale_basis_and_replays_immutable_intent() {
++    let (_root, mut app) = recovery_workspace();
++    let note = app.new_note("Source", "Saved v1").unwrap();
++    let current = change_note(&mut app, "source-v2", &note.id, |note| {
++        note.markdown = "Saved v2".into();
++    });
++    let text = "õun 私密\nRecovered exact bytes\n";
++    let receipt = app
++        .save_recovery_copy(
++            "session-7:3",
++            &note.id,
++            note.version,
++            None,
++            "Recovered Source",
++            text,
++        )
++        .unwrap();
++    assert_eq!(receipt.writes.len(), 1);
++    let copy = &receipt.writes[0].after;
++    assert!(matches!(&copy.data, RecordData::Note(created)
++        if created.title == "Recovered Source" && created.markdown == text
++            && created.chat.is_none() && !created.protected && created.import.is_none()));
++
++    // A completed same-intent retry replays its first identity before looking
++    // at the now-changed source; changing the intent under that key is refused.
++    let source_v2 = app.store.note(&note.id).unwrap().unwrap();
++    let RecordData::Note(mut source_v3_data) = source_v2.data.clone() else {
++        panic!("expected Note")
++    };
++    source_v3_data.markdown = "Saved v3".into();
++    let ApplyOutcome::Applied(source_v3) = app
++        .owner_change(
++            "source-v3",
++            &ChangeRequest {
++                reason: "Advance the public source after recovery copy".into(),
++                writes: vec![Put {
++                    id: note.id.clone(),
++                    expected_version: Some(source_v2.version),
++                    archived: false,
++                    data: RecordData::Note(source_v3_data),
++                }],
++                inputs: vec![],
++            },
++        )
++        .unwrap()
++    else {
++        panic!("source update was not applied")
++    };
++    assert!(source_v3.needs_refresh.contains(&copy.id));
++    assert_eq!(
++        app.save_recovery_copy(
++            "session-7:3",
++            &note.id,
++            note.version,
++            None,
++            "Recovered Source",
++            text,
++        )
++        .unwrap(),
++        receipt
++    );
++    let records_before_changed_intent = app.records().unwrap();
++    let history_before_changed_intent = app.history().unwrap();
++    assert!(
++        app.save_recovery_copy(
++            "session-7:3",
++            &note.id,
++            note.version,
++            None,
++            "Recovered Source",
++            "changed intent",
++        )
++        .is_err()
++    );
++    assert_eq!(app.records().unwrap(), records_before_changed_intent);
++    assert_eq!(app.history().unwrap(), history_before_changed_intent);
++    assert_eq!(
++        app.store.note(&note.id).unwrap().unwrap().version,
++        current.version + 1
++    );
++    assert_eq!(app.store.note(&copy.id).unwrap().unwrap(), *copy);
++}
++
++#[test]
++fn recovery_copy_fails_closed_for_missing_wrong_kind_archived_and_superseded_basis() {
++    let (_root, mut app) = recovery_workspace();
++    let note = app.new_note("Source", "Saved").unwrap();
++    let thread = app.new_thread("Not a Note").unwrap();
++    let cases = [
++        ("missing-source", "missing-note", 1),
++        ("missing-basis", note.id.as_str(), 99),
++        ("wrong-kind", thread.id.as_str(), thread.version),
++    ];
++    for (key, source, version) in cases {
++        let records = app.records().unwrap();
++        let history = app.history().unwrap();
++        assert!(
++            app.save_recovery_copy(key, source, version, None, "Recovered", "draft")
++                .is_err()
++        );
++        assert_eq!(app.records().unwrap(), records);
++        assert_eq!(app.history().unwrap(), history);
++    }
++
++    let current = app.store.note(&note.id).unwrap().unwrap();
++    let replacement = app.new_note("Replacement", "Current source").unwrap();
++    let mut retired = current.clone();
++    let RecordData::Note(note_data) = &mut retired.data else {
++        panic!("expected Note")
++    };
++    note_data.superseded_by = Some(replacement.id);
++    let ApplyOutcome::Applied(_) = app
++        .owner_change(
++            "supersede-source",
++            &ChangeRequest {
++                reason: "Synthetic supersession".into(),
++                writes: vec![Put {
++                    id: note.id.clone(),
++                    expected_version: Some(current.version),
++                    archived: false,
++                    data: retired.data,
++                }],
++                inputs: vec![],
++            },
++        )
++        .unwrap()
++    else {
++        panic!("synthetic supersession was not applied")
++    };
++    let records = app.records().unwrap();
++    let history = app.history().unwrap();
++    assert!(
++        app.save_recovery_copy(
++            "superseded-source",
++            &note.id,
++            current.version,
++            None,
++            "Recovered",
++            "draft",
++        )
++        .is_err()
++    );
++    assert_eq!(app.records().unwrap(), records);
++    assert_eq!(app.history().unwrap(), history);
++
++    let archived = app.new_note("Archived source", "Saved").unwrap();
++    app.owner_change(
++        "archive-source",
++        &ChangeRequest {
++            reason: "Synthetic archive".into(),
++            writes: vec![Put {
++                id: archived.id.clone(),
++                expected_version: Some(archived.version),
++                archived: true,
++                data: archived.data.clone(),
++            }],
++            inputs: vec![],
++        },
++    )
++    .unwrap();
++    let records = app.records().unwrap();
++    let history = app.history().unwrap();
++    assert!(
++        app.save_recovery_copy(
++            "archived-source",
++            &archived.id,
++            archived.version,
++            None,
++            "Recovered",
++            "draft",
++        )
++        .is_err()
++    );
++    assert_eq!(app.records().unwrap(), records);
++    assert_eq!(app.history().unwrap(), history);
++}

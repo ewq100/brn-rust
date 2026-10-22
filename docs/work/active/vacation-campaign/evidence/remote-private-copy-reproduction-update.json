@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-22T06:50:02.417Z",
+  "source_commit": "7a6542d3",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "new_sequence": 81,
+  "managed_blocks": [
+    "a37e5801-b0c8-4330-800f-13d98b10338a",
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea"
+  ],
+  "block_count": 40,
+  "unrelated_preserved": 37,
+  "readback_verified": true,
+  "edit": {
+    "new_sequence": 81,
+    "through_sequence": 81,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "69416836b09df34ff32c1d4d0a593a5b58e58b3c5dbf4ca6939a73548637efc9"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "862165bdda1f0a6d6fd987e2a8d1a5de46302137f1c45a1b21ec90ead8fe7eb7"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "8263599a32e6ca0cc8f29c1c6855005f52ae39cd78443f28a14258ba4e0c10aa"
+          }
+        ]
+      }
+    ]
+  }
+}
