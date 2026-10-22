@@ -180,7 +180,7 @@ pub(super) fn new_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, busy: bool
         None,
         busy,
         false,
-        |view, window, cx| view.choose_import(ImportIntent::UsefulInformation, window, cx),
+        |view, window, cx| view.choose_import(ImportIntent::UsefulInformation, None, window, cx),
     ))
     .item(item(
         this,
@@ -188,7 +188,7 @@ pub(super) fn new_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, busy: bool
         None,
         busy,
         false,
-        |view, window, cx| view.choose_import(ImportIntent::FullNote, window, cx),
+        |view, window, cx| view.choose_import(ImportIntent::FullNote, None, window, cx),
     ))
 }
 

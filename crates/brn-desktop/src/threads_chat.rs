@@ -790,8 +790,7 @@ impl ThreadsUi {
                 self.set_chat(ChatTarget::Thread(id.clone()), window, cx);
                 self.composer
                     .update(cx, |e, cx| e.set_value(text, window, cx));
-                self.attaching_chat = Some(id);
-                self.choose_import(ImportIntent::FullNote, window, cx);
+                self.choose_import(ImportIntent::FullNote, Some(id), window, cx);
             }
             Err(e) => {
                 self.fail(e.to_string());
