@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-22T02:31:54.002559+00:00",
+  "candidate": "f4650db41dde3c1460af946aa59244f74a481671",
+  "base": "42906128b1b97dd4eec8d2885a53cd450c27b9d2",
+  "scope": "One existing Unix test extended; production unchanged, no dependency or ignored test added.",
+  "review": {
+    "source": "restore-process-stage-review.md",
+    "initial_candidate": "2f3f65c884d18919a5553b18b7bbe72ccf0962a5",
+    "initial_focused": "1PASS, weaker source proof; review found two P2s",
+    "findings": "Ready publication race and intervening private cleanup before public retry; both valid/fixed, exact final independently approved."
+  },
+  "final_results": {
+    "core_all_targets": {
+      "passed": 219,
+      "failed": 0,
+      "ignored": 1,
+      "suite_results": 26
+    },
+    "strict_core_all_target_clippy": "PASS",
+    "format_whitespace": "PASS",
+    "actual_corrected_process_journey": "PASS inside full core suite, real owned child SIGKILL; no separate duplicate focused rerun"
+  },
+  "hashes": {
+    "final.sh": "a668ab25c2099c6db3dfd6986d7467fbe198141867ef4c9be4536e17a0fd0c2a",
+    "final.log": "beb91846f8314fb3e4617c98366058c5e9f183f1be091a8b4098bcc7e9717b3e"
+  },
+  "limits": [
+    "Child stages full copy before kill; no mid-copy interruption, power-loss or hardware durability claim.",
+    "Empty synthetic database; source bytes, earlier output trees, live-probe tree and unrelated stage-like directory preserved.",
+    "One existing ignored test retained; no native/owner acceptance, account action or hosted integration inferred."
+  ]
+}

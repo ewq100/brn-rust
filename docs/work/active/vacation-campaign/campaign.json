@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:24:40.290885+00:00",
+    "observed_at": "2026-10-22T02:31:54.002559+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3213,26 +3213,42 @@
         "title": "Check that interrupted restore work is reclaimed safely",
         "state": "active",
         "owner": "Lead test design/integration; bounded Luna test-only author; independent Sol review",
-        "observed_at": "2026-10-22T02:24:40.290885+00:00",
+        "observed_at": "2026-10-22T02:31:54.002559+00:00",
         "origin": "observed",
-        "activity": "Selected strengthening of existing Unix restore leftover-stage witness: current test explicitly abandons an in-process stage, while real OS-process lock survival/release is not exercised. Verify live child stage survives another restore, then actual SIGKILL frees it for safe cleanup and retry.",
-        "next_action": "Extend existing killed-restore test using same-test owned child and finite readiness wait; retain existing source/earlier-workspace/unrelated-stage preservation assertions. No production or cleanup-policy changes.",
+        "activity": "Finalf465 independently approved after two valid P2 test corrections. Full core219/0/1existing ignored, strict alltarget lint and formatting PASS; corrected actual process journey ran within full suite. Production unchanged.",
+        "next_action": "Reconcile current main/integration queue, publish this reviewed test-only outcome without duplicating in-flight work; required exact-head/preceding-main and resulting-main gates remain separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-threads-core/src/restore.rs",
           "crates/brn-threads-core/src/stage.rs",
-          "docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md"
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-final.sh",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-final.log"
         ],
         "gates": {
-          "implementation": "Test-only candidate pending.",
-          "checks": "Existing source inspected; no new process witness run yet.",
-          "integration": "After independent review, final checks and actual protected gates.",
+          "implementation": "PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.",
+          "checks": "PASS all core219/0/1existingignored including actualchild/publicretry, strict corealltargetlint, format/diff.",
+          "integration": "No PR yet; final source frozen for protected publication.",
           "native": "Headless process/OS lock evidence only, no native app or power-loss proof.",
           "owner_acceptance": "No owner decision selected."
         },
-        "attempts": [],
-        "resource_plan": "One isolated Luna writer in export-durability checkout on codex/restore-process-interruption, frozen prior branch preserved. No builds by helper; lead serializes shared target. No native/account/network/private data."
+        "attempts": [
+          {
+            "outcome": "Initial2f3f65c8 focused1PASS/0FAIL, but independent review identifies readiness race and weaker-than-claimed public-retry sweep proof.",
+            "change": "Publish readiness atomically; hold same-process fixture before SIGKILL, then assert child stage remains immediately before public Store::restore. No production change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh",
+              "docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log"
+            ]
+          }
+        ],
+        "resource_plan": "Author/final independent review complete. Lead sole integration owner; shared build slot free after final checks. No source writer, native or account actor."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

@@ -1,0 +1,380 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 36.46s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_threads_core-de10105332b95afc)
+
+running 44 tests
+test backup::tests::occupied_destination_is_rejected_before_sqlite_copy ... ok
+test backup::tests::stage_holder_child ... ignored, runs only as the child of the SIGKILL stage test
+test backup::tests::missing_parent_and_directory_destination_preserve_source ... ok
+test backup::tests::publication_collision_preserves_new_destination_and_cleans_only_owned_stage ... ok
+test backup::tests::stage_keeps_final_absent_until_complete_snapshot_is_published ... ok
+test backup::tests::invalid_snapshot_and_abandoned_stage_clean_up_without_final_file ... ok
+test backup::tests::a_live_stage_survives_another_backup ... ok
+test backup::tests::parent_flush_failure_keeps_complete_published_snapshot_and_cleans_stage ... ok
+test backup::tests::relative_core_destination_preserves_process_directory ... ok
+test locator::tests::non_file_locators_are_unchanged ... ok
+test locator::tests::tmp_maps_to_private_tmp ... ok
+test locator::tests::a_file_through_a_symlinked_folder_maps_to_its_real_path ... ok
+test locator::tests::only_a_host_recorded_source_matches_under_an_older_spelling ... ok
+test locator::tests::an_older_spelling_matches_and_another_file_with_the_same_name_does_not ... ok
+test backup::tests::a_backup_sweeps_only_its_own_parent ... ok
+test backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes ... ok
+test backup::tests::a_killed_backups_stage_is_removed_by_the_next_backup_to_that_folder ... ok
+test backup::tests::symlink_ancestors_and_final_symlinks_are_refused_without_changes ... ok
+test backup::tests::stage_named_entries_that_are_not_brn_stages_are_never_followed_or_removed ... ok
+test restore::tests::invalid_corrupt_incompatible_sources_leave_destination_and_source_unchanged ... ok
+test restore::tests::a_live_restore_stage_survives ... ok
+test backup::tests::wal_snapshot_remains_standalone_and_restores_original_recovery_after_later_writes ... ok
+test run_attention::tests::a_notice_on_a_cancelled_run_is_replaced ... ok
+test run_attention::tests::an_existing_thread_write_is_edited_never_duplicated ... ok
+test run_attention::tests::an_unchanged_or_archived_chat_gets_no_write ... ok
+test run_attention::tests::clearing_terminal_notices_keeps_every_other_item ... ok
+test run_attention::tests::per_run_notice_marks_only_lease_free_runs ... ok
+test restore::tests::publication_failure_cleans_owned_stage_and_preserves_empty_destination ... ok
+test run_attention::tests::review_is_skipped_when_any_item_already_names_the_operation ... ok
+test run_attention::tests::two_runs_ended_in_one_chat_leave_one_notice ... ok
+test run_attention::tests::without_a_notice_only_the_review_is_added ... ok
+test restore::tests::abandoned_stage_and_sqlite_copy_failure_clean_up_without_publication ... ok
+test stage::tests::a_stage_is_private_marked_locked_and_removed_on_drop ... ok
+test stage::tests::an_abandoned_stage_keeps_its_folder_and_frees_its_lock ... ok
+test store::storage_open_tests::data_folder_failures_are_named_in_owner_terms ... ok
+test stage::tests::a_sweep_removes_only_abandoned_stages_of_its_kind_with_exact_names ... ok
+test store::storage_open_tests::existing_connection_path_never_creates_a_database_after_path_check ... ok
+test restore::tests::relative_source_works_absolute_destination_is_required_without_cwd_change ... ok
+test restore::tests::collision_and_rename_refuse_occupied_destination_and_clean_only_owned_stage ... ok
+test restore::tests::staging_never_exposes_ready_destination ... ok
+test restore::tests::empty_destination_and_nested_missing_parents_restore_and_preserve_source_bytes ... ok
+test restore::tests::post_publication_flush_or_reopen_failure_preserves_complete_destination ... ok
+test restore::tests::symlink_destinations_and_ancestors_are_refused_before_and_after_staging ... ok
+test restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent ... ok
+
+test result: ok. 43 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.71s
+
+     Running tests/backup_directory.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/backup_directory-cc39c7d33f99fdc3)
+
+running 5 tests
+test backup_selection_cannot_replay_a_delegation_receipt_with_matching_raw_string ... ok
+test stale_configure_and_its_replay_preserve_saved_folder ... ok
+test selection_requires_owner_and_existing_absolute_external_directory_including_aliases ... ok
+test folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_without_filesystem ... ok
+test explicit_backup_refuses_workspace_and_alias_and_preserves_reopen_while_parent_is_allowed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/candidate_refresh.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/candidate_refresh-f0131f25d00326cb)
+
+running 1 test
+test runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authority ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/chat_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_format-d1a6aff821e55b59)
+
+running 1 test
+test private_note_scope_survives_serialization_without_changing_legacy_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/chat_storage.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_storage-5394ece77d96bbb8)
+
+running 11 tests
+test composer_transfer_refuses_stale_generations_and_occupied_targets_without_changes ... ok
+test composer_transfer_survives_restart_and_fences_the_old_destination ... ok
+test composer_transfer_distinguishes_absent_and_generation_zero_recovery ... ok
+test composer_transfer_rolls_back_target_when_source_clear_fails ... ok
+test scoped_ids_assets_and_sources_do_not_enter_unrelated_context ... ok
+test latest_composer_draft_survives_restart_and_delayed_clear_is_rejected ... ok
+test derived_directory_is_allowed_only_as_a_real_directory ... ok
+test unavailable_backup_folder_leaves_old_format_and_records_unchanged ... ok
+test a_known_v3_backup_restores_as_v4_without_changing_source_snapshot ... ok
+test adopted_upgrade_requires_external_backup_and_preserves_the_v3_snapshot ... ok
+test backup_restore_and_upgrade_ignore_derived_data ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests/converge.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/converge-46b20f818dfa8713)
+
+running 4 tests
+test a_binding_mismatch_is_immutable_request ... ok
+test a_working_run_makes_archive_a_change_with_a_fence ... ok
+test the_existing_functions_still_append_on_a_no_op ... ok
+test every_converging_variant_is_unchanged_on_a_no_op ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/core.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/core-568c6f5461946bfc)
+
+running 45 tests
+test data_selection_refuses_symlink_ancestor_without_creating_database ... ok
+test current_candidate_and_receipt_readers_exclude_retired_and_applied_requests ... ok
+test a_second_edit_session_names_the_open_one_and_leaves_it_untouched ... ok
+test configuration_reads_and_fences_runs_at_the_actual_writer_boundary ... ok
+test discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones ... ok
+test comment_utf8_anchors_and_separate_record_versions_are_checked ... ok
+test configuration_replay_checks_immutable_payload_before_receipt ... ok
+test another_spelling_of_the_same_file_does_not_refresh_but_another_file_does ... ok
+test assets_require_owner_group_and_inherit_protection_and_dirty_guard ... ok
+test enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs ... ok
+test exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect ... ok
+test exact_protected_target_and_capability_scope ... ok
+test explicit_selection_refuses_old_and_foreign_identity ... ok
+test direct_owner_metadata_protection_and_lifecycle_changes_make_candidates_stale ... ok
+test host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejected ... ok
+test full_import_is_protected_and_confirmation_requires_explicit_authority ... ok
+test failed_candidate_replacement_keeps_original_active_and_guarded ... ok
+test human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action ... ok
+test host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation ... ok
+test lost_prepare_and_apply_responses_replay_across_connections_and_restart ... ok
+test only_one_working_run_per_thread_and_new_invocation_can_interrupt_prior_atomically ... ok
+test missing_storage_refuses_recreation_and_preserves_recovery_evidence ... ok
+test ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant ... ok
+test pending_candidate_requires_retirement_and_confirmation_is_revision_bound ... ok
+test meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only ... ok
+test protected_supersede_requires_distinct_capability ... ok
+test complete_backup_restores_assets_sources_pending_candidates_history_and_buffers ... ok
+test existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation ... ok
+test persisted_guards_defer_whole_group_and_generation_cannot_resurrect ... ok
+test run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone ... ok
+test replacement_replay_binds_original_and_request_across_restart_and_application ... ok
+test runtime_settings_snapshot_covers_account_changes_and_provider_aliases ... ok
+test paused_and_review_first_grants_require_exact_target_and_action ... ok
+test thread_review_attention_can_reference_known_operations_but_links_remain_records_only ... ok
+test save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set ... ok
+test stale_open_type_save_preserves_buffer ... ok
+test source_observation_metadata_does_not_refresh_but_new_external_version_does ... ok
+test two_live_connections_order_dirty_guard_before_grouped_apply ... ok
+test undo_identity_is_bound_before_receipt_replay ... ok
+test wrong_reference_rolls_back_group_and_occupied_backup_remains_intact ... ok
+test working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay ... ok
+test undo_save_restores_supported_anchor_at_new_compensating_revision ... ok
+test undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents ... ok
+test workspace_settings_are_owner_only_and_persist_maintenance_review_policy ... ok
+test undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical ... ok
+
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/current_inputs.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/current_inputs-708e9f1fb8438dae)
+
+running 9 tests
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/cw2_visibility.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/cw2_visibility-4eedf6d2676b5b27)
+
+running 7 tests
+test actual_owner_apply_rejects_archived_historical_input_even_when_current_revision_is_visible ... ok
+test archived_historical_input_is_not_apply_authority ... ok
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... ok
+test canonical_view_token_ignores_local_buffers_but_tracks_exact_candidate_pool_and_access_changes ... ok
+test revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content ... ok
+test actual_owner_candidate_apply_keeps_only_working_note_selected_conversation_exception ... ok
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/data_folder.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/data_folder-d05c8880351cb01d)
+
+running 5 tests
+test a_read_only_disk_is_named ... ok
+test a_folder_without_permission_is_named ... ok
+test a_file_in_place_of_the_folder_is_named ... ok
+test a_symlinked_path_is_refused_by_name ... ok
+test skills_sidecar_directory_is_narrowly_admitted_and_non_directories_refused ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/delegation.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/delegation-b39ec33953911ecd)
+
+running 8 tests
+test missing_settings_deny_standing_writes_but_allow_scoped_and_owner_writes ... ok
+test legacy_request_bytes_hash_and_receipt_replay_after_choice_and_reopen ... ok
+test stale_provider_form_preserves_new_review_choice_and_pause ... ok
+test generic_configuration_cannot_forge_or_clear_choice ... ok
+test a_settings_stop_records_interrupted_matching_its_notice ... ok
+test choices_bind_intent_preserve_concurrent_provider_and_replay_without_reapplying ... ok
+test legacy_and_archived_settings_deny_standing_authority ... ok
+test both_choices_and_pause_fence_every_working_run_and_block_stale_connection ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/document_conversion.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/document_conversion-e5638641ec0e1a57)
+
+running 1 test
+test schema9_snapshot_stays9_and_only_unpublished_restore_copy_upgrades ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/edit_tokens.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/edit_tokens-5030824d99f4ccab)
+
+running 14 tests
+test owner_discard_and_save_close_caller_sessions_without_a_token ... ok
+test owner_typing_adopts_a_caller_session_and_the_caller_token_stops ... ok
+test bound_writes_need_their_own_token_and_refusals_write_nothing ... ok
+test a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen ... ok
+test actors_commit_with_receipts_and_never_change_identity ... ok
+test reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces ... ok
+test tokens_match_the_pattern_differ_and_only_their_hash_is_stored ... ok
+test schema_5_upgrade_is_refused_with_a_working_run ... ok
+test purpose_is_set_at_creation_only_and_owner_by_default ... ok
+test the_no_upgrade_open_refuses_schema_5_and_changes_nothing ... ok
+test a_test_backup_with_a_caller_session_restores_as_an_owner_workspace ... ok
+test schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder ... ok
+test older_backups_restore_as_schema_10_owner_workspaces ... ok
+test schema_5_upgrade_backs_up_first_and_ends_at_7_as_an_owner_workspace ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.50s
+
+     Running tests/inspect.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/inspect-9a9137c182032cf3)
+
+running 11 tests
+test list_page_limits_outside_one_to_a_hundred_are_refused ... ok
+test page_limits_outside_one_to_a_hundred_are_refused ... ok
+test receipt_page_filters_by_record_and_refuses_unknown_records ... ok
+test operation_lookup_reports_all_four_states_and_never_allocates ... ok
+test record_page_filters_by_kind_in_id_order_with_a_cursor ... ok
+test candidate_page_lists_only_unapplied_unretired_candidates ... ok
+test recovery_page_lists_open_sessions_in_id_order ... ok
+test receipt_pages_never_repeat_and_see_later_receipts ... ok
+test note_thread_needs_you_and_project_pages_match_the_app_filters ... ok
+test run_page_filters_by_thread_and_state ... ok
+test message_page_keeps_creation_order_per_chat ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/mcp_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_format-2322ff13226fa6d7)
+
+running 1 test
+test checked_settings_and_backup_retain_explicit_disabled_mcp_policy ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/mcp_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_policy-8f24b32ccfa027fe)
+
+running 4 tests
+test policy_is_explicit_replay_bound_preserves_configure_and_fences_current_runs ... ok
+test private_and_project_access_are_explicit_and_raw_owner_policy_is_bounded ... ok
+test exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh ... ok
+test still_valid_grant_cannot_cross_store_reopen_or_unchanged_backup_restore ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/message_search_scope.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/message_search_scope-26f1554206e78d67)
+
+running 13 tests
+test a_chat_with_its_own_attachments_is_searchable_only_from_itself ... ok
+test an_archived_general_chats_notes_stay_private_to_it ... ok
+test a_project_without_brn_knowledge_shows_only_its_own_chats ... ok
+test a_general_chat_is_searchable_wherever_general_notes_appear ... ok
+test a_trashed_chats_notes_stay_out_of_search_until_restore ... ok
+test a_deleted_project_hides_its_chats_and_restore_returns_them ... ok
+test a_project_chat_is_searchable_only_in_its_project ... ok
+test a_chat_moved_out_of_a_project_stays_searchable_only_from_itself ... ok
+test project_delete_terminal_fence_overflow_refuses_atomically ... ok
+test partial_progress_and_writing_requests_are_never_searchable ... ok
+test an_archived_project_chats_notes_stay_project_documents ... ok
+test an_archived_or_resolved_chat_keeps_its_message_scope ... ok
+test project_delete_advances_only_actual_terminal_and_live_archive_transitions_once ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/note_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/note_read-73fd3516e20ca138)
+
+running 2 tests
+test headings_ignore_fenced_code_and_range_cursors_preserve_utf8 ... ok
+test saved_tail_fact_is_readable_after_restart_without_mixing_versions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/project_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/project_format-2f6f39db31909f21)
+
+running 1 test
+test schema_four_requires_a_verified_external_snapshot_before_project_adoption ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/revision_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/revision_read-08d60a8d06fad69d)
+
+running 1 test
+test bounded_accepted_revision_pages_and_slices_survive_restart_and_archive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/search_reader.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/search_reader-0bb9f7d442f939f3)
+
+running 3 tests
+test snapshots_report_a_rising_watermark_and_only_changed_records ... ok
+test readers_refuse_unvalidated_or_old_workspaces_without_changing_them ... ok
+test search_eligibility_matches_core_context_for_random_graphs ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/skill_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/skill_policy-98ad41361eb70367)
+
+running 3 tests
+test raw_owner_replacement_cannot_bypass_binding_bounds_or_project_checks ... ok
+test project_selection_is_exact_and_clear_remains_available_after_archive ... ok
+test scoped_policy_replay_fences_and_preserves_fresh_configuration_and_backup ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/steering.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/steering-e284d0fe7b86ae3f)
+
+running 8 tests
+test cannot_rebind_an_existing_unrelated_committed_receipt ... ok
+test checked_apply_failure_rolls_back_preparation_message_and_fence ... ok
+test saves_exact_message_and_fences_stale_writes_and_completion_atomically ... ok
+test existing_wrong_thread_membership_is_rejected_without_partial_effects ... ok
+test lost_response_replays_after_later_run_resolution_archive_and_reopen ... ok
+test rejects_any_other_working_invocation_in_the_same_thread ... ok
+test terminal_race_keeps_terminal_state_and_accepts_only_one_message ... ok
+test invalid_destinations_text_authority_and_fence_overflow_do_not_partially_write ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/writing.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing-6ee36d972d5ba938)
+
+running 6 tests
+test frozen_b873_evidence_bytes_and_request_hash_survive_optional_suggestions ... ok
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing_setup-038d62749b41dd8a)
+
+running 12 tests
+test raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope ... ok
+test setup_is_owner_only_and_stale_groups_are_atomic ... ok
+test v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes ... ok
+test immutable_context_duplicate_identity_and_invalid_references_are_refused ... ok
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... ok
+test schema6_upgrade_refuses_active_edits_and_missing_backup_before_mutation ... ok
+test checked_setup_mutation_requires_active_context_even_with_current_thread_input ... ok
+test v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input ... ok
+test owner_host_schema6_open_uses_remembered_external_backup_first ... ok
+test upgrade_failure_after_backup_rolls_back_all_schema_changes_and_can_resume ... ok
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... ok
+test schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidates ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+   Doc-tests brn_threads_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Finished `dev` profile [unoptimized] target(s) in 3.50s

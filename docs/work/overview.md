@@ -88,22 +88,26 @@ Attempts:
 
 ### Check that interrupted restore work is reclaimed safely
 
-Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:24:40.290885+00:00
-Activity: Selected strengthening of existing Unix restore leftover-stage witness: current test explicitly abandons an in-process stage, while real OS-process lock survival/release is not exercised. Verify live child stage survives another restore, then actual SIGKILL frees it for safe cleanup and retry.
-Next: Extend existing killed-restore test using same-test owned child and finite readiness wait; retain existing source/earlier-workspace/unrelated-stage preservation assertions. No production or cleanup-policy changes.
+Owner: Lead test design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T02:31:54.002559+00:00
+Activity: Finalf465 independently approved after two valid P2 test corrections. Full core219/0/1existing ignored, strict alltarget lint and formatting PASS; corrected actual process journey ran within full suite. Production unchanged.
+Next: Reconcile current main/integration queue, publish this reviewed test-only outcome without duplicating in-flight work; required exact-head/preceding-main and resulting-main gates remain separate.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Test-only candidate pending.
-- **checks:** Existing source inspected; no new process witness run yet.
-- **integration:** After independent review, final checks and actual protected gates.
+- **implementation:** PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.
+- **checks:** PASS all core219/0/1existingignored including actualchild/publicretry, strict corealltargetlint, format/diff.
+- **integration:** No PR yet; final source frozen for protected publication.
 - **native:** Headless process/OS lock evidence only, no native app or power-loss proof.
 - **owner acceptance:** No owner decision selected.
 
-Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md)
+Evidence: [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [crates/brn-threads-core/src/stage.rs](../../crates/brn-threads-core/src/stage.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-design.md](active/vacation-campaign/evidence/restore-process-stage-design.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log), [docs/work/active/vacation-campaign/evidence/restore-process-stage-implementation.md](active/vacation-campaign/evidence/restore-process-stage-implementation.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/restore-process-stage-qualification.json](active/vacation-campaign/evidence/restore-process-stage-qualification.json), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.sh](active/vacation-campaign/evidence/restore-process-stage-final.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-final.log](active/vacation-campaign/evidence/restore-process-stage-final.log)
+
+Attempts:
+
+- Initial2f3f65c8 focused1PASS/0FAIL, but independent review identifies readiness race and weaker-than-claimed public-retry sweep proof.: Publish readiness atomically; hold same-process fixture before SIGKILL, then assert child stage remains immediately before public Store::restore. No production change. ([docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh](active/vacation-campaign/evidence/restore-process-stage-initial-focused.sh), [docs/work/active/vacation-campaign/evidence/restore-process-stage-initial-focused.log](active/vacation-campaign/evidence/restore-process-stage-initial-focused.log))
 
 </details>
 
@@ -345,4 +349,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:24:40.290885+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:31:54.002559+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
