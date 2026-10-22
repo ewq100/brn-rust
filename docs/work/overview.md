@@ -35,9 +35,9 @@ Gates:
 ### Document the existing offline native-library setup
 
 Task ID: `offline-native-retrieval-guide`
-Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:49:02.502801+00:00
-Activity: The earlier optional build failed because explicit offline flags skipped automatic library discovery. The final local gate passed with the compatible cached library selected explicitly. A concise reusable documentation route is selected so future local checks avoid the same setup failure.
-Next: Review a two-document candidate against actual ort-sys branch ordering and the successful gate. Run documentation checks only; publish after reconciling the TLS integration and retain normal required hosted gates.
+Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:52:41.750445+00:00
+Activity: The two-document candidate is committed and independently approved at9533de6d. Local link/whitespace checks passed; no code/config/library/model/runtime action occurred. Publication awaits TLS214 integration.
+Next: Reconcile unchanged reviewed documentation onto actual mergedTLSmain, publish a docs-only PR, and retain normal required exact-head/preceding-main/resulting-main gates.
 Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: false)
 
 <details>
@@ -45,9 +45,9 @@ Depends on: tls-advisory-resolution when Publication only: reconcile the normall
 
 Gates:
 
-- **implementation:** Selected documentation-only route; no code/config/runtimeprompt changes
-- **checks:** Pending actual docs candidate/checks; no additional Rust rebuild selected
-- **integration:** Pending independent review and normal publication/required checks
+- **implementation:** PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only
+- **checks:** PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.
+- **integration:** Unpublished; await TLS214 integration before base reconciliation/publication
 - **native:** Inapplicable: setup guide does not establish app/model/native behavior
 - **owner acceptance:** Existing developer maintenance scope; no changed product meaning
 
@@ -383,4 +383,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:49:02.502801+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:52:41.750445+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

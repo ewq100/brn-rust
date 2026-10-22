@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T10:49:02.502801+00:00",
+    "observed_at": "2026-10-22T10:52:41.750445+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4949,10 +4949,10 @@
         "title": "Document the existing offline native-library setup",
         "state": "active",
         "owner": "Bounded Luna medium documentation author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T10:49:02.502801+00:00",
+        "observed_at": "2026-10-22T10:52:41.750445+00:00",
         "origin": "observed",
-        "activity": "The earlier optional build failed because explicit offline flags skipped automatic library discovery. The final local gate passed with the compatible cached library selected explicitly. A concise reusable documentation route is selected so future local checks avoid the same setup failure.",
-        "next_action": "Review a two-document candidate against actual ort-sys branch ordering and the successful gate. Run documentation checks only; publish after reconciling the TLS integration and retain normal required hosted gates.",
+        "activity": "The two-document candidate is committed and independently approved at9533de6d. Local link/whitespace checks passed; no code/config/library/model/runtime action occurred. Publication awaits TLS214 integration.",
+        "next_action": "Reconcile unchanged reviewed documentation onto actual mergedTLSmain, publish a docs-only PR, and retain normal required exact-head/preceding-main/resulting-main gates.",
         "depends_on": [
           {
             "task": "tls-advisory-resolution",
@@ -4964,12 +4964,13 @@
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/tls-initial-qualification-assessment.json",
           "docs/work/active/vacation-campaign/evidence/tls-final-local-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py"
+          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py",
+          "docs/work/active/vacation-campaign/evidence/offline-native-guide-review.md"
         ],
         "gates": {
-          "implementation": "Selected documentation-only route; no code/config/runtimeprompt changes",
-          "checks": "Pending actual docs candidate/checks; no additional Rust rebuild selected",
-          "integration": "Pending independent review and normal publication/required checks",
+          "implementation": "PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only",
+          "checks": "PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.",
+          "integration": "Unpublished; await TLS214 integration before base reconciliation/publication",
           "native": "Inapplicable: setup guide does not establish app/model/native behavior",
           "owner_acceptance": "Existing developer maintenance scope; no changed product meaning"
         },
@@ -4989,8 +4990,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:49:02.502801+00:00",
-    "runtime_capacity": "Lead integration; Luna small two-doc offline-native setup guide; Sol ZIP assessment complete and reviewslot available. HostedPR214checks active; no localbuild/scanner/native/account actor.",
+    "observed_at": "2026-10-22T10:52:41.750445+00:00",
+    "runtime_capacity": "Lead integration, noactivehelpers/writers/builds/scanners. Luna completed two-docguide9533; independentSolreviewAPPROVED. Hosted214requiredchecks stillpending.",
     "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
@@ -5000,7 +5001,7 @@
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
-    "fixture_worker_checkout": "mac-test-roots reused clean oncodex/offline-native-retrieval-guide-20261022 frommain3827; Lunaownsdevelopmenttooling/verificationdocs only; prior213commit/branch retained.",
+    "fixture_worker_checkout": "mac-test-roots frozen clean9533de6d oncodex/offline-native-retrieval-guide-20261022 frommain3827; candidateonly2developmentdocs; unpublishedpending214base.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39764798850
