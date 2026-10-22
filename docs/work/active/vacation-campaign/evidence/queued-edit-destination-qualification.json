@@ -1,0 +1,34 @@
+{
+  "observed_at": "2026-10-22T01:31:20.769041+00:00",
+  "candidate": "f79f6540276c00155ab3bc0d7f019f4ea5d00c9e",
+  "base": "dee96c9ed4542eb3c8b595280116628580dc896a",
+  "review": "queued-edit-destination-review.md",
+  "results": {
+    "old_source_regression": "FAIL actual1 at intended A overwritten by B assertion; preserved original97fa source",
+    "corrected_focused": {
+      "passed": 1,
+      "failed": 0
+    },
+    "full_native_toolkit": {
+      "passed": 347,
+      "failed": 0,
+      "ignored": 1
+    },
+    "strict_native_all_target_clippy": "PASS",
+    "ordinary_native_build": "PASS",
+    "format_whitespace": "PASS"
+  },
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-queued-edit-destination-f79f6540/brn-desktop",
+    "sha256": "6328720b4f268a83ed72aeb102880e664d9f6e269a43ffb603196d31ed4030d8",
+    "launched": false
+  },
+  "script_sha256": "4828ddbd351b8cf2a0af985a24a7f6be6134b6a1199836614a1bcbbeba4c3cc9",
+  "log_sha256": "f49f1669b2253aa4bf093e314d62bb8a9819f9325792fab5afc15d2b78639ce4",
+  "limits": [
+    "Toolkit/checked source evidence only; no native typing, IME, accessibility or owner acceptance.",
+    "Existing ignored fixture and block0.1.6 future compatibility warning retained.",
+    "Missing/Working-bound queued-item refusals and permitted other pending edits remain unchanged; source reviewed, not new execution claim.",
+    "Prior source chain and protected head/main checks required before separate integration."
+  ]
+}

@@ -1,0 +1,11 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 48.94s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)
+
+running 1 test
+test threads_ui::chat_tests::editing_a_queued_message_does_not_redirect_the_next_chat_send ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 347 filtered out; finished in 0.06s
+

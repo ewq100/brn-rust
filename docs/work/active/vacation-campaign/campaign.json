@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T01:19:49.832621+00:00",
-    "remaining_percent": 64,
-    "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual36% used /64% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. Account test session closed separately.",
+    "observed_at": "2026-10-22T01:30:13.246559+00:00",
+    "remaining_percent": 63,
+    "reset_unix": 1793083361,
+    "ordinary_work": "Admitted: actual37% used /63% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. Account test session closed separately.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T00:15:48.709578+00:00",
+    "observed_at": "2026-10-22T01:31:20.769041+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2509,12 +2509,12 @@
       {
         "id": "ordinary-import-target-ownership",
         "title": "Assess explicit destination ownership for file imports",
-        "state": "active",
+        "state": "complete",
         "owner": "lead bounded design; economical implementation and independent review only if selected",
-        "activity": "PR201 merged normally as951c5427 after independent review and all four required head/preceding-main checks. Merged tree equals qualified2ecf634d; resulting-main39703409071 checks are running.",
-        "observed_at": "2026-10-22T01:06:47.213256+00:00",
+        "activity": "PR201 normal merge951c5427 passed all four required head, preceding-main and actual resulting-main checks; qualified whole-tree equality retained. No actual native picker/owner acceptance claim.",
+        "observed_at": "2026-10-22T01:23:39.707518+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four required checks on resulting main951c5427. Native picker interaction remains deferred; no new UX claim.",
+        "next_action": "Use captured import destinations and existing witnesses. Actual Mac observation remains deferred separately.",
         "depends_on": [
           {
             "task": "run-continuation-ownership",
@@ -2537,12 +2537,13 @@
           "https://github.com/ewq100/brn-rust/pull/201",
           "docs/work/active/vacation-campaign/evidence/pr201-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr201-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr201-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr201-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr201-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS complete independent Sol review exact2ecf634d; no actionable findings.",
           "checks": "PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.",
-          "integration": "Normal protected merge951c5427; qualified whole-tree equality and head/preceding-main PASS. Resulting-main required checks pending.",
+          "integration": "PASS normal protected merge951c5427; qualified whole-tree equality and all four required resulting-main checks.",
           "native": "Existing actual Mac gate deferred; no native claim.",
           "owner_acceptance": "Not claimed."
         },
@@ -2719,10 +2720,10 @@
         "title": "Make precise-edit rejections diagnosable without exposing note text",
         "state": "active",
         "owner": "lead design/integration; bounded Luna author; independent Sol review",
-        "activity": "Published separate PR202 at0c1b2f09 on actual main201951c5427. Whole tree equals reviewed/qualified c4f0e2e6; diff is only the trace file. Required head and preceding-main checks are running.",
-        "observed_at": "2026-10-22T01:06:47.213256+00:00",
+        "activity": "PR202 normal merged at88866d40 after all four exact-head and preceding-main required checks and live protection passed. Resulting main whole tree equals qualified c4; resulting-main required checks running.",
+        "observed_at": "2026-10-22T01:30:13.246559+00:00",
         "origin": "observed",
-        "next_action": "Wait for required exact-head202 and actual preceding-main201 results, inspect live protection, then normal merge. Verify resulting main separately. No more account calls in the closed session.",
+        "next_action": "Inspect all four required checks on resulting main88866d40 separately; retain diagnostics limits and closed account session.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2736,12 +2737,14 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.log",
           "docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh",
           "https://github.com/ewq100/brn-rust/pull/202",
-          "docs/work/active/vacation-campaign/evidence/pr202-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr202-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr202-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr202-integration.json"
         ],
         "gates": {
           "implementation": "PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.",
           "checks": "PASS finalc4 focusedtrace3, runtime494/0/1, strictalltargetlint, ordinaryCLIbuild, fmt/whitespace; frozenCLI25008339.",
-          "integration": "PR202 published0c1b2f09; qualified whole-tree equality PASS. Head/preceding-main required checks pending.",
+          "integration": "MERGED PR20288866d40 after required head/preceding-main/live protection PASS; whole-tree equality PASS; resulting-main pending.",
           "native": "Inapplicable to trace metadata; actual Mac deferred.",
           "owner_acceptance": "Not claimed."
         },
@@ -2833,10 +2836,10 @@
         "title": "Prepare exact edits from one unique quoted passage",
         "state": "active",
         "owner": "Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review",
-        "activity": "Candidate28fd581e passed complete independent Sol review and final deterministic checks: focused17, research overlap1, full scripted runtime531, strict AI/CLI lint in both configurations, CLI guide identity1, ordinary CLI build, formatting and links. Two existing ignored tests retained; frozen CLI242b141c has not been launched against an account.",
-        "observed_at": "2026-10-22T01:06:47.213256+00:00",
+        "activity": "Published separate PR203a780c87d on actual main20288866d40. Whole tree equals reviewed/qualified28fd581e; diff is only the selected14-file quote outcome. Required head and preceding-main checks running.",
+        "observed_at": "2026-10-22T01:30:13.246559+00:00",
         "origin": "observed",
-        "next_action": "Keep frozen reviewed candidate while prior trace PR202 integrates. Then reconcile actual main, publish a separate exact-quote PR with applicable required checks. Real-model usefulness remains unmeasured.",
+        "next_action": "Keep published head stable. Inspect actual head/preceding-main required results and protection before normal merge; resulting-main separately. No new account call.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2858,12 +2861,13 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.log",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.sh",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/pr203-publication.json"
         ],
         "gates": {
           "implementation": "PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.",
           "checks": "PASS focused17/0, actual research1/0, scripted runtime531/0/2existing ignored, strict default+scripted all-target AI/CLI lint, CLI identity1/0, ordinary CLI build, formatting and625files2850links.",
-          "integration": "pending separate reviewed candidate if selected; no new account authority",
+          "integration": "PR203 publisheda780c87d; qualified whole-tree equality PASS. Head/preceding-main required checks pending.",
           "native": "actual Mac deferred",
           "owner_acceptance": "not claimed"
         },
@@ -2940,10 +2944,10 @@
         "title": "Keep a queued-message edit attached to its original chat",
         "state": "active",
         "owner": "Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction",
-        "observed_at": "2026-10-22T01:18:21.514880+00:00",
+        "observed_at": "2026-10-22T01:31:20.769041+00:00",
         "origin": "observed",
-        "activity": "Source inspection finds editing_queue stores only an item ID, persists across set_chat navigation, and unconditionally selects edit_queued before current composer destination. The checked service edits that explicit ID; a second chat composer may therefore update the first chat queued item. Runtime reproduction pending; earlier composer audit did not cover this edit-mode transition.",
-        "next_action": "Add one actual-control synthetic A edit -> navigate B -> send witness with dispatch blocked by a local busy worker/paused queue. Observe failure before selecting correction; no account/provider/native actions.",
+        "activity": "Finalf79f6540 independently approved with no actionable findings. Original cross-chat failure becomes focused1PASS; full desktop347PASS/0FAIL/1existing ignored, strict native lint, ordinary build and formatting PASS. Frozen binary retained unlaunched.",
+        "next_action": "Retain reviewed/qualified candidate while prior quote/reference chain integrates. Reconcile actual main before separate queue-fix PR; no native/account action.",
         "depends_on": [
           {
             "task": "reference-search-request-ownership",
@@ -2957,17 +2961,37 @@
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_writing.rs",
           "crates/brn-desktop/src/threads_chat_tests.rs",
-          "docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md"
+          "docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-regression.md",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-design.md",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-review.md",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.log",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh",
+          "docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json"
         ],
         "gates": {
-          "implementation": "Source-supported defect hypothesis; reproduction only selected",
-          "checks": "New focused old-source regression pending",
+          "implementation": "PASS complete independent Sol review of finalf79; no unresolved findings.",
+          "checks": "PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.",
           "integration": "Future corrected candidate depends on prior source chain; no publication yet",
           "native": "Actual Mac access deferred",
           "owner_acceptance": "No new owner decision expected for preventing cross-chat unintended edits"
         },
-        "attempts": [],
-        "resource_plan": "One fresh Luna medium author, sole test writer in isolated reusable export-durability branch from locally qualified dee96c9e. Test-only first, freeze and hand off; lead owns actual red run and correction selection. At most one author and later independent Sol reviewer within4slots. No helper builds/tests/account/native/network/newdependencies/nested agents. Stop on reproduction ambiguity; no production correction before lead diagnosis. Prior quote branch/artifact retained."
+        "attempts": [
+          {
+            "outcome": "Old-source97fa29c2 actual1test failed: queued A Original A message became B independent message;347other cases filtered, no account/provider calls.",
+            "change": "Select immutable captured item+thread UI intent and one current-chat resolver; independent sends retain original edit. No canonical/queue policy change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log",
+              "docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh"
+            ]
+          }
+        ],
+        "resource_plan": "Sole Luna author complete; independent Sol high read-only review of complete dee..f79. Lead owns only shared Rust build slot and all integration/records. No desktop/account/nested helpers."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2982,38 +3006,36 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-quote-qualification-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:19:49.832621+00:00",
-    "runtime_capacity": "Lead plus sole Luna queued-edit regression author; all prior authors/reviewers completed. Stale pending-init run_activity_author explicitly interrupted after PR199 completed to prevent obsolete dispatch.",
-    "build_slot": "No active Rust build. Final reference dee focused test passed; lead waiting for frozen test-only queue regression before red execution.",
+    "observed_at": "2026-10-22T01:31:20.769041+00:00",
+    "runtime_capacity": "Lead only; queued-edit author/reviewer complete; no source writer. All actual four slots counted before dispatch.",
+    "build_slot": "No active Rust build; final67292 exit0. Reviewed/qualifiedf79 candidate frozen.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
-        "kind": "PR202 required checks",
-        "pid": 34551,
-        "session_id": 45468,
-        "output": "/tmp/brn-pr202-required.log",
-        "head": "0c1b2f093379cdae65a6b6363b344d3e1c3d1648"
+        "kind": "PR203 required checks",
+        "session_id": 39365,
+        "output": "/tmp/brn-pr203-required.log",
+        "head": "a780c87ddc8906718f53a977588e805dcd35fdb7"
       },
       {
-        "kind": "Main201 workflow",
-        "pid": 34572,
-        "session_id": 67682,
-        "output": "/tmp/brn-main201-watch.log",
-        "run": 39703409071,
-        "sha": "951c54274d5c6dc7edf0629fbe7ace9480a14125"
+        "kind": "Main202 workflow",
+        "session_id": 99018,
+        "output": "/tmp/brn-main202-watch.log",
+        "run": 39705880332,
+        "sha": "88866d40f3f3ff1d5d0d351cf687076890f9ab79"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Hosted trace202 and preceding-main201 gates plus independent bounded queued-edit regression author. No account/native actor.",
+    "wait_reason": "Required hosted checks for main202/PR203; independent queue correction review/qualification continues.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability codex/queued-edit-destination-owner at base dee96c9e; sole Luna writes only chat regression test. Frozen quote branch28/artifact retained.",
-    "fixture_worker_checkout": "mac-test-roots clean published trace PR202 head0c1b2f09; failed guidance-only branch eac retained.",
+    "worker_checkout": "export-durability cleanf79f6540 queued edit correction; no active writer.",
+    "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
     "documentation_worker_checkout": "architecture-status-route clean frozen dee96c9e reference request owner; fully reviewed/qualified, no writer.",
     "required_ci_runs": [
-      39703409071,
-      39703476677
+      39705880332,
+      39705927393
     ]
   },
   "native_availability": {

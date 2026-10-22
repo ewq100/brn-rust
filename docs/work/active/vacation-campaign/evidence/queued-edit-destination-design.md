@@ -1,0 +1,19 @@
+# Bind a queued-message edit to its original chat
+
+Lead selection22October2026. On frozen test-only97fa29c2, the real toolkit regression failed at the intended first post-send assertion: A's original waiting item contained B's independent text. Exactly one test ran and failed. The queue stayed paused and a synthetic local Working worker/sender/lease blocked provider dispatch. This is reproduced desktop-state behavior, not an actual Mac/owner observation. The original failure and exact lead command (with native-test-support, locked/offline/jobs1) are retained in the red receipt; the author's proposed command was not run.
+
+## Smallest correction
+
+Replace the loose `editing_queue: Option<String>` with one private captured `QueuedEdit { item: String, thread: String }`. It records UI edit intent, not new canonical authority. The real Edit button captures both fields from the selected queue row. A single private `queued_edit_for_current_chat() -> Option<&str>` resolves that intent only when the displayed `ChatTarget::Thread` equals its captured thread. Use it consistently for Ask admission, the composer label/tooltip and enqueue's edit-vs-new branch. Clone the resolved item only at the existing mutable enqueue boundary, keeping rendering read-only and allocation-free.
+
+After a successful edit, clear that exact active edit as before. A successful independent send/queue from another chat must retain the original edit intent; the existing destination-keyed draft preservation already retains its text. Returning to A must therefore save its original waiting item, rather than append a duplicate message. Do not simply clear the flag on navigation or every send. Do not infer a new target from the current chat, retarget the original queue item, or silently fall back to a new message when the captured item is missing or bound to an actively Working Run. Existing checked `Workspace::edit_queued` and canonical queue policy remain authoritative and unchanged.
+
+Keep the existing one-current-edit local workflow. A multi-edit map, persistent edit sessions across restart, new cancel UI, queue policy changes, generic composer framework and new runtime/CLI APIs are not selected. Explicitly selecting another queue Edit continues the existing replacement behavior; do not expand this fix into a new editing product.
+
+## Evidence and scope
+
+The existing synthetic regression uses the real Edit and composer actions, preserves A's edited draft while navigating to B, checks that B adds its own item and A is unchanged, then returns to A and saves the original item with B unchanged and no duplicate. Retain it unchanged unless a concrete harness failure requires a diagnosed correction. Adapt the existing direct test seed to the captured type without weakening its notices/assertions. Update the current behavior contract with this destination rule; no shipped AI prompt change is needed.
+
+One bounded Luna writer owns `threads_ui.rs`, `threads_chat.rs`, `threads_writing.rs`, `threads_chat_tests.rs` and the relevant sentence in `docs/architecture/threads-behavior.md`, based on frozen97fa29c2. Lead owns the build slot/shared campaign records; independent Sol reviews the complete candidate after implementation. Run focused red-to-green and relevant broader desktop checks once after final source settles. No account/native/network/dependency/provider/configuration/store changes. Preserve prior qualified source chain and original failed observation. Reassess after two failed approaches or any scope/authority ambiguity.
+
+Review precision: the unchanged checked service permits editing a pending non-Working or unbound item and clears its prior message/Run/dispatch associations. This UI correction does not narrow or broaden that policy. Missing items and pending items bound to a Working Run retain their checked refusal.

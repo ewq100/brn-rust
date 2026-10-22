@@ -1,0 +1,104 @@
+{
+  "observed_at": "2026-10-22T01:30:13.246559+00:00",
+  "pr": {
+    "baseRefOid": "88866d40f3f3ff1d5d0d351cf687076890f9ab79",
+    "files": [
+      {
+        "path": "agent/BRN.md",
+        "additions": 1,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/provider_formats_tests.rs",
+        "additions": 8,
+        "deletions": 8,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads.rs",
+        "additions": 2,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_guides.rs",
+        "additions": 3,
+        "deletions": 3,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_note_edit.rs",
+        "additions": 57,
+        "deletions": 19,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_note_edit_tests.rs",
+        "additions": 559,
+        "deletions": 49,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_research.rs",
+        "additions": 3,
+        "deletions": 8,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_research_tests.rs",
+        "additions": 8,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_summary_tests.rs",
+        "additions": 2,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_text.rs",
+        "additions": 32,
+        "deletions": 0,
+        "changeType": "ADDED"
+      },
+      {
+        "path": "crates/brn-ai/src/threads_trace.rs",
+        "additions": 2,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn/tests/agent_runs.rs",
+        "additions": 1,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "docs/architecture/threads-behavior.md",
+        "additions": 2,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "docs/work/active/agent-first-simplification/targeted-edit.md",
+        "additions": 5,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "a780c87ddc8906718f53a977588e805dcd35fdb7",
+    "number": 203,
+    "state": "OPEN",
+    "url": "https://github.com/ewq100/brn-rust/pull/203"
+  },
+  "qualified_candidate": "28fd581ea8451ecd95d899248132b62c8f890d03",
+  "qualified_tree": "23db40d9d03161b26af94f4c57c7202440d1a560",
+  "published_tree": "23db40d9d03161b26af94f4c57c7202440d1a560",
+  "whole_tree_equal": true,
+  "qualification": "precise-edit-quote-qualification.json",
+  "required_head_run": 39705927393,
+  "preceding_main_run": 39705880332,
+  "limits": "Head/preceding-main required checks and live protection pending before normal merge; resulting-main separately. Real-model usefulness unmeasured; account session closed."
+}

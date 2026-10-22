@@ -9,33 +9,11 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Assess explicit destination ownership for file imports
-
-Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-22T01:06:47.213256+00:00
-Activity: PR201 merged normally as951c5427 after independent review and all four required head/preceding-main checks. Merged tree equals qualified2ecf634d; resulting-main39703409071 checks are running.
-Next: Inspect all four required checks on resulting main951c5427. Native picker interaction remains deferred; no new UX claim.
-Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: true)
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS complete independent Sol review exact2ecf634d; no actionable findings.
-- **checks:** PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.
-- **integration:** Normal protected merge951c5427; qualified whole-tree equality and head/preceding-main PASS. Resulting-main required checks pending.
-- **native:** Existing actual Mac gate deferred; no native claim.
-- **owner acceptance:** Not claimed.
-
-Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md), [docs/work/active/vacation-campaign/evidence/import-target-review.md](active/vacation-campaign/evidence/import-target-review.md), [docs/work/active/vacation-campaign/evidence/import-target-qualification.json](active/vacation-campaign/evidence/import-target-qualification.json), [docs/work/active/vacation-campaign/evidence/import-target-final.log](active/vacation-campaign/evidence/import-target-final.log), [docs/work/active/vacation-campaign/evidence/import-target-final.sh](active/vacation-campaign/evidence/import-target-final.sh), [https://github.com/ewq100/brn-rust/pull/201](https://github.com/ewq100/brn-rust/pull/201), [docs/work/active/vacation-campaign/evidence/pr201-publication.json](active/vacation-campaign/evidence/pr201-publication.json), [docs/work/active/vacation-campaign/evidence/pr201-premerge.json](active/vacation-campaign/evidence/pr201-premerge.json), [docs/work/active/vacation-campaign/evidence/pr201-integration.json](active/vacation-campaign/evidence/pr201-integration.json)
-
-</details>
-
 ### Make precise-edit rejections diagnosable without exposing note text
 
-Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T01:06:47.213256+00:00
-Activity: Published separate PR202 at0c1b2f09 on actual main201951c5427. Whole tree equals reviewed/qualified c4f0e2e6; diff is only the trace file. Required head and preceding-main checks are running.
-Next: Wait for required exact-head202 and actual preceding-main201 results, inspect live protection, then normal merge. Verify resulting main separately. No more account calls in the closed session.
+Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T01:30:13.246559+00:00
+Activity: PR202 normal merged at88866d40 after all four exact-head and preceding-main required checks and live protection passed. Resulting main whole tree equals qualified c4; resulting-main required checks running.
+Next: Inspect all four required checks on resulting main88866d40 separately; retain diagnostics limits and closed account session.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -44,11 +22,11 @@ Gates:
 
 - **implementation:** PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.
 - **checks:** PASS finalc4 focusedtrace3, runtime494/0/1, strictalltargetlint, ordinaryCLIbuild, fmt/whitespace; frozenCLI25008339.
-- **integration:** PR202 published0c1b2f09; qualified whole-tree equality PASS. Head/preceding-main required checks pending.
+- **integration:** MERGED PR20288866d40 after required head/preceding-main/live protection PASS; whole-tree equality PASS; resulting-main pending.
 - **native:** Inapplicable to trace metadata; actual Mac deferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-qualification.json](active/vacation-campaign/evidence/precise-edit-trace-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.log](active/vacation-campaign/evidence/precise-edit-trace-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh](active/vacation-campaign/evidence/precise-edit-trace-final.sh), [https://github.com/ewq100/brn-rust/pull/202](https://github.com/ewq100/brn-rust/pull/202), [docs/work/active/vacation-campaign/evidence/pr202-publication.json](active/vacation-campaign/evidence/pr202-publication.json)
+Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-qualification.json](active/vacation-campaign/evidence/precise-edit-trace-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.log](active/vacation-campaign/evidence/precise-edit-trace-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh](active/vacation-campaign/evidence/precise-edit-trace-final.sh), [https://github.com/ewq100/brn-rust/pull/202](https://github.com/ewq100/brn-rust/pull/202), [docs/work/active/vacation-campaign/evidence/pr202-publication.json](active/vacation-campaign/evidence/pr202-publication.json), [docs/work/active/vacation-campaign/evidence/pr202-premerge.json](active/vacation-campaign/evidence/pr202-premerge.json), [docs/work/active/vacation-campaign/evidence/pr202-integration.json](active/vacation-campaign/evidence/pr202-integration.json)
 
 Attempts:
 
@@ -58,9 +36,9 @@ Attempts:
 
 ### Prepare exact edits from one unique quoted passage
 
-Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T01:06:47.213256+00:00
-Activity: Candidate28fd581e passed complete independent Sol review and final deterministic checks: focused17, research overlap1, full scripted runtime531, strict AI/CLI lint in both configurations, CLI guide identity1, ordinary CLI build, formatting and links. Two existing ignored tests retained; frozen CLI242b141c has not been launched against an account.
-Next: Keep frozen reviewed candidate while prior trace PR202 integrates. Then reconcile actual main, publish a separate exact-quote PR with applicable required checks. Real-model usefulness remains unmeasured.
+Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T01:30:13.246559+00:00
+Activity: Published separate PR203a780c87d on actual main20288866d40. Whole tree equals reviewed/qualified28fd581e; diff is only the selected14-file quote outcome. Required head and preceding-main checks running.
+Next: Keep published head stable. Inspect actual head/preceding-main required results and protection before normal merge; resulting-main separately. No new account call.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -69,11 +47,11 @@ Gates:
 
 - **implementation:** PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.
 - **checks:** PASS focused17/0, actual research1/0, scripted runtime531/0/2existing ignored, strict default+scripted all-target AI/CLI lint, CLI identity1/0, ordinary CLI build, formatting and625files2850links.
-- **integration:** pending separate reviewed candidate if selected; no new account authority
+- **integration:** PR203 publisheda780c87d; qualified whole-tree equality PASS. Head/preceding-main required checks pending.
 - **native:** actual Mac deferred
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json](active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json), [docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md](active/vacation-campaign/evidence/quote-provider-fixture-map.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md](active/vacation-campaign/evidence/quote-http-route-plan.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log](active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final-review.md](active/vacation-campaign/evidence/precise-edit-quote-final-review.md), [docs/work/active/vacation-campaign/evidence/quote-http-implementation.md](active/vacation-campaign/evidence/quote-http-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log](active/vacation-campaign/evidence/precise-edit-quote-focused.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json](active/vacation-campaign/evidence/precise-edit-quote-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.log](active/vacation-campaign/evidence/precise-edit-quote-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.sh](active/vacation-campaign/evidence/precise-edit-quote-final.sh), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md](active/vacation-campaign/evidence/precise-edit-quote-implementation.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json](active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json), [docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md](active/vacation-campaign/evidence/quote-provider-fixture-map.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md](active/vacation-campaign/evidence/quote-http-route-plan.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log](active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final-review.md](active/vacation-campaign/evidence/precise-edit-quote-final-review.md), [docs/work/active/vacation-campaign/evidence/quote-http-implementation.md](active/vacation-campaign/evidence/quote-http-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log](active/vacation-campaign/evidence/precise-edit-quote-focused.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json](active/vacation-campaign/evidence/precise-edit-quote-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.log](active/vacation-campaign/evidence/precise-edit-quote-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final.sh](active/vacation-campaign/evidence/precise-edit-quote-final.sh), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-implementation.md](active/vacation-campaign/evidence/precise-edit-quote-implementation.md), [docs/work/active/vacation-campaign/evidence/pr203-publication.json](active/vacation-campaign/evidence/pr203-publication.json)
 
 Attempts:
 
@@ -107,9 +85,9 @@ Evidence: [docs/work/active/vacation-campaign/reference-search.md](active/vacati
 
 ### Keep a queued-message edit attached to its original chat
 
-Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T01:18:21.514880+00:00
-Activity: Source inspection finds editing_queue stores only an item ID, persists across set_chat navigation, and unconditionally selects edit_queued before current composer destination. The checked service edits that explicit ID; a second chat composer may therefore update the first chat queued item. Runtime reproduction pending; earlier composer audit did not cover this edit-mode transition.
-Next: Add one actual-control synthetic A edit -> navigate B -> send witness with dispatch blocked by a local busy worker/paused queue. Observe failure before selecting correction; no account/provider/native actions.
+Owner: Lead diagnosis/design/integration; bounded Luna test author; independent Sol review after correction · State: **active** · Last observed: 2026-10-22T01:31:20.769041+00:00
+Activity: Finalf79f6540 independently approved with no actionable findings. Original cross-chat failure becomes focused1PASS; full desktop347PASS/0FAIL/1existing ignored, strict native lint, ordinary build and formatting PASS. Frozen binary retained unlaunched.
+Next: Retain reviewed/qualified candidate while prior quote/reference chain integrates. Reconcile actual main before separate queue-fix PR; no native/account action.
 Depends on: reference-search-request-ownership when Publication only: previous quote/trace/reference source chain integrated and actual main reconciled. Reproduction/implementation may use qualified dee now. (reported satisfied: false)
 
 <details>
@@ -117,13 +95,17 @@ Depends on: reference-search-request-ownership when Publication only: previous q
 
 Gates:
 
-- **implementation:** Source-supported defect hypothesis; reproduction only selected
-- **checks:** New focused old-source regression pending
+- **implementation:** PASS complete independent Sol review of finalf79; no unresolved findings.
+- **checks:** PASS focused1,full347/0/1,strict alltarget native lint,ordinarynativebuild,fmt/diff. Original actual red1FAIL retained.
 - **integration:** Future corrected candidate depends on prior source chain; no publication yet
 - **native:** Actual Mac access deferred
 - **owner acceptance:** No new owner decision expected for preventing cross-chat unintended edits
 
-Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md)
+Evidence: [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing.rs](../../crates/brn-desktop/src/threads_writing.rs), [crates/brn-desktop/src/threads_chat_tests.rs](../../crates/brn-desktop/src/threads_chat_tests.rs), [docs/work/active/vacation-campaign/evidence/composer-drafts-audit.md](active/vacation-campaign/evidence/composer-drafts-audit.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-regression.md](active/vacation-campaign/evidence/queued-edit-destination-regression.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-design.md](active/vacation-campaign/evidence/queued-edit-destination-design.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-implementation.md](active/vacation-campaign/evidence/queued-edit-destination-implementation.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-review.md](active/vacation-campaign/evidence/queued-edit-destination-review.md), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.log](active/vacation-campaign/evidence/queued-edit-destination-green.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-green.sh](active/vacation-campaign/evidence/queued-edit-destination-green.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.log](active/vacation-campaign/evidence/queued-edit-destination-final.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-final.sh](active/vacation-campaign/evidence/queued-edit-destination-final.sh), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-qualification.json](active/vacation-campaign/evidence/queued-edit-destination-qualification.json)
+
+Attempts:
+
+- Old-source97fa29c2 actual1test failed: queued A Original A message became B independent message;347other cases filtered, no account/provider calls.: Select immutable captured item+thread UI intent and one current-chat resolver; independent sends retain original edit. No canonical/queue policy change. ([docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.log](active/vacation-campaign/evidence/queued-edit-destination-red.log), [docs/work/active/vacation-campaign/evidence/queued-edit-destination-red.sh](active/vacation-campaign/evidence/queued-edit-destination-red.sh))
 
 </details>
 
@@ -317,6 +299,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
 - `overview-reading-volume` — Keep the startup progress view concise as evidence grows
 - `ordinary-import-completion-preflight` — Check ordinary file imports across failure, cancellation and navigation
+- `ordinary-import-target-ownership` — Assess explicit destination ownership for file imports
 - `run-coordination-state-ownership` — Give Run coordination a coherent state and transition owner
 - `run-continuation-ownership` — Keep Stop and send continuation attached to its Run
 - `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
@@ -356,4 +339,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T00:15:48.709578+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T01:31:20.769041+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

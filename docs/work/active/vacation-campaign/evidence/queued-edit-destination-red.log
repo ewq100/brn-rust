@@ -1,0 +1,23 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 48.12s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)
+
+running 1 test
+
+thread 'threads_ui::chat_tests::editing_a_queued_message_does_not_redirect_the_next_chat_send' (18379463) panicked at crates/brn-desktop/src/threads_chat_tests.rs:1419:9:
+assertion `left == right` failed: [QueuedMessage { id: "efb8d9cc-e68d-4401-9714-5e247c0da926:1", thread: "895dfa74-2192-4814-9f70-a3aaedb76eca:0", text: "B's independent message", message: None, run: None, dispatch: None }]
+  left: "B's independent message"
+ right: "Original A message"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads_ui::chat_tests::editing_a_queued_message_does_not_redirect_the_next_chat_send ... FAILED
+
+failures:
+
+failures:
+    threads_ui::chat_tests::editing_a_queued_message_does_not_redirect_the_next_chat_send
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 347 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`
