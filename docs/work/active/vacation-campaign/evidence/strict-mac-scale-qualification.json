@@ -1,0 +1,57 @@
+{
+  "observed_at": "2026-10-22T01:46:17.068957+00:00",
+  "source_head_at_launch": "9d5a43ed1baf2725b84872f0f2bb4b889d913023",
+  "integrated_production_source": "88866d40f3f3ff1d5d0d351cf687076890f9ab79",
+  "production_diff": "PASS no differences in crates/agent/tools/Cargo.toml/Cargo.lock at launch; later lead changes documentation only",
+  "test_source": "crates/brn-threads-app/tests/user_scale.rs",
+  "toolchain": "1.98.1-aarch64-apple-darwin",
+  "profile": "release; BRN_SCALE_STRICT=1; default keyword retrieval; locked/offline/jobs1",
+  "host": {
+    "os": "macOS27.0.1",
+    "architecture": "arm64",
+    "cpu": "Apple M4",
+    "physical_cores": 10,
+    "memory_bytes": 17179869184
+  },
+  "synthetic_notes": 10000,
+  "result": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "cold_index_ms": 586.946875,
+    "reopen_index_ms": 25.168125,
+    "one_note_sync_ms": 0.399625,
+    "query_p95_ms": 22.131292,
+    "strict_bounds_ms": {
+      "reopen_index": 50,
+      "one_note_sync": 50,
+      "query_p95": 150
+    },
+    "also_asserted": [
+      "persisted index reused without rebuild",
+      "exact current revision replaces old search text",
+      "paginated total and cursor",
+      "archived note excluded"
+    ]
+  },
+  "execution": {
+    "observed_at": "2026-10-22T01:45:38.298514+00:00",
+    "exit_code": 0,
+    "stop_reason": null,
+    "elapsed_seconds": 320.5605374579318,
+    "disk_free_bytes": 17364865024
+  },
+  "test_binary": {
+    "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/release/deps/user_scale-865ee7ec84e6b09c",
+    "sha256": "3150e419328e5e48bc8316768ffae558af689740ab5a6a0800d8465deac361e1"
+  },
+  "script_sha256": "6c5cc5ac9f12ecb467f78b4850b653472a6942e03b832f6aa8d99607ce7d7a3f",
+  "log_sha256": "07622ac4c1523d81c7021b8558e4eb6aabdca11628917d980927b32a470e6522",
+  "limits": [
+    "One synthetic run on this physical Mac; no comparative optimization or repeated benchmark claim.",
+    "Reopen timing starts after Workspace::open and measures prepare/reuse of persisted keyword index; not full app launch.",
+    "Default keyword search; no embedding model installation or semantic/native retrieval qualification.",
+    "No native UI input/rendering/IME/VoiceOver or owner acceptance. No provider/account access.",
+    "No production source change or release/publication/deployment. Existing witness reused unchanged."
+  ]
+}

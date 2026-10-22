@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:44:59.436083+00:00",
+    "observed_at": "2026-10-22T01:46:17.068957+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3047,23 +3047,26 @@
       {
         "id": "strict-mac-keyword-scale",
         "title": "Check search responsiveness with 10,000 synthetic notes on this Mac",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead sole local build/check actor",
-        "observed_at": "2026-10-22T01:39:59.355819+00:00",
+        "observed_at": "2026-10-22T01:46:17.068957+00:00",
         "origin": "observed",
-        "activity": "Selected the existing documented strict release-profile keyword scale witness. Current campaign has no matching strict target-Mac receipt. Fresh synthetic data only; no semantic model installation, account call or native UI. Source is integrated main20288866d40, production-identical lead9d5a43ed.",
-        "next_action": "Run the existing strict 10,000-note witness once with pinned offline locked release build; retain actual timings, assertions, original failures and limits. No optimization selected before evidence.",
+        "activity": "Existing strict release-profile witness PASS1/0 on AppleM4 macOS27.0.1 with10,000 synthetic Notes. Initial index586.95ms, saved-index reuse25.17ms, one-note sync0.40ms, queryp9522.13ms; strict50/50/150ms bounds all met. No optimization selected.",
+        "next_action": "Reuse this source-bound baseline. Revisit on relevant search/storage behavior or measured regression; do not rerun unchanged timing tests to stay busy.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-threads-app/tests/user_scale.rs",
           "docs/development/verification.md",
           "docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.sh",
-          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py"
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.log",
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-completion.json",
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-qualification.json"
         ],
         "gates": {
           "implementation": "No source change selected. Existing witness reused unchanged.",
-          "checks": "Pending strict release witness; no UI/native latency claim.",
+          "checks": "PASS actual unchanged strict release witness1/0; raw log, command, binary hash and timing limits retained.",
           "integration": "Inapplicable to test-only qualification.",
           "native": "Headless service timing on physical Mac; no OS input or rendering.",
           "owner_acceptance": "Not claimed."
@@ -3093,9 +3096,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-queue-fix-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:41:51.894749+00:00",
+    "observed_at": "2026-10-22T01:46:17.068957+00:00",
     "runtime_capacity": "Lead only; assessors complete.",
-    "build_slot": "Lead release-scale qualification exec5539 active, output /tmp/brn-strict-mac-scale-qualification/run.log;30minute/1GiB supervisor. Source checked9d5a43ed production-identical main20288866d40; no other Rust build.",
+    "build_slot": "No active Rust build; strict scale exec5539 completed exit0 in320.56seconds. No native/account actor. Remaining hosted integration jobs are read-only.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {

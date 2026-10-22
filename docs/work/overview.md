@@ -84,31 +84,6 @@ Attempts:
 
 </details>
 
-### Check search responsiveness with 10,000 synthetic notes on this Mac
-
-Owner: Lead sole local build/check actor · State: **active** · Last observed: 2026-10-22T01:39:59.355819+00:00
-Activity: Selected the existing documented strict release-profile keyword scale witness. Current campaign has no matching strict target-Mac receipt. Fresh synthetic data only; no semantic model installation, account call or native UI. Source is integrated main20288866d40, production-identical lead9d5a43ed.
-Next: Run the existing strict 10,000-note witness once with pinned offline locked release build; retain actual timings, assertions, original failures and limits. No optimization selected before evidence.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** No source change selected. Existing witness reused unchanged.
-- **checks:** Pending strict release witness; no UI/native latency claim.
-- **integration:** Inapplicable to test-only qualification.
-- **native:** Headless service timing on physical Mac; no OS input or rendering.
-- **owner acceptance:** Not claimed.
-
-Evidence: [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs), [docs/development/verification.md](../development/verification.md), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.sh](active/vacation-campaign/evidence/strict-mac-scale-run.sh), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py](active/vacation-campaign/evidence/strict-mac-scale-supervise.py)
-
-Attempts:
-
-- Progress-only publication f9bcbf5b included a stale generated overview after evidence links were added; the check reported stale work overview, but the shell continued because fail-fast was absent. Release-scale source/check execution unaffected.: Immediately regenerated and checked the overview; af4cd3b0 corrected it. Links726files3057/0 and whitespace PASS. Subsequent mutation/check command uses fail-fast. Original published commits preserve the failure and repair. ([https://github.com/ewq100/brn-rust/commit/f9bcbf5b](https://github.com/ewq100/brn-rust/commit/f9bcbf5b), [https://github.com/ewq100/brn-rust/commit/af4cd3b0](https://github.com/ewq100/brn-rust/commit/af4cd3b0))
-
-</details>
-
 ## Next
 
 None recorded.
@@ -307,6 +282,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
 - `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
 - `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
+- `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
 
 ## Dependencies
 
@@ -342,4 +318,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T01:44:59.436083+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T01:46:17.068957+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
