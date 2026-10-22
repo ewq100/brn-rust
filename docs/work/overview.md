@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:38:51.370237+00:00
-Activity: Subsequent read-only inspection found a clean stale-view edge: another checked Save advances the Note while the held editor still shows its prior saved checkpoint. Guard can falsely refuse exit despite that immutable revision retaining exact bytes. Source independently under assessment; merge held while660a hosted checks run.
-Next: Resolve clean-checkpoint durability assessment and establish one meaningful existing-fixture before-source witness. Preserve all prior failures/checks; do not merge while this ordinary clean-note case is unresolved.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:43:58.224030+00:00
+Activity: Clean-checkpoint P2 reproduced at actual installed Close in7a1a530f, with all setup invariants passed. Adopted independent design: unchanged Clean state may prove exact held immutable Record through indexed existing revision read; no mutation or dirty-session policy expansion.
+Next: Implement narrow Note-owner read-only checkpoint case and matching contracts; strengthen focused no-reload/no-dialog state checks. Freeze complete candidate, independent review, final component/host/desktop/lint/ordinary build, then normal217update.
 
 <details>
 <summary>Gate status</summary>
@@ -28,26 +28,6 @@ Gates:
 - **integration:** PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
-
-</details>
-
-### Keep an already-saved clean note from blocking exit
-
-Task ID: `clean-note-exit-assessment`
-Owner: Lead decision; bounded Luna witness author; independent Sol design/review · State: **active** · Last observed: 2026-10-22T13:38:51.370237+00:00
-Activity: Source preflight identifies clean vN editor after external vN+1 Save; current-only/recovery check misses immutable vN. Assess exact held-revision read reuse and bounded witness before any production correction.
-Next: Independent design confirms engineering policy/safety; reuse one existing offline fixture and actual Close installer for focused before-source witness. No new framework or history scan.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Assessment only; no correction selected until source decision.
-- **checks:** Read-only preflight; witness pending.
-- **integration:** Holds dependent PR217 integration.
-- **native:** Owner-deferred; no native action.
-- **owner acceptance:** Ordinary already-saved checkpoint exit behavior; escalate only a real product meaning change.
 
 </details>
 
@@ -292,8 +272,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-122 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+123 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `clean-note-exit-assessment` — Keep an already-saved clean note from blocking exit
 - `shared-cli-desktop-intake-preflight` — Assess the remaining manual CLI-to-desktop intake check
 - `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
 - `connections-project-freshness` — Clear outdated Connections after project membership changes
@@ -303,7 +284,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
-- `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
 
 ## Dependencies
 

@@ -1,0 +1,34 @@
+# Clean held Note after an external Save — bounded independent assessment
+
+**Valid source-supported false exit refusal; a narrow repair is justified.** This is a P2 ordinary-use gap missed by the earlier complete review, not an observed native loss or a new candidate approval. Integration should remain held until the selected witness/repair is reviewed and qualified. Existing failures/passes remain historical evidence for their exact sources.
+
+Inspected clean `660a737174030320ca4c412248117a168e69c8d6` in `/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust`, the actual Note owner, desktop refresh/exit hooks, checked edit service, immutable revision reader/writer and existing journey. Read `/tmp/brn-clean-note-exit-preflight.md`; independently verified its trigger against source. No source edits, builds, tests, fixtures, network, native/account or nested work performed; this report is the sole write.
+
+## Trigger and consequence
+
+A held Note loaded cleanly at vN has no edit guard. A second checked Workspace can therefore begin/edit/Save different text as vN+1. Ordinary `ThreadsUi::refresh` reloads records/history/recovery and other collections (`threads_ui.rs:805–902`) without replacing `WritingPanel.note` or its editor. The separate explicit `reload_open_note` path does not run merely because that independent writer saved.
+
+The original editor remains clean, with visible bytes equal to its accepted held vN body. `preserve_note_for_exit` checks current canonical body and open recovery only (`note.rs:88–121`): neither matches. `note_changed` then takes its correct Clean-plus-held-body-equality fast path and returns `None` without creating a session (`note.rs:238–245`). A second identical durability check still fails. Normal Close/registered Quit is refused and presents the local-loss consequence even though no unsaved local attempt exists. This changes no canonical data, but incorrectly makes ordinary clean navigation/exit look like failed preservation. The existing explicit discard escape prevents a permanent trap; it does not make this refusal correct.
+
+## Existing proof and minimal selected boundary
+
+An accepted vN is already durable in the same SQLite authority. Every checked canonical write inserts its serialized `Record` and the corresponding immutable revision inside the same transaction (`store.rs:2634–2645`). `revisions` has composite primary key `(id,version)` (`store.rs:163`); `Store::revision(id,version)` performs that exact indexed lookup (`632–642`). The existing historical reader explicitly retains accepted revisions after later edits, archival or supersession (`revision_read.rs:51–70`). No arbitrary history search or new persistence mechanism is needed.
+
+Recommend extending the existing Note-owner exit durability check with the **held clean checkpoint** proof: obtain the held Note ID/version from the lifecycle; when it is clean with unchanged held text, read exactly `Store::revision(id, held_record.version)` and require a Note with the same identity/version and exact UTF-8 Markdown as the live editor. A missing/mismatched/non-Note revision is not proof; propagate read/parse errors rather than trusting the cached body. This can be a small private helper/case in the existing owner. It should leave the fast current-canonical/open-recovery cases and all host cancellation/dialog/intent logic intact.
+
+The narrow clean case is sufficient for the demonstrated bug and avoids expanding the working-copy policy unnecessarily. It does not need a new public clean flag: the Note module already owns `EditState`. No new owner decision is needed to let an unchanged previously saved view close without another Save. A generalized exact held-revision proof is byte-preserving too, but must not be confused with restoring an unsaved working session; this bounded slice need not broaden dirty-session admission to any historical text.
+
+In particular, do not accept cached bytes alone, an arbitrary matching historical version, a version supplied by a stale external hint, or Markdown from a **closed unsaved edit session**. Keep closed/newer session conflicts with different live-only text refused unless current canonical/open recovery already proves preservation or the existing explicit local-discard confirmation admits it. The verified revision is evidence of already accepted bytes, never Current, a Save, adoption of a new generation or authority to overwrite vN+1. No revision scan, new recovery session, canonical write, reload or guard creation should be introduced for this unchanged clean case. Update the two exit contract paragraphs to name the verified held checkpoint, with the same narrow distinction.
+
+## One meaningful before/after witness without another fixture
+
+Prepend a phase to the existing installed-Close/U4 journey using its already-created **Note B**, leaving Note A and all existing refusal/escape assertions unchanged:
+
+1. With the existing shared production exit handlers installed, open `f.b` cleanly at v1. Through a second checked Workspace, begin/update/Save genuinely different Note B text as v2; capture the actual v2 Record, complete history and recovery state after that Save.
+2. Call ordinary view refresh. Require the held Note/editor still equal the original `f.b` v1, no owned session or blocked-elsewhere state, current canonical body different, and no open recovery containing the old body. Independently read the exact `(B,v1)` revision and verify it equals the held accepted Record/text.
+3. Invoke the actual installed predicate via the existing `visual.simulate_close()` and require true. Before the repair this should fail at admission, not setup. After the repair require current v2 Record, immutable v1, history and full recovery list unchanged; no new dirty guard/session or dialog should be created, and the held view should not silently reload.
+4. Open untouched Note A and continue the original U4 actual-`õ`/Close/Quit/newer-buffer/stale-confirmation journey. Its history snapshots will naturally include the earlier B Save. The original first-dirty and live-only refusal assertions remain negative controls against allowing an unrelated held revision merely because one exists.
+
+This tests the newly missing clean boundary without duplicating a full host fixture, changing keyboard/paste behavior or requiring disk/permission faults. Preserve the new intended before-source failure separately from the original Mac refusal baseline, Ubuntu selection failure and 6da Quit-dispatch failure. No such run has been performed by this reviewer.
+
+The proof is headless predicate/data preservation only; ordinary OS Close/Cmd-Q/native destruction, broad draft retention and forced termination retain existing limits. A final source review and affected exact-source checks remain lead-owned; this assessment neither changes frozen PR217 nor authorizes an automatic retry loop.

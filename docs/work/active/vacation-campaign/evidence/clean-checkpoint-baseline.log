@@ -1,0 +1,21 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 48.56s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-d7c33ac129b672c1)
+
+running 1 test
+
+thread 'threads_ui::writing_tests::normal_close_accepts_a_clean_historical_checkpoint_without_writing' (19111909) panicked at crates/brn-desktop/src/threads_writing_tests.rs:1870:5:
+the exact clean historical checkpoint is already durable
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads_ui::writing_tests::normal_close_accepts_a_clean_historical_checkpoint_without_writing ... FAILED
+
+failures:
+
+failures:
+    threads_ui::writing_tests::normal_close_accepts_a_clean_historical_checkpoint_without_writing
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 351 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`
