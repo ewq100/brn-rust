@@ -2529,6 +2529,7 @@ impl ThreadsUi {
         };
         self.refresh();
         self.reload_open_note(window, cx);
+        self.refresh_connections(cx);
         cx.notify();
     }
     fn toggle_protection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
