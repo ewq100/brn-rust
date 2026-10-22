@@ -9,31 +9,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ## Working on
 
-### Make precise-edit rejections diagnosable without exposing note text
-
-Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T01:30:13.246559+00:00
-Activity: PR202 normal merged at88866d40 after all four exact-head and preceding-main required checks and live protection passed. Resulting main whole tree equals qualified c4; resulting-main required checks running.
-Next: Inspect all four required checks on resulting main88866d40 separately; retain diagnostics limits and closed account session.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.
-- **checks:** PASS finalc4 focusedtrace3, runtime494/0/1, strictalltargetlint, ordinaryCLIbuild, fmt/whitespace; frozenCLI25008339.
-- **integration:** MERGED PR20288866d40 after required head/preceding-main/live protection PASS; whole-tree equality PASS; resulting-main pending.
-- **native:** Inapplicable to trace metadata; actual Mac deferred.
-- **owner acceptance:** Not claimed.
-
-Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-qualification.json](active/vacation-campaign/evidence/precise-edit-trace-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.log](active/vacation-campaign/evidence/precise-edit-trace-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-final.sh](active/vacation-campaign/evidence/precise-edit-trace-final.sh), [https://github.com/ewq100/brn-rust/pull/202](https://github.com/ewq100/brn-rust/pull/202), [docs/work/active/vacation-campaign/evidence/pr202-publication.json](active/vacation-campaign/evidence/pr202-publication.json), [docs/work/active/vacation-campaign/evidence/pr202-premerge.json](active/vacation-campaign/evidence/pr202-premerge.json), [docs/work/active/vacation-campaign/evidence/pr202-integration.json](active/vacation-campaign/evidence/pr202-integration.json)
-
-Attempts:
-
-- Intermediate777e3461 focused/full494/0/1 plus lint/buildPASS, but independentreviewP2 found propagated Invalidreasons mayinclude dynamicIDs; trace didnotmeetstatictext boundary. No second account launch.: Exact4knownstatic reasons retained, unknown/malformed reasons generic. Regressionfixtures cover dynamicprivateID and missing/nonstring bodies. Finalc4qualificationrunning. ([docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log))
-
-</details>
-
 ### Prepare exact edits from one unique quoted passage
 
 Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T01:30:13.246559+00:00
@@ -127,6 +102,10 @@ Gates:
 - **owner acceptance:** Not claimed.
 
 Evidence: [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs), [docs/development/verification.md](../development/verification.md), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.sh](active/vacation-campaign/evidence/strict-mac-scale-run.sh), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py](active/vacation-campaign/evidence/strict-mac-scale-supervise.py)
+
+Attempts:
+
+- Progress-only publication f9bcbf5b included a stale generated overview after evidence links were added; the check reported stale work overview, but the shell continued because fail-fast was absent. Release-scale source/check execution unaffected.: Immediately regenerated and checked the overview; af4cd3b0 corrected it. Links726files3057/0 and whitespace PASS. Subsequent mutation/check command uses fail-fast. Original published commits preserve the failure and repair. ([https://github.com/ewq100/brn-rust/commit/f9bcbf5b](https://github.com/ewq100/brn-rust/commit/f9bcbf5b), [https://github.com/ewq100/brn-rust/commit/af4cd3b0](https://github.com/ewq100/brn-rust/commit/af4cd3b0))
 
 </details>
 
@@ -323,6 +302,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `ordinary-import-target-ownership` — Assess explicit destination ownership for file imports
 - `run-coordination-state-ownership` — Give Run coordination a coherent state and transition owner
 - `run-continuation-ownership` — Keep Stop and send continuation attached to its Run
+- `precise-edit-trace-evidence` — Make precise-edit rejections diagnosable without exposing note text
 - `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
 - `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
 - `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
@@ -362,4 +342,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T01:39:59.355819+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T01:44:59.436083+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

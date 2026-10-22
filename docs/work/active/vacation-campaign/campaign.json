@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:39:59.355819+00:00",
+    "observed_at": "2026-10-22T01:44:59.436083+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2718,12 +2718,12 @@
       {
         "id": "precise-edit-trace-evidence",
         "title": "Make precise-edit rejections diagnosable without exposing note text",
-        "state": "active",
+        "state": "complete",
         "owner": "lead design/integration; bounded Luna author; independent Sol review",
-        "activity": "PR202 normal merged at88866d40 after all four exact-head and preceding-main required checks and live protection passed. Resulting main whole tree equals qualified c4; resulting-main required checks running.",
-        "observed_at": "2026-10-22T01:30:13.246559+00:00",
+        "activity": "PR20288866d40 all four required exact-head, preceding-main and resulting-main checks PASS. Normal protected merge and whole qualified-tree equality retained. Optional check failures remain in receipts.",
+        "observed_at": "2026-10-22T01:44:59.436083+00:00",
         "origin": "observed",
-        "next_action": "Inspect all four required checks on resulting main88866d40 separately; retain diagnostics limits and closed account session.",
+        "next_action": "No more trace implementation or account test. Reuse these diagnostics; real-model usefulness is a separate unmeasured gate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2739,12 +2739,13 @@
           "https://github.com/ewq100/brn-rust/pull/202",
           "docs/work/active/vacation-campaign/evidence/pr202-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr202-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr202-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr202-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr202-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.",
           "checks": "PASS finalc4 focusedtrace3, runtime494/0/1, strictalltargetlint, ordinaryCLIbuild, fmt/whitespace; frozenCLI25008339.",
-          "integration": "MERGED PR20288866d40 after required head/preceding-main/live protection PASS; whole-tree equality PASS; resulting-main pending.",
+          "integration": "MERGED PR20288866d40; all four required head/preceding-main/resulting-main PASS; whole-tree equality PASS.",
           "native": "Inapplicable to trace metadata; actual Mac deferred.",
           "owner_acceptance": "Not claimed."
         },
@@ -3067,7 +3068,16 @@
           "native": "Headless service timing on physical Mac; no OS input or rendering.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Progress-only publication f9bcbf5b included a stale generated overview after evidence links were added; the check reported stale work overview, but the shell continued because fail-fast was absent. Release-scale source/check execution unaffected.",
+            "change": "Immediately regenerated and checked the overview; af4cd3b0 corrected it. Links726files3057/0 and whitespace PASS. Subsequent mutation/check command uses fail-fast. Original published commits preserve the failure and repair.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/commit/f9bcbf5b",
+              "https://github.com/ewq100/brn-rust/commit/af4cd3b0"
+            ]
+          }
+        ],
         "resource_plan": "Lead sole sharedtarget build. New release graph requires3GiB; owned runner stops below1GiB or30minute deadline. jobs1/offline/locked pin1.98.1. No helpers/build competition, network/model/dependency acquisition/provider/account/native interaction. Release test binary is qualification only, no publication/deployment."
       }
     ],
