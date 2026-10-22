@@ -1,0 +1,15 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+error[E0616]: field `generation` of struct `ConnectionsView` is private
+    --> crates/brn-desktop/src/threads_tiled_tests.rs:1307:63
+     |
+1307 |     let graph_generation = cx.read(|cx| f.view.read(cx).graph.generation);
+     |                                                               ^^^^^^^^^^ private field
+
+error[E0616]: field `generation` of struct `ConnectionsView` is private
+    --> crates/brn-desktop/src/threads_tiled_tests.rs:1349:35
+     |
+1349 |             assert_eq!(view.graph.generation, graph_generation);
+     |                                   ^^^^^^^^^^ private field
+
+For more information about this error, try `rustc --explain E0616`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 2 previous errors

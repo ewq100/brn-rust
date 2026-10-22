@@ -1,0 +1,207 @@
+{
+  "observed_at": "2026-10-22T12:00:26.470558+00:00",
+  "pr": 215,
+  "merge": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+  "checks": [
+    {
+      "id": 119810772664,
+      "name": "Package and publish approved Apple Silicon preview",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:59:30Z",
+      "completed_at": "2026-10-22T11:59:40Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39774750496/job/119810772664",
+      "app_id": 15368
+    },
+    {
+      "id": 119797297197,
+      "name": "Core and CLI (windows-2025)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-22T11:27:38Z",
+      "completed_at": "2026-10-22T11:31:19Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797297197",
+      "app_id": 15368
+    },
+    {
+      "id": 119797297108,
+      "name": "Native retrieval and combined build (windows-2025)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-22T11:27:37Z",
+      "completed_at": "2026-10-22T11:30:17Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797297108",
+      "app_id": 15368
+    },
+    {
+      "id": 119797297012,
+      "name": "Documentation and tooling",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:38Z",
+      "completed_at": "2026-10-22T11:28:09Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797297012",
+      "app_id": 15368
+    },
+    {
+      "id": 119797297003,
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:37Z",
+      "completed_at": "2026-10-22T11:39:30Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797297003",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296975,
+      "name": "Native UI build and state (macos-15)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:37Z",
+      "completed_at": "2026-10-22T11:58:17Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296975",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296960,
+      "name": "Core and CLI (macos-15)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:38Z",
+      "completed_at": "2026-10-22T11:43:40Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296960",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296920,
+      "name": "Core and CLI (ubuntu-24.04)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:38Z",
+      "completed_at": "2026-10-22T11:53:20Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296920",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296919,
+      "name": "Native UI build and state (windows-2025)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-22T11:27:37Z",
+      "completed_at": "2026-10-22T11:32:40Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296919",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296896,
+      "name": "Native retrieval and combined build (macos-15)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:38Z",
+      "completed_at": "2026-10-22T11:35:35Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296896",
+      "app_id": 15368
+    },
+    {
+      "id": 119797296624,
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "head_sha": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-22T11:27:37Z",
+      "completed_at": "2026-10-22T11:59:24Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39770731786/job/119797296624",
+      "app_id": 15368
+    }
+  ],
+  "required_contexts": [
+    "Core and CLI (ubuntu-24.04)",
+    "Core and CLI (macos-15)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "verdict": "All four required resulting-main checks PASS, separate from protected merge/qualified-tree equality. Optional Windows failures retained; no native or release claim.",
+  "preview_named_workflow": {
+    "job_id": 119810772664,
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify exact main, approval and the four required CI jobs",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Fetch the committed stock lock for generator fixtures",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Check portable packaging and release guards",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare locked stock and adapted document helpers",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build locked desktop and retain target graphs",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Package and verify the relocated signed archive",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Qualify packaged startup and helper using disposable fixtures",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Upload, verify and publish the current-main prerelease",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "qualification": "Packaging/qualification/publication conditional steps actually skipped; job success is only gate evaluation, not release."
+  }
+}

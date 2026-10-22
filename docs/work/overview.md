@@ -11,41 +11,20 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Document the existing offline native-library setup
-
-Task ID: `offline-native-retrieval-guide`
-Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T11:29:17.516569+00:00
-Activity: PR215 normally merged as 10f2ff80 after all four exact-head and preceding-main required checks. Entire merged tree equals reviewed docs-only candidate80ea; separate resulting-main checks running.
-Next: Verify required resulting-main checks on exact10f2ff80; retain optional results. No Rust rebuild for the two-document change.
-Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: true)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only
-- **checks:** PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.
-- **integration:** MERGED normal PR21510f2ff80, whole qualified-tree equality. All4 exact-head/prior-main PASS; resulting-main39770731786 pending.
-- **native:** Inapplicable: setup guide does not establish app/model/native behavior
-- **owner acceptance:** Existing developer maintenance scope; no changed product meaning
-
-</details>
-
 ### Clear outdated Connections after project membership changes
 
 Task ID: `connections-project-freshness`
-Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T11:45:39.193008+00:00
-Activity: Second witness baseline reached runtime but failed to locate Unlink control; it did not execute revocation or reproduce stale output. After two witness failures, explicit independent source reassessment now checks a supported concurrent-pane route. No production change.
-Next: Wait for bounded layout/reachability diagnosis. Retry only a source-backed corrected public-control route; reject/defer if no real trigger. Preserve both failures and no bug claim.
+Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:01:58.614424+00:00
+Activity: Candidate c12966d0 adds only two production refresh_connections calls and one control/checked-service regression journey through Unlink, background completion and exact Undo. Final preflight corrected a moved test String and assertion ordering before any build. Independent full candidate review active; no final qualification claimed.
+Next: Finish full actual-source review. Preserve construction history, prepare one clean equivalent candidate for final qualification/publication, and use one bounded Undo-only negative control followed by final desktop/lint/ordinary-build checks; no duplicate passing focused run needed.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Proposed only; test author in isolated mac-test-roots branch from main10f2ff80.
-- **checks:** UNCONFIRMED: first compile failure then wrong pane/control fixture. Both retained; no runtime stale-visibility reproduction.
+- **implementation:** IMPLEMENTED frozen c12966d0; 3files,2production lines,one284line stateful regression. Pending independent review and final qualification.
+- **checks:** BASELINE meaningful FAIL0/1 at stale graph after verified revocation; prior fixture failures retained. Native/post-Unlink row observation not claimed.
 - **integration:** Pending candidate/review/checks; no publication selected yet.
 - **native:** Owner-deferred; no actual interaction.
 - **owner acceptance:** Preserve accepted visibility, selected scope and note bytes; no new product meaning.
@@ -329,6 +308,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
 - `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
 - `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
+- `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 
 ## Dependencies
@@ -384,4 +364,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T11:45:39.193008+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:01:58.614424+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

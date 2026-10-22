@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T11:39:25.938261+00:00",
-    "remaining_percent": 40,
+    "observed_at": "2026-10-22T12:01:58.614424+00:00",
+    "remaining_percent": 39,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual60% used/40% remaining; ordinaryUsageAllowed=true; secondary unavailable. New bounded headless Connections diagnosis admitted; native/account limits unchanged.",
+    "ordinary_work": "Actual61%used/39%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless final repair qualification admitted; native/account constraints unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T11:45:39.193008+00:00",
+    "observed_at": "2026-10-22T12:01:58.614424+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4962,12 +4962,12 @@
       {
         "id": "offline-native-retrieval-guide",
         "title": "Document the existing offline native-library setup",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna medium documentation author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T11:29:17.516569+00:00",
+        "observed_at": "2026-10-22T12:00:26.470558+00:00",
         "origin": "observed",
-        "activity": "PR215 normally merged as 10f2ff80 after all four exact-head and preceding-main required checks. Entire merged tree equals reviewed docs-only candidate80ea; separate resulting-main checks running.",
-        "next_action": "Verify required resulting-main checks on exact10f2ff80; retain optional results. No Rust rebuild for the two-document change.",
+        "activity": "PR215 normally merged10f2ff80 with whole qualified-tree equality. All four required resulting-main checks and docs now PASS; three optional Windows failures remain visible.",
+        "next_action": "Reuse the source-backed offline native-library guide. No redundant Rust builds or unchanged journey replay; existing native/account/startup limits remain.",
         "depends_on": [
           {
             "task": "tls-advisory-resolution",
@@ -4983,12 +4983,13 @@
           "docs/work/active/vacation-campaign/evidence/offline-native-guide-review.md",
           "docs/work/active/vacation-campaign/evidence/pr215-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr215-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr215-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr215-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr215-resulting-main.json"
         ],
         "gates": {
           "implementation": "PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only",
           "checks": "PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.",
-          "integration": "MERGED normal PR21510f2ff80, whole qualified-tree equality. All4 exact-head/prior-main PASS; resulting-main39770731786 pending.",
+          "integration": "PASS normal PR21510f2ff80; all4 exact-head/preceding-main/resulting-main checks; whole qualified-tree equality; no bypass.",
           "native": "Inapplicable: setup guide does not establish app/model/native behavior",
           "owner_acceptance": "Existing developer maintenance scope; no changed product meaning"
         },
@@ -5027,10 +5028,10 @@
         "title": "Clear outdated Connections after project membership changes",
         "state": "active",
         "owner": "Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T11:45:39.193008+00:00",
+        "observed_at": "2026-10-22T12:01:58.614424+00:00",
         "origin": "observed",
-        "activity": "Second witness baseline reached runtime but failed to locate Unlink control; it did not execute revocation or reproduce stale output. After two witness failures, explicit independent source reassessment now checks a supported concurrent-pane route. No production change.",
-        "next_action": "Wait for bounded layout/reachability diagnosis. Retry only a source-backed corrected public-control route; reject/defer if no real trigger. Preserve both failures and no bug claim.",
+        "activity": "Candidate c12966d0 adds only two production refresh_connections calls and one control/checked-service regression journey through Unlink, background completion and exact Undo. Final preflight corrected a moved test String and assertion ordering before any build. Independent full candidate review active; no final qualification claimed.",
+        "next_action": "Finish full actual-source review. Preserve construction history, prepare one clean equivalent candidate for final qualification/publication, and use one bounded Undo-only negative control followed by final desktop/lint/ordinary-build checks; no duplicate passing focused run needed.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5044,11 +5045,15 @@
           "docs/work/active/vacation-campaign/evidence/connections-baseline-compile-failure.log",
           "docs/work/active/vacation-campaign/evidence/connections-freshness-design-assessment.md",
           "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.json",
-          "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.log"
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.log",
+          "docs/work/active/vacation-campaign/evidence/connections-witness-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.json",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.log",
+          "docs/work/active/vacation-campaign/evidence/connections-author-final-candidate.md"
         ],
         "gates": {
-          "implementation": "Proposed only; test author in isolated mac-test-roots branch from main10f2ff80.",
-          "checks": "UNCONFIRMED: first compile failure then wrong pane/control fixture. Both retained; no runtime stale-visibility reproduction.",
+          "implementation": "IMPLEMENTED frozen c12966d0; 3files,2production lines,one284line stateful regression. Pending independent review and final qualification.",
+          "checks": "BASELINE meaningful FAIL0/1 at stale graph after verified revocation; prior fixture failures retained. Native/post-Unlink row observation not claimed.",
           "integration": "Pending candidate/review/checks; no publication selected yet.",
           "native": "Owner-deferred; no actual interaction.",
           "owner_acceptance": "Preserve accepted visibility, selected scope and note bytes; no new product meaning."
@@ -5080,6 +5085,27 @@
               "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.log",
               "docs/work/active/vacation-campaign/evidence/connections-project-witness-corrected.md"
             ]
+          },
+          {
+            "observed_at": "2026-10-22T11:51:45.229032+00:00",
+            "candidate": "ff49e6a644bc27837194724acbf3ff18fb80ccc5",
+            "outcome": "Compile FAIL E0616 at two private graph.generation accesses; revised route not executed.6.04s, cleanup/source identity PASS.",
+            "change": "Lead removed mechanism-only private-field assertions; retained actual visible controls, model result, center/scope and independent visibility predicates. No production visibility widening or new hook.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-private-field-failure.json",
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-private-field-failure.log"
+            ]
+          },
+          {
+            "observed_at": "2026-10-22T11:51:45.229032+00:00",
+            "candidate": "ed4e1d2e25ade884fce86b662a5d8138581f8359",
+            "outcome": "Meaningful before-source FAIL at intended stale model assertion: actual Unlink executed, checked currentvisibility false, exact retained Note unchanged, center/scope/Connections present; old graph still contains revoked neighbor.0passed/1failed, cleanup/source PASS.",
+            "change": "Adopt independently assessed two existing mutation-family refresh calls; retain all witness failures. Post-Unlink rendered-row assertion was after failing model assertion and not reached on baseline; no native observation.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.json",
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-reproduced.log",
+              "docs/work/active/vacation-campaign/evidence/connections-witness-reassessment.md"
+            ]
           }
         ],
         "resource_plan": "Luna medium bounded test author owns only existing desktop test/source files in isolated branch; lead one local build slot and shared records. Independent Sol consequential review after candidate. Fresh explicit synthetic data, pinned locked/offline qualified helper reuse, no account/native/network/dependency/credential/runtime-prompt edits. Stop if visibility revocation is not real, baseline cannot prove gap, or two failed approaches; no extra tests/refactor without evidence."
@@ -5097,17 +5123,11 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr215-merged-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T11:45:39.193008+00:00",
-    "runtime_capacity": "Lead integration; Sol independent witness-reachability reassessment active; Luna stopped after test-only dd0bbc00. No active local writer/build/native/account.",
-    "build_slot": "Both baseline jobs completed and childgroups absent; PTYs29449/75425 closed. No new run until explicit reassessment.",
+    "observed_at": "2026-10-22T12:01:58.614424+00:00",
+    "runtime_capacity": "Lead integration/build owner; independent Sol actual full-candidate review active; Luna final author complete. No active local builds/native/account.",
+    "build_slot": "Idle/reserved to lead for one bounded Undo negative control and final scoped qualification after review.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "run": 39770731786,
-        "session": 31480,
-        "scope": "Main215 overall read-only watch; exact required checks inspected separately"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
     "wait_reason": "PR215 resulting-main hosted checks running; no local capacity wait. Native deferred by owner.",
