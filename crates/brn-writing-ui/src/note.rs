@@ -26,6 +26,16 @@ pub struct OpenNote {
     editing: EditState,
     presentation: Presentation,
 }
+/// The local Note attempt an owner explicitly chooses to leave behind.
+/// Opaque to hosts; confirmation must still match this exact local intent.
+#[derive(Clone, PartialEq)]
+pub struct NoteExitSnapshot {
+    note: String,
+    version: u64,
+    text: String,
+    session: Option<EditSession>,
+    blocked: Option<(String, u64)>,
+}
 impl OpenNote {
     pub fn record(&self) -> &Record {
         &self.record
@@ -72,6 +82,64 @@ pub enum NoteDiscard {
     Newer,
 }
 impl WritingPanel {
+    /// Exit needs durable exact bytes, rather than Save or adoption of a newer
+    /// session. A previously closed local session is safe when those bytes are
+    /// already canonical; a cached session alone never proves preservation.
+    pub fn preserve_note_for_exit<T: 'static>(
+        &mut self,
+        workspace: &mut Workspace,
+        cx: &Context<T>,
+    ) -> AppResult<()> {
+        let Some(note) = self.open_note_id().map(str::to_owned) else {
+            return Ok(());
+        };
+        let text = self.note_editor.read(cx).value().to_string();
+        if Self::note_text_is_durable(workspace, &note, &text)? {
+            return Ok(());
+        }
+        let preserved = self.note_changed(workspace, text.clone());
+        if Self::note_text_is_durable(workspace, &note, &text)? {
+            return Ok(());
+        }
+        preserved?;
+        Err(AppError::Invalid(
+            "The latest note text is not kept in recovery. Keep this window open to copy it or resolve the edit."
+                .into(),
+        ))
+    }
+    fn note_text_is_durable(workspace: &Workspace, note: &str, text: &str) -> AppResult<bool> {
+        if workspace.store.note(note)?.is_some_and(
+            |record| matches!(&record.data, RecordData::Note(value) if value.markdown == text),
+        ) {
+            return Ok(true);
+        }
+        // Reuse the checked open-recovery read, not the host's cached buffer.
+        Ok(workspace
+            .store
+            .recovery_buffers()?
+            .iter()
+            .any(|session| session.note == note && !session.closed && session.markdown == text))
+    }
+    pub fn note_exit_snapshot<T: 'static>(&self, cx: &Context<T>) -> Option<NoteExitSnapshot> {
+        let open = self.note.as_ref()?;
+        Some(NoteExitSnapshot {
+            note: open.record.id.clone(),
+            version: open.record.version,
+            text: self.note_editor.read(cx).value().to_string(),
+            session: open.session().cloned(),
+            blocked: self
+                .note
+                .open_edit_elsewhere()
+                .map(|(note, version)| (note.to_owned(), version)),
+        })
+    }
+    pub fn note_exit_snapshot_current<T: 'static>(
+        &self,
+        snapshot: &NoteExitSnapshot,
+        cx: &Context<T>,
+    ) -> bool {
+        self.note_exit_snapshot(cx).as_ref() == Some(snapshot)
+    }
     /// Load only after the host admits this Note's context. Recovery is resolved
     /// afresh from the checked store; a caller's old session is only a selection hint.
     pub fn open_note<T: 'static>(
