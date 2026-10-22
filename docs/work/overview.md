@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Resolve recent certificate-trust dependency advisories
 
 Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:43:24.586018+00:00
-Activity: Final four-package repair passed all eight local stages and the exact-file audit now reports zero vulnerability matches, down from seven. PR214 required hosted checks are running. Eight maintenance notices and separate unchanged-helper ZIP findings remain visible.
-Next: Inspect PR214 exact-head checks and current protection/preceding-main, then normal merge if all required gates pass. Verify resulting-main separately; do not fold the helper ZIP assessment into this lock-only candidate.
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:59:26.405781+00:00
+Activity: PR214 normally merged as e7a218fd after all four required candidate and preceding-main checks plus live strict protection passed. The entire merged tree equals the independently reviewed/locally qualified candidate. Resulting-main checks are running separately.
+Next: Verify all four required resulting-main checks on exact e7a218fd. Keep optional platform results and separate helper/maintenance/startup/native limits visible; no release or full-security claim.
 Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
@@ -26,7 +26,7 @@ Gates:
 
 - **implementation:** PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged
 - **checks:** PASS all8localstages on234; actualfinalroot audit0vulns/8maintenance notices, versus7baseline. no-yanked/native/exploit qualification.
-- **integration:** PUBLISHED PR214 exact234956cb, Cargo.lock-only12+/12-. Requiredhead/precedingmain/protection/finalaudit disposition PENDING; no merge.
+- **integration:** MERGED normalPR214e7a218fd, exactqualifiedwhole-treeequality; all4head/precedingmainPASS/liveprotectionstrict. Resultingmain39766894309PENDING.
 - **native:** No native action selected; owner deferral unchanged
 - **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
@@ -35,10 +35,10 @@ Gates:
 ### Document the existing offline native-library setup
 
 Task ID: `offline-native-retrieval-guide`
-Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:52:41.750445+00:00
-Activity: The two-document candidate is committed and independently approved at9533de6d. Local link/whitespace checks passed; no code/config/library/model/runtime action occurred. Publication awaits TLS214 integration.
-Next: Reconcile unchanged reviewed documentation onto actual mergedTLSmain, publish a docs-only PR, and retain normal required exact-head/preceding-main/resulting-main gates.
-Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: false)
+Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:59:26.405781+00:00
+Activity: PR215 publishes the same independently reviewed documentation after reconciling onto normally merged TLSmain. Both reviewed document blobs remain unchanged and the diff from main is only two Markdown files. Hosted required checks and prior-main verification are pending.
+Next: Keep PR215 stable. Inspect exact-head/current-protection and actual preceding-main e7 results before normal merge, then check resulting-main separately.
+Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: true)
 
 <details>
 <summary>Gate status</summary>
@@ -47,7 +47,7 @@ Gates:
 
 - **implementation:** PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only
 - **checks:** PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.
-- **integration:** Unpublished; await TLS214 integration before base reconciliation/publication
+- **integration:** PUBLISHED PR215 exact80ea524e, two-doc-only diff frommaine7; checks/protection/preceding-main pending; no merge.
 - **native:** Inapplicable: setup guide does not establish app/model/native behavior
 - **owner acceptance:** Existing developer maintenance scope; no changed product meaning
 
@@ -378,9 +378,9 @@ graph TD
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
-  t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (not satisfied)| t120
+  t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:52:41.750445+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:59:26.405781+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

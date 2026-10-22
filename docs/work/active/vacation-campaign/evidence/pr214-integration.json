@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22T10:57:30.343640+00:00",
+  "pr": 214,
+  "candidate": "234956cb171beb025acb1dc17b41be98992bddf0",
+  "merge": "e7a218fd33489f7a0f55c96d9ef6f5cd0626f284",
+  "candidate_tree": "0685658454fbfeee1a3993373a8a931ea1fd8b6f",
+  "merged_tree": "0685658454fbfeee1a3993373a8a931ea1fd8b6f",
+  "whole_qualified_tree_equal": true,
+  "merge_method": "normal protected merge, no admin/bypass",
+  "resulting_main": "pending separate requiredchecks",
+  "limits": "No native/account/release; helperZIPmatches/8maintenance warnings/startupdebt remain separate."
+}
