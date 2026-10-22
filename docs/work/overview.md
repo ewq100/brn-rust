@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:46:29.513408+00:00
-Activity: Implemented clean-only checkpoint proof in frozen174e381f: exact unchanged held Record must match indexed immutable revision; no write, reload, guard, session adoption or dirty-policy expansion. Focused reused-fixture witness strengthened with no-dialog/no-reload checks. Complete source review and final component/host/desktop/lint/ordinary-build checks active sequentially.
-Next: Inspect exact174 review and all selected final checks, retaining any failure. On success record new binary/helper hashes and normally update existing217; inspect fresh final-head hosted checks before normal merge. Tooling candidate remains separately ready after217integration.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:49:32.597605+00:00
+Activity: All final174 local checks passed: writing44unit+12host, independenthost12, desktop351/0/1ignored, strict combined lint, ordinary shipping build, pinned format/docs/whitespace. New immutable binary/helper hashes retained without launch. Final independent source review still active; PR217 remains at660a until approved.
+Next: Obtain independent final174 source review; resolve findings before pushing. Then update existing217 normally, wait for corrected Ubuntu plus all required exact-head checks/live protection, normal merge and separate resulting-main checks.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Inspect exact174 review and all selected final checks, retaining any failu
 Gates:
 
 - **implementation:** Implemented174e381f bounded clean checkpoint correction and contracts; full actual candidate review refresh pending.
-- **checks:** Meaningful7a clean baseline FAIL retained. New final174 component/host/desktop/lint/ordinary-build qualification running; earlier exact-source passes remain historical.
+- **checks:** PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 checks not yet started; no native/owner acceptance claim.
 - **integration:** PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.

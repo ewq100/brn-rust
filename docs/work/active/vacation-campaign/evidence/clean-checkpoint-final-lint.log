@@ -1,0 +1,5 @@
+    Checking brn-writing-ui v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-writing-ui)
+    Checking brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 6.44s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T13:15:32.757996+00:00",
-    "remaining_percent": 36,
+    "observed_at": "2026-10-22T13:49:32.597605+00:00",
+    "remaining_percent": 35,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual64%used/36%remaining; ordinaryUsageAllowed=true; secondary unavailable. Ordinary headless review/integration and bounded overview-growth preflight admitted; no native/account actor.",
+    "ordinary_work": "Actual65%used/35%remaining; ordinaryUsageAllowed=true, secondary unavailable. Continue ordinary headless review/integration; native and account constraints unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:46:29.513408+00:00",
+        "observed_at": "2026-10-22T13:49:32.597605+00:00",
         "origin": "observed",
-        "activity": "Implemented clean-only checkpoint proof in frozen174e381f: exact unchanged held Record must match indexed immutable revision; no write, reload, guard, session adoption or dirty-policy expansion. Focused reused-fixture witness strengthened with no-dialog/no-reload checks. Complete source review and final component/host/desktop/lint/ordinary-build checks active sequentially.",
-        "next_action": "Inspect exact174 review and all selected final checks, retaining any failure. On success record new binary/helper hashes and normally update existing217; inspect fresh final-head hosted checks before normal merge. Tooling candidate remains separately ready after217integration.",
+        "activity": "All final174 local checks passed: writing44unit+12host, independenthost12, desktop351/0/1ignored, strict combined lint, ordinary shipping build, pinned format/docs/whitespace. New immutable binary/helper hashes retained without launch. Final independent source review still active; PR217 remains at660a until approved.",
+        "next_action": "Obtain independent final174 source review; resolve findings before pushing. Then update existing217 normally, wait for corrected Ubuntu plus all required exact-head checks/live protection, normal merge and separate resulting-main checks.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5319,11 +5319,12 @@
           "docs/work/active/vacation-campaign/evidence/pr217-portable-publication.json",
           "docs/work/active/vacation-campaign/evidence/clean-note-exit-preflight.md",
           "docs/work/active/vacation-campaign/evidence/clean-note-exit-design.md",
-          "docs/work/active/vacation-campaign/evidence/clean-checkpoint-baseline.json"
+          "docs/work/active/vacation-campaign/evidence/clean-checkpoint-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-local.json"
         ],
         "gates": {
           "implementation": "Implemented174e381f bounded clean checkpoint correction and contracts; full actual candidate review refresh pending.",
-          "checks": "Meaningful7a clean baseline FAIL retained. New final174 component/host/desktop/lint/ordinary-build qualification running; earlier exact-source passes remain historical.",
+          "checks": "PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 checks not yet started; no native/owner acceptance claim.",
           "integration": "PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."

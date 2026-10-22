@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-10-22T13:48:29.374740+00:00",
+  "source": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+  "tree": "be2b8858f672e4dcb96fab2a16c380d39d58cd7f",
+  "base": "5c606c102d5d121105896c48dc7b39e78d26bdb3",
+  "results": {
+    "writing_component": "PASS44unit+12host",
+    "independent_host": "PASS12",
+    "desktop": "PASS351/0/1ignored",
+    "lint": "PASS strict combined native all-target brn-writing-ui+brn-desktop",
+    "ordinary_build": "PASS ordinary shipping native-ui, not launched",
+    "format": "PASS pinned1.98.1 all4changedRustfiles",
+    "documentation": "PASS625files2813local-links0fail; whitespacePASS"
+  },
+  "artifacts": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-note-exit/174e381f/brn-desktop",
+      "bytes": 166043152,
+      "sha256": "e189350f055dabc84b06579b39bd65efb248b1631bb5e42d664fb24fd476e228"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper",
+      "bytes": 131732512,
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper-brn",
+      "bytes": 131924176,
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "checks": [
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-writing-ui-result.json",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-writing-ui.log",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-writing-host-result.json",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-writing-host.log",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-desktop-result.json",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-desktop.log",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-lint-result.json",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-lint.log",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-ordinary-build-result.json",
+    "docs/work/active/vacation-campaign/evidence/clean-checkpoint-final-ordinary-build.log"
+  ],
+  "limits": [
+    "Complete candidate review pending independently; no merge/sourcepublication yet174",
+    "Both original data-loss and clean-checkpoint before-source failures retained separately",
+    "Draft Quit failure and Ubuntu selection failure retained; no skips added",
+    "No native/OS close/Quit termination/IME/VoiceOver/owner acceptance",
+    "No SQLite I/O fault injection or repair claim for unresolved cold-start crash",
+    "Native scenario remains owner-deferred; no account actor or additional account attempt"
+  ]
+}
