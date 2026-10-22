@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T15:40:32.523856+00:00",
+    "observed_at": "2026-10-22T15:43:13.877642+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5612,24 +5612,26 @@
         "id": "precise-edit-selector-guidance",
         "title": "Guide local AI edits away from guessed text positions",
         "state": "active",
-        "owner": "bounded Luna read-only audit; lead disposition and implementation; independent Sol review",
-        "observed_at": "2026-10-22T15:40:32.523856+00:00",
+        "owner": "bounded Luna source writer in export-durability; lead builds/integration; independent Sol review",
+        "observed_at": "2026-10-22T15:43:13.877642+00:00",
         "origin": "observed",
-        "activity": "Selected headless audit from fresh live failure: model loaded maintain-notes and guessed two invalid byte ranges instead of using available unique-quote selection. Inspect actual parent/skill/tool guidance before choosing a repair; causal inference is not established. No additional account attempt.",
-        "next_action": "Reconcile bounded guidance audit with actual source; select a minimal justified consistency/selection correction or record no actionable gap. Keep runtime prompts separate from development configuration.",
+        "activity": "Read-only audit found strategy-selection failure, not demonstrated quote-selector defect or proven guidance cause. Selected minimal parent-guide clarification: prefer host unique-quote selection when absolute offsets are not established, and do not guess another range after mismatch. Existing skill/tool safeguards retained; no fallback or runtime/service change. Bounded Luna implementation active in isolated cleanmain-based checkout.",
+        "next_action": "Review complete four-file guidance/bundle-identity candidate independently, run relevant existing guide/summary/CLI identity checks, then normal protected integration and separate resulting-main gates. No further account test selected.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/post-quote-guidance-audit.md"
         ],
         "gates": {
-          "implementation": "Pending source audit; no runtime prompt edit yet.",
+          "implementation": "In progress: parent runtime guide clarity only; guidance19→20 with existing identity witnesses. Development-agent configuration and installed skill package unchanged.",
           "checks": "Fresh live failure retained; no test of guidance repair yet.",
           "integration": "No candidate or merge selected yet.",
           "native": "Owner-deferred; no native action.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": []
+        "attempts": [],
+        "resource_plan": "Single writer export-durability branchcodex/precise-edit-selector-guidance-20261022, allowedparentguide and3existingbundleidentityfiles only; no helperbuild/account/native. Lead sole sharedtarget/integrationowner; Solreviewafteractualcandidate. No newtests/framework/provider/model."
       }
     ],
     "owner_attention": "No owner action needed. One post-repair AI edit test failed safely; both notes unchanged. A bounded headless guidance audit is active; Mac checks remain deferred."
@@ -5640,21 +5642,21 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T15:23:40+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr217-pr218-verified.json"
+    "last_refresh_at": "2026-10-22T15:41:06.870Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-post-quote-repair-account.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T15:40:32.523856+00:00",
-    "runtime_capacity": "Lead facts/diagnosis; bounded Luna read-only guidance audit active; Sol available after complete driver review. No source writer or build.",
+    "observed_at": "2026-10-22T15:43:13.877642+00:00",
+    "runtime_capacity": "Bounded Luna source writer export-durability, lead facts/checks/integration, independent Sol available. Three active slots max; stale pending-init helper not dispatched.",
     "build_slot": "Free; cached ordinary current-source CLI build passed; no active cargo/rustc.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Account failure produced concrete headless guidance-audit task; continue that bounded flow without retrying model or waiting for native access.",
+    "wait_reason": "Concrete post-live guidance correction selected; continue review/check/integration flow. No account/native test selected.",
     "resumption": "Continue current selected headless preflight; preserve old session closure and daily counts; one account actor and one shared build slot.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability cleanfrozen23f PR218normalmerged6e9; retainbranch/artifacts. mac-test-roots clean174 PR217normalmerged765, no actor.",
+    "worker_checkout": "export-durability branchcodex/precise-edit-selector-guidance-20261022 basedmain6e9, taskprecise-edit-selector-guidance, singleLuna writer. Prior23f PR218 branch preserved.",
     "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": []

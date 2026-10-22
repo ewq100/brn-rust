@@ -14,16 +14,16 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Guide local AI edits away from guessed text positions
 
 Task ID: `precise-edit-selector-guidance`
-Owner: bounded Luna read-only audit; lead disposition and implementation; independent Sol review · State: **active** · Last observed: 2026-10-22T15:40:32.523856+00:00
-Activity: Selected headless audit from fresh live failure: model loaded maintain-notes and guessed two invalid byte ranges instead of using available unique-quote selection. Inspect actual parent/skill/tool guidance before choosing a repair; causal inference is not established. No additional account attempt.
-Next: Reconcile bounded guidance audit with actual source; select a minimal justified consistency/selection correction or record no actionable gap. Keep runtime prompts separate from development configuration.
+Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T15:43:13.877642+00:00
+Activity: Read-only audit found strategy-selection failure, not demonstrated quote-selector defect or proven guidance cause. Selected minimal parent-guide clarification: prefer host unique-quote selection when absolute offsets are not established, and do not guess another range after mismatch. Existing skill/tool safeguards retained; no fallback or runtime/service change. Bounded Luna implementation active in isolated cleanmain-based checkout.
+Next: Review complete four-file guidance/bundle-identity candidate independently, run relevant existing guide/summary/CLI identity checks, then normal protected integration and separate resulting-main gates. No further account test selected.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Pending source audit; no runtime prompt edit yet.
+- **implementation:** In progress: parent runtime guide clarity only; guidance19→20 with existing identity witnesses. Development-agent configuration and installed skill package unchanged.
 - **checks:** Fresh live failure retained; no test of guidance repair yet.
 - **integration:** No candidate or merge selected yet.
 - **native:** Owner-deferred; no native action.
@@ -284,4 +284,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T15:40:32.523856+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T15:43:13.877642+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
