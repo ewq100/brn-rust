@@ -1273,7 +1273,7 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("knowledge-run").visible());
         window.click("knowledge-run", cx);
-        assert_eq!(window.find("knowledge-run").label(), Some("Checking…"));
+        assert_eq!(window.find("knowledge-run").disabled(), Some(true));
         assert!(window.try_find("knowledge-summary").is_none());
         assert!(window.try_find("knowledge-finding-0").is_none());
         assert!(window.try_find("knowledge-review").is_none());
