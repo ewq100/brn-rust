@@ -1849,6 +1849,55 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         !visual.simulate_close(),
         "normal close must refuse while the exact live Note typing is not in durable recovery"
     );
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("note-exit-body").label(),
+            Some("Cancel to keep this window open and copy or resolve your edit. Discarding loses only the text still held in this window. Saved notes and other kept edits stay unchanged. This cannot be undone.")
+        );
+        assert_eq!(
+            window.find("note-exit-confirm").label(),
+            Some("Discard and close")
+        );
+    })
+    .unwrap();
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            window.has_active_dialog(cx),
+            "Enter never confirms note exit"
+        );
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("note-exit-cancel", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(!window.has_active_dialog(cx));
+    })
+    .unwrap();
+
+    // Exercise the production Cmd-Q binding and registered Quit callback. The
+    // headless TestPlatform's quit is a no-op, so this only witnesses refusal.
+    cx.update(|cx| cx.bind_keys(bindings()));
+    cx.simulate_keystrokes(f.window, "cmd-q");
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("note-exit-confirm").label(),
+            Some("Discard and quit")
+        );
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("note-exit-cancel", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
     cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |view, cx| {
             assert_eq!(
@@ -1959,6 +2008,225 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         );
     })
     .unwrap();
+
+    // A now-durable owner-host buffer admits Close without changing its bytes
+    // or history. TestPlatform only reports the predicate result; it does not
+    // perform the native window close.
+    let (owned_session, history_before_close) = cx
+        .update_window(f.window, |_, _, cx| {
+            let view = f.view.read(cx);
+            let session = view
+                .writing
+                .note
+                .as_ref()
+                .unwrap()
+                .session()
+                .cloned()
+                .unwrap();
+            assert_eq!(session.markdown, attempted);
+            (
+                session,
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+            )
+        })
+        .unwrap();
+    assert!(
+        visual.simulate_close(),
+        "the exact recovery buffer is durable"
+    );
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                history_before_close
+            );
+            assert_eq!(
+                view.writing.note.as_ref().unwrap().session(),
+                Some(&owned_session)
+            );
+        })
+    })
+    .unwrap();
+
+    // Save that exact owner-host buffer through a second checked Workspace.
+    // The open view deliberately keeps its now-closed cached session.
+    let (saved_note, saved_session, history_after_save) = {
+        let mut saver = Workspace::open(&f.data).unwrap();
+        assert!(matches!(
+            saver
+                .store
+                .save(&owned_session.id, owned_session.generation)
+                .unwrap(),
+            SaveOutcome::Saved(_)
+        ));
+        let saved_note = saver.store.note(&f.a.id).unwrap().unwrap();
+        assert!(matches!(
+            &saved_note.data,
+            RecordData::Note(note) if note.markdown == attempted
+        ));
+        let saved_session = saver.store.edit_session(&owned_session.id).unwrap();
+        assert!(saved_session.closed);
+        let history = serde_json::to_value(saver.history().unwrap()).unwrap();
+        (saved_note, saved_session, history)
+    };
+    assert!(
+        visual.simulate_close(),
+        "canonical bytes admit Close even with a stale cached session"
+    );
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            assert_eq!(
+                view.writing.note.as_ref().unwrap().session(),
+                Some(&owned_session)
+            );
+            assert_eq!(
+                view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+                saved_note
+            );
+            assert_eq!(
+                view.workspace
+                    .store
+                    .edit_session(&owned_session.id)
+                    .unwrap(),
+                saved_session
+            );
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                history_after_save
+            );
+        })
+    })
+    .unwrap();
+
+    // Another checked edit is now newer than that closed cached session. A
+    // real new keystroke is local-only, so Close must ask before discarding it.
+    let mut newer_workspace = Workspace::open(&f.data).unwrap();
+    let newer = newer_workspace
+        .store
+        .begin_edit(&f.a.id, saved_note.version)
+        .unwrap();
+    let newer_text = "A newer edit stays recoverable.";
+    let newer = match newer_workspace
+        .store
+        .update_buffer(&newer.id, 1, newer_text)
+        .unwrap()
+    {
+        BufferOutcome::Updated(session) => session,
+        BufferOutcome::Ignored(_) => panic!("fresh checked buffer update was ignored"),
+    };
+    drop(newer_workspace);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let end = view.writing.note_editor.read(cx).value().len();
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_selected_range(end..end, cx);
+                editor.focus(window, cx);
+            });
+        });
+    })
+    .unwrap();
+    cx.simulate_input(f.window, "x");
+    cx.run_until_parked();
+    let local_only = format!("{attempted}x");
+    let history_before_local_discard = cx
+        .update_window(f.window, |_, _, cx| {
+            f.view.update(cx, |view, cx| {
+                assert_eq!(
+                    view.writing.note_editor.read(cx).value().as_ref(),
+                    local_only
+                );
+                assert_eq!(
+                    view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+                    saved_note
+                );
+                assert_eq!(view.workspace.store.edit_session(&newer.id).unwrap(), newer);
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap()
+            })
+        })
+        .unwrap();
+    assert!(!visual.simulate_close());
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("note-exit-confirm").label(),
+            Some("Discard and close")
+        );
+    })
+    .unwrap();
+
+    // Change the held local intent through the existing editor host API while
+    // the prompt is open. Its old confirmation must become stale and harmless.
+    let changed_while_confirming = format!("{attempted}xy");
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_value(changed_while_confirming.clone(), window, cx)
+            });
+            view.preserve_visible_note_input(cx);
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                changed_while_confirming
+            );
+        })
+    })
+    .unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("note-exit-confirm", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(!window.has_active_dialog(cx));
+        f.view.update(cx, |view, cx| {
+            assert!(
+                view.notice
+                    .text()
+                    .contains("changed after this exit request")
+            );
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                changed_while_confirming
+            );
+            assert_eq!(
+                view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+                saved_note
+            );
+            assert_eq!(view.workspace.store.edit_session(&newer.id).unwrap(), newer);
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                history_before_local_discard
+            );
+        });
+    })
+    .unwrap();
+
+    // A fresh refusal captures the changed text. Explicit confirmation exits
+    // the test window without changing the saved Note or the newer recovery.
+    assert!(!visual.simulate_close());
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert_eq!(
+            window.find("note-exit-confirm").label(),
+            Some("Discard and close")
+        );
+        window.click("note-exit-confirm", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    assert!(cx.read(|cx| cx.windows().is_empty()));
+    let final_reader = Workspace::open(&f.data).unwrap();
+    assert_eq!(
+        final_reader.store.note(&f.a.id).unwrap().unwrap(),
+        saved_note
+    );
+    assert_eq!(final_reader.store.edit_session(&newer.id).unwrap(), newer);
+    assert_eq!(
+        serde_json::to_value(final_reader.history().unwrap()).unwrap(),
+        history_before_local_discard
+    );
 }
 
 #[gpui_kit::test]
