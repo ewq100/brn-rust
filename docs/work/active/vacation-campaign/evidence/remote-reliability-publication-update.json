@@ -1,0 +1,74 @@
+{
+  "observed_at": "2026-10-22T04:38:08.116Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "fbef9094",
+  "sequence": 72,
+  "verified_blocks": 40,
+  "managed_updated": 3,
+  "other_blocks_preserved": 37,
+  "actual_changes": [
+    {
+      "id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+      "markdown": "**The maintenance improvements are merged** in [PR 208](https://github.com/ewq100/brn-rust/pull/208): clearer task reading and safer cleanup when a backup test stalls. Their required checks after merging are still running. The next reliability fixes are independently reviewed and locally verified in [PR 209](https://github.com/ewq100/brn-rust/pull/209): preserve an older visible edit when its recovery buffer changed elsewhere, and stop stalled test processes cleanly. Required checks are underway; PR 209 is not merged. A separate synthetic backup-interruption check is undergoing final review before one controlled attempt. Actual Mac interaction remains deferred. [Current work and evidence](https://github.com/ewq100/brn-rust/blob/fbef9094/docs/work/overview.md)."
+    },
+    {
+      "id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+      "markdown": "1. Finish PR 208’s checks after merging, then PR 209’s required checks and normal integration. In parallel, qualify one interrupted backup and its public retry using disposable test data. Continue useful headless work while checks run. No account test is running; live-model usefulness of the quote selector remains unmeasured."
+    },
+    {
+      "id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+      "markdown": "Last refreshed: **22 October 2026 at 07:37 Europe/Tallinn**. This is a saved progress summary, not live activity."
+    }
+  ],
+  "edit": {
+    "new_sequence": 72,
+    "through_sequence": 72,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "dd6b7cb3186fc9310a8524dc9d07d4c2c9e264d4f82da9849dc59648c1ec3bd2"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "4fdf4659827b3b79024f00a1a91e768fab2c8e245ec66a9f5aca222add57eb17"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "35b98eaa8f426605d1c9356fe1d8387d3b6c09c00abf9c19aef8fc57d6356fac"
+          }
+        ]
+      }
+    ]
+  }
+}

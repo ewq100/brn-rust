@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:37:21.884812+00:00",
+    "observed_at": "2026-10-22T04:38:29.662524+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3763,10 +3763,10 @@
         "title": "Qualify a public backup interrupted while copying",
         "state": "active",
         "owner": "Bounded Luna driver author; consequential independent Sol review; lead single process/build actor",
-        "observed_at": "2026-10-22T04:37:21.884812+00:00",
+        "observed_at": "2026-10-22T04:38:29.662524+00:00",
         "origin": "observed",
-        "activity": "Current ordinary CLI build/source pin passed at7dde, binaryedf78000; whole tree equals merged main208. Initial independent review found3validP2 driver gaps before any workload. Corrected inert9f515e70 is receiving complete independent review. No workload/fixture launch.",
-        "next_action": "Finish complete independent review of corrected9f515e70 before the one bounded interruption attempt. Keep original findings/dispositions; one proof-gated retry only.",
+        "activity": "Complete independent corrected-driver review approved exact9f515e70 with no outstanding findings. Reserve the sole actual interruption attempt before launch; currentmain208 ordinaryCLI edf780 frozen. No native/account work.",
+        "next_action": "Run once at fresh /private/tmp/brn-public-backup-interruption-20261022T0444. Preserve any failed/inconclusive result; no second interruption. Publicretry only after retainedpartial+actualSIGKILL/reap proof.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3781,10 +3781,12 @@
           "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md",
           "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py",
           "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md",
-          "docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md"
+          "docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md",
+          "docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py",
+          "docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md"
         ],
         "gates": {
-          "implementation": "Initial3P2 valid: fixture-title binding, volatileSHM acceptance, standalonebackup gate. Corrected inert9f515e70; complete final review pending.",
+          "implementation": "PASS complete independent final9f515e70 review; all3initialP2 valid/fixed before workload.",
           "checks": "At most1 interruption,1 public retry; exact UTF8/schema/rows/source/earlier complete backup/sentinel preservation. No workload launched yet.",
           "integration": "Evidence-only check; no product PR selected. Reconcile source identity against actual main before any current-main claim.",
           "native": "No native or power-loss evidence.",
@@ -3797,6 +3799,14 @@
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md",
               "docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md"
+            ]
+          },
+          {
+            "outcome": "Reserved: sole actual interruption attempt; not a success claim.",
+            "change": "Frozen9f515e70 ordinaryCLIedf780; fresh /private/tmp/brn-public-backup-interruption-20261022T0444. At most one actual interruptedlaunch and one proof-gated same-destination publicretry.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py",
+              "docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md"
             ]
           }
         ],
@@ -3811,18 +3821,18 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T03:44:25.427Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
+    "last_refresh_at": "2026-10-22T04:38:29.662524+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-reliability-publication-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:37:21.884812+00:00",
-    "runtime_capacity": "Lead plus independent Sol final inert-driver review. Luna corrections finished; no nestedhelper.",
-    "build_slot": "Free: final combined43660 PASS and CLI70736 PASS, both finished. No active local build.",
+    "observed_at": "2026-10-22T04:38:29.662524+00:00",
+    "runtime_capacity": "Lead singleprocessactor; all helper authors/reviewers finished.",
+    "build_slot": "Free; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 requiredhead and main208 requiredchecks pending. Correctedbackupdriver independentreview before one boundedworkload.",
+    "wait_reason": "PR209 head/main208 checks pending; one backupinterruption qualification reserved before launch.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",

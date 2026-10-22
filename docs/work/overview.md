@@ -107,26 +107,27 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 ### Qualify a public backup interrupted while copying
 
-Owner: Bounded Luna driver author; consequential independent Sol review; lead single process/build actor · State: **active** · Last observed: 2026-10-22T04:37:21.884812+00:00
-Activity: Current ordinary CLI build/source pin passed at7dde, binaryedf78000; whole tree equals merged main208. Initial independent review found3validP2 driver gaps before any workload. Corrected inert9f515e70 is receiving complete independent review. No workload/fixture launch.
-Next: Finish complete independent review of corrected9f515e70 before the one bounded interruption attempt. Keep original findings/dispositions; one proof-gated retry only.
+Owner: Bounded Luna driver author; consequential independent Sol review; lead single process/build actor · State: **active** · Last observed: 2026-10-22T04:38:29.662524+00:00
+Activity: Complete independent corrected-driver review approved exact9f515e70 with no outstanding findings. Reserve the sole actual interruption attempt before launch; currentmain208 ordinaryCLI edf780 frozen. No native/account work.
+Next: Run once at fresh /private/tmp/brn-public-backup-interruption-20261022T0444. Preserve any failed/inconclusive result; no second interruption. Publicretry only after retainedpartial+actualSIGKILL/reap proof.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Initial3P2 valid: fixture-title binding, volatileSHM acceptance, standalonebackup gate. Corrected inert9f515e70; complete final review pending.
+- **implementation:** PASS complete independent final9f515e70 review; all3initialP2 valid/fixed before workload.
 - **checks:** At most1 interruption,1 public retry; exact UTF8/schema/rows/source/earlier complete backup/sentinel preservation. No workload launched yet.
 - **integration:** Evidence-only check; no product PR selected. Reconcile source identity against actual main before any current-main claim.
 - **native:** No native or power-loss evidence.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/public-backup-interruption-preflight.md](active/vacation-campaign/evidence/public-backup-interruption-preflight.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver.py](active/vacation-campaign/evidence/public-cli-restore-driver.py), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md), [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.sh](active/vacation-campaign/evidence/public-backup-cli-build.sh), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.log](active/vacation-campaign/evidence/public-backup-cli-build.log), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build-qualification.json](active/vacation-campaign/evidence/public-backup-cli-build-qualification.json), [docs/work/active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json](active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md](active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py](active/vacation-campaign/evidence/public-backup-driver-initial.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/public-backup-interruption-preflight.md](active/vacation-campaign/evidence/public-backup-interruption-preflight.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver.py](active/vacation-campaign/evidence/public-cli-restore-driver.py), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-final-review.md), [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.sh](active/vacation-campaign/evidence/public-backup-cli-build.sh), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build.log](active/vacation-campaign/evidence/public-backup-cli-build.log), [docs/work/active/vacation-campaign/evidence/public-backup-cli-build-qualification.json](active/vacation-campaign/evidence/public-backup-cli-build-qualification.json), [docs/work/active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json](active/vacation-campaign/evidence/public-backup-cli-main208-source-proof.json), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md](active/vacation-campaign/evidence/public-backup-driver-initial-implementation.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial.py](active/vacation-campaign/evidence/public-backup-driver-initial.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md), [docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md)
 
 Attempts:
 
 - Initial inert-driver review requested3P2 changes; no workload executed.: Aligned imported extractor title, separated canonicalmainDB/logicaldata from diagnostic sidecars, added no-companions+read-onlyDELETE checks for bothcompleteoutputs. Full corrected review before execution. ([docs/work/active/vacation-campaign/evidence/public-backup-driver-initial-review.md](active/vacation-campaign/evidence/public-backup-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-backup-driver-corrections.md](active/vacation-campaign/evidence/public-backup-driver-corrections.md))
+- Reserved: sole actual interruption attempt; not a success claim.: Frozen9f515e70 ordinaryCLIedf780; fresh /private/tmp/brn-public-backup-interruption-20261022T0444. At most one actual interruptedlaunch and one proof-gated same-destination publicretry. ([docs/work/active/vacation-campaign/evidence/public-cli-backup-driver.py](active/vacation-campaign/evidence/public-cli-backup-driver.py), [docs/work/active/vacation-campaign/evidence/public-backup-driver-final-review.md](active/vacation-campaign/evidence/public-backup-driver-final-review.md))
 
 </details>
 
@@ -381,4 +382,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:37:21.884812+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:38:29.662524+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
