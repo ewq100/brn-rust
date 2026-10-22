@@ -5030,15 +5030,21 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T11:01:12+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-merged-pending.json"
+    "last_refresh_at": "2026-10-22T11:31:06+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr215-merged-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T11:29:17.516569+00:00",
-    "runtime_capacity": "Lead integration; both bounded helpers complete, stale run_activity_author pending_init canceled by message. No active local writer/build/native/account actor.",
+    "observed_at": "2026-10-22T11:32:26.207787+00:00",
+    "runtime_capacity": "Lead integration; Luna bounded displayed-note scope assessment active. Sol reviewer complete; stale canceled run_activity pending_init not an observed writer. No active local build/native/account actor.",
     "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "run": 39770731786,
+        "session": 31480,
+        "scope": "Main215 overall read-only watch; exact required checks inspected separately"
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
     "wait_reason": "PR215 resulting-main hosted checks running; no local capacity wait. Native deferred by owner.",
