@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22T00:13:33.198968+00:00",
+  "pr": 200,
+  "url": "https://github.com/ewq100/brn-rust/pull/200",
+  "reviewed_qualified_source": "bd60131dfd8b4652b17c0b142c411bfe87550570",
+  "published_head": "413003efb5318127e6f63fd5d3c88bf6aa113de9",
+  "base": "b069bf8fef5988c4218af6c1e0ad5f0f04e72584",
+  "whole_tree_equal": true,
+  "source_changes_after_qualification": "None; merge ancestry only, all published files byteidentical to qualifiedtree.",
+  "required_checks": "pending head and precedingmain separately",
+  "native": "deferred"
+}

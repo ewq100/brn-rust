@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22T00:12:40.843518+00:00",
+  "pr": 199,
+  "qualified_candidate": "f6dd4d6666320437d631759440b68f2b43d33a9d",
+  "preceding_main": "7fd7142c893b7aefcbebb53953336f00dcfc3212",
+  "normal_merge": "b069bf8fef5988c4218af6c1e0ad5f0f04e72584",
+  "merged_at": "2026-10-22T00:12:07Z",
+  "whole_tree_equal": true,
+  "premerge": "pr199-premerge.json",
+  "resulting_main": "pending actual four required checks separately",
+  "native": "Deferred; no native or owner acceptance claimed"
+}

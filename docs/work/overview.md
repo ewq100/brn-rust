@@ -34,9 +34,9 @@ Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight
 
 ### Give Run coordination a coherent state and transition owner
 
-Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:47:11.339640+00:00
-Activity: Reviewed exactf6dd4d66 candidate passes3focused+1quiet+345full native toolkit tests, strictlint, ordinarybuild and fmt. Frozen unlaunched production binary recorded; bounded PR publication in progress. Next continuation implementation runs separately without shared builds.
-Next: Inspect new PR and exact-head required checks, then live protection and preceding-main checks before normal merge. Continue independent continuation source work.
+Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:13:33.198968+00:00
+Activity: PR199 normally mergedb069bf8f after all4required exacthead and precedingmain checks plus liveprotection passed. Wholemergedtree equals reviewed/qualifiedf6dd4d66. Resultingmain39698249037 runs separately; no native/owner acceptance claim.
+Next: Inspect all4required exact resultingmain checks onb069bf8f; continue published continuationPR200 and independent trace diagnosis in parallel.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -45,11 +45,11 @@ Gates:
 
 - **implementation:** PASS complete independent review plus finalf6dd4d66 delta addendum; no actionable findings.
 - **checks:** PASS finalf6dd4d66 focused3, quiet1, full345/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; binary frozen unlaunched. Initial failure retained.
-- **integration:** PR199published exactf6dd4d66; all4requiredhostedchecks inprogress at23:47UTC. No merge or resulting-main claim.
+- **integration:** Normal protected mergeb069bf8f, wholequalifiedtreeequal; all4requiredhead+precedingmainPASS; resultingmain39698249037pending.
 - **native:** Actual Mac interaction remains deferred; no native/IME/owner acceptance inferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.log](active/vacation-campaign/evidence/run-activity-final.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.sh](active/vacation-campaign/evidence/run-activity-final.sh), [docs/work/active/vacation-campaign/evidence/run-activity-qualification.json](active/vacation-campaign/evidence/run-activity-qualification.json), [https://github.com/ewq100/brn-rust/pull/199](https://github.com/ewq100/brn-rust/pull/199), [docs/work/active/vacation-campaign/evidence/remote-run-activity-update.json](active/vacation-campaign/evidence/remote-run-activity-update.json)
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.log](active/vacation-campaign/evidence/run-activity-final.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.sh](active/vacation-campaign/evidence/run-activity-final.sh), [docs/work/active/vacation-campaign/evidence/run-activity-qualification.json](active/vacation-campaign/evidence/run-activity-qualification.json), [https://github.com/ewq100/brn-rust/pull/199](https://github.com/ewq100/brn-rust/pull/199), [docs/work/active/vacation-campaign/evidence/remote-run-activity-update.json](active/vacation-campaign/evidence/remote-run-activity-update.json), [docs/work/active/vacation-campaign/evidence/pr199-premerge.json](active/vacation-campaign/evidence/pr199-premerge.json), [docs/work/active/vacation-campaign/evidence/pr199-integration.json](active/vacation-campaign/evidence/pr199-integration.json)
 
 Attempts:
 
@@ -59,11 +59,10 @@ Attempts:
 
 ### Keep Stop and send continuation attached to its Run
 
-Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-21T23:51:20.464945+00:00
-Activity: Reviewed exactbd60131d passes focusedWorker8, steering23, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary recorded. Publication waits prior activity normal integration/currentmain.
-Next: Reconcile main after PR199 integration, publish bounded continuation PR on current main with reviewed-tree equality; inspect exacthead/protection/main gates normally.
-Depends on: run-coordination-state-ownership when Prior activity owner integrates before publishing this dependent candidate. (reported satisfied: false)
-Resource waits: Prior activity PR199 exacthead/main integration.
+Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:13:33.198968+00:00
+Activity: PR200 published exact413003ef after merging actualmainb069bf8f into frozenbd60131d. Wholepublishedtree equals reviewed/qualifiedbd60131d; no sourcechange or repeatedlocalgates. Requiredhead and precedingmain199 qualification pending.
+Next: Inspect PR200 exacthead requiredchecks and actual precedingmainb069bf8f gates/liveprotection before normalmerge. No bypass; actualmainchecks separate.
+Depends on: run-coordination-state-ownership when Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (reported satisfied: true)
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -72,11 +71,11 @@ Gates:
 
 - **implementation:** PASS complete independent Sol review of exactbd60131d, no actionable findings.
 - **checks:** PASS focusedWorker8, steering23, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace. Binary frozen unlaunched.
-- **integration:** Separate reviewed candidate, prior activity merge and current main/required checks pending.
+- **integration:** PR200published413003ef oncurrentmainb069bf8f; qualifiedwhole-treeequalityPASS, actualrequiredhead/mainpending.
 - **native:** Actual interaction deferred under owner unavailable instruction.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs), [docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-review.md](active/vacation-campaign/evidence/run-continuation-review.md), [docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json](active/vacation-campaign/evidence/run-continuation-qualification.json), [docs/work/active/vacation-campaign/evidence/run-continuation-final.log](active/vacation-campaign/evidence/run-continuation-final.log), [docs/work/active/vacation-campaign/evidence/run-continuation-final.sh](active/vacation-campaign/evidence/run-continuation-final.sh)
+Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs), [docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-review.md](active/vacation-campaign/evidence/run-continuation-review.md), [docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json](active/vacation-campaign/evidence/run-continuation-qualification.json), [docs/work/active/vacation-campaign/evidence/run-continuation-final.log](active/vacation-campaign/evidence/run-continuation-final.log), [docs/work/active/vacation-campaign/evidence/run-continuation-final.sh](active/vacation-campaign/evidence/run-continuation-final.sh), [https://github.com/ewq100/brn-rust/pull/200](https://github.com/ewq100/brn-rust/pull/200), [docs/work/active/vacation-campaign/evidence/pr200-publication.json](active/vacation-campaign/evidence/pr200-publication.json)
 
 Attempts:
 
@@ -108,22 +107,26 @@ Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacati
 
 ### Make precise-edit rejections diagnosable without exposing note text
 
-Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:09:06.380711+00:00
-Activity: Candidate777e3461 single tracefile committed and fmtchecked. New primitive ID/version/range/UTF8length projections exclude rawcontent; preparedoperation/hostInvalidreason retained. Malformedobject/array projection negative witness added after lead source inspection. Independent Sol review and serialized focused/fullruntime/lint/CLIbuild active.
-Next: Inspect exactcandidate review/gates and freeze diagnosticCLI before considering second reserved bounded account diagnostic; no edit semantics change.
+Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:13:33.198968+00:00
+Activity: Exactc4f0e2e6 repairs independent P2: propagated checked errors were not all static. Trace now allowlists4exact hostmessages, all other/missing/malformed reasons become fixedgeneric. Final independent addendum resolves P2; finalruntime/lint/CLIbuild active.
+Next: Inspect final actualc4 runtime/lint/CLIbuild, preserve intermediate pass plus reviewfailure, freeze revieweddiagnosticCLI, then preflight atmostone second bounded diagnostic on freshdata.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Candidate777e3461 complete; independent review active.
+- **implementation:** PASS independent finalc4f0e2e6 review; P2valid/fixed, no unresolved findings.
 - **checks:** Real before-trace args{} resultnull retained; deterministic trace/privacy tests pending.
 - **integration:** Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.
 - **native:** Inapplicable to trace metadata; actual Mac deferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md)
+Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log)
+
+Attempts:
+
+- Intermediate777e3461 focused/full494/0/1 plus lint/buildPASS, but independentreviewP2 found propagated Invalidreasons mayinclude dynamicIDs; trace didnotmeetstatictext boundary. No second account launch.: Exact4knownstatic reasons retained, unknown/malformed reasons generic. Regressionfixtures cover dynamicprivateID and missing/nonstring bodies. Finalc4qualificationrunning. ([docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log))
 
 </details>
 
@@ -227,15 +230,6 @@ Waiting:
 - prerequisite run-continuation-ownership: Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false; task state: active)
 - resource: Prior activity and continuation candidate integrations.
 
-### Keep Stop and send continuation attached to its Run
-
-Owner: lead design/integration; bounded Luna author; consequential independent Sol review
-
-Waiting:
-
-- prerequisite run-coordination-state-ownership: Prior activity owner integrates before publishing this dependent candidate. (reported satisfied: false; task state: active)
-- resource: Prior activity PR199 exacthead/main integration.
-
 ### Check a precise AI edit on fresh synthetic data
 
 Owner: lead single account actor; bounded Luna preflight only
@@ -338,9 +332,9 @@ graph TD
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
   t69 -->|Prior state candidates integrate before publication of this dependent candidate. (not satisfied)| t67
-  t68 -->|Prior activity owner integrates before publishing this dependent candidate. (not satisfied)| t69
+  t68 -->|Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (satisfied)| t69
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T00:09:06.380711+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T00:13:33.198968+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
